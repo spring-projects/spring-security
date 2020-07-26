@@ -80,32 +80,6 @@ public class RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	private final Set<String> removeAuthorizedClientErrorCodes;
 
 	/**
-	 * Removes an {@link OAuth2AuthorizedClient} from a
-	 * {@link ServerOAuth2AuthorizedClientRepository} or
-	 * {@link ReactiveOAuth2AuthorizedClientService}.
-	 */
-	@FunctionalInterface
-	public interface OAuth2AuthorizedClientRemover {
-
-		/**
-		 * Removes the {@link OAuth2AuthorizedClient} associated to the provided client
-		 * registration identifier and End-User {@link Authentication} (Resource Owner).
-		 * @param clientRegistrationId the identifier for the client's registration
-		 * @param principal the End-User {@link Authentication} (Resource Owner)
-		 * @param attributes an immutable {@code Map} of extra optional attributes present
-		 * under certain conditions. For example, this might contain a
-		 * {@link org.springframework.web.server.ServerWebExchange ServerWebExchange} if
-		 * the authorization was performed within the context of a
-		 * {@code ServerWebExchange}.
-		 * @return an empty {@link Mono} that completes after this handler has finished
-		 * handling the event.
-		 */
-		Mono<Void> removeAuthorizedClient(String clientRegistrationId, Authentication principal,
-				Map<String, Object> attributes);
-
-	}
-
-	/**
 	 * Constructs a
 	 * {@code RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler} using the
 	 * provided parameters.
@@ -163,6 +137,32 @@ public class RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	 */
 	private boolean hasRemovalErrorCode(OAuth2AuthorizationException authorizationException) {
 		return this.removeAuthorizedClientErrorCodes.contains(authorizationException.getError().getErrorCode());
+	}
+
+	/**
+	 * Removes an {@link OAuth2AuthorizedClient} from a
+	 * {@link ServerOAuth2AuthorizedClientRepository} or
+	 * {@link ReactiveOAuth2AuthorizedClientService}.
+	 */
+	@FunctionalInterface
+	public interface OAuth2AuthorizedClientRemover {
+
+		/**
+		 * Removes the {@link OAuth2AuthorizedClient} associated to the provided client
+		 * registration identifier and End-User {@link Authentication} (Resource Owner).
+		 * @param clientRegistrationId the identifier for the client's registration
+		 * @param principal the End-User {@link Authentication} (Resource Owner)
+		 * @param attributes an immutable {@code Map} of extra optional attributes present
+		 * under certain conditions. For example, this might contain a
+		 * {@link org.springframework.web.server.ServerWebExchange ServerWebExchange} if
+		 * the authorization was performed within the context of a
+		 * {@code ServerWebExchange}.
+		 * @return an empty {@link Mono} that completes after this handler has finished
+		 * handling the event.
+		 */
+		Mono<Void> removeAuthorizedClient(String clientRegistrationId, Authentication principal,
+				Map<String, Object> attributes);
+
 	}
 
 }

@@ -101,25 +101,9 @@ public class GlobalMethodSecurityConfigurationTests {
 		this.spring.register(IllegalStateGlobalMethodSecurityConfig.class).autowire();
 	}
 
-	@EnableGlobalMethodSecurity
-	public static class IllegalStateGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
-
-	}
-
 	@Test
 	public void configureWhenGlobalMethodSecurityHasCustomMetadataSourceThenNoEnablingAttributeIsNeeded() {
 		this.spring.register(CustomMetadataSourceConfig.class).autowire();
-	}
-
-	@EnableGlobalMethodSecurity
-	public static class CustomMetadataSourceConfig extends GlobalMethodSecurityConfiguration {
-
-		@Bean
-		@Override
-		protected MethodSecurityMetadataSource customMethodSecurityMetadataSource() {
-			return mock(MethodSecurityMetadataSource.class);
-		}
-
 	}
 
 	@Test
@@ -134,25 +118,6 @@ public class GlobalMethodSecurityConfigurationTests {
 
 		assertThat(this.events.getEvents()).extracting(Object::getClass)
 				.containsOnly((Class) AuthenticationFailureBadCredentialsEvent.class);
-	}
-
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	public static class InMemoryAuthWithGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
-		}
-
-		@Bean
-		public MockEventListener<AbstractAuthenticationEvent> listener() {
-			return new MockEventListener<AbstractAuthenticationEvent>() {
-			};
-		}
-
 	}
 
 	@Test
@@ -170,21 +135,6 @@ public class GlobalMethodSecurityConfigurationTests {
 		verify(trustResolver, atLeastOnce()).isAnonymous(any());
 	}
 
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	static class CustomTrustResolverConfig {
-
-		@Bean
-		public AuthenticationTrustResolver trustResolver() {
-			return mock(AuthenticationTrustResolver.class);
-		}
-
-		@Bean
-		public MethodSecurityServiceImpl service() {
-			return new MethodSecurityServiceImpl();
-		}
-
-	}
-
 	// SEC-2301
 	@Test
 	@WithMockUser
@@ -197,21 +147,6 @@ public class GlobalMethodSecurityConfigurationTests {
 		this.service.preAuthorizeBean(true);
 	}
 
-	@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
-	static class ExpressionHandlerHasBeanResolverSetConfig {
-
-		@Bean
-		public MethodSecurityServiceImpl service() {
-			return new MethodSecurityServiceImpl();
-		}
-
-		@Bean
-		public Authz authz() {
-			return new Authz();
-		}
-
-	}
-
 	@Test
 	@WithMockUser
 	public void methodSecuritySupportsAnnotaitonsOnInterfaceParamerNames() {
@@ -221,16 +156,6 @@ public class GlobalMethodSecurityConfigurationTests {
 
 		this.service.postAnnotation("grant");
 		// no exception
-	}
-
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	static class MethodSecurityServiceConfig {
-
-		@Bean
-		public MethodSecurityService service() {
-			return new MethodSecurityServiceImpl();
-		}
-
 	}
 
 	@Test
@@ -246,41 +171,11 @@ public class GlobalMethodSecurityConfigurationTests {
 		assertThatThrownBy(() -> this.service.hasPermission("something")).isInstanceOf(AccessDeniedException.class);
 	}
 
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	public static class AutowirePermissionEvaluatorConfig {
-
-		@Bean
-		public PermissionEvaluator permissionEvaluator() {
-			return mock(PermissionEvaluator.class);
-		}
-
-		@Bean
-		public MethodSecurityService service() {
-			return new MethodSecurityServiceImpl();
-		}
-
-	}
-
 	@Test
 	public void multiPermissionEvaluatorConfig() {
 		this.spring.register(MultiPermissionEvaluatorConfig.class).autowire();
 
 		// no exception
-	}
-
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	public static class MultiPermissionEvaluatorConfig {
-
-		@Bean
-		public PermissionEvaluator permissionEvaluator() {
-			return mock(PermissionEvaluator.class);
-		}
-
-		@Bean
-		public PermissionEvaluator permissionEvaluator2() {
-			return mock(PermissionEvaluator.class);
-		}
-
 	}
 
 	// SEC-2425
@@ -290,21 +185,6 @@ public class GlobalMethodSecurityConfigurationTests {
 		this.spring.register(ChildConfig.class).autowire();
 
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
-	}
-
-	@Configuration
-	static class ChildConfig extends ParentConfig {
-
-	}
-
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	static class ParentConfig {
-
-		@Bean
-		public MethodSecurityService service() {
-			return new MethodSecurityServiceImpl();
-		}
-
 	}
 
 	// SEC-2479
@@ -325,6 +205,221 @@ public class GlobalMethodSecurityConfigurationTests {
 		}
 	}
 
+	@Test
+	public void enableGlobalMethodSecurityDoesNotTriggerEagerInitializationOfBeansInGlobalAuthenticationConfigurer() {
+		this.spring.register(Sec2815Config.class).autowire();
+
+		MockBeanPostProcessor pp = this.spring.getContext().getBean(MockBeanPostProcessor.class);
+
+		assertThat(pp.beforeInit).containsKeys("dataSource");
+		assertThat(pp.afterInit).containsKeys("dataSource");
+	}
+
+	// SEC-3045
+	@Test
+	public void globalSecurityProxiesSecurity() {
+		this.spring.register(Sec3005Config.class).autowire();
+
+		assertThat(this.service.getClass()).matches(c -> !Proxy.isProxyClass(c), "is not proxy class");
+	}
+	//
+	// // gh-3797
+	// def preAuthorizeBeanSpel() {
+	// setup:
+	// SecurityContextHolder.getContext().setAuthentication(
+	// new TestingAuthenticationToken("user", "password","ROLE_USER"))
+	// context = new AnnotationConfigApplicationContext(PreAuthorizeBeanSpelConfig)
+	// BeanSpelService service = context.getBean(BeanSpelService)
+	// when:
+	// service.run(true)
+	// then:
+	// noExceptionThrown()
+	// when:
+	// service.run(false)
+	// then:
+	// thrown(AccessDeniedException)
+	// }
+	//
+
+	@Test
+	@WithMockUser
+	public void preAuthorizeBeanSpel() {
+		this.spring.register(PreAuthorizeBeanSpelConfig.class).autowire();
+
+		assertThatThrownBy(() -> this.service.preAuthorizeBean(false)).isInstanceOf(AccessDeniedException.class);
+
+		this.service.preAuthorizeBean(true);
+	}
+
+	// gh-3394
+	@Test
+	@WithMockUser
+	public void roleHierarchy() {
+		this.spring.register(RoleHierarchyConfig.class).autowire();
+
+		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
+		this.service.preAuthorizeAdmin();
+	}
+
+	@Test
+	@WithMockUser(authorities = "ROLE:USER")
+	public void grantedAuthorityDefaultsAutowires() {
+		this.spring.register(CustomGrantedAuthorityConfig.class).autowire();
+
+		CustomGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
+				.getBean(CustomGrantedAuthorityConfig.CustomAuthorityService.class);
+
+		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
+
+		customService.customPrefixRoleUser();
+		// no exception
+	}
+
+	@Test
+	@WithMockUser(authorities = "USER")
+	public void grantedAuthorityDefaultsWithEmptyRolePrefix() {
+		this.spring.register(EmptyRolePrefixGrantedAuthorityConfig.class).autowire();
+
+		EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
+				.getBean(EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService.class);
+
+		assertThatThrownBy(() -> this.service.securedUser()).isInstanceOf(AccessDeniedException.class);
+
+		customService.emptyPrefixRoleUser();
+		// no exception
+	}
+
+	@Test
+	public void methodSecurityInterceptorUsesMetadataSourceBeanWhenProxyingDisabled() {
+		this.spring.register(CustomMetadataSourceBeanProxyEnabledConfig.class).autowire();
+		MethodSecurityInterceptor methodInterceptor = (MethodSecurityInterceptor) this.spring.getContext()
+				.getBean(MethodInterceptor.class);
+		MethodSecurityMetadataSource methodSecurityMetadataSource = this.spring.getContext()
+				.getBean(MethodSecurityMetadataSource.class);
+
+		assertThat(methodInterceptor.getSecurityMetadataSource()).isSameAs(methodSecurityMetadataSource);
+	}
+
+	@EnableGlobalMethodSecurity
+	public static class IllegalStateGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+
+	}
+
+	@EnableGlobalMethodSecurity
+	public static class CustomMetadataSourceConfig extends GlobalMethodSecurityConfiguration {
+
+		@Bean
+		@Override
+		protected MethodSecurityMetadataSource customMethodSecurityMetadataSource() {
+			return mock(MethodSecurityMetadataSource.class);
+		}
+
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	public static class InMemoryAuthWithGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+			.inMemoryAuthentication();
+			// @formatter:on
+		}
+
+		@Bean
+		public MockEventListener<AbstractAuthenticationEvent> listener() {
+			return new MockEventListener<AbstractAuthenticationEvent>() {
+			};
+		}
+
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class CustomTrustResolverConfig {
+
+		@Bean
+		public AuthenticationTrustResolver trustResolver() {
+			return mock(AuthenticationTrustResolver.class);
+		}
+
+		@Bean
+		public MethodSecurityServiceImpl service() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
+	static class ExpressionHandlerHasBeanResolverSetConfig {
+
+		@Bean
+		public MethodSecurityServiceImpl service() {
+			return new MethodSecurityServiceImpl();
+		}
+
+		@Bean
+		public Authz authz() {
+			return new Authz();
+		}
+
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class MethodSecurityServiceConfig {
+
+		@Bean
+		public MethodSecurityService service() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	public static class AutowirePermissionEvaluatorConfig {
+
+		@Bean
+		public PermissionEvaluator permissionEvaluator() {
+			return mock(PermissionEvaluator.class);
+		}
+
+		@Bean
+		public MethodSecurityService service() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	public static class MultiPermissionEvaluatorConfig {
+
+		@Bean
+		public PermissionEvaluator permissionEvaluator() {
+			return mock(PermissionEvaluator.class);
+		}
+
+		@Bean
+		public PermissionEvaluator permissionEvaluator2() {
+			return mock(PermissionEvaluator.class);
+		}
+
+	}
+
+	@Configuration
+	static class ChildConfig extends ParentConfig {
+
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	static class ParentConfig {
+
+		@Bean
+		public MethodSecurityService service() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
 	@Configuration
 	static class Sec2479ParentConfig {
 
@@ -343,16 +438,6 @@ public class GlobalMethodSecurityConfigurationTests {
 			return new MethodSecurityServiceImpl();
 		}
 
-	}
-
-	@Test
-	public void enableGlobalMethodSecurityDoesNotTriggerEagerInitializationOfBeansInGlobalAuthenticationConfigurer() {
-		this.spring.register(Sec2815Config.class).autowire();
-
-		MockBeanPostProcessor pp = this.spring.getContext().getBean(MockBeanPostProcessor.class);
-
-		assertThat(pp.beforeInit).containsKeys("dataSource");
-		assertThat(pp.afterInit).containsKeys("dataSource");
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -408,14 +493,6 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
-	// SEC-3045
-	@Test
-	public void globalSecurityProxiesSecurity() {
-		this.spring.register(Sec3005Config.class).autowire();
-
-		assertThat(this.service.getClass()).matches(c -> !Proxy.isProxyClass(c), "is not proxy class");
-	}
-
 	@EnableGlobalMethodSecurity(prePostEnabled = true, mode = AdviceMode.ASPECTJ)
 	@EnableTransactionManagement
 	static class Sec3005Config {
@@ -430,35 +507,6 @@ public class GlobalMethodSecurityConfigurationTests {
 			auth.inMemoryAuthentication();
 		}
 
-	}
-
-	//
-	// // gh-3797
-	// def preAuthorizeBeanSpel() {
-	// setup:
-	// SecurityContextHolder.getContext().setAuthentication(
-	// new TestingAuthenticationToken("user", "password","ROLE_USER"))
-	// context = new AnnotationConfigApplicationContext(PreAuthorizeBeanSpelConfig)
-	// BeanSpelService service = context.getBean(BeanSpelService)
-	// when:
-	// service.run(true)
-	// then:
-	// noExceptionThrown()
-	// when:
-	// service.run(false)
-	// then:
-	// thrown(AccessDeniedException)
-	// }
-	//
-
-	@Test
-	@WithMockUser
-	public void preAuthorizeBeanSpel() {
-		this.spring.register(PreAuthorizeBeanSpelConfig.class).autowire();
-
-		assertThatThrownBy(() -> this.service.preAuthorizeBean(false)).isInstanceOf(AccessDeniedException.class);
-
-		this.service.preAuthorizeBean(true);
 	}
 
 	@Configuration
@@ -477,16 +525,6 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
-	// gh-3394
-	@Test
-	@WithMockUser
-	public void roleHierarchy() {
-		this.spring.register(RoleHierarchyConfig.class).autowire();
-
-		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
-		this.service.preAuthorizeAdmin();
-	}
-
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@Configuration
 	public static class RoleHierarchyConfig {
@@ -503,20 +541,6 @@ public class GlobalMethodSecurityConfigurationTests {
 			return result;
 		}
 
-	}
-
-	@Test
-	@WithMockUser(authorities = "ROLE:USER")
-	public void grantedAuthorityDefaultsAutowires() {
-		this.spring.register(CustomGrantedAuthorityConfig.class).autowire();
-
-		CustomGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
-				.getBean(CustomGrantedAuthorityConfig.CustomAuthorityService.class);
-
-		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
-
-		customService.customPrefixRoleUser();
-		// no exception
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -547,20 +571,6 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
-	@Test
-	@WithMockUser(authorities = "USER")
-	public void grantedAuthorityDefaultsWithEmptyRolePrefix() {
-		this.spring.register(EmptyRolePrefixGrantedAuthorityConfig.class).autowire();
-
-		EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
-				.getBean(EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService.class);
-
-		assertThatThrownBy(() -> this.service.securedUser()).isInstanceOf(AccessDeniedException.class);
-
-		customService.emptyPrefixRoleUser();
-		// no exception
-	}
-
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class EmptyRolePrefixGrantedAuthorityConfig {
 
@@ -587,17 +597,6 @@ public class GlobalMethodSecurityConfigurationTests {
 
 		}
 
-	}
-
-	@Test
-	public void methodSecurityInterceptorUsesMetadataSourceBeanWhenProxyingDisabled() {
-		this.spring.register(CustomMetadataSourceBeanProxyEnabledConfig.class).autowire();
-		MethodSecurityInterceptor methodInterceptor = (MethodSecurityInterceptor) this.spring.getContext()
-				.getBean(MethodInterceptor.class);
-		MethodSecurityMetadataSource methodSecurityMetadataSource = this.spring.getContext()
-				.getBean(MethodSecurityMetadataSource.class);
-
-		assertThat(methodInterceptor.getSecurityMetadataSource()).isSameAs(methodSecurityMetadataSource);
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)

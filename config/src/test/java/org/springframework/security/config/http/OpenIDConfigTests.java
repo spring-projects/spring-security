@@ -176,16 +176,6 @@ public class OpenIDConfigTests {
 		this.mvc.perform(get("/login")).andExpect(status().isOk()).andExpect(content().string("a custom login page"));
 	}
 
-	@RestController
-	static class CustomLoginController {
-
-		@GetMapping("/login")
-		public String custom() {
-			return "a custom login page";
-		}
-
-	}
-
 	private <T extends Filter> T getFilter(Class<T> clazz) {
 		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
 		return (T) filterChain.getFilters("/").stream().filter(clazz::isInstance).findFirst().orElse(null);
@@ -197,6 +187,16 @@ public class OpenIDConfigTests {
 
 	private static <T> T getFieldValue(Object bean, String fieldName) throws IllegalAccessException {
 		return (T) FieldUtils.getFieldValue(bean, fieldName);
+	}
+
+	@RestController
+	static class CustomLoginController {
+
+		@GetMapping("/login")
+		public String custom() {
+			return "a custom login page";
+		}
+
 	}
 
 }

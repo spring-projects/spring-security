@@ -126,6 +126,25 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 		verify(toPostProcess).destroy();
 	}
 
+	@Test
+	public void postProcessWhenSmartInitializingSingletonThenAwareInvoked() {
+		this.spring.register(Config.class, SmartConfig.class).autowire();
+
+		SmartConfig config = this.spring.getContext().getBean(SmartConfig.class);
+
+		verify(config.toTest).afterSingletonsInstantiated();
+	}
+
+	@Test
+	// SEC-2382
+	public void autowireBeanFactoryWhenBeanNameAutoProxyCreatorThenWorks() {
+		this.spring.testConfigLocations("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml").autowire();
+
+		MyAdvisedBean bean = this.spring.getContext().getBean(MyAdvisedBean.class);
+
+		assertThat(bean.doStuff()).isEqualTo("null");
+	}
+
 	@Configuration
 	static class Config {
 
@@ -134,15 +153,6 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 			return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
 		}
 
-	}
-
-	@Test
-	public void postProcessWhenSmartInitializingSingletonThenAwareInvoked() {
-		this.spring.register(Config.class, SmartConfig.class).autowire();
-
-		SmartConfig config = this.spring.getContext().getBean(SmartConfig.class);
-
-		verify(config.toTest).afterSingletonsInstantiated();
 	}
 
 	@Configuration
@@ -155,16 +165,6 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 			p.postProcess(this.toTest);
 		}
 
-	}
-
-	@Test
-	// SEC-2382
-	public void autowireBeanFactoryWhenBeanNameAutoProxyCreatorThenWorks() {
-		this.spring.testConfigLocations("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml").autowire();
-
-		MyAdvisedBean bean = this.spring.getContext().getBean(MyAdvisedBean.class);
-
-		assertThat(bean.doStuff()).isEqualTo("null");
 	}
 
 	@Configuration

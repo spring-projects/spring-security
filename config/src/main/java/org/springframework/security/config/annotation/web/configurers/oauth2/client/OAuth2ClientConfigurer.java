@@ -151,6 +151,16 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
+	@Override
+	public void init(B builder) {
+		this.authorizationCodeGrantConfigurer.init(builder);
+	}
+
+	@Override
+	public void configure(B builder) {
+		this.authorizationCodeGrantConfigurer.configure(builder);
+	}
+
 	/**
 	 * Configuration options for the OAuth 2.0 Authorization Code Grant.
 	 */
@@ -279,16 +289,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			return new DefaultAuthorizationCodeTokenResponseClient();
 		}
 
-	}
-
-	@Override
-	public void init(B builder) {
-		this.authorizationCodeGrantConfigurer.init(builder);
-	}
-
-	@Override
-	public void configure(B builder) {
-		this.authorizationCodeGrantConfigurer.configure(builder);
 	}
 
 }

@@ -64,6 +64,21 @@ public class NamespaceHttpRequestCacheTests {
 		verifyBean(RequestCache.class).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
+	@Test
+	public void requestWhenDefaultConfigurationThenUsesHttpSessionRequestCache() throws Exception {
+		this.spring.register(DefaultRequestCacheRefConfig.class).autowire();
+
+		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isForbidden()).andReturn();
+
+		HttpSession session = result.getRequest().getSession(false);
+		assertThat(session).isNotNull();
+		assertThat(session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")).isNotNull();
+	}
+
+	private <T> T verifyBean(Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanClass));
+	}
+
 	@EnableWebSecurity
 	static class RequestCacheRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -96,17 +111,6 @@ public class NamespaceHttpRequestCacheTests {
 
 	}
 
-	@Test
-	public void requestWhenDefaultConfigurationThenUsesHttpSessionRequestCache() throws Exception {
-		this.spring.register(DefaultRequestCacheRefConfig.class).autowire();
-
-		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isForbidden()).andReturn();
-
-		HttpSession session = result.getRequest().getSession(false);
-		assertThat(session).isNotNull();
-		assertThat(session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")).isNotNull();
-	}
-
 	@EnableWebSecurity
 	static class DefaultRequestCacheRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -129,10 +133,6 @@ public class NamespaceHttpRequestCacheTests {
 			// @formatter:on
 		}
 
-	}
-
-	private <T> T verifyBean(Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
 }

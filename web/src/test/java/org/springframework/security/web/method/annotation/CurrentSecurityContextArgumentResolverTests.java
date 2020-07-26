@@ -259,6 +259,23 @@ public class CurrentSecurityContextArgumentResolverTests {
 		return new MethodParameter(method, 0);
 	}
 
+	private void setAuthenticationPrincipal(Object principal) {
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER"));
+	}
+
+	private void setAuthenticationPrincipalWithCustomSecurityContext(Object principal) {
+		CustomSecurityContext csc = new CustomSecurityContext();
+		csc.setAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER"));
+		SecurityContextHolder.setContext(csc);
+	}
+
+	private void setAuthenticationDetail(Object detail) {
+		TestingAuthenticationToken tat = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		tat.setDetails(detail);
+		SecurityContextHolder.getContext().setAuthentication(tat);
+	}
+
 	public static class TestController {
 
 		public void showSecurityContextNoAnnotation(String user) {
@@ -317,17 +334,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	}
 
-	private void setAuthenticationPrincipal(Object principal) {
-		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER"));
-	}
-
-	private void setAuthenticationPrincipalWithCustomSecurityContext(Object principal) {
-		CustomSecurityContext csc = new CustomSecurityContext();
-		csc.setAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER"));
-		SecurityContextHolder.setContext(csc);
-	}
-
 	static class CustomSecurityContext implements SecurityContext {
 
 		private Authentication authentication;
@@ -363,12 +369,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@CurrentSecurityContext(errorOnInvalidType = true)
 	static @interface CurrentSecurityWithErrorOnInvalidType {
 
-	}
-
-	private void setAuthenticationDetail(Object detail) {
-		TestingAuthenticationToken tat = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		tat.setDetails(detail);
-		SecurityContextHolder.getContext().setAuthentication(tat);
 	}
 
 }

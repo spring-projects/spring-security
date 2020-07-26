@@ -77,23 +77,6 @@ public class FormLoginConfigurerTests {
 		verify(config.requestCache).getRequest(any(), any());
 	}
 
-	@EnableWebSecurity
-	static class RequestCacheConfig extends WebSecurityConfigurerAdapter {
-
-		private RequestCache requestCache = mock(RequestCache.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.formLogin().and()
-				.requestCache()
-					.requestCache(this.requestCache);
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void requestCacheAsBean() throws Exception {
 		this.spring.register(RequestCacheBeanConfig.class, AuthenticationTestConfiguration.class).autowire();
@@ -103,16 +86,6 @@ public class FormLoginConfigurerTests {
 		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 
 		verify(requestCache).getRequest(any(), any());
-	}
-
-	@EnableWebSecurity
-	static class RequestCacheBeanConfig {
-
-		@Bean
-		RequestCache requestCache() {
-			return mock(RequestCache.class);
-		}
-
 	}
 
 	@Test
@@ -160,41 +133,6 @@ public class FormLoginConfigurerTests {
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
 
-	@EnableWebSecurity
-	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		public void configure(WebSecurity web) {
-			// @formatter:off
-			web
-				.ignoring()
-					.antMatchers("/resources/**");
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.loginPage("/login");
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void loginWhenFormLoginDefaultsInLambdaThenHasDefaultUsernameAndPasswordParameterNames() throws Exception {
 		this.spring.register(FormLoginInLambdaConfig.class).autowire();
@@ -240,32 +178,6 @@ public class FormLoginConfigurerTests {
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
 
-	@EnableWebSecurity
-	static class FormLoginInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests(authorizeRequests ->
-					authorizeRequests
-						.anyRequest().hasRole("USER")
-				)
-				.formLogin(withDefaults());
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void getLoginPageWhenFormLoginPermitAllThenPermittedAndNoRedirect() throws Exception {
 		this.spring.register(FormLoginConfigPermitAll.class).autowire();
@@ -286,23 +198,6 @@ public class FormLoginConfigurerTests {
 
 		this.mockMvc.perform(formLogin().user("invalid")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?error"));
-	}
-
-	@EnableWebSecurity
-	static class FormLoginConfigPermitAll extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.permitAll();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -341,6 +236,198 @@ public class FormLoginConfigurerTests {
 		this.mockMvc.perform(get("/authenticate?logout")).andExpect(redirectedUrl(null));
 	}
 
+	@Test
+	public void getLoginPageWhenCustomLoginPageInLambdaThenPermittedAndNoRedirect() throws Exception {
+		this.spring.register(FormLoginDefaultsInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(get("/authenticate")).andExpect(redirectedUrl(null));
+	}
+
+	@Test
+	public void loginWhenCustomLoginProcessingUrlThenRedirectsToHome() throws Exception {
+		this.spring.register(FormLoginLoginProcessingUrlConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin("/loginCheck")).andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void loginWhenCustomLoginProcessingUrlInLambdaThenRedirectsToHome() throws Exception {
+		this.spring.register(FormLoginLoginProcessingUrlInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin("/loginCheck")).andExpect(status().isFound()).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void requestWhenCustomPortMapperThenPortMapperUsed() throws Exception {
+		FormLoginUsesPortMapperConfig.PORT_MAPPER = mock(PortMapper.class);
+		when(FormLoginUsesPortMapperConfig.PORT_MAPPER.lookupHttpsPort(any())).thenReturn(9443);
+		this.spring.register(FormLoginUsesPortMapperConfig.class).autowire();
+
+		this.mockMvc.perform(get("http://localhost:9090")).andExpect(status().isFound())
+				.andExpect(redirectedUrl("https://localhost:9443/login"));
+
+		verify(FormLoginUsesPortMapperConfig.PORT_MAPPER).lookupHttpsPort(any());
+	}
+
+	@Test
+	public void failureUrlWhenPermitAllAndFailureHandlerThenSecured() throws Exception {
+		this.spring.register(PermitAllIgnoresFailureHandlerConfig.class).autowire();
+
+		this.mockMvc.perform(get("/login?error")).andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/login"));
+	}
+
+	@Test
+	public void formLoginWhenInvokedTwiceThenUsesOriginalUsernameParameter() throws Exception {
+		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin().user("custom-username", "user")).andExpect(authenticated());
+	}
+
+	@Test
+	public void loginWhenInvalidLoginAndFailureForwardUrlThenForwardsToFailureForwardUrl() throws Exception {
+		this.spring.register(FormLoginUserForwardAuthenticationSuccessAndFailureConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin().user("invalid")).andExpect(forwardedUrl("/failure_forward_url"));
+	}
+
+	@Test
+	public void loginWhenSuccessForwardUrlThenForwardsToSuccessForwardUrl() throws Exception {
+		this.spring.register(FormLoginUserForwardAuthenticationSuccessAndFailureConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin()).andExpect(forwardedUrl("/success_forward_url"));
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnUsernamePasswordAuthenticationFilter() {
+		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+
+		verify(ObjectPostProcessorConfig.objectPostProcessor)
+				.postProcess(any(UsernamePasswordAuthenticationFilter.class));
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLoginUrlAuthenticationEntryPoint() {
+		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(LoginUrlAuthenticationEntryPoint.class));
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnExceptionTranslationFilter() {
+		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		this.spring.register(ObjectPostProcessorConfig.class).autowire();
+
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
+	}
+
+	@EnableWebSecurity
+	static class RequestCacheConfig extends WebSecurityConfigurerAdapter {
+
+		private RequestCache requestCache = mock(RequestCache.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin().and()
+				.requestCache()
+					.requestCache(this.requestCache);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RequestCacheBeanConfig {
+
+		@Bean
+		RequestCache requestCache() {
+			return mock(RequestCache.class);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		public void configure(WebSecurity web) {
+			// @formatter:off
+			web
+				.ignoring()
+					.antMatchers("/resources/**");
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin()
+					.loginPage("/login");
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class FormLoginInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
+				.formLogin(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class FormLoginConfigPermitAll extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin()
+					.permitAll();
+			// @formatter:on
+		}
+
+	}
+
 	@EnableWebSecurity
 	static class FormLoginDefaultsConfig extends WebSecurityConfigurerAdapter {
 
@@ -360,13 +447,6 @@ public class FormLoginConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void getLoginPageWhenCustomLoginPageInLambdaThenPermittedAndNoRedirect() throws Exception {
-		this.spring.register(FormLoginDefaultsInLambdaConfig.class).autowire();
-
-		this.mockMvc.perform(get("/authenticate")).andExpect(redirectedUrl(null));
 	}
 
 	@EnableWebSecurity
@@ -389,13 +469,6 @@ public class FormLoginConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void loginWhenCustomLoginProcessingUrlThenRedirectsToHome() throws Exception {
-		this.spring.register(FormLoginLoginProcessingUrlConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin("/loginCheck")).andExpect(status().isFound()).andExpect(redirectedUrl("/"));
 	}
 
 	@EnableWebSecurity
@@ -432,13 +505,6 @@ public class FormLoginConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void loginWhenCustomLoginProcessingUrlInLambdaThenRedirectsToHome() throws Exception {
-		this.spring.register(FormLoginLoginProcessingUrlInLambdaConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin("/loginCheck")).andExpect(status().isFound()).andExpect(redirectedUrl("/"));
 	}
 
 	@EnableWebSecurity
@@ -479,18 +545,6 @@ public class FormLoginConfigurerTests {
 
 	}
 
-	@Test
-	public void requestWhenCustomPortMapperThenPortMapperUsed() throws Exception {
-		FormLoginUsesPortMapperConfig.PORT_MAPPER = mock(PortMapper.class);
-		when(FormLoginUsesPortMapperConfig.PORT_MAPPER.lookupHttpsPort(any())).thenReturn(9443);
-		this.spring.register(FormLoginUsesPortMapperConfig.class).autowire();
-
-		this.mockMvc.perform(get("http://localhost:9090")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("https://localhost:9443/login"));
-
-		verify(FormLoginUsesPortMapperConfig.PORT_MAPPER).lookupHttpsPort(any());
-	}
-
 	@EnableWebSecurity
 	static class FormLoginUsesPortMapperConfig extends WebSecurityConfigurerAdapter {
 
@@ -516,14 +570,6 @@ public class FormLoginConfigurerTests {
 
 	}
 
-	@Test
-	public void failureUrlWhenPermitAllAndFailureHandlerThenSecured() throws Exception {
-		this.spring.register(PermitAllIgnoresFailureHandlerConfig.class).autowire();
-
-		this.mockMvc.perform(get("/login?error")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
-	}
-
 	@EnableWebSecurity
 	static class PermitAllIgnoresFailureHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -542,13 +588,6 @@ public class FormLoginConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void formLoginWhenInvokedTwiceThenUsesOriginalUsernameParameter() throws Exception {
-		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin().user("custom-username", "user")).andExpect(authenticated());
 	}
 
 	@EnableWebSecurity
@@ -574,20 +613,6 @@ public class FormLoginConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void loginWhenInvalidLoginAndFailureForwardUrlThenForwardsToFailureForwardUrl() throws Exception {
-		this.spring.register(FormLoginUserForwardAuthenticationSuccessAndFailureConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin().user("invalid")).andExpect(forwardedUrl("/failure_forward_url"));
-	}
-
-	@Test
-	public void loginWhenSuccessForwardUrlThenForwardsToSuccessForwardUrl() throws Exception {
-		this.spring.register(FormLoginUserForwardAuthenticationSuccessAndFailureConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin()).andExpect(forwardedUrl("/success_forward_url"));
 	}
 
 	@EnableWebSecurity
@@ -618,31 +643,6 @@ public class FormLoginConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnUsernamePasswordAuthenticationFilter() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(UsernamePasswordAuthenticationFilter.class));
-	}
-
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLoginUrlAuthenticationEntryPoint() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(LoginUrlAuthenticationEntryPoint.class));
-	}
-
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnExceptionTranslationFilter() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
 	}
 
 	@EnableWebSecurity

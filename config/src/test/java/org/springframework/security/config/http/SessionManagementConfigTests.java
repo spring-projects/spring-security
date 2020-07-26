@@ -382,6 +382,49 @@ public class SessionManagementConfigTests {
 		})).andExpect(redirectedUrl("/timeoutUrl"));
 	}
 
+	private void sessionRegistryIsValid() {
+		SessionRegistry sessionRegistry = this.spring.getContext().getBean("sessionRegistry", SessionRegistry.class);
+
+		assertThat(sessionRegistry).isNotNull();
+
+		assertThat(this.getFilter(ConcurrentSessionFilter.class)).returns(sessionRegistry,
+				this::extractSessionRegistry);
+		assertThat(this.getFilter(UsernamePasswordAuthenticationFilter.class)).returns(sessionRegistry,
+				this::extractSessionRegistry);
+		// SEC-1143
+		assertThat(this.getFilter(SessionManagementFilter.class)).returns(sessionRegistry,
+				this::extractSessionRegistry);
+	}
+
+	private SessionRegistry extractSessionRegistry(ConcurrentSessionFilter filter) {
+		return getFieldValue(filter, "sessionRegistry");
+	}
+
+	private SessionRegistry extractSessionRegistry(UsernamePasswordAuthenticationFilter filter) {
+		SessionAuthenticationStrategy strategy = getFieldValue(filter, "sessionStrategy");
+		List<SessionAuthenticationStrategy> strategies = getFieldValue(strategy, "delegateStrategies");
+		return getFieldValue(strategies.get(0), "sessionRegistry");
+	}
+
+	private SessionRegistry extractSessionRegistry(SessionManagementFilter filter) {
+		SessionAuthenticationStrategy strategy = getFieldValue(filter, "sessionAuthenticationStrategy");
+		List<SessionAuthenticationStrategy> strategies = getFieldValue(strategy, "delegateStrategies");
+		return getFieldValue(strategies.get(0), "sessionRegistry");
+	}
+
+	private <T> T getFieldValue(Object target, String fieldName) {
+		try {
+			return (T) FieldUtils.getFieldValue(target, fieldName);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static SessionResultMatcher session() {
+		return new SessionResultMatcher();
+	}
+
 	/**
 	 * SEC-2680
 	 */
@@ -406,6 +449,46 @@ public class SessionManagementConfigTests {
 
 		assertThat(csfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
 		assertThat(lfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
+	}
+
+	private static MockHttpServletResponse request(MockHttpServletRequest request, ApplicationContext context)
+			throws IOException, ServletException {
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		FilterChainProxy proxy = context.getBean(FilterChainProxy.class);
+
+		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
+		});
+
+		return response;
+	}
+
+	private MockHttpSession expiredSession() {
+		MockHttpSession session = new MockHttpSession();
+		SessionRegistry sessionRegistry = this.spring.getContext().getBean(SessionRegistry.class);
+		sessionRegistry.registerNewSession(session.getId(), "user");
+		sessionRegistry.getSessionInformation(session.getId()).expireNow();
+		return session;
+	}
+
+	private <T extends Filter> T getFilter(Class<T> filterClass) {
+		return (T) getFilters().stream().filter(filterClass::isInstance).findFirst().orElse(null);
+	}
+
+	private List<Filter> getFilters() {
+		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
+
+		return proxy.getFilters("/");
+	}
+
+	private ServletContext servletContext() {
+		WebApplicationContext context = this.spring.getContext();
+		return context.getServletContext();
+	}
+
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 	static class TeapotSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
@@ -459,49 +542,6 @@ public class SessionManagementConfigTests {
 
 	}
 
-	private void sessionRegistryIsValid() {
-		SessionRegistry sessionRegistry = this.spring.getContext().getBean("sessionRegistry", SessionRegistry.class);
-
-		assertThat(sessionRegistry).isNotNull();
-
-		assertThat(this.getFilter(ConcurrentSessionFilter.class)).returns(sessionRegistry,
-				this::extractSessionRegistry);
-		assertThat(this.getFilter(UsernamePasswordAuthenticationFilter.class)).returns(sessionRegistry,
-				this::extractSessionRegistry);
-		// SEC-1143
-		assertThat(this.getFilter(SessionManagementFilter.class)).returns(sessionRegistry,
-				this::extractSessionRegistry);
-	}
-
-	private SessionRegistry extractSessionRegistry(ConcurrentSessionFilter filter) {
-		return getFieldValue(filter, "sessionRegistry");
-	}
-
-	private SessionRegistry extractSessionRegistry(UsernamePasswordAuthenticationFilter filter) {
-		SessionAuthenticationStrategy strategy = getFieldValue(filter, "sessionStrategy");
-		List<SessionAuthenticationStrategy> strategies = getFieldValue(strategy, "delegateStrategies");
-		return getFieldValue(strategies.get(0), "sessionRegistry");
-	}
-
-	private SessionRegistry extractSessionRegistry(SessionManagementFilter filter) {
-		SessionAuthenticationStrategy strategy = getFieldValue(filter, "sessionAuthenticationStrategy");
-		List<SessionAuthenticationStrategy> strategies = getFieldValue(strategy, "delegateStrategies");
-		return getFieldValue(strategies.get(0), "sessionRegistry");
-	}
-
-	private <T> T getFieldValue(Object target, String fieldName) {
-		try {
-			return (T) FieldUtils.getFieldValue(target, fieldName);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static SessionResultMatcher session() {
-		return new SessionResultMatcher();
-	}
-
 	private static class SessionResultMatcher implements ResultMatcher {
 
 		private String id;
@@ -552,19 +592,6 @@ public class SessionManagementConfigTests {
 
 	}
 
-	private static MockHttpServletResponse request(MockHttpServletRequest request, ApplicationContext context)
-			throws IOException, ServletException {
-
-		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		FilterChainProxy proxy = context.getBean(FilterChainProxy.class);
-
-		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
-		});
-
-		return response;
-	}
-
 	private static class EncodeUrlDenyingHttpServletResponseWrapper extends HttpServletResponseWrapper {
 
 		EncodeUrlDenyingHttpServletResponseWrapper(HttpServletResponse response) {
@@ -591,33 +618,6 @@ public class SessionManagementConfigTests {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
 		}
 
-	}
-
-	private MockHttpSession expiredSession() {
-		MockHttpSession session = new MockHttpSession();
-		SessionRegistry sessionRegistry = this.spring.getContext().getBean(SessionRegistry.class);
-		sessionRegistry.registerNewSession(session.getId(), "user");
-		sessionRegistry.getSessionInformation(session.getId()).expireNow();
-		return session;
-	}
-
-	private <T extends Filter> T getFilter(Class<T> filterClass) {
-		return (T) getFilters().stream().filter(filterClass::isInstance).findFirst().orElse(null);
-	}
-
-	private List<Filter> getFilters() {
-		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
-
-		return proxy.getFilters("/");
-	}
-
-	private ServletContext servletContext() {
-		WebApplicationContext context = this.spring.getContext();
-		return context.getServletContext();
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

@@ -659,16 +659,6 @@ public class HttpHeadersConfigTests {
 				.andExpect(header().string("Referrer-Policy", "same-origin"));
 	}
 
-	@RestController
-	public static class SimpleController {
-
-		@GetMapping("/")
-		public String ok() {
-			return "ok";
-		}
-
-	}
-
 	private static ResultMatcher includesDefaults() {
 		return includes(defaultHeaders);
 	}
@@ -709,6 +699,16 @@ public class HttpHeadersConfigTests {
 
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
+	@RestController
+	public static class SimpleController {
+
+		@GetMapping("/")
+		public String ok() {
+			return "ok";
+		}
+
 	}
 
 }

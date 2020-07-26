@@ -200,6 +200,12 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		return new MethodParameter(method, 0);
 	}
 
+	private void setAuthenticationPrincipal(Object principal) {
+		this.expectedPrincipal = principal;
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken(this.expectedPrincipal, "password", "ROLE_USER"));
+	}
+
 	@Target({ ElementType.PARAMETER })
 	@Retention(RetentionPolicy.RUNTIME)
 	@AuthenticationPrincipal
@@ -299,12 +305,6 @@ public class AuthenticationPrincipalArgumentResolverTests {
 			return true;
 		}
 
-	}
-
-	private void setAuthenticationPrincipal(Object principal) {
-		this.expectedPrincipal = principal;
-		SecurityContextHolder.getContext()
-				.setAuthentication(new TestingAuthenticationToken(this.expectedPrincipal, "password", "ROLE_USER"));
 	}
 
 }

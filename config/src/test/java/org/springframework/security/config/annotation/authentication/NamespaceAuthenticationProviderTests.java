@@ -53,6 +53,14 @@ public class NamespaceAuthenticationProviderTests {
 		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
+	@Test
+	// authentication-provider@user-service-ref
+	public void authenticationProviderUserServiceRef() throws Exception {
+		this.spring.register(AuthenticationProviderRefConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
+	}
+
 	@EnableWebSecurity
 	static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -71,14 +79,6 @@ public class NamespaceAuthenticationProviderTests {
 			return result;
 		}
 
-	}
-
-	@Test
-	// authentication-provider@user-service-ref
-	public void authenticationProviderUserServiceRef() throws Exception {
-		this.spring.register(AuthenticationProviderRefConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
 	@EnableWebSecurity

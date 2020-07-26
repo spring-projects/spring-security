@@ -57,6 +57,13 @@ public class NamespaceJdbcUserServiceTests {
 		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
+	@Test
+	public void jdbcUserServiceCustom() throws Exception {
+		this.spring.register(CustomDataSourceConfig.class, CustomJdbcUserServiceSampleConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user").withRoles("DBA", "USER"));
+	}
+
 	@EnableWebSecurity
 	static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
 
@@ -85,13 +92,6 @@ public class NamespaceJdbcUserServiceTests {
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
 
-	}
-
-	@Test
-	public void jdbcUserServiceCustom() throws Exception {
-		this.spring.register(CustomDataSourceConfig.class, CustomJdbcUserServiceSampleConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user").withRoles("DBA", "USER"));
 	}
 
 	@EnableWebSecurity

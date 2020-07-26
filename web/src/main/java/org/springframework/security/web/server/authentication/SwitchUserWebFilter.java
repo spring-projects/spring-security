@@ -314,14 +314,6 @@ public class SwitchUserWebFilter implements WebFilter {
 		return new AuthenticationCredentialsNotFoundException("No target user for the given username");
 	}
 
-	private static class SwitchUserAuthenticationException extends RuntimeException {
-
-		SwitchUserAuthenticationException(AuthenticationException exception) {
-			super(exception);
-		}
-
-	}
-
 	/**
 	 * Sets the repository for persisting the SecurityContext. Default is
 	 * {@link WebSessionServerSecurityContextRepository}
@@ -370,6 +362,14 @@ public class SwitchUserWebFilter implements WebFilter {
 	public void setSwitchUserMatcher(ServerWebExchangeMatcher switchUserMatcher) {
 		Assert.notNull(switchUserMatcher, "switchUserMatcher cannot be null");
 		this.switchUserMatcher = switchUserMatcher;
+	}
+
+	private static class SwitchUserAuthenticationException extends RuntimeException {
+
+		SwitchUserAuthenticationException(AuthenticationException exception) {
+			super(exception);
+		}
+
 	}
 
 }

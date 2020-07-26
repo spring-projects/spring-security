@@ -100,26 +100,6 @@ public class ReactorContextTestExecutionListenerTests {
 		assertSecurityContext(context);
 	}
 
-	static class CustomContext implements SecurityContext {
-
-		private Authentication authentication;
-
-		CustomContext(Authentication authentication) {
-			this.authentication = authentication;
-		}
-
-		@Override
-		public Authentication getAuthentication() {
-			return this.authentication;
-		}
-
-		@Override
-		public void setAuthentication(Authentication authentication) {
-			this.authentication = authentication;
-		}
-
-	}
-
 	@Test
 	public void beforeTestMethodWhenExistingAuthenticationThenReactorContextHasOriginalAuthentication()
 			throws Exception {
@@ -213,6 +193,26 @@ public class ReactorContextTestExecutionListenerTests {
 		Mono<SecurityContext> securityContext = ReactiveSecurityContextHolder.getContext();
 
 		StepVerifier.create(securityContext).expectNext(expected).verifyComplete();
+	}
+
+	static class CustomContext implements SecurityContext {
+
+		private Authentication authentication;
+
+		CustomContext(Authentication authentication) {
+			this.authentication = authentication;
+		}
+
+		@Override
+		public Authentication getAuthentication() {
+			return this.authentication;
+		}
+
+		@Override
+		public void setAuthentication(Authentication authentication) {
+			this.authentication = authentication;
+		}
+
 	}
 
 }

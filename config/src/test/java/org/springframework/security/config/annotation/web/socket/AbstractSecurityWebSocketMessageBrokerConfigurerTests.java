@@ -272,43 +272,6 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		}
 	}
 
-	@Configuration
-	@EnableWebSocketMessageBroker
-	@Import(SyncExecutorConfig.class)
-	static class MsmsRegistryCustomPatternMatcherConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
-
-		// @formatter:off
-		@Override
-		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry
-				.addEndpoint("/other")
-				.setHandshakeHandler(testHandshakeHandler());
-		}
-		// @formatter:on
-
-		// @formatter:off
-		@Override
-		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-			messages
-				.simpDestMatchers("/app/a.*").permitAll()
-				.anyMessage().denyAll();
-		}
-		// @formatter:on
-
-		@Override
-		public void configureMessageBroker(MessageBrokerRegistry registry) {
-			registry.setPathMatcher(new AntPathMatcher("."));
-			registry.enableSimpleBroker("/queue/", "/topic/");
-			registry.setApplicationDestinationPrefixes("/app");
-		}
-
-		@Bean
-		public TestHandshakeHandler testHandshakeHandler() {
-			return new TestHandshakeHandler();
-		}
-
-	}
-
 	@Test
 	public void overrideMsmsRegistryCustomPatternMatcher() {
 		loadConfig(OverrideMsmsRegistryCustomPatternMatcherConfig.class);
@@ -324,45 +287,6 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		}
 	}
 
-	@Configuration
-	@EnableWebSocketMessageBroker
-	@Import(SyncExecutorConfig.class)
-	static class OverrideMsmsRegistryCustomPatternMatcherConfig
-			extends AbstractSecurityWebSocketMessageBrokerConfigurer {
-
-		// @formatter:off
-		@Override
-		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry
-				.addEndpoint("/other")
-				.setHandshakeHandler(testHandshakeHandler());
-		}
-		// @formatter:on
-
-		// @formatter:off
-		@Override
-		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-			messages
-				.simpDestPathMatcher(new AntPathMatcher())
-				.simpDestMatchers("/app/a/*").permitAll()
-				.anyMessage().denyAll();
-		}
-		// @formatter:on
-
-		@Override
-		public void configureMessageBroker(MessageBrokerRegistry registry) {
-			registry.setPathMatcher(new AntPathMatcher("."));
-			registry.enableSimpleBroker("/queue/", "/topic/");
-			registry.setApplicationDestinationPrefixes("/app");
-		}
-
-		@Bean
-		public TestHandshakeHandler testHandshakeHandler() {
-			return new TestHandshakeHandler();
-		}
-
-	}
-
 	@Test
 	public void defaultPatternMatcher() {
 		loadConfig(DefaultPatternMatcherConfig.class);
@@ -376,42 +300,6 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		catch (MessageDeliveryException expected) {
 			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
 		}
-	}
-
-	@Configuration
-	@EnableWebSocketMessageBroker
-	@Import(SyncExecutorConfig.class)
-	static class DefaultPatternMatcherConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
-
-		// @formatter:off
-		@Override
-		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry
-				.addEndpoint("/other")
-				.setHandshakeHandler(testHandshakeHandler());
-		}
-		// @formatter:on
-
-		// @formatter:off
-		@Override
-		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-			messages
-				.simpDestMatchers("/app/a/*").permitAll()
-				.anyMessage().denyAll();
-		}
-		// @formatter:on
-
-		@Override
-		public void configureMessageBroker(MessageBrokerRegistry registry) {
-			registry.enableSimpleBroker("/queue/", "/topic/");
-			registry.setApplicationDestinationPrefixes("/app");
-		}
-
-		@Bean
-		public TestHandshakeHandler testHandshakeHandler() {
-			return new TestHandshakeHandler();
-		}
-
 	}
 
 	@Test
@@ -462,57 +350,6 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		ChannelSecurityInterceptor inboundChannelSecurity = this.context.getBean(ChannelSecurityInterceptor.class);
 
 		assertThat(((AbstractMessageChannel) messageChannel).getInterceptors()).contains(inboundChannelSecurity);
-	}
-
-	@Configuration
-	@EnableWebSocketMessageBroker
-	@Import(SyncExecutorConfig.class)
-	static class CustomExpressionConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
-
-		// @formatter:off
-		@Override
-		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry
-				.addEndpoint("/other")
-				.setHandshakeHandler(testHandshakeHandler());
-		}
-		// @formatter:on
-
-		// @formatter:off
-		@Override
-		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-			messages
-				.anyMessage().access("denyRob()");
-		}
-		// @formatter:on
-
-		@Bean
-		public static SecurityExpressionHandler<Message<Object>> messageSecurityExpressionHandler() {
-			return new DefaultMessageSecurityExpressionHandler<Object>() {
-				@Override
-				protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
-						Message<Object> invocation) {
-					return new MessageSecurityExpressionRoot(authentication, invocation) {
-						public boolean denyRob() {
-							Authentication auth = getAuthentication();
-							return auth != null && !"rob".equals(auth.getName());
-						}
-					};
-				}
-			};
-		}
-
-		@Override
-		public void configureMessageBroker(MessageBrokerRegistry registry) {
-			registry.enableSimpleBroker("/queue/", "/topic/");
-			registry.setApplicationDestinationPrefixes("/app");
-		}
-
-		@Bean
-		public TestHandshakeHandler testHandshakeHandler() {
-			return new TestHandshakeHandler();
-		}
-
 	}
 
 	private void assertHandshake(HttpServletRequest request) {
@@ -570,6 +407,169 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		this.context.register(configs);
 		this.context.setServletConfig(new MockServletConfig());
 		this.context.refresh();
+	}
+
+	@Configuration
+	@EnableWebSocketMessageBroker
+	@Import(SyncExecutorConfig.class)
+	static class MsmsRegistryCustomPatternMatcherConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+
+		// @formatter:off
+		@Override
+		public void registerStompEndpoints(StompEndpointRegistry registry) {
+			registry
+				.addEndpoint("/other")
+				.setHandshakeHandler(testHandshakeHandler());
+		}
+		// @formatter:on
+
+		// @formatter:off
+		@Override
+		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+			messages
+				.simpDestMatchers("/app/a.*").permitAll()
+				.anyMessage().denyAll();
+		}
+		// @formatter:on
+
+		@Override
+		public void configureMessageBroker(MessageBrokerRegistry registry) {
+			registry.setPathMatcher(new AntPathMatcher("."));
+			registry.enableSimpleBroker("/queue/", "/topic/");
+			registry.setApplicationDestinationPrefixes("/app");
+		}
+
+		@Bean
+		public TestHandshakeHandler testHandshakeHandler() {
+			return new TestHandshakeHandler();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSocketMessageBroker
+	@Import(SyncExecutorConfig.class)
+	static class OverrideMsmsRegistryCustomPatternMatcherConfig
+			extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+
+		// @formatter:off
+		@Override
+		public void registerStompEndpoints(StompEndpointRegistry registry) {
+			registry
+				.addEndpoint("/other")
+				.setHandshakeHandler(testHandshakeHandler());
+		}
+		// @formatter:on
+
+		// @formatter:off
+		@Override
+		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+			messages
+				.simpDestPathMatcher(new AntPathMatcher())
+				.simpDestMatchers("/app/a/*").permitAll()
+				.anyMessage().denyAll();
+		}
+		// @formatter:on
+
+		@Override
+		public void configureMessageBroker(MessageBrokerRegistry registry) {
+			registry.setPathMatcher(new AntPathMatcher("."));
+			registry.enableSimpleBroker("/queue/", "/topic/");
+			registry.setApplicationDestinationPrefixes("/app");
+		}
+
+		@Bean
+		public TestHandshakeHandler testHandshakeHandler() {
+			return new TestHandshakeHandler();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSocketMessageBroker
+	@Import(SyncExecutorConfig.class)
+	static class DefaultPatternMatcherConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+
+		// @formatter:off
+		@Override
+		public void registerStompEndpoints(StompEndpointRegistry registry) {
+			registry
+				.addEndpoint("/other")
+				.setHandshakeHandler(testHandshakeHandler());
+		}
+		// @formatter:on
+
+		// @formatter:off
+		@Override
+		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+			messages
+				.simpDestMatchers("/app/a/*").permitAll()
+				.anyMessage().denyAll();
+		}
+		// @formatter:on
+
+		@Override
+		public void configureMessageBroker(MessageBrokerRegistry registry) {
+			registry.enableSimpleBroker("/queue/", "/topic/");
+			registry.setApplicationDestinationPrefixes("/app");
+		}
+
+		@Bean
+		public TestHandshakeHandler testHandshakeHandler() {
+			return new TestHandshakeHandler();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSocketMessageBroker
+	@Import(SyncExecutorConfig.class)
+	static class CustomExpressionConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+
+		// @formatter:off
+		@Override
+		public void registerStompEndpoints(StompEndpointRegistry registry) {
+			registry
+				.addEndpoint("/other")
+				.setHandshakeHandler(testHandshakeHandler());
+		}
+		// @formatter:on
+
+		// @formatter:off
+		@Override
+		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+			messages
+				.anyMessage().access("denyRob()");
+		}
+		// @formatter:on
+
+		@Bean
+		public static SecurityExpressionHandler<Message<Object>> messageSecurityExpressionHandler() {
+			return new DefaultMessageSecurityExpressionHandler<Object>() {
+				@Override
+				protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+						Message<Object> invocation) {
+					return new MessageSecurityExpressionRoot(authentication, invocation) {
+						public boolean denyRob() {
+							Authentication auth = getAuthentication();
+							return auth != null && !"rob".equals(auth.getName());
+						}
+					};
+				}
+			};
+		}
+
+		@Override
+		public void configureMessageBroker(MessageBrokerRegistry registry) {
+			registry.enableSimpleBroker("/queue/", "/topic/");
+			registry.setApplicationDestinationPrefixes("/app");
+		}
+
+		@Bean
+		public TestHandshakeHandler testHandshakeHandler() {
+			return new TestHandshakeHandler();
+		}
+
 	}
 
 	@Controller

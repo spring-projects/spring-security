@@ -175,29 +175,6 @@ public class User implements UserDetails, CredentialsContainer {
 		return sortedAuthorities;
 	}
 
-	private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
-
-		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
-
-		@Override
-		public int compare(GrantedAuthority g1, GrantedAuthority g2) {
-			// Neither should ever be null as each entry is checked before adding it to
-			// the set.
-			// If the authority is null, it is a custom authority and should precede
-			// others.
-			if (g2.getAuthority() == null) {
-				return -1;
-			}
-
-			if (g1.getAuthority() == null) {
-				return 1;
-			}
-
-			return g1.getAuthority().compareTo(g2.getAuthority());
-		}
-
-	}
-
 	/**
 	 * Returns {@code true} if the supplied object is a {@code User} instance with the
 	 * same {@code username} value.
@@ -337,6 +314,29 @@ public class User implements UserDetails, CredentialsContainer {
 				.accountExpired(!userDetails.isAccountNonExpired()).accountLocked(!userDetails.isAccountNonLocked())
 				.authorities(userDetails.getAuthorities()).credentialsExpired(!userDetails.isCredentialsNonExpired())
 				.disabled(!userDetails.isEnabled());
+	}
+
+	private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
+
+		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
+		@Override
+		public int compare(GrantedAuthority g1, GrantedAuthority g2) {
+			// Neither should ever be null as each entry is checked before adding it to
+			// the set.
+			// If the authority is null, it is a custom authority and should precede
+			// others.
+			if (g2.getAuthority() == null) {
+				return -1;
+			}
+
+			if (g1.getAuthority() == null) {
+				return 1;
+			}
+
+			return g1.getAuthority().compareTo(g2.getAuthority());
+		}
+
 	}
 
 	/**

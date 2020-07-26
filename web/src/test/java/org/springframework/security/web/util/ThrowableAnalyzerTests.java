@@ -32,39 +32,6 @@ import static org.assertj.core.api.Assertions.fail;
 public class ThrowableAnalyzerTests {
 
 	/**
-	 * Exception for testing purposes. The cause is not retrievable by {@link #getCause()}
-	 * .
-	 */
-	public static final class NonStandardException extends Exception {
-
-		private Throwable cause;
-
-		public NonStandardException(String message, Throwable cause) {
-			super(message);
-			this.cause = cause;
-		}
-
-		public Throwable resolveCause() {
-			return this.cause;
-		}
-
-	}
-
-	/**
-	 * <code>ThrowableCauseExtractor</code> for handling <code>NonStandardException</code>
-	 * instances.
-	 */
-	public static final class NonStandardExceptionCauseExtractor implements ThrowableCauseExtractor {
-
-		@Override
-		public Throwable extractCause(Throwable throwable) {
-			ThrowableAnalyzer.verifyThrowableHierarchy(throwable, NonStandardException.class);
-			return ((NonStandardException) throwable).resolveCause();
-		}
-
-	}
-
-	/**
 	 * An array of nested throwables for testing. The cause of element 0 is element 1, the
 	 * cause of element 1 is element 2 and so on.
 	 */
@@ -280,6 +247,39 @@ public class ThrowableAnalyzerTests {
 		catch (IllegalArgumentException e) {
 			// ok
 		}
+	}
+
+	/**
+	 * Exception for testing purposes. The cause is not retrievable by {@link #getCause()}
+	 * .
+	 */
+	public static final class NonStandardException extends Exception {
+
+		private Throwable cause;
+
+		public NonStandardException(String message, Throwable cause) {
+			super(message);
+			this.cause = cause;
+		}
+
+		public Throwable resolveCause() {
+			return this.cause;
+		}
+
+	}
+
+	/**
+	 * <code>ThrowableCauseExtractor</code> for handling <code>NonStandardException</code>
+	 * instances.
+	 */
+	public static final class NonStandardExceptionCauseExtractor implements ThrowableCauseExtractor {
+
+		@Override
+		public Throwable extractCause(Throwable throwable) {
+			ThrowableAnalyzer.verifyThrowableHierarchy(throwable, NonStandardException.class);
+			return ((NonStandardException) throwable).resolveCause();
+		}
+
 	}
 
 }

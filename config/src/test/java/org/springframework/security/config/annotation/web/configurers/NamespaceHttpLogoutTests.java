@@ -76,31 +76,12 @@ public class NamespaceHttpLogoutTests {
 				.andExpect(redirectedUrl("/login?logout")).andExpect(noCookies()).andExpect(session(Objects::isNull));
 	}
 
-	@EnableWebSecurity
-	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) {
-		}
-
-	}
-
 	@Test
 	@WithMockUser
 	public void logoutWhenDisabledInLambdaThenRespondsWithNotFound() throws Exception {
 		this.spring.register(HttpLogoutDisabledInLambdaConfig.class).autowire();
 
 		this.mvc.perform(post("/logout").with(csrf()).with(user("user"))).andExpect(status().isNotFound());
-	}
-
-	@EnableWebSecurity
-	static class HttpLogoutDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http.logout(AbstractHttpConfigurer::disable);
-		}
-
 	}
 
 	/**
@@ -115,6 +96,73 @@ public class NamespaceHttpLogoutTests {
 				.andExpect(redirectedUrl("/logout-success"))
 				.andExpect(result -> assertThat(result.getResponse().getCookies()).hasSize(1))
 				.andExpect(cookie().maxAge("remove", 0)).andExpect(session(Objects::nonNull));
+	}
+
+	@Test
+	@WithMockUser
+	public void logoutWhenUsingVariousCustomizationsInLambdaThenMatchesNamespace() throws Exception {
+		this.spring.register(CustomHttpLogoutInLambdaConfig.class).autowire();
+
+		this.mvc.perform(post("/custom-logout").with(csrf())).andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/logout-success"))
+				.andExpect(result -> assertThat(result.getResponse().getCookies()).hasSize(1))
+				.andExpect(cookie().maxAge("remove", 0)).andExpect(session(Objects::nonNull));
+	}
+
+	/**
+	 * http/logout@success-handler-ref
+	 */
+	@Test
+	@WithMockUser
+	public void logoutWhenUsingSuccessHandlerRefThenMatchesNamespace() throws Exception {
+		this.spring.register(SuccessHandlerRefHttpLogoutConfig.class).autowire();
+
+		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
+				.andExpect(session(Objects::isNull));
+	}
+
+	@Test
+	@WithMockUser
+	public void logoutWhenUsingSuccessHandlerRefInLambdaThenMatchesNamespace() throws Exception {
+		this.spring.register(SuccessHandlerRefHttpLogoutInLambdaConfig.class).autowire();
+
+		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
+				.andExpect(session(Objects::isNull));
+	}
+
+	ResultMatcher authenticated(boolean authenticated) {
+		return result -> assertThat(Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+				.map(Authentication::isAuthenticated).orElse(false)).isEqualTo(authenticated);
+	}
+
+	ResultMatcher noCookies() {
+		return result -> assertThat(result.getResponse().getCookies()).isEmpty();
+	}
+
+	ResultMatcher session(Predicate<HttpSession> sessionPredicate) {
+		return result -> assertThat(result.getRequest().getSession(false))
+				.is(new Condition<>(sessionPredicate, "sessionPredicate failed"));
+	}
+
+	@EnableWebSecurity
+	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) {
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class HttpLogoutDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.logout(AbstractHttpConfigurer::disable);
+		}
+
 	}
 
 	@EnableWebSecurity
@@ -132,17 +180,6 @@ public class NamespaceHttpLogoutTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	@WithMockUser
-	public void logoutWhenUsingVariousCustomizationsInLambdaThenMatchesNamespace() throws Exception {
-		this.spring.register(CustomHttpLogoutInLambdaConfig.class).autowire();
-
-		this.mvc.perform(post("/custom-logout").with(csrf())).andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/logout-success"))
-				.andExpect(result -> assertThat(result.getResponse().getCookies()).hasSize(1))
-				.andExpect(cookie().maxAge("remove", 0)).andExpect(session(Objects::nonNull));
 	}
 
 	@EnableWebSecurity
@@ -163,19 +200,6 @@ public class NamespaceHttpLogoutTests {
 
 	}
 
-	/**
-	 * http/logout@success-handler-ref
-	 */
-	@Test
-	@WithMockUser
-	public void logoutWhenUsingSuccessHandlerRefThenMatchesNamespace() throws Exception {
-		this.spring.register(SuccessHandlerRefHttpLogoutConfig.class).autowire();
-
-		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
-				.andExpect(session(Objects::isNull));
-	}
-
 	@EnableWebSecurity
 	static class SuccessHandlerRefHttpLogoutConfig extends WebSecurityConfigurerAdapter {
 
@@ -192,16 +216,6 @@ public class NamespaceHttpLogoutTests {
 
 	}
 
-	@Test
-	@WithMockUser
-	public void logoutWhenUsingSuccessHandlerRefInLambdaThenMatchesNamespace() throws Exception {
-		this.spring.register(SuccessHandlerRefHttpLogoutInLambdaConfig.class).autowire();
-
-		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
-				.andExpect(session(Objects::isNull));
-	}
-
 	@EnableWebSecurity
 	static class SuccessHandlerRefHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -216,20 +230,6 @@ public class NamespaceHttpLogoutTests {
 			// @formatter:on
 		}
 
-	}
-
-	ResultMatcher authenticated(boolean authenticated) {
-		return result -> assertThat(Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-				.map(Authentication::isAuthenticated).orElse(false)).isEqualTo(authenticated);
-	}
-
-	ResultMatcher noCookies() {
-		return result -> assertThat(result.getResponse().getCookies()).isEmpty();
-	}
-
-	ResultMatcher session(Predicate<HttpSession> sessionPredicate) {
-		return result -> assertThat(result.getRequest().getSession(false))
-				.is(new Condition<>(sessionPredicate, "sessionPredicate failed"));
 	}
 
 }

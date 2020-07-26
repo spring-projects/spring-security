@@ -60,6 +60,36 @@ public class Issue55Tests {
 		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
 	}
 
+	@Test
+	public void multiHttpWebSecurityConfigurerAdapterDefaultsToAutowired()
+			throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this");
+		this.spring.register(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig.class);
+		this.spring.getContext().getBean(FilterChainProxy.class);
+
+		FilterSecurityInterceptor filter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 0);
+		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
+
+		FilterSecurityInterceptor secondFilter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class,
+				1);
+		assertThat(secondFilter.getAuthenticationManager().authenticate(token))
+				.isEqualTo(CustomAuthenticationManager.RESULT);
+	}
+
+	Filter findFilter(Class<?> filter, int index) {
+		List<Filter> filters = filterChain(index).getFilters();
+		for (Filter it : filters) {
+			if (filter.isAssignableFrom(it.getClass())) {
+				return it;
+			}
+		}
+		return null;
+	}
+
+	SecurityFilterChain filterChain(int index) {
+		return this.spring.getContext().getBean(FilterChainProxy.class).getFilterChains().get(index);
+	}
+
 	@EnableWebSecurity
 	static class WebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
 
@@ -87,22 +117,6 @@ public class Issue55Tests {
 
 		}
 
-	}
-
-	@Test
-	public void multiHttpWebSecurityConfigurerAdapterDefaultsToAutowired()
-			throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-		TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this");
-		this.spring.register(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig.class);
-		this.spring.getContext().getBean(FilterChainProxy.class);
-
-		FilterSecurityInterceptor filter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 0);
-		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
-
-		FilterSecurityInterceptor secondFilter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class,
-				1);
-		assertThat(secondFilter.getAuthenticationManager().authenticate(token))
-				.isEqualTo(CustomAuthenticationManager.RESULT);
 	}
 
 	@EnableWebSecurity
@@ -158,20 +172,6 @@ public class Issue55Tests {
 			return RESULT;
 		}
 
-	}
-
-	Filter findFilter(Class<?> filter, int index) {
-		List<Filter> filters = filterChain(index).getFilters();
-		for (Filter it : filters) {
-			if (filter.isAssignableFrom(it.getClass())) {
-				return it;
-			}
-		}
-		return null;
-	}
-
-	SecurityFilterChain filterChain(int index) {
-		return this.spring.getContext().getBean(FilterChainProxy.class).getFilterChains().get(index);
 	}
 
 }

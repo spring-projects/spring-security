@@ -70,35 +70,6 @@ public class ExceptionHandlingConfigurerTests {
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
 	}
 
-	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
-
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.exceptionHandling();
-			// @formatter:on
-		}
-
-		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
-		}
-
-	}
-
-	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
-
-		@Override
-		public <O> O postProcess(O object) {
-			return object;
-		}
-
-	}
-
 	// SEC-2199
 	@Test
 	public void getWhenAcceptHeaderIsApplicationXhtmlXmlThenRespondsWith302() throws Exception {
@@ -226,6 +197,71 @@ public class ExceptionHandlingConfigurerTests {
 				.andExpect(status().isUnauthorized());
 	}
 
+	@Test
+	public void getWhenCustomContentNegotiationStrategyThenStrategyIsUsed() throws Exception {
+		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class, DefaultSecurityConfig.class)
+				.autowire();
+
+		this.mvc.perform(get("/"));
+
+		verify(OverrideContentNegotiationStrategySharedObjectConfig.CNS, atLeastOnce())
+				.resolveMediaTypes(any(NativeWebRequest.class));
+	}
+
+	@Test
+	public void getWhenUsingDefaultsAndUnauthenticatedThenRedirectsToLogin() throws Exception {
+		this.spring.register(DefaultHttpConfig.class).autowire();
+
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type"))
+				.andExpect(redirectedUrl("http://localhost/login"));
+	}
+
+	@Test
+	public void getWhenDeclaringHttpBasicBeforeFormLoginThenRespondsWith401() throws Exception {
+		this.spring.register(BasicAuthenticationEntryPointBeforeFormLoginConfig.class).autowire();
+
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type")).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void getWhenInvokingExceptionHandlingTwiceThenOriginalEntryPointUsed() throws Exception {
+		this.spring.register(InvokeTwiceDoesNotOverrideConfig.class).autowire();
+
+		this.mvc.perform(get("/"));
+
+		verify(InvokeTwiceDoesNotOverrideConfig.AEP).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
+	}
+
+	@EnableWebSecurity
+	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
+		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.exceptionHandling();
+			// @formatter:on
+		}
+
+		@Bean
+		static ObjectPostProcessor<Object> objectPostProcessor() {
+			return objectPostProcessor;
+		}
+
+	}
+
+	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
+		@Override
+		public <O> O postProcess(O object) {
+			return object;
+		}
+
+	}
+
 	@EnableWebSecurity
 	static class DefaultSecurityConfig {
 
@@ -267,17 +303,6 @@ public class ExceptionHandlingConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenCustomContentNegotiationStrategyThenStrategyIsUsed() throws Exception {
-		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class, DefaultSecurityConfig.class)
-				.autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(OverrideContentNegotiationStrategySharedObjectConfig.CNS, atLeastOnce())
-				.resolveMediaTypes(any(NativeWebRequest.class));
-	}
-
 	@EnableWebSecurity
 	static class OverrideContentNegotiationStrategySharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -290,24 +315,9 @@ public class ExceptionHandlingConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenUsingDefaultsAndUnauthenticatedThenRedirectsToLogin() throws Exception {
-		this.spring.register(DefaultHttpConfig.class).autowire();
-
-		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type"))
-				.andExpect(redirectedUrl("http://localhost/login"));
-	}
-
 	@EnableWebSecurity
 	static class DefaultHttpConfig extends WebSecurityConfigurerAdapter {
 
-	}
-
-	@Test
-	public void getWhenDeclaringHttpBasicBeforeFormLoginThenRespondsWith401() throws Exception {
-		this.spring.register(BasicAuthenticationEntryPointBeforeFormLoginConfig.class).autowire();
-
-		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type")).andExpect(status().isUnauthorized());
 	}
 
 	@EnableWebSecurity
@@ -326,16 +336,6 @@ public class ExceptionHandlingConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void getWhenInvokingExceptionHandlingTwiceThenOriginalEntryPointUsed() throws Exception {
-		this.spring.register(InvokeTwiceDoesNotOverrideConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(InvokeTwiceDoesNotOverrideConfig.AEP).commence(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
 	@EnableWebSecurity

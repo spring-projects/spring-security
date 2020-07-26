@@ -73,6 +73,10 @@ public class HttpConfigTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
 
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	private static class EncodeUrlDenyingHttpServletResponseWrapper extends HttpServletResponseWrapper {
 
 		EncodeUrlDenyingHttpServletResponseWrapper(HttpServletResponse response) {
@@ -99,10 +103,6 @@ public class HttpConfigTests {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
 		}
 
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

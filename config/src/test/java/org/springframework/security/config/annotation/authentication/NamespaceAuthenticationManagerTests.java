@@ -53,6 +53,27 @@ public class NamespaceAuthenticationManagerTests {
 		// no exception due to username being cleared out
 	}
 
+	@Test
+	public void authenticationMangerWhenEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
+		this.spring.register(EraseCredentialsFalseConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin())
+				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
+
+		this.mockMvc.perform(formLogin())
+				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
+		// no exception due to username being cleared out
+	}
+
+	@Test
+	// SEC-2533
+	public void authenticationManagerWhenGlobalAndEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
+		this.spring.register(GlobalEraseCredentialsFalseConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin())
+				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
+	}
+
 	@EnableWebSecurity
 	static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -65,18 +86,6 @@ public class NamespaceAuthenticationManagerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void authenticationMangerWhenEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
-		this.spring.register(EraseCredentialsFalseConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
-
-		this.mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
-		// no exception due to username being cleared out
 	}
 
 	@EnableWebSecurity
@@ -92,15 +101,6 @@ public class NamespaceAuthenticationManagerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	// SEC-2533
-	public void authenticationManagerWhenGlobalAndEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
-		this.spring.register(GlobalEraseCredentialsFalseConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
 	}
 
 	@EnableWebSecurity

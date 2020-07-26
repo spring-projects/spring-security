@@ -96,14 +96,6 @@ public class WebExpressionVoterTests {
 		assertThat(voter.supports(FilterInvocationChild.class)).isTrue();
 	}
 
-	private static class FilterInvocationChild extends FilterInvocation {
-
-		FilterInvocationChild(ServletRequest request, ServletResponse response, FilterChain chain) {
-			super(request, response, chain);
-		}
-
-	}
-
 	@Test
 	public void supportFilterInvocation() {
 		WebExpressionVoter voter = new WebExpressionVoter();
@@ -114,6 +106,14 @@ public class WebExpressionVoterTests {
 	public void supportsObjectIsFalse() {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		assertThat(voter.supports(Object.class)).isFalse();
+	}
+
+	private static class FilterInvocationChild extends FilterInvocation {
+
+		FilterInvocationChild(ServletRequest request, ServletResponse response, FilterChain chain) {
+			super(request, response, chain);
+		}
+
 	}
 
 }

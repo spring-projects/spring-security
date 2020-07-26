@@ -209,17 +209,6 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		this.mvc.perform(get("/authorized-client")).andExpect(status().isOk()).andExpect(content().string("resolved"));
 	}
 
-	@RestController
-	static class AuthorizedClientController {
-
-		@GetMapping("/authorized-client")
-		String authorizedClient(Model model,
-				@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
-			return authorizedClient != null ? "resolved" : "not-resolved";
-		}
-
-	}
-
 	private static OAuth2AuthorizationRequest createAuthorizationRequest(ClientRegistration clientRegistration) {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
@@ -231,6 +220,17 @@ public class OAuth2ClientBeanDefinitionParserTests {
 
 	private static String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
+	@RestController
+	static class AuthorizedClientController {
+
+		@GetMapping("/authorized-client")
+		String authorizedClient(Model model,
+				@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+			return authorizedClient != null ? "resolved" : "not-resolved";
+		}
+
 	}
 
 }

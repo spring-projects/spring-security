@@ -114,41 +114,11 @@ public class HttpSecurityConfigurationTests {
 		this.mockMvc.perform(asyncDispatch(mvcResult)).andExpect(status().isOk()).andExpect(content().string("Bob"));
 	}
 
-	@RestController
-	static class NameController {
-
-		@GetMapping("/name")
-		public Callable<String> name() {
-			return () -> SecurityContextHolder.getContext().getAuthentication().getName();
-		}
-
-	}
-
-	@EnableWebSecurity
-	static class DefaultWithFilterChainConfig {
-
-		@Bean
-		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.build();
-		}
-
-	}
-
 	@Test
 	public void getWhenDefaultFilterChainBeanThenAnonymousPermitted() throws Exception {
 		this.spring.register(AuthorizeRequestsConfig.class, UserDetailsConfig.class, BaseController.class).autowire();
 
 		this.mockMvc.perform(get("/")).andExpect(status().isOk());
-	}
-
-	@EnableWebSecurity
-	static class AuthorizeRequestsConfig {
-
-		@Bean
-		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.authorizeRequests(authorize -> authorize.anyRequest().permitAll()).build();
-		}
-
 	}
 
 	@Test
@@ -192,6 +162,36 @@ public class HttpSecurityConfigurationTests {
 		this.spring.register(SecurityEnabledConfig.class).autowire();
 
 		this.mockMvc.perform(get("/login")).andExpect(status().isOk());
+	}
+
+	@RestController
+	static class NameController {
+
+		@GetMapping("/name")
+		public Callable<String> name() {
+			return () -> SecurityContextHolder.getContext().getAuthentication().getName();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultWithFilterChainConfig {
+
+		@Bean
+		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class AuthorizeRequestsConfig {
+
+		@Bean
+		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.authorizeRequests(authorize -> authorize.anyRequest().permitAll()).build();
+		}
+
 	}
 
 	@EnableWebSecurity

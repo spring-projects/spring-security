@@ -98,41 +98,6 @@ public class UrlAuthorizationConfigurerTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
-	@EnableWebSecurity
-	@Configuration
-	@EnableWebMvc
-	static class MvcMatcherConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic().and()
-				.apply(new UrlAuthorizationConfigurer(getApplicationContext())).getRegistry()
-					.mvcMatchers("/path").hasRole("ADMIN");
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
-		}
-
-		@RestController
-		static class PathController {
-
-			@RequestMapping("/path")
-			public String path() {
-				return "path";
-			}
-
-		}
-
-	}
-
 	@Test
 	public void mvcMatcherServletPath() throws Exception {
 		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
@@ -176,6 +141,55 @@ public class UrlAuthorizationConfigurerTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
+	@Test
+	public void anonymousUrlAuthorization() {
+		loadConfig(AnonymousUrlAuthorizationConfig.class);
+	}
+
+	public void loadConfig(Class<?>... configs) {
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.setServletContext(new MockServletContext());
+		this.context.refresh();
+
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	@EnableWebMvc
+	static class MvcMatcherConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic().and()
+				.apply(new UrlAuthorizationConfigurer(getApplicationContext())).getRegistry()
+					.mvcMatchers("/path").hasRole("ADMIN");
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication();
+			// @formatter:on
+		}
+
+		@RestController
+		static class PathController {
+
+			@RequestMapping("/path")
+			public String path() {
+				return "path";
+			}
+
+		}
+
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
@@ -211,11 +225,6 @@ public class UrlAuthorizationConfigurerTests {
 
 	}
 
-	@Test
-	public void anonymousUrlAuthorization() {
-		loadConfig(AnonymousUrlAuthorizationConfig.class);
-	}
-
 	@EnableWebSecurity
 	@Configuration
 	static class AnonymousUrlAuthorizationConfig extends WebSecurityConfigurerAdapter {
@@ -239,15 +248,6 @@ public class UrlAuthorizationConfigurerTests {
 			configurer.setUseSuffixPatternMatch(true);
 		}
 
-	}
-
-	public void loadConfig(Class<?>... configs) {
-		this.context = new AnnotationConfigWebApplicationContext();
-		this.context.register(configs);
-		this.context.setServletContext(new MockServletContext());
-		this.context.refresh();
-
-		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 }

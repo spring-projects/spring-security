@@ -544,6 +544,14 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 		assertThat(new Long(1L)).isEqualTo(result);
 	}
 
+	protected Authentication getAuth() {
+		return this.auth;
+	}
+
+	protected JdbcMutableAclService getJdbcMutableAclService() {
+		return this.jdbcMutableAclService;
+	}
+
 	/**
 	 * This class needed to show how to extend {@link JdbcMutableAclService} for
 	 * processing custom {@link Sid} implementations
@@ -571,14 +579,6 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 			return createOrRetrieveSidPrimaryKey(sidName, isPrincipal, allowCreate);
 		}
 
-	}
-
-	protected Authentication getAuth() {
-		return this.auth;
-	}
-
-	protected JdbcMutableAclService getJdbcMutableAclService() {
-		return this.jdbcMutableAclService;
 	}
 
 }

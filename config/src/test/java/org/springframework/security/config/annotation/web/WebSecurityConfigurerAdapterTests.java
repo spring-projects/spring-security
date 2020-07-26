@@ -91,6 +91,135 @@ public class WebSecurityConfigurerAdapterTests {
 				.andExpect(header().string("X-XSS-Protection", "1; mode=block"));
 	}
 
+	@Test
+	public void loadConfigWhenRequestAuthenticateThenAuthenticationEventPublished() throws Exception {
+		this.spring.register(InMemoryAuthWithWebSecurityConfigurerAdapter.class).autowire();
+
+		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
+
+		assertThat(InMemoryAuthWithWebSecurityConfigurerAdapter.EVENTS).isNotEmpty();
+		assertThat(InMemoryAuthWithWebSecurityConfigurerAdapter.EVENTS).hasSize(1);
+	}
+
+	@Test
+	public void loadConfigWhenInMemoryConfigureProtectedThenPasswordUpgraded() throws Exception {
+		this.spring.register(InMemoryConfigureProtectedConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
+
+		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
+		assertThat(uds.loadUserByUsername("user").getPassword()).startsWith("{bcrypt}");
+	}
+
+	@Test
+	public void loadConfigWhenInMemoryConfigureGlobalThenPasswordUpgraded() throws Exception {
+		this.spring.register(InMemoryConfigureGlobalConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
+
+		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
+		assertThat(uds.loadUserByUsername("user").getPassword()).startsWith("{bcrypt}");
+	}
+
+	@Test
+	public void loadConfigWhenCustomContentNegotiationStrategyBeanThenOverridesDefault() {
+		OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN = mock(
+				ContentNegotiationStrategy.class);
+		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class).autowire();
+
+		OverrideContentNegotiationStrategySharedObjectConfig securityConfig = this.spring.getContext()
+				.getBean(OverrideContentNegotiationStrategySharedObjectConfig.class);
+
+		assertThat(securityConfig.contentNegotiationStrategySharedObject).isNotNull();
+		assertThat(securityConfig.contentNegotiationStrategySharedObject)
+				.isSameAs(OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN);
+	}
+
+	@Test
+	public void loadConfigWhenDefaultContentNegotiationStrategyThenHeaderContentNegotiationStrategy() {
+		this.spring.register(ContentNegotiationStrategyDefaultSharedObjectConfig.class).autowire();
+
+		ContentNegotiationStrategyDefaultSharedObjectConfig securityConfig = this.spring.getContext()
+				.getBean(ContentNegotiationStrategyDefaultSharedObjectConfig.class);
+
+		assertThat(securityConfig.contentNegotiationStrategySharedObject).isNotNull();
+		assertThat(securityConfig.contentNegotiationStrategySharedObject)
+				.isInstanceOf(HeaderContentNegotiationStrategy.class);
+	}
+
+	@Test
+	public void loadConfigWhenUserDetailsServiceHasCircularReferenceThenStillLoads() {
+		this.spring.register(RequiresUserDetailsServiceConfig.class, UserDetailsServiceConfig.class).autowire();
+
+		MyFilter myFilter = this.spring.getContext().getBean(MyFilter.class);
+
+		Throwable thrown = catchThrowable(() -> myFilter.userDetailsService.loadUserByUsername("user"));
+		assertThat(thrown).isNull();
+
+		thrown = catchThrowable(() -> myFilter.userDetailsService.loadUserByUsername("admin"));
+		assertThat(thrown).isInstanceOf(UsernameNotFoundException.class);
+	}
+
+	// SEC-2274: WebSecurityConfigurer adds ApplicationContext as a shared object
+	@Test
+	public void loadConfigWhenSharedObjectsCreatedThenApplicationContextAdded() {
+		this.spring.register(ApplicationContextSharedObjectConfig.class).autowire();
+
+		ApplicationContextSharedObjectConfig securityConfig = this.spring.getContext()
+				.getBean(ApplicationContextSharedObjectConfig.class);
+
+		assertThat(securityConfig.applicationContextSharedObject).isNotNull();
+		assertThat(securityConfig.applicationContextSharedObject).isSameAs(this.spring.getContext());
+	}
+
+	@Test
+	public void loadConfigWhenCustomAuthenticationTrustResolverBeanThenOverridesDefault() {
+		CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN = mock(AuthenticationTrustResolver.class);
+		this.spring.register(CustomTrustResolverConfig.class).autowire();
+
+		CustomTrustResolverConfig securityConfig = this.spring.getContext().getBean(CustomTrustResolverConfig.class);
+
+		assertThat(securityConfig.authenticationTrustResolverSharedObject).isNotNull();
+		assertThat(securityConfig.authenticationTrustResolverSharedObject)
+				.isSameAs(CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN);
+	}
+
+	@Test
+	public void compareOrderWebSecurityConfigurerAdapterWhenLowestOrderToDefaultOrderThenGreaterThanZero() {
+		AnnotationAwareOrderComparator comparator = new AnnotationAwareOrderComparator();
+		assertThat(comparator.compare(new LowestPriorityWebSecurityConfig(), new DefaultOrderWebSecurityConfig()))
+				.isGreaterThan(0);
+	}
+
+	// gh-7515
+	@Test
+	public void performWhenUsingAuthenticationEventPublisherBeanThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationEventPublisherBean.class).autowire();
+
+		AuthenticationEventPublisher authenticationEventPublisher = this.spring.getContext()
+				.getBean(AuthenticationEventPublisher.class);
+
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password")));
+
+		verify(authenticationEventPublisher).publishAuthenticationSuccess(any(Authentication.class));
+	}
+
+	// gh-4400
+	@Test
+	public void performWhenUsingAuthenticationEventPublisherInDslThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationEventPublisherDsl.class).autowire();
+
+		AuthenticationEventPublisher authenticationEventPublisher = CustomAuthenticationEventPublisherDsl.EVENT_PUBLISHER;
+
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))); // fails since
+																			// no
+																			// providers
+																			// configured
+
+		verify(authenticationEventPublisher).publishAuthenticationFailure(any(AuthenticationException.class),
+				any(Authentication.class));
+	}
+
 	@EnableWebSecurity
 	static class HeadersArePopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -107,16 +236,6 @@ public class WebSecurityConfigurerAdapterTests {
 		protected void configure(HttpSecurity http) {
 		}
 
-	}
-
-	@Test
-	public void loadConfigWhenRequestAuthenticateThenAuthenticationEventPublished() throws Exception {
-		this.spring.register(InMemoryAuthWithWebSecurityConfigurerAdapter.class).autowire();
-
-		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
-
-		assertThat(InMemoryAuthWithWebSecurityConfigurerAdapter.EVENTS).isNotEmpty();
-		assertThat(InMemoryAuthWithWebSecurityConfigurerAdapter.EVENTS).hasSize(1);
 	}
 
 	@EnableWebSecurity
@@ -141,16 +260,6 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenInMemoryConfigureProtectedThenPasswordUpgraded() throws Exception {
-		this.spring.register(InMemoryConfigureProtectedConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
-
-		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
-		assertThat(uds.loadUserByUsername("user").getPassword()).startsWith("{bcrypt}");
-	}
-
 	@EnableWebSecurity
 	static class InMemoryConfigureProtectedConfig extends WebSecurityConfigurerAdapter {
 
@@ -169,16 +278,6 @@ public class WebSecurityConfigurerAdapterTests {
 			return super.userDetailsServiceBean();
 		}
 
-	}
-
-	@Test
-	public void loadConfigWhenInMemoryConfigureGlobalThenPasswordUpgraded() throws Exception {
-		this.spring.register(InMemoryConfigureGlobalConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
-
-		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
-		assertThat(uds.loadUserByUsername("user").getPassword()).startsWith("{bcrypt}");
 	}
 
 	@EnableWebSecurity
@@ -201,20 +300,6 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenCustomContentNegotiationStrategyBeanThenOverridesDefault() {
-		OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN = mock(
-				ContentNegotiationStrategy.class);
-		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class).autowire();
-
-		OverrideContentNegotiationStrategySharedObjectConfig securityConfig = this.spring.getContext()
-				.getBean(OverrideContentNegotiationStrategySharedObjectConfig.class);
-
-		assertThat(securityConfig.contentNegotiationStrategySharedObject).isNotNull();
-		assertThat(securityConfig.contentNegotiationStrategySharedObject)
-				.isSameAs(OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN);
-	}
-
 	@EnableWebSecurity
 	static class OverrideContentNegotiationStrategySharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -235,18 +320,6 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenDefaultContentNegotiationStrategyThenHeaderContentNegotiationStrategy() {
-		this.spring.register(ContentNegotiationStrategyDefaultSharedObjectConfig.class).autowire();
-
-		ContentNegotiationStrategyDefaultSharedObjectConfig securityConfig = this.spring.getContext()
-				.getBean(ContentNegotiationStrategyDefaultSharedObjectConfig.class);
-
-		assertThat(securityConfig.contentNegotiationStrategySharedObject).isNotNull();
-		assertThat(securityConfig.contentNegotiationStrategySharedObject)
-				.isInstanceOf(HeaderContentNegotiationStrategy.class);
-	}
-
 	@EnableWebSecurity
 	static class ContentNegotiationStrategyDefaultSharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -258,19 +331,6 @@ public class WebSecurityConfigurerAdapterTests {
 			super.configure(http);
 		}
 
-	}
-
-	@Test
-	public void loadConfigWhenUserDetailsServiceHasCircularReferenceThenStillLoads() {
-		this.spring.register(RequiresUserDetailsServiceConfig.class, UserDetailsServiceConfig.class).autowire();
-
-		MyFilter myFilter = this.spring.getContext().getBean(MyFilter.class);
-
-		Throwable thrown = catchThrowable(() -> myFilter.userDetailsService.loadUserByUsername("user"));
-		assertThat(thrown).isNull();
-
-		thrown = catchThrowable(() -> myFilter.userDetailsService.loadUserByUsername("admin"));
-		assertThat(thrown).isInstanceOf(UsernameNotFoundException.class);
 	}
 
 	@Configuration
@@ -327,18 +387,6 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
-	// SEC-2274: WebSecurityConfigurer adds ApplicationContext as a shared object
-	@Test
-	public void loadConfigWhenSharedObjectsCreatedThenApplicationContextAdded() {
-		this.spring.register(ApplicationContextSharedObjectConfig.class).autowire();
-
-		ApplicationContextSharedObjectConfig securityConfig = this.spring.getContext()
-				.getBean(ApplicationContextSharedObjectConfig.class);
-
-		assertThat(securityConfig.applicationContextSharedObject).isNotNull();
-		assertThat(securityConfig.applicationContextSharedObject).isSameAs(this.spring.getContext());
-	}
-
 	@EnableWebSecurity
 	static class ApplicationContextSharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -350,18 +398,6 @@ public class WebSecurityConfigurerAdapterTests {
 			super.configure(http);
 		}
 
-	}
-
-	@Test
-	public void loadConfigWhenCustomAuthenticationTrustResolverBeanThenOverridesDefault() {
-		CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN = mock(AuthenticationTrustResolver.class);
-		this.spring.register(CustomTrustResolverConfig.class).autowire();
-
-		CustomTrustResolverConfig securityConfig = this.spring.getContext().getBean(CustomTrustResolverConfig.class);
-
-		assertThat(securityConfig.authenticationTrustResolverSharedObject).isNotNull();
-		assertThat(securityConfig.authenticationTrustResolverSharedObject)
-				.isSameAs(CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN);
 	}
 
 	@EnableWebSecurity
@@ -384,13 +420,6 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
-	@Test
-	public void compareOrderWebSecurityConfigurerAdapterWhenLowestOrderToDefaultOrderThenGreaterThanZero() {
-		AnnotationAwareOrderComparator comparator = new AnnotationAwareOrderComparator();
-		assertThat(comparator.compare(new LowestPriorityWebSecurityConfig(), new DefaultOrderWebSecurityConfig()))
-				.isGreaterThan(0);
-	}
-
 	static class DefaultOrderWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	}
@@ -398,19 +427,6 @@ public class WebSecurityConfigurerAdapterTests {
 	@Order
 	static class LowestPriorityWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	}
-
-	// gh-7515
-	@Test
-	public void performWhenUsingAuthenticationEventPublisherBeanThenUses() throws Exception {
-		this.spring.register(CustomAuthenticationEventPublisherBean.class).autowire();
-
-		AuthenticationEventPublisher authenticationEventPublisher = this.spring.getContext()
-				.getBean(AuthenticationEventPublisher.class);
-
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password")));
-
-		verify(authenticationEventPublisher).publishAuthenticationSuccess(any(Authentication.class));
 	}
 
 	@EnableWebSecurity
@@ -427,22 +443,6 @@ public class WebSecurityConfigurerAdapterTests {
 			return mock(AuthenticationEventPublisher.class);
 		}
 
-	}
-
-	// gh-4400
-	@Test
-	public void performWhenUsingAuthenticationEventPublisherInDslThenUses() throws Exception {
-		this.spring.register(CustomAuthenticationEventPublisherDsl.class).autowire();
-
-		AuthenticationEventPublisher authenticationEventPublisher = CustomAuthenticationEventPublisherDsl.EVENT_PUBLISHER;
-
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))); // fails since
-																			// no
-																			// providers
-																			// configured
-
-		verify(authenticationEventPublisher).publishAuthenticationFailure(any(AuthenticationException.class),
-				any(Authentication.class));
 	}
 
 	@EnableWebSecurity

@@ -86,6 +86,14 @@ public class HttpSecurityLogoutTests {
 		assertThat(currentContext.getAuthentication()).isNotNull();
 	}
 
+	public void loadConfig(Class<?>... configs) {
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.refresh();
+
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	static class ClearAuthenticationFalseConfig extends WebSecurityConfigurerAdapter {
@@ -108,14 +116,6 @@ public class HttpSecurityLogoutTests {
 			// @formatter:on
 		}
 
-	}
-
-	public void loadConfig(Class<?>... configs) {
-		this.context = new AnnotationConfigWebApplicationContext();
-		this.context.register(configs);
-		this.context.refresh();
-
-		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 }

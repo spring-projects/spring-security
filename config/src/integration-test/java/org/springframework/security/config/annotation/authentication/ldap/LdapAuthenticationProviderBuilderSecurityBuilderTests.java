@@ -53,6 +53,8 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 
 public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
+	static Integer port;
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -76,6 +78,80 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		assertThat(ReflectionTestUtils.getField(getAuthoritiesMapper(provider), "prefix")).isEqualTo("ROLE_");
 	}
 
+	@Test
+	public void groupRolesCustom() {
+		this.spring.register(GroupRolesConfig.class).autowire();
+		LdapAuthenticationProvider provider = ldapProvider();
+
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupRoleAttribute"))
+				.isEqualTo("group");
+	}
+
+	@Test
+	public void groupSearchCustom() {
+		this.spring.register(GroupSearchConfig.class).autowire();
+		LdapAuthenticationProvider provider = ldapProvider();
+
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupSearchFilter"))
+				.isEqualTo("ou=groupName");
+	}
+
+	@Test
+	public void groupSubtreeSearchCustom() {
+		this.spring.register(GroupSubtreeSearchConfig.class).autowire();
+		LdapAuthenticationProvider provider = ldapProvider();
+
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "searchControls"))
+				.extracting("searchScope").isEqualTo(SearchControls.SUBTREE_SCOPE);
+	}
+
+	@Test
+	public void rolePrefixCustom() {
+		this.spring.register(RolePrefixConfig.class).autowire();
+		LdapAuthenticationProvider provider = ldapProvider();
+
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesMapper(provider), "prefix")).isEqualTo("role_");
+	}
+
+	@Test
+	public void bindAuthentication() throws Exception {
+		this.spring.register(BindAuthenticationConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
+				.withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+	}
+
+	// SEC-2472
+	@Test
+	public void canUseCryptoPasswordEncoder() throws Exception {
+		this.spring.register(PasswordEncoderConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin().user("bcrypt").password("password")).andExpect(authenticated()
+				.withUsername("bcrypt").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+	}
+
+	private LdapAuthenticationProvider ldapProvider() {
+		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(this.authenticationManager,
+				"providers")).get(0);
+	}
+
+	private LdapAuthoritiesPopulator getAuthoritiesPopulator(LdapAuthenticationProvider provider) {
+		return (LdapAuthoritiesPopulator) ReflectionTestUtils.getField(provider, "authoritiesPopulator");
+	}
+
+	private GrantedAuthoritiesMapper getAuthoritiesMapper(LdapAuthenticationProvider provider) {
+		return (GrantedAuthoritiesMapper) ReflectionTestUtils.getField(provider, "authoritiesMapper");
+	}
+
+	static int getPort() throws IOException {
+		if (port == null) {
+			ServerSocket socket = new ServerSocket(0);
+			port = socket.getLocalPort();
+			socket.close();
+		}
+		return port;
+	}
+
 	@EnableWebSecurity
 	static class DefaultLdapConfig extends BaseLdapProviderConfig {
 
@@ -89,15 +165,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void groupRolesCustom() {
-		this.spring.register(GroupRolesConfig.class).autowire();
-		LdapAuthenticationProvider provider = ldapProvider();
-
-		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupRoleAttribute"))
-				.isEqualTo("group");
 	}
 
 	@EnableWebSecurity
@@ -116,15 +183,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
-	@Test
-	public void groupSearchCustom() {
-		this.spring.register(GroupSearchConfig.class).autowire();
-		LdapAuthenticationProvider provider = ldapProvider();
-
-		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupSearchFilter"))
-				.isEqualTo("ou=groupName");
-	}
-
 	@EnableWebSecurity
 	static class GroupSearchConfig extends BaseLdapProviderConfig {
 
@@ -139,15 +197,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void groupSubtreeSearchCustom() {
-		this.spring.register(GroupSubtreeSearchConfig.class).autowire();
-		LdapAuthenticationProvider provider = ldapProvider();
-
-		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "searchControls"))
-				.extracting("searchScope").isEqualTo(SearchControls.SUBTREE_SCOPE);
 	}
 
 	@EnableWebSecurity
@@ -167,14 +216,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
-	@Test
-	public void rolePrefixCustom() {
-		this.spring.register(RolePrefixConfig.class).autowire();
-		LdapAuthenticationProvider provider = ldapProvider();
-
-		assertThat(ReflectionTestUtils.getField(getAuthoritiesMapper(provider), "prefix")).isEqualTo("role_");
-	}
-
 	@EnableWebSecurity
 	static class RolePrefixConfig extends BaseLdapProviderConfig {
 
@@ -189,14 +230,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void bindAuthentication() throws Exception {
-		this.spring.register(BindAuthenticationConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
-				.withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	@EnableWebSecurity
@@ -216,15 +249,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
-	// SEC-2472
-	@Test
-	public void canUseCryptoPasswordEncoder() throws Exception {
-		this.spring.register(PasswordEncoderConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin().user("bcrypt").password("password")).andExpect(authenticated()
-				.withUsername("bcrypt").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
-	}
-
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends BaseLdapServerConfig {
 
@@ -241,19 +265,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 			// @formatter:on
 		}
 
-	}
-
-	private LdapAuthenticationProvider ldapProvider() {
-		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(this.authenticationManager,
-				"providers")).get(0);
-	}
-
-	private LdapAuthoritiesPopulator getAuthoritiesPopulator(LdapAuthenticationProvider provider) {
-		return (LdapAuthoritiesPopulator) ReflectionTestUtils.getField(provider, "authoritiesPopulator");
-	}
-
-	private GrantedAuthoritiesMapper getAuthoritiesMapper(LdapAuthenticationProvider provider) {
-		return (GrantedAuthoritiesMapper) ReflectionTestUtils.getField(provider, "authoritiesMapper");
 	}
 
 	@EnableWebSecurity
@@ -293,17 +304,6 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		@Override
 		abstract protected void configure(AuthenticationManagerBuilder auth) throws Exception;
 
-	}
-
-	static Integer port;
-
-	static int getPort() throws IOException {
-		if (port == null) {
-			ServerSocket socket = new ServerSocket(0);
-			port = socket.getLocalPort();
-			socket.close();
-		}
-		return port;
 	}
 
 }

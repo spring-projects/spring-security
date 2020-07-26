@@ -296,6 +296,9 @@ public class ServerHttpSecurity {
 
 	private AnonymousSpec anonymous;
 
+	protected ServerHttpSecurity() {
+	}
+
 	/**
 	 * The ServerExchangeMatcher that determines which requests apply to this HttpSecurity
 	 * instance.
@@ -625,70 +628,6 @@ public class ServerHttpSecurity {
 	}
 
 	/**
-	 * Configures CORS support within Spring Security. This ensures that the
-	 * {@link CorsWebFilter} is place in the correct order.
-	 */
-	public final class CorsSpec {
-
-		private CorsWebFilter corsFilter;
-
-		private CorsSpec() {
-		}
-
-		/**
-		 * Configures the {@link CorsConfigurationSource} to be used
-		 * @param source the source to use
-		 * @return the {@link CorsSpec} for additional configuration
-		 */
-		public CorsSpec configurationSource(CorsConfigurationSource source) {
-			this.corsFilter = new CorsWebFilter(source);
-			return this;
-		}
-
-		/**
-		 * Disables CORS support within Spring Security.
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 */
-		public ServerHttpSecurity disable() {
-			ServerHttpSecurity.this.cors = null;
-			return ServerHttpSecurity.this;
-		}
-
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 */
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		protected void configure(ServerHttpSecurity http) {
-			CorsWebFilter corsFilter = getCorsFilter();
-			if (corsFilter != null) {
-				http.addFilterAt(this.corsFilter, SecurityWebFiltersOrder.CORS);
-			}
-		}
-
-		private CorsWebFilter getCorsFilter() {
-			if (this.corsFilter != null) {
-				return this.corsFilter;
-			}
-
-			CorsConfigurationSource source = getBeanOrNull(CorsConfigurationSource.class);
-			if (source == null) {
-				return null;
-			}
-			CorsProcessor processor = getBeanOrNull(CorsProcessor.class);
-			if (processor == null) {
-				processor = new DefaultCorsProcessor();
-			}
-			this.corsFilter = new CorsWebFilter(source, processor);
-			return this.corsFilter;
-		}
-
-	}
-
-	/**
 	 * Configures HTTP Basic authentication. An example configuration is provided below:
 	 *
 	 * <pre class="code">
@@ -868,67 +807,6 @@ public class ServerHttpSecurity {
 	}
 
 	/**
-	 * Configures X509 authentication
-	 *
-	 * @author Alexey Nesterov
-	 * @since 5.2
-	 * @see #x509()
-	 */
-	public final class X509Spec {
-
-		private X509PrincipalExtractor principalExtractor;
-
-		private ReactiveAuthenticationManager authenticationManager;
-
-		private X509Spec() {
-		}
-
-		public X509Spec principalExtractor(X509PrincipalExtractor principalExtractor) {
-			this.principalExtractor = principalExtractor;
-			return this;
-		}
-
-		public X509Spec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
-			this.authenticationManager = authenticationManager;
-			return this;
-		}
-
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		protected void configure(ServerHttpSecurity http) {
-			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-			X509PrincipalExtractor principalExtractor = getPrincipalExtractor();
-
-			AuthenticationWebFilter filter = new AuthenticationWebFilter(authenticationManager);
-			filter.setServerAuthenticationConverter(new ServerX509AuthenticationConverter(principalExtractor));
-			http.addFilterAt(filter, SecurityWebFiltersOrder.AUTHENTICATION);
-		}
-
-		private X509PrincipalExtractor getPrincipalExtractor() {
-			if (this.principalExtractor != null) {
-				return this.principalExtractor;
-			}
-
-			return new SubjectDnX509PrincipalExtractor();
-		}
-
-		private ReactiveAuthenticationManager getAuthenticationManager() {
-			if (this.authenticationManager != null) {
-				return this.authenticationManager;
-			}
-
-			ReactiveUserDetailsService userDetailsService = getBean(ReactiveUserDetailsService.class);
-			ReactivePreAuthenticatedAuthenticationManager authenticationManager = new ReactivePreAuthenticatedAuthenticationManager(
-					userDetailsService);
-
-			return authenticationManager;
-		}
-
-	}
-
-	/**
 	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0
 	 * Provider.
 	 *
@@ -981,408 +859,6 @@ public class ServerHttpSecurity {
 		return this;
 	}
 
-	public final class OAuth2LoginSpec {
-
-		private ReactiveClientRegistrationRepository clientRegistrationRepository;
-
-		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
-
-		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
-
-		private ReactiveAuthenticationManager authenticationManager;
-
-		private ServerSecurityContextRepository securityContextRepository;
-
-		private ServerAuthenticationConverter authenticationConverter;
-
-		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
-
-		private ServerWebExchangeMatcher authenticationMatcher;
-
-		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
-
-		private ServerAuthenticationFailureHandler authenticationFailureHandler;
-
-		private OAuth2LoginSpec() {
-		}
-
-		/**
-		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
-		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
-		 * @param authenticationManager the manager to use
-		 * @return the {@link OAuth2LoginSpec} to customize
-		 */
-		public OAuth2LoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
-			this.authenticationManager = authenticationManager;
-			return this;
-		}
-
-		/**
-		 * The {@link ServerSecurityContextRepository} used to save the
-		 * {@code Authentication}. Defaults to
-		 * {@link WebSessionServerSecurityContextRepository}.
-		 * @param securityContextRepository the repository to use
-		 * @return the {@link OAuth2LoginSpec} to continue configuring
-		 * @since 5.2
-		 */
-		public OAuth2LoginSpec securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
-			this.securityContextRepository = securityContextRepository;
-			return this;
-		}
-
-		/**
-		 * The {@link ServerAuthenticationSuccessHandler} used after authentication
-		 * success. Defaults to {@link RedirectServerAuthenticationSuccessHandler}
-		 * redirecting to "/".
-		 * @param authenticationSuccessHandler the success handler to use
-		 * @return the {@link OAuth2LoginSpec} to customize
-		 * @since 5.2
-		 */
-		public OAuth2LoginSpec authenticationSuccessHandler(
-				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
-			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
-			this.authenticationSuccessHandler = authenticationSuccessHandler;
-			return this;
-		}
-
-		/**
-		 * The {@link ServerAuthenticationFailureHandler} used after authentication
-		 * failure. Defaults to {@link RedirectServerAuthenticationFailureHandler}
-		 * redirecting to "/login?error".
-		 * @param authenticationFailureHandler the failure handler to use
-		 * @return the {@link OAuth2LoginSpec} to customize
-		 * @since 5.2
-		 */
-		public OAuth2LoginSpec authenticationFailureHandler(
-				ServerAuthenticationFailureHandler authenticationFailureHandler) {
-			Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
-			this.authenticationFailureHandler = authenticationFailureHandler;
-			return this;
-		}
-
-		/**
-		 * Gets the {@link ReactiveAuthenticationManager} to use. First tries an
-		 * explicitly configured manager, and defaults to
-		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
-		 * @return the {@link ReactiveAuthenticationManager} to use
-		 */
-		private ReactiveAuthenticationManager getAuthenticationManager() {
-			if (this.authenticationManager == null) {
-				this.authenticationManager = createDefault();
-			}
-			return this.authenticationManager;
-		}
-
-		private ReactiveAuthenticationManager createDefault() {
-			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> client = getAccessTokenResponseClient();
-			OAuth2LoginReactiveAuthenticationManager oauth2Manager = new OAuth2LoginReactiveAuthenticationManager(
-					client, getOauth2UserService());
-			GrantedAuthoritiesMapper authoritiesMapper = getBeanOrNull(GrantedAuthoritiesMapper.class);
-			if (authoritiesMapper != null) {
-				oauth2Manager.setAuthoritiesMapper(authoritiesMapper);
-			}
-			boolean oidcAuthenticationProviderEnabled = ClassUtils
-					.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
-			if (oidcAuthenticationProviderEnabled) {
-				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(
-						client, getOidcUserService());
-				ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveJwtDecoderFactory.class,
-						ClientRegistration.class);
-				ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = getBeanOrNull(type);
-				if (jwtDecoderFactory != null) {
-					oidc.setJwtDecoderFactory(jwtDecoderFactory);
-				}
-				if (authoritiesMapper != null) {
-					oidc.setAuthoritiesMapper(authoritiesMapper);
-				}
-				return new DelegatingReactiveAuthenticationManager(oidc, oauth2Manager);
-			}
-			return oauth2Manager;
-		}
-
-		/**
-		 * Sets the converter to use
-		 * @param authenticationConverter the converter to use
-		 * @return the {@link OAuth2LoginSpec} to customize
-		 */
-		public OAuth2LoginSpec authenticationConverter(ServerAuthenticationConverter authenticationConverter) {
-			this.authenticationConverter = authenticationConverter;
-			return this;
-		}
-
-		private ServerAuthenticationConverter getAuthenticationConverter(
-				ReactiveClientRegistrationRepository clientRegistrationRepository) {
-			if (this.authenticationConverter == null) {
-				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter delegate = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
-						clientRegistrationRepository);
-				delegate.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
-				ServerAuthenticationConverter authenticationConverter = exchange -> delegate.convert(exchange)
-						.onErrorMap(OAuth2AuthorizationException.class,
-								e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
-				this.authenticationConverter = authenticationConverter;
-				return authenticationConverter;
-			}
-			return this.authenticationConverter;
-		}
-
-		public OAuth2LoginSpec clientRegistrationRepository(
-				ReactiveClientRegistrationRepository clientRegistrationRepository) {
-			this.clientRegistrationRepository = clientRegistrationRepository;
-			return this;
-		}
-
-		public OAuth2LoginSpec authorizedClientService(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
-			this.authorizedClientRepository = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
-					authorizedClientService);
-			return this;
-		}
-
-		public OAuth2LoginSpec authorizedClientRepository(
-				ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
-			this.authorizedClientRepository = authorizedClientRepository;
-			return this;
-		}
-
-		/**
-		 * Sets the repository to use for storing {@link OAuth2AuthorizationRequest}'s.
-		 * @param authorizationRequestRepository the repository to use for storing
-		 * {@link OAuth2AuthorizationRequest}'s
-		 * @return the {@link OAuth2LoginSpec} for further configuration
-		 * @since 5.2
-		 */
-		public OAuth2LoginSpec authorizationRequestRepository(
-				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
-			this.authorizationRequestRepository = authorizationRequestRepository;
-			return this;
-		}
-
-		/**
-		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
-		 * @param authorizationRequestResolver the resolver used for resolving
-		 * {@link OAuth2AuthorizationRequest}'s
-		 * @return the {@link OAuth2LoginSpec} for further configuration
-		 * @since 5.2
-		 */
-		public OAuth2LoginSpec authorizationRequestResolver(
-				ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
-			this.authorizationRequestResolver = authorizationRequestResolver;
-			return this;
-		}
-
-		/**
-		 * Sets the {@link ServerWebExchangeMatcher matcher} used for determining if the
-		 * request is an authentication request.
-		 * @param authenticationMatcher the {@link ServerWebExchangeMatcher matcher} used
-		 * for determining if the request is an authentication request
-		 * @return the {@link OAuth2LoginSpec} for further configuration
-		 * @since 5.2
-		 */
-		public OAuth2LoginSpec authenticationMatcher(ServerWebExchangeMatcher authenticationMatcher) {
-			this.authenticationMatcher = authenticationMatcher;
-			return this;
-		}
-
-		private ServerWebExchangeMatcher getAuthenticationMatcher() {
-			if (this.authenticationMatcher == null) {
-				this.authenticationMatcher = createAttemptAuthenticationRequestMatcher();
-			}
-			return this.authenticationMatcher;
-		}
-
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 */
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		protected void configure(ServerHttpSecurity http) {
-			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
-			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
-			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = getRedirectWebFilter();
-			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = getAuthorizationRequestRepository();
-			oauthRedirectFilter.setAuthorizationRequestRepository(authorizationRequestRepository);
-			oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
-
-			ReactiveAuthenticationManager manager = getAuthenticationManager();
-
-			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager,
-					authorizedClientRepository);
-			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
-			authenticationFilter
-					.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
-
-			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
-			authenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
-			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
-
-			setDefaultEntryPoints(http);
-
-			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
-			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
-		}
-
-		private void setDefaultEntryPoints(ServerHttpSecurity http) {
-			String defaultLoginPage = "/login";
-			Map<String, String> urlToText = http.oauth2Login.getLinks();
-			String providerLoginPage = null;
-			if (urlToText.size() == 1) {
-				providerLoginPage = urlToText.keySet().iterator().next();
-			}
-
-			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
-					MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
-					MediaType.TEXT_PLAIN);
-			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
-			ServerWebExchangeMatcher xhrMatcher = exchange -> {
-				if (exchange.getRequest().getHeaders().getOrEmpty("X-Requested-With").contains("XMLHttpRequest")) {
-					return ServerWebExchangeMatcher.MatchResult.match();
-				}
-				return ServerWebExchangeMatcher.MatchResult.notMatch();
-			};
-			ServerWebExchangeMatcher notXhrMatcher = new NegatedServerWebExchangeMatcher(xhrMatcher);
-
-			ServerWebExchangeMatcher defaultEntryPointMatcher = new AndServerWebExchangeMatcher(notXhrMatcher,
-					htmlMatcher);
-
-			if (providerLoginPage != null) {
-				ServerWebExchangeMatcher loginPageMatcher = new PathPatternParserServerWebExchangeMatcher(
-						defaultLoginPage);
-				ServerWebExchangeMatcher faviconMatcher = new PathPatternParserServerWebExchangeMatcher("/favicon.ico");
-				ServerWebExchangeMatcher defaultLoginPageMatcher = new AndServerWebExchangeMatcher(
-						new OrServerWebExchangeMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
-
-				ServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(notXhrMatcher,
-						new NegatedServerWebExchangeMatcher(defaultLoginPageMatcher));
-				RedirectServerAuthenticationEntryPoint entryPoint = new RedirectServerAuthenticationEntryPoint(
-						providerLoginPage);
-				entryPoint.setRequestCache(http.requestCache.requestCache);
-				http.defaultEntryPoints.add(new DelegateEntry(matcher, entryPoint));
-			}
-
-			RedirectServerAuthenticationEntryPoint defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(
-					defaultLoginPage);
-			defaultEntryPoint.setRequestCache(http.requestCache.requestCache);
-			http.defaultEntryPoints.add(new DelegateEntry(defaultEntryPointMatcher, defaultEntryPoint));
-		}
-
-		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler(ServerHttpSecurity http) {
-			if (this.authenticationSuccessHandler == null) {
-				RedirectServerAuthenticationSuccessHandler handler = new RedirectServerAuthenticationSuccessHandler();
-				handler.setRequestCache(http.requestCache.requestCache);
-				this.authenticationSuccessHandler = handler;
-			}
-			return this.authenticationSuccessHandler;
-		}
-
-		private ServerAuthenticationFailureHandler getAuthenticationFailureHandler() {
-			if (this.authenticationFailureHandler == null) {
-				this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler("/login?error");
-			}
-			return this.authenticationFailureHandler;
-		}
-
-		private ServerWebExchangeMatcher createAttemptAuthenticationRequestMatcher() {
-			return new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}");
-		}
-
-		private ReactiveOAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {
-			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2UserService.class,
-					OidcUserRequest.class, OidcUser.class);
-			ReactiveOAuth2UserService<OidcUserRequest, OidcUser> bean = getBeanOrNull(type);
-			if (bean == null) {
-				return new OidcReactiveOAuth2UserService();
-			}
-
-			return bean;
-		}
-
-		private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> getOauth2UserService() {
-			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2UserService.class,
-					OAuth2UserRequest.class, OAuth2User.class);
-			ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> bean = getBeanOrNull(type);
-			if (bean == null) {
-				return new DefaultReactiveOAuth2UserService();
-			}
-
-			return bean;
-		}
-
-		private Map<String, String> getLinks() {
-			Iterable<ClientRegistration> registrations = getBeanOrNull(
-					ResolvableType.forClassWithGenerics(Iterable.class, ClientRegistration.class));
-			if (registrations == null) {
-				return Collections.emptyMap();
-			}
-			Map<String, String> result = new HashMap<>();
-			registrations.iterator().forEachRemaining(
-					r -> result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName()));
-			return result;
-		}
-
-		private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
-			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2AccessTokenResponseClient.class,
-					OAuth2AuthorizationCodeGrantRequest.class);
-			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(type);
-			if (bean == null) {
-				return new WebClientReactiveAuthorizationCodeTokenResponseClient();
-			}
-			return bean;
-		}
-
-		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
-			if (this.clientRegistrationRepository == null) {
-				this.clientRegistrationRepository = getBeanOrNull(ReactiveClientRegistrationRepository.class);
-			}
-			return this.clientRegistrationRepository;
-		}
-
-		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
-			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter;
-			if (this.authorizationRequestResolver == null) {
-				oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
-						getClientRegistrationRepository());
-			}
-			else {
-				oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
-						this.authorizationRequestResolver);
-			}
-			return oauthRedirectFilter;
-		}
-
-		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
-			ServerOAuth2AuthorizedClientRepository result = this.authorizedClientRepository;
-			if (result == null) {
-				result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
-			}
-			if (result == null) {
-				ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
-				if (authorizedClientService != null) {
-					result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService);
-				}
-			}
-			return result;
-		}
-
-		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
-			if (this.authorizationRequestRepository == null) {
-				this.authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
-			}
-			return this.authorizationRequestRepository;
-		}
-
-		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
-			ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
-			if (service == null) {
-				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
-			}
-			return service;
-		}
-
-	}
-
 	/**
 	 * Configures the OAuth2 client.
 	 *
@@ -1432,172 +908,6 @@ public class ServerHttpSecurity {
 		}
 		oauth2ClientCustomizer.customize(this.client);
 		return this;
-	}
-
-	public final class OAuth2ClientSpec {
-
-		private ReactiveClientRegistrationRepository clientRegistrationRepository;
-
-		private ServerAuthenticationConverter authenticationConverter;
-
-		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
-
-		private ReactiveAuthenticationManager authenticationManager;
-
-		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
-
-		private OAuth2ClientSpec() {
-		}
-
-		/**
-		 * Sets the converter to use
-		 * @param authenticationConverter the converter to use
-		 * @return the {@link OAuth2ClientSpec} to customize
-		 */
-		public OAuth2ClientSpec authenticationConverter(ServerAuthenticationConverter authenticationConverter) {
-			this.authenticationConverter = authenticationConverter;
-			return this;
-		}
-
-		private ServerAuthenticationConverter getAuthenticationConverter() {
-			if (this.authenticationConverter == null) {
-				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
-						getClientRegistrationRepository());
-				authenticationConverter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
-				this.authenticationConverter = authenticationConverter;
-			}
-			return this.authenticationConverter;
-		}
-
-		/**
-		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
-		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
-		 * @param authenticationManager the manager to use
-		 * @return the {@link OAuth2ClientSpec} to customize
-		 */
-		public OAuth2ClientSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
-			this.authenticationManager = authenticationManager;
-			return this;
-		}
-
-		/**
-		 * Gets the {@link ReactiveAuthenticationManager} to use. First tries an
-		 * explicitly configured manager, and defaults to
-		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
-		 * @return the {@link ReactiveAuthenticationManager} to use
-		 */
-		private ReactiveAuthenticationManager getAuthenticationManager() {
-			if (this.authenticationManager == null) {
-				this.authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(
-						new WebClientReactiveAuthorizationCodeTokenResponseClient());
-			}
-			return this.authenticationManager;
-		}
-
-		/**
-		 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look
-		 * the value up as a Bean.
-		 * @param clientRegistrationRepository the repository to use
-		 * @return the {@link OAuth2ClientSpec} to customize
-		 */
-		public OAuth2ClientSpec clientRegistrationRepository(
-				ReactiveClientRegistrationRepository clientRegistrationRepository) {
-			this.clientRegistrationRepository = clientRegistrationRepository;
-			return this;
-		}
-
-		/**
-		 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look
-		 * the value up as a Bean.
-		 * @param authorizedClientRepository the repository to use
-		 * @return the {@link OAuth2ClientSpec} to customize
-		 */
-		public OAuth2ClientSpec authorizedClientRepository(
-				ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
-			this.authorizedClientRepository = authorizedClientRepository;
-			return this;
-		}
-
-		/**
-		 * Sets the repository to use for storing {@link OAuth2AuthorizationRequest}'s.
-		 * @param authorizationRequestRepository the repository to use for storing
-		 * {@link OAuth2AuthorizationRequest}'s
-		 * @return the {@link OAuth2ClientSpec} to customize
-		 * @since 5.2
-		 */
-		public OAuth2ClientSpec authorizationRequestRepository(
-				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
-			this.authorizationRequestRepository = authorizationRequestRepository;
-			return this;
-		}
-
-		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
-			if (this.authorizationRequestRepository == null) {
-				this.authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
-			}
-			return this.authorizationRequestRepository;
-		}
-
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 */
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		protected void configure(ServerHttpSecurity http) {
-			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
-			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
-			ServerAuthenticationConverter authenticationConverter = getAuthenticationConverter();
-			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-			OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(
-					authenticationManager, authenticationConverter, authorizedClientRepository);
-			codeGrantWebFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
-			if (http.requestCache != null) {
-				codeGrantWebFilter.setRequestCache(http.requestCache.requestCache);
-			}
-
-			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
-					clientRegistrationRepository);
-			oauthRedirectFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
-			if (http.requestCache != null) {
-				oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
-			}
-
-			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.OAUTH2_AUTHORIZATION_CODE);
-			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
-		}
-
-		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
-			if (this.clientRegistrationRepository != null) {
-				return this.clientRegistrationRepository;
-			}
-			return getBeanOrNull(ReactiveClientRegistrationRepository.class);
-		}
-
-		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
-			if (this.authorizedClientRepository != null) {
-				return this.authorizedClientRepository;
-			}
-			ServerOAuth2AuthorizedClientRepository result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
-			if (result == null) {
-				ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
-				if (authorizedClientService != null) {
-					result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService);
-				}
-			}
-			return result;
-		}
-
-		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
-			ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
-			if (service == null) {
-				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
-			}
-			return service;
-		}
-
 	}
 
 	/**
@@ -1652,442 +962,6 @@ public class ServerHttpSecurity {
 		}
 		oauth2ResourceServerCustomizer.customize(this.resourceServer);
 		return this;
-	}
-
-	/**
-	 * Configures OAuth2 Resource Server Support
-	 */
-	public class OAuth2ResourceServerSpec {
-
-		private ServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
-
-		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
-
-		private ServerAuthenticationConverter bearerTokenConverter = new ServerBearerTokenAuthenticationConverter();
-
-		private AuthenticationConverterServerWebExchangeMatcher authenticationConverterServerWebExchangeMatcher;
-
-		private JwtSpec jwt;
-
-		private OpaqueTokenSpec opaqueToken;
-
-		private ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver;
-
-		/**
-		 * Configures the {@link ServerAccessDeniedHandler} to use for requests
-		 * authenticating with
-		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target=
-		 * "_blank">Bearer Token</a>s. requests.
-		 * @param accessDeniedHandler the {@link ServerAccessDeniedHandler} to use
-		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
-		 * @since 5.2
-		 */
-		public OAuth2ResourceServerSpec accessDeniedHandler(ServerAccessDeniedHandler accessDeniedHandler) {
-			Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
-			this.accessDeniedHandler = accessDeniedHandler;
-			return this;
-		}
-
-		/**
-		 * Configures the {@link ServerAuthenticationEntryPoint} to use for requests
-		 * authenticating with
-		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target=
-		 * "_blank">Bearer Token</a>s.
-		 * @param entryPoint the {@link ServerAuthenticationEntryPoint} to use
-		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
-		 * @since 5.2
-		 */
-		public OAuth2ResourceServerSpec authenticationEntryPoint(ServerAuthenticationEntryPoint entryPoint) {
-			Assert.notNull(entryPoint, "entryPoint cannot be null");
-			this.entryPoint = entryPoint;
-			return this;
-		}
-
-		/**
-		 * Configures the {@link ServerAuthenticationConverter} to use for requests
-		 * authenticating with
-		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target=
-		 * "_blank">Bearer Token</a>s.
-		 * @param bearerTokenConverter The {@link ServerAuthenticationConverter} to use
-		 * @return The {@link OAuth2ResourceServerSpec} for additional configuration
-		 * @since 5.2
-		 */
-		public OAuth2ResourceServerSpec bearerTokenConverter(ServerAuthenticationConverter bearerTokenConverter) {
-			Assert.notNull(bearerTokenConverter, "bearerTokenConverter cannot be null");
-			this.bearerTokenConverter = bearerTokenConverter;
-			return this;
-		}
-
-		/**
-		 * Configures the {@link ReactiveAuthenticationManagerResolver}
-		 * @param authenticationManagerResolver the
-		 * {@link ReactiveAuthenticationManagerResolver}
-		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
-		 * @since 5.3
-		 */
-		public OAuth2ResourceServerSpec authenticationManagerResolver(
-				ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver) {
-			Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
-			this.authenticationManagerResolver = authenticationManagerResolver;
-			return this;
-		}
-
-		/**
-		 * Enables JWT Resource Server support.
-		 * @return the {@link JwtSpec} for additional configuration
-		 */
-		public JwtSpec jwt() {
-			if (this.jwt == null) {
-				this.jwt = new JwtSpec();
-			}
-			return this.jwt;
-		}
-
-		/**
-		 * Enables JWT Resource Server support.
-		 * @param jwtCustomizer the {@link Customizer} to provide more options for the
-		 * {@link JwtSpec}
-		 * @return the {@link OAuth2ResourceServerSpec} to customize
-		 */
-		public OAuth2ResourceServerSpec jwt(Customizer<JwtSpec> jwtCustomizer) {
-			if (this.jwt == null) {
-				this.jwt = new JwtSpec();
-			}
-			jwtCustomizer.customize(this.jwt);
-			return this;
-		}
-
-		/**
-		 * Enables Opaque Token Resource Server support.
-		 * @return the {@link OpaqueTokenSpec} for additional configuration
-		 */
-		public OpaqueTokenSpec opaqueToken() {
-			if (this.opaqueToken == null) {
-				this.opaqueToken = new OpaqueTokenSpec();
-			}
-			return this.opaqueToken;
-		}
-
-		/**
-		 * Enables Opaque Token Resource Server support.
-		 * @param opaqueTokenCustomizer the {@link Customizer} to provide more options for
-		 * the {@link OpaqueTokenSpec}
-		 * @return the {@link OAuth2ResourceServerSpec} to customize
-		 */
-		public OAuth2ResourceServerSpec opaqueToken(Customizer<OpaqueTokenSpec> opaqueTokenCustomizer) {
-			if (this.opaqueToken == null) {
-				this.opaqueToken = new OpaqueTokenSpec();
-			}
-			opaqueTokenCustomizer.customize(this.opaqueToken);
-			return this;
-		}
-
-		protected void configure(ServerHttpSecurity http) {
-			this.authenticationConverterServerWebExchangeMatcher = new AuthenticationConverterServerWebExchangeMatcher(
-					this.bearerTokenConverter);
-
-			registerDefaultAccessDeniedHandler(http);
-			registerDefaultAuthenticationEntryPoint(http);
-			registerDefaultCsrfOverride(http);
-
-			validateConfiguration();
-
-			if (this.authenticationManagerResolver != null) {
-				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
-				oauth2.setServerAuthenticationConverter(this.bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(
-						new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
-				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
-			}
-			else if (this.jwt != null) {
-				this.jwt.configure(http);
-			}
-			else if (this.opaqueToken != null) {
-				this.opaqueToken.configure(http);
-			}
-		}
-
-		private void validateConfiguration() {
-			if (this.authenticationManagerResolver == null) {
-				if (this.jwt == null && this.opaqueToken == null) {
-					throw new IllegalStateException(
-							"Jwt and Opaque Token are the only supported formats for bearer tokens "
-									+ "in Spring Security and neither was found. Make sure to configure JWT "
-									+ "via http.oauth2ResourceServer().jwt() or Opaque Tokens via "
-									+ "http.oauth2ResourceServer().opaqueToken().");
-				}
-
-				if (this.jwt != null && this.opaqueToken != null) {
-					throw new IllegalStateException(
-							"Spring Security only supports JWTs or Opaque Tokens, not both at the " + "same time.");
-				}
-			}
-			else {
-				if (this.jwt != null || this.opaqueToken != null) {
-					throw new IllegalStateException(
-							"If an authenticationManagerResolver() is configured, then it takes "
-									+ "precedence over any jwt() or opaqueToken() configuration.");
-				}
-			}
-		}
-
-		private void registerDefaultAccessDeniedHandler(ServerHttpSecurity http) {
-			if (http.exceptionHandling != null) {
-				http.defaultAccessDeniedHandlers
-						.add(new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
-								this.authenticationConverterServerWebExchangeMatcher,
-								OAuth2ResourceServerSpec.this.accessDeniedHandler));
-			}
-		}
-
-		private void registerDefaultAuthenticationEntryPoint(ServerHttpSecurity http) {
-			if (http.exceptionHandling != null) {
-				http.defaultEntryPoints.add(new DelegateEntry(this.authenticationConverterServerWebExchangeMatcher,
-						OAuth2ResourceServerSpec.this.entryPoint));
-			}
-		}
-
-		private void registerDefaultCsrfOverride(ServerHttpSecurity http) {
-			if (http.csrf != null && !http.csrf.specifiedRequireCsrfProtectionMatcher) {
-				// @formatter:off
-				http
-					.csrf()
-					.requireCsrfProtectionMatcher(
-							new AndServerWebExchangeMatcher(
-									CsrfWebFilter.DEFAULT_CSRF_MATCHER,
-									new NegatedServerWebExchangeMatcher(
-											this.authenticationConverterServerWebExchangeMatcher)));
-				// @formatter:on
-			}
-		}
-
-		private class BearerTokenAuthenticationWebFilter extends AuthenticationWebFilter {
-
-			private ServerAuthenticationFailureHandler authenticationFailureHandler;
-
-			BearerTokenAuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
-				super(authenticationManager);
-			}
-
-			@Override
-			public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-				return super.filter(exchange, chain).onErrorResume(AuthenticationException.class,
-						e -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
-			}
-
-			@Override
-			public void setAuthenticationFailureHandler(
-					ServerAuthenticationFailureHandler authenticationFailureHandler) {
-				super.setAuthenticationFailureHandler(authenticationFailureHandler);
-				this.authenticationFailureHandler = authenticationFailureHandler;
-			}
-
-		}
-
-		/**
-		 * Configures JWT Resource Server Support
-		 */
-		public class JwtSpec {
-
-			private ReactiveAuthenticationManager authenticationManager;
-
-			private ReactiveJwtDecoder jwtDecoder;
-
-			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverterAdapter(
-					new JwtAuthenticationConverter());
-
-			/**
-			 * Configures the {@link ReactiveAuthenticationManager} to use
-			 * @param authenticationManager the authentication manager to use
-			 * @return the {@code JwtSpec} for additional configuration
-			 */
-			public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
-				Assert.notNull(authenticationManager, "authenticationManager cannot be null");
-				this.authenticationManager = authenticationManager;
-				return this;
-			}
-
-			/**
-			 * Configures the {@link Converter} to use for converting a {@link Jwt} into
-			 * an {@link AbstractAuthenticationToken}.
-			 * @param jwtAuthenticationConverter the converter to use
-			 * @return the {@code JwtSpec} for additional configuration
-			 * @since 5.1.1
-			 */
-			public JwtSpec jwtAuthenticationConverter(
-					Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter) {
-				Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
-				this.jwtAuthenticationConverter = jwtAuthenticationConverter;
-				return this;
-			}
-
-			/**
-			 * Configures the {@link ReactiveJwtDecoder} to use
-			 * @param jwtDecoder the decoder to use
-			 * @return the {@code JwtSpec} for additional configuration
-			 */
-			public JwtSpec jwtDecoder(ReactiveJwtDecoder jwtDecoder) {
-				this.jwtDecoder = jwtDecoder;
-				return this;
-			}
-
-			/**
-			 * Configures a {@link ReactiveJwtDecoder} that leverages the provided
-			 * {@link RSAPublicKey}
-			 * @param publicKey the public key to use.
-			 * @return the {@code JwtSpec} for additional configuration
-			 */
-			public JwtSpec publicKey(RSAPublicKey publicKey) {
-				this.jwtDecoder = new NimbusReactiveJwtDecoder(publicKey);
-				return this;
-			}
-
-			/**
-			 * Configures a {@link ReactiveJwtDecoder} using
-			 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key
-			 * (JWK)</a> URL
-			 * @param jwkSetUri the URL to use.
-			 * @return the {@code JwtSpec} for additional configuration
-			 */
-			public JwtSpec jwkSetUri(String jwkSetUri) {
-				this.jwtDecoder = new NimbusReactiveJwtDecoder(jwkSetUri);
-				return this;
-			}
-
-			public OAuth2ResourceServerSpec and() {
-				return OAuth2ResourceServerSpec.this;
-			}
-
-			protected void configure(ServerHttpSecurity http) {
-				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
-				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(
-						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
-				// @formatter:off
-				http
-					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
-				// @formatter:on
-			}
-
-			protected ReactiveJwtDecoder getJwtDecoder() {
-				if (this.jwtDecoder == null) {
-					return getBean(ReactiveJwtDecoder.class);
-				}
-				return this.jwtDecoder;
-			}
-
-			protected Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> getJwtAuthenticationConverter() {
-
-				return this.jwtAuthenticationConverter;
-			}
-
-			private ReactiveAuthenticationManager getAuthenticationManager() {
-				if (this.authenticationManager != null) {
-					return this.authenticationManager;
-				}
-
-				ReactiveJwtDecoder jwtDecoder = getJwtDecoder();
-				Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter = getJwtAuthenticationConverter();
-				JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
-						jwtDecoder);
-				authenticationManager.setJwtAuthenticationConverter(jwtAuthenticationConverter);
-
-				return authenticationManager;
-			}
-
-		}
-
-		/**
-		 * Configures Opaque Token Resource Server support
-		 *
-		 * @author Josh Cummings
-		 * @since 5.2
-		 */
-		public final class OpaqueTokenSpec {
-
-			private String introspectionUri;
-
-			private String clientId;
-
-			private String clientSecret;
-
-			private Supplier<ReactiveOpaqueTokenIntrospector> introspector;
-
-			private OpaqueTokenSpec() {
-			}
-
-			/**
-			 * Configures the URI of the Introspection endpoint
-			 * @param introspectionUri The URI of the Introspection endpoint
-			 * @return the {@code OpaqueTokenSpec} for additional configuration
-			 */
-			public OpaqueTokenSpec introspectionUri(String introspectionUri) {
-				Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
-				this.introspectionUri = introspectionUri;
-				this.introspector = () -> new NimbusReactiveOpaqueTokenIntrospector(this.introspectionUri,
-						this.clientId, this.clientSecret);
-				return this;
-			}
-
-			/**
-			 * Configures the credentials for Introspection endpoint
-			 * @param clientId The clientId part of the credentials
-			 * @param clientSecret The clientSecret part of the credentials
-			 * @return the {@code OpaqueTokenSpec} for additional configuration
-			 */
-			public OpaqueTokenSpec introspectionClientCredentials(String clientId, String clientSecret) {
-				Assert.hasText(clientId, "clientId cannot be empty");
-				Assert.notNull(clientSecret, "clientSecret cannot be null");
-				this.clientId = clientId;
-				this.clientSecret = clientSecret;
-				this.introspector = () -> new NimbusReactiveOpaqueTokenIntrospector(this.introspectionUri,
-						this.clientId, this.clientSecret);
-				return this;
-			}
-
-			public OpaqueTokenSpec introspector(ReactiveOpaqueTokenIntrospector introspector) {
-				Assert.notNull(introspector, "introspector cannot be null");
-				this.introspector = () -> introspector;
-				return this;
-			}
-
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}
-			 * @return the {@link ServerHttpSecurity} to continue configuring
-			 */
-			public OAuth2ResourceServerSpec and() {
-				return OAuth2ResourceServerSpec.this;
-			}
-
-			protected ReactiveAuthenticationManager getAuthenticationManager() {
-				return new OpaqueTokenReactiveAuthenticationManager(getIntrospector());
-			}
-
-			protected ReactiveOpaqueTokenIntrospector getIntrospector() {
-				if (this.introspector != null) {
-					return this.introspector.get();
-				}
-				return getBean(ReactiveOpaqueTokenIntrospector.class);
-			}
-
-			protected void configure(ServerHttpSecurity http) {
-				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
-				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(
-						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
-				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
-			}
-
-		}
-
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
 	}
 
 	/**
@@ -2599,7 +1473,30 @@ public class ServerHttpSecurity {
 		return new OrderedWebFilter(result, SecurityWebFiltersOrder.REACTOR_CONTEXT.getOrder());
 	}
 
-	protected ServerHttpSecurity() {
+	private <T> T getBean(Class<T> beanClass) {
+		if (this.context == null) {
+			return null;
+		}
+		return this.context.getBean(beanClass);
+	}
+
+	private <T> T getBeanOrNull(Class<T> beanClass) {
+		return getBeanOrNull(ResolvableType.forClass(beanClass));
+	}
+
+	private <T> T getBeanOrNull(ResolvableType type) {
+		if (this.context == null) {
+			return null;
+		}
+		String[] names = this.context.getBeanNamesForType(type);
+		if (names.length == 1) {
+			return (T) this.context.getBean(names[0]);
+		}
+		return null;
+	}
+
+	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.context = applicationContext;
 	}
 
 	/**
@@ -3931,32 +2828,6 @@ public class ServerHttpSecurity {
 
 	}
 
-	private <T> T getBean(Class<T> beanClass) {
-		if (this.context == null) {
-			return null;
-		}
-		return this.context.getBean(beanClass);
-	}
-
-	private <T> T getBeanOrNull(Class<T> beanClass) {
-		return getBeanOrNull(ResolvableType.forClass(beanClass));
-	}
-
-	private <T> T getBeanOrNull(ResolvableType type) {
-		if (this.context == null) {
-			return null;
-		}
-		String[] names = this.context.getBeanNamesForType(type);
-		if (names.length == 1) {
-			return (T) this.context.getBean(names[0]);
-		}
-		return null;
-	}
-
-	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.context = applicationContext;
-	}
-
 	private static class OrderedWebFilter implements WebFilter, Ordered {
 
 		private final WebFilter webFilter;
@@ -3993,6 +2864,1135 @@ public class ServerHttpSecurity {
 		@Override
 		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 			return chain.filter(exchange).subscriberContext(Context.of(ServerWebExchange.class, exchange));
+		}
+
+	}
+
+	/**
+	 * Configures CORS support within Spring Security. This ensures that the
+	 * {@link CorsWebFilter} is place in the correct order.
+	 */
+	public final class CorsSpec {
+
+		private CorsWebFilter corsFilter;
+
+		private CorsSpec() {
+		}
+
+		/**
+		 * Configures the {@link CorsConfigurationSource} to be used
+		 * @param source the source to use
+		 * @return the {@link CorsSpec} for additional configuration
+		 */
+		public CorsSpec configurationSource(CorsConfigurationSource source) {
+			this.corsFilter = new CorsWebFilter(source);
+			return this;
+		}
+
+		/**
+		 * Disables CORS support within Spring Security.
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity disable() {
+			ServerHttpSecurity.this.cors = null;
+			return ServerHttpSecurity.this;
+		}
+
+		/**
+		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			CorsWebFilter corsFilter = getCorsFilter();
+			if (corsFilter != null) {
+				http.addFilterAt(this.corsFilter, SecurityWebFiltersOrder.CORS);
+			}
+		}
+
+		private CorsWebFilter getCorsFilter() {
+			if (this.corsFilter != null) {
+				return this.corsFilter;
+			}
+
+			CorsConfigurationSource source = getBeanOrNull(CorsConfigurationSource.class);
+			if (source == null) {
+				return null;
+			}
+			CorsProcessor processor = getBeanOrNull(CorsProcessor.class);
+			if (processor == null) {
+				processor = new DefaultCorsProcessor();
+			}
+			this.corsFilter = new CorsWebFilter(source, processor);
+			return this.corsFilter;
+		}
+
+	}
+
+	/**
+	 * Configures X509 authentication
+	 *
+	 * @author Alexey Nesterov
+	 * @since 5.2
+	 * @see #x509()
+	 */
+	public final class X509Spec {
+
+		private X509PrincipalExtractor principalExtractor;
+
+		private ReactiveAuthenticationManager authenticationManager;
+
+		private X509Spec() {
+		}
+
+		public X509Spec principalExtractor(X509PrincipalExtractor principalExtractor) {
+			this.principalExtractor = principalExtractor;
+			return this;
+		}
+
+		public X509Spec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
+			X509PrincipalExtractor principalExtractor = getPrincipalExtractor();
+
+			AuthenticationWebFilter filter = new AuthenticationWebFilter(authenticationManager);
+			filter.setServerAuthenticationConverter(new ServerX509AuthenticationConverter(principalExtractor));
+			http.addFilterAt(filter, SecurityWebFiltersOrder.AUTHENTICATION);
+		}
+
+		private X509PrincipalExtractor getPrincipalExtractor() {
+			if (this.principalExtractor != null) {
+				return this.principalExtractor;
+			}
+
+			return new SubjectDnX509PrincipalExtractor();
+		}
+
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager != null) {
+				return this.authenticationManager;
+			}
+
+			ReactiveUserDetailsService userDetailsService = getBean(ReactiveUserDetailsService.class);
+			ReactivePreAuthenticatedAuthenticationManager authenticationManager = new ReactivePreAuthenticatedAuthenticationManager(
+					userDetailsService);
+
+			return authenticationManager;
+		}
+
+	}
+
+	public final class OAuth2LoginSpec {
+
+		private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
+		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+
+		private ReactiveAuthenticationManager authenticationManager;
+
+		private ServerSecurityContextRepository securityContextRepository;
+
+		private ServerAuthenticationConverter authenticationConverter;
+
+		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
+
+		private ServerWebExchangeMatcher authenticationMatcher;
+
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
+
+		private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
+		private OAuth2LoginSpec() {
+		}
+
+		/**
+		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
+		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
+		 * @param authenticationManager the manager to use
+		 * @return the {@link OAuth2LoginSpec} to customize
+		 */
+		public OAuth2LoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerSecurityContextRepository} used to save the
+		 * {@code Authentication}. Defaults to
+		 * {@link WebSessionServerSecurityContextRepository}.
+		 * @param securityContextRepository the repository to use
+		 * @return the {@link OAuth2LoginSpec} to continue configuring
+		 * @since 5.2
+		 */
+		public OAuth2LoginSpec securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
+			this.securityContextRepository = securityContextRepository;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerAuthenticationSuccessHandler} used after authentication
+		 * success. Defaults to {@link RedirectServerAuthenticationSuccessHandler}
+		 * redirecting to "/".
+		 * @param authenticationSuccessHandler the success handler to use
+		 * @return the {@link OAuth2LoginSpec} to customize
+		 * @since 5.2
+		 */
+		public OAuth2LoginSpec authenticationSuccessHandler(
+				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
+			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+			this.authenticationSuccessHandler = authenticationSuccessHandler;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerAuthenticationFailureHandler} used after authentication
+		 * failure. Defaults to {@link RedirectServerAuthenticationFailureHandler}
+		 * redirecting to "/login?error".
+		 * @param authenticationFailureHandler the failure handler to use
+		 * @return the {@link OAuth2LoginSpec} to customize
+		 * @since 5.2
+		 */
+		public OAuth2LoginSpec authenticationFailureHandler(
+				ServerAuthenticationFailureHandler authenticationFailureHandler) {
+			Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+			this.authenticationFailureHandler = authenticationFailureHandler;
+			return this;
+		}
+
+		/**
+		 * Gets the {@link ReactiveAuthenticationManager} to use. First tries an
+		 * explicitly configured manager, and defaults to
+		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
+		 * @return the {@link ReactiveAuthenticationManager} to use
+		 */
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager == null) {
+				this.authenticationManager = createDefault();
+			}
+			return this.authenticationManager;
+		}
+
+		private ReactiveAuthenticationManager createDefault() {
+			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> client = getAccessTokenResponseClient();
+			OAuth2LoginReactiveAuthenticationManager oauth2Manager = new OAuth2LoginReactiveAuthenticationManager(
+					client, getOauth2UserService());
+			GrantedAuthoritiesMapper authoritiesMapper = getBeanOrNull(GrantedAuthoritiesMapper.class);
+			if (authoritiesMapper != null) {
+				oauth2Manager.setAuthoritiesMapper(authoritiesMapper);
+			}
+			boolean oidcAuthenticationProviderEnabled = ClassUtils
+					.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
+			if (oidcAuthenticationProviderEnabled) {
+				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(
+						client, getOidcUserService());
+				ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveJwtDecoderFactory.class,
+						ClientRegistration.class);
+				ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = getBeanOrNull(type);
+				if (jwtDecoderFactory != null) {
+					oidc.setJwtDecoderFactory(jwtDecoderFactory);
+				}
+				if (authoritiesMapper != null) {
+					oidc.setAuthoritiesMapper(authoritiesMapper);
+				}
+				return new DelegatingReactiveAuthenticationManager(oidc, oauth2Manager);
+			}
+			return oauth2Manager;
+		}
+
+		/**
+		 * Sets the converter to use
+		 * @param authenticationConverter the converter to use
+		 * @return the {@link OAuth2LoginSpec} to customize
+		 */
+		public OAuth2LoginSpec authenticationConverter(ServerAuthenticationConverter authenticationConverter) {
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		private ServerAuthenticationConverter getAuthenticationConverter(
+				ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			if (this.authenticationConverter == null) {
+				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter delegate = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
+						clientRegistrationRepository);
+				delegate.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+				ServerAuthenticationConverter authenticationConverter = exchange -> delegate.convert(exchange)
+						.onErrorMap(OAuth2AuthorizationException.class,
+								e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
+				this.authenticationConverter = authenticationConverter;
+				return authenticationConverter;
+			}
+			return this.authenticationConverter;
+		}
+
+		public OAuth2LoginSpec clientRegistrationRepository(
+				ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			this.clientRegistrationRepository = clientRegistrationRepository;
+			return this;
+		}
+
+		public OAuth2LoginSpec authorizedClientService(ReactiveOAuth2AuthorizedClientService authorizedClientService) {
+			this.authorizedClientRepository = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
+					authorizedClientService);
+			return this;
+		}
+
+		public OAuth2LoginSpec authorizedClientRepository(
+				ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+			this.authorizedClientRepository = authorizedClientRepository;
+			return this;
+		}
+
+		/**
+		 * Sets the repository to use for storing {@link OAuth2AuthorizationRequest}'s.
+		 * @param authorizationRequestRepository the repository to use for storing
+		 * {@link OAuth2AuthorizationRequest}'s
+		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 5.2
+		 */
+		public OAuth2LoginSpec authorizationRequestRepository(
+				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+			this.authorizationRequestRepository = authorizationRequestRepository;
+			return this;
+		}
+
+		/**
+		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
+		 * @param authorizationRequestResolver the resolver used for resolving
+		 * {@link OAuth2AuthorizationRequest}'s
+		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 5.2
+		 */
+		public OAuth2LoginSpec authorizationRequestResolver(
+				ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+			this.authorizationRequestResolver = authorizationRequestResolver;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link ServerWebExchangeMatcher matcher} used for determining if the
+		 * request is an authentication request.
+		 * @param authenticationMatcher the {@link ServerWebExchangeMatcher matcher} used
+		 * for determining if the request is an authentication request
+		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 5.2
+		 */
+		public OAuth2LoginSpec authenticationMatcher(ServerWebExchangeMatcher authenticationMatcher) {
+			this.authenticationMatcher = authenticationMatcher;
+			return this;
+		}
+
+		private ServerWebExchangeMatcher getAuthenticationMatcher() {
+			if (this.authenticationMatcher == null) {
+				this.authenticationMatcher = createAttemptAuthenticationRequestMatcher();
+			}
+			return this.authenticationMatcher;
+		}
+
+		/**
+		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
+			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = getRedirectWebFilter();
+			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = getAuthorizationRequestRepository();
+			oauthRedirectFilter.setAuthorizationRequestRepository(authorizationRequestRepository);
+			oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
+
+			ReactiveAuthenticationManager manager = getAuthenticationManager();
+
+			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager,
+					authorizedClientRepository);
+			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
+			authenticationFilter
+					.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
+
+			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
+			authenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
+			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
+
+			setDefaultEntryPoints(http);
+
+			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
+			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+		}
+
+		private void setDefaultEntryPoints(ServerHttpSecurity http) {
+			String defaultLoginPage = "/login";
+			Map<String, String> urlToText = http.oauth2Login.getLinks();
+			String providerLoginPage = null;
+			if (urlToText.size() == 1) {
+				providerLoginPage = urlToText.keySet().iterator().next();
+			}
+
+			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
+					MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
+					MediaType.TEXT_PLAIN);
+			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+
+			ServerWebExchangeMatcher xhrMatcher = exchange -> {
+				if (exchange.getRequest().getHeaders().getOrEmpty("X-Requested-With").contains("XMLHttpRequest")) {
+					return ServerWebExchangeMatcher.MatchResult.match();
+				}
+				return ServerWebExchangeMatcher.MatchResult.notMatch();
+			};
+			ServerWebExchangeMatcher notXhrMatcher = new NegatedServerWebExchangeMatcher(xhrMatcher);
+
+			ServerWebExchangeMatcher defaultEntryPointMatcher = new AndServerWebExchangeMatcher(notXhrMatcher,
+					htmlMatcher);
+
+			if (providerLoginPage != null) {
+				ServerWebExchangeMatcher loginPageMatcher = new PathPatternParserServerWebExchangeMatcher(
+						defaultLoginPage);
+				ServerWebExchangeMatcher faviconMatcher = new PathPatternParserServerWebExchangeMatcher("/favicon.ico");
+				ServerWebExchangeMatcher defaultLoginPageMatcher = new AndServerWebExchangeMatcher(
+						new OrServerWebExchangeMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
+
+				ServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(notXhrMatcher,
+						new NegatedServerWebExchangeMatcher(defaultLoginPageMatcher));
+				RedirectServerAuthenticationEntryPoint entryPoint = new RedirectServerAuthenticationEntryPoint(
+						providerLoginPage);
+				entryPoint.setRequestCache(http.requestCache.requestCache);
+				http.defaultEntryPoints.add(new DelegateEntry(matcher, entryPoint));
+			}
+
+			RedirectServerAuthenticationEntryPoint defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(
+					defaultLoginPage);
+			defaultEntryPoint.setRequestCache(http.requestCache.requestCache);
+			http.defaultEntryPoints.add(new DelegateEntry(defaultEntryPointMatcher, defaultEntryPoint));
+		}
+
+		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler(ServerHttpSecurity http) {
+			if (this.authenticationSuccessHandler == null) {
+				RedirectServerAuthenticationSuccessHandler handler = new RedirectServerAuthenticationSuccessHandler();
+				handler.setRequestCache(http.requestCache.requestCache);
+				this.authenticationSuccessHandler = handler;
+			}
+			return this.authenticationSuccessHandler;
+		}
+
+		private ServerAuthenticationFailureHandler getAuthenticationFailureHandler() {
+			if (this.authenticationFailureHandler == null) {
+				this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler("/login?error");
+			}
+			return this.authenticationFailureHandler;
+		}
+
+		private ServerWebExchangeMatcher createAttemptAuthenticationRequestMatcher() {
+			return new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}");
+		}
+
+		private ReactiveOAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2UserService.class,
+					OidcUserRequest.class, OidcUser.class);
+			ReactiveOAuth2UserService<OidcUserRequest, OidcUser> bean = getBeanOrNull(type);
+			if (bean == null) {
+				return new OidcReactiveOAuth2UserService();
+			}
+
+			return bean;
+		}
+
+		private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> getOauth2UserService() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2UserService.class,
+					OAuth2UserRequest.class, OAuth2User.class);
+			ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> bean = getBeanOrNull(type);
+			if (bean == null) {
+				return new DefaultReactiveOAuth2UserService();
+			}
+
+			return bean;
+		}
+
+		private Map<String, String> getLinks() {
+			Iterable<ClientRegistration> registrations = getBeanOrNull(
+					ResolvableType.forClassWithGenerics(Iterable.class, ClientRegistration.class));
+			if (registrations == null) {
+				return Collections.emptyMap();
+			}
+			Map<String, String> result = new HashMap<>();
+			registrations.iterator().forEachRemaining(
+					r -> result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName()));
+			return result;
+		}
+
+		private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2AccessTokenResponseClient.class,
+					OAuth2AuthorizationCodeGrantRequest.class);
+			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(type);
+			if (bean == null) {
+				return new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			}
+			return bean;
+		}
+
+		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
+			if (this.clientRegistrationRepository == null) {
+				this.clientRegistrationRepository = getBeanOrNull(ReactiveClientRegistrationRepository.class);
+			}
+			return this.clientRegistrationRepository;
+		}
+
+		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
+			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter;
+			if (this.authorizationRequestResolver == null) {
+				oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
+						getClientRegistrationRepository());
+			}
+			else {
+				oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
+						this.authorizationRequestResolver);
+			}
+			return oauthRedirectFilter;
+		}
+
+		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
+			ServerOAuth2AuthorizedClientRepository result = this.authorizedClientRepository;
+			if (result == null) {
+				result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
+			}
+			if (result == null) {
+				ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
+				if (authorizedClientService != null) {
+					result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService);
+				}
+			}
+			return result;
+		}
+
+		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
+			if (this.authorizationRequestRepository == null) {
+				this.authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
+			}
+			return this.authorizationRequestRepository;
+		}
+
+		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
+			ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			if (service == null) {
+				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
+			}
+			return service;
+		}
+
+	}
+
+	public final class OAuth2ClientSpec {
+
+		private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+		private ServerAuthenticationConverter authenticationConverter;
+
+		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
+		private ReactiveAuthenticationManager authenticationManager;
+
+		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+
+		private OAuth2ClientSpec() {
+		}
+
+		/**
+		 * Sets the converter to use
+		 * @param authenticationConverter the converter to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec authenticationConverter(ServerAuthenticationConverter authenticationConverter) {
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		private ServerAuthenticationConverter getAuthenticationConverter() {
+			if (this.authenticationConverter == null) {
+				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
+						getClientRegistrationRepository());
+				authenticationConverter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+				this.authenticationConverter = authenticationConverter;
+			}
+			return this.authenticationConverter;
+		}
+
+		/**
+		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
+		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
+		 * @param authenticationManager the manager to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		/**
+		 * Gets the {@link ReactiveAuthenticationManager} to use. First tries an
+		 * explicitly configured manager, and defaults to
+		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
+		 * @return the {@link ReactiveAuthenticationManager} to use
+		 */
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager == null) {
+				this.authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(
+						new WebClientReactiveAuthorizationCodeTokenResponseClient());
+			}
+			return this.authenticationManager;
+		}
+
+		/**
+		 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look
+		 * the value up as a Bean.
+		 * @param clientRegistrationRepository the repository to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec clientRegistrationRepository(
+				ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			this.clientRegistrationRepository = clientRegistrationRepository;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look
+		 * the value up as a Bean.
+		 * @param authorizedClientRepository the repository to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec authorizedClientRepository(
+				ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+			this.authorizedClientRepository = authorizedClientRepository;
+			return this;
+		}
+
+		/**
+		 * Sets the repository to use for storing {@link OAuth2AuthorizationRequest}'s.
+		 * @param authorizationRequestRepository the repository to use for storing
+		 * {@link OAuth2AuthorizationRequest}'s
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 * @since 5.2
+		 */
+		public OAuth2ClientSpec authorizationRequestRepository(
+				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+			this.authorizationRequestRepository = authorizationRequestRepository;
+			return this;
+		}
+
+		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
+			if (this.authorizationRequestRepository == null) {
+				this.authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
+			}
+			return this.authorizationRequestRepository;
+		}
+
+		/**
+		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
+			ServerAuthenticationConverter authenticationConverter = getAuthenticationConverter();
+			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
+			OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(
+					authenticationManager, authenticationConverter, authorizedClientRepository);
+			codeGrantWebFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+			if (http.requestCache != null) {
+				codeGrantWebFilter.setRequestCache(http.requestCache.requestCache);
+			}
+
+			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
+					clientRegistrationRepository);
+			oauthRedirectFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+			if (http.requestCache != null) {
+				oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
+			}
+
+			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.OAUTH2_AUTHORIZATION_CODE);
+			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
+		}
+
+		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
+			if (this.clientRegistrationRepository != null) {
+				return this.clientRegistrationRepository;
+			}
+			return getBeanOrNull(ReactiveClientRegistrationRepository.class);
+		}
+
+		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
+			if (this.authorizedClientRepository != null) {
+				return this.authorizedClientRepository;
+			}
+			ServerOAuth2AuthorizedClientRepository result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
+			if (result == null) {
+				ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
+				if (authorizedClientService != null) {
+					result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService);
+				}
+			}
+			return result;
+		}
+
+		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
+			ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			if (service == null) {
+				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
+			}
+			return service;
+		}
+
+	}
+
+	/**
+	 * Configures OAuth2 Resource Server Support
+	 */
+	public class OAuth2ResourceServerSpec {
+
+		private ServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
+
+		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
+
+		private ServerAuthenticationConverter bearerTokenConverter = new ServerBearerTokenAuthenticationConverter();
+
+		private AuthenticationConverterServerWebExchangeMatcher authenticationConverterServerWebExchangeMatcher;
+
+		private JwtSpec jwt;
+
+		private OpaqueTokenSpec opaqueToken;
+
+		private ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver;
+
+		/**
+		 * Configures the {@link ServerAccessDeniedHandler} to use for requests
+		 * authenticating with
+		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target=
+		 * "_blank">Bearer Token</a>s. requests.
+		 * @param accessDeniedHandler the {@link ServerAccessDeniedHandler} to use
+		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
+		 * @since 5.2
+		 */
+		public OAuth2ResourceServerSpec accessDeniedHandler(ServerAccessDeniedHandler accessDeniedHandler) {
+			Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
+			this.accessDeniedHandler = accessDeniedHandler;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ServerAuthenticationEntryPoint} to use for requests
+		 * authenticating with
+		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target=
+		 * "_blank">Bearer Token</a>s.
+		 * @param entryPoint the {@link ServerAuthenticationEntryPoint} to use
+		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
+		 * @since 5.2
+		 */
+		public OAuth2ResourceServerSpec authenticationEntryPoint(ServerAuthenticationEntryPoint entryPoint) {
+			Assert.notNull(entryPoint, "entryPoint cannot be null");
+			this.entryPoint = entryPoint;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ServerAuthenticationConverter} to use for requests
+		 * authenticating with
+		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target=
+		 * "_blank">Bearer Token</a>s.
+		 * @param bearerTokenConverter The {@link ServerAuthenticationConverter} to use
+		 * @return The {@link OAuth2ResourceServerSpec} for additional configuration
+		 * @since 5.2
+		 */
+		public OAuth2ResourceServerSpec bearerTokenConverter(ServerAuthenticationConverter bearerTokenConverter) {
+			Assert.notNull(bearerTokenConverter, "bearerTokenConverter cannot be null");
+			this.bearerTokenConverter = bearerTokenConverter;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ReactiveAuthenticationManagerResolver}
+		 * @param authenticationManagerResolver the
+		 * {@link ReactiveAuthenticationManagerResolver}
+		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
+		 * @since 5.3
+		 */
+		public OAuth2ResourceServerSpec authenticationManagerResolver(
+				ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver) {
+			Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
+			this.authenticationManagerResolver = authenticationManagerResolver;
+			return this;
+		}
+
+		/**
+		 * Enables JWT Resource Server support.
+		 * @return the {@link JwtSpec} for additional configuration
+		 */
+		public JwtSpec jwt() {
+			if (this.jwt == null) {
+				this.jwt = new JwtSpec();
+			}
+			return this.jwt;
+		}
+
+		/**
+		 * Enables JWT Resource Server support.
+		 * @param jwtCustomizer the {@link Customizer} to provide more options for the
+		 * {@link JwtSpec}
+		 * @return the {@link OAuth2ResourceServerSpec} to customize
+		 */
+		public OAuth2ResourceServerSpec jwt(Customizer<JwtSpec> jwtCustomizer) {
+			if (this.jwt == null) {
+				this.jwt = new JwtSpec();
+			}
+			jwtCustomizer.customize(this.jwt);
+			return this;
+		}
+
+		/**
+		 * Enables Opaque Token Resource Server support.
+		 * @return the {@link OpaqueTokenSpec} for additional configuration
+		 */
+		public OpaqueTokenSpec opaqueToken() {
+			if (this.opaqueToken == null) {
+				this.opaqueToken = new OpaqueTokenSpec();
+			}
+			return this.opaqueToken;
+		}
+
+		/**
+		 * Enables Opaque Token Resource Server support.
+		 * @param opaqueTokenCustomizer the {@link Customizer} to provide more options for
+		 * the {@link OpaqueTokenSpec}
+		 * @return the {@link OAuth2ResourceServerSpec} to customize
+		 */
+		public OAuth2ResourceServerSpec opaqueToken(Customizer<OpaqueTokenSpec> opaqueTokenCustomizer) {
+			if (this.opaqueToken == null) {
+				this.opaqueToken = new OpaqueTokenSpec();
+			}
+			opaqueTokenCustomizer.customize(this.opaqueToken);
+			return this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			this.authenticationConverterServerWebExchangeMatcher = new AuthenticationConverterServerWebExchangeMatcher(
+					this.bearerTokenConverter);
+
+			registerDefaultAccessDeniedHandler(http);
+			registerDefaultAuthenticationEntryPoint(http);
+			registerDefaultCsrfOverride(http);
+
+			validateConfiguration();
+
+			if (this.authenticationManagerResolver != null) {
+				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
+				oauth2.setServerAuthenticationConverter(this.bearerTokenConverter);
+				oauth2.setAuthenticationFailureHandler(
+						new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
+				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
+			}
+			else if (this.jwt != null) {
+				this.jwt.configure(http);
+			}
+			else if (this.opaqueToken != null) {
+				this.opaqueToken.configure(http);
+			}
+		}
+
+		private void validateConfiguration() {
+			if (this.authenticationManagerResolver == null) {
+				if (this.jwt == null && this.opaqueToken == null) {
+					throw new IllegalStateException(
+							"Jwt and Opaque Token are the only supported formats for bearer tokens "
+									+ "in Spring Security and neither was found. Make sure to configure JWT "
+									+ "via http.oauth2ResourceServer().jwt() or Opaque Tokens via "
+									+ "http.oauth2ResourceServer().opaqueToken().");
+				}
+
+				if (this.jwt != null && this.opaqueToken != null) {
+					throw new IllegalStateException(
+							"Spring Security only supports JWTs or Opaque Tokens, not both at the " + "same time.");
+				}
+			}
+			else {
+				if (this.jwt != null || this.opaqueToken != null) {
+					throw new IllegalStateException(
+							"If an authenticationManagerResolver() is configured, then it takes "
+									+ "precedence over any jwt() or opaqueToken() configuration.");
+				}
+			}
+		}
+
+		private void registerDefaultAccessDeniedHandler(ServerHttpSecurity http) {
+			if (http.exceptionHandling != null) {
+				http.defaultAccessDeniedHandlers
+						.add(new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
+								this.authenticationConverterServerWebExchangeMatcher,
+								OAuth2ResourceServerSpec.this.accessDeniedHandler));
+			}
+		}
+
+		private void registerDefaultAuthenticationEntryPoint(ServerHttpSecurity http) {
+			if (http.exceptionHandling != null) {
+				http.defaultEntryPoints.add(new DelegateEntry(this.authenticationConverterServerWebExchangeMatcher,
+						OAuth2ResourceServerSpec.this.entryPoint));
+			}
+		}
+
+		private void registerDefaultCsrfOverride(ServerHttpSecurity http) {
+			if (http.csrf != null && !http.csrf.specifiedRequireCsrfProtectionMatcher) {
+				// @formatter:off
+				http
+					.csrf()
+					.requireCsrfProtectionMatcher(
+							new AndServerWebExchangeMatcher(
+									CsrfWebFilter.DEFAULT_CSRF_MATCHER,
+									new NegatedServerWebExchangeMatcher(
+											this.authenticationConverterServerWebExchangeMatcher)));
+				// @formatter:on
+			}
+		}
+
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		private class BearerTokenAuthenticationWebFilter extends AuthenticationWebFilter {
+
+			private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
+			BearerTokenAuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
+				super(authenticationManager);
+			}
+
+			@Override
+			public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
+				return super.filter(exchange, chain).onErrorResume(AuthenticationException.class,
+						e -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
+			}
+
+			@Override
+			public void setAuthenticationFailureHandler(
+					ServerAuthenticationFailureHandler authenticationFailureHandler) {
+				super.setAuthenticationFailureHandler(authenticationFailureHandler);
+				this.authenticationFailureHandler = authenticationFailureHandler;
+			}
+
+		}
+
+		/**
+		 * Configures JWT Resource Server Support
+		 */
+		public class JwtSpec {
+
+			private ReactiveAuthenticationManager authenticationManager;
+
+			private ReactiveJwtDecoder jwtDecoder;
+
+			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverterAdapter(
+					new JwtAuthenticationConverter());
+
+			/**
+			 * Configures the {@link ReactiveAuthenticationManager} to use
+			 * @param authenticationManager the authentication manager to use
+			 * @return the {@code JwtSpec} for additional configuration
+			 */
+			public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+				Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+				this.authenticationManager = authenticationManager;
+				return this;
+			}
+
+			/**
+			 * Configures the {@link Converter} to use for converting a {@link Jwt} into
+			 * an {@link AbstractAuthenticationToken}.
+			 * @param jwtAuthenticationConverter the converter to use
+			 * @return the {@code JwtSpec} for additional configuration
+			 * @since 5.1.1
+			 */
+			public JwtSpec jwtAuthenticationConverter(
+					Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter) {
+				Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
+				this.jwtAuthenticationConverter = jwtAuthenticationConverter;
+				return this;
+			}
+
+			/**
+			 * Configures the {@link ReactiveJwtDecoder} to use
+			 * @param jwtDecoder the decoder to use
+			 * @return the {@code JwtSpec} for additional configuration
+			 */
+			public JwtSpec jwtDecoder(ReactiveJwtDecoder jwtDecoder) {
+				this.jwtDecoder = jwtDecoder;
+				return this;
+			}
+
+			/**
+			 * Configures a {@link ReactiveJwtDecoder} that leverages the provided
+			 * {@link RSAPublicKey}
+			 * @param publicKey the public key to use.
+			 * @return the {@code JwtSpec} for additional configuration
+			 */
+			public JwtSpec publicKey(RSAPublicKey publicKey) {
+				this.jwtDecoder = new NimbusReactiveJwtDecoder(publicKey);
+				return this;
+			}
+
+			/**
+			 * Configures a {@link ReactiveJwtDecoder} using
+			 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key
+			 * (JWK)</a> URL
+			 * @param jwkSetUri the URL to use.
+			 * @return the {@code JwtSpec} for additional configuration
+			 */
+			public JwtSpec jwkSetUri(String jwkSetUri) {
+				this.jwtDecoder = new NimbusReactiveJwtDecoder(jwkSetUri);
+				return this;
+			}
+
+			public OAuth2ResourceServerSpec and() {
+				return OAuth2ResourceServerSpec.this;
+			}
+
+			protected void configure(ServerHttpSecurity http) {
+				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
+				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
+				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
+				oauth2.setAuthenticationFailureHandler(
+						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
+				// @formatter:off
+				http
+					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
+				// @formatter:on
+			}
+
+			protected ReactiveJwtDecoder getJwtDecoder() {
+				if (this.jwtDecoder == null) {
+					return getBean(ReactiveJwtDecoder.class);
+				}
+				return this.jwtDecoder;
+			}
+
+			protected Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> getJwtAuthenticationConverter() {
+
+				return this.jwtAuthenticationConverter;
+			}
+
+			private ReactiveAuthenticationManager getAuthenticationManager() {
+				if (this.authenticationManager != null) {
+					return this.authenticationManager;
+				}
+
+				ReactiveJwtDecoder jwtDecoder = getJwtDecoder();
+				Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter = getJwtAuthenticationConverter();
+				JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
+						jwtDecoder);
+				authenticationManager.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+
+				return authenticationManager;
+			}
+
+		}
+
+		/**
+		 * Configures Opaque Token Resource Server support
+		 *
+		 * @author Josh Cummings
+		 * @since 5.2
+		 */
+		public final class OpaqueTokenSpec {
+
+			private String introspectionUri;
+
+			private String clientId;
+
+			private String clientSecret;
+
+			private Supplier<ReactiveOpaqueTokenIntrospector> introspector;
+
+			private OpaqueTokenSpec() {
+			}
+
+			/**
+			 * Configures the URI of the Introspection endpoint
+			 * @param introspectionUri The URI of the Introspection endpoint
+			 * @return the {@code OpaqueTokenSpec} for additional configuration
+			 */
+			public OpaqueTokenSpec introspectionUri(String introspectionUri) {
+				Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
+				this.introspectionUri = introspectionUri;
+				this.introspector = () -> new NimbusReactiveOpaqueTokenIntrospector(this.introspectionUri,
+						this.clientId, this.clientSecret);
+				return this;
+			}
+
+			/**
+			 * Configures the credentials for Introspection endpoint
+			 * @param clientId The clientId part of the credentials
+			 * @param clientSecret The clientSecret part of the credentials
+			 * @return the {@code OpaqueTokenSpec} for additional configuration
+			 */
+			public OpaqueTokenSpec introspectionClientCredentials(String clientId, String clientSecret) {
+				Assert.hasText(clientId, "clientId cannot be empty");
+				Assert.notNull(clientSecret, "clientSecret cannot be null");
+				this.clientId = clientId;
+				this.clientSecret = clientSecret;
+				this.introspector = () -> new NimbusReactiveOpaqueTokenIntrospector(this.introspectionUri,
+						this.clientId, this.clientSecret);
+				return this;
+			}
+
+			public OpaqueTokenSpec introspector(ReactiveOpaqueTokenIntrospector introspector) {
+				Assert.notNull(introspector, "introspector cannot be null");
+				this.introspector = () -> introspector;
+				return this;
+			}
+
+			/**
+			 * Allows method chaining to continue configuring the
+			 * {@link ServerHttpSecurity}
+			 * @return the {@link ServerHttpSecurity} to continue configuring
+			 */
+			public OAuth2ResourceServerSpec and() {
+				return OAuth2ResourceServerSpec.this;
+			}
+
+			protected ReactiveAuthenticationManager getAuthenticationManager() {
+				return new OpaqueTokenReactiveAuthenticationManager(getIntrospector());
+			}
+
+			protected ReactiveOpaqueTokenIntrospector getIntrospector() {
+				if (this.introspector != null) {
+					return this.introspector.get();
+				}
+				return getBean(ReactiveOpaqueTokenIntrospector.class);
+			}
+
+			protected void configure(ServerHttpSecurity http) {
+				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
+				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
+				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
+				oauth2.setAuthenticationFailureHandler(
+						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
+				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
+			}
+
 		}
 
 	}

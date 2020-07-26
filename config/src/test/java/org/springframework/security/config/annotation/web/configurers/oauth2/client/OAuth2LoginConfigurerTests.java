@@ -584,6 +584,37 @@ public class OAuth2LoginConfigurerTests {
 				.scope(scopes).build();
 	}
 
+	private static OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> createOauth2AccessTokenResponseClient() {
+		return request -> {
+			Map<String, Object> additionalParameters = new HashMap<>();
+			if (request.getAuthorizationExchange().getAuthorizationRequest().getScopes().contains("openid")) {
+				additionalParameters.put(OidcParameterNames.ID_TOKEN, "token123");
+			}
+			return OAuth2AccessTokenResponse.withToken("accessToken123").tokenType(OAuth2AccessToken.TokenType.BEARER)
+					.additionalParameters(additionalParameters).build();
+		};
+	}
+
+	private static OAuth2UserService<OAuth2UserRequest, OAuth2User> createOauth2UserService() {
+		Map<String, Object> userAttributes = Collections.singletonMap("name", "spring");
+		return request -> new DefaultOAuth2User(Collections.singleton(new OAuth2UserAuthority(userAttributes)),
+				userAttributes, "name");
+	}
+
+	private static OAuth2UserService<OidcUserRequest, OidcUser> createOidcUserService() {
+		OidcIdToken idToken = idToken().build();
+		return request -> new DefaultOidcUser(Collections.singleton(new OidcUserAuthority(idToken)), idToken);
+	}
+
+	private static GrantedAuthoritiesMapper createGrantedAuthoritiesMapper() {
+		return authorities -> {
+			boolean isOidc = OidcUserAuthority.class.isInstance(authorities.iterator().next());
+			List<GrantedAuthority> mappedAuthorities = new ArrayList<>(authorities);
+			mappedAuthorities.add(new SimpleGrantedAuthority(isOidc ? "ROLE_OIDC_USER" : "ROLE_OAUTH2_USER"));
+			return mappedAuthorities;
+		};
+	}
+
 	@EnableWebSecurity
 	static class OAuth2LoginConfig extends CommonWebSecurityConfigurerAdapter
 			implements ApplicationListener<AuthenticationSuccessEvent> {
@@ -983,37 +1014,6 @@ public class OAuth2LoginConfigurerTests {
 			return clientRegistration -> JwtDecoderFactoryConfig.getJwtDecoder();
 		}
 
-	}
-
-	private static OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> createOauth2AccessTokenResponseClient() {
-		return request -> {
-			Map<String, Object> additionalParameters = new HashMap<>();
-			if (request.getAuthorizationExchange().getAuthorizationRequest().getScopes().contains("openid")) {
-				additionalParameters.put(OidcParameterNames.ID_TOKEN, "token123");
-			}
-			return OAuth2AccessTokenResponse.withToken("accessToken123").tokenType(OAuth2AccessToken.TokenType.BEARER)
-					.additionalParameters(additionalParameters).build();
-		};
-	}
-
-	private static OAuth2UserService<OAuth2UserRequest, OAuth2User> createOauth2UserService() {
-		Map<String, Object> userAttributes = Collections.singletonMap("name", "spring");
-		return request -> new DefaultOAuth2User(Collections.singleton(new OAuth2UserAuthority(userAttributes)),
-				userAttributes, "name");
-	}
-
-	private static OAuth2UserService<OidcUserRequest, OidcUser> createOidcUserService() {
-		OidcIdToken idToken = idToken().build();
-		return request -> new DefaultOidcUser(Collections.singleton(new OidcUserAuthority(idToken)), idToken);
-	}
-
-	private static GrantedAuthoritiesMapper createGrantedAuthoritiesMapper() {
-		return authorities -> {
-			boolean isOidc = OidcUserAuthority.class.isInstance(authorities.iterator().next());
-			List<GrantedAuthority> mappedAuthorities = new ArrayList<>(authorities);
-			mappedAuthorities.add(new SimpleGrantedAuthority(isOidc ? "ROLE_OIDC_USER" : "ROLE_OAUTH2_USER"));
-			return mappedAuthorities;
-		};
 	}
 
 }

@@ -92,11 +92,6 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		verify(context).addListener(any(ContextLoaderListener.class));
 	}
 
-	@Configuration
-	static class MyRootConfiguration {
-
-	}
-
 	@Test
 	public void onStartupWhenEnableHttpSessionEventPublisherIsTrueThenAddsHttpSessionEventPublisher() {
 		ServletContext context = mock(ServletContext.class);
@@ -433,6 +428,11 @@ public class AbstractSecurityWebApplicationInitializerTests {
 	private static void assertProxyDefaults(DelegatingFilterProxy proxy) {
 		assertThat(proxy.getContextAttribute()).isNull();
 		assertThat(proxy).hasFieldOrPropertyWithValue("targetBeanName", "springSecurityFilterChain");
+	}
+
+	@Configuration
+	static class MyRootConfiguration {
+
 	}
 
 }

@@ -70,39 +70,10 @@ public class LogoutConfigurerTests {
 				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
-	@EnableWebSecurity
-	static class NullLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout()
-					.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class));
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerInLambdaThenException() {
 		assertThatThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerInLambdaConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
-	}
-
-	@EnableWebSecurity
-	static class NullLogoutSuccessHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout(logout ->
-					logout.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class))
-				);
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -111,39 +82,10 @@ public class LogoutConfigurerTests {
 				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
-	@EnableWebSecurity
-	static class NullMatcherConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout()
-					.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null);
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherInLambdaThenException() {
 		assertThatThrownBy(() -> this.spring.register(NullMatcherInLambdaConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
-	}
-
-	@EnableWebSecurity
-	static class NullMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout(logout ->
-					logout.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null)
-				);
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -153,65 +95,12 @@ public class LogoutConfigurerTests {
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(LogoutFilter.class));
 	}
 
-	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
-
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout();
-			// @formatter:on
-		}
-
-		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
-		}
-
-	}
-
-	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
-
-		@Override
-		public <O> O postProcess(O object) {
-			return object;
-		}
-
-	}
-
 	@Test
 	public void logoutWhenInvokedTwiceThenUsesOriginalLogoutUrl() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
 
 		this.mvc.perform(post("/custom/logout").with(csrf())).andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@EnableWebSecurity
-	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout()
-					.logoutUrl("/custom/logout")
-					.and()
-				.logout();
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
-		}
-
 	}
 
 	// SEC-2311
@@ -241,21 +130,6 @@ public class LogoutConfigurerTests {
 		this.spring.register(CsrfDisabledConfig.class).autowire();
 
 		this.mvc.perform(delete("/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@EnableWebSecurity
-	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.csrf()
-					.disable()
-				.logout();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -288,42 +162,11 @@ public class LogoutConfigurerTests {
 				.andExpect(redirectedUrl("/login?logout"));
 	}
 
-	@EnableWebSecurity
-	static class CsrfDisabledAndCustomLogoutConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.csrf()
-					.disable()
-				.logout()
-					.logoutUrl("/custom/logout");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void logoutWhenCustomLogoutUrlInLambdaThenRedirectsToLogin() throws Exception {
 		this.spring.register(CsrfDisabledAndCustomLogoutInLambdaConfig.class).autowire();
 
 		this.mvc.perform(get("/custom/logout")).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@EnableWebSecurity
-	static class CsrfDisabledAndCustomLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.csrf()
-					.disable()
-				.logout(logout -> logout.logoutUrl("/custom/logout"));
-			// @formatter:on
-		}
-
 	}
 
 	// SEC-3170
@@ -333,37 +176,10 @@ public class LogoutConfigurerTests {
 				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
-	@EnableWebSecurity
-	static class NullLogoutHandlerConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout()
-					.addLogoutHandler(null);
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void configureWhenLogoutHandlerNullInLambdaThenException() {
 		assertThatThrownBy(() -> this.spring.register(NullLogoutHandlerInLambdaConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
-	}
-
-	@EnableWebSecurity
-	static class NullLogoutHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.logout(logout -> logout.addLogoutHandler(null));
-			// @formatter:on
-		}
-
 	}
 
 	// SEC-3170
@@ -373,22 +189,6 @@ public class LogoutConfigurerTests {
 
 		this.mvc.perform(post("/logout").with(csrf())).andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?logout"));
-	}
-
-	@EnableWebSecurity
-	static class RememberMeNoLogoutHandler extends WebSecurityConfigurerAdapter {
-
-		static RememberMeServices REMEMBER_ME = mock(RememberMeServices.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.rememberMe()
-					.rememberMeServices(REMEMBER_ME);
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -439,16 +239,216 @@ public class LogoutConfigurerTests {
 				.andExpect(status().isNoContent());
 	}
 
-	@EnableWebSecurity
-	static class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
-
-	}
-
 	@Test
 	public void logoutWhenDisabledThenLogoutUrlNotFound() throws Exception {
 		this.spring.register(LogoutDisabledConfig.class).autowire();
 
 		this.mvc.perform(post("/logout").with(csrf())).andExpect(status().isNotFound());
+	}
+
+	@EnableWebSecurity
+	static class NullLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout()
+					.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class));
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NullLogoutSuccessHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout(logout ->
+					logout.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class))
+				);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NullMatcherConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout()
+					.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NullMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout(logout ->
+					logout.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null)
+				);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
+		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout();
+			// @formatter:on
+		}
+
+		@Bean
+		static ObjectPostProcessor<Object> objectPostProcessor() {
+			return objectPostProcessor;
+		}
+
+	}
+
+	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
+		@Override
+		public <O> O postProcess(O object) {
+			return object;
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout()
+					.logoutUrl("/custom/logout")
+					.and()
+				.logout();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf()
+					.disable()
+				.logout();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CsrfDisabledAndCustomLogoutConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf()
+					.disable()
+				.logout()
+					.logoutUrl("/custom/logout");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CsrfDisabledAndCustomLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf()
+					.disable()
+				.logout(logout -> logout.logoutUrl("/custom/logout"));
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NullLogoutHandlerConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout()
+					.addLogoutHandler(null);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NullLogoutHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout(logout -> logout.addLogoutHandler(null));
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RememberMeNoLogoutHandler extends WebSecurityConfigurerAdapter {
+
+		static RememberMeServices REMEMBER_ME = mock(RememberMeServices.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.rememberMe()
+					.rememberMeServices(REMEMBER_ME);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
+
 	}
 
 	@EnableWebSecurity

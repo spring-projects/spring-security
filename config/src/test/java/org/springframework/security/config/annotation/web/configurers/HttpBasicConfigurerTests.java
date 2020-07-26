@@ -71,6 +71,52 @@ public class HttpBasicConfigurerTests {
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(BasicAuthenticationFilter.class));
 	}
 
+	@Test
+	public void httpBasicWhenUsingDefaultsInLambdaThenResponseIncludesBasicChallenge() throws Exception {
+		this.spring.register(DefaultsLambdaEntryPointConfig.class).autowire();
+
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
+				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
+	}
+
+	// SEC-2198
+	@Test
+	public void httpBasicWhenUsingDefaultsThenResponseIncludesBasicChallenge() throws Exception {
+		this.spring.register(DefaultsEntryPointConfig.class).autowire();
+
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
+				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
+	}
+
+	@Test
+	public void httpBasicWhenUsingCustomAuthenticationEntryPointThenResponseIncludesBasicChallenge() throws Exception {
+		this.spring.register(CustomAuthenticationEntryPointConfig.class).autowire();
+
+		this.mvc.perform(get("/"));
+
+		verify(CustomAuthenticationEntryPointConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
+	}
+
+	@Test
+	public void httpBasicWhenInvokedTwiceThenUsesOriginalEntryPoint() throws Exception {
+		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
+
+		this.mvc.perform(get("/"));
+
+		verify(DuplicateDoesNotOverrideConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
+	}
+
+	// SEC-3019
+	@Test
+	public void httpBasicWhenRememberMeConfiguredThenSetsRememberMeCookie() throws Exception {
+		this.spring.register(BasicUsesRememberMeConfig.class).autowire();
+
+		this.mvc.perform(get("/").with(httpBasic("user", "password")).param("remember-me", "true"))
+				.andExpect(cookie().exists("remember-me"));
+	}
+
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -100,14 +146,6 @@ public class HttpBasicConfigurerTests {
 
 	}
 
-	@Test
-	public void httpBasicWhenUsingDefaultsInLambdaThenResponseIncludesBasicChallenge() throws Exception {
-		this.spring.register(DefaultsLambdaEntryPointConfig.class).autowire();
-
-		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
-				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
-	}
-
 	@EnableWebSecurity
 	static class DefaultsLambdaEntryPointConfig extends WebSecurityConfigurerAdapter {
 
@@ -133,15 +171,6 @@ public class HttpBasicConfigurerTests {
 
 	}
 
-	// SEC-2198
-	@Test
-	public void httpBasicWhenUsingDefaultsThenResponseIncludesBasicChallenge() throws Exception {
-		this.spring.register(DefaultsEntryPointConfig.class).autowire();
-
-		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
-				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
-	}
-
 	@EnableWebSecurity
 	static class DefaultsEntryPointConfig extends WebSecurityConfigurerAdapter {
 
@@ -164,16 +193,6 @@ public class HttpBasicConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void httpBasicWhenUsingCustomAuthenticationEntryPointThenResponseIncludesBasicChallenge() throws Exception {
-		this.spring.register(CustomAuthenticationEntryPointConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(CustomAuthenticationEntryPointConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
 	@EnableWebSecurity
@@ -203,16 +222,6 @@ public class HttpBasicConfigurerTests {
 
 	}
 
-	@Test
-	public void httpBasicWhenInvokedTwiceThenUsesOriginalEntryPoint() throws Exception {
-		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(DuplicateDoesNotOverrideConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AuthenticationException.class));
-	}
-
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -240,15 +249,6 @@ public class HttpBasicConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	// SEC-3019
-	@Test
-	public void httpBasicWhenRememberMeConfiguredThenSetsRememberMeCookie() throws Exception {
-		this.spring.register(BasicUsesRememberMeConfig.class).autowire();
-
-		this.mvc.perform(get("/").with(httpBasic("user", "password")).param("remember-me", "true"))
-				.andExpect(cookie().exists("remember-me"));
 	}
 
 	@EnableWebSecurity

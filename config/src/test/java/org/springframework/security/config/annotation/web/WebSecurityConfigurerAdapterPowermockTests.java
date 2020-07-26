@@ -90,6 +90,27 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 		assertThat(configurer.configure).isTrue();
 	}
 
+	@Test
+	public void loadConfigWhenDefaultConfigThenWebAsyncManagerIntegrationFilterAdded() throws Exception {
+		this.spring.register(WebAsyncPopulatedByDefaultConfig.class).autowire();
+
+		WebAsyncManager webAsyncManager = mock(WebAsyncManager.class);
+
+		this.mockMvc.perform(get("/").requestAttr(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE, webAsyncManager));
+
+		ArgumentCaptor<CallableProcessingInterceptor> callableProcessingInterceptorArgCaptor = ArgumentCaptor
+				.forClass(CallableProcessingInterceptor.class);
+		verify(webAsyncManager, atLeastOnce()).registerCallableInterceptor(any(),
+				callableProcessingInterceptorArgCaptor.capture());
+
+		CallableProcessingInterceptor callableProcessingInterceptor = callableProcessingInterceptorArgCaptor
+				.getAllValues().stream()
+				.filter(e -> SecurityContextCallableProcessingInterceptor.class.isAssignableFrom(e.getClass()))
+				.findFirst().orElse(null);
+
+		assertThat(callableProcessingInterceptor).isNotNull();
+	}
+
 	private void loadConfig(Class<?>... classes) {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 		context.setClassLoader(getClass().getClassLoader());
@@ -123,27 +144,6 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 			this.configure = true;
 		}
 
-	}
-
-	@Test
-	public void loadConfigWhenDefaultConfigThenWebAsyncManagerIntegrationFilterAdded() throws Exception {
-		this.spring.register(WebAsyncPopulatedByDefaultConfig.class).autowire();
-
-		WebAsyncManager webAsyncManager = mock(WebAsyncManager.class);
-
-		this.mockMvc.perform(get("/").requestAttr(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE, webAsyncManager));
-
-		ArgumentCaptor<CallableProcessingInterceptor> callableProcessingInterceptorArgCaptor = ArgumentCaptor
-				.forClass(CallableProcessingInterceptor.class);
-		verify(webAsyncManager, atLeastOnce()).registerCallableInterceptor(any(),
-				callableProcessingInterceptorArgCaptor.capture());
-
-		CallableProcessingInterceptor callableProcessingInterceptor = callableProcessingInterceptorArgCaptor
-				.getAllValues().stream()
-				.filter(e -> SecurityContextCallableProcessingInterceptor.class.isAssignableFrom(e.getClass()))
-				.findFirst().orElse(null);
-
-		assertThat(callableProcessingInterceptor).isNotNull();
 	}
 
 	@EnableWebSecurity

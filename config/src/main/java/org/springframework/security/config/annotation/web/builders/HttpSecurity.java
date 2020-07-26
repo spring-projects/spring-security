@@ -2913,6 +2913,24 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
+	 * If the {@link SecurityConfigurer} has already been specified get the original,
+	 * otherwise apply the new {@link SecurityConfigurerAdapter}.
+	 * @param configurer the {@link SecurityConfigurer} to apply if one is not found for
+	 * this {@link SecurityConfigurer} class.
+	 * @return the current {@link SecurityConfigurer} for the configurer passed in
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private <C extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(C configurer)
+			throws Exception {
+		C existingConfig = (C) getConfigurer(configurer.getClass());
+		if (existingConfig != null) {
+			return existingConfig;
+		}
+		return apply(configurer);
+	}
+
+	/**
 	 * An extension to {@link RequestMatcherConfigurer} that allows optionally configuring
 	 * the servlet path.
 	 *
@@ -2985,24 +3003,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			return HttpSecurity.this;
 		}
 
-	}
-
-	/**
-	 * If the {@link SecurityConfigurer} has already been specified get the original,
-	 * otherwise apply the new {@link SecurityConfigurerAdapter}.
-	 * @param configurer the {@link SecurityConfigurer} to apply if one is not found for
-	 * this {@link SecurityConfigurer} class.
-	 * @return the current {@link SecurityConfigurer} for the configurer passed in
-	 * @throws Exception
-	 */
-	@SuppressWarnings("unchecked")
-	private <C extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(C configurer)
-			throws Exception {
-		C existingConfig = (C) getConfigurer(configurer.getClass());
-		if (existingConfig != null) {
-			return existingConfig;
-		}
-		return apply(configurer);
 	}
 
 }

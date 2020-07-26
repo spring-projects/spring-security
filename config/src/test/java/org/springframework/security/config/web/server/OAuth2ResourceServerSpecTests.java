@@ -412,6 +412,54 @@ public class OAuth2ResourceServerSpecTests {
 				.isInstanceOf(BeanCreationException.class).hasMessageContaining("authenticationManagerResolver");
 	}
 
+	private static Dispatcher requiresAuth(String username, String password, String response) {
+		return new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) {
+				String authorization = request.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
+				return Optional.ofNullable(authorization).filter(a -> isAuthorized(authorization, username, password))
+						.map(a -> ok(response)).orElse(unauthorized());
+			}
+		};
+	}
+
+	private static boolean isAuthorized(String authorization, String username, String password) {
+		String[] values = new String(Base64.getDecoder().decode(authorization.substring(6))).split(":");
+		return username.equals(values[0]) && password.equals(values[1]);
+	}
+
+	private static MockResponse ok(String response) {
+		return new MockResponse().setBody(response).setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE,
+				MediaType.APPLICATION_JSON_VALUE);
+	}
+
+	private static MockResponse unauthorized() {
+		return new MockResponse().setResponseCode(401);
+	}
+
+	private static RSAPublicKey publicKey() {
+		String modulus = "26323220897278656456354815752829448539647589990395639665273015355787577386000316054335559633864476469390247312823732994485311378484154955583861993455004584140858982659817218753831620205191028763754231454775026027780771426040997832758235764611119743390612035457533732596799927628476322029280486807310749948064176545712270582940917249337311592011920620009965129181413510845780806191965771671528886508636605814099711121026468495328702234901200169245493126030184941412539949521815665744267183140084667383643755535107759061065656273783542590997725982989978433493861515415520051342321336460543070448417126615154138673620797";
+		String exponent = "65537";
+
+		RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
+		RSAPublicKey rsaPublicKey = null;
+		try {
+			KeyFactory factory = KeyFactory.getInstance("RSA");
+			rsaPublicKey = (RSAPublicKey) factory.generatePublic(spec);
+		}
+		catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			e.printStackTrace();
+		}
+		return rsaPublicKey;
+	}
+
+	private GenericWebApplicationContext autowireWebServerGenericWebApplicationContext() {
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean("webHandler", DispatcherHandler.class);
+		this.spring.context(context).autowire();
+		return (GenericWebApplicationContext) this.spring.getContext();
+	}
+
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class PublicKeyConfig {
@@ -863,54 +911,6 @@ public class OAuth2ResourceServerSpecTests {
 			return Mono.just("ok");
 		}
 
-	}
-
-	private static Dispatcher requiresAuth(String username, String password, String response) {
-		return new Dispatcher() {
-			@Override
-			public MockResponse dispatch(RecordedRequest request) {
-				String authorization = request.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
-				return Optional.ofNullable(authorization).filter(a -> isAuthorized(authorization, username, password))
-						.map(a -> ok(response)).orElse(unauthorized());
-			}
-		};
-	}
-
-	private static boolean isAuthorized(String authorization, String username, String password) {
-		String[] values = new String(Base64.getDecoder().decode(authorization.substring(6))).split(":");
-		return username.equals(values[0]) && password.equals(values[1]);
-	}
-
-	private static MockResponse ok(String response) {
-		return new MockResponse().setBody(response).setHeader(org.springframework.http.HttpHeaders.CONTENT_TYPE,
-				MediaType.APPLICATION_JSON_VALUE);
-	}
-
-	private static MockResponse unauthorized() {
-		return new MockResponse().setResponseCode(401);
-	}
-
-	private static RSAPublicKey publicKey() {
-		String modulus = "26323220897278656456354815752829448539647589990395639665273015355787577386000316054335559633864476469390247312823732994485311378484154955583861993455004584140858982659817218753831620205191028763754231454775026027780771426040997832758235764611119743390612035457533732596799927628476322029280486807310749948064176545712270582940917249337311592011920620009965129181413510845780806191965771671528886508636605814099711121026468495328702234901200169245493126030184941412539949521815665744267183140084667383643755535107759061065656273783542590997725982989978433493861515415520051342321336460543070448417126615154138673620797";
-		String exponent = "65537";
-
-		RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
-		RSAPublicKey rsaPublicKey = null;
-		try {
-			KeyFactory factory = KeyFactory.getInstance("RSA");
-			rsaPublicKey = (RSAPublicKey) factory.generatePublic(spec);
-		}
-		catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			e.printStackTrace();
-		}
-		return rsaPublicKey;
-	}
-
-	private GenericWebApplicationContext autowireWebServerGenericWebApplicationContext() {
-		GenericWebApplicationContext context = new GenericWebApplicationContext();
-		context.registerBean("webHandler", DispatcherHandler.class);
-		this.spring.context(context).autowire();
-		return (GenericWebApplicationContext) this.spring.getContext();
 	}
 
 }

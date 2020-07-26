@@ -302,16 +302,6 @@ public class RememberMeConfigTests {
 								+ "remember-me-parameter or remember-me-cookie");
 	}
 
-	@RestController
-	static class BasicController {
-
-		@GetMapping("/authenticated")
-		String ok() {
-			return "ok";
-		}
-
-	}
-
 	private ResultActions rememberAuthentication(String username, String password) throws Exception {
 
 		return this.mvc.perform(login(username, password).param(DEFAULT_PARAMETER, "true").with(csrf()))
@@ -328,6 +318,16 @@ public class RememberMeConfigTests {
 
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
+	@RestController
+	static class BasicController {
+
+		@GetMapping("/authenticated")
+		String ok() {
+			return "ok";
+		}
+
 	}
 
 }

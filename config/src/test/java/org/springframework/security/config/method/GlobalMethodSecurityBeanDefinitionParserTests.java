@@ -391,6 +391,14 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		foo.foo(new SecurityConfig("A"));
 	}
 
+	private void setContext(String context) {
+		this.appContext = new InMemoryXmlApplicationContext(context);
+	}
+
+	private void setContext(String context, ApplicationContext parent) {
+		this.appContext = new InMemoryXmlApplicationContext(context, parent);
+	}
+
 	static class CustomAuthManager implements AuthenticationManager, ApplicationContextAware {
 
 		private String beanName;
@@ -418,14 +426,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 			this.authenticationManager = applicationContext.getBean(this.beanName, AuthenticationManager.class);
 		}
 
-	}
-
-	private void setContext(String context) {
-		this.appContext = new InMemoryXmlApplicationContext(context);
-	}
-
-	private void setContext(String context, ApplicationContext parent) {
-		this.appContext = new InMemoryXmlApplicationContext(context, parent);
 	}
 
 	interface Foo<T extends ConfigAttribute> {

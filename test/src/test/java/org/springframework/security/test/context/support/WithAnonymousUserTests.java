@@ -36,11 +36,6 @@ public class WithAnonymousUserTests {
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
-	@WithAnonymousUser
-	private class Annotated {
-
-	}
-
 	@Test
 	public void findMergedAnnotationWhenSetupExplicitThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupExplicit.class,
@@ -49,17 +44,22 @@ public class WithAnonymousUserTests {
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
-	@WithAnonymousUser(setupBefore = TestExecutionEvent.TEST_METHOD)
-	private class SetupExplicit {
-
-	}
-
 	@Test
 	public void findMergedAnnotationWhenSetupOverriddenThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupOverridden.class,
 				WithSecurityContext.class);
 
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_EXECUTION);
+	}
+
+	@WithAnonymousUser
+	private class Annotated {
+
+	}
+
+	@WithAnonymousUser(setupBefore = TestExecutionEvent.TEST_METHOD)
+	private class SetupExplicit {
+
 	}
 
 	@WithAnonymousUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)

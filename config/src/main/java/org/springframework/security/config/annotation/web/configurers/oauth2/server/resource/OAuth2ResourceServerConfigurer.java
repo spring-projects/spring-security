@@ -277,6 +277,70 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 	}
 
+	private void registerDefaultAccessDeniedHandler(H http) {
+		ExceptionHandlingConfigurer<H> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptionHandling == null) {
+			return;
+		}
+
+		exceptionHandling.defaultAccessDeniedHandlerFor(this.accessDeniedHandler, this.requestMatcher);
+	}
+
+	private void registerDefaultEntryPoint(H http) {
+		ExceptionHandlingConfigurer<H> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptionHandling == null) {
+			return;
+		}
+
+		exceptionHandling.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, this.requestMatcher);
+	}
+
+	private void registerDefaultCsrfOverride(H http) {
+		CsrfConfigurer<H> csrf = http.getConfigurer(CsrfConfigurer.class);
+		if (csrf == null) {
+			return;
+		}
+
+		csrf.ignoringRequestMatchers(this.requestMatcher);
+	}
+
+	AuthenticationProvider getAuthenticationProvider() {
+		if (this.jwtConfigurer != null) {
+			return this.jwtConfigurer.getAuthenticationProvider();
+		}
+
+		if (this.opaqueTokenConfigurer != null) {
+			return this.opaqueTokenConfigurer.getAuthenticationProvider();
+		}
+
+		return null;
+	}
+
+	AuthenticationManager getAuthenticationManager(H http) {
+		if (this.jwtConfigurer != null) {
+			return this.jwtConfigurer.getAuthenticationManager(http);
+		}
+
+		if (this.opaqueTokenConfigurer != null) {
+			return this.opaqueTokenConfigurer.getAuthenticationManager(http);
+		}
+
+		return http.getSharedObject(AuthenticationManager.class);
+	}
+
+	BearerTokenResolver getBearerTokenResolver() {
+		if (this.bearerTokenResolver == null) {
+			if (this.context.getBeanNamesForType(BearerTokenResolver.class).length > 0) {
+				this.bearerTokenResolver = this.context.getBean(BearerTokenResolver.class);
+			}
+			else {
+				this.bearerTokenResolver = new DefaultBearerTokenResolver();
+			}
+		}
+
+		return this.bearerTokenResolver;
+	}
+
 	public class JwtConfigurer {
 
 		private final ApplicationContext context;
@@ -433,70 +497,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return http.getSharedObject(AuthenticationManager.class);
 		}
 
-	}
-
-	private void registerDefaultAccessDeniedHandler(H http) {
-		ExceptionHandlingConfigurer<H> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
-		if (exceptionHandling == null) {
-			return;
-		}
-
-		exceptionHandling.defaultAccessDeniedHandlerFor(this.accessDeniedHandler, this.requestMatcher);
-	}
-
-	private void registerDefaultEntryPoint(H http) {
-		ExceptionHandlingConfigurer<H> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
-		if (exceptionHandling == null) {
-			return;
-		}
-
-		exceptionHandling.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, this.requestMatcher);
-	}
-
-	private void registerDefaultCsrfOverride(H http) {
-		CsrfConfigurer<H> csrf = http.getConfigurer(CsrfConfigurer.class);
-		if (csrf == null) {
-			return;
-		}
-
-		csrf.ignoringRequestMatchers(this.requestMatcher);
-	}
-
-	AuthenticationProvider getAuthenticationProvider() {
-		if (this.jwtConfigurer != null) {
-			return this.jwtConfigurer.getAuthenticationProvider();
-		}
-
-		if (this.opaqueTokenConfigurer != null) {
-			return this.opaqueTokenConfigurer.getAuthenticationProvider();
-		}
-
-		return null;
-	}
-
-	AuthenticationManager getAuthenticationManager(H http) {
-		if (this.jwtConfigurer != null) {
-			return this.jwtConfigurer.getAuthenticationManager(http);
-		}
-
-		if (this.opaqueTokenConfigurer != null) {
-			return this.opaqueTokenConfigurer.getAuthenticationManager(http);
-		}
-
-		return http.getSharedObject(AuthenticationManager.class);
-	}
-
-	BearerTokenResolver getBearerTokenResolver() {
-		if (this.bearerTokenResolver == null) {
-			if (this.context.getBeanNamesForType(BearerTokenResolver.class).length > 0) {
-				this.bearerTokenResolver = this.context.getBean(BearerTokenResolver.class);
-			}
-			else {
-				this.bearerTokenResolver = new DefaultBearerTokenResolver();
-			}
-		}
-
-		return this.bearerTokenResolver;
 	}
 
 	private static final class BearerTokenRequestMatcher implements RequestMatcher {

@@ -100,6 +100,10 @@ public class NamespaceHttpInterceptUrlTests {
 		this.mvc.perform(get("https://localhost/user")).andExpect(redirectedUrl("http://localhost/user"));
 	}
 
+	private static Authentication user(String role) {
+		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.createAuthorityList(role));
+	}
+
 	@EnableWebSecurity
 	static class HttpInterceptUrlConfig extends WebSecurityConfigurerAdapter {
 
@@ -171,10 +175,6 @@ public class NamespaceHttpInterceptUrlTests {
 			return "signup";
 		}
 
-	}
-
-	private static Authentication user(String role) {
-		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.createAuthorityList(role));
 	}
 
 }

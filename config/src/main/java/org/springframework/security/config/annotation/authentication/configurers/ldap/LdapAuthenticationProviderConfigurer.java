@@ -379,6 +379,21 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		builder.authenticationProvider(provider);
 	}
 
+	private BaseLdapPathContextSource getContextSource() throws Exception {
+		if (this.contextSource == null) {
+			this.contextSource = this.contextSourceBuilder.build();
+		}
+		return this.contextSource;
+	}
+
+	/**
+	 * @return the {@link PasswordCompareConfigurer} for further customizations
+	 */
+	public PasswordCompareConfigurer passwordCompare() {
+		return new PasswordCompareConfigurer().passwordAttribute("password")
+				.passwordEncoder(NoOpPasswordEncoder.getInstance());
+	}
+
 	/**
 	 * Sets up Password based comparison
 	 *
@@ -595,21 +610,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		private ContextSourceBuilder() {
 		}
 
-	}
-
-	private BaseLdapPathContextSource getContextSource() throws Exception {
-		if (this.contextSource == null) {
-			this.contextSource = this.contextSourceBuilder.build();
-		}
-		return this.contextSource;
-	}
-
-	/**
-	 * @return the {@link PasswordCompareConfigurer} for further customizations
-	 */
-	public PasswordCompareConfigurer passwordCompare() {
-		return new PasswordCompareConfigurer().passwordAttribute("password")
-				.passwordEncoder(NoOpPasswordEncoder.getInstance());
 	}
 
 }

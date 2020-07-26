@@ -562,6 +562,22 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		return xsAny.getTextContent();
 	}
 
+	private static Saml2Error validationError(String code, String description) {
+		return new Saml2Error(code, description);
+	}
+
+	private static Saml2AuthenticationException authException(String code, String description)
+			throws Saml2AuthenticationException {
+
+		return new Saml2AuthenticationException(validationError(code, description));
+	}
+
+	private static Saml2AuthenticationException authException(String code, String description, Exception cause)
+			throws Saml2AuthenticationException {
+
+		return new Saml2AuthenticationException(validationError(code, description), cause);
+	}
+
 	private static class SignatureTrustEngineConverter
 			implements Converter<Saml2AuthenticationToken, SignatureTrustEngine> {
 
@@ -649,22 +665,6 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			return decrypter;
 		}
 
-	}
-
-	private static Saml2Error validationError(String code, String description) {
-		return new Saml2Error(code, description);
-	}
-
-	private static Saml2AuthenticationException authException(String code, String description)
-			throws Saml2AuthenticationException {
-
-		return new Saml2AuthenticationException(validationError(code, description));
-	}
-
-	private static Saml2AuthenticationException authException(String code, String description, Exception cause)
-			throws Saml2AuthenticationException {
-
-		return new Saml2AuthenticationException(validationError(code, description), cause);
 	}
 
 	/**

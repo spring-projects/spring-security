@@ -150,26 +150,6 @@ public class DefaultLoginPageGeneratingFilterTests {
 		filter.doFilter(new MockHttpServletRequest("GET", "/login"), new MockHttpServletResponse(), this.chain);
 	}
 
-	// Fake OpenID filter (since it's not in this module
-	@SuppressWarnings("unused")
-	private static class MockProcessingFilter extends AbstractAuthenticationProcessingFilter {
-
-		MockProcessingFilter() {
-			super("/someurl");
-		}
-
-		@Override
-		public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-				throws AuthenticationException {
-			return null;
-		}
-
-		public String getClaimedIdentityFieldName() {
-			return "unused";
-		}
-
-	}
-
 	/* SEC-1111 */
 	@Test
 	public void handlesNonIso8859CharsInErrorMessage() throws Exception {
@@ -218,6 +198,25 @@ public class DefaultLoginPageGeneratingFilterTests {
 		assertThat(response.getContentAsString()).contains("Login with SAML 2.0");
 		assertThat(response.getContentAsString())
 				.contains("<a href=\"/saml/sso/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
+	} // Fake OpenID filter (since it's not in this module
+
+	@SuppressWarnings("unused")
+	private static class MockProcessingFilter extends AbstractAuthenticationProcessingFilter {
+
+		MockProcessingFilter() {
+			super("/someurl");
+		}
+
+		@Override
+		public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+				throws AuthenticationException {
+			return null;
+		}
+
+		public String getClaimedIdentityFieldName() {
+			return "unused";
+		}
+
 	}
 
 }

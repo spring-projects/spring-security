@@ -241,6 +241,44 @@ public class Saml2LoginConfigurerTests {
 				.hasToString(expected);
 	}
 
+	private static org.apache.commons.codec.binary.Base64 BASE64 = new org.apache.commons.codec.binary.Base64(0,
+			new byte[] { '\n' });
+
+	private static byte[] samlDecode(String s) {
+		return BASE64.decode(s);
+	}
+
+	private static String samlInflate(byte[] b) {
+		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
+			iout.write(b);
+			iout.finish();
+			return new String(out.toByteArray(), UTF_8);
+		}
+		catch (IOException e) {
+			throw new Saml2Exception("Unable to inflate string", e);
+		}
+	}
+
+	private static AuthenticationManager getAuthenticationManagerMock(String role) {
+		return new AuthenticationManager() {
+
+			@Override
+			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+				if (!supports(authentication.getClass())) {
+					throw new AuthenticationServiceException("not supported");
+				}
+				return new Saml2Authentication(() -> "auth principal", "saml2 response",
+						Collections.singletonList(new SimpleGrantedAuthority(role)));
+			}
+
+			public boolean supports(Class<?> authentication) {
+				return authentication.isAssignableFrom(Saml2AuthenticationToken.class);
+			}
+		};
+	}
+
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LoginConfigWithCustomAuthenticationManager extends WebSecurityConfigurerAdapter {
@@ -339,24 +377,6 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
-	private static AuthenticationManager getAuthenticationManagerMock(String role) {
-		return new AuthenticationManager() {
-
-			@Override
-			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-				if (!supports(authentication.getClass())) {
-					throw new AuthenticationServiceException("not supported");
-				}
-				return new Saml2Authentication(() -> "auth principal", "saml2 response",
-						Collections.singletonList(new SimpleGrantedAuthority(role)));
-			}
-
-			public boolean supports(Class<?> authentication) {
-				return authentication.isAssignableFrom(Saml2AuthenticationToken.class);
-			}
-		};
-	}
-
 	static class Saml2LoginConfigBeans {
 
 		@Bean
@@ -371,26 +391,6 @@ public class Saml2LoginConfigurerTests {
 			return repository;
 		}
 
-	}
-
-	private static org.apache.commons.codec.binary.Base64 BASE64 = new org.apache.commons.codec.binary.Base64(0,
-			new byte[] { '\n' });
-
-	private static byte[] samlDecode(String s) {
-		return BASE64.decode(s);
-	}
-
-	private static String samlInflate(byte[] b) {
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
-			iout.write(b);
-			iout.finish();
-			return new String(out.toByteArray(), UTF_8);
-		}
-		catch (IOException e) {
-			throw new Saml2Exception("Unable to inflate string", e);
-		}
 	}
 
 }

@@ -63,6 +63,48 @@ public class EnableWebSecurityTests {
 		assertThat(authentication.isAuthenticated()).isTrue();
 	}
 
+	@Test
+	public void loadConfigWhenChildConfigExtendsSecurityConfigThenSecurityConfigInherited() {
+		this.spring.register(ChildSecurityConfig.class).autowire();
+		this.spring.getContext().getBean("springSecurityFilterChain", DebugFilter.class);
+	}
+
+	@Test
+	public void configureWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
+		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
+
+		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
+				.andExpect(content().string("user1"));
+	}
+
+	@Test
+	public void securityFilterChainWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
+		this.spring.register(SecurityFilterChainAuthenticationPrincipalConfig.class).autowire();
+
+		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
+				.andExpect(content().string("user1"));
+	}
+
+	@Test
+	public void enableWebSecurityWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
+		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
+
+		Child childBean = this.spring.getContext().getBean(Child.class);
+		Parent parentBean = this.spring.getContext().getBean(Parent.class);
+
+		assertThat(parentBean.getChild()).isSameAs(childBean);
+	}
+
+	@Test
+	public void enableWebSecurityWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
+		this.spring.register(BeanProxyDisabledConfig.class).autowire();
+
+		Child childBean = this.spring.getContext().getBean(Child.class);
+		Parent parentBean = this.spring.getContext().getBean(Parent.class);
+
+		assertThat(parentBean.getChild()).isNotSameAs(childBean);
+	}
+
 	@EnableWebSecurity
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -94,12 +136,6 @@ public class EnableWebSecurityTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenChildConfigExtendsSecurityConfigThenSecurityConfigInherited() {
-		this.spring.register(ChildSecurityConfig.class).autowire();
-		this.spring.getContext().getBean("springSecurityFilterChain", DebugFilter.class);
-	}
-
 	@Configuration
 	static class ChildSecurityConfig extends DebugSecurityConfig {
 
@@ -108,14 +144,6 @@ public class EnableWebSecurityTests {
 	@EnableWebSecurity(debug = true)
 	static class DebugSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	}
-
-	@Test
-	public void configureWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
-		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
-
-		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
-				.andExpect(content().string("user1"));
 	}
 
 	@EnableWebSecurity
@@ -136,14 +164,6 @@ public class EnableWebSecurityTests {
 
 		}
 
-	}
-
-	@Test
-	public void securityFilterChainWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
-		this.spring.register(SecurityFilterChainAuthenticationPrincipalConfig.class).autowire();
-
-		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
-				.andExpect(content().string("user1"));
 	}
 
 	@EnableWebSecurity
@@ -167,16 +187,6 @@ public class EnableWebSecurityTests {
 
 	}
 
-	@Test
-	public void enableWebSecurityWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
-		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
-
-		Child childBean = this.spring.getContext().getBean(Child.class);
-		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
-		assertThat(parentBean.getChild()).isSameAs(childBean);
-	}
-
 	@EnableWebSecurity
 	static class BeanProxyEnabledByDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -190,16 +200,6 @@ public class EnableWebSecurityTests {
 			return new Parent(child());
 		}
 
-	}
-
-	@Test
-	public void enableWebSecurityWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
-		this.spring.register(BeanProxyDisabledConfig.class).autowire();
-
-		Child childBean = this.spring.getContext().getBean(Child.class);
-		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
-		assertThat(parentBean.getChild()).isNotSameAs(childBean);
 	}
 
 	@Configuration(proxyBeanMethods = false)

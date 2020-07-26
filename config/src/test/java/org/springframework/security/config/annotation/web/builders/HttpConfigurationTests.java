@@ -69,6 +69,28 @@ public class HttpConfigurationTests {
 				+ " Consider using addFilterBefore or addFilterAfter instead.");
 	}
 
+	// https://github.com/spring-projects/spring-security-javaconfig/issues/104
+	@Test
+	public void configureWhenAddFilterCasAuthenticationFilterThenFilterAdded() throws Exception {
+		CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER = spy(new CasAuthenticationFilter());
+		this.spring.register(CasAuthenticationFilterConfig.class).autowire();
+
+		this.mockMvc.perform(get("/"));
+
+		verify(CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER).doFilter(any(ServletRequest.class),
+				any(ServletResponse.class), any(FilterChain.class));
+	}
+
+	@Test
+	public void configureWhenConfigIsRequestMatchersJavadocThenAuthorizationApplied() throws Exception {
+		this.spring.register(RequestMatcherRegistryConfigs.class).autowire();
+
+		this.mockMvc.perform(get("/oauth/a")).andExpect(status().isUnauthorized());
+		this.mockMvc.perform(get("/oauth/b")).andExpect(status().isUnauthorized());
+		this.mockMvc.perform(get("/api/a")).andExpect(status().isUnauthorized());
+		this.mockMvc.perform(get("/api/b")).andExpect(status().isUnauthorized());
+	}
+
 	@EnableWebSecurity
 	static class UnregisteredFilterConfig extends WebSecurityConfigurerAdapter {
 
@@ -101,18 +123,6 @@ public class HttpConfigurationTests {
 
 	}
 
-	// https://github.com/spring-projects/spring-security-javaconfig/issues/104
-	@Test
-	public void configureWhenAddFilterCasAuthenticationFilterThenFilterAdded() throws Exception {
-		CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER = spy(new CasAuthenticationFilter());
-		this.spring.register(CasAuthenticationFilterConfig.class).autowire();
-
-		this.mockMvc.perform(get("/"));
-
-		verify(CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER).doFilter(any(ServletRequest.class),
-				any(ServletResponse.class), any(FilterChain.class));
-	}
-
 	@EnableWebSecurity
 	static class CasAuthenticationFilterConfig extends WebSecurityConfigurerAdapter {
 
@@ -126,16 +136,6 @@ public class HttpConfigurationTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void configureWhenConfigIsRequestMatchersJavadocThenAuthorizationApplied() throws Exception {
-		this.spring.register(RequestMatcherRegistryConfigs.class).autowire();
-
-		this.mockMvc.perform(get("/oauth/a")).andExpect(status().isUnauthorized());
-		this.mockMvc.perform(get("/oauth/b")).andExpect(status().isUnauthorized());
-		this.mockMvc.perform(get("/api/a")).andExpect(status().isUnauthorized());
-		this.mockMvc.perform(get("/api/b")).andExpect(status().isUnauthorized());
 	}
 
 	@EnableWebSecurity

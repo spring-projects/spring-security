@@ -176,31 +176,6 @@ public class DefaultLoginPageConfigurerTests {
 						+ "      </form>\n" + "</div>\n" + "</body></html>"));
 	}
 
-	@EnableWebSecurity
-	static class DefaultLoginPageConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin();
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void loginPageWhenLoggedOutAndCustomLogoutSuccessHandlerThenDoesNotRenderLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageCustomLogoutSuccessHandlerConfig.class).autowire();
@@ -208,49 +183,11 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/login?logout")).andExpect(content().string(""));
 	}
 
-	@EnableWebSecurity
-	static class DefaultLoginPageCustomLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.logout()
-					.logoutSuccessHandler(new SimpleUrlLogoutSuccessHandler())
-					.and()
-				.formLogin();
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void loginPageWhenLoggedOutAndCustomLogoutSuccessUrlThenDoesNotRenderLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageCustomLogoutSuccessUrlConfig.class).autowire();
 
 		this.mvc.perform(get("/login?logout")).andExpect(content().string(""));
-	}
-
-	@EnableWebSecurity
-	static class DefaultLoginPageCustomLogoutSuccessUrlConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.logout()
-					.logoutSuccessUrl("/login?logout")
-					.and()
-				.formLogin();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -283,24 +220,6 @@ public class DefaultLoginPageConfigurerTests {
 						+ "      </form>\n" + "</div>\n" + "</body></html>"));
 	}
 
-	@EnableWebSecurity
-	static class DefaultLoginPageWithRememberMeConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe();
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void loginPageWhenOpenIdLoginConfiguredThenOpedIdLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageWithOpenIDConfig.class).autowire();
@@ -325,22 +244,6 @@ public class DefaultLoginPageConfigurerTests {
 						+ "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n" + "</div>\n" + "</body></html>"));
-	}
-
-	@EnableWebSecurity
-	static class DefaultLoginPageWithOpenIDConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.openidLogin();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -383,55 +286,6 @@ public class DefaultLoginPageConfigurerTests {
 						+ "      </form>\n" + "</div>\n" + "</body></html>"));
 	}
 
-	@EnableWebSecurity
-	static class DefaultLoginPageWithFormLoginOpenIDRememberMeConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.rememberMe()
-					.and()
-				.formLogin()
-					.and()
-				.openidLogin();
-			// @formatter:on
-		}
-
-	}
-
-	@Test
-	public void configureWhenAuthenticationEntryPointThenNoDefaultLoginPageGeneratingFilter() {
-		this.spring.register(DefaultLoginWithCustomAuthenticationEntryPointConfig.class).autowire();
-
-		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
-		assertThat(filterChain.getFilterChains().get(0).getFilters().stream()
-				.filter(filter -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class)).count())
-						.isZero();
-	}
-
-	@EnableWebSecurity
-	static class DefaultLoginWithCustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.exceptionHandling()
-					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
-					.and()
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin();
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnDefaultLoginPageGeneratingFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
@@ -463,6 +317,152 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
+	}
+
+	@Test
+	public void configureWhenAuthenticationEntryPointThenNoDefaultLoginPageGeneratingFilter() {
+		this.spring.register(DefaultLoginWithCustomAuthenticationEntryPointConfig.class).autowire();
+
+		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
+		assertThat(filterChain.getFilterChains().get(0).getFilters().stream()
+				.filter(filter -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class)).count())
+						.isZero();
+	}
+
+	@EnableWebSecurity
+	static class DefaultLoginPageConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultLoginPageCustomLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.logout()
+					.logoutSuccessHandler(new SimpleUrlLogoutSuccessHandler())
+					.and()
+				.formLogin();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultLoginPageCustomLogoutSuccessUrlConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.logout()
+					.logoutSuccessUrl("/login?logout")
+					.and()
+				.formLogin();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultLoginPageWithRememberMeConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin()
+					.and()
+				.rememberMe();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultLoginPageWithOpenIDConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.openidLogin();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultLoginPageWithFormLoginOpenIDRememberMeConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.rememberMe()
+					.and()
+				.formLogin()
+					.and()
+				.openidLogin();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DefaultLoginWithCustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.exceptionHandling()
+					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+					.and()
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin();
+			// @formatter:on
+		}
+
 	}
 
 	@EnableWebSecurity

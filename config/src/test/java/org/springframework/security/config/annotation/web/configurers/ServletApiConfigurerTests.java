@@ -93,6 +93,127 @@ public class ServletApiConfigurerTests {
 				.postProcess(any(SecurityContextHolderAwareRequestFilter.class));
 	}
 
+	// SEC-2215
+	@Test
+	public void configureWhenUsingDefaultsThenAuthenticationManagerIsNotNull() {
+		this.spring.register(ServletApiConfig.class).autowire();
+
+		assertThat(this.spring.getContext().getBean("customAuthenticationManager")).isNotNull();
+	}
+
+	@Test
+	public void configureWhenUsingDefaultsThenAuthenticationEntryPointIsLogin() throws Exception {
+		this.spring.register(ServletApiConfig.class).autowire();
+
+		this.mvc.perform(formLogin()).andExpect(status().isFound());
+	}
+
+	// SEC-2926
+	@Test
+	public void configureWhenUsingDefaultsThenRolePrefixIsSet() throws Exception {
+		this.spring.register(ServletApiConfig.class, AdminController.class).autowire();
+
+		this.mvc.perform(
+				get("/admin").with(authentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"))))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void requestWhenCustomAuthenticationEntryPointThenEntryPointUsed() throws Exception {
+		this.spring.register(CustomEntryPointConfig.class).autowire();
+
+		this.mvc.perform(get("/"));
+
+		verify(CustomEntryPointConfig.ENTRYPOINT).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
+	}
+
+	@Test
+	public void servletApiWhenInvokedTwiceThenUsesOriginalRole() throws Exception {
+		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class, AdminController.class).autowire();
+
+		this.mvc.perform(
+				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
+				.andExpect(status().isOk());
+
+		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void configureWhenSharedObjectTrustResolverThenTrustResolverUsed() throws Exception {
+		this.spring.register(SharedTrustResolverConfig.class).autowire();
+
+		this.mvc.perform(get("/"));
+
+		verify(SharedTrustResolverConfig.TR, atLeastOnce()).isAnonymous(any());
+	}
+
+	@Test
+	public void requestWhenServletApiWithDefaultsInLambdaThenUsesDefaultRolePrefix() throws Exception {
+		this.spring.register(ServletApiWithDefaultsInLambdaConfig.class, AdminController.class).autowire();
+
+		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void requestWhenRolePrefixInLambdaThenUsesCustomRolePrefix() throws Exception {
+		this.spring.register(RolePrefixInLambdaConfig.class, AdminController.class).autowire();
+
+		this.mvc.perform(
+				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
+				.andExpect(status().isOk());
+
+		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void checkSecurityContextAwareAndLogoutFilterHasSameSizeAndHasLogoutSuccessEventPublishingLogoutHandler() {
+		this.spring.register(ServletApiWithLogoutConfig.class);
+
+		SecurityContextHolderAwareRequestFilter scaFilter = getFilter(SecurityContextHolderAwareRequestFilter.class);
+		LogoutFilter logoutFilter = getFilter(LogoutFilter.class);
+
+		LogoutHandler lfLogoutHandler = getFieldValue(logoutFilter, "handler");
+		assertThat(lfLogoutHandler).isInstanceOf(CompositeLogoutHandler.class);
+
+		List<LogoutHandler> scaLogoutHandlers = getFieldValue(scaFilter, "logoutHandlers");
+		List<LogoutHandler> lfLogoutHandlers = getFieldValue(lfLogoutHandler, "logoutHandlers");
+
+		assertThat(scaLogoutHandlers).hasSameSizeAs(lfLogoutHandlers);
+
+		assertThat(scaLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
+		assertThat(lfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
+	}
+
+	@Test
+	public void logoutServletApiWhenCsrfDisabled() throws Exception {
+		ConfigurableWebApplicationContext context = this.spring.register(CsrfDisabledConfig.class).getContext();
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		MvcResult mvcResult = mockMvc.perform(get("/")).andReturn();
+		assertThat(mvcResult.getRequest().getSession(false)).isNull();
+	}
+
+	private <T extends Filter> T getFilter(Class<T> filterClass) {
+		return (T) getFilters().stream().filter(filterClass::isInstance).findFirst().orElse(null);
+	}
+
+	private List<Filter> getFilters() {
+		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		return proxy.getFilters("/");
+	}
+
+	private <T> T getFieldValue(Object target, String fieldName) {
+		try {
+			return (T) FieldUtils.getFieldValue(target, fieldName);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -122,31 +243,6 @@ public class ServletApiConfigurerTests {
 
 	}
 
-	// SEC-2215
-	@Test
-	public void configureWhenUsingDefaultsThenAuthenticationManagerIsNotNull() {
-		this.spring.register(ServletApiConfig.class).autowire();
-
-		assertThat(this.spring.getContext().getBean("customAuthenticationManager")).isNotNull();
-	}
-
-	@Test
-	public void configureWhenUsingDefaultsThenAuthenticationEntryPointIsLogin() throws Exception {
-		this.spring.register(ServletApiConfig.class).autowire();
-
-		this.mvc.perform(formLogin()).andExpect(status().isFound());
-	}
-
-	// SEC-2926
-	@Test
-	public void configureWhenUsingDefaultsThenRolePrefixIsSet() throws Exception {
-		this.spring.register(ServletApiConfig.class, AdminController.class).autowire();
-
-		this.mvc.perform(
-				get("/admin").with(authentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"))))
-				.andExpect(status().isOk());
-	}
-
 	@EnableWebSecurity
 	static class ServletApiConfig extends WebSecurityConfigurerAdapter {
 
@@ -164,16 +260,6 @@ public class ServletApiConfigurerTests {
 			return super.authenticationManagerBean();
 		}
 
-	}
-
-	@Test
-	public void requestWhenCustomAuthenticationEntryPointThenEntryPointUsed() throws Exception {
-		this.spring.register(CustomEntryPointConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(CustomEntryPointConfig.ENTRYPOINT).commence(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
 	@EnableWebSecurity
@@ -206,18 +292,6 @@ public class ServletApiConfigurerTests {
 
 	}
 
-	@Test
-	public void servletApiWhenInvokedTwiceThenUsesOriginalRole() throws Exception {
-		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class, AdminController.class).autowire();
-
-		this.mvc.perform(
-				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
-				.andExpect(status().isOk());
-
-		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
-				.andExpect(status().isForbidden());
-	}
-
 	@EnableWebSecurity
 	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -232,15 +306,6 @@ public class ServletApiConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void configureWhenSharedObjectTrustResolverThenTrustResolverUsed() throws Exception {
-		this.spring.register(SharedTrustResolverConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(SharedTrustResolverConfig.TR, atLeastOnce()).isAnonymous(any());
 	}
 
 	@EnableWebSecurity
@@ -258,14 +323,6 @@ public class ServletApiConfigurerTests {
 
 	}
 
-	@Test
-	public void requestWhenServletApiWithDefaultsInLambdaThenUsesDefaultRolePrefix() throws Exception {
-		this.spring.register(ServletApiWithDefaultsInLambdaConfig.class, AdminController.class).autowire();
-
-		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
-				.andExpect(status().isOk());
-	}
-
 	@EnableWebSecurity
 	static class ServletApiWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -277,18 +334,6 @@ public class ServletApiConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void requestWhenRolePrefixInLambdaThenUsesCustomRolePrefix() throws Exception {
-		this.spring.register(RolePrefixInLambdaConfig.class, AdminController.class).autowire();
-
-		this.mvc.perform(
-				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
-				.andExpect(status().isOk());
-
-		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
-				.andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
@@ -319,25 +364,6 @@ public class ServletApiConfigurerTests {
 
 	}
 
-	@Test
-	public void checkSecurityContextAwareAndLogoutFilterHasSameSizeAndHasLogoutSuccessEventPublishingLogoutHandler() {
-		this.spring.register(ServletApiWithLogoutConfig.class);
-
-		SecurityContextHolderAwareRequestFilter scaFilter = getFilter(SecurityContextHolderAwareRequestFilter.class);
-		LogoutFilter logoutFilter = getFilter(LogoutFilter.class);
-
-		LogoutHandler lfLogoutHandler = getFieldValue(logoutFilter, "handler");
-		assertThat(lfLogoutHandler).isInstanceOf(CompositeLogoutHandler.class);
-
-		List<LogoutHandler> scaLogoutHandlers = getFieldValue(scaFilter, "logoutHandlers");
-		List<LogoutHandler> lfLogoutHandlers = getFieldValue(lfLogoutHandler, "logoutHandlers");
-
-		assertThat(scaLogoutHandlers).hasSameSizeAs(lfLogoutHandlers);
-
-		assertThat(scaLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
-		assertThat(lfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
-	}
-
 	@EnableWebSecurity
 	static class ServletApiWithLogoutConfig extends WebSecurityConfigurerAdapter {
 
@@ -350,14 +376,6 @@ public class ServletApiConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void logoutServletApiWhenCsrfDisabled() throws Exception {
-		ConfigurableWebApplicationContext context = this.spring.register(CsrfDisabledConfig.class).getContext();
-		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
-		MvcResult mvcResult = mockMvc.perform(get("/")).andReturn();
-		assertThat(mvcResult.getRequest().getSession(false)).isNull();
 	}
 
 	@Configuration
@@ -384,24 +402,6 @@ public class ServletApiConfigurerTests {
 
 		}
 
-	}
-
-	private <T extends Filter> T getFilter(Class<T> filterClass) {
-		return (T) getFilters().stream().filter(filterClass::isInstance).findFirst().orElse(null);
-	}
-
-	private List<Filter> getFilters() {
-		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
-		return proxy.getFilters("/");
-	}
-
-	private <T> T getFieldValue(Object target, String fieldName) {
-		try {
-			return (T) FieldUtils.getFieldValue(target, fieldName);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 }

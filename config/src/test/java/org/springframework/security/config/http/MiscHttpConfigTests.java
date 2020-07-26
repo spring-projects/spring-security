@@ -694,6 +694,59 @@ public class MiscHttpConfigTests {
 				.andExpect(redirectedUrl("https://localhost:9443/protected"));
 	}
 
+	private void redirectLogsTo(OutputStream os, Class<?> clazz) {
+		Logger logger = (Logger) LoggerFactory.getLogger(clazz);
+		Appender<ILoggingEvent> appender = mock(Appender.class);
+		when(appender.isStarted()).thenReturn(true);
+		doAnswer(writeTo(os)).when(appender).doAppend(any(ILoggingEvent.class));
+		logger.addAppender(appender);
+	}
+
+	private Answer<ILoggingEvent> writeTo(OutputStream os) {
+		return invocation -> {
+			os.write(invocation.getArgument(0).toString().getBytes());
+			return null;
+		};
+	}
+
+	private void assertThatFiltersMatchExpectedAutoConfigList() {
+		assertThatFiltersMatchExpectedAutoConfigList("/");
+	}
+
+	private void assertThatFiltersMatchExpectedAutoConfigList(String url) {
+		Iterator<Filter> filters = getFilters(url).iterator();
+
+		assertThat(filters.next()).isInstanceOf(SecurityContextPersistenceFilter.class);
+		assertThat(filters.next()).isInstanceOf(WebAsyncManagerIntegrationFilter.class);
+		assertThat(filters.next()).isInstanceOf(HeaderWriterFilter.class);
+		assertThat(filters.next()).isInstanceOf(CsrfFilter.class);
+		assertThat(filters.next()).isInstanceOf(LogoutFilter.class);
+		assertThat(filters.next()).isInstanceOf(UsernamePasswordAuthenticationFilter.class);
+		assertThat(filters.next()).isInstanceOf(DefaultLoginPageGeneratingFilter.class);
+		assertThat(filters.next()).isInstanceOf(DefaultLogoutPageGeneratingFilter.class);
+		assertThat(filters.next()).isInstanceOf(BasicAuthenticationFilter.class);
+		assertThat(filters.next()).isInstanceOf(RequestCacheAwareFilter.class);
+		assertThat(filters.next()).isInstanceOf(SecurityContextHolderAwareRequestFilter.class);
+		assertThat(filters.next()).isInstanceOf(AnonymousAuthenticationFilter.class);
+		assertThat(filters.next()).isInstanceOf(SessionManagementFilter.class);
+		assertThat(filters.next()).isInstanceOf(ExceptionTranslationFilter.class);
+		assertThat(filters.next()).isInstanceOf(FilterSecurityInterceptor.class)
+				.hasFieldOrPropertyWithValue("observeOncePerRequest", true);
+	}
+
+	private <T extends Filter> T getFilter(Class<T> filterClass) {
+		return (T) getFilters("/").stream().filter(filterClass::isInstance).findFirst().orElse(null);
+	}
+
+	private List<Filter> getFilters(String url) {
+		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		return proxy.getFilters(url);
+	}
+
+	private static String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	@RestController
 	static class BasicController {
 
@@ -845,59 +898,6 @@ public class MiscHttpConfigTests {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
 		}
 
-	}
-
-	private void redirectLogsTo(OutputStream os, Class<?> clazz) {
-		Logger logger = (Logger) LoggerFactory.getLogger(clazz);
-		Appender<ILoggingEvent> appender = mock(Appender.class);
-		when(appender.isStarted()).thenReturn(true);
-		doAnswer(writeTo(os)).when(appender).doAppend(any(ILoggingEvent.class));
-		logger.addAppender(appender);
-	}
-
-	private Answer<ILoggingEvent> writeTo(OutputStream os) {
-		return invocation -> {
-			os.write(invocation.getArgument(0).toString().getBytes());
-			return null;
-		};
-	}
-
-	private void assertThatFiltersMatchExpectedAutoConfigList() {
-		assertThatFiltersMatchExpectedAutoConfigList("/");
-	}
-
-	private void assertThatFiltersMatchExpectedAutoConfigList(String url) {
-		Iterator<Filter> filters = getFilters(url).iterator();
-
-		assertThat(filters.next()).isInstanceOf(SecurityContextPersistenceFilter.class);
-		assertThat(filters.next()).isInstanceOf(WebAsyncManagerIntegrationFilter.class);
-		assertThat(filters.next()).isInstanceOf(HeaderWriterFilter.class);
-		assertThat(filters.next()).isInstanceOf(CsrfFilter.class);
-		assertThat(filters.next()).isInstanceOf(LogoutFilter.class);
-		assertThat(filters.next()).isInstanceOf(UsernamePasswordAuthenticationFilter.class);
-		assertThat(filters.next()).isInstanceOf(DefaultLoginPageGeneratingFilter.class);
-		assertThat(filters.next()).isInstanceOf(DefaultLogoutPageGeneratingFilter.class);
-		assertThat(filters.next()).isInstanceOf(BasicAuthenticationFilter.class);
-		assertThat(filters.next()).isInstanceOf(RequestCacheAwareFilter.class);
-		assertThat(filters.next()).isInstanceOf(SecurityContextHolderAwareRequestFilter.class);
-		assertThat(filters.next()).isInstanceOf(AnonymousAuthenticationFilter.class);
-		assertThat(filters.next()).isInstanceOf(SessionManagementFilter.class);
-		assertThat(filters.next()).isInstanceOf(ExceptionTranslationFilter.class);
-		assertThat(filters.next()).isInstanceOf(FilterSecurityInterceptor.class)
-				.hasFieldOrPropertyWithValue("observeOncePerRequest", true);
-	}
-
-	private <T extends Filter> T getFilter(Class<T> filterClass) {
-		return (T) getFilters("/").stream().filter(filterClass::isInstance).findFirst().orElse(null);
-	}
-
-	private List<Filter> getFilters(String url) {
-		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
-		return proxy.getFilters(url);
-	}
-
-	private static String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

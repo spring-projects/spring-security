@@ -114,41 +114,6 @@ public class OAuth2ClientSpecTests {
 		this.client.get().uri("/").exchange().expectStatus().is3xxRedirection();
 	}
 
-	@EnableWebFlux
-	@EnableWebFluxSecurity
-	static class Config {
-
-		@Bean
-		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
-			// @formatter:off
-			http
-				.oauth2Client();
-			// @formatter:on
-			return http.build();
-		}
-
-		@Bean
-		ReactiveClientRegistrationRepository clientRegistrationRepository() {
-			return mock(ReactiveClientRegistrationRepository.class);
-		}
-
-		@Bean
-		ServerOAuth2AuthorizedClientRepository authorizedClientRepository() {
-			return mock(ServerOAuth2AuthorizedClientRepository.class);
-		}
-
-	}
-
-	@RestController
-	static class AuthorizedClientController {
-
-		@GetMapping("/")
-		String home(@RegisteredOAuth2AuthorizedClient("github") OAuth2AuthorizedClient authorizedClient) {
-			return "home";
-		}
-
-	}
-
 	@Test
 	public void oauth2ClientWhenCustomObjectsThenUsed() {
 		this.spring.register(ClientRegistrationConfig.class, OAuth2ClientCustomConfig.class,
@@ -187,47 +152,6 @@ public class OAuth2ClientSpecTests {
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
 		verify(requestCache).getRedirectUri(any());
-	}
-
-	@EnableWebFlux
-	@EnableWebFluxSecurity
-	static class ClientRegistrationConfig {
-
-		private ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-
-		@Bean
-		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
-			return new InMemoryReactiveClientRegistrationRepository(this.clientRegistration);
-		}
-
-	}
-
-	@Configuration
-	static class OAuth2ClientCustomConfig {
-
-		ReactiveAuthenticationManager manager = mock(ReactiveAuthenticationManager.class);
-
-		ServerAuthenticationConverter authenticationConverter = mock(ServerAuthenticationConverter.class);
-
-		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
-				ServerAuthorizationRequestRepository.class);
-
-		ServerRequestCache requestCache = mock(ServerRequestCache.class);
-
-		@Bean
-		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
-			// @formatter:off
-			http
-				.oauth2Client()
-					.authenticationConverter(this.authenticationConverter)
-					.authenticationManager(this.manager)
-					.authorizationRequestRepository(this.authorizationRequestRepository)
-					.and()
-				.requestCache(c -> c.requestCache(this.requestCache));
-			// @formatter:on
-			return http.build();
-		}
-
 	}
 
 	@Test
@@ -269,6 +193,82 @@ public class OAuth2ClientSpecTests {
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
 		verify(requestCache).getRedirectUri(any());
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class Config {
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.oauth2Client();
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ReactiveClientRegistrationRepository clientRegistrationRepository() {
+			return mock(ReactiveClientRegistrationRepository.class);
+		}
+
+		@Bean
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return mock(ServerOAuth2AuthorizedClientRepository.class);
+		}
+
+	}
+
+	@RestController
+	static class AuthorizedClientController {
+
+		@GetMapping("/")
+		String home(@RegisteredOAuth2AuthorizedClient("github") OAuth2AuthorizedClient authorizedClient) {
+			return "home";
+		}
+
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class ClientRegistrationConfig {
+
+		private ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+
+		@Bean
+		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
+			return new InMemoryReactiveClientRegistrationRepository(this.clientRegistration);
+		}
+
+	}
+
+	@Configuration
+	static class OAuth2ClientCustomConfig {
+
+		ReactiveAuthenticationManager manager = mock(ReactiveAuthenticationManager.class);
+
+		ServerAuthenticationConverter authenticationConverter = mock(ServerAuthenticationConverter.class);
+
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
+				ServerAuthorizationRequestRepository.class);
+
+		ServerRequestCache requestCache = mock(ServerRequestCache.class);
+
+		@Bean
+		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.oauth2Client()
+					.authenticationConverter(this.authenticationConverter)
+					.authenticationManager(this.manager)
+					.authorizationRequestRepository(this.authorizationRequestRepository)
+					.and()
+				.requestCache(c -> c.requestCache(this.requestCache));
+			// @formatter:on
+			return http.build();
+		}
+
 	}
 
 	@Configuration

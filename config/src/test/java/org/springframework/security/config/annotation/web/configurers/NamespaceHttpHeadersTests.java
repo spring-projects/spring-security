@@ -73,19 +73,6 @@ public class NamespaceHttpHeadersTests {
 		this.mvc.perform(get("/").secure(true)).andExpect(includesDefaults());
 	}
 
-	@EnableWebSecurity
-	static class HeadersDefaultConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers();
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void secureRequestWhenCacheControlOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HeadersCacheControlConfig.class).autowire();
@@ -93,41 +80,11 @@ public class NamespaceHttpHeadersTests {
 		this.mvc.perform(get("/").secure(true)).andExpect(includes("Cache-Control", "Expires", "Pragma"));
 	}
 
-	@EnableWebSecurity
-	static class HeadersCacheControlConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					.defaultsDisabled()
-					.cacheControl();
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void secureRequestWhenHstsOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HstsConfig.class).autowire();
 
 		this.mvc.perform(get("/").secure(true)).andExpect(includes("Strict-Transport-Security"));
-	}
-
-	@EnableWebSecurity
-	static class HstsConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					.defaultsDisabled()
-					.httpStrictTransportSecurity();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -138,51 +95,12 @@ public class NamespaceHttpHeadersTests {
 				.andExpect(includes(Collections.singletonMap("Strict-Transport-Security", "max-age=15768000")));
 	}
 
-	@EnableWebSecurity
-	static class HstsCustomConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					// hsts@request-matcher-ref, hsts@max-age-seconds, hsts@include-subdomains
-					.defaultsDisabled()
-					.httpStrictTransportSecurity()
-						.requestMatcher(AnyRequestMatcher.INSTANCE)
-						.maxAgeInSeconds(15768000)
-						.includeSubDomains(false);
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void requestWhenFrameOptionsSameOriginThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(FrameOptionsSameOriginConfig.class).autowire();
 
 		this.mvc.perform(get("/")).andExpect(includes(Collections.singletonMap("X-Frame-Options", "SAMEORIGIN")));
 	}
-
-	@EnableWebSecurity
-	static class FrameOptionsSameOriginConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					// frame-options@policy=SAMEORIGIN
-					.defaultsDisabled()
-					.frameOptions()
-						.sameOrigin();
-			// @formatter:on
-		}
-
-	}
-
-	// frame-options@strategy, frame-options@value, frame-options@parameter are not
-	// provided instead use frame-options@ref
 
 	@Test
 	public void requestWhenFrameOptionsAllowFromThenBehaviorMatchesNamespace() throws Exception {
@@ -192,44 +110,11 @@ public class NamespaceHttpHeadersTests {
 				.andExpect(includes(Collections.singletonMap("X-Frame-Options", "ALLOW-FROM https://example.com")));
 	}
 
-	@EnableWebSecurity
-	static class FrameOptionsAllowFromConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					// frame-options@ref
-					.defaultsDisabled()
-					.addHeaderWriter(new XFrameOptionsHeaderWriter(
-							new StaticAllowFromStrategy(URI.create("https://example.com"))));
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void requestWhenXssOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(XssProtectionConfig.class).autowire();
 
 		this.mvc.perform(get("/")).andExpect(includes("X-XSS-Protection"));
-	}
-
-	@EnableWebSecurity
-	static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					// xss-protection
-					.defaultsDisabled()
-					.xssProtection();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -239,24 +124,6 @@ public class NamespaceHttpHeadersTests {
 		this.mvc.perform(get("/")).andExpect(includes(Collections.singletonMap("X-XSS-Protection", "1")));
 	}
 
-	@EnableWebSecurity
-	static class XssProtectionCustomConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					// xss-protection@enabled and xss-protection@block
-					.defaultsDisabled()
-					.xssProtection()
-						.xssProtectionEnabled(true)
-						.block(false);
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void requestWhenXContentTypeOptionsOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(ContentTypeOptionsConfig.class).autowire();
@@ -264,45 +131,12 @@ public class NamespaceHttpHeadersTests {
 		this.mvc.perform(get("/")).andExpect(includes("X-Content-Type-Options"));
 	}
 
-	@EnableWebSecurity
-	static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					// content-type-options
-					.defaultsDisabled()
-					.contentTypeOptions();
-			// @formatter:on
-		}
-
-	}
-
-	// header@name / header@value are not provided instead use header@ref
-
 	@Test
 	public void requestWhenCustomHeaderOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HeaderRefConfig.class).autowire();
 
 		this.mvc.perform(get("/"))
 				.andExpect(includes(Collections.singletonMap("customHeaderName", "customHeaderValue")));
-	}
-
-	@EnableWebSecurity
-	static class HeaderRefConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers()
-					.defaultsDisabled()
-					.addHeaderWriter(new StaticHeadersWriter("customHeaderName", "customHeaderValue"));
-			// @formatter:on
-		}
-
 	}
 
 	private static ResultMatcher includesDefaults() {
@@ -324,6 +158,167 @@ public class NamespaceHttpHeadersTests {
 				header().string(headerName, headers.get(headerName)).match(result);
 			}
 		};
+	}
+
+	@EnableWebSecurity
+	static class HeadersDefaultConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class HeadersCacheControlConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.cacheControl();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class HstsConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.httpStrictTransportSecurity();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class HstsCustomConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					// hsts@request-matcher-ref, hsts@max-age-seconds, hsts@include-subdomains
+					.defaultsDisabled()
+					.httpStrictTransportSecurity()
+						.requestMatcher(AnyRequestMatcher.INSTANCE)
+						.maxAgeInSeconds(15768000)
+						.includeSubDomains(false);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class FrameOptionsSameOriginConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					// frame-options@policy=SAMEORIGIN
+					.defaultsDisabled()
+					.frameOptions()
+						.sameOrigin();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class FrameOptionsAllowFromConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					// frame-options@ref
+					.defaultsDisabled()
+					.addHeaderWriter(new XFrameOptionsHeaderWriter(
+							new StaticAllowFromStrategy(URI.create("https://example.com"))));
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					// xss-protection
+					.defaultsDisabled()
+					.xssProtection();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class XssProtectionCustomConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					// xss-protection@enabled and xss-protection@block
+					.defaultsDisabled()
+					.xssProtection()
+						.xssProtectionEnabled(true)
+						.block(false);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					// content-type-options
+					.defaultsDisabled()
+					.contentTypeOptions();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class HeaderRefConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.addHeaderWriter(new StaticHeadersWriter("customHeaderName", "customHeaderValue"));
+			// @formatter:on
+		}
+
 	}
 
 }

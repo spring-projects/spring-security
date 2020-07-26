@@ -103,6 +103,24 @@ public class SessionManagementConfigurerServlet31Tests {
 		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
 	}
 
+	private void loadConfig(Class<?>... classes) {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.register(classes);
+		context.refresh();
+		this.context = context;
+		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
+	}
+
+	private void login(Authentication auth) {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(this.request, this.response);
+		repo.loadContext(requestResponseHolder);
+
+		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
+		securityContextImpl.setAuthentication(auth);
+		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
+	}
+
 	@EnableWebSecurity
 	static class SessionManagementDefaultSessionFixationServlet31Config extends WebSecurityConfigurerAdapter {
 
@@ -125,24 +143,6 @@ public class SessionManagementConfigurerServlet31Tests {
 			// @formatter:on
 		}
 
-	}
-
-	private void loadConfig(Class<?>... classes) {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.register(classes);
-		context.refresh();
-		this.context = context;
-		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
-	}
-
-	private void login(Authentication auth) {
-		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(this.request, this.response);
-		repo.loadContext(requestResponseHolder);
-
-		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
-		securityContextImpl.setAuthentication(auth);
-		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
 	}
 
 }

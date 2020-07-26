@@ -166,13 +166,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private ClientResponseHandler clientResponseHandler;
 
-	@FunctionalInterface
-	private interface ClientResponseHandler {
-
-		Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> response);
-
-	}
-
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction() {
 	}
 
@@ -629,6 +622,13 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				return principalName;
 			}
 		};
+	}
+
+	@FunctionalInterface
+	private interface ClientResponseHandler {
+
+		Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> response);
+
 	}
 
 	/**

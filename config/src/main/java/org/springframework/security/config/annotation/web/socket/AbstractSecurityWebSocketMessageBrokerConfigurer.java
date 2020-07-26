@@ -186,25 +186,6 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 	protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
 	}
 
-	private static class WebSocketMessageSecurityMetadataSourceRegistry extends MessageSecurityMetadataSourceRegistry {
-
-		@Override
-		public MessageSecurityMetadataSource createMetadataSource() {
-			return super.createMetadataSource();
-		}
-
-		@Override
-		protected boolean containsMapping() {
-			return super.containsMapping();
-		}
-
-		@Override
-		protected boolean isSimpDestPathMatcherConfigured() {
-			return super.isSimpDestPathMatcherConfigured();
-		}
-
-	}
-
 	@Autowired
 	public void setApplicationContext(ApplicationContext context) {
 		this.context = context;
@@ -281,6 +262,25 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 			PathMatcher pathMatcher = getDefaultPathMatcher();
 			this.inboundRegistry.simpDestPathMatcher(pathMatcher);
 		}
+	}
+
+	private static class WebSocketMessageSecurityMetadataSourceRegistry extends MessageSecurityMetadataSourceRegistry {
+
+		@Override
+		public MessageSecurityMetadataSource createMetadataSource() {
+			return super.createMetadataSource();
+		}
+
+		@Override
+		protected boolean containsMapping() {
+			return super.containsMapping();
+		}
+
+		@Override
+		protected boolean isSimpDestPathMatcherConfigured() {
+			return super.isSimpDestPathMatcherConfigured();
+		}
+
 	}
 
 }

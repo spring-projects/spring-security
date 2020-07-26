@@ -84,6 +84,20 @@ public class ChannelSecurityConfigurerTests {
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ChannelProcessingFilter.class));
 	}
 
+	@Test
+	public void requiresChannelWhenInvokesTwiceThenUsesOriginalRequiresSecure() throws Exception {
+		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
+
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
+	}
+
+	@Test
+	public void requestWhenRequiresChannelConfiguredInLambdaThenRedirectsToHttps() throws Exception {
+		this.spring.register(RequiresChannelInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
+	}
+
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -114,13 +128,6 @@ public class ChannelSecurityConfigurerTests {
 
 	}
 
-	@Test
-	public void requiresChannelWhenInvokesTwiceThenUsesOriginalRequiresSecure() throws Exception {
-		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
-
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
-	}
-
 	@EnableWebSecurity
 	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -135,13 +142,6 @@ public class ChannelSecurityConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void requestWhenRequiresChannelConfiguredInLambdaThenRedirectsToHttps() throws Exception {
-		this.spring.register(RequiresChannelInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
 	}
 
 	@EnableWebSecurity

@@ -206,6 +206,10 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		this.mvc.perform(get("/role")).andExpect(content().string("true"));
 	}
 
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	@RestController
 	public static class ServletAuthenticatedController {
 
@@ -265,10 +269,6 @@ public class SecurityContextHolderAwareRequestConfigTests {
 			return null;
 		}
 
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

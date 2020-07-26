@@ -247,6 +247,29 @@ public class MessageSecurityMetadataSourceRegistry {
 		return !this.matcherToExpression.isEmpty();
 	}
 
+	private static String hasAnyRole(String... authorities) {
+		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','ROLE_");
+		return "hasAnyRole('ROLE_" + anyAuthorities + "')";
+	}
+
+	private static String hasRole(String role) {
+		Assert.notNull(role, "role cannot be null");
+		if (role.startsWith("ROLE_")) {
+			throw new IllegalArgumentException(
+					"role should not start with 'ROLE_' since it is automatically inserted. Got '" + role + "'");
+		}
+		return "hasRole('ROLE_" + role + "')";
+	}
+
+	private static String hasAuthority(String authority) {
+		return "hasAuthority('" + authority + "')";
+	}
+
+	private static String hasAnyAuthority(String... authorities) {
+		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','");
+		return "hasAnyAuthority('" + anyAuthorities + "')";
+	}
+
 	/**
 	 * Represents the security constraint to be applied to the {@link MessageMatcher}
 	 * instances.
@@ -384,29 +407,6 @@ public class MessageSecurityMetadataSourceRegistry {
 			return MessageSecurityMetadataSourceRegistry.this;
 		}
 
-	}
-
-	private static String hasAnyRole(String... authorities) {
-		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','ROLE_");
-		return "hasAnyRole('ROLE_" + anyAuthorities + "')";
-	}
-
-	private static String hasRole(String role) {
-		Assert.notNull(role, "role cannot be null");
-		if (role.startsWith("ROLE_")) {
-			throw new IllegalArgumentException(
-					"role should not start with 'ROLE_' since it is automatically inserted. Got '" + role + "'");
-		}
-		return "hasRole('ROLE_" + role + "')";
-	}
-
-	private static String hasAuthority(String authority) {
-		return "hasAuthority('" + authority + "')";
-	}
-
-	private static String hasAnyAuthority(String... authorities) {
-		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','");
-		return "hasAnyAuthority('" + anyAuthorities + "')";
 	}
 
 	private final static class PreBuiltMatcherBuilder implements MatcherBuilder {

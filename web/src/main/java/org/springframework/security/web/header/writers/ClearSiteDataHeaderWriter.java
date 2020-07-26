@@ -82,6 +82,20 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 		}
 	}
 
+	private String transformToHeaderValue(Directive... directives) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < directives.length - 1; i++) {
+			sb.append(directives[i].headerValue).append(", ");
+		}
+		sb.append(directives[directives.length - 1].headerValue);
+		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getName() + " [headerValue=" + this.headerValue + "]";
+	}
+
 	/**
 	 * <p>
 	 * Represents the directive values expected by the {@link ClearSiteDataHeaderWriter}
@@ -104,15 +118,6 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 
 	}
 
-	private String transformToHeaderValue(Directive... directives) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < directives.length - 1; i++) {
-			sb.append(directives[i].headerValue).append(", ");
-		}
-		sb.append(directives[directives.length - 1].headerValue);
-		return sb.toString();
-	}
-
 	private static final class SecureRequestMatcher implements RequestMatcher {
 
 		@Override
@@ -120,11 +125,6 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 			return request.isSecure();
 		}
 
-	}
-
-	@Override
-	public String toString() {
-		return getClass().getName() + " [headerValue=" + this.headerValue + "]";
 	}
 
 }

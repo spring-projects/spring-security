@@ -56,16 +56,23 @@ public class NamespaceHttpFirewallTests {
 		assertThatCode(() -> this.mvc.perform(get("/public/../private/"))).isInstanceOf(RequestRejectedException.class);
 	}
 
-	@EnableWebSecurity
-	static class HttpFirewallConfig {
-
-	}
-
 	@Test
 	public void requestWithCustomFirewallThenBehaviorMatchesNamespace() {
 		this.rule.register(CustomHttpFirewallConfig.class).autowire();
 		assertThatCode(() -> this.mvc.perform(get("/").param("deny", "true")))
 				.isInstanceOf(RequestRejectedException.class);
+	}
+
+	@Test
+	public void requestWithCustomFirewallBeanThenBehaviorMatchesNamespace() {
+		this.rule.register(CustomHttpFirewallBeanConfig.class).autowire();
+		assertThatCode(() -> this.mvc.perform(get("/").param("deny", "true")))
+				.isInstanceOf(RequestRejectedException.class);
+	}
+
+	@EnableWebSecurity
+	static class HttpFirewallConfig {
+
 	}
 
 	@EnableWebSecurity
@@ -76,13 +83,6 @@ public class NamespaceHttpFirewallTests {
 			web.httpFirewall(new CustomHttpFirewall());
 		}
 
-	}
-
-	@Test
-	public void requestWithCustomFirewallBeanThenBehaviorMatchesNamespace() {
-		this.rule.register(CustomHttpFirewallBeanConfig.class).autowire();
-		assertThatCode(() -> this.mvc.perform(get("/").param("deny", "true")))
-				.isInstanceOf(RequestRejectedException.class);
 	}
 
 	@EnableWebSecurity

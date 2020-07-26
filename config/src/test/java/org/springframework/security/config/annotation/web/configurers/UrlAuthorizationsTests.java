@@ -103,25 +103,6 @@ public class UrlAuthorizationsTests {
 		this.mvc.perform(get("/role-admin")).andExpect(status().isForbidden());
 	}
 
-	@EnableWebSecurity
-	static class RoleConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.antMatchers("/role-user-authority").hasAnyAuthority("ROLE_USER")
-					.antMatchers("/role-admin-authority").hasAnyAuthority("ROLE_ADMIN")
-					.antMatchers("/role-user-admin-authority").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-					.antMatchers("/role-user").hasAnyRole("USER")
-					.antMatchers("/role-admin").hasAnyRole("ADMIN")
-					.antMatchers("/role-user-admin").hasAnyRole("USER", "ADMIN");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void configureWhenNoAccessDecisionManagerThenDefaultsToAffirmativeBased() {
 		this.spring.register(NoSpecificAccessDecisionManagerConfig.class).autowire();
@@ -140,6 +121,25 @@ public class UrlAuthorizationsTests {
 			}
 		}
 		return null;
+	}
+
+	@EnableWebSecurity
+	static class RoleConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.antMatchers("/role-user-authority").hasAnyAuthority("ROLE_USER")
+					.antMatchers("/role-admin-authority").hasAnyAuthority("ROLE_ADMIN")
+					.antMatchers("/role-user-admin-authority").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+					.antMatchers("/role-user").hasAnyRole("USER")
+					.antMatchers("/role-admin").hasAnyRole("ADMIN")
+					.antMatchers("/role-user-admin").hasAnyRole("USER", "ADMIN");
+			// @formatter:on
+		}
+
 	}
 
 	@EnableWebSecurity

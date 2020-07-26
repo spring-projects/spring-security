@@ -65,6 +65,37 @@ public class NamespaceHttpCustomFilterTests {
 		assertThatFilters().containsSubsequence(CustomFilter.class, UsernamePasswordAuthenticationFilter.class);
 	}
 
+	@Test
+	public void getFiltersWhenFilterAddedAfterThenBehaviorMatchesNamespace() {
+		this.spring.register(CustomFilterAfterConfig.class, UserDetailsServiceConfig.class).autowire();
+		assertThatFilters().containsSubsequence(UsernamePasswordAuthenticationFilter.class, CustomFilter.class);
+	}
+
+	@Test
+	public void getFiltersWhenFilterAddedThenBehaviorMatchesNamespace() {
+		this.spring.register(CustomFilterPositionConfig.class, UserDetailsServiceConfig.class).autowire();
+		assertThatFilters().containsExactly(CustomFilter.class);
+	}
+
+	@Test
+	public void getFiltersWhenFilterAddedAtPositionThenBehaviorMatchesNamespace() {
+		this.spring.register(CustomFilterPositionAtConfig.class, UserDetailsServiceConfig.class).autowire();
+		assertThatFilters().containsExactly(OtherCustomFilter.class);
+	}
+
+	@Test
+	public void getFiltersWhenCustomAuthenticationManagerThenBehaviorMatchesNamespace() {
+		this.spring.register(NoAuthenticationManagerInHttpConfigurationConfig.class).autowire();
+		assertThatFilters().startsWith(CustomFilter.class);
+	}
+
+	private ListAssert<Class<?>> assertThatFilters() {
+		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<Class<?>> filters = filterChain.getFilters("/").stream().map(Object::getClass)
+				.collect(Collectors.toList());
+		return assertThat(filters);
+	}
+
 	@EnableWebSecurity
 	static class CustomFilterBeforeConfig extends WebSecurityConfigurerAdapter {
 
@@ -79,12 +110,6 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
-	@Test
-	public void getFiltersWhenFilterAddedAfterThenBehaviorMatchesNamespace() {
-		this.spring.register(CustomFilterAfterConfig.class, UserDetailsServiceConfig.class).autowire();
-		assertThatFilters().containsSubsequence(UsernamePasswordAuthenticationFilter.class, CustomFilter.class);
-	}
-
 	@EnableWebSecurity
 	static class CustomFilterAfterConfig extends WebSecurityConfigurerAdapter {
 
@@ -97,12 +122,6 @@ public class NamespaceHttpCustomFilterTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void getFiltersWhenFilterAddedThenBehaviorMatchesNamespace() {
-		this.spring.register(CustomFilterPositionConfig.class, UserDetailsServiceConfig.class).autowire();
-		assertThatFilters().containsExactly(CustomFilter.class);
 	}
 
 	@EnableWebSecurity
@@ -125,12 +144,6 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
-	@Test
-	public void getFiltersWhenFilterAddedAtPositionThenBehaviorMatchesNamespace() {
-		this.spring.register(CustomFilterPositionAtConfig.class, UserDetailsServiceConfig.class).autowire();
-		assertThatFilters().containsExactly(OtherCustomFilter.class);
-	}
-
 	@EnableWebSecurity
 	static class CustomFilterPositionAtConfig extends WebSecurityConfigurerAdapter {
 
@@ -147,12 +160,6 @@ public class NamespaceHttpCustomFilterTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void getFiltersWhenCustomAuthenticationManagerThenBehaviorMatchesNamespace() {
-		this.spring.register(NoAuthenticationManagerInHttpConfigurationConfig.class).autowire();
-		assertThatFilters().startsWith(CustomFilter.class);
 	}
 
 	@EnableWebSecurity
@@ -218,13 +225,6 @@ public class NamespaceHttpCustomFilterTests {
 			return null;
 		}
 
-	}
-
-	private ListAssert<Class<?>> assertThatFilters() {
-		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
-		List<Class<?>> filters = filterChain.getFilters("/").stream().map(Object::getClass)
-				.collect(Collectors.toList());
-		return assertThat(filters);
 	}
 
 }

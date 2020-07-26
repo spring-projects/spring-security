@@ -683,6 +683,12 @@ public class DaoAuthenticationProviderTests {
 		verify(encoder, times(0)).matches(anyString(), anyString());
 	}
 
+	private DaoAuthenticationProvider createProvider() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+		return provider;
+	}
+
 	private class MockUserDetailsServiceReturnsNull implements UserDetailsService {
 
 		@Override
@@ -765,12 +771,6 @@ public class DaoAuthenticationProviderTests {
 			throw new UsernameNotFoundException("Could not find: " + username);
 		}
 
-	}
-
-	private DaoAuthenticationProvider createProvider() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
-		return provider;
 	}
 
 }

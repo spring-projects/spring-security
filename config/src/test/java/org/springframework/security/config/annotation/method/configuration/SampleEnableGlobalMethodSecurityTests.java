@@ -66,6 +66,16 @@ public class SampleEnableGlobalMethodSecurityTests {
 		assertThatThrownBy(() -> this.methodSecurityService.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
+	@Test
+	public void customPermissionHandler() {
+		this.spring.register(CustomPermissionEvaluatorWebSecurityConfig.class).autowire();
+
+		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
+
+		assertThatThrownBy(() -> this.methodSecurityService.hasPermission("denied"))
+				.isInstanceOf(AccessDeniedException.class);
+	}
+
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class SampleWebSecurityConfig {
 
@@ -84,16 +94,6 @@ public class SampleEnableGlobalMethodSecurityTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void customPermissionHandler() {
-		this.spring.register(CustomPermissionEvaluatorWebSecurityConfig.class).autowire();
-
-		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
-
-		assertThatThrownBy(() -> this.methodSecurityService.hasPermission("denied"))
-				.isInstanceOf(AccessDeniedException.class);
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)

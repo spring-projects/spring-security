@@ -99,29 +99,6 @@ public class HttpCorsConfigTests {
 				.andExpect(status().isOk());
 	}
 
-	@RestController
-	@CrossOrigin(methods = { RequestMethod.GET, RequestMethod.POST })
-	static class CorsController {
-
-		@RequestMapping("/")
-		String hello() {
-			return "Hello";
-		}
-
-	}
-
-	static class MyCorsConfigurationSource extends UrlBasedCorsConfigurationSource {
-
-		MyCorsConfigurationSource() {
-			CorsConfiguration configuration = new CorsConfiguration();
-			configuration.setAllowedOrigins(Arrays.asList("*"));
-			configuration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
-
-			super.registerCorsConfiguration("/**", configuration);
-		}
-
-	}
-
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
@@ -152,6 +129,29 @@ public class HttpCorsConfigTests {
 			header().exists("Access-Control-Allow-Origin").match(result);
 			header().exists("X-Content-Type-Options").match(result);
 		};
+	}
+
+	@RestController
+	@CrossOrigin(methods = { RequestMethod.GET, RequestMethod.POST })
+	static class CorsController {
+
+		@RequestMapping("/")
+		String hello() {
+			return "Hello";
+		}
+
+	}
+
+	static class MyCorsConfigurationSource extends UrlBasedCorsConfigurationSource {
+
+		MyCorsConfigurationSource() {
+			CorsConfiguration configuration = new CorsConfiguration();
+			configuration.setAllowedOrigins(Arrays.asList("*"));
+			configuration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
+
+			super.registerCorsConfiguration("/**", configuration);
+		}
+
 	}
 
 }
