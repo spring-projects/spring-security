@@ -65,7 +65,7 @@ class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ord
 					+ "declared an explicit bean, do not use lazy-init");
 		}
 
-		if (!bf.containsBean(BeanIds.CONTEXT_SOURCE) && defaultNameRequired) {
+		if (!bf.containsBean(BeanIds.CONTEXT_SOURCE) && this.defaultNameRequired) {
 			if (sources.length > 1) {
 				throw new ApplicationContextException("More than one BaseLdapPathContextSource instance found. "
 						+ "Please specify a specific server id using the 'server-ref' attribute when configuring your <"

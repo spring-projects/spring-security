@@ -41,46 +41,46 @@ public class DelegatingApplicationListenerTests {
 
 	@Before
 	public void setup() {
-		event = new ApplicationEvent(this) {
+		this.event = new ApplicationEvent(this) {
 		};
-		listener = new DelegatingApplicationListener();
-		listener.addListener(delegate);
+		this.listener = new DelegatingApplicationListener();
+		this.listener.addListener(this.delegate);
 	}
 
 	@Test
 	public void processEventNull() {
-		listener.onApplicationEvent(null);
+		this.listener.onApplicationEvent(null);
 
-		verify(delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
+		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
 	@Test
 	public void processEventSuccess() {
-		when(delegate.supportsEventType(event.getClass())).thenReturn(true);
-		when(delegate.supportsSourceType(event.getSource().getClass())).thenReturn(true);
-		listener.onApplicationEvent(event);
+		when(this.delegate.supportsEventType(this.event.getClass())).thenReturn(true);
+		when(this.delegate.supportsSourceType(this.event.getSource().getClass())).thenReturn(true);
+		this.listener.onApplicationEvent(this.event);
 
-		verify(delegate).onApplicationEvent(event);
+		verify(this.delegate).onApplicationEvent(this.event);
 	}
 
 	@Test
 	public void processEventEventTypeNotSupported() {
-		listener.onApplicationEvent(event);
+		this.listener.onApplicationEvent(this.event);
 
-		verify(delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
+		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
 	@Test
 	public void processEventSourceTypeNotSupported() {
-		when(delegate.supportsEventType(event.getClass())).thenReturn(true);
-		listener.onApplicationEvent(event);
+		when(this.delegate.supportsEventType(this.event.getClass())).thenReturn(true);
+		this.listener.onApplicationEvent(this.event);
 
-		verify(delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
+		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void addNull() {
-		listener.addListener(null);
+		this.listener.addListener(null);
 	}
 
 }

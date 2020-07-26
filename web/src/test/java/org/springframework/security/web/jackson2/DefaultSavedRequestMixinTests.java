@@ -102,7 +102,7 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 				return new Cookie[] { new Cookie("SESSION", "123456789") };
 			}
 		};
-		String actualString = mapper.writerWithDefaultPrettyPrinter()
+		String actualString = this.mapper.writerWithDefaultPrettyPrinter()
 				.writeValueAsString(new DefaultSavedRequest(requestToWrite, new PortResolverImpl()));
 		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
@@ -115,13 +115,13 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 				.setRequestURL("http://localhost").setServerName("localhost").setRequestURI("")
 				.setLocales(Collections.singletonList(new Locale("en"))).setContextPath("").setMethod("")
 				.setServletPath("").build();
-		String actualString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
+		String actualString = this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
 		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
 	}
 
 	@Test
 	public void deserializeDefaultSavedRequest() throws IOException {
-		DefaultSavedRequest request = (DefaultSavedRequest) mapper.readValue(REQUEST_JSON, Object.class);
+		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper.readValue(REQUEST_JSON, Object.class);
 		assertThat(request).isNotNull();
 		assertThat(request.getCookies()).hasSize(1);
 		assertThat(request.getLocales()).hasSize(1).contains(new Locale("en"));

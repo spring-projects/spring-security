@@ -42,11 +42,11 @@ public class MockMethodInvocation implements MethodInvocation {
 	}
 
 	public Object[] getArguments() {
-		return arguments;
+		return this.arguments;
 	}
 
 	public Method getMethod() {
-		return method;
+		return this.method;
 	}
 
 	public AccessibleObject getStaticPart() {
@@ -54,7 +54,7 @@ public class MockMethodInvocation implements MethodInvocation {
 	}
 
 	public Object getThis() {
-		return targetObject;
+		return this.targetObject;
 	}
 
 	public Object proceed() {

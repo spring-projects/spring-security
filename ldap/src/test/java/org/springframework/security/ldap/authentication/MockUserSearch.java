@@ -34,7 +34,7 @@ public class MockUserSearch implements LdapUserSearch {
 	}
 
 	public DirContextOperations searchForUser(String username) {
-		return user;
+		return this.user;
 	}
 
 }

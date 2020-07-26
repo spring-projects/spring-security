@@ -54,7 +54,7 @@ public class CookieRequestCache implements RequestCache {
 
 	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
-		if (requestMatcher.matches(request)) {
+		if (this.requestMatcher.matches(request)) {
 			String redirectUrl = UrlUtils.buildFullRequestUrl(request);
 			Cookie savedCookie = new Cookie(COOKIE_NAME, encodeCookie(redirectUrl));
 			savedCookie.setMaxAge(COOKIE_MAX_AGE);
@@ -65,7 +65,7 @@ public class CookieRequestCache implements RequestCache {
 			response.addCookie(savedCookie);
 		}
 		else {
-			logger.debug("Request not saved as configured RequestMatcher did not match");
+			this.logger.debug("Request not saved as configured RequestMatcher did not match");
 		}
 	}
 

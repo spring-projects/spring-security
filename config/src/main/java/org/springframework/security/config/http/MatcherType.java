@@ -58,7 +58,7 @@ public enum MatcherType {
 			return new RootBeanDefinition(AnyRequestMatcher.class);
 		}
 
-		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(type);
+		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(this.type);
 
 		if (this == mvc) {
 			matcherBldr.addConstructorArgValue(new RootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class));

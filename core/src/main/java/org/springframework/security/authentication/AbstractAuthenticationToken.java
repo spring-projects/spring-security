@@ -66,7 +66,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	}
 
 	public Collection<GrantedAuthority> getAuthorities() {
-		return authorities;
+		return this.authorities;
 	}
 
 	public String getName() {
@@ -84,7 +84,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	}
 
 	public boolean isAuthenticated() {
-		return authenticated;
+		return this.authenticated;
 	}
 
 	public void setAuthenticated(boolean authenticated) {
@@ -92,7 +92,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	}
 
 	public Object getDetails() {
-		return details;
+		return this.details;
 	}
 
 	public void setDetails(Object details) {
@@ -107,7 +107,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	public void eraseCredentials() {
 		eraseSecret(getCredentials());
 		eraseSecret(getPrincipal());
-		eraseSecret(details);
+		eraseSecret(this.details);
 	}
 
 	private void eraseSecret(Object secret) {
@@ -124,7 +124,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 
 		AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
 
-		if (!authorities.equals(test.authorities)) {
+		if (!this.authorities.equals(test.authorities)) {
 			return false;
 		}
 
@@ -163,7 +163,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	public int hashCode() {
 		int code = 31;
 
-		for (GrantedAuthority authority : authorities) {
+		for (GrantedAuthority authority : this.authorities) {
 			code ^= authority.hashCode();
 		}
 
@@ -195,11 +195,11 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		sb.append("Authenticated: ").append(this.isAuthenticated()).append("; ");
 		sb.append("Details: ").append(this.getDetails()).append("; ");
 
-		if (!authorities.isEmpty()) {
+		if (!this.authorities.isEmpty()) {
 			sb.append("Granted Authorities: ");
 
 			int i = 0;
-			for (GrantedAuthority authority : authorities) {
+			for (GrantedAuthority authority : this.authorities) {
 				if (i++ > 0) {
 					sb.append(", ");
 				}

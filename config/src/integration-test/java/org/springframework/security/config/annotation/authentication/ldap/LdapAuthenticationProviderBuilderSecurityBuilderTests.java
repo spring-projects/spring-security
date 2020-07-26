@@ -237,8 +237,8 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	}
 
 	private LdapAuthenticationProvider ldapProvider() {
-		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(authenticationManager, "providers"))
-				.get(0);
+		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(this.authenticationManager,
+				"providers")).get(0);
 	}
 
 	private LdapAuthoritiesPopulator getAuthoritiesPopulator(LdapAuthenticationProvider provider) {

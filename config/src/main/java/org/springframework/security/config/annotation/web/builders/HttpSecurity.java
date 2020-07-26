@@ -2518,8 +2518,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	@Override
 	protected DefaultSecurityFilterChain performBuild() {
-		filters.sort(comparator);
-		return new DefaultSecurityFilterChain(requestMatcher, filters);
+		this.filters.sort(this.comparator);
+		return new DefaultSecurityFilterChain(this.requestMatcher, this.filters);
 	}
 
 	/*
@@ -2557,7 +2557,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * addFilterAfter(javax .servlet.Filter, java.lang.Class)
 	 */
 	public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
-		comparator.registerAfter(filter.getClass(), afterFilter);
+		this.comparator.registerAfter(filter.getClass(), afterFilter);
 		return addFilter(filter);
 	}
 
@@ -2568,7 +2568,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * addFilterBefore( javax.servlet.Filter, java.lang.Class)
 	 */
 	public HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter) {
-		comparator.registerBefore(filter.getClass(), beforeFilter);
+		this.comparator.registerBefore(filter.getClass(), beforeFilter);
 		return addFilter(filter);
 	}
 
@@ -2581,7 +2581,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public HttpSecurity addFilter(Filter filter) {
 		Class<? extends Filter> filterClass = filter.getClass();
-		if (!comparator.isRegistered(filterClass)) {
+		if (!this.comparator.isRegistered(filterClass)) {
 			throw new IllegalArgumentException("The Filter class " + filterClass.getName()
 					+ " does not have a registered order and cannot be added without a specified order. Consider using addFilterBefore or addFilterAfter instead.");
 		}
@@ -2720,7 +2720,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link RequestMatcherConfigurer} for further customizations
 	 */
 	public RequestMatcherConfigurer requestMatchers() {
-		return requestMatcherConfigurer;
+		return this.requestMatcherConfigurer;
 	}
 
 	/**
@@ -2819,7 +2819,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	public HttpSecurity requestMatchers(Customizer<RequestMatcherConfigurer> requestMatcherCustomizer) {
-		requestMatcherCustomizer.customize(requestMatcherConfigurer);
+		requestMatcherCustomizer.customize(this.requestMatcherConfigurer);
 		return HttpSecurity.this;
 	}
 

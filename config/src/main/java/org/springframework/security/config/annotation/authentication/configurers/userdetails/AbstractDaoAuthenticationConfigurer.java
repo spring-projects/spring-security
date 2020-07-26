@@ -45,7 +45,7 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	 */
 	protected AbstractDaoAuthenticationConfigurer(U userDetailsService) {
 		this.userDetailsService = userDetailsService;
-		provider.setUserDetailsService(userDetailsService);
+		this.provider.setUserDetailsService(userDetailsService);
 		if (userDetailsService instanceof UserDetailsPasswordService) {
 			this.provider.setUserDetailsPasswordService((UserDetailsPasswordService) userDetailsService);
 		}
@@ -70,19 +70,19 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	 */
 	@SuppressWarnings("unchecked")
 	public C passwordEncoder(PasswordEncoder passwordEncoder) {
-		provider.setPasswordEncoder(passwordEncoder);
+		this.provider.setPasswordEncoder(passwordEncoder);
 		return (C) this;
 	}
 
 	public C userDetailsPasswordManager(UserDetailsPasswordService passwordManager) {
-		provider.setUserDetailsPasswordService(passwordManager);
+		this.provider.setUserDetailsPasswordService(passwordManager);
 		return (C) this;
 	}
 
 	@Override
 	public void configure(B builder) throws Exception {
-		provider = postProcess(provider);
-		builder.authenticationProvider(provider);
+		this.provider = postProcess(this.provider);
+		builder.authenticationProvider(this.provider);
 	}
 
 	/**
@@ -92,7 +92,7 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	 * {@link DaoAuthenticationProvider}
 	 */
 	public U getUserDetailsService() {
-		return userDetailsService;
+		return this.userDetailsService;
 	}
 
 }

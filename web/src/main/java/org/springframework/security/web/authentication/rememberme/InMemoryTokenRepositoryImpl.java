@@ -33,13 +33,13 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 	private final Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<>();
 
 	public synchronized void createNewToken(PersistentRememberMeToken token) {
-		PersistentRememberMeToken current = seriesTokens.get(token.getSeries());
+		PersistentRememberMeToken current = this.seriesTokens.get(token.getSeries());
 
 		if (current != null) {
 			throw new DataIntegrityViolationException("Series Id '" + token.getSeries() + "' already exists!");
 		}
 
-		seriesTokens.put(token.getSeries(), token);
+		this.seriesTokens.put(token.getSeries(), token);
 	}
 
 	public synchronized void updateToken(String series, String tokenValue, Date lastUsed) {
@@ -49,20 +49,20 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 				new Date());
 
 		// Store it, overwriting the existing one.
-		seriesTokens.put(series, newToken);
+		this.seriesTokens.put(series, newToken);
 	}
 
 	public synchronized PersistentRememberMeToken getTokenForSeries(String seriesId) {
-		return seriesTokens.get(seriesId);
+		return this.seriesTokens.get(seriesId);
 	}
 
 	public synchronized void removeUserTokens(String username) {
-		Iterator<String> series = seriesTokens.keySet().iterator();
+		Iterator<String> series = this.seriesTokens.keySet().iterator();
 
 		while (series.hasNext()) {
 			String seriesId = series.next();
 
-			PersistentRememberMeToken token = seriesTokens.get(seriesId);
+			PersistentRememberMeToken token = this.seriesTokens.get(seriesId);
 
 			if (username.equals(token.getUsername())) {
 				series.remove();

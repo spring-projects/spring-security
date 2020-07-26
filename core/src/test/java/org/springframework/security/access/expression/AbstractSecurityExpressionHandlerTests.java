@@ -37,7 +37,7 @@ public class AbstractSecurityExpressionHandlerTests {
 
 	@Before
 	public void setUp() {
-		handler = new AbstractSecurityExpressionHandler<Object>() {
+		this.handler = new AbstractSecurityExpressionHandler<Object>() {
 			@Override
 			protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 					Object o) {
@@ -49,23 +49,24 @@ public class AbstractSecurityExpressionHandlerTests {
 
 	@Test
 	public void beanNamesAreCorrectlyResolved() {
-		handler.setApplicationContext(new AnnotationConfigApplicationContext(TestConfiguration.class));
+		this.handler.setApplicationContext(new AnnotationConfigApplicationContext(TestConfiguration.class));
 
-		Expression expression = handler.getExpressionParser().parseExpression("@number10.compareTo(@number20) < 0");
-		assertThat(expression.getValue(handler.createEvaluationContext(mock(Authentication.class), new Object())))
+		Expression expression = this.handler.getExpressionParser()
+				.parseExpression("@number10.compareTo(@number20) < 0");
+		assertThat(expression.getValue(this.handler.createEvaluationContext(mock(Authentication.class), new Object())))
 				.isEqualTo(true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setExpressionParserNull() {
-		handler.setExpressionParser(null);
+		this.handler.setExpressionParser(null);
 	}
 
 	@Test
 	public void setExpressionParser() {
 		SpelExpressionParser parser = new SpelExpressionParser();
-		handler.setExpressionParser(parser);
-		assertThat(parser == handler.getExpressionParser()).isTrue();
+		this.handler.setExpressionParser(parser);
+		assertThat(parser == this.handler.getExpressionParser()).isTrue();
 	}
 
 }

@@ -174,7 +174,7 @@ public class Saml2AuthenticationException extends AuthenticationException {
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer("Saml2AuthenticationException{");
-		sb.append("error=").append(error);
+		sb.append("error=").append(this.error);
 		sb.append('}');
 		return sb.toString();
 	}

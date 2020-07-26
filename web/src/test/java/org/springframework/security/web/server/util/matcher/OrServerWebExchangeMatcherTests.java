@@ -52,50 +52,50 @@ public class OrServerWebExchangeMatcherTests {
 
 	@Before
 	public void setUp() {
-		matcher = new OrServerWebExchangeMatcher(matcher1, matcher2);
+		this.matcher = new OrServerWebExchangeMatcher(this.matcher1, this.matcher2);
 	}
 
 	@Test
 	public void matchesWhenFalseFalseThenFalse() {
-		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		when(this.matcher2.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
+		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
 
-		verify(matcher1).matches(exchange);
-		verify(matcher2).matches(exchange);
+		verify(this.matcher1).matches(this.exchange);
+		verify(this.matcher2).matches(this.exchange);
 	}
 
 	@Test
 	public void matchesWhenTrueFalseThenTrueAndMatcher2NotInvoked() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
+		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
 
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
+		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).isEqualTo(params);
 
-		verify(matcher1).matches(exchange);
-		verify(matcher2, never()).matches(exchange);
+		verify(this.matcher1).matches(this.exchange);
+		verify(this.matcher2, never()).matches(this.exchange);
 	}
 
 	@Test
 	public void matchesWhenFalseTrueThenTrue() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
+		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		when(this.matcher2.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
 
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
+		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).isEqualTo(params);
 
-		verify(matcher1).matches(exchange);
-		verify(matcher2).matches(exchange);
+		verify(this.matcher1).matches(this.exchange);
+		verify(this.matcher2).matches(this.exchange);
 	}
 
 }

@@ -43,8 +43,8 @@ public class StaticHeaderWriterTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -78,8 +78,8 @@ public class StaticHeaderWriterTests {
 		String headerValue = "foo";
 		StaticHeadersWriter factory = new StaticHeadersWriter(headerName, headerValue);
 
-		factory.writeHeaders(request, response);
-		assertThat(response.getHeaderValues(headerName)).isEqualTo(Arrays.asList(headerValue));
+		factory.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderValues(headerName)).isEqualTo(Arrays.asList(headerValue));
 	}
 
 	@Test
@@ -88,11 +88,11 @@ public class StaticHeaderWriterTests {
 		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store", "must-revalidate");
 		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma, cacheControl));
 
-		factory.writeHeaders(request, response);
+		factory.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(2);
-		assertThat(response.getHeaderValues(pragma.getName())).isEqualTo(pragma.getValues());
-		assertThat(response.getHeaderValues(cacheControl.getName())).isEqualTo(cacheControl.getValues());
+		assertThat(this.response.getHeaderNames()).hasSize(2);
+		assertThat(this.response.getHeaderValues(pragma.getName())).isEqualTo(pragma.getValues());
+		assertThat(this.response.getHeaderValues(cacheControl.getName())).isEqualTo(cacheControl.getValues());
 	}
 
 	@Test

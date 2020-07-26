@@ -44,30 +44,30 @@ public class ExpressionBasedPostInvocationAdvice implements PostInvocationAuthor
 	public Object after(Authentication authentication, MethodInvocation mi, PostInvocationAttribute postAttr,
 			Object returnedObject) throws AccessDeniedException {
 		PostInvocationExpressionAttribute pia = (PostInvocationExpressionAttribute) postAttr;
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, mi);
 		Expression postFilter = pia.getFilterExpression();
 		Expression postAuthorize = pia.getAuthorizeExpression();
 
 		if (postFilter != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Applying PostFilter expression " + postFilter);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Applying PostFilter expression " + postFilter);
 			}
 
 			if (returnedObject != null) {
-				returnedObject = expressionHandler.filter(returnedObject, postFilter, ctx);
+				returnedObject = this.expressionHandler.filter(returnedObject, postFilter, ctx);
 			}
 			else {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Return object is null, filtering will be skipped");
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug("Return object is null, filtering will be skipped");
 				}
 			}
 		}
 
-		expressionHandler.setReturnObject(returnedObject, ctx);
+		this.expressionHandler.setReturnObject(returnedObject, ctx);
 
 		if (postAuthorize != null && !ExpressionUtils.evaluateAsBoolean(postAuthorize, ctx)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("PostAuthorize expression rejected access");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("PostAuthorize expression rejected access");
 			}
 			throw new AccessDeniedException("Access is denied");
 		}

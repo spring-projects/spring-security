@@ -62,7 +62,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 			fail("Should be a superMethod called 'someUserMethod3' on class!");
 		}
 
-		Collection<ConfigAttribute> attrs = mds.findAttributes(method, DepartmentServiceImpl.class);
+		Collection<ConfigAttribute> attrs = this.mds.findAttributes(method, DepartmentServiceImpl.class);
 
 		assertThat(attrs).isNotNull();
 
@@ -160,7 +160,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		MockMethodInvocation annotatedAtClassLevel = new MockMethodInvocation(new AnnotatedAnnotationAtClassLevel(),
 				ReturnVoid.class, "doSomething", List.class);
 
-		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs).extracting("attribute").containsOnly("CUSTOM");
@@ -171,7 +171,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		MockMethodInvocation annotatedAtInterfaceLevel = new MockMethodInvocation(
 				new AnnotatedAnnotationAtInterfaceLevel(), ReturnVoid2.class, "doSomething", List.class);
 
-		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtInterfaceLevel).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(annotatedAtInterfaceLevel).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs).extracting("attribute").containsOnly("CUSTOM");
@@ -181,7 +181,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	public void annotatedAnnotationAtMethodLevelIsDetected() throws Exception {
 		MockMethodInvocation annotatedAtMethodLevel = new MockMethodInvocation(new AnnotatedAnnotationAtMethodLevel(),
 				ReturnVoid.class, "doSomething", List.class);
-		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(annotatedAtMethodLevel).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs).extracting("attribute").containsOnly("CUSTOM");
@@ -190,7 +190,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void proxyFactoryInterfaceAttributesFound() throws Exception {
 		MockMethodInvocation mi = MethodInvocationFactory.createSec2150MethodInvocation();
-		Collection<ConfigAttribute> attributes = mds.getAttributes(mi);
+		Collection<ConfigAttribute> attributes = this.mds.getAttributes(mi);
 		assertThat(attributes).hasSize(1);
 		assertThat(attributes).extracting("attribute").containsOnly("ROLE_PERSON");
 	}

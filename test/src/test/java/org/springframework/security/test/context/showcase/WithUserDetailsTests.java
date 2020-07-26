@@ -49,13 +49,13 @@ public class WithUserDetailsTests {
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void getMessageUnauthenticated() {
-		messageService.getMessage();
+		this.messageService.getMessage();
 	}
 
 	@Test
 	@WithUserDetails
 	public void getMessageWithUserDetails() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("user");
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
 	}
@@ -63,7 +63,7 @@ public class WithUserDetailsTests {
 	@Test
 	@WithUserDetails("customUsername")
 	public void getMessageWithUserDetailsCustomUsername() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("customUsername");
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
 	}
@@ -71,7 +71,7 @@ public class WithUserDetailsTests {
 	@Test
 	@WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "myUserDetailsService")
 	public void getMessageWithUserDetailsServiceBeanName() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("customUsername");
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
 	}

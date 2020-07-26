@@ -104,14 +104,15 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 			@Override
 			public void onAuthorizationSuccess(OAuth2AuthorizedClient authorizedClient, Authentication principal,
 					Map<String, Object> attributes) {
-				authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal,
+				DefaultOAuth2AuthorizedClientManagerTests.this.authorizedClientRepository.saveAuthorizedClient(
+						authorizedClient, principal,
 						(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
 						(HttpServletResponse) attributes.get(HttpServletResponse.class.getName()));
 			}
 		});
 		this.authorizationFailureHandler = spy(
 				new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler((clientRegistrationId, principal,
-						attributes) -> authorizedClientRepository.removeAuthorizedClient(clientRegistrationId,
+						attributes) -> this.authorizedClientRepository.removeAuthorizedClient(clientRegistrationId,
 								principal, (HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
 								(HttpServletResponse) attributes.get(HttpServletResponse.class.getName()))));
 		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(this.clientRegistrationRepository,

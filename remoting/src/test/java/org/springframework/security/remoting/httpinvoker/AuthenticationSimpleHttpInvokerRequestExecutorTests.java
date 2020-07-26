@@ -111,11 +111,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 		}
 
 		public String getRequestProperty(String key) {
-			return requestProperties.get(key);
+			return this.requestProperties.get(key);
 		}
 
 		public void setRequestProperty(String key, String value) {
-			requestProperties.put(key, value);
+			this.requestProperties.put(key, value);
 		}
 
 		public boolean usingProxy() {

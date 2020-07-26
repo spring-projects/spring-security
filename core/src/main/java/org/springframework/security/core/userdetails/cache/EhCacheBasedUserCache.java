@@ -39,15 +39,15 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 	private Ehcache cache;
 
 	public void afterPropertiesSet() {
-		Assert.notNull(cache, "cache mandatory");
+		Assert.notNull(this.cache, "cache mandatory");
 	}
 
 	public Ehcache getCache() {
-		return cache;
+		return this.cache;
 	}
 
 	public UserDetails getUserFromCache(String username) {
-		Element element = cache.get(username);
+		Element element = this.cache.get(username);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cache hit: " + (element != null) + "; username: " + username);
@@ -68,7 +68,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 			logger.debug("Cache put: " + element.getKey());
 		}
 
-		cache.put(element);
+		this.cache.put(element);
 	}
 
 	public void removeUserFromCache(UserDetails user) {
@@ -80,7 +80,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 	}
 
 	public void removeUserFromCache(String username) {
-		cache.remove(username);
+		this.cache.remove(username);
 	}
 
 	public void setCache(Ehcache cache) {

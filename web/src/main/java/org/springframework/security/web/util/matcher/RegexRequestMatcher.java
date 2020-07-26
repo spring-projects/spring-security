@@ -81,7 +81,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 * @return true if the pattern matches the URL, false otherwise.
 	 */
 	public boolean matches(HttpServletRequest request) {
-		if (httpMethod != null && request.getMethod() != null && httpMethod != valueOf(request.getMethod())) {
+		if (this.httpMethod != null && request.getMethod() != null && this.httpMethod != valueOf(request.getMethod())) {
 			return false;
 		}
 
@@ -103,10 +103,10 @@ public final class RegexRequestMatcher implements RequestMatcher {
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Checking match of request : '" + url + "'; against '" + pattern + "'");
+			logger.debug("Checking match of request : '" + url + "'; against '" + this.pattern + "'");
 		}
 
-		return pattern.matcher(url).matches();
+		return this.pattern.matcher(url).matches();
 	}
 
 	/**

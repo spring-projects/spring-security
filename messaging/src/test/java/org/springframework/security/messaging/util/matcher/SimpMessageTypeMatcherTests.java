@@ -31,7 +31,7 @@ public class SimpMessageTypeMatcherTests {
 
 	@Before
 	public void setup() {
-		matcher = new SimpMessageTypeMatcher(SimpMessageType.MESSAGE);
+		this.matcher = new SimpMessageTypeMatcher(SimpMessageType.MESSAGE);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -44,7 +44,7 @@ public class SimpMessageTypeMatcherTests {
 		Message<String> message = MessageBuilder.withPayload("Hi")
 				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE).build();
 
-		assertThat(matcher.matches(message)).isTrue();
+		assertThat(this.matcher.matches(message)).isTrue();
 	}
 
 	@Test
@@ -52,14 +52,14 @@ public class SimpMessageTypeMatcherTests {
 		Message<String> message = MessageBuilder.withPayload("Hi")
 				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.CONNECT).build();
 
-		assertThat(matcher.matches(message)).isFalse();
+		assertThat(this.matcher.matches(message)).isFalse();
 	}
 
 	@Test
 	public void matchesMessageNullFalse() {
 		Message<String> message = MessageBuilder.withPayload("Hi").build();
 
-		assertThat(matcher.matches(message)).isFalse();
+		assertThat(this.matcher.matches(message)).isFalse();
 	}
 
 }

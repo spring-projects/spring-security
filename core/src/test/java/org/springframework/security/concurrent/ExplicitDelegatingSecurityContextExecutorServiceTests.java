@@ -37,7 +37,7 @@ public class ExplicitDelegatingSecurityContextExecutorServiceTests
 
 	@Override
 	protected DelegatingSecurityContextExecutorService create() {
-		return new DelegatingSecurityContextExecutorService(delegate, securityContext);
+		return new DelegatingSecurityContextExecutorService(this.delegate, this.securityContext);
 	}
 
 }

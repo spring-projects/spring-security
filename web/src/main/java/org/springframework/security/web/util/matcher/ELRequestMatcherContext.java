@@ -28,11 +28,11 @@ class ELRequestMatcherContext {
 	}
 
 	public boolean hasIpAddress(String ipAddress) {
-		return (new IpAddressMatcher(ipAddress).matches(request));
+		return (new IpAddressMatcher(ipAddress).matches(this.request));
 	}
 
 	public boolean hasHeader(String headerName, String value) {
-		String header = request.getHeader(headerName);
+		String header = this.request.getHeader(headerName);
 		if (!StringUtils.hasText(header)) {
 			return false;
 		}

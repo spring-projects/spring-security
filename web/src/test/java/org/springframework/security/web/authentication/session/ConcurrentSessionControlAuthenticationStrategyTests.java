@@ -62,12 +62,13 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 
 	@Before
 	public void setup() {
-		authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		sessionInformation = new SessionInformation(authentication.getPrincipal(), "unique", new Date(1374766134216L));
+		this.authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.sessionInformation = new SessionInformation(this.authentication.getPrincipal(), "unique",
+				new Date(1374766134216L));
 
-		strategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry);
+		this.strategy = new ConcurrentSessionControlAuthenticationStrategy(this.sessionRegistry);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -77,84 +78,84 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 
 	@Test
 	public void noRegisteredSession() {
-		when(sessionRegistry.getAllSessions(any(), anyBoolean()))
+		when(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 				.thenReturn(Collections.<SessionInformation>emptyList());
-		strategy.setMaximumSessions(1);
-		strategy.setExceptionIfMaximumExceeded(true);
+		this.strategy.setMaximumSessions(1);
+		this.strategy.setExceptionIfMaximumExceeded(true);
 
-		strategy.onAuthentication(authentication, request, response);
+		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 
 		// no exception
 	}
 
 	@Test
 	public void maxSessionsSameSessionId() {
-		MockHttpSession session = new MockHttpSession(new MockServletContext(), sessionInformation.getSessionId());
-		request.setSession(session);
-		when(sessionRegistry.getAllSessions(any(), anyBoolean()))
-				.thenReturn(Collections.<SessionInformation>singletonList(sessionInformation));
-		strategy.setMaximumSessions(1);
-		strategy.setExceptionIfMaximumExceeded(true);
+		MockHttpSession session = new MockHttpSession(new MockServletContext(), this.sessionInformation.getSessionId());
+		this.request.setSession(session);
+		when(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
+				.thenReturn(Collections.<SessionInformation>singletonList(this.sessionInformation));
+		this.strategy.setMaximumSessions(1);
+		this.strategy.setExceptionIfMaximumExceeded(true);
 
-		strategy.onAuthentication(authentication, request, response);
+		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 
 		// no exception
 	}
 
 	@Test(expected = SessionAuthenticationException.class)
 	public void maxSessionsWithException() {
-		when(sessionRegistry.getAllSessions(any(), anyBoolean()))
-				.thenReturn(Collections.<SessionInformation>singletonList(sessionInformation));
-		strategy.setMaximumSessions(1);
-		strategy.setExceptionIfMaximumExceeded(true);
+		when(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
+				.thenReturn(Collections.<SessionInformation>singletonList(this.sessionInformation));
+		this.strategy.setMaximumSessions(1);
+		this.strategy.setExceptionIfMaximumExceeded(true);
 
-		strategy.onAuthentication(authentication, request, response);
+		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 	}
 
 	@Test
 	public void maxSessionsExpireExistingUser() {
-		when(sessionRegistry.getAllSessions(any(), anyBoolean()))
-				.thenReturn(Collections.<SessionInformation>singletonList(sessionInformation));
-		strategy.setMaximumSessions(1);
+		when(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
+				.thenReturn(Collections.<SessionInformation>singletonList(this.sessionInformation));
+		this.strategy.setMaximumSessions(1);
 
-		strategy.onAuthentication(authentication, request, response);
+		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 
-		assertThat(sessionInformation.isExpired()).isTrue();
+		assertThat(this.sessionInformation.isExpired()).isTrue();
 	}
 
 	@Test
 	public void maxSessionsExpireLeastRecentExistingUser() {
-		SessionInformation moreRecentSessionInfo = new SessionInformation(authentication.getPrincipal(), "unique",
+		SessionInformation moreRecentSessionInfo = new SessionInformation(this.authentication.getPrincipal(), "unique",
 				new Date(1374766999999L));
-		when(sessionRegistry.getAllSessions(any(), anyBoolean()))
-				.thenReturn(Arrays.<SessionInformation>asList(moreRecentSessionInfo, sessionInformation));
-		strategy.setMaximumSessions(2);
+		when(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
+				.thenReturn(Arrays.<SessionInformation>asList(moreRecentSessionInfo, this.sessionInformation));
+		this.strategy.setMaximumSessions(2);
 
-		strategy.onAuthentication(authentication, request, response);
+		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 
-		assertThat(sessionInformation.isExpired()).isTrue();
+		assertThat(this.sessionInformation.isExpired()).isTrue();
 	}
 
 	@Test
 	public void onAuthenticationWhenMaxSessionsExceededByTwoThenTwoSessionsExpired() {
-		SessionInformation oldestSessionInfo = new SessionInformation(authentication.getPrincipal(), "unique1",
+		SessionInformation oldestSessionInfo = new SessionInformation(this.authentication.getPrincipal(), "unique1",
 				new Date(1374766134214L));
-		SessionInformation secondOldestSessionInfo = new SessionInformation(authentication.getPrincipal(), "unique2",
-				new Date(1374766134215L));
-		when(sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(
-				Arrays.<SessionInformation>asList(oldestSessionInfo, secondOldestSessionInfo, sessionInformation));
-		strategy.setMaximumSessions(2);
+		SessionInformation secondOldestSessionInfo = new SessionInformation(this.authentication.getPrincipal(),
+				"unique2", new Date(1374766134215L));
+		when(this.sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(
+				Arrays.<SessionInformation>asList(oldestSessionInfo, secondOldestSessionInfo, this.sessionInformation));
+		this.strategy.setMaximumSessions(2);
 
-		strategy.onAuthentication(authentication, request, response);
+		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 
 		assertThat(oldestSessionInfo.isExpired()).isTrue();
 		assertThat(secondOldestSessionInfo.isExpired()).isTrue();
-		assertThat(sessionInformation.isExpired()).isFalse();
+		assertThat(this.sessionInformation.isExpired()).isFalse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setMessageSourceNull() {
-		strategy.setMessageSource(null);
+		this.strategy.setMessageSource(null);
 	}
 
 }

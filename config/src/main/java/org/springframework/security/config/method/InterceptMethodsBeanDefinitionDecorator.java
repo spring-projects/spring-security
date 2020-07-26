@@ -50,7 +50,7 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
 		MethodConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
 
-		return delegate.decorate(node, definition, parserContext);
+		return this.delegate.decorate(node, definition, parserContext);
 	}
 
 }

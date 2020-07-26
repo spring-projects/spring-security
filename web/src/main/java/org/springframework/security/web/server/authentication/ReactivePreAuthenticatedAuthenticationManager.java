@@ -58,9 +58,9 @@ public class ReactivePreAuthenticatedAuthenticationManager implements ReactiveAu
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		return Mono.just(authentication).filter(this::supports).map(Authentication::getName)
-				.flatMap(userDetailsService::findByUsername)
+				.flatMap(this.userDetailsService::findByUsername)
 				.switchIfEmpty(Mono.error(() -> new UsernameNotFoundException("User not found")))
-				.doOnNext(userDetailsChecker::check).map(ud -> {
+				.doOnNext(this.userDetailsChecker::check).map(ud -> {
 					PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(ud,
 							authentication.getCredentials(), ud.getAuthorities());
 					result.setDetails(authentication.getDetails());

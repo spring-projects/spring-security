@@ -69,15 +69,15 @@ public class SessionManagementConfigServlet31Tests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
 	}
 
 	@After
 	public void teardown() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -97,7 +97,7 @@ public class SessionManagementConfigServlet31Tests {
 		loadContext("<http>\n" + "        <form-login/>\n" + "        <session-management/>\n"
 				+ "        <csrf disabled='true'/>\n" + "    </http>" + XML_AUTHENTICATION_MANAGER);
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
@@ -119,7 +119,7 @@ public class SessionManagementConfigServlet31Tests {
 				+ "        <session-management session-fixation-protection='changeSessionId'/>\n"
 				+ "        <csrf disabled='true'/>\n" + "    </http>" + XML_AUTHENTICATION_MANAGER);
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 
@@ -132,7 +132,7 @@ public class SessionManagementConfigServlet31Tests {
 
 	private void login(Authentication auth) {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response);
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(this.request, this.response);
 		repo.loadContext(requestResponseHolder);
 
 		SecurityContextImpl securityContextImpl = new SecurityContextImpl();

@@ -44,37 +44,37 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 @SecurityTestExecutionListeners
 public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMockServerConfigurersTests {
 
-	WebTestClient client = WebTestClient.bindToController(controller)
+	WebTestClient client = WebTestClient.bindToController(this.controller)
 			.webFilter(new SecurityContextServerWebExchangeWebFilter()).apply(springSecurity()).configureClient()
 			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 
 	@Test
 	public void wheMockUserWhenClassAnnotatedThenSuccess() {
-		client.get().exchange().expectStatus().isOk().expectBody(String.class)
+		this.client.get().exchange().expectStatus().isOk().expectBody(String.class)
 				.consumeWith(response -> assertThat(response.getResponseBody()).contains("\"username\":\"user\""));
 
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
-		controller.assertPrincipalIsEqualTo(authentication);
+		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
 
 	@Test
 	@WithMockUser("method-user")
 	public void withMockUserWhenClassAndMethodAnnotationThenMethodOverrides() {
-		client.get().exchange().expectStatus().isOk().expectBody(String.class).consumeWith(
+		this.client.get().exchange().expectStatus().isOk().expectBody(String.class).consumeWith(
 				response -> assertThat(response.getResponseBody()).contains("\"username\":\"method-user\""));
 
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
-		controller.assertPrincipalIsEqualTo(authentication);
+		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
 
 	@Test
 	public void withMockUserWhenMutateWithThenMustateWithOverrides() {
-		client.mutateWith(mockUser("mutateWith-mockUser")).get().exchange().expectStatus().isOk()
+		this.client.mutateWith(mockUser("mutateWith-mockUser")).get().exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith(response -> assertThat(response.getResponseBody())
 						.contains("\"username\":\"mutateWith-mockUser\""));
 
-		Principal principal = controller.removePrincipal();
-		assertPrincipalCreatedFromUserDetails(principal, userBuilder.username("mutateWith-mockUser").build());
+		Principal principal = this.controller.removePrincipal();
+		assertPrincipalCreatedFromUserDetails(principal, this.userBuilder.username("mutateWith-mockUser").build());
 	}
 
 }

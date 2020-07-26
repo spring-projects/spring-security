@@ -47,24 +47,24 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 	@Before
 	public void loadContext() {
 		SecurityContextHolder.clearContext();
-		appContext = new InMemoryXmlApplicationContext(
+		this.appContext = new InMemoryXmlApplicationContext(
 				"<b:bean id='target' class='org.springframework.security.access.annotation.BusinessServiceImpl'/>"
 						+ "<global-method-security secured-annotations='enabled'/>"
 						+ ConfigTestUtils.AUTH_PROVIDER_XML);
-		target = (BusinessService) appContext.getBean("target");
+		this.target = (BusinessService) this.appContext.getBean("target");
 	}
 
 	@After
 	public void closeAppContext() {
-		if (appContext != null) {
-			appContext.close();
+		if (this.appContext != null) {
+			this.appContext.close();
 		}
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-		target.someUserMethod1();
+		this.target.someUserMethod1();
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
-		target.someUserMethod1();
+		this.target.someUserMethod1();
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -82,26 +82,26 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
-		target.someAdminMethod();
+		this.target.someAdminMethod();
 	}
 
 	// SEC-1387
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void targetIsSerializableBeforeUse() throws Exception {
-		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(target);
+		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(this.target);
 		chompedTarget.someAdminMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void targetIsSerializableAfterUse() throws Exception {
 		try {
-			target.someAdminMethod();
+			this.target.someAdminMethod();
 		}
 		catch (AuthenticationCredentialsNotFoundException expected) {
 		}
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("u", "p", "ROLE_A"));
 
-		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(target);
+		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(this.target);
 		chompedTarget.someAdminMethod();
 	}
 

@@ -94,8 +94,9 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 		// supportedPrimitives.add(PointcutPrimitive.AT_WITHIN);
 		// supportedPrimitives.add(PointcutPrimitive.AT_ARGS);
 		// supportedPrimitives.add(PointcutPrimitive.AT_TARGET);
-		parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(
-				supportedPrimitives);
+		this.parser = PointcutParser
+				.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(
+						supportedPrimitives);
 	}
 
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
@@ -103,14 +104,14 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 	}
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-		if (processedBeans.contains(beanName)) {
+		if (this.processedBeans.contains(beanName)) {
 			// We already have the metadata for this bean
 			return bean;
 		}
 
-		synchronized (processedBeans) {
+		synchronized (this.processedBeans) {
 			// check again synchronized this time
-			if (processedBeans.contains(beanName)) {
+			if (this.processedBeans.contains(beanName)) {
 				return bean;
 			}
 
@@ -126,7 +127,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 			// Check to see if any of those methods are compatible with our pointcut
 			// expressions
 			for (Method method : methods) {
-				for (PointcutExpression expression : pointCutExpressions) {
+				for (PointcutExpression expression : this.pointCutExpressions) {
 					// Try for the bean class directly
 					if (attemptMatch(bean.getClass(), method, expression, beanName)) {
 						// We've found the first expression that matches this method, so
@@ -136,7 +137,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 				}
 			}
 
-			processedBeans.add(beanName);
+			this.processedBeans.add(beanName);
 		}
 
 		return bean;
@@ -148,7 +149,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
 		// Handle accordingly
 		if (matches) {
-			List<ConfigAttribute> attr = pointcutMap.get(expression.getPointcutExpression());
+			List<ConfigAttribute> attr = this.pointcutMap.get(expression.getPointcutExpression());
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("AspectJ pointcut expression '" + expression.getPointcutExpression()
@@ -157,7 +158,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 						+ "'");
 			}
 
-			mapBasedMethodSecurityMetadataSource.addSecureMethod(targetClass, method, attr);
+			this.mapBasedMethodSecurityMetadataSource.addSecureMethod(targetClass, method, attr);
 		}
 
 		return matches;
@@ -175,9 +176,9 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 		Assert.hasText(pointcutExpression, "An AspectJ pointcut expression is required");
 		Assert.notNull(definition, "A List of ConfigAttributes is required");
 		pointcutExpression = replaceBooleanOperators(pointcutExpression);
-		pointcutMap.put(pointcutExpression, definition);
+		this.pointcutMap.put(pointcutExpression, definition);
 		// Parse the presented AspectJ pointcut expression and add it to the cache
-		pointCutExpressions.add(parser.parsePointcutExpression(pointcutExpression));
+		this.pointCutExpressions.add(this.parser.parsePointcutExpression(pointcutExpression));
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("AspectJ pointcut expression '" + pointcutExpression

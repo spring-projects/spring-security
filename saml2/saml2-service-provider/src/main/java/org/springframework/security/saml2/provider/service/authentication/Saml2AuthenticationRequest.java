@@ -87,7 +87,7 @@ public final class Saml2AuthenticationRequest {
 	 * @return the AssertionConsumerServiceURL value
 	 */
 	public String getAssertionConsumerServiceUrl() {
-		return assertionConsumerServiceUrl;
+		return this.assertionConsumerServiceUrl;
 	}
 
 	/**

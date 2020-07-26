@@ -48,7 +48,7 @@ public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticatio
 	 * @return the class
 	 */
 	public Class<?> getGeneratedBy() {
-		return generatedBy;
+		return this.generatedBy;
 	}
 
 }

@@ -44,29 +44,29 @@ public abstract class AbstractDelegatingSecurityContextAsyncTaskExecutorTests
 
 	@Before
 	public final void setUpExecutor() {
-		executor = create();
+		this.executor = create();
 	}
 
 	@Test
 	public void executeStartTimeout() {
-		executor.execute(runnable, 1);
-		verify(getExecutor()).execute(wrappedRunnable, 1);
+		this.executor.execute(this.runnable, 1);
+		verify(getExecutor()).execute(this.wrappedRunnable, 1);
 	}
 
 	@Test
 	public void submit() {
-		executor.submit(runnable);
-		verify(getExecutor()).submit(wrappedRunnable);
+		this.executor.submit(this.runnable);
+		verify(getExecutor()).submit(this.wrappedRunnable);
 	}
 
 	@Test
 	public void submitCallable() {
-		executor.submit(callable);
-		verify(getExecutor()).submit(wrappedCallable);
+		this.executor.submit(this.callable);
+		verify(getExecutor()).submit(this.wrappedCallable);
 	}
 
 	protected AsyncTaskExecutor getExecutor() {
-		return taskExecutorDelegate;
+		return this.taskExecutorDelegate;
 	}
 
 	protected abstract DelegatingSecurityContextAsyncTaskExecutor create();

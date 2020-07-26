@@ -52,7 +52,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 	private List<ChannelProcessor> channelProcessors;
 
 	public void afterPropertiesSet() {
-		Assert.notEmpty(channelProcessors, "A list of ChannelProcessors is required");
+		Assert.notEmpty(this.channelProcessors, "A list of ChannelProcessors is required");
 	}
 
 	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
@@ -63,7 +63,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 			}
 		}
 
-		for (ChannelProcessor processor : channelProcessors) {
+		for (ChannelProcessor processor : this.channelProcessors) {
 			processor.decide(invocation, config);
 
 			if (invocation.getResponse().isCommitted()) {
@@ -79,12 +79,12 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 	@SuppressWarnings("cast")
 	public void setChannelProcessors(List<?> newList) {
 		Assert.notEmpty(newList, "A list of ChannelProcessors is required");
-		channelProcessors = new ArrayList<>(newList.size());
+		this.channelProcessors = new ArrayList<>(newList.size());
 
 		for (Object currentObject : newList) {
 			Assert.isInstanceOf(ChannelProcessor.class, currentObject, () -> "ChannelProcessor "
 					+ currentObject.getClass().getName() + " must implement ChannelProcessor");
-			channelProcessors.add((ChannelProcessor) currentObject);
+			this.channelProcessors.add((ChannelProcessor) currentObject);
 		}
 	}
 
@@ -93,7 +93,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 			return true;
 		}
 
-		for (ChannelProcessor processor : channelProcessors) {
+		for (ChannelProcessor processor : this.channelProcessors) {
 			if (processor.supports(attribute)) {
 				return true;
 			}

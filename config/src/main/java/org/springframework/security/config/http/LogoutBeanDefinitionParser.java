@@ -60,7 +60,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		this.rememberMeServices = rememberMeServices;
 		this.csrfEnabled = csrfLogoutHandler != null;
 		if (this.csrfEnabled) {
-			logoutHandlers.add(csrfLogoutHandler);
+			this.logoutHandlers.add(csrfLogoutHandler);
 		}
 	}
 
@@ -102,29 +102,29 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		else {
 			// Use the logout URL if no handler set
 			if (!StringUtils.hasText(logoutSuccessUrl)) {
-				logoutSuccessUrl = defaultLogoutUrl;
+				logoutSuccessUrl = this.defaultLogoutUrl;
 			}
 			builder.addConstructorArgValue(logoutSuccessUrl);
 		}
 
 		BeanDefinition sclh = new RootBeanDefinition(SecurityContextLogoutHandler.class);
 		sclh.getPropertyValues().addPropertyValue("invalidateHttpSession", !"false".equals(invalidateSession));
-		logoutHandlers.add(sclh);
+		this.logoutHandlers.add(sclh);
 
-		if (rememberMeServices != null) {
-			logoutHandlers.add(new RuntimeBeanReference(rememberMeServices));
+		if (this.rememberMeServices != null) {
+			this.logoutHandlers.add(new RuntimeBeanReference(this.rememberMeServices));
 		}
 
 		if (StringUtils.hasText(deleteCookies)) {
 			BeanDefinition cookieDeleter = new RootBeanDefinition(CookieClearingLogoutHandler.class);
 			String[] names = StringUtils.tokenizeToStringArray(deleteCookies, ",");
 			cookieDeleter.getConstructorArgumentValues().addGenericArgumentValue(names);
-			logoutHandlers.add(cookieDeleter);
+			this.logoutHandlers.add(cookieDeleter);
 		}
 
-		logoutHandlers.add(new RootBeanDefinition(LogoutSuccessEventPublishingLogoutHandler.class));
+		this.logoutHandlers.add(new RootBeanDefinition(LogoutSuccessEventPublishingLogoutHandler.class));
 
-		builder.addConstructorArgValue(logoutHandlers);
+		builder.addConstructorArgValue(this.logoutHandlers);
 
 		return builder.getBeanDefinition();
 	}
@@ -141,7 +141,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	ManagedList<BeanMetadataElement> getLogoutHandlers() {
-		return logoutHandlers;
+		return this.logoutHandlers;
 	}
 
 }

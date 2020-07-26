@@ -58,7 +58,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	private int order = Integer.MAX_VALUE; // ~ default
 
 	public int getOrder() {
-		return order;
+		return this.order;
 	}
 
 	public void setOrder(int order) {
@@ -66,11 +66,11 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	}
 
 	public void afterPropertiesSet() {
-		if ((realmName == null) || "".equals(realmName)) {
+		if ((this.realmName == null) || "".equals(this.realmName)) {
 			throw new IllegalArgumentException("realmName must be specified");
 		}
 
-		if ((key == null) || "".equals(key)) {
+		if ((this.key == null) || "".equals(this.key)) {
 			throw new IllegalArgumentException("key must be specified");
 		}
 	}
@@ -82,16 +82,16 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		// compute a nonce (do not use remote IP address due to proxy farms)
 		// format of nonce is:
 		// base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
-		long expiryTime = System.currentTimeMillis() + (nonceValiditySeconds * 1000);
-		String signatureValue = DigestAuthUtils.md5Hex(expiryTime + ":" + key);
+		long expiryTime = System.currentTimeMillis() + (this.nonceValiditySeconds * 1000);
+		String signatureValue = DigestAuthUtils.md5Hex(expiryTime + ":" + this.key);
 		String nonceValue = expiryTime + ":" + signatureValue;
 		String nonceValueBase64 = new String(Base64.getEncoder().encode(nonceValue.getBytes()));
 
 		// qop is quality of protection, as defined by RFC 2617.
 		// we do not use opaque due to IE violation of RFC 2617 in not
 		// representing opaque on subsequent requests in same session.
-		String authenticateHeader = "Digest realm=\"" + realmName + "\", " + "qop=\"auth\", nonce=\"" + nonceValueBase64
-				+ "\"";
+		String authenticateHeader = "Digest realm=\"" + this.realmName + "\", " + "qop=\"auth\", nonce=\""
+				+ nonceValueBase64 + "\"";
 
 		if (authException instanceof NonceExpiredException) {
 			authenticateHeader = authenticateHeader + ", stale=\"true\"";
@@ -106,15 +106,15 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	public int getNonceValiditySeconds() {
-		return nonceValiditySeconds;
+		return this.nonceValiditySeconds;
 	}
 
 	public String getRealmName() {
-		return realmName;
+		return this.realmName;
 	}
 
 	public void setKey(String key) {

@@ -72,7 +72,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
 
-		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
+		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : this.requestMap.entrySet()) {
 			allAttributes.addAll(entry.getValue());
 		}
 
@@ -81,7 +81,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 
 	public Collection<ConfigAttribute> getAttributes(Object object) {
 		final HttpServletRequest request = ((FilterInvocation) object).getRequest();
-		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
+		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : this.requestMap.entrySet()) {
 			if (entry.getKey().matches(request)) {
 				return entry.getValue();
 			}

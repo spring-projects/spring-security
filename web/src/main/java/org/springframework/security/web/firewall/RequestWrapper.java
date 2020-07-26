@@ -53,12 +53,12 @@ final class RequestWrapper extends FirewalledRequest {
 
 	RequestWrapper(HttpServletRequest request) {
 		super(request);
-		strippedServletPath = strip(request.getServletPath());
+		this.strippedServletPath = strip(request.getServletPath());
 		String pathInfo = strip(request.getPathInfo());
 		if (pathInfo != null && pathInfo.length() == 0) {
 			pathInfo = null;
 		}
-		strippedPathInfo = pathInfo;
+		this.strippedPathInfo = pathInfo;
 	}
 
 	/**
@@ -112,12 +112,12 @@ final class RequestWrapper extends FirewalledRequest {
 
 	@Override
 	public String getPathInfo() {
-		return stripPaths ? strippedPathInfo : super.getPathInfo();
+		return this.stripPaths ? this.strippedPathInfo : super.getPathInfo();
 	}
 
 	@Override
 	public String getServletPath() {
-		return stripPaths ? strippedServletPath : super.getServletPath();
+		return this.stripPaths ? this.strippedServletPath : super.getServletPath();
 	}
 
 	@Override
@@ -158,7 +158,7 @@ final class RequestWrapper extends FirewalledRequest {
 		}
 
 		private RequestDispatcher getDelegateDispatcher() {
-			return RequestWrapper.super.getRequestDispatcher(path);
+			return RequestWrapper.super.getRequestDispatcher(this.path);
 		}
 
 	}

@@ -56,15 +56,15 @@ public class HttpSecurityLogoutTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
 	}
 
 	@After
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -76,12 +76,12 @@ public class HttpSecurityLogoutTests {
 		SecurityContext currentContext = SecurityContextHolder.createEmptyContext();
 		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
-		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				currentContext);
-		request.setMethod("POST");
-		request.setServletPath("/logout");
+		this.request.setMethod("POST");
+		this.request.setServletPath("/logout");
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
 		assertThat(currentContext.getAuthentication()).isNotNull();
 	}
@@ -110,11 +110,11 @@ public class HttpSecurityLogoutTests {
 	}
 
 	public void loadConfig(Class<?>... configs) {
-		context = new AnnotationConfigWebApplicationContext();
-		context.register(configs);
-		context.refresh();
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.refresh();
 
-		context.getAutowireCapableBeanFactory().autowireBean(this);
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 }

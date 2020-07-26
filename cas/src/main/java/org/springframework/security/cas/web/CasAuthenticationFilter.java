@@ -217,15 +217,15 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 			return;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
 		}
 
 		SecurityContextHolder.getContext().setAuthentication(authResult);
 
 		// Fire event
 		if (this.eventPublisher != null) {
-			eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
+			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
 
 		chain.doFilter(request, response);
@@ -237,7 +237,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		// if the request is a proxy request process it and return null to indicate the
 		// request has been processed
 		if (proxyReceptorRequest(request)) {
-			logger.debug("Responding to proxy receptor request");
+			this.logger.debug("Responding to proxy receptor request");
 			CommonUtils.readAndRespondToProxyReceptorRequest(request, response, this.proxyGrantingTicketStorage);
 			return null;
 		}
@@ -247,14 +247,14 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		String password = obtainArtifact(request);
 
 		if (password == null) {
-			logger.debug("Failed to obtain an artifact (cas ticket)");
+			this.logger.debug("Failed to obtain an artifact (cas ticket)");
 			password = "";
 		}
 
 		final UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username,
 				password);
 
-		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		return this.getAuthenticationManager().authenticate(authRequest);
 	}
@@ -265,7 +265,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @return if present the artifact from the {@link HttpServletRequest}, else null
 	 */
 	protected String obtainArtifact(HttpServletRequest request) {
-		return request.getParameter(artifactParameter);
+		return request.getParameter(this.artifactParameter);
 	}
 
 	/**
@@ -275,8 +275,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		final boolean serviceTicketRequest = serviceTicketRequest(request, response);
 		final boolean result = serviceTicketRequest || proxyReceptorRequest(request)
 				|| (proxyTicketRequest(serviceTicketRequest, request));
-		if (logger.isDebugEnabled()) {
-			logger.debug("requiresAuthentication = " + result);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("requiresAuthentication = " + result);
 		}
 		return result;
 	}
@@ -321,8 +321,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 */
 	private boolean serviceTicketRequest(final HttpServletRequest request, final HttpServletResponse response) {
 		boolean result = super.requiresAuthentication(request, response);
-		if (logger.isDebugEnabled()) {
-			logger.debug("serviceTicketRequest = " + result);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("serviceTicketRequest = " + result);
 		}
 		return result;
 	}
@@ -336,9 +336,9 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		if (serviceTicketRequest) {
 			return false;
 		}
-		final boolean result = authenticateAllArtifacts && obtainArtifact(request) != null && !authenticated();
-		if (logger.isDebugEnabled()) {
-			logger.debug("proxyTicketRequest = " + result);
+		final boolean result = this.authenticateAllArtifacts && obtainArtifact(request) != null && !authenticated();
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("proxyTicketRequest = " + result);
 		}
 		return result;
 	}
@@ -359,9 +359,9 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @return
 	 */
 	private boolean proxyReceptorRequest(final HttpServletRequest request) {
-		final boolean result = proxyReceptorConfigured() && proxyReceptorMatcher.matches(request);
-		if (logger.isDebugEnabled()) {
-			logger.debug("proxyReceptorRequest = " + result);
+		final boolean result = proxyReceptorConfigured() && this.proxyReceptorMatcher.matches(request);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("proxyReceptorRequest = " + result);
 		}
 		return result;
 	}
@@ -372,9 +372,9 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @return
 	 */
 	private boolean proxyReceptorConfigured() {
-		final boolean result = this.proxyGrantingTicketStorage != null && proxyReceptorMatcher != null;
-		if (logger.isDebugEnabled()) {
-			logger.debug("proxyReceptorConfigured = " + result);
+		final boolean result = this.proxyGrantingTicketStorage != null && this.proxyReceptorMatcher != null;
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("proxyReceptorConfigured = " + result);
 		}
 		return result;
 	}
@@ -401,10 +401,10 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 				AuthenticationException exception) throws IOException, ServletException {
 			if (serviceTicketRequest(request, response)) {
-				serviceTicketFailureHandler.onAuthenticationFailure(request, response, exception);
+				this.serviceTicketFailureHandler.onAuthenticationFailure(request, response, exception);
 			}
 			else {
-				proxyFailureHandler.onAuthenticationFailure(request, response, exception);
+				CasAuthenticationFilter.this.proxyFailureHandler.onAuthenticationFailure(request, response, exception);
 			}
 		}
 

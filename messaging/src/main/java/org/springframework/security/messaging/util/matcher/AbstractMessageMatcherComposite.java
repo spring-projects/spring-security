@@ -57,12 +57,12 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 	}
 
 	public List<MessageMatcher<T>> getMessageMatchers() {
-		return messageMatchers;
+		return this.messageMatchers;
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[messageMatchers=" + messageMatchers + "]";
+		return getClass().getSimpleName() + "[messageMatchers=" + this.messageMatchers + "]";
 	}
 
 }

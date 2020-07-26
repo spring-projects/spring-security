@@ -80,16 +80,16 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 		this.originalSecurityContext = SecurityContextHolder.getContext();
 
 		try {
-			SecurityContextHolder.setContext(delegateSecurityContext);
-			return delegate.call();
+			SecurityContextHolder.setContext(this.delegateSecurityContext);
+			return this.delegate.call();
 		}
 		finally {
 			SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
-			if (emptyContext.equals(originalSecurityContext)) {
+			if (emptyContext.equals(this.originalSecurityContext)) {
 				SecurityContextHolder.clearContext();
 			}
 			else {
-				SecurityContextHolder.setContext(originalSecurityContext);
+				SecurityContextHolder.setContext(this.originalSecurityContext);
 			}
 			this.originalSecurityContext = null;
 		}
@@ -97,7 +97,7 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 
 	@Override
 	public String toString() {
-		return delegate.toString();
+		return this.delegate.toString();
 	}
 
 	/**

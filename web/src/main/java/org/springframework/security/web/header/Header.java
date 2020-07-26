@@ -79,12 +79,12 @@ public final class Header {
 
 	@Override
 	public int hashCode() {
-		return headerName.hashCode() + headerValues.hashCode();
+		return this.headerName.hashCode() + this.headerValues.hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "Header [name: " + headerName + ", values: " + headerValues + "]";
+		return "Header [name: " + this.headerName + ", values: " + this.headerValues + "]";
 	}
 
 }

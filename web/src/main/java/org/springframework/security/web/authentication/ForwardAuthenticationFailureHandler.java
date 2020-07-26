@@ -49,7 +49,7 @@ public class ForwardAuthenticationFailureHandler implements AuthenticationFailur
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
-		request.getRequestDispatcher(forwardUrl).forward(request, response);
+		request.getRequestDispatcher(this.forwardUrl).forward(request, response);
 	}
 
 }

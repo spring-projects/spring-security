@@ -53,7 +53,7 @@ public class OAuth2AccessTokenResponseMapConverterTests {
 		OAuth2AccessTokenResponse build = OAuth2AccessTokenResponse.withToken("access-token-value-1234").expiresIn(3699)
 				.additionalParameters(additionalParameters).refreshToken("refresh-token-value-1234").scopes(scopes)
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
-		Map<String, String> result = messageConverter.convert(build);
+		Map<String, String> result = this.messageConverter.convert(build);
 		Assert.assertEquals(7, result.size());
 
 		Assert.assertEquals("access-token-value-1234", result.get("access_token"));
@@ -69,7 +69,7 @@ public class OAuth2AccessTokenResponseMapConverterTests {
 	public void convertMinimal() {
 		OAuth2AccessTokenResponse build = OAuth2AccessTokenResponse.withToken("access-token-value-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
-		Map<String, String> result = messageConverter.convert(build);
+		Map<String, String> result = this.messageConverter.convert(build);
 		Assert.assertEquals(3, result.size());
 
 		Assert.assertEquals("access-token-value-1234", result.get("access_token"));

@@ -34,11 +34,11 @@ public class ServerWebExchangeMatcherEntry<T> {
 	}
 
 	public ServerWebExchangeMatcher getMatcher() {
-		return matcher;
+		return this.matcher;
 	}
 
 	public T getEntry() {
-		return entry;
+		return this.entry;
 	}
 
 }

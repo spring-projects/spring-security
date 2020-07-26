@@ -109,9 +109,9 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 	@Before
 	public void initializeBeans() {
-		strategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
+		this.strategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
 				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
-		strategy.setPermissionFactory(new DefaultPermissionFactory());
+		this.strategy.setPermissionFactory(new DefaultPermissionFactory());
 	}
 
 	protected AclAuthorizationStrategy aclAuthStrategy() {
@@ -159,7 +159,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
 
 		// Objects were put in cache
-		strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
+		this.strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
 
 		// Let's empty the database to force acls retrieval from cache
 		emptyDatabase();
@@ -299,8 +299,8 @@ public abstract class AbstractBasicLookupStrategyTests {
 		List<Sid> sids = Arrays.asList(BEN_SID);
 		List<ObjectIdentity> childOids = Arrays.asList(childOid);
 
-		strategy.setBatchSize(6);
-		Map<ObjectIdentity, Acl> foundAcls = strategy.readAclsById(childOids, sids);
+		this.strategy.setBatchSize(6);
+		Map<ObjectIdentity, Acl> foundAcls = this.strategy.readAclsById(childOids, sids);
 
 		Acl foundChildAcl = foundAcls.get(childOid);
 		assertThat(foundChildAcl).isNotNull();
@@ -313,7 +313,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 		// cache
 		List<ObjectIdentity> allOids = Arrays.asList(grandParentOid, parent1Oid, parent2Oid, childOid);
 		try {
-			foundAcls = strategy.readAclsById(allOids, sids);
+			foundAcls = this.strategy.readAclsById(allOids, sids);
 
 		}
 		catch (NotFoundException notExpected) {
@@ -333,12 +333,12 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 104L);
 
-		strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
+		this.strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
 	}
 
 	@Test
 	public void testCreatePrincipalSid() {
-		Sid result = strategy.createSid(true, "sid");
+		Sid result = this.strategy.createSid(true, "sid");
 
 		assertThat(result.getClass()).isEqualTo(PrincipalSid.class);
 		assertThat(((PrincipalSid) result).getPrincipal()).isEqualTo("sid");
@@ -346,7 +346,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 	@Test
 	public void testCreateGrantedAuthority() {
-		Sid result = strategy.createSid(false, "sid");
+		Sid result = this.strategy.createSid(false, "sid");
 
 		assertThat(result.getClass()).isEqualTo(GrantedAuthoritySid.class);
 		assertThat(((GrantedAuthoritySid) result).getGrantedAuthority()).isEqualTo("sid");

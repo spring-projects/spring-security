@@ -81,18 +81,18 @@ public final class RequestHeaderRequestMatcher implements RequestMatcher {
 	}
 
 	public boolean matches(HttpServletRequest request) {
-		String actualHeaderValue = request.getHeader(expectedHeaderName);
-		if (expectedHeaderValue == null) {
+		String actualHeaderValue = request.getHeader(this.expectedHeaderName);
+		if (this.expectedHeaderValue == null) {
 			return actualHeaderValue != null;
 		}
 
-		return expectedHeaderValue.equals(actualHeaderValue);
+		return this.expectedHeaderValue.equals(actualHeaderValue);
 	}
 
 	@Override
 	public String toString() {
-		return "RequestHeaderRequestMatcher [expectedHeaderName=" + expectedHeaderName + ", expectedHeaderValue="
-				+ expectedHeaderValue + "]";
+		return "RequestHeaderRequestMatcher [expectedHeaderName=" + this.expectedHeaderName + ", expectedHeaderValue="
+				+ this.expectedHeaderValue + "]";
 	}
 
 }

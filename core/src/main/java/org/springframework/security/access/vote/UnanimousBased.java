@@ -69,8 +69,8 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 			for (AccessDecisionVoter voter : getDecisionVoters()) {
 				int result = voter.vote(authentication, object, singleAttributeList);
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("Voter: " + voter + ", returned: " + result);
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug("Voter: " + voter + ", returned: " + result);
 				}
 
 				switch (result) {
@@ -81,7 +81,7 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 
 				case AccessDecisionVoter.ACCESS_DENIED:
 					throw new AccessDeniedException(
-							messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+							this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 
 				default:
 					break;

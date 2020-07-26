@@ -57,59 +57,65 @@ public class AffirmativeBasedTests {
 	@SuppressWarnings("unchecked")
 	public void setup() {
 
-		grant = mock(AccessDecisionVoter.class);
-		abstain = mock(AccessDecisionVoter.class);
-		deny = mock(AccessDecisionVoter.class);
+		this.grant = mock(AccessDecisionVoter.class);
+		this.abstain = mock(AccessDecisionVoter.class);
+		this.deny = mock(AccessDecisionVoter.class);
 
-		when(grant.vote(any(Authentication.class), any(Object.class), any(List.class)))
+		when(this.grant.vote(any(Authentication.class), any(Object.class), any(List.class)))
 				.thenReturn(AccessDecisionVoter.ACCESS_GRANTED);
-		when(abstain.vote(any(Authentication.class), any(Object.class), any(List.class)))
+		when(this.abstain.vote(any(Authentication.class), any(Object.class), any(List.class)))
 				.thenReturn(AccessDecisionVoter.ACCESS_ABSTAIN);
-		when(deny.vote(any(Authentication.class), any(Object.class), any(List.class)))
+		when(this.deny.vote(any(Authentication.class), any(Object.class), any(List.class)))
 				.thenReturn(AccessDecisionVoter.ACCESS_DENIED);
 	}
 
 	@Test
 	public void oneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess() throws Exception {
 
-		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(grant, deny, abstain));
-		mgr.afterPropertiesSet();
-		mgr.decide(user, new Object(), attrs);
+		this.mgr = new AffirmativeBased(
+				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.grant, this.deny, this.abstain));
+		this.mgr.afterPropertiesSet();
+		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 
 	@Test
 	public void oneDenyVoteOneAbstainVoteOneAffirmativeVoteGrantsAccess() {
-		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(deny, abstain, grant));
-		mgr.decide(user, new Object(), attrs);
+		this.mgr = new AffirmativeBased(
+				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.deny, this.abstain, this.grant));
+		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 
 	@Test
 	public void oneAffirmativeVoteTwoAbstainVotesGrantsAccess() {
-		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(grant, abstain, abstain));
-		mgr.decide(user, new Object(), attrs);
+		this.mgr = new AffirmativeBased(
+				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.grant, this.abstain, this.abstain));
+		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void oneDenyVoteTwoAbstainVotesDeniesAccess() {
-		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(deny, abstain, abstain));
-		mgr.decide(user, new Object(), attrs);
+		this.mgr = new AffirmativeBased(
+				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.deny, this.abstain, this.abstain));
+		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void onlyAbstainVotesDeniesAccessWithDefault() {
-		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(abstain, abstain, abstain));
-		assertThat(!mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
+		this.mgr = new AffirmativeBased(
+				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.abstain, this.abstain, this.abstain));
+		assertThat(!this.mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
 
-		mgr.decide(user, new Object(), attrs);
+		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 
 	@Test
 	public void testThreeAbstainVotesGrantsAccessIfAllowIfAllAbstainDecisionsIsSet() {
-		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(abstain, abstain, abstain));
-		mgr.setAllowIfAllAbstainDecisions(true);
-		assertThat(mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check changed
+		this.mgr = new AffirmativeBased(
+				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.abstain, this.abstain, this.abstain));
+		this.mgr.setAllowIfAllAbstainDecisions(true);
+		assertThat(this.mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check changed
 
-		mgr.decide(user, new Object(), attrs);
+		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 
 }

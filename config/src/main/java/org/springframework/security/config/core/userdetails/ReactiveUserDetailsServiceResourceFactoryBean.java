@@ -41,7 +41,7 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 
 	@Override
 	public MapReactiveUserDetailsService getObject() throws Exception {
-		Collection<UserDetails> users = userDetails.getObject();
+		Collection<UserDetails> users = this.userDetails.getObject();
 		return new MapReactiveUserDetailsService(users);
 	}
 
@@ -52,7 +52,7 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
-		userDetails.setResourceLoader(resourceLoader);
+		this.userDetails.setResourceLoader(resourceLoader);
 	}
 
 	/**

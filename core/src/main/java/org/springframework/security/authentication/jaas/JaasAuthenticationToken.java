@@ -48,7 +48,7 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 	}
 
 	public LoginContext getLoginContext() {
-		return loginContext;
+		return this.loginContext;
 	}
 
 }

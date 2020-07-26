@@ -74,7 +74,7 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 	public void serializeRememberMeAuthenticationToken() throws JsonProcessingException, JSONException {
 		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(REMEMBERME_KEY, "admin",
 				Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-		String actualJson = mapper.writeValueAsString(token);
+		String actualJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(REMEMBERME_AUTH_STRINGPRINCIPAL_JSON, actualJson, true);
 	}
 
@@ -83,7 +83,7 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 		User user = createDefaultUser();
 		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(REMEMBERME_KEY, user,
 				user.getAuthorities());
-		String actualJson = mapper.writeValueAsString(token);
+		String actualJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(String.format(REMEMBERME_AUTH_JSON, "\"password\""), actualJson, true);
 	}
 
@@ -94,14 +94,14 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(REMEMBERME_KEY, user,
 				user.getAuthorities());
 		token.eraseCredentials();
-		String actualJson = mapper.writeValueAsString(token);
+		String actualJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(REMEMBERME_AUTH_JSON.replace(UserDeserializerTests.USER_PASSWORD, "null"), actualJson,
 				true);
 	}
 
 	@Test
 	public void deserializeRememberMeAuthenticationToken() throws IOException {
-		RememberMeAuthenticationToken token = mapper.readValue(REMEMBERME_AUTH_STRINGPRINCIPAL_JSON,
+		RememberMeAuthenticationToken token = this.mapper.readValue(REMEMBERME_AUTH_STRINGPRINCIPAL_JSON,
 				RememberMeAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isEqualTo("admin").isEqualTo(token.getName());
@@ -110,7 +110,7 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 
 	@Test
 	public void deserializeRememberMeAuthenticationTokenWithUserTest() throws IOException {
-		RememberMeAuthenticationToken token = mapper.readValue(String.format(REMEMBERME_AUTH_JSON, "\"password\""),
+		RememberMeAuthenticationToken token = this.mapper.readValue(String.format(REMEMBERME_AUTH_JSON, "\"password\""),
 				RememberMeAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);

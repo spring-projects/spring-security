@@ -86,7 +86,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	public final boolean hasAnyRole(String... roles) {
-		return hasAnyAuthorityName(defaultRolePrefix, roles);
+		return hasAnyAuthorityName(this.defaultRolePrefix, roles);
 	}
 
 	private boolean hasAnyAuthorityName(String prefix, String... roles) {
@@ -103,7 +103,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	public final Authentication getAuthentication() {
-		return authentication;
+		return this.authentication;
 	}
 
 	public final boolean permitAll() {
@@ -115,7 +115,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	public final boolean isAnonymous() {
-		return trustResolver.isAnonymous(authentication);
+		return this.trustResolver.isAnonymous(this.authentication);
 	}
 
 	public final boolean isAuthenticated() {
@@ -123,11 +123,12 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	public final boolean isRememberMe() {
-		return trustResolver.isRememberMe(authentication);
+		return this.trustResolver.isRememberMe(this.authentication);
 	}
 
 	public final boolean isFullyAuthenticated() {
-		return !trustResolver.isAnonymous(authentication) && !trustResolver.isRememberMe(authentication);
+		return !this.trustResolver.isAnonymous(this.authentication)
+				&& !this.trustResolver.isRememberMe(this.authentication);
 	}
 
 	/**
@@ -136,7 +137,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * @return
 	 */
 	public Object getPrincipal() {
-		return authentication.getPrincipal();
+		return this.authentication.getPrincipal();
 	}
 
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
@@ -165,25 +166,26 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	private Set<String> getAuthoritySet() {
-		if (roles == null) {
-			Collection<? extends GrantedAuthority> userAuthorities = authentication.getAuthorities();
+		if (this.roles == null) {
+			Collection<? extends GrantedAuthority> userAuthorities = this.authentication.getAuthorities();
 
-			if (roleHierarchy != null) {
-				userAuthorities = roleHierarchy.getReachableGrantedAuthorities(userAuthorities);
+			if (this.roleHierarchy != null) {
+				userAuthorities = this.roleHierarchy.getReachableGrantedAuthorities(userAuthorities);
 			}
 
-			roles = AuthorityUtils.authorityListToSet(userAuthorities);
+			this.roles = AuthorityUtils.authorityListToSet(userAuthorities);
 		}
 
-		return roles;
+		return this.roles;
 	}
 
 	public boolean hasPermission(Object target, Object permission) {
-		return permissionEvaluator.hasPermission(authentication, target, permission);
+		return this.permissionEvaluator.hasPermission(this.authentication, target, permission);
 	}
 
 	public boolean hasPermission(Object targetId, String targetType, Object permission) {
-		return permissionEvaluator.hasPermission(authentication, (Serializable) targetId, targetType, permission);
+		return this.permissionEvaluator.hasPermission(this.authentication, (Serializable) targetId, targetType,
+				permission);
 	}
 
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {

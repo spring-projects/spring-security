@@ -103,7 +103,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 
 			logger.debug("Denying access");
 
-			throw new AccessDeniedException(messages.getMessage("AclEntryAfterInvocationProvider.noPermission",
+			throw new AccessDeniedException(this.messages.getMessage("AclEntryAfterInvocationProvider.noPermission",
 					new Object[] { authentication.getName(), returnedObject },
 					"Authentication {0} has NO permissions to the domain object {1}"));
 		}

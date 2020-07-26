@@ -56,18 +56,18 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	@Test
 	public void authenticationSuccess() throws Exception {
-		mvc.perform(login()).andExpect(status().isFound()).andExpect(redirectedUrl("/"))
+		this.mvc.perform(login()).andExpect(status().isFound()).andExpect(redirectedUrl("/"))
 				.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void authenticationFailed() throws Exception {
-		mvc.perform(login().user("notfound").password("invalid")).andExpect(status().isFound())
+		this.mvc.perform(login().user("notfound").password("invalid")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("/authenticate?error")).andExpect(unauthenticated());
 	}
 

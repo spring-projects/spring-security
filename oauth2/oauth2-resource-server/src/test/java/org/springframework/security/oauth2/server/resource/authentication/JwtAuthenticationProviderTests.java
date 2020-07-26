@@ -58,7 +58,7 @@ public class JwtAuthenticationProviderTests {
 	@Before
 	public void setup() {
 		this.provider = new JwtAuthenticationProvider(this.jwtDecoder);
-		this.provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+		this.provider.setJwtAuthenticationConverter(this.jwtAuthenticationConverter);
 	}
 
 	@Test

@@ -120,7 +120,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setWebClientNullThenIllegalArgumentException() {
-		client.setWebClient(null);
+		this.client.setWebClient(null);
 	}
 
 	@Test

@@ -43,17 +43,17 @@ public class DefaultToken implements Token {
 
 	@Override
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	@Override
 	public long getKeyCreationTime() {
-		return keyCreationTime;
+		return this.keyCreationTime;
 	}
 
 	@Override
 	public String getExtendedInformation() {
-		return extendedInformation;
+		return this.extendedInformation;
 	}
 
 	@Override
@@ -69,16 +69,16 @@ public class DefaultToken implements Token {
 	@Override
 	public int hashCode() {
 		int code = 979;
-		code = code * key.hashCode();
-		code = code * new Long(keyCreationTime).hashCode();
-		code = code * extendedInformation.hashCode();
+		code = code * this.key.hashCode();
+		code = code * new Long(this.keyCreationTime).hashCode();
+		code = code * this.extendedInformation.hashCode();
 		return code;
 	}
 
 	@Override
 	public String toString() {
-		return "DefaultToken[key=" + key + "; creation=" + new Date(keyCreationTime) + "; extended="
-				+ extendedInformation + "]";
+		return "DefaultToken[key=" + this.key + "; creation=" + new Date(this.keyCreationTime) + "; extended="
+				+ this.extendedInformation + "]";
 	}
 
 }

@@ -63,19 +63,19 @@ public class SessionInformation implements Serializable {
 	}
 
 	public Date getLastRequest() {
-		return lastRequest;
+		return this.lastRequest;
 	}
 
 	public Object getPrincipal() {
-		return principal;
+		return this.principal;
 	}
 
 	public String getSessionId() {
-		return sessionId;
+		return this.sessionId;
 	}
 
 	public boolean isExpired() {
-		return expired;
+		return this.expired;
 	}
 
 	/**

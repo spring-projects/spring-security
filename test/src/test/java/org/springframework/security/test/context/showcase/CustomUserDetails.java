@@ -39,7 +39,7 @@ public class CustomUserDetails implements UserDetails {
 	}
 
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return authorities;
+		return this.authorities;
 	}
 
 	public String getPassword() {
@@ -47,7 +47,7 @@ public class CustomUserDetails implements UserDetails {
 	}
 
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	public boolean isAccountNonExpired() {
@@ -68,7 +68,7 @@ public class CustomUserDetails implements UserDetails {
 
 	@Override
 	public String toString() {
-		return "CustomUserDetails{" + "username='" + username + '\'' + '}';
+		return "CustomUserDetails{" + "username='" + this.username + '\'' + '}';
 	}
 
 }

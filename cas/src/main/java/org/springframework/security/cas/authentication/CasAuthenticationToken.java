@@ -164,7 +164,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	public UserDetails getUserDetails() {
-		return userDetails;
+		return this.userDetails;
 	}
 
 	@Override

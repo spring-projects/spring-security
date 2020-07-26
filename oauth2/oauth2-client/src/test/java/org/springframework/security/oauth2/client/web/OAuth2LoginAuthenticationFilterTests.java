@@ -446,7 +446,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		request.addParameter(OAuth2ParameterNames.STATE, state);
 
 		WebAuthenticationDetails webAuthenticationDetails = mock(WebAuthenticationDetails.class);
-		when(authenticationDetailsSource.buildDetails(any())).thenReturn(webAuthenticationDetails);
+		when(this.authenticationDetailsSource.buildDetails(any())).thenReturn(webAuthenticationDetails);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 

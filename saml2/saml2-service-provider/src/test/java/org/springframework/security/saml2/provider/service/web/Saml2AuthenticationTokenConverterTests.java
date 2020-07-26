@@ -61,7 +61,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
-				.isEqualTo(relyingPartyRegistration.getRegistrationId());
+				.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
-				.isEqualTo(relyingPartyRegistration.getRegistrationId());
+				.isEqualTo(this.relyingPartyRegistration.getRegistrationId());
 	}
 
 	@Test

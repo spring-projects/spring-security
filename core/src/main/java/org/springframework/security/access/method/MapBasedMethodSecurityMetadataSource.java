@@ -89,8 +89,8 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 
 	private List<ConfigAttribute> findAttributesSpecifiedAgainst(Method method, Class<?> clazz) {
 		RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
-		if (methodMap.containsKey(registeredMethod)) {
-			return methodMap.get(registeredMethod);
+		if (this.methodMap.containsKey(registeredMethod)) {
+			return this.methodMap.get(registeredMethod);
 		}
 		// Search superclass
 		if (clazz.getSuperclass() != null) {
@@ -132,8 +132,8 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	public void addSecureMethod(Class<?> javaType, String mappedName, List<ConfigAttribute> attr) {
 		String name = javaType.getName() + '.' + mappedName;
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Request to add secure method [" + name + "] with attributes [" + attr + "]");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Request to add secure method [" + name + "] with attributes [" + attr + "]");
 		}
 
 		Method[] methods = javaType.getMethods();
@@ -158,7 +158,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 				// no already registered method name, or more specific
 				// method name specification now -> (re-)register method
 				if (regMethodName != null) {
-					logger.debug("Replacing attributes for secure method [" + method + "]: current name [" + name
+					this.logger.debug("Replacing attributes for secure method [" + method + "]: current name [" + name
 							+ "] is more specific than [" + regMethodName + "]");
 				}
 
@@ -166,7 +166,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 				addSecureMethod(registeredMethod, attr);
 			}
 			else {
-				logger.debug("Keeping attributes for secure method [" + method + "]: current name [" + name
+				this.logger.debug("Keeping attributes for secure method [" + method + "]: current name [" + name
 						+ "] is not more specific than [" + regMethodName + "]");
 			}
 		}
@@ -184,12 +184,13 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	public void addSecureMethod(Class<?> javaType, Method method, List<ConfigAttribute> attr) {
 		RegisteredMethod key = new RegisteredMethod(method, javaType);
 
-		if (methodMap.containsKey(key)) {
-			logger.debug("Method [" + method + "] is already registered with attributes [" + methodMap.get(key) + "]");
+		if (this.methodMap.containsKey(key)) {
+			this.logger.debug(
+					"Method [" + method + "] is already registered with attributes [" + this.methodMap.get(key) + "]");
 			return;
 		}
 
-		methodMap.put(key, attr);
+		this.methodMap.put(key, attr);
 	}
 
 	/**
@@ -200,8 +201,8 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	private void addSecureMethod(RegisteredMethod method, List<ConfigAttribute> attr) {
 		Assert.notNull(method, "RegisteredMethod required");
 		Assert.notNull(attr, "Configuration attribute required");
-		if (logger.isInfoEnabled()) {
-			logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
+		if (this.logger.isInfoEnabled()) {
+			this.logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
 		}
 		this.methodMap.put(method, attr);
 	}
@@ -214,7 +215,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
 
-		for (List<ConfigAttribute> attributeList : methodMap.values()) {
+		for (List<ConfigAttribute> attributeList : this.methodMap.values()) {
 			allAttributes.addAll(attributeList);
 		}
 
@@ -243,7 +244,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	 * @return map size (for unit tests and diagnostics)
 	 */
 	public int getMethodMapSize() {
-		return methodMap.size();
+		return this.methodMap.size();
 	}
 
 	/**
@@ -275,19 +276,19 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 			}
 			if (obj != null && obj instanceof RegisteredMethod) {
 				RegisteredMethod rhs = (RegisteredMethod) obj;
-				return method.equals(rhs.method) && registeredJavaType.equals(rhs.registeredJavaType);
+				return this.method.equals(rhs.method) && this.registeredJavaType.equals(rhs.registeredJavaType);
 			}
 			return false;
 		}
 
 		@Override
 		public int hashCode() {
-			return method.hashCode() * registeredJavaType.hashCode();
+			return this.method.hashCode() * this.registeredJavaType.hashCode();
 		}
 
 		@Override
 		public String toString() {
-			return "RegisteredMethod[" + registeredJavaType.getName() + "; " + method + "]";
+			return "RegisteredMethod[" + this.registeredJavaType.getName() + "; " + this.method + "]";
 		}
 
 	}

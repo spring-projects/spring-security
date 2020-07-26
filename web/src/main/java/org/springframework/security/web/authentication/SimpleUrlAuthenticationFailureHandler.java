@@ -75,22 +75,22 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 
-		if (defaultFailureUrl == null) {
-			logger.debug("No failure URL set, sending 401 Unauthorized error");
+		if (this.defaultFailureUrl == null) {
+			this.logger.debug("No failure URL set, sending 401 Unauthorized error");
 
 			response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 		}
 		else {
 			saveException(request, exception);
 
-			if (forwardToDestination) {
-				logger.debug("Forwarding to " + defaultFailureUrl);
+			if (this.forwardToDestination) {
+				this.logger.debug("Forwarding to " + this.defaultFailureUrl);
 
-				request.getRequestDispatcher(defaultFailureUrl).forward(request, response);
+				request.getRequestDispatcher(this.defaultFailureUrl).forward(request, response);
 			}
 			else {
-				logger.debug("Redirecting to " + defaultFailureUrl);
-				redirectStrategy.sendRedirect(request, response, defaultFailureUrl);
+				this.logger.debug("Redirecting to " + this.defaultFailureUrl);
+				this.redirectStrategy.sendRedirect(request, response, this.defaultFailureUrl);
 			}
 		}
 	}
@@ -104,13 +104,13 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
 	 * Otherwise the exception will not be stored.
 	 */
 	protected final void saveException(HttpServletRequest request, AuthenticationException exception) {
-		if (forwardToDestination) {
+		if (this.forwardToDestination) {
 			request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
 		}
 		else {
 			HttpSession session = request.getSession(false);
 
-			if (session != null || allowSessionCreation) {
+			if (session != null || this.allowSessionCreation) {
 				request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
 			}
 		}
@@ -127,7 +127,7 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
 	}
 
 	protected boolean isUseForward() {
-		return forwardToDestination;
+		return this.forwardToDestination;
 	}
 
 	/**
@@ -146,11 +146,11 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
 	}
 
 	protected RedirectStrategy getRedirectStrategy() {
-		return redirectStrategy;
+		return this.redirectStrategy;
 	}
 
 	protected boolean isAllowSessionCreation() {
-		return allowSessionCreation;
+		return this.allowSessionCreation;
 	}
 
 	public void setAllowSessionCreation(boolean allowSessionCreation) {

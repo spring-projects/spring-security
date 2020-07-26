@@ -45,39 +45,39 @@ public class UserDetailsResourceFactoryBeanTests {
 
 	@Test
 	public void setResourceLoaderWhenNullThenThrowsException() {
-		assertThatThrownBy(() -> factory.setResourceLoader(null)).isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> this.factory.setResourceLoader(null)).isInstanceOf(IllegalArgumentException.class)
 				.hasStackTraceContaining("resourceLoader cannot be null");
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceLocationNullThenThrowsIllegalStateException() {
-		factory.setResourceLoader(resourceLoader);
+		this.factory.setResourceLoader(this.resourceLoader);
 
-		assertThatThrownBy(() -> factory.getObject()).isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> this.factory.getObject()).isInstanceOf(IllegalArgumentException.class)
 				.hasStackTraceContaining("resource cannot be null if resourceLocation is null");
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceLocationSingleUserThenThrowsGetsSingleUser() throws Exception {
-		factory.setResourceLocation("classpath:users.properties");
+		this.factory.setResourceLocation("classpath:users.properties");
 
-		Collection<UserDetails> users = factory.getObject();
+		Collection<UserDetails> users = this.factory.getObject();
 
 		assertLoaded();
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceSingleUserThenThrowsGetsSingleUser() throws Exception {
-		factory.setResource(new InMemoryResource("user=password,ROLE_USER"));
+		this.factory.setResource(new InMemoryResource("user=password,ROLE_USER"));
 
 		assertLoaded();
 	}
 
 	@Test
 	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() {
-		factory.setResource(new InMemoryResource("user=invalidFormatHere"));
+		this.factory.setResource(new InMemoryResource("user=invalidFormatHere"));
 
-		assertThatThrownBy(() -> factory.getObject()).isInstanceOf(IllegalStateException.class)
+		assertThatThrownBy(() -> this.factory.getObject()).isInstanceOf(IllegalStateException.class)
 				.hasStackTraceContaining("user").hasStackTraceContaining("invalidFormatHere");
 	}
 
@@ -89,7 +89,7 @@ public class UserDetailsResourceFactoryBeanTests {
 	}
 
 	private void assertLoaded() throws Exception {
-		Collection<UserDetails> users = factory.getObject();
+		Collection<UserDetails> users = this.factory.getObject();
 		// @formatter:off
 		UserDetails expectedUser = User.withUsername("user")
 			.password("password")

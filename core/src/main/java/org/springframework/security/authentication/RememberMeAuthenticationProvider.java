@@ -53,7 +53,7 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 		}
 
 		if (this.key.hashCode() != ((RememberMeAuthenticationToken) authentication).getKeyHash()) {
-			throw new BadCredentialsException(messages.getMessage("RememberMeAuthenticationProvider.incorrectKey",
+			throw new BadCredentialsException(this.messages.getMessage("RememberMeAuthenticationProvider.incorrectKey",
 					"The presented RememberMeAuthenticationToken does not contain the expected key"));
 		}
 
@@ -61,7 +61,7 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	public void setMessageSource(MessageSource messageSource) {

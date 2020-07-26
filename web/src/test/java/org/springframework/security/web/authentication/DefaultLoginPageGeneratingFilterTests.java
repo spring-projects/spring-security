@@ -49,9 +49,9 @@ public class DefaultLoginPageGeneratingFilterTests {
 	public void generatingPageWithAuthenticationProcessingFilterOnlyIsSuccessFul() throws Exception {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
 				new UsernamePasswordAuthenticationFilter());
-		filter.doFilter(new MockHttpServletRequest("GET", "/login"), new MockHttpServletResponse(), chain);
+		filter.doFilter(new MockHttpServletRequest("GET", "/login"), new MockHttpServletResponse(), this.chain);
 		filter.doFilter(new MockHttpServletRequest("GET", "/login;pathparam=unused"), new MockHttpServletResponse(),
-				chain);
+				this.chain);
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, chain);
+		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
 
 		assertThat(response.getContentAsString()).isNotEmpty();
 	}
@@ -72,7 +72,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login");
-		filter.doFilter(request, response, chain);
+		filter.doFilter(request, response, this.chain);
 
 		assertThat(response.getContentAsString()).isEmpty();
 	}
@@ -85,7 +85,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/context/login");
 		request.setContextPath("/context");
-		filter.doFilter(request, response, chain);
+		filter.doFilter(request, response, this.chain);
 
 		assertThat(response.getContentAsString()).isNotEmpty();
 	}
@@ -96,7 +96,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		filter.doFilter(new MockHttpServletRequest("GET", "/api/login"), response, chain);
+		filter.doFilter(new MockHttpServletRequest("GET", "/api/login"), response, this.chain);
 
 		assertThat(response.getContentAsString()).isEmpty();
 	}
@@ -110,7 +110,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
 		request.setQueryString("error");
 
-		filter.doFilter(request, response, chain);
+		filter.doFilter(request, response, this.chain);
 
 		assertThat(response.getContentAsString()).isNotEmpty();
 	}
@@ -124,7 +124,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				Collections.singletonMap("XYUU", "\u8109\u640F\u7F51\u5E10\u6237\u767B\u5F55"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
-		filter.doFilter(request, response, chain);
+		filter.doFilter(request, response, this.chain);
 		assertThat(response
 				.getContentLength() == response.getContentAsString().getBytes(response.getCharacterEncoding()).length)
 						.isTrue();
@@ -139,7 +139,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
 		request.setQueryString("not");
 
-		filter.doFilter(request, response, chain);
+		filter.doFilter(request, response, this.chain);
 
 		assertThat(response.getContentAsString()).isEmpty();
 	}
@@ -147,7 +147,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 	@Test
 	public void generatingPageWithOpenIdFilterOnlyIsSuccessFul() throws Exception {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new MockProcessingFilter());
-		filter.doFilter(new MockHttpServletRequest("GET", "/login"), new MockHttpServletResponse(), chain);
+		filter.doFilter(new MockHttpServletRequest("GET", "/login"), new MockHttpServletResponse(), this.chain);
 	}
 
 	// Fake OpenID filter (since it's not in this module
@@ -182,7 +182,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				"Bad credentials", Locale.KOREA);
 		request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, new BadCredentialsException(message));
 
-		filter.doFilter(request, new MockHttpServletResponse(), chain);
+		filter.doFilter(request, new MockHttpServletResponse(), this.chain);
 	}
 
 	// gh-5394
@@ -197,7 +197,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				Collections.singletonMap("/oauth2/authorization/google", clientName));
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, chain);
+		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
 
 		assertThat(response.getContentAsString())
 				.contains("<a href=\"/oauth2/authorization/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
@@ -213,7 +213,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		filter.setSaml2AuthenticationUrlToProviderName(Collections.singletonMap("/saml/sso/google", clientName));
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, chain);
+		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
 
 		assertThat(response.getContentAsString()).contains("Login with SAML 2.0");
 		assertThat(response.getContentAsString())

@@ -58,7 +58,7 @@ public final class StrictTransportSecurityServerHttpHeadersWriter implements Ser
 	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return isSecure(exchange) ? delegate.writeHttpHeaders(exchange) : Mono.empty();
+		return isSecure(exchange) ? this.delegate.writeHttpHeaders(exchange) : Mono.empty();
 	}
 
 	/**
@@ -66,7 +66,7 @@ public final class StrictTransportSecurityServerHttpHeadersWriter implements Ser
 	 * @param includeSubDomains if subdomains should be included
 	 */
 	public void setIncludeSubDomains(boolean includeSubDomains) {
-		subdomain = includeSubDomains ? " ; includeSubDomains" : "";
+		this.subdomain = includeSubDomains ? " ; includeSubDomains" : "";
 		updateDelegate();
 	}
 
@@ -98,8 +98,8 @@ public final class StrictTransportSecurityServerHttpHeadersWriter implements Ser
 	}
 
 	private void updateDelegate() {
-		delegate = StaticServerHttpHeadersWriter.builder()
-				.header(STRICT_TRANSPORT_SECURITY, maxAge + subdomain + preload).build();
+		this.delegate = StaticServerHttpHeadersWriter.builder()
+				.header(STRICT_TRANSPORT_SECURITY, this.maxAge + this.subdomain + this.preload).build();
 	}
 
 	private boolean isSecure(ServerWebExchange exchange) {

@@ -48,7 +48,7 @@ public class HttpNamespaceWithMultipleInterceptorsTests {
 		request.setServletPath("/somefile.html");
 		request.setSession(createAuthenticatedSession("ROLE_0", "ROLE_1", "ROLE_2"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		fcp.doFilter(request, response, new MockFilterChain());
+		this.fcp.doFilter(request, response, new MockFilterChain());
 		assertThat(response.getStatus()).isEqualTo(200);
 	}
 
@@ -60,7 +60,7 @@ public class HttpNamespaceWithMultipleInterceptorsTests {
 		request.setServletPath("/secure/somefile.html");
 		request.setSession(createAuthenticatedSession("ROLE_0"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		fcp.doFilter(request, response, new MockFilterChain());
+		this.fcp.doFilter(request, response, new MockFilterChain());
 		assertThat(response.getStatus()).isEqualTo(403);
 	}
 

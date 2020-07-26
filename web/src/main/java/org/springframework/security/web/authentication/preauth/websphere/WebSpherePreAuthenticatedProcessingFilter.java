@@ -48,9 +48,9 @@ public class WebSpherePreAuthenticatedProcessingFilter extends AbstractPreAuthen
 	 * Return the WebSphere user name.
 	 */
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
-		Object principal = wasHelper.getCurrentUserName();
-		if (logger.isDebugEnabled()) {
-			logger.debug("PreAuthenticated WebSphere principal: " + principal);
+		Object principal = this.wasHelper.getCurrentUserName();
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("PreAuthenticated WebSphere principal: " + principal);
 		}
 		return principal;
 	}

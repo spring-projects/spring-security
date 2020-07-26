@@ -161,7 +161,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/oauth2/authorization/google-login"));
 
-		verify(requestCache).saveRequest(any(), any());
+		verify(this.requestCache).saveRequest(any(), any());
 	}
 
 	// gh-5347
@@ -196,7 +196,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 		ArgumentCaptor<AuthenticationException> exceptionCaptor = ArgumentCaptor
 				.forClass(AuthenticationException.class);
-		verify(authenticationFailureHandler).onAuthenticationFailure(any(), any(), exceptionCaptor.capture());
+		verify(this.authenticationFailureHandler).onAuthenticationFailure(any(), any(), exceptionCaptor.capture());
 		AuthenticationException exception = exceptionCaptor.getValue();
 		assertThat(exception).isInstanceOf(OAuth2AuthenticationException.class);
 		assertThat(((OAuth2AuthenticationException) exception).getError().getErrorCode())
@@ -226,7 +226,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.mvc.perform(get("/login/oauth2/code/github-login").params(params)).andExpect(status().is2xxSuccessful());
 
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
+		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
 		assertThat(authentication.getPrincipal()).isInstanceOf(OAuth2User.class);
 	}
@@ -254,7 +254,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/github-login").params(params));
 
-		verify(authenticationSuccessListener).onApplicationEvent(any(AuthenticationSuccessEvent.class));
+		verify(this.authenticationSuccessListener).onApplicationEvent(any(AuthenticationSuccessEvent.class));
 	}
 
 	@Test
@@ -312,7 +312,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.mvc.perform(get("/login/oauth2/code/github-login").params(params)).andExpect(status().is2xxSuccessful());
 
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
+		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
 		assertThat(authentication.getPrincipal()).isInstanceOf(OAuth2User.class);
 		assertThat(authentication.getAuthorities()).hasSize(1);
@@ -338,7 +338,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.mvc.perform(get("/login/oauth2/code/google-login").params(params)).andExpect(status().is2xxSuccessful());
 
 		authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(authenticationSuccessHandler, times(2)).onAuthenticationSuccess(any(), any(),
+		verify(this.authenticationSuccessHandler, times(2)).onAuthenticationSuccess(any(), any(),
 				authenticationCaptor.capture());
 		authentication = authenticationCaptor.getValue();
 		assertThat(authentication.getPrincipal()).isInstanceOf(OidcUser.class);
@@ -371,7 +371,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.mvc.perform(get("/login/oauth2/github-login").params(params)).andExpect(status().is2xxSuccessful());
 
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
+		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
 		assertThat(authentication.getPrincipal()).isInstanceOf(OAuth2User.class);
 	}
@@ -384,7 +384,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 		this.mvc.perform(get("/oauth2/authorization/google-login")).andExpect(status().is3xxRedirection());
 
-		verify(authorizationRequestResolver).resolve(any());
+		verify(this.authorizationRequestResolver).resolve(any());
 	}
 
 	// gh-5347
@@ -439,7 +439,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
 
-		verify(clientRegistrationRepository).findByRegistrationId(clientRegistration.getRegistrationId());
+		verify(this.clientRegistrationRepository).findByRegistrationId(clientRegistration.getRegistrationId());
 	}
 
 	@Test
@@ -467,7 +467,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
 
-		verify(authorizedClientRepository).saveAuthorizedClient(any(), any(), any(), any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), any(), any(), any());
 	}
 
 	@Test
@@ -495,7 +495,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
 
-		verify(authorizedClientService).saveAuthorizedClient(any(), any());
+		verify(this.authorizedClientService).saveAuthorizedClient(any(), any());
 	}
 
 	@WithMockUser

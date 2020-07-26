@@ -81,7 +81,7 @@ public class RememberMeAuthenticationFilterTests {
 
 		// Setup our filter correctly
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(mock(AuthenticationManager.class),
-				new MockRememberMeServices(remembered));
+				new MockRememberMeServices(this.remembered));
 		filter.afterPropertiesSet();
 
 		// Test
@@ -98,10 +98,10 @@ public class RememberMeAuthenticationFilterTests {
 	@Test
 	public void testOperationWhenNoAuthenticationInContextHolder() throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(remembered)).thenReturn(remembered);
+		when(am.authenticate(this.remembered)).thenReturn(this.remembered);
 
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
-				new MockRememberMeServices(remembered));
+				new MockRememberMeServices(this.remembered));
 		filter.afterPropertiesSet();
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -110,7 +110,7 @@ public class RememberMeAuthenticationFilterTests {
 		filter.doFilter(request, new MockHttpServletResponse(), fc);
 
 		// Ensure filter setup with our remembered authentication object
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(remembered);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.remembered);
 		verify(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -121,7 +121,7 @@ public class RememberMeAuthenticationFilterTests {
 		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
 
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
-				new MockRememberMeServices(remembered)) {
+				new MockRememberMeServices(this.remembered)) {
 			protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 					AuthenticationException failed) {
 				super.onUnsuccessfulAuthentication(request, response, failed);
@@ -143,9 +143,9 @@ public class RememberMeAuthenticationFilterTests {
 	@Test
 	public void authenticationSuccessHandlerIsInvokedOnSuccessfulAuthenticationIfSet() throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(remembered)).thenReturn(remembered);
+		when(am.authenticate(this.remembered)).thenReturn(this.remembered);
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
-				new MockRememberMeServices(remembered));
+				new MockRememberMeServices(this.remembered));
 		filter.setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/target"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -168,7 +168,7 @@ public class RememberMeAuthenticationFilterTests {
 		}
 
 		public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
-			return authToReturn;
+			return this.authToReturn;
 		}
 
 		public void loginFail(HttpServletRequest request, HttpServletResponse response) {

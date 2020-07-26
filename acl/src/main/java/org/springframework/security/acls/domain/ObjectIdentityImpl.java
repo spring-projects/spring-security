@@ -69,7 +69,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 		Assert.notNull(object, "object cannot be null");
 
 		Class<?> typeClass = ClassUtils.getUserClass(object.getClass());
-		type = typeClass.getName();
+		this.type = typeClass.getName();
 
 		Object result;
 
@@ -105,30 +105,30 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 
 		ObjectIdentityImpl other = (ObjectIdentityImpl) arg0;
 
-		if (identifier instanceof Number && other.identifier instanceof Number) {
+		if (this.identifier instanceof Number && other.identifier instanceof Number) {
 			// Integers and Longs with same value should be considered equal
-			if (((Number) identifier).longValue() != ((Number) other.identifier).longValue()) {
+			if (((Number) this.identifier).longValue() != ((Number) other.identifier).longValue()) {
 				return false;
 			}
 		}
 		else {
 			// Use plain equality for other serializable types
-			if (!identifier.equals(other.identifier)) {
+			if (!this.identifier.equals(other.identifier)) {
 				return false;
 			}
 		}
 
-		return type.equals(other.type);
+		return this.type.equals(other.type);
 	}
 
 	@Override
 	public Serializable getIdentifier() {
-		return identifier;
+		return this.identifier;
 	}
 
 	@Override
 	public String getType() {
-		return type;
+		return this.type;
 	}
 
 	/**

@@ -35,7 +35,7 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 			return null;
 		}
 
-		return principalExtractor.extractPrincipal(cert);
+		return this.principalExtractor.extractPrincipal(cert);
 	}
 
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
@@ -46,15 +46,15 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 		X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
 
 		if (certs != null && certs.length > 0) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("X.509 client authentication certificate:" + certs[0]);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("X.509 client authentication certificate:" + certs[0]);
 			}
 
 			return certs[0];
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("No client certificate found in request.");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("No client certificate found in request.");
 		}
 
 		return null;

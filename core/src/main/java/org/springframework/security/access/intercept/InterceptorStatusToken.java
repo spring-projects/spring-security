@@ -49,19 +49,19 @@ public class InterceptorStatusToken {
 	}
 
 	public Collection<ConfigAttribute> getAttributes() {
-		return attr;
+		return this.attr;
 	}
 
 	public SecurityContext getSecurityContext() {
-		return securityContext;
+		return this.securityContext;
 	}
 
 	public Object getSecureObject() {
-		return secureObject;
+		return this.secureObject;
 	}
 
 	public boolean isContextHolderRefreshRequired() {
-		return contextHolderRefreshRequired;
+		return this.contextHolderRefreshRequired;
 	}
 
 }

@@ -47,12 +47,12 @@ final class SecureRandomBytesKeyGenerator implements BytesKeyGenerator {
 	}
 
 	public int getKeyLength() {
-		return keyLength;
+		return this.keyLength;
 	}
 
 	public byte[] generateKey() {
-		byte[] bytes = new byte[keyLength];
-		random.nextBytes(bytes);
+		byte[] bytes = new byte[this.keyLength];
+		this.random.nextBytes(bytes);
 		return bytes;
 	}
 

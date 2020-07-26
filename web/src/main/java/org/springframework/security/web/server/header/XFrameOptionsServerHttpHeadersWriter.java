@@ -39,7 +39,7 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return delegate.writeHttpHeaders(exchange);
+		return this.delegate.writeHttpHeaders(exchange);
 	}
 
 	/**

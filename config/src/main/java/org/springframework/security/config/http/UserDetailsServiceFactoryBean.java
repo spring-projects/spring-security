@@ -46,7 +46,7 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 			return getUserDetailsService();
 		}
 
-		return (UserDetailsService) beanFactory.getBean(id);
+		return (UserDetailsService) this.beanFactory.getBean(id);
 	}
 
 	UserDetailsService cachingUserDetailsService(String id) {
@@ -56,11 +56,11 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 		// Overwrite with the caching version if available
 		String cachingId = id + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
 
-		if (beanFactory.containsBeanDefinition(cachingId)) {
-			return (UserDetailsService) beanFactory.getBean(cachingId);
+		if (this.beanFactory.containsBeanDefinition(cachingId)) {
+			return (UserDetailsService) this.beanFactory.getBean(cachingId);
 		}
 
-		return (UserDetailsService) beanFactory.getBean(id);
+		return (UserDetailsService) this.beanFactory.getBean(id);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -81,7 +81,7 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 			uds = getUserDetailsService();
 		}
 		else {
-			Object bean = beanFactory.getBean(name);
+			Object bean = this.beanFactory.getBean(name);
 
 			if (bean instanceof AuthenticationUserDetailsService) {
 				return (AuthenticationUserDetailsService) bean;
@@ -131,11 +131,11 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 	}
 
 	private Map<String, ?> getBeansOfType(Class<?> type) {
-		Map<String, ?> beans = beanFactory.getBeansOfType(type);
+		Map<String, ?> beans = this.beanFactory.getBeansOfType(type);
 
 		// Check ancestor bean factories if they exist and the current one has none of the
 		// required type
-		BeanFactory parent = beanFactory.getParentBeanFactory();
+		BeanFactory parent = this.beanFactory.getParentBeanFactory();
 		while (parent != null && beans.size() == 0) {
 			if (parent instanceof ListableBeanFactory) {
 				beans = ((ListableBeanFactory) parent).getBeansOfType(type);

@@ -51,37 +51,37 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		headerWriter = new DelegatingRequestMatcherHeaderWriter(matcher, delegate);
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.headerWriter = new DelegatingRequestMatcherHeaderWriter(this.matcher, this.delegate);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullRequestMatcher() {
-		new DelegatingRequestMatcherHeaderWriter(null, delegate);
+		new DelegatingRequestMatcherHeaderWriter(null, this.delegate);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullDelegate() {
-		new DelegatingRequestMatcherHeaderWriter(matcher, null);
+		new DelegatingRequestMatcherHeaderWriter(this.matcher, null);
 	}
 
 	@Test
 	public void writeHeadersOnMatch() {
-		when(matcher.matches(request)).thenReturn(true);
+		when(this.matcher.matches(this.request)).thenReturn(true);
 
-		headerWriter.writeHeaders(request, response);
+		this.headerWriter.writeHeaders(this.request, this.response);
 
-		verify(delegate).writeHeaders(request, response);
+		verify(this.delegate).writeHeaders(this.request, this.response);
 	}
 
 	@Test
 	public void writeHeadersOnNoMatch() {
-		when(matcher.matches(request)).thenReturn(false);
+		when(this.matcher.matches(this.request)).thenReturn(false);
 
-		headerWriter.writeHeaders(request, response);
+		this.headerWriter.writeHeaders(this.request, this.response);
 
-		verify(delegate, times(0)).writeHeaders(request, response);
+		verify(this.delegate, times(0)).writeHeaders(this.request, this.response);
 	}
 
 }

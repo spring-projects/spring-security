@@ -47,23 +47,23 @@ public class RunAsImplAuthenticationProvider implements InitializingBean, Authen
 	private String key;
 
 	public void afterPropertiesSet() {
-		Assert.notNull(key, "A Key is required and should match that configured for the RunAsManagerImpl");
+		Assert.notNull(this.key, "A Key is required and should match that configured for the RunAsManagerImpl");
 	}
 
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		RunAsUserToken token = (RunAsUserToken) authentication;
 
-		if (token.getKeyHash() == key.hashCode()) {
+		if (token.getKeyHash() == this.key.hashCode()) {
 			return authentication;
 		}
 		else {
-			throw new BadCredentialsException(messages.getMessage("RunAsImplAuthenticationProvider.incorrectKey",
+			throw new BadCredentialsException(this.messages.getMessage("RunAsImplAuthenticationProvider.incorrectKey",
 					"The presented RunAsUserToken does not contain the expected key"));
 		}
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	public void setKey(String key) {

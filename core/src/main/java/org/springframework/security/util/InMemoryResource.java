@@ -54,12 +54,12 @@ public class InMemoryResource extends AbstractResource {
 
 	@Override
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	@Override
 	public InputStream getInputStream() {
-		return new ByteArrayInputStream(source);
+		return new ByteArrayInputStream(this.source);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class InMemoryResource extends AbstractResource {
 			return false;
 		}
 
-		return Arrays.equals(source, ((InMemoryResource) res).source);
+		return Arrays.equals(this.source, ((InMemoryResource) res).source);
 	}
 
 }

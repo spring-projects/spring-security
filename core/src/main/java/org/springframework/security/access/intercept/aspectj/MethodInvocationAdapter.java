@@ -41,19 +41,19 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 	MethodInvocationAdapter(JoinPoint jp) {
 		this.jp = (ProceedingJoinPoint) jp;
 		if (jp.getTarget() != null) {
-			target = jp.getTarget();
+			this.target = jp.getTarget();
 		}
 		else {
 			// SEC-1295: target may be null if an ITD is in use
-			target = jp.getSignature().getDeclaringType();
+			this.target = jp.getSignature().getDeclaringType();
 		}
 		String targetMethodName = jp.getStaticPart().getSignature().getName();
 		Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
 		Class<?> declaringType = jp.getStaticPart().getSignature().getDeclaringType();
 
-		method = findMethod(targetMethodName, declaringType, types);
+		this.method = findMethod(targetMethodName, declaringType, types);
 
-		if (method == null) {
+		if (this.method == null) {
 			throw new IllegalArgumentException("Could not obtain target method from JoinPoint: '" + jp + "'");
 		}
 	}
@@ -79,23 +79,23 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 	}
 
 	public Method getMethod() {
-		return method;
+		return this.method;
 	}
 
 	public Object[] getArguments() {
-		return jp.getArgs();
+		return this.jp.getArgs();
 	}
 
 	public AccessibleObject getStaticPart() {
-		return method;
+		return this.method;
 	}
 
 	public Object getThis() {
-		return target;
+		return this.target;
 	}
 
 	public Object proceed() throws Throwable {
-		return jp.proceed();
+		return this.jp.proceed();
 	}
 
 }

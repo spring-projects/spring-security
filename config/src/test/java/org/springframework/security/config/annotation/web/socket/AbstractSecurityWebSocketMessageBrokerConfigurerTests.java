@@ -91,15 +91,15 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 	@Before
 	public void setup() {
-		token = new DefaultCsrfToken("header", "param", "token");
-		sessionAttr = "sessionAttr";
-		messageUser = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
+		this.token = new DefaultCsrfToken("header", "param", "token");
+		this.sessionAttr = "sessionAttr";
+		this.messageUser = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
 	}
 
 	@After
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -122,7 +122,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	public void annonymousSupported() {
 		loadConfig(SockJsSecurityConfig.class);
 
-		messageUser = null;
+		this.messageUser = null;
 		clientInboundChannel().send(message("/permitAll"));
 	}
 
@@ -131,7 +131,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	public void beanResolver() {
 		loadConfig(SockJsSecurityConfig.class);
 
-		messageUser = null;
+		this.messageUser = null;
 		clientInboundChannel().send(message("/beanResolver"));
 	}
 
@@ -143,8 +143,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		Message<String> message = message("/permitAll/authentication");
 		messageChannel.send(message);
 
-		assertThat(context.getBean(MyController.class).authenticationPrincipal)
-				.isEqualTo((String) messageUser.getPrincipal());
+		assertThat(this.context.getBean(MyController.class).authenticationPrincipal)
+				.isEqualTo((String) this.messageUser.getPrincipal());
 	}
 
 	@Test
@@ -155,8 +155,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		Message<String> message = message("/permitAll/authentication");
 		messageChannel.send(message);
 
-		assertThat(context.getBean(MyController.class).authenticationPrincipal)
-				.isEqualTo((String) messageUser.getPrincipal());
+		assertThat(this.context.getBean(MyController.class).authenticationPrincipal)
+				.isEqualTo((String) this.messageUser.getPrincipal());
 	}
 
 	@Test
@@ -209,7 +209,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		loadConfig(SockJsProxylessSecurityConfig.class);
 
 		MessageChannel messageChannel = clientInboundChannel();
-		CsrfChannelInterceptor csrfChannelInterceptor = context.getBean(CsrfChannelInterceptor.class);
+		CsrfChannelInterceptor csrfChannelInterceptor = this.context.getBean(CsrfChannelInterceptor.class);
 
 		assertThat(((AbstractMessageChannel) messageChannel).getInterceptors()).contains(csrfChannelInterceptor);
 	}
@@ -432,8 +432,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 		loadConfig(SockJsProxylessSecurityConfig.class);
 
-		ChannelSecurityInterceptor channelSecurityInterceptor = context.getBean(ChannelSecurityInterceptor.class);
-		MessageSecurityMetadataSource messageSecurityMetadataSource = context
+		ChannelSecurityInterceptor channelSecurityInterceptor = this.context.getBean(ChannelSecurityInterceptor.class);
+		MessageSecurityMetadataSource messageSecurityMetadataSource = this.context
 				.getBean(MessageSecurityMetadataSource.class);
 
 		assertThat(channelSecurityInterceptor.obtainSecurityMetadataSource()).isSameAs(messageSecurityMetadataSource);
@@ -444,7 +444,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		loadConfig(SockJsProxylessSecurityConfig.class);
 
 		MessageChannel messageChannel = clientInboundChannel();
-		SecurityContextChannelInterceptor securityContextChannelInterceptor = context
+		SecurityContextChannelInterceptor securityContextChannelInterceptor = this.context
 				.getBean(SecurityContextChannelInterceptor.class);
 
 		assertThat(((AbstractMessageChannel) messageChannel).getInterceptors())
@@ -456,7 +456,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		loadConfig(SockJsProxylessSecurityConfig.class);
 
 		MessageChannel messageChannel = clientInboundChannel();
-		ChannelSecurityInterceptor inboundChannelSecurity = context.getBean(ChannelSecurityInterceptor.class);
+		ChannelSecurityInterceptor inboundChannelSecurity = this.context.getBean(ChannelSecurityInterceptor.class);
 
 		assertThat(((AbstractMessageChannel) messageChannel).getInterceptors()).contains(inboundChannelSecurity);
 	}
@@ -512,14 +512,14 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	private void assertHandshake(HttpServletRequest request) {
-		TestHandshakeHandler handshakeHandler = context.getBean(TestHandshakeHandler.class);
-		assertThat(handshakeHandler.attributes.get(CsrfToken.class.getName())).isSameAs(token);
-		assertThat(handshakeHandler.attributes.get(sessionAttr))
-				.isEqualTo(request.getSession().getAttribute(sessionAttr));
+		TestHandshakeHandler handshakeHandler = this.context.getBean(TestHandshakeHandler.class);
+		assertThat(handshakeHandler.attributes.get(CsrfToken.class.getName())).isSameAs(this.token);
+		assertThat(handshakeHandler.attributes.get(this.sessionAttr))
+				.isEqualTo(request.getSession().getAttribute(this.sessionAttr));
 	}
 
 	private HttpRequestHandler handler(HttpServletRequest request) throws Exception {
-		HandlerMapping handlerMapping = context.getBean(HandlerMapping.class);
+		HandlerMapping handlerMapping = this.context.getBean(HandlerMapping.class);
 		return (HttpRequestHandler) handlerMapping.getHandler(request).getHandler();
 	}
 
@@ -534,9 +534,9 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		request.setMethod("GET");
 		request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "/289/tpyx6mde/websocket");
 		request.setRequestURI(mapping + "/289/tpyx6mde/websocket");
-		request.getSession().setAttribute(sessionAttr, "sessionValue");
+		request.getSession().setAttribute(this.sessionAttr, "sessionValue");
 
-		request.setAttribute(CsrfToken.class.getName(), token);
+		request.setAttribute(CsrfToken.class.getName(), this.token);
 		return request;
 	}
 
@@ -551,21 +551,21 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		if (destination != null) {
 			headers.setDestination(destination);
 		}
-		if (messageUser != null) {
-			headers.setUser(messageUser);
+		if (this.messageUser != null) {
+			headers.setUser(this.messageUser);
 		}
 		return new GenericMessage<>("hi", headers.getMessageHeaders());
 	}
 
 	private MessageChannel clientInboundChannel() {
-		return context.getBean("clientInboundChannel", MessageChannel.class);
+		return this.context.getBean("clientInboundChannel", MessageChannel.class);
 	}
 
 	private void loadConfig(Class<?>... configs) {
-		context = new AnnotationConfigWebApplicationContext();
-		context.register(configs);
-		context.setServletConfig(new MockServletConfig());
-		context.refresh();
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.setServletConfig(new MockServletConfig());
+		this.context.refresh();
 	}
 
 	@Controller
@@ -674,8 +674,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 			private boolean check;
 
 			public boolean check() {
-				check = !check;
-				return check;
+				this.check = !this.check;
+				return this.check;
 			}
 
 		}
@@ -755,8 +755,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		private ApplicationContext context;
 
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			registry.addEndpoint("/chat").setHandshakeHandler(context.getBean(TestHandshakeHandler.class)).withSockJS()
-					.setInterceptors(new HttpSessionHandshakeInterceptor());
+			registry.addEndpoint("/chat").setHandshakeHandler(this.context.getBean(TestHandshakeHandler.class))
+					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
 		}
 
 		@Autowired

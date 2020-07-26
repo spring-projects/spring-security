@@ -50,13 +50,13 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "1234",
 				Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
-		String actualJson = mapper.writeValueAsString(context);
+		String actualJson = this.mapper.writeValueAsString(context);
 		JSONAssert.assertEquals(SECURITY_CONTEXT_JSON, actualJson, true);
 	}
 
 	@Test
 	public void securityContextDeserializeTest() throws IOException {
-		SecurityContext context = mapper.readValue(SECURITY_CONTEXT_JSON, SecurityContextImpl.class);
+		SecurityContext context = this.mapper.readValue(SECURITY_CONTEXT_JSON, SecurityContextImpl.class);
 		assertThat(context).isNotNull();
 		assertThat(context.getAuthentication()).isNotNull().isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getPrincipal()).isEqualTo("admin");

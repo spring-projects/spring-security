@@ -91,7 +91,7 @@ final class AutowireBeanFactoryObjectPostProcessor
 	 */
 	@Override
 	public void afterSingletonsInstantiated() {
-		for (SmartInitializingSingleton singleton : smartSingletons) {
+		for (SmartInitializingSingleton singleton : this.smartSingletons) {
 			singleton.afterSingletonsInstantiated();
 		}
 	}

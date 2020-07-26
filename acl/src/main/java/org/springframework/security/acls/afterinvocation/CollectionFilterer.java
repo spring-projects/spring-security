@@ -48,7 +48,7 @@ class CollectionFilterer<T> implements Filterer<T> {
 		// to the method may not necessarily be re-constructable (as
 		// the Collection(collection) constructor is not guaranteed and
 		// manually adding may lose sort order or other capabilities)
-		removeList = new HashSet<>();
+		this.removeList = new HashSet<>();
 	}
 
 	/**
@@ -57,20 +57,20 @@ class CollectionFilterer<T> implements Filterer<T> {
 	 */
 	public Object getFilteredObject() {
 		// Now the Iterator has ended, remove Objects from Collection
-		Iterator<T> removeIter = removeList.iterator();
+		Iterator<T> removeIter = this.removeList.iterator();
 
-		int originalSize = collection.size();
+		int originalSize = this.collection.size();
 
 		while (removeIter.hasNext()) {
-			collection.remove(removeIter.next());
+			this.collection.remove(removeIter.next());
 		}
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Original collection contained " + originalSize + " elements; now contains "
-					+ collection.size() + " elements");
+					+ this.collection.size() + " elements");
 		}
 
-		return collection;
+		return this.collection;
 	}
 
 	/**
@@ -78,7 +78,7 @@ class CollectionFilterer<T> implements Filterer<T> {
 	 * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
 	 */
 	public Iterator<T> iterator() {
-		return collection.iterator();
+		return this.collection.iterator();
 	}
 
 	/**
@@ -86,7 +86,7 @@ class CollectionFilterer<T> implements Filterer<T> {
 	 * @see org.springframework.security.acls.afterinvocation.Filterer#remove(java.lang.Object)
 	 */
 	public void remove(T object) {
-		removeList.add(object);
+		this.removeList.add(object);
 	}
 
 }

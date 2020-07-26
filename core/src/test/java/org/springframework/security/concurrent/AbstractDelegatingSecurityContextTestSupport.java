@@ -68,23 +68,23 @@ public abstract class AbstractDelegatingSecurityContextTestSupport {
 
 	public final void explicitSecurityContextPowermockSetup() throws Exception {
 		spy(DelegatingSecurityContextCallable.class);
-		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create", eq(callable),
-				securityContextCaptor.capture());
+		doReturn(this.wrappedCallable).when(DelegatingSecurityContextCallable.class, "create", eq(this.callable),
+				this.securityContextCaptor.capture());
 		spy(DelegatingSecurityContextRunnable.class);
-		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create", eq(runnable),
-				securityContextCaptor.capture());
+		doReturn(this.wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create", eq(this.runnable),
+				this.securityContextCaptor.capture());
 	}
 
 	public final void currentSecurityContextPowermockSetup() throws Exception {
 		spy(DelegatingSecurityContextCallable.class);
-		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create", callable, null);
+		doReturn(this.wrappedCallable).when(DelegatingSecurityContextCallable.class, "create", this.callable, null);
 		spy(DelegatingSecurityContextRunnable.class);
-		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create", runnable, null);
+		doReturn(this.wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create", this.runnable, null);
 	}
 
 	@Before
 	public final void setContext() {
-		SecurityContextHolder.setContext(currentSecurityContext);
+		SecurityContextHolder.setContext(this.currentSecurityContext);
 	}
 
 	@After

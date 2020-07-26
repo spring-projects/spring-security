@@ -178,19 +178,19 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * .servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		if (requestMatcher.matches(request)) {
-			if (!pins.isEmpty()) {
-				String headerName = reportOnly ? HPKP_RO_HEADER_NAME : HPKP_HEADER_NAME;
+		if (this.requestMatcher.matches(request)) {
+			if (!this.pins.isEmpty()) {
+				String headerName = this.reportOnly ? HPKP_RO_HEADER_NAME : HPKP_HEADER_NAME;
 				if (!response.containsHeader(headerName)) {
-					response.setHeader(headerName, hpkpHeaderValue);
+					response.setHeader(headerName, this.hpkpHeaderValue);
 				}
 			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Not injecting HPKP header since there aren't any pins");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Not injecting HPKP header since there aren't any pins");
 			}
 		}
-		else if (logger.isDebugEnabled()) {
-			logger.debug("Not injecting HPKP header since it wasn't a secure connection");
+		else if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Not injecting HPKP header since it wasn't a secure connection");
 		}
 	}
 
@@ -426,14 +426,14 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	}
 
 	private void updateHpkpHeaderValue() {
-		String headerValue = "max-age=" + maxAgeInSeconds;
-		for (Map.Entry<String, String> pin : pins.entrySet()) {
+		String headerValue = "max-age=" + this.maxAgeInSeconds;
+		for (Map.Entry<String, String> pin : this.pins.entrySet()) {
 			headerValue += " ; pin-" + pin.getValue() + "=\"" + pin.getKey() + "\"";
 		}
-		if (reportUri != null) {
-			headerValue += " ; report-uri=\"" + reportUri.toString() + "\"";
+		if (this.reportUri != null) {
+			headerValue += " ; report-uri=\"" + this.reportUri.toString() + "\"";
 		}
-		if (includeSubDomains) {
+		if (this.includeSubDomains) {
 			headerValue += " ; includeSubDomains";
 		}
 		this.hpkpHeaderValue = headerValue;

@@ -70,24 +70,24 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	public ServletApiConfigurer<H> rolePrefix(String rolePrefix) {
-		securityContextRequestFilter.setRolePrefix(rolePrefix);
+		this.securityContextRequestFilter.setRolePrefix(rolePrefix);
 		return this;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void configure(H http) {
-		securityContextRequestFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+		this.securityContextRequestFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
 		ExceptionHandlingConfigurer<H> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null
 				: exceptionConf.getAuthenticationEntryPoint(http);
-		securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
+		this.securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
 		LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
 		List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf.getLogoutHandlers();
-		securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
+		this.securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
 		AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
-			securityContextRequestFilter.setTrustResolver(trustResolver);
+			this.securityContextRequestFilter.setTrustResolver(trustResolver);
 		}
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 		if (context != null) {
@@ -95,11 +95,11 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
 			if (grantedAuthorityDefaultsBeanNames.length == 1) {
 				GrantedAuthorityDefaults grantedAuthorityDefaults = context
 						.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
-				securityContextRequestFilter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+				this.securityContextRequestFilter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 			}
 		}
-		securityContextRequestFilter = postProcess(securityContextRequestFilter);
-		http.addFilter(securityContextRequestFilter);
+		this.securityContextRequestFilter = postProcess(this.securityContextRequestFilter);
+		http.addFilter(this.securityContextRequestFilter);
 	}
 
 }

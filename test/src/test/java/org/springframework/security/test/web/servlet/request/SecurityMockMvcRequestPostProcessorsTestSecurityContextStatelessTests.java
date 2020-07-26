@@ -57,14 +57,14 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextStatelessTes
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).addFilters(springSecurityFilterChain)
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).addFilters(this.springSecurityFilterChain)
 				.defaultRequest(get("/").with(testSecurityContext())).build();
 	}
 
 	@Test
 	@WithMockUser
 	public void testSecurityContextWithMockUserWorksWithStateless() throws Exception {
-		mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
+		this.mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
 	}
 
 	@EnableWebSecurity

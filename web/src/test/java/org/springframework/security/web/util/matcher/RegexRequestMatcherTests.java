@@ -115,9 +115,9 @@ public class RegexRequestMatcherTests {
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {
-		when(request.getQueryString()).thenReturn("doesntMatter");
-		when(request.getServletPath()).thenReturn(path);
-		return request;
+		when(this.request.getQueryString()).thenReturn("doesntMatter");
+		when(this.request.getServletPath()).thenReturn(path);
+		return this.request;
 	}
 
 }

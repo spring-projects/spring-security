@@ -38,7 +38,7 @@ public final class DelegatingApplicationListener implements ApplicationListener<
 		if (event == null) {
 			return;
 		}
-		for (SmartApplicationListener listener : listeners) {
+		for (SmartApplicationListener listener : this.listeners) {
 			Object source = event.getSource();
 			if (source != null && listener.supportsEventType(event.getClass())
 					&& listener.supportsSourceType(source.getClass())) {
@@ -54,7 +54,7 @@ public final class DelegatingApplicationListener implements ApplicationListener<
 	 */
 	public void addListener(SmartApplicationListener smartApplicationListener) {
 		Assert.notNull(smartApplicationListener, "smartApplicationListener cannot be null");
-		listeners.add(smartApplicationListener);
+		this.listeners.add(smartApplicationListener);
 	}
 
 }

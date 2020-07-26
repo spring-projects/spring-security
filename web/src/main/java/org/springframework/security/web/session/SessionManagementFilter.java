@@ -85,20 +85,20 @@ public class SessionManagementFilter extends GenericFilterBean {
 
 		request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
-		if (!securityContextRepository.containsContext(request)) {
+		if (!this.securityContextRepository.containsContext(request)) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-			if (authentication != null && !trustResolver.isAnonymous(authentication)) {
+			if (authentication != null && !this.trustResolver.isAnonymous(authentication)) {
 				// The user has been authenticated during the current request, so call the
 				// session strategy
 				try {
-					sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
+					this.sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
 				}
 				catch (SessionAuthenticationException e) {
 					// The session strategy can reject the authentication
-					logger.debug("SessionAuthenticationStrategy rejected the authentication object", e);
+					this.logger.debug("SessionAuthenticationStrategy rejected the authentication object", e);
 					SecurityContextHolder.clearContext();
-					failureHandler.onAuthenticationFailure(request, response, e);
+					this.failureHandler.onAuthenticationFailure(request, response, e);
 
 					return;
 				}
@@ -106,18 +106,18 @@ public class SessionManagementFilter extends GenericFilterBean {
 				// re-entrant
 				// requests which may occur before the current request completes.
 				// SEC-1396.
-				securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
+				this.securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
 			}
 			else {
 				// No security context or authentication present. Check for a session
 				// timeout
 				if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Requested session ID " + request.getRequestedSessionId() + " is invalid.");
+					if (this.logger.isDebugEnabled()) {
+						this.logger.debug("Requested session ID " + request.getRequestedSessionId() + " is invalid.");
 					}
 
-					if (invalidSessionStrategy != null) {
-						invalidSessionStrategy.onInvalidSessionDetected(request, response);
+					if (this.invalidSessionStrategy != null) {
+						this.invalidSessionStrategy.onInvalidSessionDetected(request, response);
 						return;
 					}
 				}

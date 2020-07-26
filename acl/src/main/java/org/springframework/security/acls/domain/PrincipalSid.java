@@ -62,7 +62,7 @@ public class PrincipalSid implements Sid {
 	}
 
 	public String getPrincipal() {
-		return principal;
+		return this.principal;
 	}
 
 	@Override

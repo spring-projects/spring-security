@@ -106,8 +106,8 @@ public class SecurityNamespaceHandlerTests {
 	@Test
 	public void filterNoClassDefFoundError() throws Exception {
 		String className = "javax.servlet.Filter";
-		thrown.expect(BeanDefinitionParsingException.class);
-		thrown.expectMessage("NoClassDefFoundError: " + className);
+		this.thrown.expect(BeanDefinitionParsingException.class);
+		this.thrown.expectMessage("NoClassDefFoundError: " + className);
 		spy(ClassUtils.class);
 		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName", eq(FILTER_CHAIN_PROXY_CLASSNAME),
 				any(ClassLoader.class));
@@ -127,8 +127,8 @@ public class SecurityNamespaceHandlerTests {
 	@Test
 	public void filterChainProxyClassNotFoundException() throws Exception {
 		String className = FILTER_CHAIN_PROXY_CLASSNAME;
-		thrown.expect(BeanDefinitionParsingException.class);
-		thrown.expectMessage("ClassNotFoundException: " + className);
+		this.thrown.expect(BeanDefinitionParsingException.class);
+		this.thrown.expectMessage("ClassNotFoundException: " + className);
 		spy(ClassUtils.class);
 		doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName",
 				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));

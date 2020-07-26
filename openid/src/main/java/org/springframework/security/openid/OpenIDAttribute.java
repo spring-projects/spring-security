@@ -63,14 +63,14 @@ public class OpenIDAttribute implements Serializable {
 	 * The attribute name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
 	 * The attribute type Identifier (a URI).
 	 */
 	public String getType() {
-		return typeIdentifier;
+		return this.typeIdentifier;
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class OpenIDAttribute implements Serializable {
 	 * Defaults to "false".
 	 */
 	public boolean isRequired() {
-		return required;
+		return this.required;
 	}
 
 	public void setRequired(boolean required) {
@@ -90,7 +90,7 @@ public class OpenIDAttribute implements Serializable {
 	 * request. Defaults to 1.
 	 */
 	public int getCount() {
-		return count;
+		return this.count;
 	}
 
 	public void setCount(int count) {
@@ -101,17 +101,17 @@ public class OpenIDAttribute implements Serializable {
 	 * The values obtained from an attribute exchange.
 	 */
 	public List<String> getValues() {
-		Assert.notNull(values, "Cannot read values from an authentication request attribute");
-		return values;
+		Assert.notNull(this.values, "Cannot read values from an authentication request attribute");
+		return this.values;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder("[");
-		result.append(name);
-		if (values != null) {
+		result.append(this.name);
+		if (this.values != null) {
 			result.append(":");
-			result.append(values.toString());
+			result.append(this.values.toString());
 		}
 		result.append("]");
 		return result.toString();

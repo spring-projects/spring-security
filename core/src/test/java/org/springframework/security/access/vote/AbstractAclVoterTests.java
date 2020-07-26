@@ -45,23 +45,23 @@ public class AbstractAclVoterTests {
 
 	@Test
 	public void supportsMethodInvocations() {
-		assertThat(voter.supports(MethodInvocation.class)).isTrue();
-		assertThat(voter.supports(String.class)).isFalse();
+		assertThat(this.voter.supports(MethodInvocation.class)).isTrue();
+		assertThat(this.voter.supports(String.class)).isFalse();
 	}
 
 	@Test
 	public void expectedDomainObjectArgumentIsReturnedFromMethodInvocation() {
-		voter.setProcessDomainObjectClass(String.class);
+		this.voter.setProcessDomainObjectClass(String.class);
 		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(), "methodTakingAString", "The Argument");
-		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
+		assertThat(this.voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 
 	@Test
 	public void correctArgumentIsSelectedFromMultipleArgs() {
-		voter.setProcessDomainObjectClass(String.class);
+		this.voter.setProcessDomainObjectClass(String.class);
 		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(), "methodTakingAListAndAString",
 				new ArrayList<>(), "The Argument");
-		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
+		assertThat(this.voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 
 	@SuppressWarnings("unused")

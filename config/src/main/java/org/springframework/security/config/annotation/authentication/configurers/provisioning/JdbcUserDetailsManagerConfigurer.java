@@ -150,7 +150,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 
 	@Override
 	protected void initUserDetailsService() throws Exception {
-		if (!initScripts.isEmpty()) {
+		if (!this.initScripts.isEmpty()) {
 			getDataSourceInit().afterPropertiesSet();
 		}
 		super.initUserDetailsService();
@@ -173,14 +173,14 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 
 	protected DatabasePopulator getDatabasePopulator() {
 		ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
-		dbp.setScripts(initScripts.toArray(new Resource[0]));
+		dbp.setScripts(this.initScripts.toArray(new Resource[0]));
 		return dbp;
 	}
 
 	private DataSourceInitializer getDataSourceInit() {
 		DataSourceInitializer dsi = new DataSourceInitializer();
 		dsi.setDatabasePopulator(getDatabasePopulator());
-		dsi.setDataSource(dataSource);
+		dsi.setDataSource(this.dataSource);
 		return dsi;
 	}
 

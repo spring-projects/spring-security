@@ -152,7 +152,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
 		this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
 		this.url = url;
-		rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
+		this.rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
 	}
 
 	@Override
@@ -169,7 +169,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 			throw badLdapConnection(e);
 		}
 		catch (NamingException e) {
-			logger.error("Failed to locate directory entry for authenticated user: " + username, e);
+			this.logger.error("Failed to locate directory entry for authenticated user: " + username, e);
 			throw badCredentials(e);
 		}
 		finally {
@@ -187,13 +187,13 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		String[] groups = userData.getStringAttributes("memberOf");
 
 		if (groups == null) {
-			logger.debug("No values for 'memberOf' attribute.");
+			this.logger.debug("No values for 'memberOf' attribute.");
 
 			return AuthorityUtils.NO_AUTHORITIES;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("'memberOf' attribute values: " + Arrays.asList(groups));
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("'memberOf' attribute values: " + Arrays.asList(groups));
 		}
 
 		ArrayList<GrantedAuthority> authorities = new ArrayList<>(groups.length);
@@ -207,7 +207,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	private DirContext bindAsUser(String username, String password) {
 		// TODO. add DNS lookup based on domain
-		final String bindUrl = url;
+		final String bindUrl = this.url;
 
 		Hashtable<String, Object> env = new Hashtable<>();
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -220,7 +220,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		env.putAll(this.contextEnvironmentProperties);
 
 		try {
-			return contextFactory.createContext(env);
+			return this.contextFactory.createContext(env);
 		}
 		catch (NamingException e) {
 			if ((e instanceof AuthenticationException) || (e instanceof OperationNotSupportedException)) {
@@ -234,8 +234,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	}
 
 	private void handleBindException(String bindPrincipal, NamingException exception) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication for " + bindPrincipal + " failed:" + exception);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Authentication for " + bindPrincipal + " failed:" + exception);
 		}
 
 		handleResolveObj(exception);
@@ -243,13 +243,13 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		int subErrorCode = parseSubErrorCode(exception.getMessage());
 
 		if (subErrorCode <= 0) {
-			logger.debug("Failed to locate AD-specific sub-error code in message");
+			this.logger.debug("Failed to locate AD-specific sub-error code in message");
 			return;
 		}
 
-		logger.info("Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode));
+		this.logger.info("Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode));
 
-		if (convertSubErrorCodesToExceptions) {
+		if (this.convertSubErrorCodesToExceptions) {
 			raiseExceptionForErrorCode(subErrorCode, exception);
 		}
 	}
@@ -277,17 +277,17 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		Throwable cause = new ActiveDirectoryAuthenticationException(hexString, exception.getMessage(), exception);
 		switch (code) {
 		case PASSWORD_EXPIRED:
-			throw new CredentialsExpiredException(messages.getMessage("LdapAuthenticationProvider.credentialsExpired",
-					"User credentials have expired"), cause);
+			throw new CredentialsExpiredException(this.messages.getMessage(
+					"LdapAuthenticationProvider.credentialsExpired", "User credentials have expired"), cause);
 		case ACCOUNT_DISABLED:
-			throw new DisabledException(messages.getMessage("LdapAuthenticationProvider.disabled", "User is disabled"),
-					cause);
+			throw new DisabledException(
+					this.messages.getMessage("LdapAuthenticationProvider.disabled", "User is disabled"), cause);
 		case ACCOUNT_EXPIRED:
 			throw new AccountExpiredException(
-					messages.getMessage("LdapAuthenticationProvider.expired", "User account has expired"), cause);
+					this.messages.getMessage("LdapAuthenticationProvider.expired", "User account has expired"), cause);
 		case ACCOUNT_LOCKED:
 			throw new LockedException(
-					messages.getMessage("LdapAuthenticationProvider.locked", "User account is locked"), cause);
+					this.messages.getMessage("LdapAuthenticationProvider.locked", "User account is locked"), cause);
 		default:
 			throw badCredentials(cause);
 		}
@@ -318,7 +318,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	private BadCredentialsException badCredentials() {
 		return new BadCredentialsException(
-				messages.getMessage("LdapAuthenticationProvider.badCredentials", "Bad credentials"));
+				this.messages.getMessage("LdapAuthenticationProvider.badCredentials", "Bad credentials"));
 	}
 
 	private BadCredentialsException badCredentials(Throwable cause) {
@@ -326,7 +326,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	}
 
 	private InternalAuthenticationServiceException badLdapConnection(Throwable cause) {
-		return new InternalAuthenticationServiceException(messages.getMessage(
+		return new InternalAuthenticationServiceException(this.messages.getMessage(
 				"LdapAuthenticationProvider.badLdapConnection", "Connection to LDAP server failed."), cause);
 	}
 
@@ -335,11 +335,11 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
 		String bindPrincipal = createBindPrincipal(username);
-		String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
+		String searchRoot = this.rootDn != null ? this.rootDn : searchRootFromPrincipal(bindPrincipal);
 
 		try {
 			return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context, searchControls, searchRoot,
-					searchFilter, new Object[] { bindPrincipal, username });
+					this.searchFilter, new Object[] { bindPrincipal, username });
 		}
 		catch (CommunicationException ldapCommunicationException) {
 			throw badLdapConnection(ldapCommunicationException);
@@ -361,7 +361,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		int atChar = bindPrincipal.lastIndexOf('@');
 
 		if (atChar < 0) {
-			logger.debug("User principal '" + bindPrincipal
+			this.logger.debug("User principal '" + bindPrincipal
 					+ "' does not contain the domain, and no domain has been configured");
 			throw badCredentials();
 		}
@@ -384,11 +384,11 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	}
 
 	String createBindPrincipal(String username) {
-		if (domain == null || username.toLowerCase().endsWith(domain)) {
+		if (this.domain == null || username.toLowerCase().endsWith(this.domain)) {
 			return username;
 		}
 
-		return username + "@" + domain;
+		return username + "@" + this.domain;
 	}
 
 	/**

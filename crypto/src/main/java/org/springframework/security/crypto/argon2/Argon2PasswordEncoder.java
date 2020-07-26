@@ -83,11 +83,11 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public String encode(CharSequence rawPassword) {
-		byte[] salt = saltGenerator.generateKey();
-		byte[] hash = new byte[hashLength];
+		byte[] salt = this.saltGenerator.generateKey();
+		byte[] hash = new byte[this.hashLength];
 
 		Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id).withSalt(salt)
-				.withParallelism(parallelism).withMemoryAsKB(memory).withIterations(iterations).build();
+				.withParallelism(this.parallelism).withMemoryAsKB(this.memory).withIterations(this.iterations).build();
 		Argon2BytesGenerator generator = new Argon2BytesGenerator();
 		generator.init(params);
 		generator.generateBytes(rawPassword.toString().toCharArray(), hash);
@@ -98,7 +98,7 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		if (encodedPassword == null) {
-			logger.warn("password hash is null");
+			this.logger.warn("password hash is null");
 			return false;
 		}
 
@@ -108,7 +108,7 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 			decoded = Argon2EncodingUtils.decode(encodedPassword);
 		}
 		catch (IllegalArgumentException e) {
-			logger.warn("Malformed password hash", e);
+			this.logger.warn("Malformed password hash", e);
 			return false;
 		}
 
@@ -124,7 +124,7 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 	@Override
 	public boolean upgradeEncoding(String encodedPassword) {
 		if (encodedPassword == null || encodedPassword.length() == 0) {
-			logger.warn("password hash is null");
+			this.logger.warn("password hash is null");
 			return false;
 		}
 

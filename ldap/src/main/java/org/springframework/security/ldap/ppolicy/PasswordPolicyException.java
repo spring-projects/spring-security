@@ -34,7 +34,7 @@ public class PasswordPolicyException extends RuntimeException {
 	}
 
 	public PasswordPolicyErrorStatus getStatus() {
-		return status;
+		return this.status;
 	}
 
 }

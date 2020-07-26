@@ -69,11 +69,11 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * @exception LoginException if the abort fails
 	 */
 	public boolean abort() {
-		if (authen == null) {
+		if (this.authen == null) {
 			return false;
 		}
 
-		authen = null;
+		this.authen = null;
 
 		return true;
 	}
@@ -86,21 +86,21 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * @exception LoginException if the commit fails
 	 */
 	public boolean commit() {
-		if (authen == null) {
+		if (this.authen == null) {
 			return false;
 		}
 
-		subject.getPrincipals().add(authen);
+		this.subject.getPrincipals().add(this.authen);
 
 		return true;
 	}
 
 	Authentication getAuthentication() {
-		return authen;
+		return this.authen;
 	}
 
 	Subject getSubject() {
-		return subject;
+		return this.subject;
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class SecurityContextLoginModule implements LoginModule {
 		this.subject = subject;
 
 		if (options != null) {
-			ignoreMissingAuthentication = "true".equals(options.get("ignoreMissingAuthentication"));
+			this.ignoreMissingAuthentication = "true".equals(options.get("ignoreMissingAuthentication"));
 		}
 	}
 
@@ -130,12 +130,12 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * @throws LoginException if the authentication fails
 	 */
 	public boolean login() throws LoginException {
-		authen = SecurityContextHolder.getContext().getAuthentication();
+		this.authen = SecurityContextHolder.getContext().getAuthentication();
 
-		if (authen == null) {
+		if (this.authen == null) {
 			String msg = "Login cannot complete, authentication not found in security context";
 
-			if (ignoreMissingAuthentication) {
+			if (this.ignoreMissingAuthentication) {
 				log.warn(msg);
 
 				return false;
@@ -155,12 +155,12 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * @exception LoginException if the logout fails
 	 */
 	public boolean logout() {
-		if (authen == null) {
+		if (this.authen == null) {
 			return false;
 		}
 
-		subject.getPrincipals().remove(authen);
-		authen = null;
+		this.subject.getPrincipals().remove(this.authen);
+		this.authen = null;
 
 		return true;
 	}

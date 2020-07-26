@@ -45,7 +45,7 @@ class ArrayFilterer<T> implements Filterer<T> {
 		// Collect the removed objects to a HashSet so that
 		// it is fast to lookup them when a filtered array
 		// is constructed.
-		removeList = new HashSet<>();
+		this.removeList = new HashSet<>();
 	}
 
 	/**
@@ -55,14 +55,14 @@ class ArrayFilterer<T> implements Filterer<T> {
 	@SuppressWarnings("unchecked")
 	public T[] getFilteredObject() {
 		// Recreate an array of same type and filter the removed objects.
-		int originalSize = list.length;
-		int sizeOfResultingList = originalSize - removeList.size();
-		T[] filtered = (T[]) Array.newInstance(list.getClass().getComponentType(), sizeOfResultingList);
+		int originalSize = this.list.length;
+		int sizeOfResultingList = originalSize - this.removeList.size();
+		T[] filtered = (T[]) Array.newInstance(this.list.getClass().getComponentType(), sizeOfResultingList);
 
-		for (int i = 0, j = 0; i < list.length; i++) {
-			T object = list[i];
+		for (int i = 0, j = 0; i < this.list.length; i++) {
+			T object = this.list[i];
 
-			if (!removeList.contains(object)) {
+			if (!this.removeList.contains(object)) {
 				filtered[j] = object;
 				j++;
 			}
@@ -85,14 +85,14 @@ class ArrayFilterer<T> implements Filterer<T> {
 			private int index = 0;
 
 			public boolean hasNext() {
-				return index < list.length;
+				return this.index < ArrayFilterer.this.list.length;
 			}
 
 			public T next() {
 				if (!hasNext()) {
 					throw new NoSuchElementException();
 				}
-				return list[index++];
+				return ArrayFilterer.this.list[this.index++];
 			}
 
 			public void remove() {
@@ -106,7 +106,7 @@ class ArrayFilterer<T> implements Filterer<T> {
 	 * @see org.springframework.security.acls.afterinvocation.Filterer#remove(java.lang.Object)
 	 */
 	public void remove(T object) {
-		removeList.add(object);
+		this.removeList.add(object);
 	}
 
 }

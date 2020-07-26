@@ -90,13 +90,13 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	public void afterPropertiesSet() {
-		Assert.isTrue(StringUtils.hasText(loginFormUrl) && UrlUtils.isValidRedirectUrl(loginFormUrl),
+		Assert.isTrue(StringUtils.hasText(this.loginFormUrl) && UrlUtils.isValidRedirectUrl(this.loginFormUrl),
 				"loginFormUrl must be specified and must be a valid redirect URL");
-		if (useForward && UrlUtils.isAbsoluteUrl(loginFormUrl)) {
+		if (this.useForward && UrlUtils.isAbsoluteUrl(this.loginFormUrl)) {
 			throw new IllegalArgumentException("useForward must be false if using an absolute loginFormURL");
 		}
-		Assert.notNull(portMapper, "portMapper must be specified");
-		Assert.notNull(portResolver, "portResolver must be specified");
+		Assert.notNull(this.portMapper, "portMapper must be specified");
+		Assert.notNull(this.portResolver, "portResolver must be specified");
 	}
 
 	/**
@@ -121,9 +121,9 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 		String redirectUrl = null;
 
-		if (useForward) {
+		if (this.useForward) {
 
-			if (forceHttps && "http".equals(request.getScheme())) {
+			if (this.forceHttps && "http".equals(request.getScheme())) {
 				// First redirect the current request to HTTPS.
 				// When that request is received, the forward to the login page will be
 				// used.
@@ -151,7 +151,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 		}
 
-		redirectStrategy.sendRedirect(request, response, redirectUrl);
+		this.redirectStrategy.sendRedirect(request, response, redirectUrl);
 	}
 
 	protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,
@@ -163,7 +163,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 			return loginForm;
 		}
 
-		int serverPort = portResolver.getServerPort(request);
+		int serverPort = this.portResolver.getServerPort(request);
 		String scheme = request.getScheme();
 
 		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
@@ -174,8 +174,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		urlBuilder.setContextPath(request.getContextPath());
 		urlBuilder.setPathInfo(loginForm);
 
-		if (forceHttps && "http".equals(scheme)) {
-			Integer httpsPort = portMapper.lookupHttpsPort(serverPort);
+		if (this.forceHttps && "http".equals(scheme)) {
+			Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
 
 			if (httpsPort != null) {
 				// Overwrite scheme and port in the redirect URL
@@ -196,8 +196,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	 */
 	protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request) throws IOException, ServletException {
 
-		int serverPort = portResolver.getServerPort(request);
-		Integer httpsPort = portMapper.lookupHttpsPort(serverPort);
+		int serverPort = this.portResolver.getServerPort(request);
+		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
 
 		if (httpsPort != null) {
 			RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
@@ -230,11 +230,11 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	protected boolean isForceHttps() {
-		return forceHttps;
+		return this.forceHttps;
 	}
 
 	public String getLoginFormUrl() {
-		return loginFormUrl;
+		return this.loginFormUrl;
 	}
 
 	public void setPortMapper(PortMapper portMapper) {
@@ -243,7 +243,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	protected PortMapper getPortMapper() {
-		return portMapper;
+		return this.portMapper;
 	}
 
 	public void setPortResolver(PortResolver portResolver) {
@@ -252,7 +252,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	protected PortResolver getPortResolver() {
-		return portResolver;
+		return this.portResolver;
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	protected boolean isUseForward() {
-		return useForward;
+		return this.useForward;
 	}
 
 }

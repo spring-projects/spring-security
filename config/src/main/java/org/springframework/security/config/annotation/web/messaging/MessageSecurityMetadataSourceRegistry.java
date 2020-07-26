@@ -231,7 +231,7 @@ public class MessageSecurityMetadataSourceRegistry {
 			matcherToExpression.put(entry.getKey().build(), entry.getValue());
 		}
 		return ExpressionBasedMessageSecurityMetadataSourceFactory
-				.createExpressionMessageMetadataSource(matcherToExpression, expressionHandler);
+				.createExpressionMessageMetadataSource(matcherToExpression, this.expressionHandler);
 	}
 
 	/**
@@ -378,8 +378,8 @@ public class MessageSecurityMetadataSourceRegistry {
 		 * customization
 		 */
 		public MessageSecurityMetadataSourceRegistry access(String attribute) {
-			for (MatcherBuilder messageMatcher : messageMatchers) {
-				matcherToExpression.put(messageMatcher, attribute);
+			for (MatcherBuilder messageMatcher : this.messageMatchers) {
+				MessageSecurityMetadataSourceRegistry.this.matcherToExpression.put(messageMatcher, attribute);
 			}
 			return MessageSecurityMetadataSourceRegistry.this;
 		}
@@ -418,7 +418,7 @@ public class MessageSecurityMetadataSourceRegistry {
 		}
 
 		public MessageMatcher<?> build() {
-			return matcher;
+			return this.matcher;
 		}
 
 	}
@@ -435,16 +435,19 @@ public class MessageSecurityMetadataSourceRegistry {
 		}
 
 		public MessageMatcher<?> build() {
-			if (type == null) {
-				return new SimpDestinationMessageMatcher(pattern, pathMatcher);
+			if (this.type == null) {
+				return new SimpDestinationMessageMatcher(this.pattern,
+						MessageSecurityMetadataSourceRegistry.this.pathMatcher);
 			}
-			else if (SimpMessageType.MESSAGE == type) {
-				return SimpDestinationMessageMatcher.createMessageMatcher(pattern, pathMatcher);
+			else if (SimpMessageType.MESSAGE == this.type) {
+				return SimpDestinationMessageMatcher.createMessageMatcher(this.pattern,
+						MessageSecurityMetadataSourceRegistry.this.pathMatcher);
 			}
-			else if (SimpMessageType.SUBSCRIBE == type) {
-				return SimpDestinationMessageMatcher.createSubscribeMatcher(pattern, pathMatcher);
+			else if (SimpMessageType.SUBSCRIBE == this.type) {
+				return SimpDestinationMessageMatcher.createSubscribeMatcher(this.pattern,
+						MessageSecurityMetadataSourceRegistry.this.pathMatcher);
 			}
-			throw new IllegalStateException(type + " is not supported since it does not have a destination");
+			throw new IllegalStateException(this.type + " is not supported since it does not have a destination");
 		}
 
 	}
@@ -460,31 +463,31 @@ public class MessageSecurityMetadataSourceRegistry {
 		private PathMatcher delegate = new AntPathMatcher();
 
 		public boolean isPattern(String path) {
-			return delegate.isPattern(path);
+			return this.delegate.isPattern(path);
 		}
 
 		public boolean match(String pattern, String path) {
-			return delegate.match(pattern, path);
+			return this.delegate.match(pattern, path);
 		}
 
 		public boolean matchStart(String pattern, String path) {
-			return delegate.matchStart(pattern, path);
+			return this.delegate.matchStart(pattern, path);
 		}
 
 		public String extractPathWithinPattern(String pattern, String path) {
-			return delegate.extractPathWithinPattern(pattern, path);
+			return this.delegate.extractPathWithinPattern(pattern, path);
 		}
 
 		public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
-			return delegate.extractUriTemplateVariables(pattern, path);
+			return this.delegate.extractUriTemplateVariables(pattern, path);
 		}
 
 		public Comparator<String> getPatternComparator(String path) {
-			return delegate.getPatternComparator(path);
+			return this.delegate.getPatternComparator(path);
 		}
 
 		public String combine(String pattern1, String pattern2) {
-			return delegate.combine(pattern1, pattern2);
+			return this.delegate.combine(pattern1, pattern2);
 		}
 
 		void setPathMatcher(PathMatcher pathMatcher) {

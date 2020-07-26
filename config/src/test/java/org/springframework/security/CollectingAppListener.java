@@ -42,33 +42,33 @@ public class CollectingAppListener implements ApplicationListener {
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof AbstractAuthenticationEvent) {
-			events.add(event);
-			authenticationEvents.add((AbstractAuthenticationEvent) event);
+			this.events.add(event);
+			this.authenticationEvents.add((AbstractAuthenticationEvent) event);
 		}
 		if (event instanceof AbstractAuthenticationFailureEvent) {
-			events.add(event);
-			authenticationFailureEvents.add((AbstractAuthenticationFailureEvent) event);
+			this.events.add(event);
+			this.authenticationFailureEvents.add((AbstractAuthenticationFailureEvent) event);
 		}
 		if (event instanceof AbstractAuthorizationEvent) {
-			events.add(event);
-			authorizationEvents.add((AbstractAuthorizationEvent) event);
+			this.events.add(event);
+			this.authorizationEvents.add((AbstractAuthorizationEvent) event);
 		}
 	}
 
 	public Set<ApplicationEvent> getEvents() {
-		return events;
+		return this.events;
 	}
 
 	public Set<AbstractAuthenticationEvent> getAuthenticationEvents() {
-		return authenticationEvents;
+		return this.authenticationEvents;
 	}
 
 	public Set<AbstractAuthenticationFailureEvent> getAuthenticationFailureEvents() {
-		return authenticationFailureEvents;
+		return this.authenticationFailureEvents;
 	}
 
 	public Set<AbstractAuthorizationEvent> getAuthorizationEvents() {
-		return authorizationEvents;
+		return this.authorizationEvents;
 	}
 
 }

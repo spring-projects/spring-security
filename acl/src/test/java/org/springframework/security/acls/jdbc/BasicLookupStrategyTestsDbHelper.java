@@ -50,7 +50,7 @@ public class BasicLookupStrategyTestsDbHelper {
 		// Use a different connection url so the tests can run in parallel
 		String connectionUrl;
 		String sqlClassPathResource;
-		if (!withAclClassIdType) {
+		if (!this.withAclClassIdType) {
 			connectionUrl = "jdbc:hsqldb:mem:lookupstrategytest";
 			sqlClassPathResource = ACL_SCHEMA_SQL_FILE;
 		}
@@ -59,21 +59,21 @@ public class BasicLookupStrategyTestsDbHelper {
 			sqlClassPathResource = ACL_SCHEMA_SQL_FILE_WITH_ACL_CLASS_ID;
 
 		}
-		dataSource = new SingleConnectionDataSource(connectionUrl, "sa", "", true);
-		dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		this.dataSource = new SingleConnectionDataSource(connectionUrl, "sa", "", true);
+		this.dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
+		this.jdbcTemplate = new JdbcTemplate(this.dataSource);
 
 		Resource resource = new ClassPathResource(sqlClassPathResource);
 		String sql = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
-		jdbcTemplate.execute(sql);
+		this.jdbcTemplate.execute(sql);
 	}
 
 	public JdbcTemplate getJdbcTemplate() {
-		return jdbcTemplate;
+		return this.jdbcTemplate;
 	}
 
 	public SingleConnectionDataSource getDataSource() {
-		return dataSource;
+		return this.dataSource;
 	}
 
 }

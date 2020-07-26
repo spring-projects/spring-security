@@ -65,17 +65,17 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	 */
 	public int doStartTag() throws JspException {
 		try {
-			authorized = super.authorize();
+			this.authorized = super.authorize();
 
-			if (!authorized && TagLibConfig.isUiSecurityDisabled()) {
-				pageContext.getOut().write(TagLibConfig.getSecuredUiPrefix());
+			if (!this.authorized && TagLibConfig.isUiSecurityDisabled()) {
+				this.pageContext.getOut().write(TagLibConfig.getSecuredUiPrefix());
 			}
 
-			if (var != null) {
-				pageContext.setAttribute(var, authorized, PageContext.PAGE_SCOPE);
+			if (this.var != null) {
+				this.pageContext.setAttribute(this.var, this.authorized, PageContext.PAGE_SCOPE);
 			}
 
-			return TagLibConfig.evalOrSkip(authorized);
+			return TagLibConfig.evalOrSkip(this.authorized);
 
 		}
 		catch (IOException e) {
@@ -95,8 +95,8 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	 */
 	public int doEndTag() throws JspException {
 		try {
-			if (!authorized && TagLibConfig.isUiSecurityDisabled()) {
-				pageContext.getOut().write(TagLibConfig.getSecuredUiSuffix());
+			if (!this.authorized && TagLibConfig.isUiSecurityDisabled()) {
+				this.pageContext.getOut().write(TagLibConfig.getSecuredUiSuffix());
 			}
 		}
 		catch (IOException e) {
@@ -107,7 +107,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	}
 
 	public String getId() {
-		return id;
+		return this.id;
 	}
 
 	public void setId(String id) {
@@ -115,7 +115,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	}
 
 	public Tag getParent() {
-		return parent;
+		return this.parent;
 	}
 
 	public void setParent(Tag parent) {
@@ -123,7 +123,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	}
 
 	public String getVar() {
-		return var;
+		return this.var;
 	}
 
 	public void setVar(String var) {
@@ -131,8 +131,8 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	}
 
 	public void release() {
-		parent = null;
-		id = null;
+		this.parent = null;
+		this.id = null;
 	}
 
 	public void setPageContext(PageContext pageContext) {
@@ -141,17 +141,17 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 
 	@Override
 	protected ServletRequest getRequest() {
-		return pageContext.getRequest();
+		return this.pageContext.getRequest();
 	}
 
 	@Override
 	protected ServletResponse getResponse() {
-		return pageContext.getResponse();
+		return this.pageContext.getResponse();
 	}
 
 	@Override
 	protected ServletContext getServletContext() {
-		return pageContext.getServletContext();
+		return this.pageContext.getServletContext();
 	}
 
 	private final class PageContextVariableLookupEvaluationContext implements EvaluationContext {
@@ -163,50 +163,50 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		}
 
 		public TypedValue getRootObject() {
-			return delegate.getRootObject();
+			return this.delegate.getRootObject();
 		}
 
 		public List<ConstructorResolver> getConstructorResolvers() {
-			return delegate.getConstructorResolvers();
+			return this.delegate.getConstructorResolvers();
 		}
 
 		public List<MethodResolver> getMethodResolvers() {
-			return delegate.getMethodResolvers();
+			return this.delegate.getMethodResolvers();
 		}
 
 		public List<PropertyAccessor> getPropertyAccessors() {
-			return delegate.getPropertyAccessors();
+			return this.delegate.getPropertyAccessors();
 		}
 
 		public TypeLocator getTypeLocator() {
-			return delegate.getTypeLocator();
+			return this.delegate.getTypeLocator();
 		}
 
 		public TypeConverter getTypeConverter() {
-			return delegate.getTypeConverter();
+			return this.delegate.getTypeConverter();
 		}
 
 		public TypeComparator getTypeComparator() {
-			return delegate.getTypeComparator();
+			return this.delegate.getTypeComparator();
 		}
 
 		public OperatorOverloader getOperatorOverloader() {
-			return delegate.getOperatorOverloader();
+			return this.delegate.getOperatorOverloader();
 		}
 
 		public BeanResolver getBeanResolver() {
-			return delegate.getBeanResolver();
+			return this.delegate.getBeanResolver();
 		}
 
 		public void setVariable(String name, Object value) {
-			delegate.setVariable(name, value);
+			this.delegate.setVariable(name, value);
 		}
 
 		public Object lookupVariable(String name) {
-			Object result = delegate.lookupVariable(name);
+			Object result = this.delegate.lookupVariable(name);
 
 			if (result == null) {
-				result = pageContext.findAttribute(name);
+				result = JspAuthorizeTag.this.pageContext.findAttribute(name);
 			}
 			return result;
 		}

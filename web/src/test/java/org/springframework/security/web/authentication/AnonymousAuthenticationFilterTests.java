@@ -115,7 +115,7 @@ public class AnonymousAuthenticationFilterTests {
 		}
 
 		public void doFilter(ServletRequest request, ServletResponse response) {
-			if (!expectToProceed) {
+			if (!this.expectToProceed) {
 				fail("Did not expect filter chain to proceed");
 			}
 		}

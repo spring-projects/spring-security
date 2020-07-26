@@ -143,7 +143,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			throws IOException, ServletException {
 		final boolean debug = this.logger.isDebugEnabled();
 		try {
-			UsernamePasswordAuthenticationToken authRequest = authenticationConverter.convert(request);
+			UsernamePasswordAuthenticationToken authRequest = this.authenticationConverter.convert(request);
 			if (authRequest == null) {
 				chain.doFilter(request, response);
 				return;
@@ -254,7 +254,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
-		authenticationConverter.setAuthenticationDetailsSource(authenticationDetailsSource);
+		this.authenticationConverter.setAuthenticationDetailsSource(authenticationDetailsSource);
 	}
 
 	public void setRememberMeServices(RememberMeServices rememberMeServices) {

@@ -460,7 +460,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		return new FirewalledRequest(request) {
 			@Override
 			public long getDateHeader(String name) {
-				if (!allowedHeaderNames.test(name)) {
+				if (!StrictHttpFirewall.this.allowedHeaderNames.test(name)) {
 					throw new RequestRejectedException(
 							"The request was rejected because the header name \"" + name + "\" is not allowed.");
 				}
@@ -469,7 +469,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 			@Override
 			public int getIntHeader(String name) {
-				if (!allowedHeaderNames.test(name)) {
+				if (!StrictHttpFirewall.this.allowedHeaderNames.test(name)) {
 					throw new RequestRejectedException(
 							"The request was rejected because the header name \"" + name + "\" is not allowed.");
 				}
@@ -478,12 +478,12 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 			@Override
 			public String getHeader(String name) {
-				if (!allowedHeaderNames.test(name)) {
+				if (!StrictHttpFirewall.this.allowedHeaderNames.test(name)) {
 					throw new RequestRejectedException(
 							"The request was rejected because the header name \"" + name + "\" is not allowed.");
 				}
 				String value = super.getHeader(name);
-				if (value != null && !allowedHeaderValues.test(value)) {
+				if (value != null && !StrictHttpFirewall.this.allowedHeaderValues.test(value)) {
 					throw new RequestRejectedException(
 							"The request was rejected because the header value \"" + value + "\" is not allowed.");
 				}
@@ -492,7 +492,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 			@Override
 			public Enumeration<String> getHeaders(String name) {
-				if (!allowedHeaderNames.test(name)) {
+				if (!StrictHttpFirewall.this.allowedHeaderNames.test(name)) {
 					throw new RequestRejectedException(
 							"The request was rejected because the header name \"" + name + "\" is not allowed.");
 				}
@@ -507,7 +507,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 					@Override
 					public String nextElement() {
 						String value = valuesEnumeration.nextElement();
-						if (!allowedHeaderValues.test(value)) {
+						if (!StrictHttpFirewall.this.allowedHeaderValues.test(value)) {
 							throw new RequestRejectedException("The request was rejected because the header value \""
 									+ value + "\" is not allowed.");
 						}
@@ -528,7 +528,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 					@Override
 					public String nextElement() {
 						String name = namesEnumeration.nextElement();
-						if (!allowedHeaderNames.test(name)) {
+						if (!StrictHttpFirewall.this.allowedHeaderNames.test(name)) {
 							throw new RequestRejectedException("The request was rejected because the header name \""
 									+ name + "\" is not allowed.");
 						}
@@ -539,12 +539,12 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 			@Override
 			public String getParameter(String name) {
-				if (!allowedParameterNames.test(name)) {
+				if (!StrictHttpFirewall.this.allowedParameterNames.test(name)) {
 					throw new RequestRejectedException(
 							"The request was rejected because the parameter name \"" + name + "\" is not allowed.");
 				}
 				String value = super.getParameter(name);
-				if (value != null && !allowedParameterValues.test(value)) {
+				if (value != null && !StrictHttpFirewall.this.allowedParameterValues.test(value)) {
 					throw new RequestRejectedException(
 							"The request was rejected because the parameter value \"" + value + "\" is not allowed.");
 				}
@@ -557,12 +557,12 @@ public class StrictHttpFirewall implements HttpFirewall {
 				for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 					String name = entry.getKey();
 					String[] values = entry.getValue();
-					if (!allowedParameterNames.test(name)) {
+					if (!StrictHttpFirewall.this.allowedParameterNames.test(name)) {
 						throw new RequestRejectedException(
 								"The request was rejected because the parameter name \"" + name + "\" is not allowed.");
 					}
 					for (String value : values) {
-						if (!allowedParameterValues.test(value)) {
+						if (!StrictHttpFirewall.this.allowedParameterValues.test(value)) {
 							throw new RequestRejectedException("The request was rejected because the parameter value \""
 									+ value + "\" is not allowed.");
 						}
@@ -583,7 +583,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 					@Override
 					public String nextElement() {
 						String name = namesEnumeration.nextElement();
-						if (!allowedParameterNames.test(name)) {
+						if (!StrictHttpFirewall.this.allowedParameterNames.test(name)) {
 							throw new RequestRejectedException("The request was rejected because the parameter name \""
 									+ name + "\" is not allowed.");
 						}
@@ -594,14 +594,14 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 			@Override
 			public String[] getParameterValues(String name) {
-				if (!allowedParameterNames.test(name)) {
+				if (!StrictHttpFirewall.this.allowedParameterNames.test(name)) {
 					throw new RequestRejectedException(
 							"The request was rejected because the parameter name \"" + name + "\" is not allowed.");
 				}
 				String[] values = super.getParameterValues(name);
 				if (values != null) {
 					for (String value : values) {
-						if (!allowedParameterValues.test(value)) {
+						if (!StrictHttpFirewall.this.allowedParameterValues.test(value)) {
 							throw new RequestRejectedException("The request was rejected because the parameter value \""
 									+ value + "\" is not allowed.");
 						}

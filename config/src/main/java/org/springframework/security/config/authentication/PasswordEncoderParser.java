@@ -76,11 +76,11 @@ public class PasswordEncoderParser {
 		String ref = element.getAttribute(ATT_REF);
 
 		if (StringUtils.hasText(ref)) {
-			passwordEncoder = new RuntimeBeanReference(ref);
+			this.passwordEncoder = new RuntimeBeanReference(ref);
 		}
 		else {
-			passwordEncoder = createPasswordEncoderBeanDefinition(hash, useBase64);
-			((RootBeanDefinition) passwordEncoder).setSource(parserContext.extractSource(element));
+			this.passwordEncoder = createPasswordEncoderBeanDefinition(hash, useBase64);
+			((RootBeanDefinition) this.passwordEncoder).setSource(parserContext.extractSource(element));
 		}
 	}
 
@@ -91,7 +91,7 @@ public class PasswordEncoderParser {
 	}
 
 	public BeanMetadataElement getPasswordEncoder() {
-		return passwordEncoder;
+		return this.passwordEncoder;
 	}
 
 }

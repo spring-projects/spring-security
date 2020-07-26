@@ -54,55 +54,55 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 
 	@Before
 	public void setup() {
-		handler = new DefaultMessageSecurityExpressionHandler<>();
+		this.handler = new DefaultMessageSecurityExpressionHandler<>();
 
-		message = new GenericMessage<>("");
-		authentication = new AnonymousAuthenticationToken("key", "anonymous",
+		this.message = new GenericMessage<>("");
+		this.authentication = new AnonymousAuthenticationToken("key", "anonymous",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 	}
 
 	// SEC-2705
 	@Test
 	public void trustResolverPopulated() {
-		EvaluationContext context = handler.createEvaluationContext(authentication, message);
-		Expression expression = handler.getExpressionParser().parseExpression("authenticated");
+		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
+		Expression expression = this.handler.getExpressionParser().parseExpression("authenticated");
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isFalse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void trustResolverNull() {
-		handler.setTrustResolver(null);
+		this.handler.setTrustResolver(null);
 	}
 
 	@Test
 	public void trustResolverCustom() {
-		handler.setTrustResolver(trustResolver);
-		EvaluationContext context = handler.createEvaluationContext(authentication, message);
-		Expression expression = handler.getExpressionParser().parseExpression("authenticated");
-		when(trustResolver.isAnonymous(authentication)).thenReturn(false);
+		this.handler.setTrustResolver(this.trustResolver);
+		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
+		Expression expression = this.handler.getExpressionParser().parseExpression("authenticated");
+		when(this.trustResolver.isAnonymous(this.authentication)).thenReturn(false);
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}
 
 	@Test
 	public void roleHierarchy() {
-		authentication = new TestingAuthenticationToken("admin", "pass", "ROLE_ADMIN");
+		this.authentication = new TestingAuthenticationToken("admin", "pass", "ROLE_ADMIN");
 		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
 		roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
-		handler.setRoleHierarchy(roleHierarchy);
-		EvaluationContext context = handler.createEvaluationContext(authentication, message);
-		Expression expression = handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");
+		this.handler.setRoleHierarchy(roleHierarchy);
+		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
+		Expression expression = this.handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}
 
 	@Test
 	public void permissionEvaluator() {
-		handler.setPermissionEvaluator(permissionEvaluator);
-		EvaluationContext context = handler.createEvaluationContext(authentication, message);
-		Expression expression = handler.getExpressionParser().parseExpression("hasPermission(message, 'read')");
-		when(permissionEvaluator.hasPermission(authentication, message, "read")).thenReturn(true);
+		this.handler.setPermissionEvaluator(this.permissionEvaluator);
+		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
+		Expression expression = this.handler.getExpressionParser().parseExpression("hasPermission(message, 'read')");
+		when(this.permissionEvaluator.hasPermission(this.authentication, this.message, "read")).thenReturn(true);
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}

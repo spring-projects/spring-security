@@ -39,29 +39,30 @@ public class ServerWebExchangeMatchersTests {
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternThenMatches() {
-		assertThat(pathMatchers("/").matches(exchange).block().isMatch()).isTrue();
+		assertThat(pathMatchers("/").matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternAndMethodThenMatches() {
-		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/").matches(exchange).block().isMatch())
+		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/").matches(this.exchange).block().isMatch())
 				.isTrue();
 	}
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternAndDiffMethodThenDoesNotMatch() {
-		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/").matches(exchange).block().isMatch())
-				.isFalse();
+		assertThat(
+				ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/").matches(this.exchange).block().isMatch())
+						.isFalse();
 	}
 
 	@Test
 	public void pathMatchersWhenSingleAndDifferentPatternThenDoesNotMatch() {
-		assertThat(pathMatchers("/foobar").matches(exchange).block().isMatch()).isFalse();
+		assertThat(pathMatchers("/foobar").matches(this.exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void pathMatchersWhenMultiThenMatches() {
-		assertThat(pathMatchers("/foobar", "/").matches(exchange).block().isMatch()).isTrue();
+		assertThat(pathMatchers("/foobar", "/").matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test

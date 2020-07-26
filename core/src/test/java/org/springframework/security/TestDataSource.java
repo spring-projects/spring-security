@@ -30,8 +30,8 @@ public class TestDataSource extends DriverManagerDataSource implements Disposabl
 	String name;
 
 	public TestDataSource(String databaseName) {
-		name = databaseName;
-		System.out.println("Creating database: " + name);
+		this.name = databaseName;
+		System.out.println("Creating database: " + this.name);
 		setDriverClassName("org.hsqldb.jdbcDriver");
 		setUrl("jdbc:hsqldb:mem:" + databaseName);
 		setUsername("sa");
@@ -39,7 +39,7 @@ public class TestDataSource extends DriverManagerDataSource implements Disposabl
 	}
 
 	public void destroy() {
-		System.out.println("Shutting down database: " + name);
+		System.out.println("Shutting down database: " + this.name);
 		new JdbcTemplate(this).execute("SHUTDOWN");
 	}
 

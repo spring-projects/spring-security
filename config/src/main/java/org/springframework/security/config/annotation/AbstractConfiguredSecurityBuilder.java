@@ -103,7 +103,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 				return build();
 			}
 			catch (Exception e) {
-				logger.debug("Failed to perform build. Returning null", e);
+				this.logger.debug("Failed to perform build. Returning null", e);
 				return null;
 			}
 		}
@@ -121,7 +121,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 */
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurerAdapter<O, B>> C apply(C configurer) throws Exception {
-		configurer.addObjectPostProcessor(objectPostProcessor);
+		configurer.addObjectPostProcessor(this.objectPostProcessor);
 		configurer.setBuilder((B) this);
 		add(configurer);
 		return configurer;
@@ -179,17 +179,18 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 		Class<? extends SecurityConfigurer<O, B>> clazz = (Class<? extends SecurityConfigurer<O, B>>) configurer
 				.getClass();
-		synchronized (configurers) {
-			if (buildState.isConfigured()) {
+		synchronized (this.configurers) {
+			if (this.buildState.isConfigured()) {
 				throw new IllegalStateException("Cannot apply " + configurer + " to already built object");
 			}
-			List<SecurityConfigurer<O, B>> configs = allowConfigurersOfSameType ? this.configurers.get(clazz) : null;
+			List<SecurityConfigurer<O, B>> configs = this.allowConfigurersOfSameType ? this.configurers.get(clazz)
+					: null;
 			if (configs == null) {
 				configs = new ArrayList<>(1);
 			}
 			configs.add(configurer);
 			this.configurers.put(clazz, configs);
-			if (buildState.isInitializing()) {
+			if (this.buildState.isInitializing()) {
 				this.configurersAddedInInitializing.add(configurer);
 			}
 		}
@@ -297,22 +298,22 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 */
 	@Override
 	protected final O doBuild() throws Exception {
-		synchronized (configurers) {
-			buildState = BuildState.INITIALIZING;
+		synchronized (this.configurers) {
+			this.buildState = BuildState.INITIALIZING;
 
 			beforeInit();
 			init();
 
-			buildState = BuildState.CONFIGURING;
+			this.buildState = BuildState.CONFIGURING;
 
 			beforeConfigure();
 			configure();
 
-			buildState = BuildState.BUILDING;
+			this.buildState = BuildState.BUILDING;
 
 			O result = performBuild();
 
-			buildState = BuildState.BUILT;
+			this.buildState = BuildState.BUILT;
 
 			return result;
 		}
@@ -349,7 +350,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 			configurer.init((B) this);
 		}
 
-		for (SecurityConfigurer<O, B> configurer : configurersAddedInInitializing) {
+		for (SecurityConfigurer<O, B> configurer : this.configurersAddedInInitializing) {
 			configurer.init((B) this);
 		}
 	}
@@ -376,8 +377,8 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @return true, if unbuilt else false
 	 */
 	private boolean isUnbuilt() {
-		synchronized (configurers) {
-			return buildState == BuildState.UNBUILT;
+		synchronized (this.configurers) {
+			return this.buildState == BuildState.UNBUILT;
 		}
 	}
 
@@ -427,7 +428,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		}
 
 		public boolean isInitializing() {
-			return INITIALIZING.order == order;
+			return INITIALIZING.order == this.order;
 		}
 
 		/**
@@ -435,7 +436,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		 * @return
 		 */
 		public boolean isConfigured() {
-			return order >= CONFIGURING.order;
+			return this.order >= CONFIGURING.order;
 		}
 
 	}

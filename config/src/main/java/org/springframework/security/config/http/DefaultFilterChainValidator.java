@@ -123,7 +123,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 				for (int j = i + 1; j < filters.size(); j++) {
 					Filter f2 = filters.get(j);
 					if (clazz.isAssignableFrom(f2.getClass())) {
-						logger.warn("Possible error: Filters at position " + i + " and " + j + " are both "
+						this.logger.warn("Possible error: Filters at position " + i + " and " + j + " are both "
 								+ "instances of " + clazz.getName());
 						return;
 					}
@@ -144,7 +144,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		}
 
 		String loginPage = ((LoginUrlAuthenticationEntryPoint) etf.getAuthenticationEntryPoint()).getLoginFormUrl();
-		logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
+		this.logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
 		FilterInvocation loginRequest = new FilterInvocation(loginPage, "POST");
 		List<Filter> filters = null;
 
@@ -155,16 +155,16 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			// May happen legitimately if a filter-chain request matcher requires more
 			// request data than that provided
 			// by the dummy request used when creating the filter invocation.
-			logger.info("Failed to obtain filter chain information for the login page. Unable to complete check.");
+			this.logger.info("Failed to obtain filter chain information for the login page. Unable to complete check.");
 		}
 
 		if (filters == null || filters.isEmpty()) {
-			logger.debug("Filter chain is empty for the login page");
+			this.logger.debug("Filter chain is empty for the login page");
 			return;
 		}
 
 		if (getFilter(DefaultLoginPageGeneratingFilter.class, filters) != null) {
-			logger.debug("Default generated login page is in use");
+			this.logger.debug("Default generated login page is in use");
 			return;
 		}
 
@@ -174,9 +174,9 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
 
 		if (attributes == null) {
-			logger.debug("No access attributes defined for login page URL");
+			this.logger.debug("No access attributes defined for login page URL");
 			if (fsi.isRejectPublicInvocations()) {
-				logger.warn("FilterSecurityInterceptor is configured to reject public invocations."
+				this.logger.warn("FilterSecurityInterceptor is configured to reject public invocations."
 						+ " Your login page may not be accessible.");
 			}
 			return;
@@ -184,7 +184,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 
 		AnonymousAuthenticationFilter anonPF = getFilter(AnonymousAuthenticationFilter.class, filters);
 		if (anonPF == null) {
-			logger.warn("The login page is being protected by the filter chain, but you don't appear to have"
+			this.logger.warn("The login page is being protected by the filter chain, but you don't appear to have"
 					+ " anonymous authentication enabled. This is almost certainly an error.");
 			return;
 		}
@@ -196,15 +196,16 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			fsi.getAccessDecisionManager().decide(token, loginRequest, attributes);
 		}
 		catch (AccessDeniedException e) {
-			logger.warn("Anonymous access to the login page doesn't appear to be enabled. This is almost certainly "
-					+ "an error. Please check your configuration allows unauthenticated access to the configured "
-					+ "login page. (Simulated access was rejected: " + e + ")");
+			this.logger
+					.warn("Anonymous access to the login page doesn't appear to be enabled. This is almost certainly "
+							+ "an error. Please check your configuration allows unauthenticated access to the configured "
+							+ "login page. (Simulated access was rejected: " + e + ")");
 		}
 		catch (Exception e) {
 			// May happen legitimately if a filter-chain request matcher requires more
 			// request data than that provided
 			// by the dummy request used when creating the filter invocation. See SEC-1878
-			logger.info(
+			this.logger.info(
 					"Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.",
 					e);
 		}

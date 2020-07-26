@@ -29,85 +29,88 @@ public class AnnotationParameterNameDiscovererTests {
 
 	@Before
 	public void setup() {
-		discoverer = new AnnotationParameterNameDiscoverer(P.class.getName());
+		this.discoverer = new AnnotationParameterNameDiscoverer(P.class.getName());
 	}
 
 	@Test
 	public void getParameterNamesInterfaceSingleParam() {
-		assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByTo", String.class)))
-				.isEqualTo(new String[] { "to" });
+		assertThat(this.discoverer
+				.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByTo", String.class)))
+						.isEqualTo(new String[] { "to" });
 	}
 
 	@Test
 	public void getParameterNamesInterfaceSingleParamAnnotatedWithMultiParams() {
-		assertThat(discoverer.getParameterNames(
+		assertThat(this.discoverer.getParameterNames(
 				ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class)))
 						.isEqualTo(new String[] { "to", null });
 	}
 
 	@Test
 	public void getParameterNamesInterfaceNoAnnotation() {
-		assertThat(discoverer
+		assertThat(this.discoverer
 				.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByIdNoAnnotation", String.class)))
 						.isNull();
 	}
 
 	@Test
 	public void getParameterNamesClassSingleParam() {
-		assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByTo", String.class)))
-				.isEqualTo(new String[] { "to" });
+		assertThat(this.discoverer
+				.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByTo", String.class)))
+						.isEqualTo(new String[] { "to" });
 	}
 
 	@Test
 	public void getParameterNamesClassSingleParamAnnotatedWithMultiParams() {
-		assertThat(discoverer.getParameterNames(
+		assertThat(this.discoverer.getParameterNames(
 				ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class)))
 						.isEqualTo(new String[] { "to", null });
 	}
 
 	@Test
 	public void getParameterNamesClassNoAnnotation() {
-		assertThat(discoverer
+		assertThat(this.discoverer
 				.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByIdNoAnnotation", String.class)))
 						.isNull();
 	}
 
 	@Test
 	public void getParameterNamesConstructor() throws Exception {
-		assertThat(discoverer.getParameterNames(Impl.class.getDeclaredConstructor(String.class)))
+		assertThat(this.discoverer.getParameterNames(Impl.class.getDeclaredConstructor(String.class)))
 				.isEqualTo(new String[] { "id" });
 	}
 
 	@Test
 	public void getParameterNamesConstructorNoAnnotation() throws Exception {
-		assertThat(discoverer.getParameterNames(Impl.class.getDeclaredConstructor(Long.class))).isNull();
+		assertThat(this.discoverer.getParameterNames(Impl.class.getDeclaredConstructor(Long.class))).isNull();
 	}
 
 	@Test
 	public void getParameterNamesClassAnnotationOnInterface() {
-		assertThat(discoverer
+		assertThat(this.discoverer
 				.getParameterNames(ReflectionUtils.findMethod(DaoImpl.class, "findMessageByTo", String.class)))
 						.isEqualTo(new String[] { "to" });
-		assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByTo", String.class)))
-				.isEqualTo(new String[] { "to" });
+		assertThat(this.discoverer
+				.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByTo", String.class)))
+						.isEqualTo(new String[] { "to" });
 	}
 
 	@Test
 	public void getParameterNamesClassAnnotationOnImpl() {
-		assertThat(discoverer.getParameterNames(
+		assertThat(this.discoverer.getParameterNames(
 				ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class)))
 						.isEqualTo(new String[] { "to", null });
-		assertThat(discoverer.getParameterNames(
+		assertThat(this.discoverer.getParameterNames(
 				ReflectionUtils.findMethod(DaoImpl.class, "findMessageByToAndFrom", String.class, String.class)))
 						.isEqualTo(new String[] { "to", "from" });
 	}
 
 	@Test
 	public void getParameterNamesClassAnnotationOnBaseClass() {
-		assertThat(discoverer
+		assertThat(this.discoverer
 				.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByIdNoAnnotation", String.class)))
 						.isNull();
-		assertThat(discoverer.getParameterNames(
+		assertThat(this.discoverer.getParameterNames(
 				ReflectionUtils.findMethod(DaoImpl.class, "findMessageByIdNoAnnotation", String.class)))
 						.isEqualTo(new String[] { "id" });
 	}

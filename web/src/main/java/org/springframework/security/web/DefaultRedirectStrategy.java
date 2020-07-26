@@ -50,8 +50,8 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 		String redirectUrl = calculateRedirectUrl(request.getContextPath(), url);
 		redirectUrl = response.encodeRedirectURL(redirectUrl);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Redirecting to '" + redirectUrl + "'");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Redirecting to '" + redirectUrl + "'");
 		}
 
 		response.sendRedirect(redirectUrl);
@@ -102,7 +102,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 	 * protocol and context path (defaults to <tt>false</tt>).
 	 */
 	protected boolean isContextRelative() {
-		return contextRelative;
+		return this.contextRelative;
 	}
 
 }

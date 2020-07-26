@@ -51,12 +51,12 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	 * @return The original <code>Authentication</code> object of the switched user.
 	 */
 	public Authentication getSource() {
-		return source;
+		return this.source;
 	}
 
 	@Override
 	public String getAuthority() {
-		return role;
+		return this.role;
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 
 	@Override
 	public String toString() {
-		return "Switch User Authority [" + role + "," + source + "]";
+		return "Switch User Authority [" + this.role + "," + this.source + "]";
 	}
 
 }

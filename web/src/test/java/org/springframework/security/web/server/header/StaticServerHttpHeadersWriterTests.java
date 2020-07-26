@@ -37,55 +37,57 @@ public class StaticServerHttpHeadersWriterTests {
 
 	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-	HttpHeaders headers = exchange.getResponse().getHeaders();
+	HttpHeaders headers = this.exchange.getResponse().getHeaders();
 
 	@Test
 	public void writeHeadersWhenSingleHeaderThenWritesHeader() {
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
+		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 				.containsOnly(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
 
 	@Test
 	public void writeHeadersWhenSingleHeaderAndHeaderWrittenThenSuccess() {
 		String headerValue = "other";
-		headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
+		this.headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
 
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(headerValue);
+		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
+				.containsOnly(headerValue);
 	}
 
 	@Test
 	public void writeHeadersWhenMultiHeaderThenWritesAllHeaders() {
-		writer = StaticServerHttpHeadersWriter.builder()
+		this.writer = StaticServerHttpHeadersWriter.builder()
 				.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
 				.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
 				.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE).build();
 
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		assertThat(headers.get(HttpHeaders.CACHE_CONTROL))
+		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL))
 				.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
-		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
-		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
+		assertThat(this.headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
+		assertThat(this.headers.get(HttpHeaders.EXPIRES))
+				.containsOnly(CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
 	}
 
 	@Test
 	public void writeHeadersWhenMultiHeaderAndSingleWrittenThenNoHeadersOverridden() {
 		String headerValue = "other";
-		headers.set(HttpHeaders.CACHE_CONTROL, headerValue);
+		this.headers.set(HttpHeaders.CACHE_CONTROL, headerValue);
 
-		writer = StaticServerHttpHeadersWriter.builder()
+		this.writer = StaticServerHttpHeadersWriter.builder()
 				.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
 				.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
 				.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE).build();
 
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(headerValue);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(headerValue);
 	}
 
 }

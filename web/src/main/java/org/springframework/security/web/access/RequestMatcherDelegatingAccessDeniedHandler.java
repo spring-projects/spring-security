@@ -68,7 +68,7 @@ public final class RequestMatcherDelegatingAccessDeniedHandler implements Access
 				return;
 			}
 		}
-		defaultHandler.handle(request, response, accessDeniedException);
+		this.defaultHandler.handle(request, response, accessDeniedException);
 	}
 
 }

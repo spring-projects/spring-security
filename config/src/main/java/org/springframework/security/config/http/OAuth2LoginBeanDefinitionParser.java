@@ -167,8 +167,9 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 				.addConstructorArgValue(clientRegistrationRepository).addConstructorArgValue(authorizedClientRepository)
 				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository);
 
-		if (sessionStrategy != null) {
-			oauth2LoginAuthenticationFilterBuilder.addPropertyValue("sessionAuthenticationStrategy", sessionStrategy);
+		if (this.sessionStrategy != null) {
+			oauth2LoginAuthenticationFilterBuilder.addPropertyValue("sessionAuthenticationStrategy",
+					this.sessionStrategy);
 		}
 
 		Object source = parserContext.extractSource(element);
@@ -192,9 +193,9 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 					userAuthoritiesMapperRef);
 		}
 
-		oauth2LoginAuthenticationProvider = oauth2LoginAuthenticationProviderBuilder.getBeanDefinition();
+		this.oauth2LoginAuthenticationProvider = oauth2LoginAuthenticationProviderBuilder.getBeanDefinition();
 
-		oauth2LoginOidcAuthenticationProvider = getOidcAuthProvider(element, accessTokenResponseClient,
+		this.oauth2LoginOidcAuthenticationProvider = getOidcAuthProvider(element, accessTokenResponseClient,
 				userAuthoritiesMapperRef);
 
 		BeanDefinitionBuilder oauth2AuthorizationRequestRedirectFilterBuilder = BeanDefinitionBuilder
@@ -210,8 +211,9 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 		oauth2AuthorizationRequestRedirectFilterBuilder
 				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository)
-				.addPropertyValue("requestCache", requestCache);
-		oauth2AuthorizationRequestRedirectFilter = oauth2AuthorizationRequestRedirectFilterBuilder.getBeanDefinition();
+				.addPropertyValue("requestCache", this.requestCache);
+		this.oauth2AuthorizationRequestRedirectFilter = oauth2AuthorizationRequestRedirectFilterBuilder
+				.getBeanDefinition();
 
 		String authenticationSuccessHandlerRef = element.getAttribute(ATT_AUTHENTICATION_SUCCESS_HANDLER_REF);
 		if (!StringUtils.isEmpty(authenticationSuccessHandlerRef)) {
@@ -221,7 +223,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		else {
 			BeanDefinitionBuilder successHandlerBuilder = BeanDefinitionBuilder.rootBeanDefinition(
 					"org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler")
-					.addPropertyValue("requestCache", requestCache);
+					.addPropertyValue("requestCache", this.requestCache);
 			oauth2LoginAuthenticationFilterBuilder.addPropertyValue("authenticationSuccessHandler",
 					successHandlerBuilder.getBeanDefinition());
 		}
@@ -229,15 +231,15 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		String loginPage = element.getAttribute(ATT_LOGIN_PAGE);
 		if (!StringUtils.isEmpty(loginPage)) {
 			WebConfigUtils.validateHttpRedirect(loginPage, parserContext, source);
-			oauth2LoginAuthenticationEntryPoint = BeanDefinitionBuilder
+			this.oauth2LoginAuthenticationEntryPoint = BeanDefinitionBuilder
 					.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class).addConstructorArgValue(loginPage)
-					.addPropertyValue("portMapper", portMapper).addPropertyValue("portResolver", portResolver)
+					.addPropertyValue("portMapper", this.portMapper).addPropertyValue("portResolver", this.portResolver)
 					.getBeanDefinition();
 		}
 		else {
 			Map<RequestMatcher, AuthenticationEntryPoint> entryPoint = getLoginEntryPoint(element);
 			if (entryPoint != null) {
-				oauth2LoginAuthenticationEntryPoint = BeanDefinitionBuilder
+				this.oauth2LoginAuthenticationEntryPoint = BeanDefinitionBuilder
 						.rootBeanDefinition(DelegatingAuthenticationEntryPoint.class).addConstructorArgValue(entryPoint)
 						.addPropertyValue("defaultEntryPoint", new LoginUrlAuthenticationEntryPoint(DEFAULT_LOGIN_URI))
 						.getBeanDefinition();
@@ -254,13 +256,13 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 					"org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler");
 			failureHandlerBuilder.addConstructorArgValue(
 					DEFAULT_LOGIN_URI + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME);
-			failureHandlerBuilder.addPropertyValue("allowSessionCreation", allowSessionCreation);
+			failureHandlerBuilder.addPropertyValue("allowSessionCreation", this.allowSessionCreation);
 			oauth2LoginAuthenticationFilterBuilder.addPropertyValue("authenticationFailureHandler",
 					failureHandlerBuilder.getBeanDefinition());
 		}
 
 		// prepare loginlinks
-		oauth2LoginLinks = BeanDefinitionBuilder.rootBeanDefinition(Map.class)
+		this.oauth2LoginLinks = BeanDefinitionBuilder.rootBeanDefinition(Map.class)
 				.setFactoryMethodOnBean("getLoginLinks", oauth2LoginBeanConfigId).getBeanDefinition();
 
 		return oauth2LoginAuthenticationFilterBuilder.getBeanDefinition();
@@ -354,23 +356,23 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	BeanDefinition getOAuth2AuthorizationRequestRedirectFilter() {
-		return oauth2AuthorizationRequestRedirectFilter;
+		return this.oauth2AuthorizationRequestRedirectFilter;
 	}
 
 	BeanDefinition getOAuth2LoginAuthenticationEntryPoint() {
-		return oauth2LoginAuthenticationEntryPoint;
+		return this.oauth2LoginAuthenticationEntryPoint;
 	}
 
 	BeanDefinition getOAuth2LoginAuthenticationProvider() {
-		return oauth2LoginAuthenticationProvider;
+		return this.oauth2LoginAuthenticationProvider;
 	}
 
 	BeanDefinition getOAuth2LoginOidcAuthenticationProvider() {
-		return oauth2LoginOidcAuthenticationProvider;
+		return this.oauth2LoginOidcAuthenticationProvider;
 	}
 
 	BeanDefinition getOAuth2LoginLinks() {
-		return oauth2LoginLinks;
+		return this.oauth2LoginLinks;
 	}
 
 	private Map<RequestMatcher, AuthenticationEntryPoint> getLoginEntryPoint(Element element) {
@@ -456,7 +458,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		@SuppressWarnings({ "unchecked", "unused" })
 		public Map<String, String> getLoginLinks() {
 			Iterable<ClientRegistration> clientRegistrations = null;
-			ClientRegistrationRepository clientRegistrationRepository = context
+			ClientRegistrationRepository clientRegistrationRepository = this.context
 					.getBean(ClientRegistrationRepository.class);
 			ResolvableType type = ResolvableType.forInstance(clientRegistrationRepository).as(Iterable.class);
 			if (type != ResolvableType.NONE && ClientRegistration.class.isAssignableFrom(type.resolveGenerics()[0])) {

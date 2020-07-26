@@ -46,7 +46,7 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @return true if the IP address of the current request is in the required range.
 	 */
 	public boolean hasIpAddress(String ipAddress) {
-		return (new IpAddressMatcher(ipAddress).matches(request));
+		return (new IpAddressMatcher(ipAddress).matches(this.request));
 	}
 
 }

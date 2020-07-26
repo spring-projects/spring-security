@@ -52,7 +52,7 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 	}
 
 	Expression getAuthorizeExpression() {
-		return authorizeExpression;
+		return this.authorizeExpression;
 	}
 
 	public String getAttribute() {
@@ -61,13 +61,13 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 
 	@Override
 	public String toString() {
-		return authorizeExpression.getExpressionString();
+		return this.authorizeExpression.getExpressionString();
 	}
 
 	@Override
 	public EvaluationContext postProcess(EvaluationContext ctx, Message<?> message) {
-		if (matcher instanceof SimpDestinationMessageMatcher) {
-			final Map<String, String> variables = ((SimpDestinationMessageMatcher) matcher)
+		if (this.matcher instanceof SimpDestinationMessageMatcher) {
+			final Map<String, String> variables = ((SimpDestinationMessageMatcher) this.matcher)
 					.extractPathVariables(message);
 			for (Map.Entry<String, String> entry : variables.entrySet()) {
 				ctx.setVariable(entry.getKey(), entry.getValue());

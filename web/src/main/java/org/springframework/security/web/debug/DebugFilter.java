@@ -67,8 +67,8 @@ public final class DebugFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse) srvltResponse;
 
 		List<Filter> filters = getFilters(request);
-		logger.info("Request received for " + request.getMethod() + " '" + UrlUtils.buildRequestUrl(request) + "':\n\n"
-				+ request + "\n\n" + "servletPath:" + request.getServletPath() + "\n" + "pathInfo:"
+		this.logger.info("Request received for " + request.getMethod() + " '" + UrlUtils.buildRequestUrl(request)
+				+ "':\n\n" + request + "\n\n" + "servletPath:" + request.getServletPath() + "\n" + "pathInfo:"
 				+ request.getPathInfo() + "\n" + "headers: \n" + formatHeaders(request) + "\n\n"
 				+ formatFilters(filters));
 
@@ -76,7 +76,7 @@ public final class DebugFilter implements Filter {
 			invokeWithWrappedRequest(request, response, filterChain);
 		}
 		else {
-			fcp.doFilter(request, response, filterChain);
+			this.fcp.doFilter(request, response, filterChain);
 		}
 	}
 
@@ -85,7 +85,7 @@ public final class DebugFilter implements Filter {
 		request.setAttribute(ALREADY_FILTERED_ATTR_NAME, Boolean.TRUE);
 		request = new DebugRequestWrapper(request);
 		try {
-			fcp.doFilter(request, response, filterChain);
+			this.fcp.doFilter(request, response, filterChain);
 		}
 		finally {
 			request.removeAttribute(ALREADY_FILTERED_ATTR_NAME);
@@ -132,7 +132,7 @@ public final class DebugFilter implements Filter {
 	}
 
 	private List<Filter> getFilters(HttpServletRequest request) {
-		for (SecurityFilterChain chain : fcp.getFilterChains()) {
+		for (SecurityFilterChain chain : this.fcp.getFilterChains()) {
 			if (chain.matches(request)) {
 				return chain.getFilters();
 			}

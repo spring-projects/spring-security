@@ -41,7 +41,7 @@ public abstract class JaasAuthenticationEvent extends ApplicationEvent {
 	 * @return the Authentication
 	 */
 	public Authentication getAuthentication() {
-		return (Authentication) source;
+		return (Authentication) this.source;
 	}
 
 }

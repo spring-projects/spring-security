@@ -50,14 +50,14 @@ public final class IpAddressMatcher implements RequestMatcher {
 		if (ipAddress.indexOf('/') > 0) {
 			String[] addressAndMask = StringUtils.split(ipAddress, "/");
 			ipAddress = addressAndMask[0];
-			nMaskBits = Integer.parseInt(addressAndMask[1]);
+			this.nMaskBits = Integer.parseInt(addressAndMask[1]);
 		}
 		else {
-			nMaskBits = -1;
+			this.nMaskBits = -1;
 		}
-		requiredAddress = parseAddress(ipAddress);
-		Assert.isTrue(requiredAddress.getAddress().length * 8 >= nMaskBits,
-				String.format("IP address %s is too short for bitmask of length %d", ipAddress, nMaskBits));
+		this.requiredAddress = parseAddress(ipAddress);
+		Assert.isTrue(this.requiredAddress.getAddress().length * 8 >= this.nMaskBits,
+				String.format("IP address %s is too short for bitmask of length %d", ipAddress, this.nMaskBits));
 	}
 
 	public boolean matches(HttpServletRequest request) {
@@ -67,19 +67,19 @@ public final class IpAddressMatcher implements RequestMatcher {
 	public boolean matches(String address) {
 		InetAddress remoteAddress = parseAddress(address);
 
-		if (!requiredAddress.getClass().equals(remoteAddress.getClass())) {
+		if (!this.requiredAddress.getClass().equals(remoteAddress.getClass())) {
 			return false;
 		}
 
-		if (nMaskBits < 0) {
-			return remoteAddress.equals(requiredAddress);
+		if (this.nMaskBits < 0) {
+			return remoteAddress.equals(this.requiredAddress);
 		}
 
 		byte[] remAddr = remoteAddress.getAddress();
-		byte[] reqAddr = requiredAddress.getAddress();
+		byte[] reqAddr = this.requiredAddress.getAddress();
 
-		int nMaskFullBytes = nMaskBits / 8;
-		byte finalByte = (byte) (0xFF00 >> (nMaskBits & 0x07));
+		int nMaskFullBytes = this.nMaskBits / 8;
+		byte finalByte = (byte) (0xFF00 >> (this.nMaskBits & 0x07));
 
 		// System.out.println("Mask is " + new sun.misc.HexDumpEncoder().encode(mask));
 

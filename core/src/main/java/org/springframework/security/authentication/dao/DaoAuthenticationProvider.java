@@ -67,19 +67,19 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 		if (authentication.getCredentials() == null) {
-			logger.debug("Authentication failed: no credentials provided");
+			this.logger.debug("Authentication failed: no credentials provided");
 
-			throw new BadCredentialsException(
-					messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+			throw new BadCredentialsException(this.messages
+					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 		}
 
 		String presentedPassword = authentication.getCredentials().toString();
 
-		if (!passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
-			logger.debug("Authentication failed: password does not match stored value");
+		if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
+			this.logger.debug("Authentication failed: password does not match stored value");
 
-			throw new BadCredentialsException(
-					messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+			throw new BadCredentialsException(this.messages
+					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 		}
 	}
 
@@ -150,7 +150,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	}
 
 	protected PasswordEncoder getPasswordEncoder() {
-		return passwordEncoder;
+		return this.passwordEncoder;
 	}
 
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
@@ -158,7 +158,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	}
 
 	protected UserDetailsService getUserDetailsService() {
-		return userDetailsService;
+		return this.userDetailsService;
 	}
 
 	public void setUserDetailsPasswordService(UserDetailsPasswordService userDetailsPasswordService) {

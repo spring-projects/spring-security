@@ -44,7 +44,7 @@ public class SEC936ApplicationContextTests {
 	public void securityInterceptorHandlesCallWithNoTargetObject() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
-		sessionRegistry.getAllPrincipals();
+		this.sessionRegistry.getAllPrincipals();
 	}
 
 }

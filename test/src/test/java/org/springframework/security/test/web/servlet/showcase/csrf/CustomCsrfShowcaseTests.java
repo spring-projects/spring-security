@@ -57,18 +57,18 @@ public class CustomCsrfShowcaseTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).defaultRequest(get("/").with(csrf())).apply(springSecurity())
-				.build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).defaultRequest(get("/").with(csrf()))
+				.apply(springSecurity()).build();
 	}
 
 	@Test
 	public void postWithCsrfWorks() throws Exception {
-		mvc.perform(post("/").with(csrf())).andExpect(status().isNotFound());
+		this.mvc.perform(post("/").with(csrf())).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void postWithCsrfWorksWithPut() throws Exception {
-		mvc.perform(put("/").with(csrf())).andExpect(status().isNotFound());
+		this.mvc.perform(put("/").with(csrf())).andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity

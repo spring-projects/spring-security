@@ -90,7 +90,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	@Override
 	public void eraseCredentials() {
 		super.eraseCredentials();
-		credentials = null;
+		this.credentials = null;
 	}
 
 }

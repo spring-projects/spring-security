@@ -54,11 +54,11 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
 	}
 
 	public Authentication getAuthentication() {
-		return authentication;
+		return this.authentication;
 	}
 
 	public Collection<ConfigAttribute> getConfigAttributes() {
-		return configAttributes;
+		return this.configAttributes;
 	}
 
 }

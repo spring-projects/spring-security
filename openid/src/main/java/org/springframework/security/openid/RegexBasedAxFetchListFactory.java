@@ -38,9 +38,9 @@ public class RegexBasedAxFetchListFactory implements AxFetchListFactory {
 	 * which should be fetched for that pattern.
 	 */
 	public RegexBasedAxFetchListFactory(Map<String, List<OpenIDAttribute>> regexMap) {
-		idToAttributes = new LinkedHashMap<>();
+		this.idToAttributes = new LinkedHashMap<>();
 		for (Map.Entry<String, List<OpenIDAttribute>> entry : regexMap.entrySet()) {
-			idToAttributes.put(Pattern.compile(entry.getKey()), entry.getValue());
+			this.idToAttributes.put(Pattern.compile(entry.getKey()), entry.getValue());
 		}
 	}
 
@@ -49,7 +49,7 @@ public class RegexBasedAxFetchListFactory implements AxFetchListFactory {
 	 * defined for the first match. If no match is found, returns an empty list.
 	 */
 	public List<OpenIDAttribute> createAttributeList(String identifier) {
-		for (Map.Entry<Pattern, List<OpenIDAttribute>> entry : idToAttributes.entrySet()) {
+		for (Map.Entry<Pattern, List<OpenIDAttribute>> entry : this.idToAttributes.entrySet()) {
 			if (entry.getKey().matcher(identifier).matches()) {
 				return entry.getValue();
 			}

@@ -500,8 +500,8 @@ public class SwitchUserFilterTests {
 	// gh-3697
 	@Test
 	public void switchAuthorityRoleCannotBeNull() {
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("switchAuthorityRole cannot be null");
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("switchAuthorityRole cannot be null");
 		switchToUserWithAuthorityRole("dano", null);
 	}
 
@@ -559,16 +559,16 @@ public class SwitchUserFilterTests {
 			// wofat (account expired)
 			// steve (credentials expired)
 			if ("jacklord".equals(username) || "dano".equals(username)) {
-				return new User(username, password, true, true, true, true, ROLES_12);
+				return new User(username, this.password, true, true, true, true, ROLES_12);
 			}
 			else if ("mcgarrett".equals(username)) {
-				return new User(username, password, false, true, true, true, ROLES_12);
+				return new User(username, this.password, false, true, true, true, ROLES_12);
 			}
 			else if ("wofat".equals(username)) {
-				return new User(username, password, true, false, true, true, ROLES_12);
+				return new User(username, this.password, true, false, true, true, ROLES_12);
 			}
 			else if ("steve".equals(username)) {
-				return new User(username, password, true, true, false, true, ROLES_12);
+				return new User(username, this.password, true, true, false, true, ROLES_12);
 			}
 			else {
 				throw new UsernameNotFoundException("Could not find: " + username);

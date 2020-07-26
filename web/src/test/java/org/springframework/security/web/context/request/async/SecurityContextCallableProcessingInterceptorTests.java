@@ -58,27 +58,27 @@ public class SecurityContextCallableProcessingInterceptorTests {
 	@Test
 	public void currentSecurityContext() throws Exception {
 		SecurityContextCallableProcessingInterceptor interceptor = new SecurityContextCallableProcessingInterceptor();
-		SecurityContextHolder.setContext(securityContext);
-		interceptor.beforeConcurrentHandling(webRequest, callable);
+		SecurityContextHolder.setContext(this.securityContext);
+		interceptor.beforeConcurrentHandling(this.webRequest, this.callable);
 		SecurityContextHolder.clearContext();
 
-		interceptor.preProcess(webRequest, callable);
-		assertThat(SecurityContextHolder.getContext()).isSameAs(securityContext);
+		interceptor.preProcess(this.webRequest, this.callable);
+		assertThat(SecurityContextHolder.getContext()).isSameAs(this.securityContext);
 
-		interceptor.postProcess(webRequest, callable, null);
-		assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+		interceptor.postProcess(this.webRequest, this.callable, null);
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.securityContext);
 	}
 
 	@Test
 	public void specificSecurityContext() throws Exception {
 		SecurityContextCallableProcessingInterceptor interceptor = new SecurityContextCallableProcessingInterceptor(
-				securityContext);
+				this.securityContext);
 
-		interceptor.preProcess(webRequest, callable);
-		assertThat(SecurityContextHolder.getContext()).isSameAs(securityContext);
+		interceptor.preProcess(this.webRequest, this.callable);
+		assertThat(SecurityContextHolder.getContext()).isSameAs(this.securityContext);
 
-		interceptor.postProcess(webRequest, callable, null);
-		assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+		interceptor.postProcess(this.webRequest, this.callable, null);
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.securityContext);
 	}
 
 }

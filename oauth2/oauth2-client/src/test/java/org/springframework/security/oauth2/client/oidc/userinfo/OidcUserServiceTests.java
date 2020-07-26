@@ -312,7 +312,7 @@ public class OidcUserServiceTests {
 
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 
-		String userInfoUri = server.url("/user").toString();
+		String userInfoUri = this.server.url("/user").toString();
 
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 

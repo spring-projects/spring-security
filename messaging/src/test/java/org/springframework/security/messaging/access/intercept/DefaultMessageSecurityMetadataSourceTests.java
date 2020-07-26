@@ -59,45 +59,45 @@ public class DefaultMessageSecurityMetadataSourceTests {
 
 	@Before
 	public void setup() {
-		messageMap = new LinkedHashMap<>();
-		messageMap.put(matcher1, Arrays.<ConfigAttribute>asList(config1));
-		messageMap.put(matcher2, Arrays.<ConfigAttribute>asList(config2));
+		this.messageMap = new LinkedHashMap<>();
+		this.messageMap.put(this.matcher1, Arrays.<ConfigAttribute>asList(this.config1));
+		this.messageMap.put(this.matcher2, Arrays.<ConfigAttribute>asList(this.config2));
 
-		source = new DefaultMessageSecurityMetadataSource(messageMap);
+		this.source = new DefaultMessageSecurityMetadataSource(this.messageMap);
 	}
 
 	@Test
 	public void getAttributesNull() {
-		assertThat(source.getAttributes(message)).isNull();
+		assertThat(this.source.getAttributes(this.message)).isNull();
 	}
 
 	@Test
 	public void getAttributesFirst() {
-		when(matcher1.matches(message)).thenReturn(true);
+		when(this.matcher1.matches(this.message)).thenReturn(true);
 
-		assertThat(source.getAttributes(message)).containsOnly(config1);
+		assertThat(this.source.getAttributes(this.message)).containsOnly(this.config1);
 	}
 
 	@Test
 	public void getAttributesSecond() {
-		when(matcher1.matches(message)).thenReturn(true);
+		when(this.matcher1.matches(this.message)).thenReturn(true);
 
-		assertThat(source.getAttributes(message)).containsOnly(config2);
+		assertThat(this.source.getAttributes(this.message)).containsOnly(this.config2);
 	}
 
 	@Test
 	public void getAllConfigAttributes() {
-		assertThat(source.getAllConfigAttributes()).containsOnly(config1, config2);
+		assertThat(this.source.getAllConfigAttributes()).containsOnly(this.config1, this.config2);
 	}
 
 	@Test
 	public void supportsFalse() {
-		assertThat(source.supports(Object.class)).isFalse();
+		assertThat(this.source.supports(Object.class)).isFalse();
 	}
 
 	@Test
 	public void supportsTrue() {
-		assertThat(source.supports(Message.class)).isTrue();
+		assertThat(this.source.supports(Message.class)).isTrue();
 	}
 
 }

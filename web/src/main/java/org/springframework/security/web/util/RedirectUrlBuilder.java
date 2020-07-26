@@ -75,30 +75,30 @@ public class RedirectUrlBuilder {
 	public String getUrl() {
 		StringBuilder sb = new StringBuilder();
 
-		Assert.notNull(scheme, "scheme cannot be null");
-		Assert.notNull(serverName, "serverName cannot be null");
+		Assert.notNull(this.scheme, "scheme cannot be null");
+		Assert.notNull(this.serverName, "serverName cannot be null");
 
-		sb.append(scheme).append("://").append(serverName);
+		sb.append(this.scheme).append("://").append(this.serverName);
 
 		// Append the port number if it's not standard for the scheme
-		if (port != (scheme.equals("http") ? 80 : 443)) {
-			sb.append(":").append(port);
+		if (this.port != (this.scheme.equals("http") ? 80 : 443)) {
+			sb.append(":").append(this.port);
 		}
 
-		if (contextPath != null) {
-			sb.append(contextPath);
+		if (this.contextPath != null) {
+			sb.append(this.contextPath);
 		}
 
-		if (servletPath != null) {
-			sb.append(servletPath);
+		if (this.servletPath != null) {
+			sb.append(this.servletPath);
 		}
 
-		if (pathInfo != null) {
-			sb.append(pathInfo);
+		if (this.pathInfo != null) {
+			sb.append(this.pathInfo);
 		}
 
-		if (query != null) {
-			sb.append("?").append(query);
+		if (this.query != null) {
+			sb.append("?").append(this.query);
 		}
 
 		return sb.toString();

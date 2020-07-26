@@ -60,7 +60,7 @@ public class Saml2X509CredentialTests {
 				+ "YX/sDTE2AdVBVGaMj1Cb51bPHnNC6Q5kXKQnj/YrLqRQND09Q7ParX0CQQC5NxZr\n"
 				+ "9jKqhHj8yQD6PlXTsY4Occ7DH6/IoDenfdEVD5qlet0zmd50HatN2Jiqm5ubN7CM\n" + "INrtuLp4YHbgk1mi\n"
 				+ "-----END PRIVATE KEY-----";
-		key = RsaKeyConverters.pkcs8().convert(new ByteArrayInputStream(keyData.getBytes(UTF_8)));
+		this.key = RsaKeyConverters.pkcs8().convert(new ByteArrayInputStream(keyData.getBytes(UTF_8)));
 		final CertificateFactory factory = CertificateFactory.getInstance("X.509");
 		String certificateData = "-----BEGIN CERTIFICATE-----\n"
 				+ "MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMC\n"
@@ -77,121 +77,121 @@ public class Saml2X509CredentialTests {
 				+ "XOfI2Z9eukwrSknDwq/zscR0YxwwqDBMt/QdAODfSwAfnciiYLkmEjlozWRtOeN+\n"
 				+ "qK7UFgP1bRl5qksrYX5S0z2iGJh0GvonLUt3e20Ssfl5tTEDDnAEUMLfBkyaxEHD\n"
 				+ "RZ/nbTJ7VTeZOSyRoVn5XHhpuJ0B\n" + "-----END CERTIFICATE-----";
-		certificate = (X509Certificate) factory
+		this.certificate = (X509Certificate) factory
 				.generateCertificate(new ByteArrayInputStream(certificateData.getBytes(UTF_8)));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithCredentialsThenItSucceeds() {
-		new Saml2X509Credential(key, certificate, SIGNING);
-		new Saml2X509Credential(key, certificate, SIGNING, DECRYPTION);
-		new Saml2X509Credential(key, certificate, DECRYPTION);
-		Saml2X509Credential.signing(key, certificate);
-		Saml2X509Credential.decryption(key, certificate);
+		new Saml2X509Credential(this.key, this.certificate, SIGNING);
+		new Saml2X509Credential(this.key, this.certificate, SIGNING, DECRYPTION);
+		new Saml2X509Credential(this.key, this.certificate, DECRYPTION);
+		Saml2X509Credential.signing(this.key, this.certificate);
+		Saml2X509Credential.decryption(this.key, this.certificate);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithCredentialsThenItSucceeds() {
-		new Saml2X509Credential(certificate, VERIFICATION);
-		new Saml2X509Credential(certificate, VERIFICATION, ENCRYPTION);
-		new Saml2X509Credential(certificate, ENCRYPTION);
-		Saml2X509Credential.verification(certificate);
-		Saml2X509Credential.encryption(certificate);
+		new Saml2X509Credential(this.certificate, VERIFICATION);
+		new Saml2X509Credential(this.certificate, VERIFICATION, ENCRYPTION);
+		new Saml2X509Credential(this.certificate, ENCRYPTION);
+		Saml2X509Credential.verification(this.certificate);
+		Saml2X509Credential.encryption(this.certificate);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutCredentialsThenItFails() {
-		exception.expect(IllegalArgumentException.class);
+		this.exception.expect(IllegalArgumentException.class);
 		new Saml2X509Credential(null, (X509Certificate) null, SIGNING);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutPrivateKeyThenItFails() {
-		exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(null, certificate, SIGNING);
+		this.exception.expect(IllegalArgumentException.class);
+		new Saml2X509Credential(null, this.certificate, SIGNING);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutCertificateThenItFails() {
-		exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(key, null, SIGNING);
+		this.exception.expect(IllegalArgumentException.class);
+		new Saml2X509Credential(this.key, null, SIGNING);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithoutCertificateThenItFails() {
-		exception.expect(IllegalArgumentException.class);
+		this.exception.expect(IllegalArgumentException.class);
 		new Saml2X509Credential(null, SIGNING);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithEncryptionUsageThenItFails() {
-		exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(key, certificate, ENCRYPTION);
+		this.exception.expect(IllegalStateException.class);
+		new Saml2X509Credential(this.key, this.certificate, ENCRYPTION);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithVerificationUsageThenItFails() {
-		exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(key, certificate, VERIFICATION);
+		this.exception.expect(IllegalStateException.class);
+		new Saml2X509Credential(this.key, this.certificate, VERIFICATION);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithSigningUsageThenItFails() {
-		exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(certificate, SIGNING);
+		this.exception.expect(IllegalStateException.class);
+		new Saml2X509Credential(this.certificate, SIGNING);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithDecryptionUsageThenItFails() {
-		exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(certificate, DECRYPTION);
+		this.exception.expect(IllegalStateException.class);
+		new Saml2X509Credential(this.certificate, DECRYPTION);
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForSigningWithoutCredentialsThenItFails() {
-		exception.expect(IllegalArgumentException.class);
+		this.exception.expect(IllegalArgumentException.class);
 		Saml2X509Credential.signing(null, null);
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForSigningWithoutPrivateKeyThenItFails() {
-		exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.signing(null, certificate);
+		this.exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.signing(null, this.certificate);
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForSigningWithoutCertificateThenItFails() {
-		exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.signing(key, null);
+		this.exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.signing(this.key, null);
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForDecryptionWithoutCredentialsThenItFails() {
-		exception.expect(IllegalArgumentException.class);
+		this.exception.expect(IllegalArgumentException.class);
 		Saml2X509Credential.decryption(null, null);
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForDecryptionWithoutPrivateKeyThenItFails() {
-		exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.decryption(null, certificate);
+		this.exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.decryption(null, this.certificate);
 	}
 
 	@Test
 	public void factoryWhenRelyingPartyForDecryptionWithoutCertificateThenItFails() {
-		exception.expect(IllegalArgumentException.class);
-		Saml2X509Credential.decryption(key, null);
+		this.exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.decryption(this.key, null);
 	}
 
 	@Test
 	public void factoryWhenAssertingPartyForVerificationWithoutCertificateThenItFails() {
-		exception.expect(IllegalArgumentException.class);
+		this.exception.expect(IllegalArgumentException.class);
 		Saml2X509Credential.verification(null);
 	}
 
 	@Test
 	public void factoryWhenAssertingPartyForEncryptionWithoutCertificateThenItFails() {
-		exception.expect(IllegalArgumentException.class);
+		this.exception.expect(IllegalArgumentException.class);
 		Saml2X509Credential.encryption(null);
 	}
 

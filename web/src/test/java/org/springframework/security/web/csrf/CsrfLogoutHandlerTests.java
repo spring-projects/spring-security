@@ -45,9 +45,9 @@ public class CsrfLogoutHandlerTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		handler = new CsrfLogoutHandler(csrfTokenRepository);
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.handler = new CsrfLogoutHandler(this.csrfTokenRepository);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -57,9 +57,10 @@ public class CsrfLogoutHandlerTests {
 
 	@Test
 	public void logoutRemovesCsrfToken() {
-		handler.logout(request, response, new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		this.handler.logout(this.request, this.response,
+				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
-		verify(csrfTokenRepository).saveToken(null, request, response);
+		verify(this.csrfTokenRepository).saveToken(null, this.request, this.response);
 	}
 
 }

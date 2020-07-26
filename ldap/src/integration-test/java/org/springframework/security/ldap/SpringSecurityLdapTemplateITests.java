@@ -55,27 +55,27 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Before
 	public void setUp() {
-		template = new SpringSecurityLdapTemplate(this.contextSource);
+		this.template = new SpringSecurityLdapTemplate(this.contextSource);
 	}
 
 	@Test
 	public void compareOfCorrectValueSucceeds() {
-		assertThat(template.compare("uid=bob,ou=people", "uid", "bob")).isTrue();
+		assertThat(this.template.compare("uid=bob,ou=people", "uid", "bob")).isTrue();
 	}
 
 	@Test
 	public void compareOfCorrectByteValueSucceeds() {
-		assertThat(template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("bobspassword"))).isTrue();
+		assertThat(this.template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("bobspassword"))).isTrue();
 	}
 
 	@Test
 	public void compareOfWrongByteValueFails() {
-		assertThat(template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("wrongvalue"))).isFalse();
+		assertThat(this.template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("wrongvalue"))).isFalse();
 	}
 
 	@Test
 	public void compareOfWrongValueFails() {
-		assertThat(template.compare("uid=bob,ou=people", "uid", "wrongvalue")).isFalse();
+		assertThat(this.template.compare("uid=bob,ou=people", "uid", "wrongvalue")).isFalse();
 	}
 
 	// @Test
@@ -91,7 +91,7 @@ public class SpringSecurityLdapTemplateITests {
 	@Test
 	public void namingExceptionIsTranslatedCorrectly() {
 		try {
-			template.executeReadOnly((ContextExecutor) dirContext -> {
+			this.template.executeReadOnly((ContextExecutor) dirContext -> {
 				throw new NamingException();
 			});
 			fail("Expected UncategorizedLdapException on NamingException");
@@ -104,7 +104,7 @@ public class SpringSecurityLdapTemplateITests {
 	public void roleSearchReturnsCorrectNumberOfRoles() {
 		String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
-		Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})",
+		Set<String> values = this.template.searchForSingleAttributeValues("ou=groups", "(member={0})",
 				new String[] { param }, "ou");
 
 		assertThat(values).as("Expected 3 results from search").hasSize(3);
@@ -115,7 +115,7 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Test
 	public void testMultiAttributeRetrievalWithNullAttributeNames() {
-		Set<Map<String, List<String>>> values = template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+		Set<Map<String, List<String>>> values = this.template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
 				new String[] { "bob" }, null);
 		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
@@ -128,7 +128,7 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Test
 	public void testMultiAttributeRetrievalWithZeroLengthAttributeNames() {
-		Set<Map<String, List<String>>> values = template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+		Set<Map<String, List<String>>> values = this.template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
 				new String[] { "bob" }, new String[0]);
 		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
@@ -141,7 +141,7 @@ public class SpringSecurityLdapTemplateITests {
 
 	@Test
 	public void testMultiAttributeRetrievalWithSpecifiedAttributeNames() {
-		Set<Map<String, List<String>>> values = template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+		Set<Map<String, List<String>>> values = this.template.searchForMultipleAttributeValues("ou=people", "(uid={0})",
 				new String[] { "bob" }, new String[] { "uid", "cn", "sn" });
 		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
@@ -164,7 +164,7 @@ public class SpringSecurityLdapTemplateITests {
 	public void testRoleSearchForMissingAttributeFailsGracefully() {
 		String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
-		Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})",
+		Set<String> values = this.template.searchForSingleAttributeValues("ou=groups", "(member={0})",
 				new String[] { param }, "mail");
 
 		assertThat(values).isEmpty();
@@ -174,7 +174,7 @@ public class SpringSecurityLdapTemplateITests {
 	public void roleSearchWithEscapedCharacterSucceeds() {
 		String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
 
-		Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})",
+		Set<String> values = this.template.searchForSingleAttributeValues("ou=groups", "(member={0})",
 				new String[] { param }, "cn");
 
 		assertThat(values).hasSize(1);
@@ -205,7 +205,7 @@ public class SpringSecurityLdapTemplateITests {
 	public void searchForSingleEntryWithEscapedCharsInDnSucceeds() {
 		String param = "mouse, jerry";
 
-		template.searchForSingleEntry("ou=people", "(cn={0})", new String[] { param });
+		this.template.searchForSingleEntry("ou=people", "(cn={0})", new String[] { param });
 	}
 
 }

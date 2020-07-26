@@ -52,7 +52,7 @@ public interface ServerWebExchangeMatcher {
 		}
 
 		public boolean isMatch() {
-			return match;
+			return this.match;
 		}
 
 		/**
@@ -60,7 +60,7 @@ public interface ServerWebExchangeMatcher {
 		 * @return
 		 */
 		public Map<String, Object> getVariables() {
-			return variables;
+			return this.variables;
 		}
 
 		/**

@@ -96,7 +96,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	public ChannelRequestMatcherRegistry getRegistry() {
-		return REGISTRY;
+		return this.REGISTRY;
 	}
 
 	@Override
@@ -105,19 +105,19 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		channelDecisionManager.setChannelProcessors(getChannelProcessors(http));
 		channelDecisionManager = postProcess(channelDecisionManager);
 
-		channelFilter.setChannelDecisionManager(channelDecisionManager);
+		this.channelFilter.setChannelDecisionManager(channelDecisionManager);
 
 		DefaultFilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource = new DefaultFilterInvocationSecurityMetadataSource(
-				requestMap);
-		channelFilter.setSecurityMetadataSource(filterInvocationSecurityMetadataSource);
+				this.requestMap);
+		this.channelFilter.setSecurityMetadataSource(filterInvocationSecurityMetadataSource);
 
-		channelFilter = postProcess(channelFilter);
-		http.addFilter(channelFilter);
+		this.channelFilter = postProcess(this.channelFilter);
+		http.addFilter(this.channelFilter);
 	}
 
 	private List<ChannelProcessor> getChannelProcessors(H http) {
-		if (channelProcessors != null) {
-			return channelProcessors;
+		if (this.channelProcessors != null) {
+			return this.channelProcessors;
 		}
 
 		InsecureChannelProcessor insecureChannelProcessor = new InsecureChannelProcessor();
@@ -141,9 +141,9 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 	private ChannelRequestMatcherRegistry addAttribute(String attribute, List<? extends RequestMatcher> matchers) {
 		for (RequestMatcher matcher : matchers) {
 			Collection<ConfigAttribute> attrs = Arrays.<ConfigAttribute>asList(new SecurityConfig(attribute));
-			requestMap.put(matcher, attrs);
+			this.requestMap.put(matcher, attrs);
 		}
-		return REGISTRY;
+		return this.REGISTRY;
 	}
 
 	public final class ChannelRequestMatcherRegistry
@@ -233,7 +233,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		public ChannelRequestMatcherRegistry requires(String attribute) {
-			return addAttribute(attribute, requestMatchers);
+			return addAttribute(attribute, this.requestMatchers);
 		}
 
 	}

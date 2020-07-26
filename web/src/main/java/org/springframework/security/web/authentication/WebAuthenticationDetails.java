@@ -64,30 +64,30 @@ public class WebAuthenticationDetails implements Serializable {
 		if (obj instanceof WebAuthenticationDetails) {
 			WebAuthenticationDetails rhs = (WebAuthenticationDetails) obj;
 
-			if ((remoteAddress == null) && (rhs.getRemoteAddress() != null)) {
+			if ((this.remoteAddress == null) && (rhs.getRemoteAddress() != null)) {
 				return false;
 			}
 
-			if ((remoteAddress != null) && (rhs.getRemoteAddress() == null)) {
+			if ((this.remoteAddress != null) && (rhs.getRemoteAddress() == null)) {
 				return false;
 			}
 
-			if (remoteAddress != null) {
-				if (!remoteAddress.equals(rhs.getRemoteAddress())) {
+			if (this.remoteAddress != null) {
+				if (!this.remoteAddress.equals(rhs.getRemoteAddress())) {
 					return false;
 				}
 			}
 
-			if ((sessionId == null) && (rhs.getSessionId() != null)) {
+			if ((this.sessionId == null) && (rhs.getSessionId() != null)) {
 				return false;
 			}
 
-			if ((sessionId != null) && (rhs.getSessionId() == null)) {
+			if ((this.sessionId != null) && (rhs.getSessionId() == null)) {
 				return false;
 			}
 
-			if (sessionId != null) {
-				if (!sessionId.equals(rhs.getSessionId())) {
+			if (this.sessionId != null) {
+				if (!this.sessionId.equals(rhs.getSessionId())) {
 					return false;
 				}
 			}
@@ -103,7 +103,7 @@ public class WebAuthenticationDetails implements Serializable {
 	 * @return the address
 	 */
 	public String getRemoteAddress() {
-		return remoteAddress;
+		return this.remoteAddress;
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class WebAuthenticationDetails implements Serializable {
 	 * @return the session ID
 	 */
 	public String getSessionId() {
-		return sessionId;
+		return this.sessionId;
 	}
 
 	@Override

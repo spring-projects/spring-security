@@ -46,45 +46,45 @@ public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceT
 
 	@Before
 	public final void setUpExecutor() {
-		executor = create();
+		this.executor = create();
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void scheduleRunnable() {
-		when((ScheduledFuture<Object>) delegate.schedule(wrappedRunnable, 1, TimeUnit.SECONDS))
-				.thenReturn(expectedResult);
-		ScheduledFuture<?> result = executor.schedule(runnable, 1, TimeUnit.SECONDS);
-		assertThat(result).isEqualTo(expectedResult);
-		verify(delegate).schedule(wrappedRunnable, 1, TimeUnit.SECONDS);
+		when((ScheduledFuture<Object>) this.delegate.schedule(this.wrappedRunnable, 1, TimeUnit.SECONDS))
+				.thenReturn(this.expectedResult);
+		ScheduledFuture<?> result = this.executor.schedule(this.runnable, 1, TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(this.expectedResult);
+		verify(this.delegate).schedule(this.wrappedRunnable, 1, TimeUnit.SECONDS);
 	}
 
 	@Test
 	public void scheduleCallable() {
-		when(delegate.schedule(wrappedCallable, 1, TimeUnit.SECONDS)).thenReturn(expectedResult);
-		ScheduledFuture<Object> result = executor.schedule(callable, 1, TimeUnit.SECONDS);
-		assertThat(result).isEqualTo(expectedResult);
-		verify(delegate).schedule(wrappedCallable, 1, TimeUnit.SECONDS);
+		when(this.delegate.schedule(this.wrappedCallable, 1, TimeUnit.SECONDS)).thenReturn(this.expectedResult);
+		ScheduledFuture<Object> result = this.executor.schedule(this.callable, 1, TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(this.expectedResult);
+		verify(this.delegate).schedule(this.wrappedCallable, 1, TimeUnit.SECONDS);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void scheduleAtFixedRate() {
-		when((ScheduledFuture<Object>) delegate.scheduleAtFixedRate(wrappedRunnable, 1, 2, TimeUnit.SECONDS))
-				.thenReturn(expectedResult);
-		ScheduledFuture<?> result = executor.scheduleAtFixedRate(runnable, 1, 2, TimeUnit.SECONDS);
-		assertThat(result).isEqualTo(expectedResult);
-		verify(delegate).scheduleAtFixedRate(wrappedRunnable, 1, 2, TimeUnit.SECONDS);
+		when((ScheduledFuture<Object>) this.delegate.scheduleAtFixedRate(this.wrappedRunnable, 1, 2, TimeUnit.SECONDS))
+				.thenReturn(this.expectedResult);
+		ScheduledFuture<?> result = this.executor.scheduleAtFixedRate(this.runnable, 1, 2, TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(this.expectedResult);
+		verify(this.delegate).scheduleAtFixedRate(this.wrappedRunnable, 1, 2, TimeUnit.SECONDS);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void scheduleWithFixedDelay() {
-		when((ScheduledFuture<Object>) delegate.scheduleWithFixedDelay(wrappedRunnable, 1, 2, TimeUnit.SECONDS))
-				.thenReturn(expectedResult);
-		ScheduledFuture<?> result = executor.scheduleWithFixedDelay(runnable, 1, 2, TimeUnit.SECONDS);
-		assertThat(result).isEqualTo(expectedResult);
-		verify(delegate).scheduleWithFixedDelay(wrappedRunnable, 1, 2, TimeUnit.SECONDS);
+		when((ScheduledFuture<Object>) this.delegate.scheduleWithFixedDelay(this.wrappedRunnable, 1, 2,
+				TimeUnit.SECONDS)).thenReturn(this.expectedResult);
+		ScheduledFuture<?> result = this.executor.scheduleWithFixedDelay(this.runnable, 1, 2, TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(this.expectedResult);
+		verify(this.delegate).scheduleWithFixedDelay(this.wrappedRunnable, 1, 2, TimeUnit.SECONDS);
 	}
 
 	@Override

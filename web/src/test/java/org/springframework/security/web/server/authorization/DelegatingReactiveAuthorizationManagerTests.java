@@ -68,30 +68,32 @@ public class DelegatingReactiveAuthorizationManagerTests {
 
 	@Before
 	public void setup() {
-		manager = DelegatingReactiveAuthorizationManager.builder()
-				.add(new ServerWebExchangeMatcherEntry<>(match1, delegate1))
-				.add(new ServerWebExchangeMatcherEntry<>(match2, delegate2)).build();
+		this.manager = DelegatingReactiveAuthorizationManager.builder()
+				.add(new ServerWebExchangeMatcherEntry<>(this.match1, this.delegate1))
+				.add(new ServerWebExchangeMatcherEntry<>(this.match2, this.delegate2)).build();
 	}
 
 	@Test
 	public void checkWhenFirstMatchesThenNoMoreMatchersAndNoMoreDelegatesInvoked() {
-		when(match1.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(delegate1.check(eq(authentication), any(AuthorizationContext.class))).thenReturn(Mono.just(decision));
+		when(this.match1.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
+		when(this.delegate1.check(eq(this.authentication), any(AuthorizationContext.class)))
+				.thenReturn(Mono.just(this.decision));
 
-		assertThat(manager.check(authentication, exchange).block()).isEqualTo(decision);
+		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 
-		verifyZeroInteractions(match2, delegate2);
+		verifyZeroInteractions(this.match2, this.delegate2);
 	}
 
 	@Test
 	public void checkWhenSecondMatchesThenNoMoreMatchersAndNoMoreDelegatesInvoked() {
-		when(match1.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(match2.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(delegate2.check(eq(authentication), any(AuthorizationContext.class))).thenReturn(Mono.just(decision));
+		when(this.match1.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		when(this.match2.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
+		when(this.delegate2.check(eq(this.authentication), any(AuthorizationContext.class)))
+				.thenReturn(Mono.just(this.decision));
 
-		assertThat(manager.check(authentication, exchange).block()).isEqualTo(decision);
+		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 
-		verifyZeroInteractions(delegate1);
+		verifyZeroInteractions(this.delegate1);
 	}
 
 }

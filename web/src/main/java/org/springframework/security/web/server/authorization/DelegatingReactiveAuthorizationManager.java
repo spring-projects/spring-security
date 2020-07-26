@@ -48,7 +48,7 @@ public final class DelegatingReactiveAuthorizationManager implements ReactiveAut
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
-		return Flux.fromIterable(mappings).concatMap(mapping -> mapping.getMatcher().matches(exchange)
+		return Flux.fromIterable(this.mappings).concatMap(mapping -> mapping.getMatcher().matches(exchange)
 				.filter(MatchResult::isMatch).map(MatchResult::getVariables).flatMap(variables -> {
 					if (logger.isDebugEnabled()) {
 						logger.debug(
@@ -77,7 +77,7 @@ public final class DelegatingReactiveAuthorizationManager implements ReactiveAut
 		}
 
 		public DelegatingReactiveAuthorizationManager build() {
-			return new DelegatingReactiveAuthorizationManager(mappings);
+			return new DelegatingReactiveAuthorizationManager(this.mappings);
 		}
 
 	}

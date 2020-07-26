@@ -40,7 +40,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 	Converter<Jwt, AbstractAuthenticationToken> converter = new JwtAuthenticationConverter();
 
 	ReactiveJwtAuthenticationConverterAdapter jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverterAdapter(
-			converter);
+			this.converter);
 
 	@Test
 	public void convertWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {

@@ -99,7 +99,8 @@ public final class PathPatternParserServerWebExchangeMatcher implements ServerWe
 
 	@Override
 	public String toString() {
-		return "PathMatcherServerWebExchangeMatcher{" + "pattern='" + pattern + '\'' + ", method=" + method + '}';
+		return "PathMatcherServerWebExchangeMatcher{" + "pattern='" + this.pattern + '\'' + ", method=" + this.method
+				+ '}';
 	}
 
 }

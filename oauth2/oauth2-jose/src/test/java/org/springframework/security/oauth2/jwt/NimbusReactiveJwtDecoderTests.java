@@ -118,7 +118,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-		this.server.enqueue(new MockResponse().setBody(jwkSet));
+		this.server.enqueue(new MockResponse().setBody(this.jwkSet));
 		this.decoder = new NimbusReactiveJwtDecoder(this.server.url("/certs").toString());
 	}
 
@@ -282,7 +282,7 @@ public class NimbusReactiveJwtDecoderTests {
 
 	@Test
 	public void withJwkSetUriWhenJwtProcessorCustomizerNullThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> withJwkSetUri(jwkSetUri).jwtProcessorCustomizer(null).build())
+		assertThatCode(() -> withJwkSetUri(this.jwkSetUri).jwtProcessorCustomizer(null).build())
 				.isInstanceOf(IllegalArgumentException.class).hasMessage("jwtProcessorCustomizer cannot be null");
 	}
 
@@ -297,7 +297,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenSignedThenOk() {
 		WebClient webClient = mockJwkSetResponse(this.jwkSet);
 		NimbusReactiveJwtDecoder decoder = withJwkSetUri(this.jwkSetUri).webClient(webClient).build();
-		assertThat(decoder.decode(messageReadToken).block()).extracting(Jwt::getExpiresAt).isNotNull();
+		assertThat(decoder.decode(this.messageReadToken).block()).extracting(Jwt::getExpiresAt).isNotNull();
 		verify(webClient).get();
 	}
 
@@ -309,7 +309,7 @@ public class NimbusReactiveJwtDecoderTests {
 				.jwtProcessorCustomizer(
 						p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
 				.build();
-		assertThatCode(() -> decoder.decode(messageReadToken).block()).isInstanceOf(BadJwtException.class)
+		assertThatCode(() -> decoder.decode(this.messageReadToken).block()).isInstanceOf(BadJwtException.class)
 				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
 	}
 
@@ -433,7 +433,7 @@ public class NimbusReactiveJwtDecoderTests {
 				.jwtProcessorCustomizer(
 						p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
 				.build();
-		assertThatCode(() -> decoder.decode(messageReadToken).block()).isInstanceOf(BadJwtException.class)
+		assertThatCode(() -> decoder.decode(this.messageReadToken).block()).isInstanceOf(BadJwtException.class)
 				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
 	}
 

@@ -109,11 +109,11 @@ class AclClassIdUtils {
 	}
 
 	private <T> boolean canConvertFromStringTo(Class<T> targetType) {
-		return conversionService.canConvert(String.class, targetType);
+		return this.conversionService.canConvert(String.class, targetType);
 	}
 
 	private <T extends Serializable> T convertFromStringTo(String identifier, Class<T> targetType) {
-		return conversionService.convert(identifier, targetType);
+		return this.conversionService.convert(identifier, targetType);
 	}
 
 	/**
@@ -128,8 +128,8 @@ class AclClassIdUtils {
 	 */
 	private Long convertToLong(Serializable identifier) {
 		Long idAsLong;
-		if (conversionService.canConvert(identifier.getClass(), Long.class)) {
-			idAsLong = conversionService.convert(identifier, Long.class);
+		if (this.conversionService.canConvert(identifier.getClass(), Long.class)) {
+			idAsLong = this.conversionService.convert(identifier, Long.class);
 		}
 		else {
 			idAsLong = Long.valueOf(identifier.toString());

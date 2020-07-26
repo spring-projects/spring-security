@@ -82,9 +82,9 @@ public class SessionFixationProtectionStrategy extends AbstractSessionFixationPr
 	final HttpSession applySessionFixation(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		String originalSessionId = session.getId();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Invalidating session with Id '" + originalSessionId + "' "
-					+ (migrateSessionAttributes ? "and" : "without") + " migrating attributes.");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Invalidating session with Id '" + originalSessionId + "' "
+					+ (this.migrateSessionAttributes ? "and" : "without") + " migrating attributes.");
 		}
 
 		Map<String, Object> attributesToMigrate = extractAttributes(session);
@@ -93,12 +93,12 @@ public class SessionFixationProtectionStrategy extends AbstractSessionFixationPr
 		session.invalidate();
 		session = request.getSession(true); // we now have a new session
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Started new session: " + session.getId());
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Started new session: " + session.getId());
 		}
 
 		transferAttributes(attributesToMigrate, session);
-		if (migrateSessionAttributes) {
+		if (this.migrateSessionAttributes) {
 			session.setMaxInactiveInterval(maxInactiveIntervalToMigrate);
 		}
 		return session;
@@ -125,7 +125,7 @@ public class SessionFixationProtectionStrategy extends AbstractSessionFixationPr
 
 		while (enumer.hasMoreElements()) {
 			String key = (String) enumer.nextElement();
-			if (!migrateSessionAttributes && !key.startsWith("SPRING_SECURITY_")) {
+			if (!this.migrateSessionAttributes && !key.startsWith("SPRING_SECURITY_")) {
 				// Only retain Spring Security attributes
 				continue;
 			}

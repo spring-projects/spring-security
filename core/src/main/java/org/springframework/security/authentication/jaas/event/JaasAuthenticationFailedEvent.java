@@ -34,7 +34,7 @@ public class JaasAuthenticationFailedEvent extends JaasAuthenticationEvent {
 	}
 
 	public Exception getException() {
-		return exception;
+		return this.exception;
 	}
 
 }

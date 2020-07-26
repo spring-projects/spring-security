@@ -39,7 +39,7 @@ public class HttpHeaderWriterWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		exchange.getResponse().beforeCommit(() -> writer.writeHttpHeaders(exchange));
+		exchange.getResponse().beforeCommit(() -> this.writer.writeHttpHeaders(exchange));
 		return chain.filter(exchange);
 	}
 

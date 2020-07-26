@@ -64,9 +64,9 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 	@After
 	public void closeAppContext() {
 		SecurityContextHolder.clearContext();
-		if (appContext != null) {
-			appContext.close();
-			appContext = null;
+		if (this.appContext != null) {
+			this.appContext.close();
+			this.appContext = null;
 		}
 	}
 
@@ -77,7 +77,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 				+ "     <aop:advisor advice-ref='securityInterceptor' pointcut-ref='targetMethods' />" + "</aop:config>"
 				+ TARGET_BEAN_AND_INTERCEPTOR + AUTH_PROVIDER_XML + ACCESS_MANAGER_XML);
 
-		ITargetObject target = (ITargetObject) appContext.getBean("target");
+		ITargetObject target = (ITargetObject) this.appContext.getBean("target");
 
 		// Check both against interface and class
 		try {
@@ -101,7 +101,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 						+ "   <b:property name='proxyTargetClass' value='false'/>" + "</b:bean>"
 						+ TARGET_BEAN_AND_INTERCEPTOR + AUTH_PROVIDER_XML + ACCESS_MANAGER_XML);
 
-		ITargetObject target = (ITargetObject) appContext.getBean("target");
+		ITargetObject target = (ITargetObject) this.appContext.getBean("target");
 
 		try {
 			target.makeLowerCase("TEST");
@@ -115,7 +115,7 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 	}
 
 	private void setContext(String context) {
-		appContext = new InMemoryXmlApplicationContext(context);
+		this.appContext = new InMemoryXmlApplicationContext(context);
 	}
 
 }

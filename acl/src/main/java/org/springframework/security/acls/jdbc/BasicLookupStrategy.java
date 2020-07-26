@@ -156,21 +156,21 @@ public class BasicLookupStrategy implements LookupStrategy {
 		Assert.notNull(aclCache, "AclCache required");
 		Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
 		Assert.notNull(grantingStrategy, "grantingStrategy required");
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		this.aclCache = aclCache;
 		this.aclAuthorizationStrategy = aclAuthorizationStrategy;
 		this.grantingStrategy = grantingStrategy;
 		this.aclClassIdUtils = new AclClassIdUtils();
-		fieldAces.setAccessible(true);
-		fieldAcl.setAccessible(true);
+		this.fieldAces.setAccessible(true);
+		this.fieldAcl.setAccessible(true);
 	}
 
 	private String computeRepeatingSql(String repeatingSql, int requiredRepetitions) {
 		assert requiredRepetitions > 0 : "requiredRepetitions must be > 0";
 
-		final String startSql = selectClause;
+		final String startSql = this.selectClause;
 
-		final String endSql = orderByClause;
+		final String endSql = this.orderByClause;
 
 		StringBuilder sqlStringBldr = new StringBuilder(
 				startSql.length() + endSql.length() + requiredRepetitions * (repeatingSql.length() + 4));
@@ -192,7 +192,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 	@SuppressWarnings("unchecked")
 	private List<AccessControlEntryImpl> readAces(AclImpl acl) {
 		try {
-			return (List<AccessControlEntryImpl>) fieldAces.get(acl);
+			return (List<AccessControlEntryImpl>) this.fieldAces.get(acl);
 		}
 		catch (IllegalAccessException e) {
 			throw new IllegalStateException("Could not obtain AclImpl.aces field", e);
@@ -201,7 +201,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 	private void setAclOnAce(AccessControlEntryImpl ace, AclImpl acl) {
 		try {
-			fieldAcl.set(ace, acl);
+			this.fieldAcl.set(ace, acl);
 		}
 		catch (IllegalAccessException e) {
 			throw new IllegalStateException("Could not or set AclImpl on AccessControlEntryImpl fields", e);
@@ -210,7 +210,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 	private void setAces(AclImpl acl, List<AccessControlEntryImpl> aces) {
 		try {
-			fieldAces.set(acl, aces);
+			this.fieldAces.set(acl, aces);
 		}
 		catch (IllegalAccessException e) {
 			throw new IllegalStateException("Could not set AclImpl entries", e);
@@ -228,9 +228,9 @@ public class BasicLookupStrategy implements LookupStrategy {
 		Assert.notNull(acls, "ACLs are required");
 		Assert.notEmpty(findNow, "Items to find now required");
 
-		String sql = computeRepeatingSql(lookupPrimaryKeysWhereClause, findNow.size());
+		String sql = computeRepeatingSql(this.lookupPrimaryKeysWhereClause, findNow.size());
 
-		Set<Long> parentsToLookup = jdbcTemplate.query(sql, ps -> {
+		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, ps -> {
 			int i = 0;
 
 			for (Long toFind : findNow) {
@@ -265,7 +265,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 	 * automatically create entries if required)
 	 */
 	public final Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) {
-		Assert.isTrue(batchSize >= 1, "BatchSize must be >= 1");
+		Assert.isTrue(this.batchSize >= 1, "BatchSize must be >= 1");
 		Assert.notEmpty(objects, "Objects to lookup required");
 
 		// Map<ObjectIdentity,Acl>
@@ -288,7 +288,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 			// Check cache for the present ACL entry
 			if (!aclFound) {
-				Acl acl = aclCache.getFromCache(oid);
+				Acl acl = this.aclCache.getFromCache(oid);
 
 				// Ensure any cached element supports all the requested SIDs
 				// (they should always, as our base impl doesn't filter on SID)
@@ -321,7 +321,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 					// Add the loaded batch to the cache
 
 					for (Acl loadedAcl : loadedBatch.values()) {
-						aclCache.putInCache((AclImpl) loadedAcl);
+						this.aclCache.putInCache((AclImpl) loadedAcl);
 					}
 
 					currentBatchToLoad.clear();
@@ -354,9 +354,9 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 		// Make the "acls" map contain all requested objectIdentities
 		// (including markers to each parent in the hierarchy)
-		String sql = computeRepeatingSql(lookupObjectIdentitiesWhereClause, objectIdentities.size());
+		String sql = computeRepeatingSql(this.lookupObjectIdentitiesWhereClause, objectIdentities.size());
 
-		Set<Long> parentsToLookup = jdbcTemplate.query(sql, ps -> {
+		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, ps -> {
 			int i = 0;
 			for (ObjectIdentity oid : objectIdentities) {
 				// Determine prepared statement values for this iteration
@@ -421,8 +421,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 		}
 
 		// Now we have the parent (if there is one), create the true AclImpl
-		AclImpl result = new AclImpl(inputAcl.getObjectIdentity(), inputAcl.getId(), aclAuthorizationStrategy,
-				grantingStrategy, parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
+		AclImpl result = new AclImpl(inputAcl.getObjectIdentity(), inputAcl.getId(), this.aclAuthorizationStrategy,
+				this.grantingStrategy, parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
 
 		// Copy the "aces" from the input to the destination
 
@@ -548,27 +548,27 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 			while (rs.next()) {
 				// Convert current row into an Acl (albeit with a StubAclParent)
-				convertCurrentResultIntoObject(acls, rs);
+				convertCurrentResultIntoObject(this.acls, rs);
 
 				// Figure out if this row means we need to lookup another parent
 				long parentId = rs.getLong("parent_object");
 
 				if (parentId != 0) {
 					// See if it's already in the "acls"
-					if (acls.containsKey(parentId)) {
+					if (this.acls.containsKey(parentId)) {
 						continue; // skip this while iteration
 					}
 
 					// Now try to find it in the cache
-					MutableAcl cached = aclCache.getFromCache(parentId);
+					MutableAcl cached = BasicLookupStrategy.this.aclCache.getFromCache(parentId);
 
-					if ((cached == null) || !cached.isSidLoaded(sids)) {
+					if ((cached == null) || !cached.isSidLoaded(this.sids)) {
 						parentIdsToLookup.add(parentId);
 					}
 					else {
 						// Pop into the acls map, so our convert method doesn't
 						// need to deal with an unsynchronized AclCache
-						acls.put(cached.getId(), cached);
+						this.acls.put(cached.getId(), cached);
 					}
 				}
 			}
@@ -597,7 +597,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 				// If the Java type is a String, check to see if we can convert it to the
 				// target id type, e.g. UUID.
 				Serializable identifier = (Serializable) rs.getObject("object_id_identity");
-				identifier = aclClassIdUtils.identifierFrom(identifier, rs);
+				identifier = BasicLookupStrategy.this.aclClassIdUtils.identifierFrom(identifier, rs);
 				ObjectIdentity objectIdentity = new ObjectIdentityImpl(rs.getString("class"), identifier);
 
 				Acl parentAcl = null;
@@ -610,8 +610,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 				boolean entriesInheriting = rs.getBoolean("entries_inheriting");
 				Sid owner = createSid(rs.getBoolean("acl_principal"), rs.getString("acl_sid"));
 
-				acl = new AclImpl(objectIdentity, id, aclAuthorizationStrategy, grantingStrategy, parentAcl, null,
-						entriesInheriting, owner);
+				acl = new AclImpl(objectIdentity, id, BasicLookupStrategy.this.aclAuthorizationStrategy,
+						BasicLookupStrategy.this.grantingStrategy, parentAcl, null, entriesInheriting, owner);
 
 				acls.put(id, acl);
 			}
@@ -624,7 +624,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 				Sid recipient = createSid(rs.getBoolean("ace_principal"), rs.getString("ace_sid"));
 
 				int mask = rs.getInt("mask");
-				Permission permission = permissionFactory.buildFromMask(mask);
+				Permission permission = BasicLookupStrategy.this.permissionFactory.buildFromMask(mask);
 				boolean granting = rs.getBoolean("granting");
 				boolean auditSuccess = rs.getBoolean("audit_success");
 				boolean auditFailure = rs.getBoolean("audit_failure");
@@ -657,7 +657,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		}
 
 		public Long getId() {
-			return id;
+			return this.id;
 		}
 
 		public ObjectIdentity getObjectIdentity() {

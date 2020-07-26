@@ -32,50 +32,50 @@ public class AbstractRequestParameterAllowFromStrategyTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest();
 	}
 
 	@Test
 	public void nullAllowFromParameterValue() {
 		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
 
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo("DENY");
 	}
 
 	@Test
 	public void emptyAllowFromParameterValue() {
-		request.setParameter("x-frames-allow-from", "");
+		this.request.setParameter("x-frames-allow-from", "");
 		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
 
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo("DENY");
 	}
 
 	@Test
 	public void emptyAllowFromCustomParameterValue() {
 		String customParam = "custom";
-		request.setParameter(customParam, "");
+		this.request.setParameter(customParam, "");
 		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
 		strategy.setAllowFromParameterName(customParam);
 
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo("DENY");
 	}
 
 	@Test
 	public void allowFromParameterValueAllowed() {
 		String value = "https://example.com";
-		request.setParameter("x-frames-allow-from", value);
+		this.request.setParameter("x-frames-allow-from", value);
 		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
 
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo(value);
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo(value);
 	}
 
 	@Test
 	public void allowFromParameterValueDenied() {
 		String value = "https://example.com";
-		request.setParameter("x-frames-allow-from", value);
+		this.request.setParameter("x-frames-allow-from", value);
 		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(false);
 
-		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+		assertThat(strategy.getAllowFromValue(this.request)).isEqualTo("DENY");
 	}
 
 	private static class RequestParameterAllowFromStrategyStub extends AbstractRequestParameterAllowFromStrategy {
@@ -88,7 +88,7 @@ public class AbstractRequestParameterAllowFromStrategyTests {
 
 		@Override
 		protected boolean allowed(String allowFromOrigin) {
-			return match;
+			return this.match;
 		}
 
 	}

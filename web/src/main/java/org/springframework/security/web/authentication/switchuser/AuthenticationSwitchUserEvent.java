@@ -40,7 +40,7 @@ public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
 	}
 
 	public UserDetails getTargetUser() {
-		return targetUser;
+		return this.targetUser;
 	}
 
 }

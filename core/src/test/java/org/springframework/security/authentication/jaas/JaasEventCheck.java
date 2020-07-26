@@ -32,11 +32,11 @@ public class JaasEventCheck implements ApplicationListener<JaasAuthenticationEve
 
 	public void onApplicationEvent(JaasAuthenticationEvent event) {
 		if (event instanceof JaasAuthenticationFailedEvent) {
-			failedEvent = (JaasAuthenticationFailedEvent) event;
+			this.failedEvent = (JaasAuthenticationFailedEvent) event;
 		}
 
 		if (event instanceof JaasAuthenticationSuccessEvent) {
-			successEvent = (JaasAuthenticationSuccessEvent) event;
+			this.successEvent = (JaasAuthenticationSuccessEvent) event;
 		}
 	}
 

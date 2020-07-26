@@ -71,21 +71,21 @@ public class FilterChainProxyTests {
 
 	@Before
 	public void setup() throws Exception {
-		matcher = mock(RequestMatcher.class);
-		filter = mock(Filter.class);
+		this.matcher = mock(RequestMatcher.class);
+		this.filter = mock(Filter.class);
 		doAnswer((Answer<Object>) inv -> {
 			Object[] args = inv.getArguments();
 			FilterChain fc = (FilterChain) args[2];
 			HttpServletRequestWrapper extraWrapper = new HttpServletRequestWrapper((HttpServletRequest) args[0]);
 			fc.doFilter(extraWrapper, (HttpServletResponse) args[1]);
 			return null;
-		}).when(filter).doFilter(any(), any(), any());
-		fcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher, Arrays.asList(filter)));
-		fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
-		request = new MockHttpServletRequest("GET", "");
-		request.setServletPath("/path");
-		response = new MockHttpServletResponse();
-		chain = mock(FilterChain.class);
+		}).when(this.filter).doFilter(any(), any(), any());
+		this.fcp = new FilterChainProxy(new DefaultSecurityFilterChain(this.matcher, Arrays.asList(this.filter)));
+		this.fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
+		this.request = new MockHttpServletRequest("GET", "");
+		this.request.setServletPath("/path");
+		this.response = new MockHttpServletResponse();
+		this.chain = mock(FilterChain.class);
 	}
 
 	@After
@@ -95,58 +95,60 @@ public class FilterChainProxyTests {
 
 	@Test
 	public void toStringCallSucceeds() {
-		fcp.afterPropertiesSet();
-		fcp.toString();
+		this.fcp.afterPropertiesSet();
+		this.fcp.toString();
 	}
 
 	@Test
 	public void securityFilterChainIsNotInvokedIfMatchFails() throws Exception {
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
-		fcp.doFilter(request, response, chain);
-		assertThat(fcp.getFilterChains()).hasSize(1);
-		assertThat(fcp.getFilterChains().get(0).getFilters().get(0)).isSameAs(filter);
+		when(this.matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
+		this.fcp.doFilter(this.request, this.response, this.chain);
+		assertThat(this.fcp.getFilterChains()).hasSize(1);
+		assertThat(this.fcp.getFilterChains().get(0).getFilters().get(0)).isSameAs(this.filter);
 
-		verifyZeroInteractions(filter);
+		verifyZeroInteractions(this.filter);
 		// The actual filter chain should be invoked though
-		verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(this.chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void originalChainIsInvokedAfterSecurityChainIfMatchSucceeds() throws Exception {
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
-		fcp.doFilter(request, response, chain);
+		when(this.matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+		this.fcp.doFilter(this.request, this.response, this.chain);
 
-		verify(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
-		verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(FilterChain.class));
+		verify(this.chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void originalFilterChainIsInvokedIfMatchingSecurityChainIsEmpty() throws Exception {
 		List<Filter> noFilters = Collections.emptyList();
-		fcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher, noFilters));
+		this.fcp = new FilterChainProxy(new DefaultSecurityFilterChain(this.matcher, noFilters));
 
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
-		fcp.doFilter(request, response, chain);
+		when(this.matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+		this.fcp.doFilter(this.request, this.response, this.chain);
 
-		verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(this.chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void requestIsWrappedForMatchingAndFilteringWhenMatchIsFound() throws Exception {
-		when(matcher.matches(any())).thenReturn(true);
-		fcp.doFilter(request, response, chain);
-		verify(matcher).matches(any(FirewalledRequest.class));
-		verify(filter).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
-		verify(chain).doFilter(any(), any(HttpServletResponse.class));
+		when(this.matcher.matches(any())).thenReturn(true);
+		this.fcp.doFilter(this.request, this.response, this.chain);
+		verify(this.matcher).matches(any(FirewalledRequest.class));
+		verify(this.filter).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class),
+				any(FilterChain.class));
+		verify(this.chain).doFilter(any(), any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void requestIsWrappedForMatchingAndFilteringWhenMatchIsNotFound() throws Exception {
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
-		fcp.doFilter(request, response, chain);
-		verify(matcher).matches(any(FirewalledRequest.class));
-		verifyZeroInteractions(filter);
-		verify(chain).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class));
+		when(this.matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
+		this.fcp.doFilter(this.request, this.response, this.chain);
+		verify(this.matcher).matches(any(FirewalledRequest.class));
+		verifyZeroInteractions(this.filter);
+		verify(this.chain).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
@@ -155,10 +157,10 @@ public class FilterChainProxyTests {
 		FirewalledRequest fwr = mock(FirewalledRequest.class);
 		when(fwr.getRequestURI()).thenReturn("/");
 		when(fwr.getContextPath()).thenReturn("");
-		fcp.setFirewall(fw);
-		when(fw.getFirewalledRequest(request)).thenReturn(fwr);
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
-		fcp.doFilter(request, response, chain);
+		this.fcp.setFirewall(fw);
+		when(fw.getFirewalledRequest(this.request)).thenReturn(fwr);
+		when(this.matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
+		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(fwr).reset();
 	}
 
@@ -166,50 +168,52 @@ public class FilterChainProxyTests {
 	@Test
 	public void bothWrappersAreResetWithNestedFcps() throws Exception {
 		HttpFirewall fw = mock(HttpFirewall.class);
-		FilterChainProxy firstFcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher, fcp));
+		FilterChainProxy firstFcp = new FilterChainProxy(new DefaultSecurityFilterChain(this.matcher, this.fcp));
 		firstFcp.setFirewall(fw);
-		fcp.setFirewall(fw);
+		this.fcp.setFirewall(fw);
 		FirewalledRequest firstFwr = mock(FirewalledRequest.class, "firstFwr");
 		when(firstFwr.getRequestURI()).thenReturn("/");
 		when(firstFwr.getContextPath()).thenReturn("");
 		FirewalledRequest fwr = mock(FirewalledRequest.class, "fwr");
 		when(fwr.getRequestURI()).thenReturn("/");
 		when(fwr.getContextPath()).thenReturn("");
-		when(fw.getFirewalledRequest(request)).thenReturn(firstFwr);
+		when(fw.getFirewalledRequest(this.request)).thenReturn(firstFwr);
 		when(fw.getFirewalledRequest(firstFwr)).thenReturn(fwr);
 		when(fwr.getRequest()).thenReturn(firstFwr);
-		when(firstFwr.getRequest()).thenReturn(request);
-		when(matcher.matches(any())).thenReturn(true);
-		firstFcp.doFilter(request, response, chain);
+		when(firstFwr.getRequest()).thenReturn(this.request);
+		when(this.matcher.matches(any())).thenReturn(true);
+		firstFcp.doFilter(this.request, this.response, this.chain);
 		verify(firstFwr).reset();
 		verify(fwr).reset();
 	}
 
 	@Test
 	public void doFilterClearsSecurityContextHolder() throws Exception {
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+		when(this.matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
 		doAnswer((Answer<Object>) inv -> {
 			SecurityContextHolder.getContext()
 					.setAuthentication(new TestingAuthenticationToken("username", "password"));
 			return null;
-		}).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+		}).when(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(FilterChain.class));
 
-		fcp.doFilter(request, response, chain);
+		this.fcp.doFilter(this.request, this.response, this.chain);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
 	public void doFilterClearsSecurityContextHolderWithException() throws Exception {
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+		when(this.matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
 		doAnswer((Answer<Object>) inv -> {
 			SecurityContextHolder.getContext()
 					.setAuthentication(new TestingAuthenticationToken("username", "password"));
 			throw new ServletException("oops");
-		}).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+		}).when(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(FilterChain.class));
 
 		try {
-			fcp.doFilter(request, response, chain);
+			this.fcp.doFilter(this.request, this.response, this.chain);
 			fail("Expected Exception");
 		}
 		catch (ServletException success) {
@@ -222,22 +226,23 @@ public class FilterChainProxyTests {
 	@Test
 	public void doFilterClearsSecurityContextHolderOnceOnForwards() throws Exception {
 		final FilterChain innerChain = mock(FilterChain.class);
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+		when(this.matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
 		doAnswer((Answer<Object>) inv -> {
 			TestingAuthenticationToken expected = new TestingAuthenticationToken("username", "password");
 			SecurityContextHolder.getContext().setAuthentication(expected);
 			doAnswer((Answer<Object>) inv1 -> {
-				innerChain.doFilter(request, response);
+				innerChain.doFilter(this.request, this.response);
 				return null;
-			}).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
+			}).when(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
 					any(FilterChain.class));
 
-			fcp.doFilter(request, response, innerChain);
+			this.fcp.doFilter(this.request, this.response, innerChain);
 			assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expected);
 			return null;
-		}).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+		}).when(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(FilterChain.class));
 
-		fcp.doFilter(request, response, chain);
+		this.fcp.doFilter(this.request, this.response, this.chain);
 
 		verify(innerChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
@@ -245,19 +250,19 @@ public class FilterChainProxyTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setRequestRejectedHandlerDoesNotAcceptNull() {
-		fcp.setRequestRejectedHandler(null);
+		this.fcp.setRequestRejectedHandler(null);
 	}
 
 	@Test
 	public void requestRejectedHandlerIsCalledIfFirewallThrowsRequestRejectedException() throws Exception {
 		HttpFirewall fw = mock(HttpFirewall.class);
 		RequestRejectedHandler rjh = mock(RequestRejectedHandler.class);
-		fcp.setFirewall(fw);
-		fcp.setRequestRejectedHandler(rjh);
+		this.fcp.setFirewall(fw);
+		this.fcp.setRequestRejectedHandler(rjh);
 		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
-		when(fw.getFirewalledRequest(request)).thenThrow(requestRejectedException);
-		fcp.doFilter(request, response, chain);
-		verify(rjh).handle(eq(request), eq(response), eq((requestRejectedException)));
+		when(fw.getFirewalledRequest(this.request)).thenThrow(requestRejectedException);
+		this.fcp.doFilter(this.request, this.response, this.chain);
+		verify(rjh).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
 	}
 
 }

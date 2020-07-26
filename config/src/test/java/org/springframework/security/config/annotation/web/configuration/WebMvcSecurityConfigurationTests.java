@@ -64,10 +64,10 @@ public class WebMvcSecurityConfigurationTests {
 
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		authentication = new TestingAuthenticationToken("user", "password",
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
+		this.authentication = new TestingAuthenticationToken("user", "password",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 	}
 
 	@After
@@ -77,14 +77,15 @@ public class WebMvcSecurityConfigurationTests {
 
 	@Test
 	public void authenticationPrincipalResolved() throws Exception {
-		mockMvc.perform(get("/authentication-principal")).andExpect(assertResult(authentication.getPrincipal()))
+		this.mockMvc.perform(get("/authentication-principal"))
+				.andExpect(assertResult(this.authentication.getPrincipal()))
 				.andExpect(view().name("authentication-principal-view"));
 	}
 
 	@Test
 	public void deprecatedAuthenticationPrincipalResolved() throws Exception {
-		mockMvc.perform(get("/deprecated-authentication-principal"))
-				.andExpect(assertResult(authentication.getPrincipal()))
+		this.mockMvc.perform(get("/deprecated-authentication-principal"))
+				.andExpect(assertResult(this.authentication.getPrincipal()))
 				.andExpect(view().name("deprecated-authentication-principal-view"));
 	}
 
@@ -93,7 +94,7 @@ public class WebMvcSecurityConfigurationTests {
 		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "token");
 		MockHttpServletRequestBuilder request = get("/csrf").requestAttr(CsrfToken.class.getName(), csrfToken);
 
-		mockMvc.perform(request).andExpect(assertResult(csrfToken));
+		this.mockMvc.perform(request).andExpect(assertResult(csrfToken));
 	}
 
 	private ResultMatcher assertResult(Object expected) {

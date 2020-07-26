@@ -68,25 +68,25 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	@Before
 	public void setUpData() throws Exception {
-		voidImpl1 = new MockMethodInvocation(new ReturnVoidImpl1(), ReturnVoid.class, "doSomething", List.class);
-		voidImpl2 = new MockMethodInvocation(new ReturnVoidImpl2(), ReturnVoid.class, "doSomething", List.class);
-		voidImpl3 = new MockMethodInvocation(new ReturnVoidImpl3(), ReturnVoid.class, "doSomething", List.class);
-		listImpl1 = new MockMethodInvocation(new ReturnAListImpl1(), ReturnAList.class, "doSomething", List.class);
-		notherListImpl1 = new MockMethodInvocation(new ReturnAnotherListImpl1(), ReturnAnotherList.class, "doSomething",
-				List.class);
-		notherListImpl2 = new MockMethodInvocation(new ReturnAnotherListImpl2(), ReturnAnotherList.class, "doSomething",
-				List.class);
-		annotatedAtClassLevel = new MockMethodInvocation(new CustomAnnotationAtClassLevel(), ReturnVoid.class,
+		this.voidImpl1 = new MockMethodInvocation(new ReturnVoidImpl1(), ReturnVoid.class, "doSomething", List.class);
+		this.voidImpl2 = new MockMethodInvocation(new ReturnVoidImpl2(), ReturnVoid.class, "doSomething", List.class);
+		this.voidImpl3 = new MockMethodInvocation(new ReturnVoidImpl3(), ReturnVoid.class, "doSomething", List.class);
+		this.listImpl1 = new MockMethodInvocation(new ReturnAListImpl1(), ReturnAList.class, "doSomething", List.class);
+		this.notherListImpl1 = new MockMethodInvocation(new ReturnAnotherListImpl1(), ReturnAnotherList.class,
 				"doSomething", List.class);
-		annotatedAtInterfaceLevel = new MockMethodInvocation(new CustomAnnotationAtInterfaceLevel(), ReturnVoid2.class,
+		this.notherListImpl2 = new MockMethodInvocation(new ReturnAnotherListImpl2(), ReturnAnotherList.class,
 				"doSomething", List.class);
-		annotatedAtMethodLevel = new MockMethodInvocation(new CustomAnnotationAtMethodLevel(), ReturnVoid.class,
+		this.annotatedAtClassLevel = new MockMethodInvocation(new CustomAnnotationAtClassLevel(), ReturnVoid.class,
+				"doSomething", List.class);
+		this.annotatedAtInterfaceLevel = new MockMethodInvocation(new CustomAnnotationAtInterfaceLevel(),
+				ReturnVoid2.class, "doSomething", List.class);
+		this.annotatedAtMethodLevel = new MockMethodInvocation(new CustomAnnotationAtMethodLevel(), ReturnVoid.class,
 				"doSomething", List.class);
 	}
 
 	@Test
 	public void classLevelPreAnnotationIsPickedUpWhenNoMethodLevelExists() {
-		ConfigAttribute[] attrs = mds.getAttributes(voidImpl1).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.voidImpl1).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
@@ -98,7 +98,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	@Test
 	public void mixedClassAndMethodPreAnnotationsAreBothIncluded() {
-		ConfigAttribute[] attrs = mds.getAttributes(voidImpl2).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.voidImpl2).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
@@ -110,7 +110,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	@Test
 	public void methodWithPreFilterOnlyIsAllowed() {
-		ConfigAttribute[] attrs = mds.getAttributes(voidImpl3).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.voidImpl3).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
@@ -122,7 +122,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	@Test
 	public void methodWithPostFilterOnlyIsAllowed() {
-		ConfigAttribute[] attrs = mds.getAttributes(listImpl1).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.listImpl1).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(2);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
@@ -136,7 +136,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	@Test
 	public void interfaceAttributesAreIncluded() {
-		ConfigAttribute[] attrs = mds.getAttributes(notherListImpl1).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.notherListImpl1).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
@@ -149,7 +149,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	@Test
 	public void classAttributesTakesPrecedeceOverInterfaceAttributes() {
-		ConfigAttribute[] attrs = mds.getAttributes(notherListImpl2).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.notherListImpl2).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
@@ -162,21 +162,22 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	@Test
 	public void customAnnotationAtClassLevelIsDetected() {
-		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 	}
 
 	@Test
 	public void customAnnotationAtInterfaceLevelIsDetected() {
-		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtInterfaceLevel).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.annotatedAtInterfaceLevel)
+				.toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 	}
 
 	@Test
 	public void customAnnotationAtMethodLevelIsDetected() {
-		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(new ConfigAttribute[0]);
+		ConfigAttribute[] attrs = this.mds.getAttributes(this.annotatedAtMethodLevel).toArray(new ConfigAttribute[0]);
 
 		assertThat(attrs).hasSize(1);
 	}
@@ -184,7 +185,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void proxyFactoryInterfaceAttributesFound() throws Exception {
 		MockMethodInvocation mi = MethodInvocationFactory.createSec2150MethodInvocation();
-		Collection<ConfigAttribute> attributes = mds.getAttributes(mi);
+		Collection<ConfigAttribute> attributes = this.mds.getAttributes(mi);
 		assertThat(attributes).hasSize(1);
 		Expression expression = (Expression) ReflectionTestUtils.getField(attributes.iterator().next(),
 				"authorizeExpression");

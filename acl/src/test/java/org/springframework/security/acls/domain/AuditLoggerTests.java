@@ -46,52 +46,52 @@ public class AuditLoggerTests {
 
 	@Before
 	public void setUp() {
-		logger = new ConsoleAuditLogger();
-		ace = mock(AuditableAccessControlEntry.class);
-		console = System.out;
-		System.setOut(new PrintStream(bytes));
+		this.logger = new ConsoleAuditLogger();
+		this.ace = mock(AuditableAccessControlEntry.class);
+		this.console = System.out;
+		System.setOut(new PrintStream(this.bytes));
 	}
 
 	@After
 	public void tearDown() {
-		System.setOut(console);
-		bytes.reset();
+		System.setOut(this.console);
+		this.bytes.reset();
 	}
 
 	@Test
 	public void nonAuditableAceIsIgnored() {
 		AccessControlEntry ace = mock(AccessControlEntry.class);
-		logger.logIfNeeded(true, ace);
-		assertThat(bytes.size()).isZero();
+		this.logger.logIfNeeded(true, ace);
+		assertThat(this.bytes.size()).isZero();
 	}
 
 	@Test
 	public void successIsNotLoggedIfAceDoesntRequireSuccessAudit() {
-		when(ace.isAuditSuccess()).thenReturn(false);
-		logger.logIfNeeded(true, ace);
-		assertThat(bytes.size()).isZero();
+		when(this.ace.isAuditSuccess()).thenReturn(false);
+		this.logger.logIfNeeded(true, this.ace);
+		assertThat(this.bytes.size()).isZero();
 	}
 
 	@Test
 	public void successIsLoggedIfAceRequiresSuccessAudit() {
-		when(ace.isAuditSuccess()).thenReturn(true);
+		when(this.ace.isAuditSuccess()).thenReturn(true);
 
-		logger.logIfNeeded(true, ace);
-		assertThat(bytes.toString()).startsWith("GRANTED due to ACE");
+		this.logger.logIfNeeded(true, this.ace);
+		assertThat(this.bytes.toString()).startsWith("GRANTED due to ACE");
 	}
 
 	@Test
 	public void failureIsntLoggedIfAceDoesntRequireFailureAudit() {
-		when(ace.isAuditFailure()).thenReturn(false);
-		logger.logIfNeeded(false, ace);
-		assertThat(bytes.size()).isZero();
+		when(this.ace.isAuditFailure()).thenReturn(false);
+		this.logger.logIfNeeded(false, this.ace);
+		assertThat(this.bytes.size()).isZero();
 	}
 
 	@Test
 	public void failureIsLoggedIfAceRequiresFailureAudit() {
-		when(ace.isAuditFailure()).thenReturn(true);
-		logger.logIfNeeded(false, ace);
-		assertThat(bytes.toString()).startsWith("DENIED due to ACE");
+		when(this.ace.isAuditFailure()).thenReturn(true);
+		this.logger.logIfNeeded(false, this.ace);
+		assertThat(this.bytes.toString()).startsWith("DENIED due to ACE");
 	}
 
 }

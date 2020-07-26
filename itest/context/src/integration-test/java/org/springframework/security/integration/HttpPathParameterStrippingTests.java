@@ -48,7 +48,7 @@ public class HttpPathParameterStrippingTests {
 		request.setPathInfo("/secured;x=y/admin.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		fcp.doFilter(request, response, new MockFilterChain());
+		this.fcp.doFilter(request, response, new MockFilterChain());
 	}
 
 	@Test(expected = RequestRejectedException.class)
@@ -57,7 +57,7 @@ public class HttpPathParameterStrippingTests {
 		request.setServletPath("/secured/admin.html;x=user.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		fcp.doFilter(request, response, new MockFilterChain());
+		this.fcp.doFilter(request, response, new MockFilterChain());
 	}
 
 	@Test(expected = RequestRejectedException.class)
@@ -67,7 +67,7 @@ public class HttpPathParameterStrippingTests {
 		request.setPathInfo("/admin.html;x=user.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		fcp.doFilter(request, response, new MockFilterChain());
+		this.fcp.doFilter(request, response, new MockFilterChain());
 		assertThat(response.getStatus()).isEqualTo(403);
 	}
 

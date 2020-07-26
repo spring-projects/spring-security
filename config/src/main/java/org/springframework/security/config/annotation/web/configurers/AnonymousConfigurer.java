@@ -140,27 +140,27 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	public void init(H http) {
-		if (authenticationProvider == null) {
-			authenticationProvider = new AnonymousAuthenticationProvider(getKey());
+		if (this.authenticationProvider == null) {
+			this.authenticationProvider = new AnonymousAuthenticationProvider(getKey());
 		}
-		if (authenticationFilter == null) {
-			authenticationFilter = new AnonymousAuthenticationFilter(getKey(), principal, authorities);
+		if (this.authenticationFilter == null) {
+			this.authenticationFilter = new AnonymousAuthenticationFilter(getKey(), this.principal, this.authorities);
 		}
-		authenticationProvider = postProcess(authenticationProvider);
-		http.authenticationProvider(authenticationProvider);
+		this.authenticationProvider = postProcess(this.authenticationProvider);
+		http.authenticationProvider(this.authenticationProvider);
 	}
 
 	@Override
 	public void configure(H http) {
-		authenticationFilter.afterPropertiesSet();
-		http.addFilter(authenticationFilter);
+		this.authenticationFilter.afterPropertiesSet();
+		http.addFilter(this.authenticationFilter);
 	}
 
 	private String getKey() {
-		if (key == null) {
-			key = UUID.randomUUID().toString();
+		if (this.key == null) {
+			this.key = UUID.randomUUID().toString();
 		}
-		return key;
+		return this.key;
 	}
 
 }

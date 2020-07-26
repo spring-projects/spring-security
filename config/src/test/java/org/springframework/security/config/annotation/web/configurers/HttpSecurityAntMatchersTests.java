@@ -55,15 +55,15 @@ public class HttpSecurityAntMatchersTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
 	}
 
 	@After
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -71,11 +71,11 @@ public class HttpSecurityAntMatchersTests {
 	@Test
 	public void antMatchersMethodAndNoPatterns() throws Exception {
 		loadConfig(AntMatchersNoPatternsConfig.class);
-		request.setMethod("POST");
+		this.request.setMethod("POST");
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
 	@EnableWebSecurity
@@ -107,11 +107,11 @@ public class HttpSecurityAntMatchersTests {
 	@Test
 	public void antMatchersMethodAndEmptyPatterns() throws Exception {
 		loadConfig(AntMatchersEmptyPatternsConfig.class);
-		request.setMethod("POST");
+		this.request.setMethod("POST");
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@EnableWebSecurity
@@ -141,11 +141,11 @@ public class HttpSecurityAntMatchersTests {
 	}
 
 	public void loadConfig(Class<?>... configs) {
-		context = new AnnotationConfigWebApplicationContext();
-		context.register(configs);
-		context.refresh();
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.refresh();
 
-		context.getAutowireCapableBeanFactory().autowireBean(this);
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 }

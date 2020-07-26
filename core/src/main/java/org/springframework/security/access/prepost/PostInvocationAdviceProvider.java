@@ -54,7 +54,7 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 			return returnedObject;
 		}
 
-		return postAdvice.after(authentication, (MethodInvocation) object, pia, returnedObject);
+		return this.postAdvice.after(authentication, (MethodInvocation) object, pia, returnedObject);
 	}
 
 	private PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {

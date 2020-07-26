@@ -111,21 +111,22 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.logoutSuccessUrl = DEFAULT_LOGIN_PAGE_URL + "?logout";
 		this.failureUrl = DEFAULT_LOGIN_PAGE_URL + "?" + ERROR_PARAMETER_NAME;
 		if (authFilter != null) {
-			formLoginEnabled = true;
-			usernameParameter = authFilter.getUsernameParameter();
-			passwordParameter = authFilter.getPasswordParameter();
+			this.formLoginEnabled = true;
+			this.usernameParameter = authFilter.getUsernameParameter();
+			this.passwordParameter = authFilter.getPasswordParameter();
 
 			if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-				rememberMeParameter = ((AbstractRememberMeServices) authFilter.getRememberMeServices()).getParameter();
+				this.rememberMeParameter = ((AbstractRememberMeServices) authFilter.getRememberMeServices())
+						.getParameter();
 			}
 		}
 
 		if (openIDFilter != null) {
-			openIdEnabled = true;
-			openIDusernameParameter = "openid_identifier";
+			this.openIdEnabled = true;
+			this.openIDusernameParameter = "openid_identifier";
 
 			if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-				openIDrememberMeParameter = ((AbstractRememberMeServices) openIDFilter.getRememberMeServices())
+				this.openIDrememberMeParameter = ((AbstractRememberMeServices) openIDFilter.getRememberMeServices())
 						.getParameter();
 			}
 		}
@@ -143,7 +144,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	public boolean isEnabled() {
-		return formLoginEnabled || openIdEnabled || oauth2LoginEnabled || this.saml2LoginEnabled;
+		return this.formLoginEnabled || this.openIdEnabled || this.oauth2LoginEnabled || this.saml2LoginEnabled;
 	}
 
 	public void setLogoutSuccessUrl(String logoutSuccessUrl) {
@@ -151,7 +152,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	public String getLoginPageUrl() {
-		return loginPageUrl;
+		return this.loginPageUrl;
 	}
 
 	public void setLoginPageUrl(String loginPageUrl) {
@@ -270,7 +271,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 					+ "      </form>\n");
 		}
 
-		if (openIdEnabled) {
+		if (this.openIdEnabled) {
 			sb.append("      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"" + contextPath
 					+ this.openIDauthenticationUrl + "\">\n"
 					+ "        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n"
@@ -283,12 +284,12 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 					+ "      </form>\n");
 		}
 
-		if (oauth2LoginEnabled) {
+		if (this.oauth2LoginEnabled) {
 			sb.append("<h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
 			sb.append(createError(loginError, errorMsg));
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
-			for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName
+			for (Map.Entry<String, String> clientAuthenticationUrlToClientName : this.oauth2AuthenticationUrlToClientName
 					.entrySet()) {
 				sb.append(" <tr><td>");
 				String url = clientAuthenticationUrlToClientName.getKey();
@@ -306,7 +307,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append(createError(loginError, errorMsg));
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
-			for (Map.Entry<String, String> relyingPartyUrlToName : saml2AuthenticationUrlToProviderName.entrySet()) {
+			for (Map.Entry<String, String> relyingPartyUrlToName : this.saml2AuthenticationUrlToProviderName
+					.entrySet()) {
 				sb.append(" <tr><td>");
 				String url = relyingPartyUrlToName.getKey();
 				sb.append("<a href=\"").append(contextPath).append(url).append("\">");
@@ -340,15 +342,15 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	private boolean isLogoutSuccess(HttpServletRequest request) {
-		return logoutSuccessUrl != null && matches(request, logoutSuccessUrl);
+		return this.logoutSuccessUrl != null && matches(request, this.logoutSuccessUrl);
 	}
 
 	private boolean isLoginUrlRequest(HttpServletRequest request) {
-		return matches(request, loginPageUrl);
+		return matches(request, this.loginPageUrl);
 	}
 
 	private boolean isErrorPage(HttpServletRequest request) {
-		return matches(request, failureUrl);
+		return matches(request, this.failureUrl);
 	}
 
 	private static String createError(boolean isError, String message) {

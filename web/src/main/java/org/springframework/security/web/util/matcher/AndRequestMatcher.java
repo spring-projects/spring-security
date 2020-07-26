@@ -59,22 +59,22 @@ public final class AndRequestMatcher implements RequestMatcher {
 	}
 
 	public boolean matches(HttpServletRequest request) {
-		for (RequestMatcher matcher : requestMatchers) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Trying to match using " + matcher);
+		for (RequestMatcher matcher : this.requestMatchers) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Trying to match using " + matcher);
 			}
 			if (!matcher.matches(request)) {
-				logger.debug("Did not match");
+				this.logger.debug("Did not match");
 				return false;
 			}
 		}
-		logger.debug("All requestMatchers returned true");
+		this.logger.debug("All requestMatchers returned true");
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "AndRequestMatcher [requestMatchers=" + requestMatchers + "]";
+		return "AndRequestMatcher [requestMatchers=" + this.requestMatchers + "]";
 	}
 
 }

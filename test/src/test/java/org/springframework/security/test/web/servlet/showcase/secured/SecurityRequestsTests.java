@@ -59,12 +59,12 @@ public class SecurityRequestsTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
-		mvc.perform(get("/").with(user("user")))
+		this.mvc.perform(get("/").with(user("user")))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
@@ -73,7 +73,7 @@ public class SecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
-		mvc.perform(get("/admin").with(user("admin").roles("ADMIN")))
+		this.mvc.perform(get("/admin").with(user("admin").roles("ADMIN")))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with admin
@@ -82,8 +82,8 @@ public class SecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithUserDetails() throws Exception {
-		UserDetails user = userDetailsService.loadUserByUsername("user");
-		mvc.perform(get("/").with(user(user)))
+		UserDetails user = this.userDetailsService.loadUserByUsername("user");
+		this.mvc.perform(get("/").with(user(user)))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
@@ -93,7 +93,7 @@ public class SecurityRequestsTests {
 	@Test
 	public void requestProtectedUrlWithAuthentication() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "notused", "ROLE_USER");
-		mvc.perform(get("/").with(authentication(authentication)))
+		this.mvc.perform(get("/").with(authentication(authentication)))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user

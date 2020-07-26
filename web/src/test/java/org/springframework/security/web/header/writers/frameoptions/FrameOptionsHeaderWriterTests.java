@@ -46,8 +46,8 @@ public class FrameOptionsHeaderWriterTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -67,56 +67,56 @@ public class FrameOptionsHeaderWriterTests {
 
 	@Test
 	public void writeHeadersAllowFromReturnsNull() {
-		writer = new XFrameOptionsHeaderWriter(strategy);
+		this.writer = new XFrameOptionsHeaderWriter(this.strategy);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames().isEmpty()).isTrue();
+		assertThat(this.response.getHeaderNames().isEmpty()).isTrue();
 	}
 
 	@Test
 	public void writeHeadersAllowFrom() {
 		String allowFromValue = "https://example.com/";
-		when(strategy.getAllowFromValue(request)).thenReturn(allowFromValue);
-		writer = new XFrameOptionsHeaderWriter(strategy);
+		when(this.strategy.getAllowFromValue(this.request)).thenReturn(allowFromValue);
+		this.writer = new XFrameOptionsHeaderWriter(this.strategy);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
 				.isEqualTo("ALLOW-FROM " + allowFromValue);
 	}
 
 	@Test
 	public void writeHeadersDeny() {
-		writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
+		this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}
 
 	@Test
 	public void writeHeadersSameOrigin() {
-		writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
+		this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("SAMEORIGIN");
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("SAMEORIGIN");
 	}
 
 	@Test
 	public void writeHeadersTwiceLastWins() {
-		writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
-		writer.writeHeaders(request, response);
+		this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
+		this.writer.writeHeaders(this.request, this.response);
 
-		writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
-		writer.writeHeaders(request, response);
+		this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}
 
 }

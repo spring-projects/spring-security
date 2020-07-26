@@ -40,7 +40,7 @@ public class Sec2196Tests {
 
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
-		Service service = context.getBean(Service.class);
+		Service service = this.context.getBean(Service.class);
 		service.save(new User());
 	}
 
@@ -51,7 +51,7 @@ public class Sec2196Tests {
 
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("test", "pass", "saveUsers"));
-		Service service = context.getBean(Service.class);
+		Service service = this.context.getBean(Service.class);
 		service.save(new User());
 	}
 
@@ -61,9 +61,9 @@ public class Sec2196Tests {
 
 	@After
 	public void closeAppContext() {
-		if (context != null) {
-			context.close();
-			context = null;
+		if (this.context != null) {
+			this.context.close();
+			this.context = null;
 		}
 		SecurityContextHolder.clearContext();
 	}

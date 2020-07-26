@@ -60,14 +60,14 @@ public class HttpSecurityHeadersTests {
 
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).addFilters(springSecurityFilterChain).build();
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).addFilters(this.springSecurityFilterChain).build();
 	}
 
 	// gh-2953
 	// gh-3975
 	@Test
 	public void headerWhenSpringMvcResourceThenCacheRelatedHeadersReset() throws Exception {
-		mockMvc.perform(get("/resources/file.js")).andExpect(status().isOk())
+		this.mockMvc.perform(get("/resources/file.js")).andExpect(status().isOk())
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "max-age=12345"))
 				.andExpect(header().doesNotExist(HttpHeaders.PRAGMA))
 				.andExpect(header().doesNotExist(HttpHeaders.EXPIRES));
@@ -75,7 +75,7 @@ public class HttpSecurityHeadersTests {
 
 	@Test
 	public void headerWhenNotSpringResourceThenCacheRelatedHeadersSet() throws Exception {
-		mockMvc.perform(get("/notresource"))
+		this.mockMvc.perform(get("/notresource"))
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
 				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
 				.andExpect(header().string(HttpHeaders.EXPIRES, "0"));

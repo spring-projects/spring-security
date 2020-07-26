@@ -60,10 +60,10 @@ public class AbstractAuthorizeTagTests {
 
 	@Before
 	public void setup() {
-		tag = new AuthzTag();
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		servletContext = new MockServletContext();
+		this.tag = new AuthzTag();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.servletContext = new MockServletContext();
 	}
 
 	@After
@@ -75,10 +75,10 @@ public class AbstractAuthorizeTagTests {
 	public void privilegeEvaluatorFromRequest() throws IOException {
 		String uri = "/something";
 		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
-		tag.setUrl(uri);
-		request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE, expected);
+		this.tag.setUrl(uri);
+		this.request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE, expected);
 
-		tag.authorizeUsingUrlCheck();
+		this.tag.authorizeUsingUrlCheck();
 
 		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
 	}
@@ -87,13 +87,13 @@ public class AbstractAuthorizeTagTests {
 	public void privilegeEvaluatorFromChildContext() throws IOException {
 		String uri = "/something";
 		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
-		tag.setUrl(uri);
+		this.tag.setUrl(uri);
 		WebApplicationContext wac = mock(WebApplicationContext.class);
 		when(wac.getBeansOfType(WebInvocationPrivilegeEvaluator.class))
 				.thenReturn(Collections.singletonMap("wipe", expected));
-		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
+		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 
-		tag.authorizeUsingUrlCheck();
+		this.tag.authorizeUsingUrlCheck();
 
 		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
 	}
@@ -103,30 +103,30 @@ public class AbstractAuthorizeTagTests {
 	public void expressionFromChildContext() throws IOException {
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "USER"));
 		DefaultWebSecurityExpressionHandler expected = new DefaultWebSecurityExpressionHandler();
-		tag.setAccess("permitAll");
+		this.tag.setAccess("permitAll");
 		WebApplicationContext wac = mock(WebApplicationContext.class);
 		when(wac.getBeansOfType(SecurityExpressionHandler.class))
 				.thenReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
-		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
+		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 
-		assertThat(tag.authorize()).isTrue();
+		assertThat(this.tag.authorize()).isTrue();
 	}
 
 	private class AuthzTag extends AbstractAuthorizeTag {
 
 		@Override
 		protected ServletRequest getRequest() {
-			return request;
+			return AbstractAuthorizeTagTests.this.request;
 		}
 
 		@Override
 		protected ServletResponse getResponse() {
-			return response;
+			return AbstractAuthorizeTagTests.this.response;
 		}
 
 		@Override
 		protected ServletContext getServletContext() {
-			return servletContext;
+			return AbstractAuthorizeTagTests.this.servletContext;
 		}
 
 	}

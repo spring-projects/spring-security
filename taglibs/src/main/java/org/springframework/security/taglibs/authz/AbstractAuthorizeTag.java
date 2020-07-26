@@ -162,7 +162,7 @@ public abstract class AbstractAuthorizeTag {
 	}
 
 	public String getAccess() {
-		return access;
+		return this.access;
 	}
 
 	public void setAccess(String access) {
@@ -170,7 +170,7 @@ public abstract class AbstractAuthorizeTag {
 	}
 
 	public String getUrl() {
-		return url;
+		return this.url;
 	}
 
 	public void setUrl(String url) {
@@ -178,7 +178,7 @@ public abstract class AbstractAuthorizeTag {
 	}
 
 	public String getMethod() {
-		return method;
+		return this.method;
 	}
 
 	public void setMethod(String method) {

@@ -46,7 +46,7 @@ public class ExpressionBasedPreInvocationAdviceTests {
 
 	@Before
 	public void setUp() {
-		expressionBasedPreInvocationAdvice = new ExpressionBasedPreInvocationAdvice();
+		this.expressionBasedPreInvocationAdvice = new ExpressionBasedPreInvocationAdvice();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -57,7 +57,7 @@ public class ExpressionBasedPreInvocationAdviceTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingCollection", new Class[] { List.class }, new Object[] { new ArrayList<>() });
 		// when - then
-		expressionBasedPreInvocationAdvice.before(authentication, methodInvocation, attribute);
+		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -67,7 +67,7 @@ public class ExpressionBasedPreInvocationAdviceTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArray", new Class[] { String[].class }, new Object[] { new String[0] });
 		// when - then
-		expressionBasedPreInvocationAdvice.before(authentication, methodInvocation, attribute);
+		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
 	}
 
 	@Test
@@ -78,7 +78,8 @@ public class ExpressionBasedPreInvocationAdviceTests {
 				"doSomethingCollection", new Class[] { List.class }, new Object[] { new ArrayList<>() });
 
 		// when
-		boolean result = expressionBasedPreInvocationAdvice.before(authentication, methodInvocation, attribute);
+		boolean result = this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation,
+				attribute);
 		// then
 		assertThat(result).isTrue();
 	}
@@ -90,7 +91,7 @@ public class ExpressionBasedPreInvocationAdviceTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArray", new Class[] { String[].class }, new Object[] { new String[0] });
 		// when - then
-		expressionBasedPreInvocationAdvice.before(authentication, methodInvocation, attribute);
+		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
 	}
 
 	@Test
@@ -100,7 +101,8 @@ public class ExpressionBasedPreInvocationAdviceTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingCollection", new Class[] { List.class }, new Object[] { new ArrayList<>() });
 		// when
-		boolean result = expressionBasedPreInvocationAdvice.before(authentication, methodInvocation, attribute);
+		boolean result = this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation,
+				attribute);
 		// then
 		assertThat(result).isTrue();
 	}
@@ -112,7 +114,7 @@ public class ExpressionBasedPreInvocationAdviceTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "param" });
 		// when - then
-		expressionBasedPreInvocationAdvice.before(authentication, methodInvocation, attribute);
+		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -123,7 +125,7 @@ public class ExpressionBasedPreInvocationAdviceTests {
 				"doSomethingTwoArgs", new Class[] { String.class, List.class },
 				new Object[] { "param", new ArrayList<>() });
 		// when - then
-		expressionBasedPreInvocationAdvice.before(authentication, methodInvocation, attribute);
+		this.expressionBasedPreInvocationAdvice.before(this.authentication, methodInvocation, attribute);
 	}
 
 	private class TestClass {

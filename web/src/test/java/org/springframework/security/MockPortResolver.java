@@ -38,10 +38,10 @@ public class MockPortResolver implements PortResolver {
 
 	public int getServerPort(ServletRequest request) {
 		if ((request.getScheme() != null) && request.getScheme().equals("https")) {
-			return https;
+			return this.https;
 		}
 		else {
-			return http;
+			return this.http;
 		}
 	}
 

@@ -90,7 +90,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 						if (ace.isGranting()) {
 							// Success
 							if (!administrativeMode) {
-								auditLogger.logIfNeeded(true, ace);
+								this.auditLogger.logIfNeeded(true, ace);
 							}
 
 							return true;
@@ -120,7 +120,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 			// We found an ACE to reject the request at this point, as no
 			// other ACEs were found that granted a different permission
 			if (!administrativeMode) {
-				auditLogger.logIfNeeded(false, firstRejection);
+				this.auditLogger.logIfNeeded(false, firstRejection);
 			}
 
 			return false;

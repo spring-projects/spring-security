@@ -85,7 +85,7 @@ class HttpSecurityConfiguration {
 				this.objectPostProcessor, passwordEncoder);
 		authenticationBuilder.parentAuthenticationManager(authenticationManager());
 
-		HttpSecurity http = new HttpSecurity(objectPostProcessor, authenticationBuilder, createSharedObjects());
+		HttpSecurity http = new HttpSecurity(this.objectPostProcessor, authenticationBuilder, createSharedObjects());
 		http.csrf(withDefaults()).addFilter(new WebAsyncManagerIntegrationFilter()).exceptionHandling(withDefaults())
 				.headers(withDefaults()).sessionManagement(withDefaults()).securityContext(withDefaults())
 				.requestCache(withDefaults()).anonymous(withDefaults()).servletApi(withDefaults())
@@ -105,7 +105,7 @@ class HttpSecurityConfiguration {
 
 	private Map<Class<?>, Object> createSharedObjects() {
 		Map<Class<?>, Object> sharedObjects = new HashMap<>();
-		sharedObjects.put(ApplicationContext.class, context);
+		sharedObjects.put(ApplicationContext.class, this.context);
 		return sharedObjects;
 	}
 

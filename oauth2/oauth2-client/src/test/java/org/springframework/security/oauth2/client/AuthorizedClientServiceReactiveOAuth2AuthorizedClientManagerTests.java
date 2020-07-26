@@ -164,7 +164,7 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 				.thenReturn(Mono.just(this.clientRegistration));
 		when(this.authorizedClientService.loadAuthorizedClient(any(), any())).thenReturn(Mono.empty());
 
-		when(authorizedClientProvider.authorize(any())).thenReturn(Mono.empty());
+		when(this.authorizedClientProvider.authorize(any())).thenReturn(Mono.empty());
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();

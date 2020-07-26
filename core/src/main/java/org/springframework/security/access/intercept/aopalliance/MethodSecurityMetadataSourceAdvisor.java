@@ -92,17 +92,17 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 	}
 
 	public Pointcut getPointcut() {
-		return pointcut;
+		return this.pointcut;
 	}
 
 	public Advice getAdvice() {
 		synchronized (this.adviceMonitor) {
-			if (interceptor == null) {
-				Assert.notNull(adviceBeanName, "'adviceBeanName' must be set for use with bean factory lookup.");
-				Assert.state(beanFactory != null, "BeanFactory must be set to resolve 'adviceBeanName'");
-				interceptor = beanFactory.getBean(this.adviceBeanName, MethodInterceptor.class);
+			if (this.interceptor == null) {
+				Assert.notNull(this.adviceBeanName, "'adviceBeanName' must be set for use with bean factory lookup.");
+				Assert.state(this.beanFactory != null, "BeanFactory must be set to resolve 'adviceBeanName'");
+				this.interceptor = this.beanFactory.getBean(this.adviceBeanName, MethodInterceptor.class);
 			}
-			return interceptor;
+			return this.interceptor;
 		}
 	}
 
@@ -112,15 +112,17 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 
 	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
 		ois.defaultReadObject();
-		adviceMonitor = new Object();
-		attributeSource = beanFactory.getBean(metadataSourceBeanName, MethodSecurityMetadataSource.class);
+		this.adviceMonitor = new Object();
+		this.attributeSource = this.beanFactory.getBean(this.metadataSourceBeanName,
+				MethodSecurityMetadataSource.class);
 	}
 
 	class MethodSecurityMetadataSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
 		@SuppressWarnings("unchecked")
 		public boolean matches(Method m, Class targetClass) {
-			Collection attributes = attributeSource.getAttributes(m, targetClass);
+			Collection attributes = MethodSecurityMetadataSourceAdvisor.this.attributeSource.getAttributes(m,
+					targetClass);
 			return attributes != null && !attributes.isEmpty();
 		}
 

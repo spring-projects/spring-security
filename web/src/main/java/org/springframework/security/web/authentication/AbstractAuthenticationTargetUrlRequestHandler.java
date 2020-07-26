@@ -85,11 +85,11 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		String targetUrl = determineTargetUrl(request, response, authentication);
 
 		if (response.isCommitted()) {
-			logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+			this.logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
 			return;
 		}
 
-		redirectStrategy.sendRedirect(request, response, targetUrl);
+		this.redirectStrategy.sendRedirect(request, response, targetUrl);
 	}
 
 	/**
@@ -107,30 +107,30 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	 */
 	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
 		if (isAlwaysUseDefaultTargetUrl()) {
-			return defaultTargetUrl;
+			return this.defaultTargetUrl;
 		}
 
 		// Check for the parameter and use that if available
 		String targetUrl = null;
 
-		if (targetUrlParameter != null) {
-			targetUrl = request.getParameter(targetUrlParameter);
+		if (this.targetUrlParameter != null) {
+			targetUrl = request.getParameter(this.targetUrlParameter);
 
 			if (StringUtils.hasText(targetUrl)) {
-				logger.debug("Found targetUrlParameter in request: " + targetUrl);
+				this.logger.debug("Found targetUrlParameter in request: " + targetUrl);
 
 				return targetUrl;
 			}
 		}
 
-		if (useReferer && !StringUtils.hasLength(targetUrl)) {
+		if (this.useReferer && !StringUtils.hasLength(targetUrl)) {
 			targetUrl = request.getHeader("Referer");
-			logger.debug("Using Referer header: " + targetUrl);
+			this.logger.debug("Using Referer header: " + targetUrl);
 		}
 
 		if (!StringUtils.hasText(targetUrl)) {
-			targetUrl = defaultTargetUrl;
-			logger.debug("Using default Url: " + targetUrl);
+			targetUrl = this.defaultTargetUrl;
+			this.logger.debug("Using default Url: " + targetUrl);
 		}
 
 		return targetUrl;
@@ -143,7 +143,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	 * @return the defaultTargetUrl property
 	 */
 	protected final String getDefaultTargetUrl() {
-		return defaultTargetUrl;
+		return this.defaultTargetUrl;
 	}
 
 	/**
@@ -170,7 +170,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	}
 
 	protected boolean isAlwaysUseDefaultTargetUrl() {
-		return alwaysUseDefaultTargetUrl;
+		return this.alwaysUseDefaultTargetUrl;
 	}
 
 	/**
@@ -187,7 +187,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	}
 
 	protected String getTargetUrlParameter() {
-		return targetUrlParameter;
+		return this.targetUrlParameter;
 	}
 
 	/**
@@ -198,7 +198,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	}
 
 	protected RedirectStrategy getRedirectStrategy() {
-		return redirectStrategy;
+		return this.redirectStrategy;
 	}
 
 	/**

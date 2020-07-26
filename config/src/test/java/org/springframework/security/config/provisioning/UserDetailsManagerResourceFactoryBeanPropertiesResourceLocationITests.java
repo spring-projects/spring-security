@@ -39,7 +39,7 @@ public class UserDetailsManagerResourceFactoryBeanPropertiesResourceLocationITes
 
 	@Test
 	public void loadUserByUsernameWhenUserFoundThenNotNull() {
-		assertThat(users.loadUserByUsername("user")).isNotNull();
+		assertThat(this.users.loadUserByUsername("user")).isNotNull();
 	}
 
 	@Configuration

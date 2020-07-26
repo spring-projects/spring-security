@@ -48,7 +48,7 @@ public class BasicAuthenticationConverterTests {
 
 	@Before
 	public void setup() {
-		converter = new BasicAuthenticationConverter(authenticationDetailsSource);
+		this.converter = new BasicAuthenticationConverter(this.authenticationDetailsSource);
 	}
 
 	@Test
@@ -56,9 +56,9 @@ public class BasicAuthenticationConverterTests {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
+		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
 
-		verify(authenticationDetailsSource).buildDetails(any());
+		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");
 	}
@@ -68,9 +68,9 @@ public class BasicAuthenticationConverterTests {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
-		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
+		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
 
-		verify(authenticationDetailsSource).buildDetails(any());
+		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");
 	}
@@ -79,9 +79,9 @@ public class BasicAuthenticationConverterTests {
 	public void testWhenUnsupportedAuthorizationHeaderThenIgnored() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer someOtherToken");
-		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
+		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
 
-		verifyZeroInteractions(authenticationDetailsSource);
+		verifyZeroInteractions(this.authenticationDetailsSource);
 		assertThat(authentication).isNull();
 	}
 
@@ -90,7 +90,7 @@ public class BasicAuthenticationConverterTests {
 		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-		converter.convert(request);
+		this.converter.convert(request);
 	}
 
 	@Test(expected = BadCredentialsException.class)
@@ -98,7 +98,7 @@ public class BasicAuthenticationConverterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic NOT_VALID_BASE64");
 
-		converter.convert(request);
+		this.converter.convert(request);
 	}
 
 	@Test
@@ -106,9 +106,9 @@ public class BasicAuthenticationConverterTests {
 		String token = "rod:";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
+		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
 
-		verify(authenticationDetailsSource).buildDetails(any());
+		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");
 		assertThat(authentication.getCredentials()).isEqualTo("");
@@ -118,7 +118,7 @@ public class BasicAuthenticationConverterTests {
 	public void requestWhenEmptyBasicAuthorizationHeaderTokenThenError() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic ");
-		converter.convert(request);
+		this.converter.convert(request);
 	}
 
 }

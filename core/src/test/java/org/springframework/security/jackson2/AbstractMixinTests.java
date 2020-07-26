@@ -32,9 +32,9 @@ public abstract class AbstractMixinTests {
 
 	@Before
 	public void setup() {
-		mapper = new ObjectMapper();
+		this.mapper = new ObjectMapper();
 		ClassLoader loader = getClass().getClassLoader();
-		mapper.registerModules(SecurityJackson2Modules.getModules(loader));
+		this.mapper.registerModules(SecurityJackson2Modules.getModules(loader));
 	}
 
 	User createDefaultUser() {

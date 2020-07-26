@@ -92,10 +92,10 @@ public class JdbcAclService implements AclService {
 
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
 		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
-		List<ObjectIdentity> objects = jdbcOperations.query(findChildrenSql, args, (rs, rowNum) -> {
+		List<ObjectIdentity> objects = this.jdbcOperations.query(this.findChildrenSql, args, (rs, rowNum) -> {
 			String javaType = rs.getString("class");
 			Serializable identifier = (Serializable) rs.getObject("obj_id");
-			identifier = aclClassIdUtils.identifierFrom(identifier, rs);
+			identifier = this.aclClassIdUtils.identifierFrom(identifier, rs);
 			return new ObjectIdentityImpl(javaType, identifier);
 		});
 
@@ -124,7 +124,7 @@ public class JdbcAclService implements AclService {
 
 	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids)
 			throws NotFoundException {
-		Map<ObjectIdentity, Acl> result = lookupStrategy.readAclsById(objects, sids);
+		Map<ObjectIdentity, Acl> result = this.lookupStrategy.readAclsById(objects, sids);
 
 		// Check every requested object identity was found (throw NotFoundException if
 		// needed)
@@ -163,7 +163,7 @@ public class JdbcAclService implements AclService {
 	}
 
 	protected boolean isAclClassIdSupported() {
-		return aclClassIdSupported;
+		return this.aclClassIdSupported;
 	}
 
 }

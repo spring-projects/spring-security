@@ -40,7 +40,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
 	@Test
 	public void testToString() {
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-				getRequest("testUser", new String[] {}), gas);
+				getRequest("testUser", new String[] {}), this.gas);
 		String toString = details.toString();
 		assertThat(toString.contains("Role1")).as("toString should contain Role1").isTrue();
 		assertThat(toString.contains("Role2")).as("toString should contain Role2").isTrue();
@@ -49,11 +49,10 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
 	@Test
 	public void testGetSetPreAuthenticatedGrantedAuthorities() {
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-				getRequest("testUser", new String[] {}), gas);
+				getRequest("testUser", new String[] {}), this.gas);
 		List<GrantedAuthority> returnedGas = details.getGrantedAuthorities();
-		assertThat(gas.containsAll(returnedGas) && returnedGas.containsAll(gas))
-				.withFailMessage(
-						"Collections do not contain same elements; expected: " + gas + ", returned: " + returnedGas)
+		assertThat(this.gas.containsAll(returnedGas) && returnedGas.containsAll(this.gas)).withFailMessage(
+				"Collections do not contain same elements; expected: " + this.gas + ", returned: " + returnedGas)
 				.isTrue();
 	}
 
@@ -62,7 +61,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
 			private Set<String> roles = new HashSet<>(Arrays.asList(aRoles));
 
 			public boolean isUserInRole(String arg0) {
-				return roles.contains(arg0);
+				return this.roles.contains(arg0);
 			}
 		};
 		req.setRemoteUser(userName);

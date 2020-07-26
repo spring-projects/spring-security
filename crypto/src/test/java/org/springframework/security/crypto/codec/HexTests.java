@@ -54,29 +54,29 @@ public class HexTests {
 
 	@Test
 	public void decodeNotEven() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Hex-encoded string must have an even number of characters");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Hex-encoded string must have an even number of characters");
 		Hex.decode("414243444");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtFirst() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 1 or 2 position");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Detected a Non-hex character at 1 or 2 position");
 		Hex.decode("G0");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtSecond() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 3 or 4 position");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Detected a Non-hex character at 3 or 4 position");
 		Hex.decode("410G");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtBoth() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 5 or 6 position");
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("Detected a Non-hex character at 5 or 6 position");
 		Hex.decode("4142GG");
 	}
 

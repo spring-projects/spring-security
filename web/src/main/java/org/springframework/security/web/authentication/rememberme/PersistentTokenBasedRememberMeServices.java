@@ -73,7 +73,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 	public PersistentTokenBasedRememberMeServices(String key, UserDetailsService userDetailsService,
 			PersistentTokenRepository tokenRepository) {
 		super(key, userDetailsService);
-		random = new SecureRandom();
+		this.random = new SecureRandom();
 		this.tokenRepository = tokenRepository;
 	}
 
@@ -100,7 +100,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 		final String presentedSeries = cookieTokens[0];
 		final String presentedToken = cookieTokens[1];
 
-		PersistentRememberMeToken token = tokenRepository.getTokenForSeries(presentedSeries);
+		PersistentRememberMeToken token = this.tokenRepository.getTokenForSeries(presentedSeries);
 
 		if (token == null) {
 			// No series match, so we can't authenticate using this cookie
@@ -111,9 +111,10 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 		if (!presentedToken.equals(token.getTokenValue())) {
 			// Token doesn't match series value. Delete all logins for this user and throw
 			// an exception to warn them.
-			tokenRepository.removeUserTokens(token.getUsername());
+			this.tokenRepository.removeUserTokens(token.getUsername());
 
-			throw new CookieTheftException(messages.getMessage("PersistentTokenBasedRememberMeServices.cookieStolen",
+			throw new CookieTheftException(this.messages.getMessage(
+					"PersistentTokenBasedRememberMeServices.cookieStolen",
 					"Invalid remember-me token (Series/token) mismatch. Implies previous cookie theft attack."));
 		}
 
@@ -123,8 +124,8 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 
 		// Token also matches, so login is valid. Update the token value, keeping the
 		// *same* series number.
-		if (logger.isDebugEnabled()) {
-			logger.debug("Refreshing persistent login token for user '" + token.getUsername() + "', series '"
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Refreshing persistent login token for user '" + token.getUsername() + "', series '"
 					+ token.getSeries() + "'");
 		}
 
@@ -132,11 +133,11 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 				generateTokenData(), new Date());
 
 		try {
-			tokenRepository.updateToken(newToken.getSeries(), newToken.getTokenValue(), newToken.getDate());
+			this.tokenRepository.updateToken(newToken.getSeries(), newToken.getTokenValue(), newToken.getDate());
 			addCookie(newToken, request, response);
 		}
 		catch (Exception e) {
-			logger.error("Failed to update token: ", e);
+			this.logger.error("Failed to update token: ", e);
 			throw new RememberMeAuthenticationException("Autologin failed due to data access problem");
 		}
 
@@ -152,16 +153,16 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 			Authentication successfulAuthentication) {
 		String username = successfulAuthentication.getName();
 
-		logger.debug("Creating new persistent login for user " + username);
+		this.logger.debug("Creating new persistent login for user " + username);
 
 		PersistentRememberMeToken persistentToken = new PersistentRememberMeToken(username, generateSeriesData(),
 				generateTokenData(), new Date());
 		try {
-			tokenRepository.createNewToken(persistentToken);
+			this.tokenRepository.createNewToken(persistentToken);
 			addCookie(persistentToken, request, response);
 		}
 		catch (Exception e) {
-			logger.error("Failed to save persistent token ", e);
+			this.logger.error("Failed to save persistent token ", e);
 		}
 	}
 
@@ -170,19 +171,19 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 		super.logout(request, response, authentication);
 
 		if (authentication != null) {
-			tokenRepository.removeUserTokens(authentication.getName());
+			this.tokenRepository.removeUserTokens(authentication.getName());
 		}
 	}
 
 	protected String generateSeriesData() {
-		byte[] newSeries = new byte[seriesLength];
-		random.nextBytes(newSeries);
+		byte[] newSeries = new byte[this.seriesLength];
+		this.random.nextBytes(newSeries);
 		return new String(Base64.getEncoder().encode(newSeries));
 	}
 
 	protected String generateTokenData() {
-		byte[] newToken = new byte[tokenLength];
-		random.nextBytes(newToken);
+		byte[] newToken = new byte[this.tokenLength];
+		this.random.nextBytes(newToken);
 		return new String(Base64.getEncoder().encode(newToken));
 	}
 

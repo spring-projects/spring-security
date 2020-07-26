@@ -72,9 +72,9 @@ public class FilterChainPerformanceTests {
 
 	@Before
 	public void createAuthenticatedSession() {
-		session = new MockHttpSession();
-		SecurityContextHolder.getContext().setAuthentication(user);
-		session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+		this.session = new MockHttpSession();
+		SecurityContextHolder.getContext().setAuthentication(this.user);
+		this.session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				SecurityContextHolder.getContext());
 		SecurityContextHolder.clearContext();
 	}
@@ -91,7 +91,7 @@ public class FilterChainPerformanceTests {
 
 	private MockHttpServletRequest createRequest(String url) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setSession(session);
+		request.setSession(this.session);
 		request.setServletPath(url);
 		request.setMethod("GET");
 		return request;
@@ -101,21 +101,21 @@ public class FilterChainPerformanceTests {
 		for (int i = 0; i < N_INVOCATIONS; i++) {
 			MockHttpServletRequest request = createRequest("/somefile.html");
 			stack.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-			session = request.getSession();
+			this.session = request.getSession();
 		}
 	}
 
 	@Test
 	public void minimalStackInvocation() throws Exception {
 		sw.start("Run with Minimal Filter Stack");
-		runWithStack(minimalStack);
+		runWithStack(this.minimalStack);
 		sw.stop();
 	}
 
 	@Test
 	public void fullStackInvocation() throws Exception {
 		sw.start("Run with Full Filter Stack");
-		runWithStack(fullStack);
+		runWithStack(this.fullStack);
 		sw.stop();
 	}
 
@@ -130,11 +130,11 @@ public class FilterChainPerformanceTests {
 			int nAuthorities = user == 0 ? 1 : user * 10;
 			SecurityContextHolder.getContext().setAuthentication(
 					new UsernamePasswordAuthenticationToken("bob", "bobspassword", createRoles(nAuthorities)));
-			session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+			this.session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 					SecurityContextHolder.getContext());
 			SecurityContextHolder.clearContext();
 			sw.start(nAuthorities + " authorities");
-			runWithStack(minimalStack);
+			runWithStack(this.minimalStack);
 			System.out.println(sw.shortSummary());
 			sw.stop();
 		}

@@ -227,7 +227,7 @@ public class EnableWebSecurityTests {
 		}
 
 		public Child getChild() {
-			return child;
+			return this.child;
 		}
 
 	}

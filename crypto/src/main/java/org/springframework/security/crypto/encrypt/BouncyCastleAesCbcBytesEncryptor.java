@@ -53,7 +53,7 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		@SuppressWarnings("deprecation")
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
 				new CBCBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine()), new PKCS7Padding());
-		blockCipher.init(true, new ParametersWithIV(secretKey, iv));
+		blockCipher.init(true, new ParametersWithIV(this.secretKey, iv));
 		byte[] encrypted = process(blockCipher, bytes);
 		return iv != null ? concatenate(iv, encrypted) : encrypted;
 	}
@@ -66,7 +66,7 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		@SuppressWarnings("deprecation")
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
 				new CBCBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine()), new PKCS7Padding());
-		blockCipher.init(false, new ParametersWithIV(secretKey, iv));
+		blockCipher.init(false, new ParametersWithIV(this.secretKey, iv));
 		return process(blockCipher, encryptedBytes);
 	}
 

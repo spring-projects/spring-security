@@ -59,11 +59,11 @@ abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAtt
 	}
 
 	Expression getFilterExpression() {
-		return filterExpression;
+		return this.filterExpression;
 	}
 
 	Expression getAuthorizeExpression() {
-		return authorizeExpression;
+		return this.authorizeExpression;
 	}
 
 	public String getAttribute() {

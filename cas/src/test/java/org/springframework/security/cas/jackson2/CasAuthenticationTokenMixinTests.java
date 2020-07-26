@@ -95,15 +95,15 @@ public class CasAuthenticationTokenMixinTests {
 
 	@Before
 	public void setup() {
-		mapper = new ObjectMapper();
+		this.mapper = new ObjectMapper();
 		ClassLoader loader = getClass().getClassLoader();
-		mapper.registerModules(SecurityJackson2Modules.getModules(loader));
+		this.mapper.registerModules(SecurityJackson2Modules.getModules(loader));
 	}
 
 	@Test
 	public void serializeCasAuthenticationTest() throws JsonProcessingException, JSONException {
 		CasAuthenticationToken token = createCasAuthenticationToken();
-		String actualJson = mapper.writeValueAsString(token);
+		String actualJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(CAS_TOKEN_JSON, actualJson, true);
 	}
 
@@ -112,19 +112,19 @@ public class CasAuthenticationTokenMixinTests {
 			throws JsonProcessingException, JSONException {
 		CasAuthenticationToken token = createCasAuthenticationToken();
 		token.eraseCredentials();
-		String actualJson = mapper.writeValueAsString(token);
+		String actualJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(CAS_TOKEN_CLEARED_JSON, actualJson, true);
 	}
 
 	@Test
 	public void deserializeCasAuthenticationTestAfterEraseCredentialInvoked() throws Exception {
-		CasAuthenticationToken token = mapper.readValue(CAS_TOKEN_CLEARED_JSON, CasAuthenticationToken.class);
+		CasAuthenticationToken token = this.mapper.readValue(CAS_TOKEN_CLEARED_JSON, CasAuthenticationToken.class);
 		assertThat(((UserDetails) token.getPrincipal()).getPassword()).isNull();
 	}
 
 	@Test
 	public void deserializeCasAuthenticationTest() throws IOException {
-		CasAuthenticationToken token = mapper.readValue(CAS_TOKEN_JSON, CasAuthenticationToken.class);
+		CasAuthenticationToken token = this.mapper.readValue(CAS_TOKEN_JSON, CasAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
 		assertThat(((User) token.getPrincipal()).getUsername()).isEqualTo("admin");

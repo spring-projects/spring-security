@@ -45,7 +45,7 @@ public final class WhiteListedAllowFromStrategy extends AbstractRequestParameter
 
 	@Override
 	protected boolean allowed(String allowFromOrigin) {
-		return allowed.contains(allowFromOrigin);
+		return this.allowed.contains(allowFromOrigin);
 	}
 
 }

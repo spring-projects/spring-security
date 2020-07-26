@@ -125,7 +125,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 
-		headerWriters = new ManagedList<>();
+		this.headerWriters = new ManagedList<>();
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeaderWriterFilter.class);
 
 		boolean disabled = element != null && "true".equals(resolveAttribute(parserContext, element, "disabled"));
@@ -150,7 +150,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 		parseHeaderElements(element);
 
-		boolean noWriters = headerWriters.isEmpty();
+		boolean noWriters = this.headerWriters.isEmpty();
 		if (disabled && !noWriters) {
 			parserContext.getReaderContext().error("Cannot specify <headers disabled=\"true\"> with child elements.",
 					element);
@@ -159,7 +159,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			return null;
 		}
 
-		builder.addConstructorArgValue(headerWriters);
+		builder.addConstructorArgValue(this.headerWriters);
 		return builder.getBeanDefinition();
 	}
 
@@ -190,7 +190,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private void addCacheControl() {
 		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder
 				.genericBeanDefinition(CacheControlHeadersWriter.class);
-		headerWriters.add(headersWriter.getBeanDefinition());
+		this.headerWriters.add(headersWriter.getBeanDefinition());
 	}
 
 	private void parseHstsElement(boolean addIfNotPresent, Element element, ParserContext context) {
@@ -238,7 +238,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			}
 		}
 		if (addIfNotPresent || hstsElement != null) {
-			headerWriters.add(headersWriter.getBeanDefinition());
+			this.headerWriters.add(headersWriter.getBeanDefinition());
 		}
 	}
 
@@ -306,7 +306,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			}
 
 			if (addIfNotPresent) {
-				headerWriters.add(headersWriter.getBeanDefinition());
+				this.headerWriters.add(headersWriter.getBeanDefinition());
 			}
 		}
 	}
@@ -337,7 +337,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			headersWriter.addPropertyValue("reportOnly", reportOnly);
 		}
 
-		headerWriters.add(headersWriter.getBeanDefinition());
+		this.headerWriters.add(headersWriter.getBeanDefinition());
 	}
 
 	private void parseReferrerPolicyElement(Element element, ParserContext context) {
@@ -356,7 +356,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasLength(policy)) {
 			headersWriter.addConstructorArgValue(ReferrerPolicy.get(policy));
 		}
-		headerWriters.add(headersWriter.getBeanDefinition());
+		this.headerWriters.add(headersWriter.getBeanDefinition());
 	}
 
 	private void parseFeaturePolicyElement(Element element, ParserContext context) {
@@ -380,7 +380,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			headersWriter.addConstructorArgValue(policyDirectives);
 		}
 
-		headerWriters.add(headersWriter.getBeanDefinition());
+		this.headerWriters.add(headersWriter.getBeanDefinition());
 	}
 
 	private void attrNotAllowed(ParserContext context, String attrName, String otherAttrName, Element element) {
@@ -394,13 +394,13 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		for (Element headerElt : headerElts) {
 			String headerFactoryRef = headerElt.getAttribute(ATT_REF);
 			if (StringUtils.hasText(headerFactoryRef)) {
-				headerWriters.add(new RuntimeBeanReference(headerFactoryRef));
+				this.headerWriters.add(new RuntimeBeanReference(headerFactoryRef));
 			}
 			else {
 				BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
 				builder.addConstructorArgValue(headerElt.getAttribute(ATT_NAME));
 				builder.addConstructorArgValue(headerElt.getAttribute(ATT_VALUE));
-				headerWriters.add(builder.getBeanDefinition());
+				this.headerWriters.add(builder.getBeanDefinition());
 			}
 		}
 	}
@@ -420,7 +420,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private void addContentTypeOptions() {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
 				.genericBeanDefinition(XContentTypeOptionsHeaderWriter.class);
-		headerWriters.add(builder.getBeanDefinition());
+		this.headerWriters.add(builder.getBeanDefinition());
 	}
 
 	private void parseFrameOptionsElement(boolean addIfNotPresent, Element element, ParserContext parserContext) {
@@ -495,7 +495,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		if (addIfNotPresent || frameElt != null) {
-			headerWriters.add(builder.getBeanDefinition());
+			this.headerWriters.add(builder.getBeanDefinition());
 		}
 	}
 
@@ -526,7 +526,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			}
 		}
 		if (addIfNotPresent || xssElt != null) {
-			headerWriters.add(builder.getBeanDefinition());
+			this.headerWriters.add(builder.getBeanDefinition());
 		}
 	}
 

@@ -136,7 +136,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 			uds.setFactoryMethodName("cachingUserDetailsService");
 			uds.getConstructorArgumentValues().addGenericArgumentValue(userServiceRef);
 
-			services.getConstructorArgumentValues().addGenericArgumentValue(key);
+			services.getConstructorArgumentValues().addGenericArgumentValue(this.key);
 			services.getConstructorArgumentValues().addGenericArgumentValue(uds);
 			// tokenRepo is already added if it is a
 			// PersistentTokenBasedRememberMeServices
@@ -183,7 +183,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 			filter.addPropertyReference("authenticationSuccessHandler", successHandlerRef);
 		}
 
-		filter.addConstructorArgValue(authenticationManager);
+		filter.addConstructorArgValue(this.authenticationManager);
 		filter.addConstructorArgReference(servicesName);
 
 		pc.popAndRegisterContainingComponent();

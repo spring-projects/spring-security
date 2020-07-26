@@ -48,7 +48,7 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 
 	public AuthenticationManager getObject() throws Exception {
 		try {
-			return (AuthenticationManager) bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
+			return (AuthenticationManager) this.bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
 		}
 		catch (NoSuchBeanDefinitionException e) {
 			if (!BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
@@ -80,7 +80,7 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 	}
 
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		bf = beanFactory;
+		this.bf = beanFactory;
 	}
 
 	private <T> T getBeanOrNull(Class<T> type) {

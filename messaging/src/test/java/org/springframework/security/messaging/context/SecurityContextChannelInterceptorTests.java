@@ -59,12 +59,12 @@ public class SecurityContextChannelInterceptorTests {
 
 	@Before
 	public void setup() {
-		authentication = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
-		messageBuilder = MessageBuilder.withPayload("payload");
-		expectedAnonymous = new AnonymousAuthenticationToken("key", "anonymous",
+		this.authentication = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
+		this.messageBuilder = MessageBuilder.withPayload("payload");
+		this.expectedAnonymous = new AnonymousAuthenticationToken("key", "anonymous",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
-		interceptor = new SecurityContextChannelInterceptor();
+		this.interceptor = new SecurityContextChannelInterceptor();
 	}
 
 	@After
@@ -80,35 +80,35 @@ public class SecurityContextChannelInterceptorTests {
 	@Test
 	public void preSendCustomHeader() {
 		String headerName = "header";
-		interceptor = new SecurityContextChannelInterceptor(headerName);
-		messageBuilder.setHeader(headerName, authentication);
+		this.interceptor = new SecurityContextChannelInterceptor(headerName);
+		this.messageBuilder.setHeader(headerName, this.authentication);
 
-		interceptor.preSend(messageBuilder.build(), channel);
+		this.interceptor.preSend(this.messageBuilder.build(), this.channel);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
 	}
 
 	@Test
 	public void preSendUserSet() {
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, authentication);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
 
-		interceptor.preSend(messageBuilder.build(), channel);
+		this.interceptor.preSend(this.messageBuilder.build(), this.channel);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setAnonymousAuthenticationNull() {
-		interceptor.setAnonymousAuthentication(null);
+		this.interceptor.setAnonymousAuthentication(null);
 	}
 
 	@Test
 	public void preSendUsesCustomAnonymous() {
-		expectedAnonymous = new AnonymousAuthenticationToken("customKey", "customAnonymous",
+		this.expectedAnonymous = new AnonymousAuthenticationToken("customKey", "customAnonymous",
 				AuthorityUtils.createAuthorityList("ROLE_CUSTOM"));
-		interceptor.setAnonymousAuthentication(expectedAnonymous);
+		this.interceptor.setAnonymousAuthentication(this.expectedAnonymous);
 
-		interceptor.preSend(messageBuilder.build(), channel);
+		this.interceptor.preSend(this.messageBuilder.build(), this.channel);
 
 		assertAnonymous();
 	}
@@ -116,9 +116,9 @@ public class SecurityContextChannelInterceptorTests {
 	// SEC-2845
 	@Test
 	public void preSendUserNotAuthentication() {
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, principal);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.principal);
 
-		interceptor.preSend(messageBuilder.build(), channel);
+		this.interceptor.preSend(this.messageBuilder.build(), this.channel);
 
 		assertAnonymous();
 	}
@@ -126,7 +126,7 @@ public class SecurityContextChannelInterceptorTests {
 	// SEC-2845
 	@Test
 	public void preSendUserNotSet() {
-		interceptor.preSend(messageBuilder.build(), channel);
+		this.interceptor.preSend(this.messageBuilder.build(), this.channel);
 
 		assertAnonymous();
 	}
@@ -134,42 +134,42 @@ public class SecurityContextChannelInterceptorTests {
 	// SEC-2845
 	@Test
 	public void preSendUserNotSetCustomAnonymous() {
-		interceptor.preSend(messageBuilder.build(), channel);
+		this.interceptor.preSend(this.messageBuilder.build(), this.channel);
 
 		assertAnonymous();
 	}
 
 	@Test
 	public void afterSendCompletion() {
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 
-		interceptor.afterSendCompletion(messageBuilder.build(), channel, true, null);
+		this.interceptor.afterSendCompletion(this.messageBuilder.build(), this.channel, true, null);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
 	public void afterSendCompletionNullAuthentication() {
-		interceptor.afterSendCompletion(messageBuilder.build(), channel, true, null);
+		this.interceptor.afterSendCompletion(this.messageBuilder.build(), this.channel, true, null);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
 	public void beforeHandleUserSet() {
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, authentication);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
 
-		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
 	}
 
 	// SEC-2845
 	@Test
 	public void beforeHandleUserNotAuthentication() {
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, principal);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.principal);
 
-		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
 
 		assertAnonymous();
 	}
@@ -177,23 +177,23 @@ public class SecurityContextChannelInterceptorTests {
 	// SEC-2845
 	@Test
 	public void beforeHandleUserNotSet() {
-		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
 
 		assertAnonymous();
 	}
 
 	@Test
 	public void afterMessageHandledUserNotSet() {
-		interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
+		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
 	public void afterMessageHandled() {
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 
-		interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
+		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
@@ -204,12 +204,12 @@ public class SecurityContextChannelInterceptorTests {
 		TestingAuthenticationToken original = new TestingAuthenticationToken("original", "original", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(original);
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, authentication);
-		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
+		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
 
-		interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
+		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(original);
 	}
@@ -226,23 +226,23 @@ public class SecurityContextChannelInterceptorTests {
 		TestingAuthenticationToken origional = new TestingAuthenticationToken("original", "origional", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(origional);
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, authentication);
-		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
+		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
 
 		// start send websocket
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, null);
-		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, null);
+		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo(anonymous.getName());
 
-		interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
+		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
 		// end send websocket
 
-		interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
+		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(origional);
 	}
@@ -252,9 +252,9 @@ public class SecurityContextChannelInterceptorTests {
 		assertThat(currentAuthentication).isInstanceOf(AnonymousAuthenticationToken.class);
 
 		AnonymousAuthenticationToken anonymous = (AnonymousAuthenticationToken) currentAuthentication;
-		assertThat(anonymous.getName()).isEqualTo(expectedAnonymous.getName());
-		assertThat(anonymous.getAuthorities()).containsOnlyElementsOf(expectedAnonymous.getAuthorities());
-		assertThat(anonymous.getKeyHash()).isEqualTo(expectedAnonymous.getKeyHash());
+		assertThat(anonymous.getName()).isEqualTo(this.expectedAnonymous.getName());
+		assertThat(anonymous.getAuthorities()).containsOnlyElementsOf(this.expectedAnonymous.getAuthorities());
+		assertThat(anonymous.getKeyHash()).isEqualTo(this.expectedAnonymous.getKeyHash());
 	}
 
 }

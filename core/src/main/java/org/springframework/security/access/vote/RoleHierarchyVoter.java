@@ -43,7 +43,7 @@ public class RoleHierarchyVoter extends RoleVoter {
 	 */
 	@Override
 	Collection<? extends GrantedAuthority> extractAuthorities(Authentication authentication) {
-		return roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
+		return this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
 	}
 
 }

@@ -186,7 +186,8 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 						: expressionHandlerElt.getAttribute("ref");
 
 				if (StringUtils.hasText(expressionHandlerRef)) {
-					logger.info("Using bean '" + expressionHandlerRef + "' as method ExpressionHandler implementation");
+					this.logger.info(
+							"Using bean '" + expressionHandlerRef + "' as method ExpressionHandler implementation");
 					RootBeanDefinition lazyInitPP = new RootBeanDefinition(
 							LazyInitBeanDefinitionRegistryPostProcessor.class);
 					lazyInitPP.getConstructorArgumentValues().addGenericArgumentValue(expressionHandlerRef);
@@ -215,7 +216,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 					expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandler);
 					pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
-					logger.info(
+					this.logger.info(
 							"Expressions were enabled for method security but no SecurityExpressionHandler was configured. "
 									+ "All hasPermission() expressions will evaluate to false.");
 				}
@@ -485,11 +486,12 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		}
 
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-			synchronized (delegateMonitor) {
-				if (delegate == null) {
-					Assert.state(beanFactory != null, () -> "BeanFactory must be set to resolve " + authMgrBean);
+			synchronized (this.delegateMonitor) {
+				if (this.delegate == null) {
+					Assert.state(this.beanFactory != null,
+							() -> "BeanFactory must be set to resolve " + this.authMgrBean);
 					try {
-						delegate = beanFactory.getBean(authMgrBean, AuthenticationManager.class);
+						this.delegate = this.beanFactory.getBean(this.authMgrBean, AuthenticationManager.class);
 					}
 					catch (NoSuchBeanDefinitionException e) {
 						if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
@@ -501,7 +503,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 				}
 			}
 
-			return delegate.authenticate(authentication);
+			return this.delegate.authenticate(authentication);
 		}
 
 		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -515,8 +517,8 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		private Jsr250MethodSecurityMetadataSource source = new Jsr250MethodSecurityMetadataSource();
 
 		public Jsr250MethodSecurityMetadataSource getBean() {
-			source.setDefaultRolePrefix(this.rolePrefix);
-			return source;
+			this.source.setDefaultRolePrefix(this.rolePrefix);
+			return this.source;
 		}
 
 	}
@@ -526,8 +528,8 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		private DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
 
 		public DefaultMethodSecurityExpressionHandler getBean() {
-			handler.setDefaultRolePrefix(this.rolePrefix);
-			return handler;
+			this.handler.setDefaultRolePrefix(this.rolePrefix);
+			return this.handler;
 		}
 
 	}
@@ -566,10 +568,10 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		}
 
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-			if (!registry.containsBeanDefinition(beanName)) {
+			if (!registry.containsBeanDefinition(this.beanName)) {
 				return;
 			}
-			BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
+			BeanDefinition beanDefinition = registry.getBeanDefinition(this.beanName);
 			beanDefinition.setLazyInit(true);
 		}
 

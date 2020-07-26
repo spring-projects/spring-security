@@ -50,7 +50,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 
 	private GrantedAuthority authority2 = new SimpleGrantedAuthority("two");
 
-	private WebTestClient client = WebTestClient.bindToController(securityContextController)
+	private WebTestClient client = WebTestClient.bindToController(this.securityContextController)
 			.webFilter(new SecurityContextServerWebExchangeWebFilter())
 			.argumentResolvers(resolvers -> resolvers
 					.addCustomResolver(new CurrentSecurityContextArgumentResolver(new ReactiveAdapterRegistry())))
@@ -61,7 +61,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 	public void mockOpaqueTokenWhenUsingDefaultsThenBearerTokenAuthentication() {
 		this.client.mutateWith(mockOpaqueToken()).get().exchange().expectStatus().isOk();
 
-		SecurityContext context = securityContextController.removeSecurityContext();
+		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication token = (BearerTokenAuthentication) context.getAuthentication();
 		assertThat(token.getAuthorities()).isNotEmpty();
@@ -74,7 +74,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 		this.client.mutateWith(mockOpaqueToken().authorities(this.authority1, this.authority2)).get().exchange()
 				.expectStatus().isOk();
 
-		SecurityContext context = securityContextController.removeSecurityContext();
+		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1,
 				this.authority2);
 	}
@@ -85,7 +85,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 		this.client.mutateWith(mockOpaqueToken().attributes(attributes -> attributes.put(SUBJECT, sub))).get()
 				.exchange().expectStatus().isOk();
 
-		SecurityContext context = securityContextController.removeSecurityContext();
+		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication token = (BearerTokenAuthentication) context.getAuthentication();
 		assertThat(token.getTokenAttributes().get(SUBJECT)).isSameAs(sub);
@@ -96,7 +96,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 		OAuth2AuthenticatedPrincipal principal = active();
 		this.client.mutateWith(mockOpaqueToken().principal(principal)).get().exchange().expectStatus().isOk();
 
-		SecurityContext context = securityContextController.removeSecurityContext();
+		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication token = (BearerTokenAuthentication) context.getAuthentication();
 		assertThat(token.getPrincipal()).isSameAs(principal);
@@ -109,7 +109,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 		this.client.mutateWith(mockOpaqueToken().attributes(a -> a.put(SUBJECT, "foo")).principal(principal)).get()
 				.exchange().expectStatus().isOk();
 
-		SecurityContext context = securityContextController.removeSecurityContext();
+		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication token = (BearerTokenAuthentication) context.getAuthentication();
 		assertThat((String) ((OAuth2AuthenticatedPrincipal) token.getPrincipal()).getAttribute(SUBJECT))
@@ -118,7 +118,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 		this.client.mutateWith(mockOpaqueToken().principal(principal).attributes(a -> a.put(SUBJECT, "bar"))).get()
 				.exchange().expectStatus().isOk();
 
-		context = securityContextController.removeSecurityContext();
+		context = this.securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
 		token = (BearerTokenAuthentication) context.getAuthentication();
 		assertThat((String) ((OAuth2AuthenticatedPrincipal) token.getPrincipal()).getAttribute(SUBJECT))

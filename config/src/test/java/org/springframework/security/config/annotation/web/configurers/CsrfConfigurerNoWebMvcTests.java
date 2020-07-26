@@ -41,8 +41,8 @@ public class CsrfConfigurerNoWebMvcTests {
 
 	@After
 	public void teardown() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -50,21 +50,21 @@ public class CsrfConfigurerNoWebMvcTests {
 	public void missingDispatcherServletPreventsCsrfRequestDataValueProcessor() {
 		loadContext(EnableWebConfig.class);
 
-		assertThat(context.containsBeanDefinition("requestDataValueProcessor")).isTrue();
+		assertThat(this.context.containsBeanDefinition("requestDataValueProcessor")).isTrue();
 	}
 
 	@Test
 	public void findDispatcherServletPreventsCsrfRequestDataValueProcessor() {
 		loadContext(EnableWebMvcConfig.class);
 
-		assertThat(context.containsBeanDefinition("requestDataValueProcessor")).isTrue();
+		assertThat(this.context.containsBeanDefinition("requestDataValueProcessor")).isTrue();
 	}
 
 	@Test
 	public void overrideCsrfRequestDataValueProcessor() {
 		loadContext(EnableWebOverrideRequestDataConfig.class);
 
-		assertThat(context.getBean(RequestDataValueProcessor.class).getClass())
+		assertThat(this.context.getBean(RequestDataValueProcessor.class).getClass())
 				.isNotEqualTo(CsrfRequestDataValueProcessor.class);
 	}
 

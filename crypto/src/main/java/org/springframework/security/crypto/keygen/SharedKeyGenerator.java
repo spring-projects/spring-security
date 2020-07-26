@@ -31,11 +31,11 @@ final class SharedKeyGenerator implements BytesKeyGenerator {
 	}
 
 	public int getKeyLength() {
-		return sharedKey.length;
+		return this.sharedKey.length;
 	}
 
 	public byte[] generateKey() {
-		return sharedKey;
+		return this.sharedKey;
 	}
 
 }

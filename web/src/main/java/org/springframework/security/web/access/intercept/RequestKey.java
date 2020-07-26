@@ -38,11 +38,11 @@ public class RequestKey {
 	}
 
 	String getUrl() {
-		return url;
+		return this.url;
 	}
 
 	String getMethod() {
-		return method;
+		return this.method;
 	}
 
 	@Override
@@ -60,25 +60,25 @@ public class RequestKey {
 
 		RequestKey key = (RequestKey) obj;
 
-		if (!url.equals(key.url)) {
+		if (!this.url.equals(key.url)) {
 			return false;
 		}
 
-		if (method == null) {
+		if (this.method == null) {
 			return key.method == null;
 		}
 
-		return method.equals(key.method);
+		return this.method.equals(key.method);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(url.length() + 7);
+		StringBuilder sb = new StringBuilder(this.url.length() + 7);
 		sb.append("[");
-		if (method != null) {
-			sb.append(method).append(",");
+		if (this.method != null) {
+			sb.append(this.method).append(",");
 		}
-		sb.append(url);
+		sb.append(this.url);
 		sb.append("]");
 
 		return sb.toString();

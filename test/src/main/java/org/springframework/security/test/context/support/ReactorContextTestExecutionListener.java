@@ -87,12 +87,12 @@ public class ReactorContextTestExecutionListener extends DelegatingTestExecution
 
 			@Override
 			public Context currentContext() {
-				Context context = delegate.currentContext();
+				Context context = this.delegate.currentContext();
 				if (context.hasKey(CONTEXT_DEFAULTED_ATTR_NAME)) {
 					return context;
 				}
 				context = context.put(CONTEXT_DEFAULTED_ATTR_NAME, Boolean.TRUE);
-				Authentication authentication = securityContext.getAuthentication();
+				Authentication authentication = this.securityContext.getAuthentication();
 				if (authentication == null) {
 					return context;
 				}
@@ -102,22 +102,22 @@ public class ReactorContextTestExecutionListener extends DelegatingTestExecution
 
 			@Override
 			public void onSubscribe(Subscription s) {
-				delegate.onSubscribe(s);
+				this.delegate.onSubscribe(s);
 			}
 
 			@Override
 			public void onNext(T t) {
-				delegate.onNext(t);
+				this.delegate.onNext(t);
 			}
 
 			@Override
 			public void onError(Throwable t) {
-				delegate.onError(t);
+				this.delegate.onError(t);
 			}
 
 			@Override
 			public void onComplete() {
-				delegate.onComplete();
+				this.delegate.onComplete();
 			}
 
 		}

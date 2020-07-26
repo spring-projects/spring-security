@@ -46,42 +46,42 @@ public class PasswordPolicyAwareContextSourceTests {
 
 	@Before
 	public void setUp() {
-		reset(ctx);
-		ctxSource = new PasswordPolicyAwareContextSource("ldap://blah:789/dc=springframework,dc=org") {
+		reset(this.ctx);
+		this.ctxSource = new PasswordPolicyAwareContextSource("ldap://blah:789/dc=springframework,dc=org") {
 			@Override
 			protected DirContext createContext(Hashtable env) {
 				if ("manager".equals(env.get(Context.SECURITY_PRINCIPAL))) {
-					return ctx;
+					return PasswordPolicyAwareContextSourceTests.this.ctx;
 				}
 
 				return null;
 			}
 		};
-		ctxSource.setUserDn("manager");
-		ctxSource.setPassword("password");
-		ctxSource.afterPropertiesSet();
+		this.ctxSource.setUserDn("manager");
+		this.ctxSource.setPassword("password");
+		this.ctxSource.afterPropertiesSet();
 	}
 
 	@Test
 	public void contextIsReturnedWhenNoControlsAreSetAndReconnectIsSuccessful() {
-		assertThat(ctxSource.getContext("user", "ignored")).isNotNull();
+		assertThat(this.ctxSource.getContext("user", "ignored")).isNotNull();
 	}
 
 	@Test(expected = UncategorizedLdapException.class)
 	public void standardExceptionIsPropagatedWhenExceptionRaisedAndNoControlsAreSet() throws Exception {
-		doThrow(new NamingException("some LDAP exception")).when(ctx).reconnect(any(Control[].class));
+		doThrow(new NamingException("some LDAP exception")).when(this.ctx).reconnect(any(Control[].class));
 
-		ctxSource.getContext("user", "ignored");
+		this.ctxSource.getContext("user", "ignored");
 	}
 
 	@Test(expected = PasswordPolicyException.class)
 	public void lockedPasswordPolicyControlRaisesPasswordPolicyException() throws Exception {
-		when(ctx.getResponseControls()).thenReturn(new Control[] {
+		when(this.ctx.getResponseControls()).thenReturn(new Control[] {
 				new PasswordPolicyResponseControl(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL) });
 
-		doThrow(new NamingException("locked message")).when(ctx).reconnect(any(Control[].class));
+		doThrow(new NamingException("locked message")).when(this.ctx).reconnect(any(Control[].class));
 
-		ctxSource.getContext("user", "ignored");
+		this.ctxSource.getContext("user", "ignored");
 	}
 
 }

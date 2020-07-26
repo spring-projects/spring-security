@@ -106,7 +106,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	}
 
 	public ExpressionInterceptUrlRegistry getRegistry() {
-		return REGISTRY;
+		return this.REGISTRY;
 	}
 
 	public final class ExpressionInterceptUrlRegistry extends
@@ -175,7 +175,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	private void interceptUrl(Iterable<? extends RequestMatcher> requestMatchers,
 			Collection<ConfigAttribute> configAttributes) {
 		for (RequestMatcher requestMatcher : requestMatchers) {
-			REGISTRY.addMapping(
+			this.REGISTRY.addMapping(
 					new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(requestMatcher, configAttributes));
 		}
 	}
@@ -192,7 +192,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	@Override
 	ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(H http) {
-		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = REGISTRY.createRequestMap();
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = this.REGISTRY.createRequestMap();
 		if (requestMap.isEmpty()) {
 			throw new IllegalStateException(
 					"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
@@ -201,7 +201,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	}
 
 	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler(H http) {
-		if (expressionHandler == null) {
+		if (this.expressionHandler == null) {
 			DefaultWebSecurityExpressionHandler defaultHandler = new DefaultWebSecurityExpressionHandler();
 			AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 			if (trustResolver != null) {
@@ -228,10 +228,10 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 				}
 			}
 
-			expressionHandler = postProcess(defaultHandler);
+			this.expressionHandler = postProcess(defaultHandler);
 		}
 
-		return expressionHandler;
+		return this.expressionHandler;
 	}
 
 	private static String hasAnyRole(String... authorities) {
@@ -439,10 +439,10 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 * customization
 		 */
 		public ExpressionInterceptUrlRegistry access(String attribute) {
-			if (not) {
+			if (this.not) {
 				attribute = "!" + attribute;
 			}
-			interceptUrl(requestMatchers, SecurityConfig.createList(attribute));
+			interceptUrl(this.requestMatchers, SecurityConfig.createList(attribute));
 			return ExpressionUrlAuthorizationConfigurer.this.REGISTRY;
 		}
 

@@ -174,7 +174,7 @@ class Argon2EncodingUtils {
 		}
 
 		public byte[] getHash() {
-			return Arrays.clone(hash);
+			return Arrays.clone(this.hash);
 		}
 
 		public void setHash(byte[] hash) {
@@ -182,7 +182,7 @@ class Argon2EncodingUtils {
 		}
 
 		public Argon2Parameters getParameters() {
-			return parameters;
+			return this.parameters;
 		}
 
 		public void setParameters(Argon2Parameters parameters) {

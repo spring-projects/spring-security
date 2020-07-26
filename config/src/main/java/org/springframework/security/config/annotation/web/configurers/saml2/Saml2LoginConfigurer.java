@@ -210,9 +210,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			this.relyingPartyRegistrationRepository = getSharedOrBean(http, RelyingPartyRegistrationRepository.class);
 		}
 
-		saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http),
+		this.saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http),
 				this.loginProcessingUrl);
-		setAuthenticationFilter(saml2WebSsoAuthenticationFilter);
+		setAuthenticationFilter(this.saml2WebSsoAuthenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 
 		if (hasText(this.loginPage)) {
@@ -258,7 +258,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			registerDefaultAuthenticationProvider(http);
 		}
 		else {
-			saml2WebSsoAuthenticationFilter.setAuthenticationManager(this.authenticationManager);
+			this.saml2WebSsoAuthenticationFilter.setAuthenticationManager(this.authenticationManager);
 		}
 	}
 
@@ -281,7 +281,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return;
 		}
 
-		csrf.ignoringRequestMatchers(new AntPathRequestMatcher(loginProcessingUrl));
+		csrf.ignoringRequestMatchers(new AntPathRequestMatcher(this.loginProcessingUrl));
 	}
 
 	private void initDefaultLoginFilter(B http) {

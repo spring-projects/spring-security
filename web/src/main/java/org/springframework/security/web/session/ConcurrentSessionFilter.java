@@ -102,7 +102,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 			HttpServletResponse response = event.getResponse();
 			SessionInformation info = event.getSessionInformation();
 
-			redirectStrategy.sendRedirect(request, response, determineExpiredUrl(request, info));
+			this.redirectStrategy.sendRedirect(request, response, determineExpiredUrl(request, info));
 		};
 	}
 
@@ -116,7 +116,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(sessionRegistry, "SessionRegistry required");
+		Assert.notNull(this.sessionRegistry, "SessionRegistry required");
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -127,13 +127,13 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 		HttpSession session = request.getSession(false);
 
 		if (session != null) {
-			SessionInformation info = sessionRegistry.getSessionInformation(session.getId());
+			SessionInformation info = this.sessionRegistry.getSessionInformation(session.getId());
 
 			if (info != null) {
 				if (info.isExpired()) {
 					// Expired - abort processing
-					if (logger.isDebugEnabled()) {
-						logger.debug("Requested session ID " + request.getRequestedSessionId() + " has expired.");
+					if (this.logger.isDebugEnabled()) {
+						this.logger.debug("Requested session ID " + request.getRequestedSessionId() + " has expired.");
 					}
 					doLogout(request, response);
 
@@ -143,7 +143,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 				}
 				else {
 					// Non-expired - update last request date/time
-					sessionRegistry.refreshLastRequest(info.getSessionId());
+					this.sessionRegistry.refreshLastRequest(info.getSessionId());
 				}
 			}
 		}
@@ -162,7 +162,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	 */
 	@Deprecated
 	protected String determineExpiredUrl(HttpServletRequest request, SessionInformation info) {
-		return expiredUrl;
+		return this.expiredUrl;
 	}
 
 	private void doLogout(HttpServletRequest request, HttpServletResponse response) {

@@ -72,7 +72,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpIn
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		if ((auth != null) && (auth.getName() != null) && (auth.getCredentials() != null)
-				&& !trustResolver.isAnonymous(auth)) {
+				&& !this.trustResolver.isAnonymous(auth)) {
 			String base64 = auth.getName() + ":" + auth.getCredentials().toString();
 			con.setRequestProperty("Authorization",
 					"Basic " + new String(Base64.getEncoder().encode(base64.getBytes())));

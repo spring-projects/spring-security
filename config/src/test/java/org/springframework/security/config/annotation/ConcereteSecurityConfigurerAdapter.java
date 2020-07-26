@@ -28,7 +28,7 @@ class ConcereteSecurityConfigurerAdapter extends SecurityConfigurerAdapter<Objec
 
 	@Override
 	public void configure(SecurityBuilder<Object> builder) {
-		list = postProcess(list);
+		this.list = postProcess(this.list);
 	}
 
 	public ConcereteSecurityConfigurerAdapter list(List<Object> l) {

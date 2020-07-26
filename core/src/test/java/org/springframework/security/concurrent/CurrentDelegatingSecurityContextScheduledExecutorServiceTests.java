@@ -37,7 +37,7 @@ public class CurrentDelegatingSecurityContextScheduledExecutorServiceTests
 
 	@Override
 	protected DelegatingSecurityContextScheduledExecutorService create() {
-		return new DelegatingSecurityContextScheduledExecutorService(delegate);
+		return new DelegatingSecurityContextScheduledExecutorService(this.delegate);
 	}
 
 }

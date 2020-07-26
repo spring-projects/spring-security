@@ -46,9 +46,9 @@ abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStr
 	protected final Log log = LogFactory.getLog(getClass());
 
 	public String getAllowFromValue(HttpServletRequest request) {
-		String allowFromOrigin = request.getParameter(allowFromParameterName);
-		if (log.isDebugEnabled()) {
-			log.debug("Supplied origin '" + allowFromOrigin + "'");
+		String allowFromOrigin = request.getParameter(this.allowFromParameterName);
+		if (this.log.isDebugEnabled()) {
+			this.log.debug("Supplied origin '" + allowFromOrigin + "'");
 		}
 		if (StringUtils.hasText(allowFromOrigin) && allowed(allowFromOrigin)) {
 			return allowFromOrigin;

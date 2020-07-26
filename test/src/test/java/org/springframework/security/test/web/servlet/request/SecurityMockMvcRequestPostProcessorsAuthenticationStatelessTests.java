@@ -53,20 +53,20 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	// SEC-2593
 	@Test
 	public void userRequestPostProcessorWorksWithStateless() throws Exception {
-		mvc.perform(get("/").with(user("user"))).andExpect(status().is2xxSuccessful());
+		this.mvc.perform(get("/").with(user("user"))).andExpect(status().is2xxSuccessful());
 	}
 
 	// SEC-2593
 	@WithMockUser
 	@Test
 	public void withMockUserWorksWithStateless() throws Exception {
-		mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
+		this.mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
 	}
 
 	@EnableWebSecurity

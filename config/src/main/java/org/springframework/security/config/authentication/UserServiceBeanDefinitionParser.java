@@ -112,16 +112,16 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 	}
 
 	private String generateRandomPassword() {
-		if (random == null) {
+		if (this.random == null) {
 			try {
-				random = SecureRandom.getInstance("SHA1PRNG");
+				this.random = SecureRandom.getInstance("SHA1PRNG");
 			}
 			catch (NoSuchAlgorithmException e) {
 				// Shouldn't happen...
 				throw new RuntimeException("Failed find SHA1PRNG algorithm!");
 			}
 		}
-		return Long.toString(random.nextLong());
+		return Long.toString(this.random.nextLong());
 	}
 
 }

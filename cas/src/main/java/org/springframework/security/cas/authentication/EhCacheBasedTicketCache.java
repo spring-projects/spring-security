@@ -37,11 +37,11 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 	private Ehcache cache;
 
 	public void afterPropertiesSet() {
-		Assert.notNull(cache, "cache mandatory");
+		Assert.notNull(this.cache, "cache mandatory");
 	}
 
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
-		final Element element = cache.get(serviceTicket);
+		final Element element = this.cache.get(serviceTicket);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
@@ -51,7 +51,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 	}
 
 	public Ehcache getCache() {
-		return cache;
+		return this.cache;
 	}
 
 	public void putTicketInCache(final CasAuthenticationToken token) {
@@ -61,7 +61,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 			logger.debug("Cache put: " + element.getKey());
 		}
 
-		cache.put(element);
+		this.cache.put(element);
 	}
 
 	public void removeTicketFromCache(final CasAuthenticationToken token) {
@@ -73,7 +73,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 	}
 
 	public void removeTicketFromCache(final String serviceTicket) {
-		cache.remove(serviceTicket);
+		this.cache.remove(serviceTicket);
 	}
 
 	public void setCache(final Ehcache cache) {

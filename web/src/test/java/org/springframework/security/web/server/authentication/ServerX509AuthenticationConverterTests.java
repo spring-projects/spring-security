@@ -51,27 +51,29 @@ public class ServerX509AuthenticationConverterTests {
 
 	@Before
 	public void setUp() throws Exception {
-		request = MockServerHttpRequest.get("/");
+		this.request = MockServerHttpRequest.get("/");
 
-		certificate = X509TestUtils.buildTestCertificate();
-		when(principalExtractor.extractPrincipal(any())).thenReturn("Luke Taylor");
+		this.certificate = X509TestUtils.buildTestCertificate();
+		when(this.principalExtractor.extractPrincipal(any())).thenReturn("Luke Taylor");
 	}
 
 	@Test
 	public void shouldReturnNullForInvalidCertificate() {
-		Authentication authentication = converter.convert(MockServerWebExchange.from(request.build())).block();
+		Authentication authentication = this.converter.convert(MockServerWebExchange.from(this.request.build()))
+				.block();
 
 		assertThat(authentication).isNull();
 	}
 
 	@Test
 	public void shouldReturnAuthenticationForValidCertificate() {
-		request.sslInfo(new MockSslInfo(certificate));
+		this.request.sslInfo(new MockSslInfo(this.certificate));
 
-		Authentication authentication = converter.convert(MockServerWebExchange.from(request.build())).block();
+		Authentication authentication = this.converter.convert(MockServerWebExchange.from(this.request.build()))
+				.block();
 
 		assertThat(authentication.getName()).isEqualTo("Luke Taylor");
-		assertThat(authentication.getCredentials()).isEqualTo(certificate);
+		assertThat(authentication.getCredentials()).isEqualTo(this.certificate);
 	}
 
 	class MockSslInfo implements SslInfo {

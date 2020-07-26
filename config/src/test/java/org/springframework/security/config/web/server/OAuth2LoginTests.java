@@ -382,12 +382,12 @@ public class OAuth2LoginTests {
 					.anyExchange().authenticated()
 					.and()
 				.oauth2Login()
-					.authenticationConverter(authenticationConverter)
-					.authenticationManager(manager)
-					.authenticationMatcher(matcher)
-					.authorizationRequestResolver(resolver)
-					.authenticationSuccessHandler(successHandler)
-					.authenticationFailureHandler(failureHandler);
+					.authenticationConverter(this.authenticationConverter)
+					.authenticationManager(this.manager)
+					.authenticationMatcher(this.matcher)
+					.authorizationRequestResolver(this.resolver)
+					.authenticationSuccessHandler(this.successHandler)
+					.authenticationFailureHandler(this.failureHandler);
 			// @formatter:on
 			return http.build();
 		}
@@ -463,11 +463,11 @@ public class OAuth2LoginTests {
 				)
 				.oauth2Login(oauth2Login ->
 					oauth2Login
-						.authenticationConverter(authenticationConverter)
-						.authenticationManager(manager)
-						.authenticationMatcher(matcher)
-						.authorizationRequestResolver(resolver)
-						.authenticationSuccessHandler(successHandler)
+						.authenticationConverter(this.authenticationConverter)
+						.authenticationManager(this.manager)
+						.authenticationMatcher(this.matcher)
+						.authorizationRequestResolver(this.resolver)
+						.authenticationSuccessHandler(this.successHandler)
 				);
 			// @formatter:on
 			return http.build();
@@ -607,28 +607,28 @@ public class OAuth2LoginTests {
 					.anyExchange().authenticated()
 					.and()
 				.oauth2Login()
-					.authenticationConverter(authenticationConverter)
+					.authenticationConverter(this.authenticationConverter)
 					.authenticationManager(authenticationManager())
-					.securityContextRepository(securityContextRepository);
+					.securityContextRepository(this.securityContextRepository);
 			return http.build();
 			// @formatter:on
 		}
 
 		private ReactiveAuthenticationManager authenticationManager() {
 			OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(
-					tokenResponseClient, userService);
+					this.tokenResponseClient, this.userService);
 			oidc.setJwtDecoderFactory(jwtDecoderFactory());
 			return oidc;
 		}
 
 		@Bean
 		public ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
-			return jwtDecoderFactory;
+			return this.jwtDecoderFactory;
 		}
 
 		@Bean
 		public ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
-			return tokenResponseClient;
+			return this.tokenResponseClient;
 		}
 
 		private static class JwtDecoderFactory implements ReactiveJwtDecoderFactory<ClientRegistration> {

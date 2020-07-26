@@ -52,7 +52,7 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 			private Set<String> roles = new HashSet<>(Arrays.asList(aRoles));
 
 			public boolean isUserInRole(String arg0) {
-				return roles.contains(arg0);
+				return this.roles.contains(arg0);
 			}
 		};
 		req.setRemoteUser(aUserName);

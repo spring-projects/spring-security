@@ -41,7 +41,7 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 			FilterInvocation fi) {
 		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(trustResolver);
+		root.setTrustResolver(this.trustResolver);
 		root.setRoleHierarchy(getRoleHierarchy());
 		root.setDefaultRolePrefix(this.defaultRolePrefix);
 		return root;

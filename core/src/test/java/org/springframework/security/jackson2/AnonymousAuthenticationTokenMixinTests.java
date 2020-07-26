@@ -53,13 +53,13 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 	public void serializeAnonymousAuthenticationTokenTest() throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(HASH_KEY, user, user.getAuthorities());
-		String actualJson = mapper.writeValueAsString(token);
+		String actualJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(ANONYMOUS_JSON, actualJson, true);
 	}
 
 	@Test
 	public void deserializeAnonymousAuthenticationTokenTest() throws IOException {
-		AnonymousAuthenticationToken token = mapper.readValue(ANONYMOUS_JSON, AnonymousAuthenticationToken.class);
+		AnonymousAuthenticationToken token = this.mapper.readValue(ANONYMOUS_JSON, AnonymousAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getKeyHash()).isEqualTo(HASH_KEY.hashCode());
 		assertThat(token.getAuthorities()).isNotNull().hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
@@ -70,7 +70,7 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 		String jsonString = "{\"@class\": \"org.springframework.security.authentication.AnonymousAuthenticationToken\", \"details\": null,"
 				+ "\"principal\": \"user\", \"authenticated\": true, \"keyHash\": " + HASH_KEY.hashCode() + ","
 				+ "\"authorities\": [\"java.util.ArrayList\", []]}";
-		mapper.readValue(jsonString, AnonymousAuthenticationToken.class);
+		this.mapper.readValue(jsonString, AnonymousAuthenticationToken.class);
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 		User user = createDefaultUser();
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(HASH_KEY, user, user.getAuthorities());
 		token.eraseCredentials();
-		String actualJson = mapper.writeValueAsString(token);
+		String actualJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(ANONYMOUS_JSON.replace(UserDeserializerTests.USER_PASSWORD, "null"), actualJson, true);
 	}
 

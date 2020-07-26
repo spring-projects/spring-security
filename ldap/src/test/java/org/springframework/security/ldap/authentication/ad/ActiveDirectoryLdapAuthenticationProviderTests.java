@@ -79,18 +79,18 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	@Before
 	public void setUp() {
-		provider = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/");
+		this.provider = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/");
 	}
 
 	@Test
 	public void bindPrincipalIsCreatedCorrectly() {
-		assertThat(provider.createBindPrincipal("joe")).isEqualTo("joe@mydomain.eu");
-		assertThat(provider.createBindPrincipal("joe@mydomain.eu")).isEqualTo("joe@mydomain.eu");
+		assertThat(this.provider.createBindPrincipal("joe")).isEqualTo("joe@mydomain.eu");
+		assertThat(this.provider.createBindPrincipal("joe@mydomain.eu")).isEqualTo("joe@mydomain.eu");
 	}
 
 	@Test
 	public void successfulAuthenticationProducesExpectedAuthorities() throws Exception {
-		checkAuthentication("dc=mydomain,dc=eu", provider);
+		checkAuthentication("dc=mydomain,dc=eu", this.provider);
 	}
 
 	// SEC-1915
@@ -113,7 +113,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 		// when
 		customProvider.setSearchFilter(customSearchFilter);
-		Authentication result = customProvider.authenticate(joe);
+		Authentication result = customProvider.authenticate(this.joe);
 
 		// then
 		assertThat(result.isAuthenticated()).isTrue();
@@ -137,7 +137,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
 
 		// when
-		Authentication result = customProvider.authenticate(joe);
+		Authentication result = customProvider.authenticate(this.joe);
 
 		// then
 		assertThat(result.isAuthenticated()).isTrue();
@@ -165,7 +165,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
 
 		// when
-		Authentication result = customProvider.authenticate(joe);
+		Authentication result = customProvider.authenticate(this.joe);
 
 		// then
 		assertThat(captor.getValue()).containsExactly("joe@mydomain.eu", "joe");
@@ -174,17 +174,17 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setSearchFilterNull() {
-		provider.setSearchFilter(null);
+		this.provider.setSearchFilter(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setSearchFilterEmpty() {
-		provider.setSearchFilter(" ");
+		this.provider.setSearchFilter(" ");
 	}
 
 	@Test
 	public void nullDomainIsSupportedIfAuthenticatingWithFullUserPrincipal() throws Exception {
-		provider = new ActiveDirectoryLdapAuthenticationProvider(null, "ldap://192.168.1.200/");
+		this.provider = new ActiveDirectoryLdapAuthenticationProvider(null, "ldap://192.168.1.200/");
 		DirContext ctx = mock(DirContext.class);
 		when(ctx.getNameInNamespace()).thenReturn("");
 
@@ -192,16 +192,16 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		when(ctx.search(eq(new DistinguishedName("DC=mydomain,DC=eu")), any(String.class), any(Object[].class),
 				any(SearchControls.class))).thenReturn(new MockNamingEnumeration(sr));
-		provider.contextFactory = createContextFactoryReturning(ctx);
+		this.provider.contextFactory = createContextFactoryReturning(ctx);
 
 		try {
-			provider.authenticate(joe);
+			this.provider.authenticate(this.joe);
 			fail("Expected BadCredentialsException for user with no domain information");
 		}
 		catch (BadCredentialsException expected) {
 		}
 
-		provider.authenticate(new UsernamePasswordAuthenticationToken("joe@mydomain.eu", "password"));
+		this.provider.authenticate(new UsernamePasswordAuthenticationToken("joe@mydomain.eu", "password"));
 	}
 
 	@Test(expected = BadCredentialsException.class)
@@ -211,9 +211,9 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
 				.thenThrow(new NameNotFoundException());
 
-		provider.contextFactory = createContextFactoryReturning(ctx);
+		this.provider.contextFactory = createContextFactoryReturning(ctx);
 
-		provider.authenticate(joe);
+		this.provider.authenticate(this.joe);
 	}
 
 	// SEC-2017
@@ -224,15 +224,15 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
 				.thenReturn(new EmptyEnumeration<>());
 
-		provider.contextFactory = createContextFactoryReturning(ctx);
+		this.provider.contextFactory = createContextFactoryReturning(ctx);
 
-		provider.authenticate(joe);
+		this.provider.authenticate(this.joe);
 	}
 
 	// SEC-2500
 	@Test(expected = BadCredentialsException.class)
 	public void sec2500PreventAnonymousBind() {
-		provider.authenticate(new UsernamePasswordAuthenticationToken("rwinch", ""));
+		this.provider.authenticate(new UsernamePasswordAuthenticationToken("rwinch", ""));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -248,42 +248,43 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
 				.thenReturn(searchResults);
 
-		provider.contextFactory = createContextFactoryReturning(ctx);
+		this.provider.contextFactory = createContextFactoryReturning(ctx);
 
-		provider.authenticate(joe);
+		this.provider.authenticate(this.joe);
 	}
 
 	static final String msg = "[LDAP: error code 49 - 80858585: LdapErr: DSID-DECAFF0, comment: AcceptSecurityContext error, data ";
 
 	@Test(expected = BadCredentialsException.class)
 	public void userNotFoundIsCorrectlyMapped() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "525, xxxx]"));
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "525, xxxx]"));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = BadCredentialsException.class)
 	public void incorrectPasswordIsCorrectlyMapped() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "52e, xxxx]"));
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "52e, xxxx]"));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = BadCredentialsException.class)
 	public void notPermittedIsCorrectlyMapped() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "530, xxxx]"));
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "530, xxxx]"));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test
 	public void passwordNeedsResetIsCorrectlyMapped() {
 		final String dataCode = "773";
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + dataCode + ", xxxx]"));
-		provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.contextFactory = createContextFactoryThrowing(
+				new AuthenticationException(msg + dataCode + ", xxxx]"));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
 
-		thrown.expect(BadCredentialsException.class);
-		thrown.expect(new BaseMatcher<BadCredentialsException>() {
+		this.thrown.expect(BadCredentialsException.class);
+		this.thrown.expect(new BaseMatcher<BadCredentialsException>() {
 			private Matcher<Object> causeInstance = CoreMatchers
 					.instanceOf(ActiveDirectoryAuthenticationException.class);
 
@@ -292,75 +293,75 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 			public boolean matches(Object that) {
 				Throwable t = (Throwable) that;
 				ActiveDirectoryAuthenticationException cause = (ActiveDirectoryAuthenticationException) t.getCause();
-				return causeInstance.matches(cause) && causeDataCode.matches(cause.getDataCode());
+				return this.causeInstance.matches(cause) && this.causeDataCode.matches(cause.getDataCode());
 			}
 
 			public void describeTo(Description desc) {
 				desc.appendText("getCause() ");
-				causeInstance.describeTo(desc);
+				this.causeInstance.describeTo(desc);
 				desc.appendText("getCause().getDataCode() ");
-				causeDataCode.describeTo(desc);
+				this.causeDataCode.describeTo(desc);
 			}
 		});
 
-		provider.authenticate(joe);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = CredentialsExpiredException.class)
 	public void expiredPasswordIsCorrectlyMapped() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "532, xxxx]"));
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "532, xxxx]"));
 
 		try {
-			provider.authenticate(joe);
+			this.provider.authenticate(this.joe);
 			fail("BadCredentialsException should had been thrown");
 		}
 		catch (BadCredentialsException expected) {
 		}
 
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = DisabledException.class)
 	public void accountDisabledIsCorrectlyMapped() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "533, xxxx]"));
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "533, xxxx]"));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = AccountExpiredException.class)
 	public void accountExpiredIsCorrectlyMapped() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "701, xxxx]"));
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "701, xxxx]"));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = LockedException.class)
 	public void accountLockedIsCorrectlyMapped() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "775, xxxx]"));
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "775, xxxx]"));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = BadCredentialsException.class)
 	public void unknownErrorCodeIsCorrectlyMapped() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "999, xxxx]"));
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg + "999, xxxx]"));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = BadCredentialsException.class)
 	public void errorWithNoSubcodeIsHandledCleanly() {
-		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg));
-		provider.setConvertSubErrorCodesToExceptions(true);
-		provider.authenticate(joe);
+		this.provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(msg));
+		this.provider.setConvertSubErrorCodesToExceptions(true);
+		this.provider.authenticate(this.joe);
 	}
 
 	@Test(expected = org.springframework.ldap.CommunicationException.class)
 	public void nonAuthenticationExceptionIsConvertedToSpringLdapException() throws Throwable {
 		try {
-			provider.contextFactory = createContextFactoryThrowing(new CommunicationException(msg));
-			provider.authenticate(joe);
+			this.provider.contextFactory = createContextFactoryThrowing(new CommunicationException(msg));
+			this.provider.authenticate(this.joe);
 		}
 		catch (InternalAuthenticationServiceException e) {
 			// Since GH-8418 ldap communication exception is wrapped into
@@ -376,7 +377,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				"mydomain.eu", NON_EXISTING_LDAP_PROVIDER, "dc=ad,dc=eu,dc=mydomain");
 		noneReachableProvider
 				.setContextEnvironmentProperties(Collections.singletonMap("com.sun.jndi.ldap.connect.timeout", "5"));
-		noneReachableProvider.doAuthentication(joe);
+		noneReachableProvider.doAuthentication(this.joe);
 	}
 
 	@Test
@@ -389,12 +390,12 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setContextEnvironmentPropertiesNull() {
-		provider.setContextEnvironmentProperties(null);
+		this.provider.setContextEnvironmentProperties(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setContextEnvironmentPropertiesEmpty() {
-		provider.setContextEnvironmentProperties(new Hashtable<>());
+		this.provider.setContextEnvironmentProperties(new Hashtable<>());
 	}
 
 	@Test
@@ -402,10 +403,10 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		Hashtable<String, Object> env = new Hashtable<>();
 
 		env.put("java.naming.ldap.factory.socket", "unknown.package.NonExistingSocketFactory");
-		provider.setContextEnvironmentProperties(env);
+		this.provider.setContextEnvironmentProperties(env);
 
 		try {
-			provider.authenticate(joe);
+			this.provider.authenticate(this.joe);
 			fail("CommunicationException was expected with a root cause of ClassNotFoundException");
 		}
 		catch (InternalAuthenticationServiceException expected) {
@@ -448,13 +449,13 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 		provider.contextFactory = createContextFactoryReturning(ctx);
 
-		Authentication result = provider.authenticate(joe);
+		Authentication result = provider.authenticate(this.joe);
 
 		assertThat(result.getAuthorities()).isEmpty();
 
 		dca.addAttributeValue("memberOf", "CN=Admin,CN=Users,DC=mydomain,DC=eu");
 
-		result = provider.authenticate(joe);
+		result = provider.authenticate(this.joe);
 
 		assertThat(result.getAuthorities()).hasSize(1);
 	}
@@ -468,13 +469,13 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		}
 
 		public SearchResult next() {
-			SearchResult result = sr;
-			sr = null;
+			SearchResult result = this.sr;
+			this.sr = null;
 			return result;
 		}
 
 		public boolean hasMore() {
-			return sr != null;
+			return this.sr != null;
 		}
 
 		public void close() {

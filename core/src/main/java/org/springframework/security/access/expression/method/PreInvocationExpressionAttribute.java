@@ -48,7 +48,7 @@ class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConf
 	 * @return the method parameter name
 	 */
 	String getFilterTarget() {
-		return filterTarget;
+		return this.filterTarget;
 	}
 
 	@Override
@@ -58,7 +58,7 @@ class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConf
 		Expression filter = getFilterExpression();
 		sb.append("[authorize: '").append(authorize == null ? "null" : authorize.getExpressionString());
 		sb.append("', filter: '").append(filter == null ? "null" : filter.getExpressionString());
-		sb.append("', filterTarget: '").append(filterTarget).append("']");
+		sb.append("', filterTarget: '").append(this.filterTarget).append("']");
 		return sb.toString();
 	}
 

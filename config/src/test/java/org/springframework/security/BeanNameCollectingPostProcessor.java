@@ -32,24 +32,24 @@ public class BeanNameCollectingPostProcessor implements BeanPostProcessor {
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (beanName != null) {
-			beforeInitPostProcessedBeans.add(beanName);
+			this.beforeInitPostProcessedBeans.add(beanName);
 		}
 		return bean;
 	}
 
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (beanName != null) {
-			afterInitPostProcessedBeans.add(beanName);
+			this.afterInitPostProcessedBeans.add(beanName);
 		}
 		return bean;
 	}
 
 	public Set<String> getBeforeInitPostProcessedBeans() {
-		return beforeInitPostProcessedBeans;
+		return this.beforeInitPostProcessedBeans;
 	}
 
 	public Set<String> getAfterInitPostProcessedBeans() {
-		return afterInitPostProcessedBeans;
+		return this.afterInitPostProcessedBeans;
 	}
 
 }

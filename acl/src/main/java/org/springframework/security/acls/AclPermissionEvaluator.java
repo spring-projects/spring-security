@@ -75,49 +75,49 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 			return false;
 		}
 
-		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
+		ObjectIdentity objectIdentity = this.objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
 		return checkPermission(authentication, objectIdentity, permission);
 	}
 
 	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
 			Object permission) {
-		ObjectIdentity objectIdentity = objectIdentityGenerator.createObjectIdentity(targetId, targetType);
+		ObjectIdentity objectIdentity = this.objectIdentityGenerator.createObjectIdentity(targetId, targetType);
 
 		return checkPermission(authentication, objectIdentity, permission);
 	}
 
 	private boolean checkPermission(Authentication authentication, ObjectIdentity oid, Object permission) {
 		// Obtain the SIDs applicable to the principal
-		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
+		List<Sid> sids = this.sidRetrievalStrategy.getSids(authentication);
 		List<Permission> requiredPermission = resolvePermission(permission);
 
-		final boolean debug = logger.isDebugEnabled();
+		final boolean debug = this.logger.isDebugEnabled();
 
 		if (debug) {
-			logger.debug("Checking permission '" + permission + "' for object '" + oid + "'");
+			this.logger.debug("Checking permission '" + permission + "' for object '" + oid + "'");
 		}
 
 		try {
 			// Lookup only ACLs for SIDs we're interested in
-			Acl acl = aclService.readAclById(oid, sids);
+			Acl acl = this.aclService.readAclById(oid, sids);
 
 			if (acl.isGranted(requiredPermission, sids, false)) {
 				if (debug) {
-					logger.debug("Access is granted");
+					this.logger.debug("Access is granted");
 				}
 
 				return true;
 			}
 
 			if (debug) {
-				logger.debug("Returning false - ACLs returned, but insufficient permissions for this principal");
+				this.logger.debug("Returning false - ACLs returned, but insufficient permissions for this principal");
 			}
 
 		}
 		catch (NotFoundException nfe) {
 			if (debug) {
-				logger.debug("Returning false - no ACLs apply for this principal");
+				this.logger.debug("Returning false - no ACLs apply for this principal");
 			}
 		}
 
@@ -127,7 +127,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
 	List<Permission> resolvePermission(Object permission) {
 		if (permission instanceof Integer) {
-			return Arrays.asList(permissionFactory.buildFromMask((Integer) permission));
+			return Arrays.asList(this.permissionFactory.buildFromMask((Integer) permission));
 		}
 
 		if (permission instanceof Permission) {
@@ -143,10 +143,10 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 			Permission p;
 
 			try {
-				p = permissionFactory.buildFromName(permString);
+				p = this.permissionFactory.buildFromName(permString);
 			}
 			catch (IllegalArgumentException notfound) {
-				p = permissionFactory.buildFromName(permString.toUpperCase(Locale.ENGLISH));
+				p = this.permissionFactory.buildFromName(permString.toUpperCase(Locale.ENGLISH));
 			}
 
 			if (p != null) {

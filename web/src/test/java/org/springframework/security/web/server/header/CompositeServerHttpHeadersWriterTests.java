@@ -56,42 +56,42 @@ public class CompositeServerHttpHeadersWriterTests {
 
 	@Before
 	public void setup() {
-		writer = new CompositeServerHttpHeadersWriter(Arrays.asList(writer1, writer2));
+		this.writer = new CompositeServerHttpHeadersWriter(Arrays.asList(this.writer1, this.writer2));
 	}
 
 	@Test
 	public void writeHttpHeadersWhenErrorNoErrorThenError() {
-		when(writer1.writeHttpHeaders(exchange)).thenReturn(Mono.error(new RuntimeException()));
+		when(this.writer1.writeHttpHeaders(this.exchange)).thenReturn(Mono.error(new RuntimeException()));
 
-		Mono<Void> result = writer.writeHttpHeaders(exchange);
+		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
 
 		StepVerifier.create(result).expectError().verify();
 
-		verify(writer1).writeHttpHeaders(exchange);
+		verify(this.writer1).writeHttpHeaders(this.exchange);
 	}
 
 	@Test
 	public void writeHttpHeadersWhenErrorErrorThenError() {
-		when(writer1.writeHttpHeaders(exchange)).thenReturn(Mono.error(new RuntimeException()));
+		when(this.writer1.writeHttpHeaders(this.exchange)).thenReturn(Mono.error(new RuntimeException()));
 
-		Mono<Void> result = writer.writeHttpHeaders(exchange);
+		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
 
 		StepVerifier.create(result).expectError().verify();
 
-		verify(writer1).writeHttpHeaders(exchange);
+		verify(this.writer1).writeHttpHeaders(this.exchange);
 	}
 
 	@Test
 	public void writeHttpHeadersWhenNoErrorThenNoError() {
-		when(writer1.writeHttpHeaders(exchange)).thenReturn(Mono.empty());
-		when(writer2.writeHttpHeaders(exchange)).thenReturn(Mono.empty());
+		when(this.writer1.writeHttpHeaders(this.exchange)).thenReturn(Mono.empty());
+		when(this.writer2.writeHttpHeaders(this.exchange)).thenReturn(Mono.empty());
 
-		Mono<Void> result = writer.writeHttpHeaders(exchange);
+		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
 
 		StepVerifier.create(result).expectComplete().verify();
 
-		verify(writer1).writeHttpHeaders(exchange);
-		verify(writer2).writeHttpHeaders(exchange);
+		verify(this.writer1).writeHttpHeaders(this.exchange);
+		verify(this.writer2).writeHttpHeaders(this.exchange);
 	}
 
 	@Test

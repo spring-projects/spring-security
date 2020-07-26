@@ -38,89 +38,89 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 
 	@Override
 	public Mono<String> monoFindById(long id) {
-		return delegate.monoFindById(id);
+		return this.delegate.monoFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("hasRole('ADMIN')")
 	public Mono<String> monoPreAuthorizeHasRoleFindById(long id) {
-		return delegate.monoPreAuthorizeHasRoleFindById(id);
+		return this.delegate.monoPreAuthorizeHasRoleFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("returnObject?.contains(authentication?.name)")
 	public Mono<String> monoPostAuthorizeFindById(long id) {
-		return delegate.monoPostAuthorizeFindById(id);
+		return this.delegate.monoPostAuthorizeFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("@authz.check(#id)")
 	public Mono<String> monoPreAuthorizeBeanFindById(long id) {
-		return delegate.monoPreAuthorizeBeanFindById(id);
+		return this.delegate.monoPreAuthorizeBeanFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
 	public Mono<String> monoPostAuthorizeBeanFindById(long id) {
-		return delegate.monoPostAuthorizeBeanFindById(id);
+		return this.delegate.monoPostAuthorizeBeanFindById(id);
 	}
 
 	@Override
 	public Flux<String> fluxFindById(long id) {
-		return delegate.fluxFindById(id);
+		return this.delegate.fluxFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("hasRole('ADMIN')")
 	public Flux<String> fluxPreAuthorizeHasRoleFindById(long id) {
-		return delegate.fluxPreAuthorizeHasRoleFindById(id);
+		return this.delegate.fluxPreAuthorizeHasRoleFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("returnObject?.contains(authentication?.name)")
 	public Flux<String> fluxPostAuthorizeFindById(long id) {
-		return delegate.fluxPostAuthorizeFindById(id);
+		return this.delegate.fluxPostAuthorizeFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("@authz.check(#id)")
 	public Flux<String> fluxPreAuthorizeBeanFindById(long id) {
-		return delegate.fluxPreAuthorizeBeanFindById(id);
+		return this.delegate.fluxPreAuthorizeBeanFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
 	public Flux<String> fluxPostAuthorizeBeanFindById(long id) {
-		return delegate.fluxPostAuthorizeBeanFindById(id);
+		return this.delegate.fluxPostAuthorizeBeanFindById(id);
 	}
 
 	@Override
 	public Publisher<String> publisherFindById(long id) {
-		return delegate.publisherFindById(id);
+		return this.delegate.publisherFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("hasRole('ADMIN')")
 	public Publisher<String> publisherPreAuthorizeHasRoleFindById(long id) {
-		return delegate.publisherPreAuthorizeHasRoleFindById(id);
+		return this.delegate.publisherPreAuthorizeHasRoleFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("returnObject?.contains(authentication?.name)")
 	public Publisher<String> publisherPostAuthorizeFindById(long id) {
-		return delegate.publisherPostAuthorizeFindById(id);
+		return this.delegate.publisherPostAuthorizeFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("@authz.check(#id)")
 	public Publisher<String> publisherPreAuthorizeBeanFindById(long id) {
-		return delegate.publisherPreAuthorizeBeanFindById(id);
+		return this.delegate.publisherPreAuthorizeBeanFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
 	public Publisher<String> publisherPostAuthorizeBeanFindById(long id) {
-		return delegate.publisherPostAuthorizeBeanFindById(id);
+		return this.delegate.publisherPostAuthorizeBeanFindById(id);
 	}
 
 }

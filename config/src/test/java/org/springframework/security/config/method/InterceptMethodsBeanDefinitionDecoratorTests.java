@@ -70,21 +70,21 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 
 	@Test
 	public void targetDoesntLoseApplicationListenerInterface() {
-		assertThat(appContext.getBeansOfType(ApplicationListener.class)).hasSize(1);
-		assertThat(appContext.getBeanNamesForType(ApplicationListener.class)).hasSize(1);
-		appContext.publishEvent(new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "")));
+		assertThat(this.appContext.getBeansOfType(ApplicationListener.class)).hasSize(1);
+		assertThat(this.appContext.getBeanNamesForType(ApplicationListener.class)).hasSize(1);
+		this.appContext.publishEvent(new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "")));
 
-		assertThat(target).isInstanceOf(ApplicationListener.class);
+		assertThat(this.target).isInstanceOf(ApplicationListener.class);
 	}
 
 	@Test
 	public void targetShouldAllowUnprotectedMethodInvocationWithNoContext() {
-		target.unprotected();
+		this.target.unprotected();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-		target.doSomething();
+		this.target.doSomething();
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
-		target.doSomething();
+		this.target.doSomething();
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -102,12 +102,12 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
-		target.doSomething();
+		this.target.doSomething();
 	}
 
 	@Test(expected = AuthenticationException.class)
 	public void transactionalMethodsShouldBeSecured() {
-		transactionalTarget.doSomething();
+		this.transactionalTarget.doSomething();
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

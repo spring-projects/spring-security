@@ -224,8 +224,8 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 		private DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
 
 		public DefaultWebSecurityExpressionHandler getBean() {
-			handler.setDefaultRolePrefix(this.rolePrefix);
-			return handler;
+			this.handler.setDefaultRolePrefix(this.rolePrefix);
+			return this.handler;
 		}
 
 	}

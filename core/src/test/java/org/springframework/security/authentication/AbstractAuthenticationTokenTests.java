@@ -43,21 +43,21 @@ public class AbstractAuthenticationTokenTests {
 
 	@Before
 	public final void setUp() {
-		authorities = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+		this.authorities = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testAuthoritiesAreImmutable() {
-		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", authorities);
+		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", this.authorities);
 		List<GrantedAuthority> gotAuthorities = (List<GrantedAuthority>) token.getAuthorities();
-		assertThat(gotAuthorities).isNotSameAs(authorities);
+		assertThat(gotAuthorities).isNotSameAs(this.authorities);
 
 		gotAuthorities.set(0, new SimpleGrantedAuthority("ROLE_SUPER_USER"));
 	}
 
 	@Test
 	public void testGetters() {
-		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", authorities);
+		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", this.authorities);
 		assertThat(token.getPrincipal()).isEqualTo("Test");
 		assertThat(token.getCredentials()).isEqualTo("Password");
 		assertThat(token.getName()).isEqualTo("Test");
@@ -65,8 +65,8 @@ public class AbstractAuthenticationTokenTests {
 
 	@Test
 	public void testHashCode() {
-		MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test", "Password", authorities);
-		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password", authorities);
+		MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test", "Password", this.authorities);
+		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password", this.authorities);
 		MockAuthenticationImpl token3 = new MockAuthenticationImpl(null, null, AuthorityUtils.NO_AUTHORITIES);
 		assertThat(token2.hashCode()).isEqualTo(token1.hashCode());
 		assertThat(token1.hashCode() != token3.hashCode()).isTrue();
@@ -78,14 +78,14 @@ public class AbstractAuthenticationTokenTests {
 
 	@Test
 	public void testObjectsEquals() {
-		MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test", "Password", authorities);
-		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password", authorities);
+		MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test", "Password", this.authorities);
+		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password", this.authorities);
 		assertThat(token2).isEqualTo(token1);
 
-		MockAuthenticationImpl token3 = new MockAuthenticationImpl("Test", "Password_Changed", authorities);
+		MockAuthenticationImpl token3 = new MockAuthenticationImpl("Test", "Password_Changed", this.authorities);
 		assertThat(!token1.equals(token3)).isTrue();
 
-		MockAuthenticationImpl token4 = new MockAuthenticationImpl("Test_Changed", "Password", authorities);
+		MockAuthenticationImpl token4 = new MockAuthenticationImpl("Test_Changed", "Password", this.authorities);
 		assertThat(!token1.equals(token4)).isTrue();
 
 		MockAuthenticationImpl token5 = new MockAuthenticationImpl("Test", "Password",
@@ -105,7 +105,7 @@ public class AbstractAuthenticationTokenTests {
 
 	@Test
 	public void testSetAuthenticated() {
-		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", authorities);
+		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", this.authorities);
 		assertThat(!token.isAuthenticated()).isTrue();
 		token.setAuthenticated(true);
 		assertThat(token.isAuthenticated()).isTrue();
@@ -113,7 +113,7 @@ public class AbstractAuthenticationTokenTests {
 
 	@Test
 	public void testToStringWithAuthorities() {
-		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", authorities);
+		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", this.authorities);
 		assertThat(token.toString().lastIndexOf("ROLE_TWO") != -1).isTrue();
 	}
 
@@ -130,7 +130,7 @@ public class AbstractAuthenticationTokenTests {
 		AuthenticatedPrincipal principal = mock(AuthenticatedPrincipal.class);
 		when(principal.getName()).thenReturn(principalName);
 
-		MockAuthenticationImpl token = new MockAuthenticationImpl(principal, "Password", authorities);
+		MockAuthenticationImpl token = new MockAuthenticationImpl(principal, "Password", this.authorities);
 		assertThat(token.getName()).isEqualTo(principalName);
 		verify(principal, times(1)).getName();
 	}

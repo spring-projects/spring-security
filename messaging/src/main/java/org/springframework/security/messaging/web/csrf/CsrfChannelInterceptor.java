@@ -42,7 +42,7 @@ public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
-		if (!matcher.matches(message)) {
+		if (!this.matcher.matches(message)) {
 			return message;
 		}
 

@@ -40,7 +40,7 @@ public class HttpStatusRequestRejectedHandler implements RequestRejectedHandler 
 	 * Constructs an instance which uses {@code 400} as response code.
 	 */
 	public HttpStatusRequestRejectedHandler() {
-		httpError = HttpServletResponse.SC_BAD_REQUEST;
+		this.httpError = HttpServletResponse.SC_BAD_REQUEST;
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class HttpStatusRequestRejectedHandler implements RequestRejectedHandler 
 			logger.debug("Rejecting request due to: " + requestRejectedException.getMessage(),
 					requestRejectedException);
 		}
-		response.sendError(httpError);
+		response.sendError(this.httpError);
 	}
 
 }

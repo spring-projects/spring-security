@@ -276,10 +276,10 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			}
 			ManagedList<Object> interceptors = new ManagedList();
 			interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
-			if (!sameOriginDisabled) {
+			if (!this.sameOriginDisabled) {
 				interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
 			}
-			interceptors.add(registry.getBeanDefinition(inboundSecurityInterceptorId));
+			interceptors.add(registry.getBeanDefinition(this.inboundSecurityInterceptorId));
 
 			BeanDefinition inboundChannel = registry.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
 			PropertyValue currentInterceptorsPv = inboundChannel.getPropertyValues()
@@ -297,7 +297,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		}
 
 		private void addCsrfTokenHandshakeInterceptor(BeanDefinition bd) {
-			if (sameOriginDisabled) {
+			if (this.sameOriginDisabled) {
 				return;
 			}
 			String interceptorPropertyName = "handshakeInterceptors";
@@ -318,31 +318,31 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		private PathMatcher delegate = new AntPathMatcher();
 
 		public boolean isPattern(String path) {
-			return delegate.isPattern(path);
+			return this.delegate.isPattern(path);
 		}
 
 		public boolean match(String pattern, String path) {
-			return delegate.match(pattern, path);
+			return this.delegate.match(pattern, path);
 		}
 
 		public boolean matchStart(String pattern, String path) {
-			return delegate.matchStart(pattern, path);
+			return this.delegate.matchStart(pattern, path);
 		}
 
 		public String extractPathWithinPattern(String pattern, String path) {
-			return delegate.extractPathWithinPattern(pattern, path);
+			return this.delegate.extractPathWithinPattern(pattern, path);
 		}
 
 		public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
-			return delegate.extractUriTemplateVariables(pattern, path);
+			return this.delegate.extractUriTemplateVariables(pattern, path);
 		}
 
 		public Comparator<String> getPatternComparator(String path) {
-			return delegate.getPatternComparator(path);
+			return this.delegate.getPatternComparator(path);
 		}
 
 		public String combine(String pattern1, String pattern2) {
-			return delegate.combine(pattern1, pattern2);
+			return this.delegate.combine(pattern1, pattern2);
 		}
 
 		void setPathMatcher(PathMatcher pathMatcher) {

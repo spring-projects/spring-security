@@ -70,7 +70,7 @@ public class OpenID4JavaConsumerTests {
 		consumer.beginConsumption(request, "", "", "");
 
 		assertThat(request.getSession().getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST"))
-				.isEqualTo(attributes);
+				.isEqualTo(this.attributes);
 		assertThat(request.getSession().getAttribute(DiscoveryInformation.class.getName())).isEqualTo(di);
 
 		// Check with empty attribute fetch list
@@ -180,7 +180,7 @@ public class OpenID4JavaConsumerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
 		request.getSession().setAttribute(DiscoveryInformation.class.getName(), di);
-		request.getSession().setAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST", attributes);
+		request.getSession().setAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST", this.attributes);
 
 		OpenIDAuthenticationToken auth = consumer.endConsumption(request);
 
@@ -196,7 +196,7 @@ public class OpenID4JavaConsumerTests {
 		when(msg.getExtension(AxMessage.OPENID_NS_AX)).thenReturn(fr);
 		when(fr.getAttributeValues("a")).thenReturn(Arrays.asList("x", "y"));
 
-		List<OpenIDAttribute> fetched = consumer.fetchAxAttributes(msg, attributes);
+		List<OpenIDAttribute> fetched = consumer.fetchAxAttributes(msg, this.attributes);
 
 		assertThat(fetched).hasSize(1);
 		assertThat(fetched.get(0).getValues()).hasSize(2);
@@ -211,7 +211,7 @@ public class OpenID4JavaConsumerTests {
 		when(msg.getExtension(AxMessage.OPENID_NS_AX)).thenThrow(new MessageException(""));
 		when(fr.getAttributeValues("a")).thenReturn(Arrays.asList("x", "y"));
 
-		consumer.fetchAxAttributes(msg, attributes);
+		consumer.fetchAxAttributes(msg, this.attributes);
 	}
 
 	@Test(expected = OpenIDConsumerException.class)
@@ -229,7 +229,7 @@ public class OpenID4JavaConsumerTests {
 	private class MockAttributesFactory implements AxFetchListFactory {
 
 		public List<OpenIDAttribute> createAttributeList(String identifier) {
-			return attributes;
+			return OpenID4JavaConsumerTests.this.attributes;
 		}
 
 	}

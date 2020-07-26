@@ -134,37 +134,37 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 
 	@Override
 	public Acl getAcl() {
-		return acl;
+		return this.acl;
 	}
 
 	@Override
 	public Serializable getId() {
-		return id;
+		return this.id;
 	}
 
 	@Override
 	public Permission getPermission() {
-		return permission;
+		return this.permission;
 	}
 
 	@Override
 	public Sid getSid() {
-		return sid;
+		return this.sid;
 	}
 
 	@Override
 	public boolean isAuditFailure() {
-		return auditFailure;
+		return this.auditFailure;
 	}
 
 	@Override
 	public boolean isAuditSuccess() {
-		return auditSuccess;
+		return this.auditSuccess;
 	}
 
 	@Override
 	public boolean isGranting() {
-		return granting;
+		return this.granting;
 	}
 
 	void setAuditFailure(boolean auditFailure) {

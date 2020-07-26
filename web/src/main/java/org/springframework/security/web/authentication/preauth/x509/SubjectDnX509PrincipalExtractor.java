@@ -57,12 +57,12 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 		// String subjectDN = clientCert.getSubjectX500Principal().getName();
 		String subjectDN = clientCert.getSubjectDN().getName();
 
-		logger.debug("Subject DN is '" + subjectDN + "'");
+		this.logger.debug("Subject DN is '" + subjectDN + "'");
 
-		Matcher matcher = subjectDnPattern.matcher(subjectDN);
+		Matcher matcher = this.subjectDnPattern.matcher(subjectDN);
 
 		if (!matcher.find()) {
-			throw new BadCredentialsException(messages.getMessage("SubjectDnX509PrincipalExtractor.noMatching",
+			throw new BadCredentialsException(this.messages.getMessage("SubjectDnX509PrincipalExtractor.noMatching",
 					new Object[] { subjectDN }, "No matching pattern was found in subject DN: {0}"));
 		}
 
@@ -72,7 +72,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 
 		String username = matcher.group(1);
 
-		logger.debug("Extracted Principal name is '" + username + "'");
+		this.logger.debug("Extracted Principal name is '" + username + "'");
 
 		return username;
 	}
@@ -91,7 +91,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 	 */
 	public void setSubjectDnRegex(String subjectDnRegex) {
 		Assert.hasText(subjectDnRegex, "Regular expression may not be null or empty");
-		subjectDnPattern = Pattern.compile(subjectDnRegex, Pattern.CASE_INSENSITIVE);
+		this.subjectDnPattern = Pattern.compile(subjectDnRegex, Pattern.CASE_INSENSITIVE);
 	}
 
 	public void setMessageSource(MessageSource messageSource) {

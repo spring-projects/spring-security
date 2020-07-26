@@ -56,9 +56,9 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 
 	@Before
 	public void setup() {
-		manager = new UserDetailsRepositoryReactiveAuthenticationManager(repository);
-		username = "user";
-		password = "pass";
+		this.manager = new UserDetailsRepositoryReactiveAuthenticationManager(this.repository);
+		this.username = "user";
+		this.password = "pass";
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -69,10 +69,11 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenUserNotFoundThenBadCredentials() {
-		when(repository.findByUsername(username)).thenReturn(Mono.empty());
+		when(this.repository.findByUsername(this.username)).thenReturn(Mono.empty());
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-		Mono<Authentication> authentication = manager.authenticate(token);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password);
+		Mono<Authentication> authentication = this.manager.authenticate(token);
 
 		StepVerifier.create(authentication).expectError(BadCredentialsException.class).verify();
 	}
@@ -85,11 +86,11 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 			.roles("USER")
 			.build();
 		// @formatter:on
-		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
+		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username,
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password + "INVALID");
-		Mono<Authentication> authentication = manager.authenticate(token);
+		Mono<Authentication> authentication = this.manager.authenticate(token);
 
 		StepVerifier.create(authentication).expectError(BadCredentialsException.class).verify();
 	}
@@ -102,10 +103,11 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 			.roles("USER")
 			.build();
 		// @formatter:on
-		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
+		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-		Authentication authentication = manager.authenticate(token).block();
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+				this.password);
+		Authentication authentication = this.manager.authenticate(token).block();
 
 		assertThat(authentication).isEqualTo(authentication);
 	}

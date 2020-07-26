@@ -54,11 +54,11 @@ public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizatio
 	}
 
 	public Collection<ConfigAttribute> getConfigAttributes() {
-		return configAttribs;
+		return this.configAttribs;
 	}
 
 	public AuthenticationCredentialsNotFoundException getCredentialsNotFoundException() {
-		return credentialsNotFoundException;
+		return this.credentialsNotFoundException;
 	}
 
 }

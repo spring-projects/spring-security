@@ -64,14 +64,14 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 	@Before
 	public final void setUp() {
 		SecurityContextHolder.clearContext();
-		interceptor = new MethodSecurityInterceptor();
-		token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMETHING");
-		adm = mock(AccessDecisionManager.class);
+		this.interceptor = new MethodSecurityInterceptor();
+		this.token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMETHING");
+		this.adm = mock(AccessDecisionManager.class);
 		AuthenticationManager authman = mock(AuthenticationManager.class);
-		mds = mock(MethodSecurityMetadataSource.class);
-		interceptor.setAccessDecisionManager(adm);
-		interceptor.setAuthenticationManager(authman);
-		interceptor.setSecurityMetadataSource(mds);
+		this.mds = mock(MethodSecurityMetadataSource.class);
+		this.interceptor.setAccessDecisionManager(this.adm);
+		this.interceptor.setAuthenticationManager(authman);
+		this.interceptor.setSecurityMetadataSource(this.mds);
 	}
 
 	@Test
@@ -80,12 +80,12 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		final MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", "foobar");
 
 		MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
-		when(mds.getAttributes(mi)).thenReturn(role);
+		when(this.mds.getAttributes(mi)).thenReturn(this.role);
 
-		mipe.setSecurityInterceptor(interceptor);
+		mipe.setSecurityInterceptor(this.interceptor);
 		mipe.afterPropertiesSet();
 
-		assertThat(mipe.isAllowed(mi, token)).isTrue();
+		assertThat(mipe.isAllowed(mi, this.token)).isTrue();
 	}
 
 	@Test
@@ -93,10 +93,10 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		final MethodInvocation mi = MethodInvocationUtils.createFromClass(new OtherTargetObject(), ITargetObject.class,
 				"makeLowerCase", new Class[] { String.class }, new Object[] { "Hello world" });
 		MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
-		mipe.setSecurityInterceptor(interceptor);
-		when(mds.getAttributes(mi)).thenReturn(role);
+		mipe.setSecurityInterceptor(this.interceptor);
+		when(this.mds.getAttributes(mi)).thenReturn(this.role);
 
-		assertThat(mipe.isAllowed(mi, token)).isTrue();
+		assertThat(mipe.isAllowed(mi, this.token)).isTrue();
 	}
 
 	@Test
@@ -104,11 +104,11 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		Object object = new TargetObject();
 		final MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", "foobar");
 		MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
-		mipe.setSecurityInterceptor(interceptor);
-		when(mds.getAttributes(mi)).thenReturn(role);
-		doThrow(new AccessDeniedException("rejected")).when(adm).decide(token, mi, role);
+		mipe.setSecurityInterceptor(this.interceptor);
+		when(this.mds.getAttributes(mi)).thenReturn(this.role);
+		doThrow(new AccessDeniedException("rejected")).when(this.adm).decide(this.token, mi, this.role);
 
-		assertThat(mipe.isAllowed(mi, token)).isFalse();
+		assertThat(mipe.isAllowed(mi, this.token)).isFalse();
 	}
 
 	@Test
@@ -117,11 +117,11 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 				"makeLowerCase", new Class[] { String.class }, new Object[] { "helloWorld" });
 
 		MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
-		mipe.setSecurityInterceptor(interceptor);
-		when(mds.getAttributes(mi)).thenReturn(role);
-		doThrow(new AccessDeniedException("rejected")).when(adm).decide(token, mi, role);
+		mipe.setSecurityInterceptor(this.interceptor);
+		when(this.mds.getAttributes(mi)).thenReturn(this.role);
+		doThrow(new AccessDeniedException("rejected")).when(this.adm).decide(this.token, mi, this.role);
 
-		assertThat(mipe.isAllowed(mi, token)).isFalse();
+		assertThat(mipe.isAllowed(mi, this.token)).isFalse();
 	}
 
 }

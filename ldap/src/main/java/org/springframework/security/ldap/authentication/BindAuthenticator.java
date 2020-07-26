@@ -67,7 +67,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
 		if (!StringUtils.hasLength(password)) {
 			logger.debug("Rejecting empty password for user " + username);
-			throw new BadCredentialsException(messages.getMessage("BindAuthenticator.emptyPassword", "Empty Password"));
+			throw new BadCredentialsException(
+					this.messages.getMessage("BindAuthenticator.emptyPassword", "Empty Password"));
 		}
 
 		// If DN patterns are configured, try authenticating with them directly
@@ -88,7 +89,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
 		if (user == null) {
 			throw new BadCredentialsException(
-					messages.getMessage("BindAuthenticator.badCredentials", "Bad credentials"));
+					this.messages.getMessage("BindAuthenticator.badCredentials", "Bad credentials"));
 		}
 
 		return user;

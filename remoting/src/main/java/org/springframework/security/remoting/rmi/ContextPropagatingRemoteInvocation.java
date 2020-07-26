@@ -63,17 +63,17 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 
 		if (currentUser != null) {
-			principal = currentUser.getName();
+			this.principal = currentUser.getName();
 			Object userCredentials = currentUser.getCredentials();
-			credentials = userCredentials == null ? null : userCredentials.toString();
+			this.credentials = userCredentials == null ? null : userCredentials.toString();
 		}
 		else {
-			principal = credentials = null;
+			this.principal = this.credentials = null;
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("RemoteInvocation now has principal: " + principal);
-			if (credentials == null) {
+			logger.debug("RemoteInvocation now has principal: " + this.principal);
+			if (this.credentials == null) {
 				logger.debug("RemoteInvocation now has null credentials.");
 			}
 		}
@@ -94,8 +94,8 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 	public Object invoke(Object targetObject)
 			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
-		if (principal != null) {
-			Authentication request = createAuthenticationRequest(principal, credentials);
+		if (this.principal != null) {
+			Authentication request = createAuthenticationRequest(this.principal, this.credentials);
 			request.setAuthenticated(false);
 			SecurityContextHolder.getContext().setAuthentication(request);
 

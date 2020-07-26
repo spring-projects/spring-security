@@ -47,15 +47,15 @@ public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T
 
 	public boolean matches(Message<? extends T> message) {
 		for (MessageMatcher<T> matcher : getMessageMatchers()) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Trying to match using " + matcher);
+			if (this.LOGGER.isDebugEnabled()) {
+				this.LOGGER.debug("Trying to match using " + matcher);
 			}
 			if (matcher.matches(message)) {
-				LOGGER.debug("matched");
+				this.LOGGER.debug("matched");
 				return true;
 			}
 		}
-		LOGGER.debug("No matches found");
+		this.LOGGER.debug("No matches found");
 		return false;
 	}
 

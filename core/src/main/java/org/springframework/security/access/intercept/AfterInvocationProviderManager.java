@@ -67,7 +67,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 
 		Object result = returnedObject;
 
-		for (AfterInvocationProvider provider : providers) {
+		for (AfterInvocationProvider provider : this.providers) {
 			result = provider.decide(authentication, object, config, result);
 		}
 
@@ -80,17 +80,17 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 
 	public void setProviders(List<?> newList) {
 		checkIfValidList(newList);
-		providers = new ArrayList<>(newList.size());
+		this.providers = new ArrayList<>(newList.size());
 
 		for (Object currentObject : newList) {
 			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject, () -> "AfterInvocationProvider "
 					+ currentObject.getClass().getName() + " must implement AfterInvocationProvider");
-			providers.add((AfterInvocationProvider) currentObject);
+			this.providers.add((AfterInvocationProvider) currentObject);
 		}
 	}
 
 	public boolean supports(ConfigAttribute attribute) {
-		for (AfterInvocationProvider provider : providers) {
+		for (AfterInvocationProvider provider : this.providers) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Evaluating " + attribute + " against " + provider);
 			}
@@ -115,7 +115,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 	 * to support the secure object class
 	 */
 	public boolean supports(Class<?> clazz) {
-		for (AfterInvocationProvider provider : providers) {
+		for (AfterInvocationProvider provider : this.providers) {
 			if (!provider.supports(clazz)) {
 				return false;
 			}

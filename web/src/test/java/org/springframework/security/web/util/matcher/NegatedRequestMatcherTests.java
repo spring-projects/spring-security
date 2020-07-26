@@ -47,18 +47,18 @@ public class NegatedRequestMatcherTests {
 
 	@Test
 	public void matchesDelegateFalse() {
-		when(delegate.matches(request)).thenReturn(false);
-		matcher = new NegatedRequestMatcher(delegate);
+		when(this.delegate.matches(this.request)).thenReturn(false);
+		this.matcher = new NegatedRequestMatcher(this.delegate);
 
-		assertThat(matcher.matches(request)).isTrue();
+		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
 	@Test
 	public void matchesDelegateTrue() {
-		when(delegate.matches(request)).thenReturn(true);
-		matcher = new NegatedRequestMatcher(delegate);
+		when(this.delegate.matches(this.request)).thenReturn(true);
+		this.matcher = new NegatedRequestMatcher(this.delegate);
 
-		assertThat(matcher.matches(request)).isFalse();
+		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
 }

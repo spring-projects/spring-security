@@ -59,26 +59,27 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 		String queryString = request.getQueryString();
 		String redirectUrl = request.getRequestURI() + ((queryString == null) ? "" : ("?" + queryString));
 
-		Integer currentPort = portResolver.getServerPort(request);
+		Integer currentPort = this.portResolver.getServerPort(request);
 		Integer redirectPort = getMappedPort(currentPort);
 
 		if (redirectPort != null) {
-			boolean includePort = redirectPort != standardPort;
+			boolean includePort = redirectPort != this.standardPort;
 
-			redirectUrl = scheme + request.getServerName() + ((includePort) ? (":" + redirectPort) : "") + redirectUrl;
+			redirectUrl = this.scheme + request.getServerName() + ((includePort) ? (":" + redirectPort) : "")
+					+ redirectUrl;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Redirecting to: " + redirectUrl);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Redirecting to: " + redirectUrl);
 		}
 
-		redirectStrategy.sendRedirect(request, response, redirectUrl);
+		this.redirectStrategy.sendRedirect(request, response, redirectUrl);
 	}
 
 	protected abstract Integer getMappedPort(Integer mapFromPort);
 
 	protected final PortMapper getPortMapper() {
-		return portMapper;
+		return this.portMapper;
 	}
 
 	public void setPortMapper(PortMapper portMapper) {
@@ -92,7 +93,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	}
 
 	protected final PortResolver getPortResolver() {
-		return portResolver;
+		return this.portResolver;
 	}
 
 	/**
@@ -106,7 +107,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	}
 
 	protected final RedirectStrategy getRedirectStrategy() {
-		return redirectStrategy;
+		return this.redirectStrategy;
 	}
 
 }

@@ -46,9 +46,9 @@ public class AclAuthorizationStrategyImplTests {
 
 	@Before
 	public void setup() {
-		authority = new SimpleGrantedAuthority("ROLE_AUTH");
+		this.authority = new SimpleGrantedAuthority("ROLE_AUTH");
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("foo", "bar",
-				Arrays.asList(authority));
+				Arrays.asList(this.authority));
 		authentication.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
@@ -61,8 +61,8 @@ public class AclAuthorizationStrategyImplTests {
 	// gh-4085
 	@Test
 	public void securityCheckWhenCustomAuthorityThenNameIsUsed() {
-		strategy = new AclAuthorizationStrategyImpl(new CustomAuthority());
-		strategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL);
+		this.strategy = new AclAuthorizationStrategyImpl(new CustomAuthority());
+		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
 	}
 
 	@SuppressWarnings("serial")
@@ -70,7 +70,7 @@ public class AclAuthorizationStrategyImplTests {
 
 		@Override
 		public String getAuthority() {
-			return authority.getAuthority();
+			return AclAuthorizationStrategyImplTests.this.authority.getAuthority();
 		}
 
 	}

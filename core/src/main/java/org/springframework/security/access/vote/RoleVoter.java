@@ -54,7 +54,7 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 	private String rolePrefix = "ROLE_";
 
 	public String getRolePrefix() {
-		return rolePrefix;
+		return this.rolePrefix;
 	}
 
 	/**

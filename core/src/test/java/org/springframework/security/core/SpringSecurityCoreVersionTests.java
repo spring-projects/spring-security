@@ -51,7 +51,7 @@ public class SpringSecurityCoreVersionTests {
 
 	@Before
 	public void setup() {
-		Whitebox.setInternalState(SpringSecurityCoreVersion.class, logger);
+		Whitebox.setInternalState(SpringSecurityCoreVersion.class, this.logger);
 	}
 
 	@After
@@ -90,7 +90,7 @@ public class SpringSecurityCoreVersionTests {
 
 		performChecks();
 
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(this.logger);
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class SpringSecurityCoreVersionTests {
 
 		performChecks();
 
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(this.logger);
 	}
 
 	@Test
@@ -114,7 +114,7 @@ public class SpringSecurityCoreVersionTests {
 
 		performChecks();
 
-		verify(logger, times(1)).warn(any());
+		verify(this.logger, times(1)).warn(any());
 	}
 
 	@Test
@@ -126,7 +126,7 @@ public class SpringSecurityCoreVersionTests {
 
 		performChecks();
 
-		verify(logger, never()).warn(any());
+		verify(this.logger, never()).warn(any());
 	}
 
 	// SEC-2697
@@ -140,7 +140,7 @@ public class SpringSecurityCoreVersionTests {
 
 		performChecks(minSpringVersion);
 
-		verify(logger, never()).warn(any());
+		verify(this.logger, never()).warn(any());
 	}
 
 	@Test
@@ -153,7 +153,7 @@ public class SpringSecurityCoreVersionTests {
 
 		performChecks();
 
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(this.logger);
 	}
 
 	private String getDisableChecksProperty() {

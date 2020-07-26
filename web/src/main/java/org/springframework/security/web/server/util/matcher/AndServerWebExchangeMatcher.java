@@ -61,7 +61,7 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		return Mono.defer(() -> {
 			Map<String, Object> variables = new HashMap<>();
-			return Flux.fromIterable(matchers).doOnNext(it -> {
+			return Flux.fromIterable(this.matchers).doOnNext(it -> {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Trying to match using " + it);
 				}
@@ -78,7 +78,7 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 
 	@Override
 	public String toString() {
-		return "AndServerWebExchangeMatcher{" + "matchers=" + matchers + '}';
+		return "AndServerWebExchangeMatcher{" + "matchers=" + this.matchers + '}';
 	}
 
 }

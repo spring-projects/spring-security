@@ -65,15 +65,15 @@ public abstract class AbstractPermission implements Permission {
 	}
 
 	public final int getMask() {
-		return mask;
+		return this.mask;
 	}
 
 	public String getPattern() {
-		return AclFormattingUtils.printBinary(mask, code);
+		return AclFormattingUtils.printBinary(this.mask, this.code);
 	}
 
 	public final String toString() {
-		return this.getClass().getSimpleName() + "[" + getPattern() + "=" + mask + "]";
+		return this.getClass().getSimpleName() + "[" + getPattern() + "=" + this.mask + "]";
 	}
 
 	public final int hashCode() {

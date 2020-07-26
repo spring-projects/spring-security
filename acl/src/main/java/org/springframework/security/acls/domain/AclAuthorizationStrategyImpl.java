@@ -68,12 +68,12 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 		Assert.isTrue(auths != null && (auths.length == 3 || auths.length == 1),
 				"One or three GrantedAuthority instances required");
 		if (auths.length == 3) {
-			gaTakeOwnership = auths[0];
-			gaModifyAuditing = auths[1];
-			gaGeneralChanges = auths[2];
+			this.gaTakeOwnership = auths[0];
+			this.gaModifyAuditing = auths[1];
+			this.gaGeneralChanges = auths[2];
 		}
 		else {
-			gaTakeOwnership = gaModifyAuditing = gaGeneralChanges = auths[0];
+			this.gaTakeOwnership = this.gaModifyAuditing = this.gaGeneralChanges = auths[0];
 		}
 	}
 
@@ -117,7 +117,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 		}
 
 		// Try to get permission via ACEs within the ACL
-		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
+		List<Sid> sids = this.sidRetrievalStrategy.getSids(authentication);
 
 		if (acl.isGranted(Arrays.asList(BasePermission.ADMINISTRATION), sids, false)) {
 			return;

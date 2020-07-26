@@ -136,12 +136,12 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	public MethodInterceptor methodSecurityInterceptor(MethodSecurityMetadataSource methodSecurityMetadataSource) {
 		this.methodSecurityInterceptor = isAspectJ() ? new AspectJMethodSecurityInterceptor()
 				: new MethodSecurityInterceptor();
-		methodSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
-		methodSecurityInterceptor.setAfterInvocationManager(afterInvocationManager());
-		methodSecurityInterceptor.setSecurityMetadataSource(methodSecurityMetadataSource);
+		this.methodSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
+		this.methodSecurityInterceptor.setAfterInvocationManager(afterInvocationManager());
+		this.methodSecurityInterceptor.setSecurityMetadataSource(methodSecurityMetadataSource);
 		RunAsManager runAsManager = runAsManager();
 		if (runAsManager != null) {
-			methodSecurityInterceptor.setRunAsManager(runAsManager);
+			this.methodSecurityInterceptor.setRunAsManager(runAsManager);
 		}
 
 		return this.methodSecurityInterceptor;
@@ -185,7 +185,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 
 	private <T> T getSingleBeanOrNull(Class<T> type) {
 		try {
-			return context.getBean(type);
+			return this.context.getBean(type);
 		}
 		catch (NoSuchBeanDefinitionException e) {
 		}
@@ -279,7 +279,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	 * @return the {@link MethodSecurityExpressionHandler} to use
 	 */
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
-		return defaultMethodExpressionHandler;
+		return this.defaultMethodExpressionHandler;
 	}
 
 	/**
@@ -288,10 +288,10 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	 * @return a non {@code null} {@link MethodSecurityExpressionHandler}
 	 */
 	protected final MethodSecurityExpressionHandler getExpressionHandler() {
-		if (expressionHandler == null) {
-			expressionHandler = createExpressionHandler();
+		if (this.expressionHandler == null) {
+			this.expressionHandler = createExpressionHandler();
 		}
-		return expressionHandler;
+		return this.expressionHandler;
 	}
 
 	/**
@@ -313,20 +313,20 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	 * @return the {@link AuthenticationManager} to use
 	 */
 	protected AuthenticationManager authenticationManager() throws Exception {
-		if (authenticationManager == null) {
-			DefaultAuthenticationEventPublisher eventPublisher = objectPostProcessor
+		if (this.authenticationManager == null) {
+			DefaultAuthenticationEventPublisher eventPublisher = this.objectPostProcessor
 					.postProcess(new DefaultAuthenticationEventPublisher());
-			auth = new AuthenticationManagerBuilder(objectPostProcessor);
-			auth.authenticationEventPublisher(eventPublisher);
-			configure(auth);
-			if (disableAuthenticationRegistry) {
-				authenticationManager = getAuthenticationConfiguration().getAuthenticationManager();
+			this.auth = new AuthenticationManagerBuilder(this.objectPostProcessor);
+			this.auth.authenticationEventPublisher(eventPublisher);
+			configure(this.auth);
+			if (this.disableAuthenticationRegistry) {
+				this.authenticationManager = getAuthenticationConfiguration().getAuthenticationManager();
 			}
 			else {
-				authenticationManager = auth.build();
+				this.authenticationManager = this.auth.build();
 			}
 		}
-		return authenticationManager;
+		return this.authenticationManager;
 	}
 
 	/**
@@ -405,13 +405,13 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	public final void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> annotationAttributes = importMetadata
 				.getAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
-		enableMethodSecurity = AnnotationAttributes.fromMap(annotationAttributes);
+		this.enableMethodSecurity = AnnotationAttributes.fromMap(annotationAttributes);
 	}
 
 	@Autowired(required = false)
 	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
-		this.defaultMethodExpressionHandler = objectPostProcessor.postProcess(defaultMethodExpressionHandler);
+		this.defaultMethodExpressionHandler = objectPostProcessor.postProcess(this.defaultMethodExpressionHandler);
 	}
 
 	@Autowired(required = false)
@@ -429,7 +429,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	}
 
 	private AuthenticationConfiguration getAuthenticationConfiguration() {
-		return context.getBean(AuthenticationConfiguration.class);
+		return this.context.getBean(AuthenticationConfiguration.class);
 	}
 
 	private boolean prePostEnabled() {
@@ -453,7 +453,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	}
 
 	private AnnotationAttributes enableMethodSecurity() {
-		if (enableMethodSecurity == null) {
+		if (this.enableMethodSecurity == null) {
 			// if it is null look at this instance (i.e. a subclass was used)
 			EnableGlobalMethodSecurity methodSecurityAnnotation = AnnotationUtils.findAnnotation(getClass(),
 					EnableGlobalMethodSecurity.class);

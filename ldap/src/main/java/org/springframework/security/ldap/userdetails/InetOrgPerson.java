@@ -73,96 +73,96 @@ public class InetOrgPerson extends Person {
 	private String uid;
 
 	public String getUid() {
-		return uid;
+		return this.uid;
 	}
 
 	public String getMail() {
-		return mail;
+		return this.mail;
 	}
 
 	public String getEmployeeNumber() {
-		return employeeNumber;
+		return this.employeeNumber;
 	}
 
 	public String getInitials() {
-		return initials;
+		return this.initials;
 	}
 
 	public String getDestinationIndicator() {
-		return destinationIndicator;
+		return this.destinationIndicator;
 	}
 
 	public String getO() {
-		return o;
+		return this.o;
 	}
 
 	public String getOu() {
-		return ou;
+		return this.ou;
 	}
 
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 
 	public String getCarLicense() {
-		return carLicense;
+		return this.carLicense;
 	}
 
 	public String getDepartmentNumber() {
-		return departmentNumber;
+		return this.departmentNumber;
 	}
 
 	public String getDisplayName() {
-		return displayName;
+		return this.displayName;
 	}
 
 	public String getHomePhone() {
-		return homePhone;
+		return this.homePhone;
 	}
 
 	public String getRoomNumber() {
-		return roomNumber;
+		return this.roomNumber;
 	}
 
 	public String getHomePostalAddress() {
-		return homePostalAddress;
+		return this.homePostalAddress;
 	}
 
 	public String getMobile() {
-		return mobile;
+		return this.mobile;
 	}
 
 	public String getPostalAddress() {
-		return postalAddress;
+		return this.postalAddress;
 	}
 
 	public String getPostalCode() {
-		return postalCode;
+		return this.postalCode;
 	}
 
 	public String getStreet() {
-		return street;
+		return this.street;
 	}
 
 	protected void populateContext(DirContextAdapter adapter) {
 		super.populateContext(adapter);
-		adapter.setAttributeValue("carLicense", carLicense);
-		adapter.setAttributeValue("departmentNumber", departmentNumber);
-		adapter.setAttributeValue("destinationIndicator", destinationIndicator);
-		adapter.setAttributeValue("displayName", displayName);
-		adapter.setAttributeValue("employeeNumber", employeeNumber);
-		adapter.setAttributeValue("homePhone", homePhone);
-		adapter.setAttributeValue("homePostalAddress", homePostalAddress);
-		adapter.setAttributeValue("initials", initials);
-		adapter.setAttributeValue("mail", mail);
-		adapter.setAttributeValue("mobile", mobile);
-		adapter.setAttributeValue("postalAddress", postalAddress);
-		adapter.setAttributeValue("postalCode", postalCode);
-		adapter.setAttributeValue("ou", ou);
-		adapter.setAttributeValue("o", o);
-		adapter.setAttributeValue("roomNumber", roomNumber);
-		adapter.setAttributeValue("street", street);
-		adapter.setAttributeValue("uid", uid);
+		adapter.setAttributeValue("carLicense", this.carLicense);
+		adapter.setAttributeValue("departmentNumber", this.departmentNumber);
+		adapter.setAttributeValue("destinationIndicator", this.destinationIndicator);
+		adapter.setAttributeValue("displayName", this.displayName);
+		adapter.setAttributeValue("employeeNumber", this.employeeNumber);
+		adapter.setAttributeValue("homePhone", this.homePhone);
+		adapter.setAttributeValue("homePostalAddress", this.homePostalAddress);
+		adapter.setAttributeValue("initials", this.initials);
+		adapter.setAttributeValue("mail", this.mail);
+		adapter.setAttributeValue("mobile", this.mobile);
+		adapter.setAttributeValue("postalAddress", this.postalAddress);
+		adapter.setAttributeValue("postalCode", this.postalCode);
+		adapter.setAttributeValue("ou", this.ou);
+		adapter.setAttributeValue("o", this.o);
+		adapter.setAttributeValue("roomNumber", this.roomNumber);
+		adapter.setAttributeValue("street", this.street);
+		adapter.setAttributeValue("uid", this.uid);
 		adapter.setAttributeValues("objectclass",
 				new String[] { "top", "person", "organizationalPerson", "inetOrgPerson" });
 	}
@@ -221,79 +221,79 @@ public class InetOrgPerson extends Person {
 		}
 
 		public void setMail(String email) {
-			((InetOrgPerson) instance).mail = email;
+			((InetOrgPerson) this.instance).mail = email;
 		}
 
 		public void setUid(String uid) {
-			((InetOrgPerson) instance).uid = uid;
+			((InetOrgPerson) this.instance).uid = uid;
 
-			if (instance.getUsername() == null) {
+			if (this.instance.getUsername() == null) {
 				setUsername(uid);
 			}
 		}
 
 		public void setInitials(String initials) {
-			((InetOrgPerson) instance).initials = initials;
+			((InetOrgPerson) this.instance).initials = initials;
 		}
 
 		public void setO(String organization) {
-			((InetOrgPerson) instance).o = organization;
+			((InetOrgPerson) this.instance).o = organization;
 		}
 
 		public void setOu(String ou) {
-			((InetOrgPerson) instance).ou = ou;
+			((InetOrgPerson) this.instance).ou = ou;
 		}
 
 		public void setRoomNumber(String no) {
-			((InetOrgPerson) instance).roomNumber = no;
+			((InetOrgPerson) this.instance).roomNumber = no;
 		}
 
 		public void setTitle(String title) {
-			((InetOrgPerson) instance).title = title;
+			((InetOrgPerson) this.instance).title = title;
 		}
 
 		public void setCarLicense(String carLicense) {
-			((InetOrgPerson) instance).carLicense = carLicense;
+			((InetOrgPerson) this.instance).carLicense = carLicense;
 		}
 
 		public void setDepartmentNumber(String departmentNumber) {
-			((InetOrgPerson) instance).departmentNumber = departmentNumber;
+			((InetOrgPerson) this.instance).departmentNumber = departmentNumber;
 		}
 
 		public void setDisplayName(String displayName) {
-			((InetOrgPerson) instance).displayName = displayName;
+			((InetOrgPerson) this.instance).displayName = displayName;
 		}
 
 		public void setEmployeeNumber(String no) {
-			((InetOrgPerson) instance).employeeNumber = no;
+			((InetOrgPerson) this.instance).employeeNumber = no;
 		}
 
 		public void setDestinationIndicator(String destination) {
-			((InetOrgPerson) instance).destinationIndicator = destination;
+			((InetOrgPerson) this.instance).destinationIndicator = destination;
 		}
 
 		public void setHomePhone(String homePhone) {
-			((InetOrgPerson) instance).homePhone = homePhone;
+			((InetOrgPerson) this.instance).homePhone = homePhone;
 		}
 
 		public void setStreet(String street) {
-			((InetOrgPerson) instance).street = street;
+			((InetOrgPerson) this.instance).street = street;
 		}
 
 		public void setPostalCode(String postalCode) {
-			((InetOrgPerson) instance).postalCode = postalCode;
+			((InetOrgPerson) this.instance).postalCode = postalCode;
 		}
 
 		public void setPostalAddress(String postalAddress) {
-			((InetOrgPerson) instance).postalAddress = postalAddress;
+			((InetOrgPerson) this.instance).postalAddress = postalAddress;
 		}
 
 		public void setMobile(String mobile) {
-			((InetOrgPerson) instance).mobile = mobile;
+			((InetOrgPerson) this.instance).mobile = mobile;
 		}
 
 		public void setHomePostalAddress(String homePostalAddress) {
-			((InetOrgPerson) instance).homePostalAddress = homePostalAddress;
+			((InetOrgPerson) this.instance).homePostalAddress = homePostalAddress;
 		}
 
 	}

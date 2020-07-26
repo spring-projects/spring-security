@@ -76,7 +76,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		Assert.notNull(contextSource, "ContextSource cannot be null");
 		setContextSource(contextSource);
 
-		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		};
 
 		SearchControls ctls = new SearchControls();
-		ctls.setSearchScope(searchControls.getSearchScope());
+		ctls.setSearchScope(this.searchControls.getSearchScope());
 		ctls.setReturningAttributes(attributeNames != null && attributeNames.length > 0 ? attributeNames : null);
 
 		search(base, formattedFilter, ctls, roleMapper);
@@ -284,7 +284,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	public DirContextOperations searchForSingleEntry(final String base, final String filter, final Object[] params) {
 
 		return (DirContextOperations) executeReadOnly(
-				(ContextExecutor) ctx -> searchForSingleEntryInternal(ctx, searchControls, base, filter, params));
+				(ContextExecutor) ctx -> searchForSingleEntryInternal(ctx, this.searchControls, base, filter, params));
 	}
 
 	/**

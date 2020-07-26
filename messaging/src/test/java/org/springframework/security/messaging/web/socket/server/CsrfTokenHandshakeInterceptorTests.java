@@ -56,29 +56,29 @@ public class CsrfTokenHandshakeInterceptorTests {
 
 	@Before
 	public void setup() {
-		httpRequest = new MockHttpServletRequest();
-		attributes = new HashMap<>();
-		request = new ServletServerHttpRequest(httpRequest);
+		this.httpRequest = new MockHttpServletRequest();
+		this.attributes = new HashMap<>();
+		this.request = new ServletServerHttpRequest(this.httpRequest);
 
-		interceptor = new CsrfTokenHandshakeInterceptor();
+		this.interceptor = new CsrfTokenHandshakeInterceptor();
 	}
 
 	@Test
 	public void beforeHandshakeNoAttribute() throws Exception {
-		interceptor.beforeHandshake(request, response, wsHandler, attributes);
+		this.interceptor.beforeHandshake(this.request, this.response, this.wsHandler, this.attributes);
 
-		assertThat(attributes).isEmpty();
+		assertThat(this.attributes).isEmpty();
 	}
 
 	@Test
 	public void beforeHandshake() throws Exception {
 		CsrfToken token = new DefaultCsrfToken("header", "param", "token");
-		httpRequest.setAttribute(CsrfToken.class.getName(), token);
+		this.httpRequest.setAttribute(CsrfToken.class.getName(), token);
 
-		interceptor.beforeHandshake(request, response, wsHandler, attributes);
+		this.interceptor.beforeHandshake(this.request, this.response, this.wsHandler, this.attributes);
 
-		assertThat(attributes.keySet()).containsOnly(CsrfToken.class.getName());
-		assertThat(attributes.values()).containsOnly(token);
+		assertThat(this.attributes.keySet()).containsOnly(CsrfToken.class.getName());
+		assertThat(this.attributes.values()).containsOnly(token);
 	}
 
 }

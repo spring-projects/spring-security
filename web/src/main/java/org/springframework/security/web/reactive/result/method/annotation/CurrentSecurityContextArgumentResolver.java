@@ -109,7 +109,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-			context.setBeanResolver(beanResolver);
+			context.setBeanResolver(this.beanResolver);
 
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContextResult = expression.getValue(context);

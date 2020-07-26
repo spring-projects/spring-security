@@ -98,8 +98,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		LdapAuthenticationProvider ldapAuthenticationProvider = new LdapAuthenticationProvider(ldapAuthenticator,
 				authoritiesPopulator);
 		ldapAuthenticationProvider.setAuthoritiesMapper(getAuthoritiesMapper());
-		if (userDetailsContextMapper != null) {
-			ldapAuthenticationProvider.setUserDetailsContextMapper(userDetailsContextMapper);
+		if (this.userDetailsContextMapper != null) {
+			ldapAuthenticationProvider.setUserDetailsContextMapper(this.userDetailsContextMapper);
 		}
 		return ldapAuthenticationProvider;
 	}
@@ -132,15 +132,15 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @return the {@link LdapAuthoritiesPopulator}
 	 */
 	private LdapAuthoritiesPopulator getLdapAuthoritiesPopulator() {
-		if (ldapAuthoritiesPopulator != null) {
-			return ldapAuthoritiesPopulator;
+		if (this.ldapAuthoritiesPopulator != null) {
+			return this.ldapAuthoritiesPopulator;
 		}
 
-		DefaultLdapAuthoritiesPopulator defaultAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource,
-				groupSearchBase);
-		defaultAuthoritiesPopulator.setGroupRoleAttribute(groupRoleAttribute);
-		defaultAuthoritiesPopulator.setGroupSearchFilter(groupSearchFilter);
-		defaultAuthoritiesPopulator.setSearchSubtree(groupSearchSubtree);
+		DefaultLdapAuthoritiesPopulator defaultAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(
+				this.contextSource, this.groupSearchBase);
+		defaultAuthoritiesPopulator.setGroupRoleAttribute(this.groupRoleAttribute);
+		defaultAuthoritiesPopulator.setGroupSearchFilter(this.groupSearchFilter);
+		defaultAuthoritiesPopulator.setSearchSubtree(this.groupSearchSubtree);
 		defaultAuthoritiesPopulator.setRolePrefix(this.rolePrefix);
 
 		this.ldapAuthoritiesPopulator = defaultAuthoritiesPopulator;
@@ -169,8 +169,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @throws Exception if errors in {@link SimpleAuthorityMapper#afterPropertiesSet()}
 	 */
 	protected GrantedAuthoritiesMapper getAuthoritiesMapper() throws Exception {
-		if (authoritiesMapper != null) {
-			return authoritiesMapper;
+		if (this.authoritiesMapper != null) {
+			return this.authoritiesMapper;
 		}
 
 		SimpleAuthorityMapper simpleAuthorityMapper = new SimpleAuthorityMapper();
@@ -186,14 +186,14 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @return the {@link LdapAuthenticator} to use
 	 */
 	private LdapAuthenticator createLdapAuthenticator(BaseLdapPathContextSource contextSource) {
-		AbstractLdapAuthenticator ldapAuthenticator = passwordEncoder == null ? createBindAuthenticator(contextSource)
-				: createPasswordCompareAuthenticator(contextSource);
+		AbstractLdapAuthenticator ldapAuthenticator = this.passwordEncoder == null
+				? createBindAuthenticator(contextSource) : createPasswordCompareAuthenticator(contextSource);
 		LdapUserSearch userSearch = createUserSearch();
 		if (userSearch != null) {
 			ldapAuthenticator.setUserSearch(userSearch);
 		}
-		if (userDnPatterns != null && userDnPatterns.length > 0) {
-			ldapAuthenticator.setUserDnPatterns(userDnPatterns);
+		if (this.userDnPatterns != null && this.userDnPatterns.length > 0) {
+			ldapAuthenticator.setUserDnPatterns(this.userDnPatterns);
 		}
 		return postProcess(ldapAuthenticator);
 	}
@@ -206,10 +206,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	private PasswordComparisonAuthenticator createPasswordCompareAuthenticator(
 			BaseLdapPathContextSource contextSource) {
 		PasswordComparisonAuthenticator ldapAuthenticator = new PasswordComparisonAuthenticator(contextSource);
-		if (passwordAttribute != null) {
-			ldapAuthenticator.setPasswordAttributeName(passwordAttribute);
+		if (this.passwordAttribute != null) {
+			ldapAuthenticator.setPasswordAttributeName(this.passwordAttribute);
 		}
-		ldapAuthenticator.setPasswordEncoder(passwordEncoder);
+		ldapAuthenticator.setPasswordEncoder(this.passwordEncoder);
 		return ldapAuthenticator;
 	}
 
@@ -223,10 +223,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	private LdapUserSearch createUserSearch() {
-		if (userSearchFilter == null) {
+		if (this.userSearchFilter == null) {
 			return null;
 		}
-		return new FilterBasedLdapUserSearch(userSearchBase, userSearchFilter, contextSource);
+		return new FilterBasedLdapUserSearch(this.userSearchBase, this.userSearchFilter, this.contextSource);
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @return the {@link ContextSourceBuilder} for further customizations
 	 */
 	public ContextSourceBuilder contextSource() {
-		return contextSourceBuilder;
+		return this.contextSourceBuilder;
 	}
 
 	/**
@@ -540,12 +540,12 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 			}
 
 			DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(getProviderUrl());
-			if (managerDn != null) {
-				contextSource.setUserDn(managerDn);
-				if (managerPassword == null) {
+			if (this.managerDn != null) {
+				contextSource.setUserDn(this.managerDn);
+				if (this.managerPassword == null) {
 					throw new IllegalStateException("managerPassword is required if managerDn is supplied");
 				}
-				contextSource.setPassword(managerPassword);
+				contextSource.setPassword(this.managerPassword);
 			}
 			contextSource = postProcess(contextSource);
 			return contextSource;
@@ -570,10 +570,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		}
 
 		private int getPort() {
-			if (port == null) {
-				port = getDefaultPort();
+			if (this.port == null) {
+				this.port = getDefaultPort();
 			}
-			return port;
+			return this.port;
 		}
 
 		private int getDefaultPort() {
@@ -586,10 +586,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		}
 
 		private String getProviderUrl() {
-			if (url == null) {
-				return "ldap://127.0.0.1:" + getPort() + "/" + root;
+			if (this.url == null) {
+				return "ldap://127.0.0.1:" + getPort() + "/" + this.root;
 			}
-			return url;
+			return this.url;
 		}
 
 		private ContextSourceBuilder() {
@@ -598,10 +598,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	private BaseLdapPathContextSource getContextSource() throws Exception {
-		if (contextSource == null) {
-			contextSource = contextSourceBuilder.build();
+		if (this.contextSource == null) {
+			this.contextSource = this.contextSourceBuilder.build();
 		}
-		return contextSource;
+		return this.contextSource;
 	}
 
 	/**

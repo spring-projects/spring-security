@@ -58,11 +58,11 @@ public class DelegatingSecurityContextExecutor extends AbstractDelegatingSecurit
 
 	public final void execute(Runnable task) {
 		task = wrap(task);
-		delegate.execute(task);
+		this.delegate.execute(task);
 	}
 
 	protected final Executor getDelegateExecutor() {
-		return delegate;
+		return this.delegate;
 	}
 
 }

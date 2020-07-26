@@ -178,7 +178,7 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 
 	private Map<String, Object> addClaims(Map<String, Object> claims) {
 		Map<String, Object> result = new HashMap<>(claims);
-		for (Map.Entry<String, Converter<Object, ?>> entry : claimTypeConverters.entrySet()) {
+		for (Map.Entry<String, Converter<Object, ?>> entry : this.claimTypeConverters.entrySet()) {
 			if (!claims.containsKey(entry.getKey()) && entry.getValue().convert(null) != null) {
 				result.put(entry.getKey(), entry.getValue().convert(null));
 			}

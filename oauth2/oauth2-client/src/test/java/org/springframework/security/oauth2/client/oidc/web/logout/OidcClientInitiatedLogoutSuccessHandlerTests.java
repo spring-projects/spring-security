@@ -53,7 +53,7 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 			.providerConfigurationMetadata(Collections.singletonMap("end_session_endpoint", "https://endpoint"))
 			.build();
 
-	ClientRegistrationRepository repository = new InMemoryClientRegistrationRepository(registration);
+	ClientRegistrationRepository repository = new InMemoryClientRegistrationRepository(this.registration);
 
 	MockHttpServletRequest request;
 

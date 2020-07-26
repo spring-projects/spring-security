@@ -80,25 +80,26 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 				.providerDetails(c -> c.entityId("remote-entity-id")).localEntityIdTemplate("local-entity-id")
 				.credentials(c -> c.add(relyingPartySigningCredential()));
 		this.relyingPartyRegistration = this.relyingPartyRegistrationBuilder.build();
-		contextBuilder = Saml2AuthenticationRequestContext.builder().issuer("https://issuer")
-				.relyingPartyRegistration(relyingPartyRegistration).assertionConsumerServiceUrl("https://issuer/sso");
-		context = contextBuilder.build();
-		factory = new OpenSamlAuthenticationRequestFactory();
+		this.contextBuilder = Saml2AuthenticationRequestContext.builder().issuer("https://issuer")
+				.relyingPartyRegistration(this.relyingPartyRegistration)
+				.assertionConsumerServiceUrl("https://issuer/sso");
+		this.context = this.contextBuilder.build();
+		this.factory = new OpenSamlAuthenticationRequestFactory();
 	}
 
 	@Test
 	public void createAuthenticationRequestWhenInvokingDeprecatedMethodThenReturnsXML() {
-		Saml2AuthenticationRequest request = Saml2AuthenticationRequest.withAuthenticationRequestContext(context)
+		Saml2AuthenticationRequest request = Saml2AuthenticationRequest.withAuthenticationRequestContext(this.context)
 				.build();
-		String result = factory.createAuthenticationRequest(request);
+		String result = this.factory.createAuthenticationRequest(request);
 		assertThat(result.replace("\n", ""))
 				.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?><saml2p:AuthnRequest");
 	}
 
 	@Test
 	public void createRedirectAuthenticationRequestWhenUsingContextThenAllValuesAreSet() {
-		context = contextBuilder.relayState("Relay State Value").build();
-		Saml2RedirectAuthenticationRequest result = factory.createRedirectAuthenticationRequest(context);
+		this.context = this.contextBuilder.relayState("Relay State Value").build();
+		Saml2RedirectAuthenticationRequest result = this.factory.createRedirectAuthenticationRequest(this.context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
 		assertThat(result.getSigAlg()).isNotEmpty();
@@ -109,11 +110,11 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	@Test
 	public void createRedirectAuthenticationRequestWhenNotSignRequestThenNoSignatureIsPresent() {
 
-		context = contextBuilder.relayState("Relay State Value")
-				.relyingPartyRegistration(withRelyingPartyRegistration(relyingPartyRegistration)
+		this.context = this.contextBuilder.relayState("Relay State Value")
+				.relyingPartyRegistration(withRelyingPartyRegistration(this.relyingPartyRegistration)
 						.providerDetails(c -> c.signAuthNRequest(false)).build())
 				.build();
-		Saml2RedirectAuthenticationRequest result = factory.createRedirectAuthenticationRequest(context);
+		Saml2RedirectAuthenticationRequest result = this.factory.createRedirectAuthenticationRequest(this.context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
 		assertThat(result.getSigAlg()).isNull();
@@ -123,11 +124,11 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createPostAuthenticationRequestWhenNotSignRequestThenNoSignatureIsPresent() {
-		context = contextBuilder.relayState("Relay State Value")
-				.relyingPartyRegistration(withRelyingPartyRegistration(relyingPartyRegistration)
+		this.context = this.contextBuilder.relayState("Relay State Value")
+				.relyingPartyRegistration(withRelyingPartyRegistration(this.relyingPartyRegistration)
 						.providerDetails(c -> c.signAuthNRequest(false)).build())
 				.build();
-		Saml2PostAuthenticationRequest result = factory.createPostAuthenticationRequest(context);
+		Saml2PostAuthenticationRequest result = this.factory.createPostAuthenticationRequest(this.context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
 		assertThat(result.getBinding()).isEqualTo(POST);
@@ -136,9 +137,9 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createPostAuthenticationRequestWhenSignRequestThenSignatureIsPresent() {
-		context = contextBuilder.relayState("Relay State Value")
-				.relyingPartyRegistration(withRelyingPartyRegistration(relyingPartyRegistration).build()).build();
-		Saml2PostAuthenticationRequest result = factory.createPostAuthenticationRequest(context);
+		this.context = this.contextBuilder.relayState("Relay State Value")
+				.relyingPartyRegistration(withRelyingPartyRegistration(this.relyingPartyRegistration).build()).build();
+		Saml2PostAuthenticationRequest result = this.factory.createPostAuthenticationRequest(this.context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
 		assertThat(result.getBinding()).isEqualTo(POST);
@@ -153,16 +154,16 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createAuthenticationRequestWhenSetUriThenReturnsCorrectBinding() {
-		factory.setProtocolBinding(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+		this.factory.setProtocolBinding(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
 		AuthnRequest authn = getAuthNRequest(POST);
 		Assert.assertEquals(SAMLConstants.SAML2_REDIRECT_BINDING_URI, authn.getProtocolBinding());
 	}
 
 	@Test
 	public void createAuthenticationRequestWhenSetUnsupportredUriThenThrowsIllegalArgumentException() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage(containsString("my-invalid-binding"));
-		factory.setProtocolBinding("my-invalid-binding");
+		this.exception.expect(IllegalArgumentException.class);
+		this.exception.expectMessage(containsString("my-invalid-binding"));
+		this.factory.setProtocolBinding("my-invalid-binding");
 	}
 
 	@Test
@@ -209,8 +210,8 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	private AuthnRequest getAuthNRequest(Saml2MessageBinding binding) {
 		AbstractSaml2AuthenticationRequest result = (binding == REDIRECT)
-				? factory.createRedirectAuthenticationRequest(context)
-				: factory.createPostAuthenticationRequest(context);
+				? this.factory.createRedirectAuthenticationRequest(this.context)
+				: this.factory.createPostAuthenticationRequest(this.context);
 		String samlRequest = result.getSamlRequest();
 		assertThat(samlRequest).isNotEmpty();
 		if (result.getBinding() == REDIRECT) {

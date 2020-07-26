@@ -41,7 +41,7 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 	}
 
 	public Object getFilterObject() {
-		return filterObject;
+		return this.filterObject;
 	}
 
 	public void setReturnObject(Object returnObject) {
@@ -49,7 +49,7 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 	}
 
 	public Object getReturnObject() {
-		return returnObject;
+		return this.returnObject;
 	}
 
 	/**
@@ -63,7 +63,7 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 	}
 
 	public Object getThis() {
-		return target;
+		return this.target;
 	}
 
 }

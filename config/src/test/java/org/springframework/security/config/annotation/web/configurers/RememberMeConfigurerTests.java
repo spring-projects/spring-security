@@ -82,7 +82,7 @@ public class RememberMeConfigurerTests {
 	public void postWhenNoUserDetailsServiceThenException() {
 		this.spring.register(NullUserDetailsConfig.class).autowire();
 
-		assertThatThrownBy(() -> mvc.perform(post("/login").param("username", "user").param("password", "password")
+		assertThatThrownBy(() -> this.mvc.perform(post("/login").param("username", "user").param("password", "password")
 				.param("remember-me", "true").with(csrf()))).hasMessageContaining("UserDetailsService is required");
 	}
 

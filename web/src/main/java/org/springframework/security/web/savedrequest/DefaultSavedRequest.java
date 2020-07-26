@@ -166,11 +166,11 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	private void addCookie(Cookie cookie) {
-		cookies.add(new SavedCookie(cookie));
+		this.cookies.add(new SavedCookie(cookie));
 	}
 
 	private void addHeader(String name, String value) {
-		List<String> values = headers.computeIfAbsent(name, k -> new ArrayList<>());
+		List<String> values = this.headers.computeIfAbsent(name, k -> new ArrayList<>());
 
 		values.add(value);
 	}
@@ -186,7 +186,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	private void addLocale(Locale locale) {
-		locales.add(locale);
+		this.locales.add(locale);
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	private void addParameter(String name, String[] values) {
-		parameters.put(name, values);
+		this.parameters.put(name, values);
 	}
 
 	/**
@@ -234,7 +234,7 @@ public class DefaultSavedRequest implements SavedRequest {
 			return false;
 		}
 
-		if (!"GET".equals(request.getMethod()) && "GET".equals(method)) {
+		if (!"GET".equals(request.getMethod()) && "GET".equals(this.method)) {
 			// A save GET should not match an incoming non-GET method
 			return false;
 		}
@@ -264,14 +264,14 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	public String getContextPath() {
-		return contextPath;
+		return this.contextPath;
 	}
 
 	@Override
 	public List<Cookie> getCookies() {
-		List<Cookie> cookieList = new ArrayList<>(cookies.size());
+		List<Cookie> cookieList = new ArrayList<>(this.cookies.size());
 
-		for (SavedCookie savedCookie : cookies) {
+		for (SavedCookie savedCookie : this.cookies) {
 			cookieList.add(savedCookie.getCookie());
 		}
 
@@ -284,17 +284,18 @@ public class DefaultSavedRequest implements SavedRequest {
 	 */
 	@Override
 	public String getRedirectUrl() {
-		return UrlUtils.buildFullRequestUrl(scheme, serverName, serverPort, requestURI, queryString);
+		return UrlUtils.buildFullRequestUrl(this.scheme, this.serverName, this.serverPort, this.requestURI,
+				this.queryString);
 	}
 
 	@Override
 	public Collection<String> getHeaderNames() {
-		return headers.keySet();
+		return this.headers.keySet();
 	}
 
 	@Override
 	public List<String> getHeaderValues(String name) {
-		List<String> values = headers.get(name);
+		List<String> values = this.headers.get(name);
 
 		if (values == null) {
 			return Collections.emptyList();
@@ -305,30 +306,30 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	@Override
 	public List<Locale> getLocales() {
-		return locales;
+		return this.locales;
 	}
 
 	@Override
 	public String getMethod() {
-		return method;
+		return this.method;
 	}
 
 	@Override
 	public Map<String, String[]> getParameterMap() {
-		return parameters;
+		return this.parameters;
 	}
 
 	public Collection<String> getParameterNames() {
-		return parameters.keySet();
+		return this.parameters.keySet();
 	}
 
 	@Override
 	public String[] getParameterValues(String name) {
-		return parameters.get(name);
+		return this.parameters.get(name);
 	}
 
 	public String getPathInfo() {
-		return pathInfo;
+		return this.pathInfo;
 	}
 
 	public String getQueryString() {
@@ -340,23 +341,23 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	public String getRequestURL() {
-		return requestURL;
+		return this.requestURL;
 	}
 
 	public String getScheme() {
-		return scheme;
+		return this.scheme;
 	}
 
 	public String getServerName() {
-		return serverName;
+		return this.serverName;
 	}
 
 	public int getServerPort() {
-		return serverPort;
+		return this.serverPort;
 	}
 
 	public String getServletPath() {
-		return servletPath;
+		return this.servletPath;
 	}
 
 	private boolean propertyEquals(String log, Object arg1, Object arg2) {

@@ -54,7 +54,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 	 */
 	@Override
 	protected void initUserDetailsService() throws Exception {
-		for (UserDetailsBuilder userBuilder : userBuilders) {
+		for (UserDetailsBuilder userBuilder : this.userBuilders) {
 			getUserDetailsService().createUser(userBuilder.build());
 		}
 		for (UserDetails userDetails : this.users) {
@@ -124,7 +124,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		 * @return the {@link UserDetailsManagerConfigurer} for method chaining
 		 */
 		public C and() {
-			return builder;
+			return this.builder;
 		}
 
 		/**

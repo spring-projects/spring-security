@@ -50,23 +50,23 @@ public class DelegatingAuthenticationEntryPointTests {
 
 	@Before
 	public void before() {
-		defaultEntryPoint = mock(AuthenticationEntryPoint.class);
-		entryPoints = new LinkedHashMap<>();
-		daep = new DelegatingAuthenticationEntryPoint(entryPoints);
-		daep.setDefaultEntryPoint(defaultEntryPoint);
+		this.defaultEntryPoint = mock(AuthenticationEntryPoint.class);
+		this.entryPoints = new LinkedHashMap<>();
+		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
+		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
 	}
 
 	@Test
 	public void testDefaultEntryPoint() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
-		when(firstRM.matches(request)).thenReturn(false);
-		entryPoints.put(firstRM, firstAEP);
+		when(firstRM.matches(this.request)).thenReturn(false);
+		this.entryPoints.put(firstRM, firstAEP);
 
-		daep.commence(request, null, null);
+		this.daep.commence(this.request, null, null);
 
-		verify(defaultEntryPoint).commence(request, null, null);
-		verify(firstAEP, never()).commence(request, null, null);
+		verify(this.defaultEntryPoint).commence(this.request, null, null);
+		verify(firstAEP, never()).commence(this.request, null, null);
 	}
 
 	@Test
@@ -75,16 +75,16 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher secondRM = mock(RequestMatcher.class);
-		when(firstRM.matches(request)).thenReturn(true);
-		entryPoints.put(firstRM, firstAEP);
-		entryPoints.put(secondRM, secondAEP);
+		when(firstRM.matches(this.request)).thenReturn(true);
+		this.entryPoints.put(firstRM, firstAEP);
+		this.entryPoints.put(secondRM, secondAEP);
 
-		daep.commence(request, null, null);
+		this.daep.commence(this.request, null, null);
 
-		verify(firstAEP).commence(request, null, null);
-		verify(secondAEP, never()).commence(request, null, null);
-		verify(defaultEntryPoint, never()).commence(request, null, null);
-		verify(secondRM, never()).matches(request);
+		verify(firstAEP).commence(this.request, null, null);
+		verify(secondAEP, never()).commence(this.request, null, null);
+		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);
+		verify(secondRM, never()).matches(this.request);
 	}
 
 	@Test
@@ -93,16 +93,16 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher secondRM = mock(RequestMatcher.class);
-		when(firstRM.matches(request)).thenReturn(false);
-		when(secondRM.matches(request)).thenReturn(true);
-		entryPoints.put(firstRM, firstAEP);
-		entryPoints.put(secondRM, secondAEP);
+		when(firstRM.matches(this.request)).thenReturn(false);
+		when(secondRM.matches(this.request)).thenReturn(true);
+		this.entryPoints.put(firstRM, firstAEP);
+		this.entryPoints.put(secondRM, secondAEP);
 
-		daep.commence(request, null, null);
+		this.daep.commence(this.request, null, null);
 
-		verify(secondAEP).commence(request, null, null);
-		verify(firstAEP, never()).commence(request, null, null);
-		verify(defaultEntryPoint, never()).commence(request, null, null);
+		verify(secondAEP).commence(this.request, null, null);
+		verify(firstAEP, never()).commence(this.request, null, null);
+		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);
 	}
 
 }

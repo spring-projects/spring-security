@@ -51,12 +51,12 @@ public class AuthenticationTagTests {
 
 	@Test
 	public void testOperationWhenPrincipalIsAUserDetailsInstance() throws JspException {
-		SecurityContextHolder.getContext().setAuthentication(auth);
+		SecurityContextHolder.getContext().setAuthentication(this.auth);
 
-		authenticationTag.setProperty("name");
-		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
-		assertThat(authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
-		assertThat(authenticationTag.getLastMessage()).isEqualTo("rodUserDetails");
+		this.authenticationTag.setProperty("name");
+		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
+		assertThat(this.authenticationTag.getLastMessage()).isEqualTo("rodUserDetails");
 	}
 
 	@Test
@@ -64,20 +64,20 @@ public class AuthenticationTagTests {
 		SecurityContextHolder.getContext().setAuthentication(
 				new TestingAuthenticationToken("rodAsString", "koala", AuthorityUtils.NO_AUTHORITIES));
 
-		authenticationTag.setProperty("principal");
-		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
-		assertThat(authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
-		assertThat(authenticationTag.getLastMessage()).isEqualTo("rodAsString");
+		this.authenticationTag.setProperty("principal");
+		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
+		assertThat(this.authenticationTag.getLastMessage()).isEqualTo("rodAsString");
 	}
 
 	@Test
 	public void testNestedPropertyIsReadCorrectly() throws JspException {
-		SecurityContextHolder.getContext().setAuthentication(auth);
+		SecurityContextHolder.getContext().setAuthentication(this.auth);
 
-		authenticationTag.setProperty("principal.username");
-		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
-		assertThat(authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
-		assertThat(authenticationTag.getLastMessage()).isEqualTo("rodUserDetails");
+		this.authenticationTag.setProperty("principal.username");
+		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
+		assertThat(this.authenticationTag.getLastMessage()).isEqualTo("rodUserDetails");
 	}
 
 	@Test
@@ -85,36 +85,36 @@ public class AuthenticationTagTests {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken(null, "koala", AuthorityUtils.NO_AUTHORITIES));
 
-		authenticationTag.setProperty("principal");
-		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
-		assertThat(authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
+		this.authenticationTag.setProperty("principal");
+		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
 	}
 
 	@Test
 	public void testOperationWhenSecurityContextIsNull() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(null);
 
-		authenticationTag.setProperty("principal");
-		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
-		assertThat(authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
-		assertThat(authenticationTag.getLastMessage()).isNull();
+		this.authenticationTag.setProperty("principal");
+		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
+		assertThat(this.authenticationTag.getLastMessage()).isNull();
 	}
 
 	@Test
 	public void testSkipsBodyIfNullOrEmptyOperation() throws Exception {
-		authenticationTag.setProperty("");
-		assertThat(authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
-		assertThat(authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
+		this.authenticationTag.setProperty("");
+		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
+		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
 	}
 
 	@Test
 	public void testThrowsExceptionForUnrecognisedProperty() {
-		SecurityContextHolder.getContext().setAuthentication(auth);
-		authenticationTag.setProperty("qsq");
+		SecurityContextHolder.getContext().setAuthentication(this.auth);
+		this.authenticationTag.setProperty("qsq");
 
 		try {
-			authenticationTag.doStartTag();
-			authenticationTag.doEndTag();
+			this.authenticationTag.doStartTag();
+			this.authenticationTag.doEndTag();
 			fail("Should have throwns JspException");
 		}
 		catch (JspException expected) {
@@ -124,20 +124,20 @@ public class AuthenticationTagTests {
 	@Test
 	public void htmlEscapingIsUsedByDefault() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("<>& ", ""));
-		authenticationTag.setProperty("name");
-		authenticationTag.doStartTag();
-		authenticationTag.doEndTag();
-		assertThat(authenticationTag.getLastMessage()).isEqualTo("&lt;&gt;&amp;&#32;");
+		this.authenticationTag.setProperty("name");
+		this.authenticationTag.doStartTag();
+		this.authenticationTag.doEndTag();
+		assertThat(this.authenticationTag.getLastMessage()).isEqualTo("&lt;&gt;&amp;&#32;");
 	}
 
 	@Test
 	public void settingHtmlEscapeToFalsePreventsEscaping() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("<>& ", ""));
-		authenticationTag.setProperty("name");
-		authenticationTag.setHtmlEscape("false");
-		authenticationTag.doStartTag();
-		authenticationTag.doEndTag();
-		assertThat(authenticationTag.getLastMessage()).isEqualTo("<>& ");
+		this.authenticationTag.setProperty("name");
+		this.authenticationTag.setHtmlEscape("false");
+		this.authenticationTag.doStartTag();
+		this.authenticationTag.doEndTag();
+		assertThat(this.authenticationTag.getLastMessage()).isEqualTo("<>& ");
 	}
 
 	private class MyAuthenticationTag extends AuthenticationTag {
@@ -145,11 +145,11 @@ public class AuthenticationTagTests {
 		String lastMessage = null;
 
 		public String getLastMessage() {
-			return lastMessage;
+			return this.lastMessage;
 		}
 
 		protected void writeMessage(String msg) {
-			lastMessage = msg;
+			this.lastMessage = msg;
 		}
 
 	}

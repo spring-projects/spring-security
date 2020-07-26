@@ -89,7 +89,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	private Authentication getAuthentication() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-		if (!trustResolver.isAnonymous(auth)) {
+		if (!this.trustResolver.isAnonymous(auth)) {
 			return auth;
 		}
 
@@ -136,8 +136,8 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	private boolean isGranted(String role) {
 		Authentication auth = getAuthentication();
 
-		if (rolePrefix != null && role != null && !role.startsWith(rolePrefix)) {
-			role = rolePrefix + role;
+		if (this.rolePrefix != null && role != null && !role.startsWith(this.rolePrefix)) {
+			role = this.rolePrefix + role;
 		}
 
 		if ((auth == null) || (auth.getPrincipal() == null)) {

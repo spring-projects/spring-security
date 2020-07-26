@@ -208,28 +208,28 @@ public final class SecurityJackson2Modules {
 
 		@Override
 		public void init(JavaType baseType) {
-			delegate.init(baseType);
+			this.delegate.init(baseType);
 		}
 
 		@Override
 		public String idFromValue(Object value) {
-			return delegate.idFromValue(value);
+			return this.delegate.idFromValue(value);
 		}
 
 		@Override
 		public String idFromValueAndType(Object value, Class<?> suggestedType) {
-			return delegate.idFromValueAndType(value, suggestedType);
+			return this.delegate.idFromValueAndType(value, suggestedType);
 		}
 
 		@Override
 		public String idFromBaseType() {
-			return delegate.idFromBaseType();
+			return this.delegate.idFromBaseType();
 		}
 
 		@Override
 		public JavaType typeFromId(DatabindContext context, String id) throws IOException {
 			DeserializationConfig config = (DeserializationConfig) context.getConfig();
-			JavaType result = delegate.typeFromId(context, id);
+			JavaType result = this.delegate.typeFromId(context, id);
 			String className = result.getRawClass().getName();
 			if (isInAllowlist(className)) {
 				return result;
@@ -256,12 +256,12 @@ public final class SecurityJackson2Modules {
 
 		@Override
 		public String getDescForKnownTypeIds() {
-			return delegate.getDescForKnownTypeIds();
+			return this.delegate.getDescForKnownTypeIds();
 		}
 
 		@Override
 		public JsonTypeInfo.Id getMechanism() {
-			return delegate.getMechanism();
+			return this.delegate.getMechanism();
 		}
 
 	}

@@ -45,18 +45,18 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 
 	@Override
 	public DirContext getContext(String principal, String credentials) throws PasswordPolicyException {
-		if (principal.equals(userDn)) {
+		if (principal.equals(this.userDn)) {
 			return super.getContext(principal, credentials);
 		}
 
-		final boolean debug = logger.isDebugEnabled();
+		final boolean debug = this.logger.isDebugEnabled();
 
 		if (debug) {
-			logger.debug("Binding as '" + userDn + "', prior to reconnect as user '" + principal + "'");
+			this.logger.debug("Binding as '" + this.userDn + "', prior to reconnect as user '" + principal + "'");
 		}
 
 		// First bind as manager user before rebinding as the specific principal.
-		LdapContext ctx = (LdapContext) super.getContext(userDn, password);
+		LdapContext ctx = (LdapContext) super.getContext(this.userDn, this.password);
 
 		Control[] rctls = { new PasswordPolicyControl(false) };
 
@@ -68,8 +68,8 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 		catch (javax.naming.NamingException ne) {
 			PasswordPolicyResponseControl ctrl = PasswordPolicyControlExtractor.extractControl(ctx);
 			if (debug) {
-				logger.debug("Failed to obtain context", ne);
-				logger.debug("Password policy response: " + ctrl);
+				this.logger.debug("Failed to obtain context", ne);
+				this.logger.debug("Password policy response: " + ctrl);
 			}
 
 			LdapUtils.closeContext(ctx);
@@ -84,7 +84,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 		}
 
 		if (debug) {
-			logger.debug("PPolicy control returned: " + PasswordPolicyControlExtractor.extractControl(ctx));
+			this.logger.debug("PPolicy control returned: " + PasswordPolicyControlExtractor.extractControl(ctx));
 		}
 
 		return ctx;

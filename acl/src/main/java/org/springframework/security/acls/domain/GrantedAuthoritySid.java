@@ -62,7 +62,7 @@ public class GrantedAuthoritySid implements Sid {
 	}
 
 	public String getGrantedAuthority() {
-		return grantedAuthority;
+		return this.grantedAuthority;
 	}
 
 	@Override

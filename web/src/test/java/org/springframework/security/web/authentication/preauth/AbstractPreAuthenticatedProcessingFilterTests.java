@@ -59,7 +59,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 
 	@Before
 	public void createFilter() {
-		filter = new AbstractPreAuthenticatedProcessingFilter() {
+		this.filter = new AbstractPreAuthenticatedProcessingFilter() {
 			protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
 				return "n/a";
 			}
@@ -80,9 +80,9 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	public void filterChainProceedsOnFailedAuthenticationByDefault() throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
-		filter.setAuthenticationManager(am);
-		filter.afterPropertiesSet();
-		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class));
+		this.filter.setAuthenticationManager(am);
+		this.filter.afterPropertiesSet();
+		this.filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
@@ -92,10 +92,10 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 			throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
-		filter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
-		filter.setAuthenticationManager(am);
-		filter.afterPropertiesSet();
-		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class));
+		this.filter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
+		this.filter.setAuthenticationManager(am);
+		this.filter.afterPropertiesSet();
+		this.filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
@@ -435,7 +435,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		private boolean initFilterBeanInvoked;
 
 		protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
-			return principal;
+			return this.principal;
 		}
 
 		protected Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest) {
@@ -445,7 +445,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		@Override
 		protected void initFilterBean() throws ServletException {
 			super.initFilterBean();
-			initFilterBeanInvoked = true;
+			this.initFilterBeanInvoked = true;
 		}
 
 	}

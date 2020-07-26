@@ -75,12 +75,12 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link PortMapper} to use
 	 */
 	private PortMapper getPortMapper() {
-		if (portMapper == null) {
+		if (this.portMapper == null) {
 			PortMapperImpl portMapper = new PortMapperImpl();
-			portMapper.setPortMappings(httpsPortMappings);
+			portMapper.setPortMappings(this.httpsPortMappings);
 			this.portMapper = portMapper;
 		}
-		return portMapper;
+		return this.portMapper;
 	}
 
 	/**
@@ -109,7 +109,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link PortMapperConfigurer} for further customization
 		 */
 		public PortMapperConfigurer<H> mapsTo(int httpsPort) {
-			httpsPortMappings.put(String.valueOf(httpPort), String.valueOf(httpsPort));
+			PortMapperConfigurer.this.httpsPortMappings.put(String.valueOf(this.httpPort), String.valueOf(httpsPort));
 			return PortMapperConfigurer.this;
 		}
 

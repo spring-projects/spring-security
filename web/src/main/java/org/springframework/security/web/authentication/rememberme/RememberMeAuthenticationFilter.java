@@ -81,8 +81,8 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(authenticationManager, "authenticationManager must be specified");
-		Assert.notNull(rememberMeServices, "rememberMeServices must be specified");
+		Assert.notNull(this.authenticationManager, "authenticationManager must be specified");
+		Assert.notNull(this.rememberMeServices, "rememberMeServices must be specified");
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -91,44 +91,44 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 		HttpServletResponse response = (HttpServletResponse) res;
 
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			Authentication rememberMeAuth = rememberMeServices.autoLogin(request, response);
+			Authentication rememberMeAuth = this.rememberMeServices.autoLogin(request, response);
 
 			if (rememberMeAuth != null) {
 				// Attempt authenticaton via AuthenticationManager
 				try {
-					rememberMeAuth = authenticationManager.authenticate(rememberMeAuth);
+					rememberMeAuth = this.authenticationManager.authenticate(rememberMeAuth);
 
 					// Store to SecurityContextHolder
 					SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
 
 					onSuccessfulAuthentication(request, response, rememberMeAuth);
 
-					if (logger.isDebugEnabled()) {
-						logger.debug("SecurityContextHolder populated with remember-me token: '"
+					if (this.logger.isDebugEnabled()) {
+						this.logger.debug("SecurityContextHolder populated with remember-me token: '"
 								+ SecurityContextHolder.getContext().getAuthentication() + "'");
 					}
 
 					// Fire event
 					if (this.eventPublisher != null) {
-						eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
+						this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
 								SecurityContextHolder.getContext().getAuthentication(), this.getClass()));
 					}
 
-					if (successHandler != null) {
-						successHandler.onAuthenticationSuccess(request, response, rememberMeAuth);
+					if (this.successHandler != null) {
+						this.successHandler.onAuthenticationSuccess(request, response, rememberMeAuth);
 
 						return;
 					}
 
 				}
 				catch (AuthenticationException authenticationException) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("SecurityContextHolder not populated with remember-me token, as "
+					if (this.logger.isDebugEnabled()) {
+						this.logger.debug("SecurityContextHolder not populated with remember-me token, as "
 								+ "AuthenticationManager rejected Authentication returned by RememberMeServices: '"
 								+ rememberMeAuth + "'; invalidating remember-me token", authenticationException);
 					}
 
-					rememberMeServices.loginFail(request, response);
+					this.rememberMeServices.loginFail(request, response);
 
 					onUnsuccessfulAuthentication(request, response, authenticationException);
 				}
@@ -137,9 +137,10 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 			chain.doFilter(request, response);
 		}
 		else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("SecurityContextHolder not populated with remember-me token, as it already contained: '"
-						+ SecurityContextHolder.getContext().getAuthentication() + "'");
+			if (this.logger.isDebugEnabled()) {
+				this.logger
+						.debug("SecurityContextHolder not populated with remember-me token, as it already contained: '"
+								+ SecurityContextHolder.getContext().getAuthentication() + "'");
 			}
 
 			chain.doFilter(request, response);
@@ -166,7 +167,7 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	}
 
 	public RememberMeServices getRememberMeServices() {
-		return rememberMeServices;
+		return this.rememberMeServices;
 	}
 
 	public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {

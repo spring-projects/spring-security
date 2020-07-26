@@ -101,7 +101,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	private DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
 
-	private SecurityExpressionHandler<FilterInvocation> expressionHandler = defaultWebSecurityExpressionHandler;
+	private SecurityExpressionHandler<FilterInvocation> expressionHandler = this.defaultWebSecurityExpressionHandler;
 
 	private Runnable postBuildAction = () -> {
 	};
@@ -156,7 +156,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * should be ignored
 	 */
 	public IgnoredRequestConfigurer ignoring() {
-		return ignoredRequestRegistry;
+		return this.ignoredRequestRegistry;
 	}
 
 	/**
@@ -230,7 +230,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * @return the {@link SecurityExpressionHandler} for further customizations
 	 */
 	public SecurityExpressionHandler<FilterInvocation> getExpressionHandler() {
-		return expressionHandler;
+		return this.expressionHandler;
 	}
 
 	/**
@@ -238,11 +238,11 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * @return the {@link WebInvocationPrivilegeEvaluator} for further customizations
 	 */
 	public WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() {
-		if (privilegeEvaluator != null) {
-			return privilegeEvaluator;
+		if (this.privilegeEvaluator != null) {
+			return this.privilegeEvaluator;
 		}
-		return filterSecurityInterceptor == null ? null
-				: new DefaultWebInvocationPrivilegeEvaluator(filterSecurityInterceptor);
+		return this.filterSecurityInterceptor == null ? null
+				: new DefaultWebInvocationPrivilegeEvaluator(this.filterSecurityInterceptor);
 	}
 
 	/**
@@ -268,39 +268,39 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	@Override
 	protected Filter performBuild() throws Exception {
-		Assert.state(!securityFilterChainBuilders.isEmpty(),
+		Assert.state(!this.securityFilterChainBuilders.isEmpty(),
 				() -> "At least one SecurityBuilder<? extends SecurityFilterChain> needs to be specified. "
 						+ "Typically this is done by exposing a SecurityFilterChain bean "
 						+ "or by adding a @Configuration that extends WebSecurityConfigurerAdapter. "
 						+ "More advanced users can invoke " + WebSecurity.class.getSimpleName()
 						+ ".addSecurityFilterChainBuilder directly");
-		int chainSize = ignoredRequests.size() + securityFilterChainBuilders.size();
+		int chainSize = this.ignoredRequests.size() + this.securityFilterChainBuilders.size();
 		List<SecurityFilterChain> securityFilterChains = new ArrayList<>(chainSize);
-		for (RequestMatcher ignoredRequest : ignoredRequests) {
+		for (RequestMatcher ignoredRequest : this.ignoredRequests) {
 			securityFilterChains.add(new DefaultSecurityFilterChain(ignoredRequest));
 		}
-		for (SecurityBuilder<? extends SecurityFilterChain> securityFilterChainBuilder : securityFilterChainBuilders) {
+		for (SecurityBuilder<? extends SecurityFilterChain> securityFilterChainBuilder : this.securityFilterChainBuilders) {
 			securityFilterChains.add(securityFilterChainBuilder.build());
 		}
 		FilterChainProxy filterChainProxy = new FilterChainProxy(securityFilterChains);
-		if (httpFirewall != null) {
-			filterChainProxy.setFirewall(httpFirewall);
+		if (this.httpFirewall != null) {
+			filterChainProxy.setFirewall(this.httpFirewall);
 		}
-		if (requestRejectedHandler != null) {
-			filterChainProxy.setRequestRejectedHandler(requestRejectedHandler);
+		if (this.requestRejectedHandler != null) {
+			filterChainProxy.setRequestRejectedHandler(this.requestRejectedHandler);
 		}
 		filterChainProxy.afterPropertiesSet();
 
 		Filter result = filterChainProxy;
-		if (debugEnabled) {
-			logger.warn("\n\n" + "********************************************************************\n"
+		if (this.debugEnabled) {
+			this.logger.warn("\n\n" + "********************************************************************\n"
 					+ "**********        Security debugging is enabled.       *************\n"
 					+ "**********    This may include sensitive information.  *************\n"
 					+ "**********      Do not use in a production system!     *************\n"
 					+ "********************************************************************\n\n");
 			result = new DebugFilter(filterChainProxy);
 		}
-		postBuildAction.run();
+		this.postBuildAction.run();
 		return result;
 	}
 

@@ -27,7 +27,7 @@ public class PostProcessedMockUserDetailsService implements UserDetailsService {
 	}
 
 	public String getPostProcessorWasHere() {
-		return postProcessorWasHere;
+		return this.postProcessorWasHere;
 	}
 
 	public void setPostProcessorWasHere(String postProcessorWasHere) {

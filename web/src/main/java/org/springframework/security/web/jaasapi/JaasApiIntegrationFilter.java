@@ -72,16 +72,16 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 			throws ServletException, IOException {
 
 		Subject subject = obtainSubject(request);
-		if (subject == null && createEmptySubject) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(
+		if (subject == null && this.createEmptySubject) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(
 						"Subject returned was null and createEmtpySubject is true; creating new empty subject to run as.");
 			}
 			subject = new Subject();
 		}
 		if (subject == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Subject is null continue running with no Subject.");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Subject is null continue running with no Subject.");
 			}
 			chain.doFilter(request, response);
 			return;
@@ -91,8 +91,8 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 			return null;
 		};
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Running as Subject " + subject);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Running as Subject " + subject);
 		}
 		try {
 			Subject.doAs(subject, continueChain);
@@ -119,8 +119,8 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 */
 	protected Subject obtainSubject(ServletRequest request) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Attempting to obtainSubject using authentication : " + authentication);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Attempting to obtainSubject using authentication : " + authentication);
 		}
 		if (authentication == null) {
 			return null;

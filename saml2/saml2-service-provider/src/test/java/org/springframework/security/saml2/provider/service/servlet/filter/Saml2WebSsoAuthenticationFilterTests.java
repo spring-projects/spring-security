@@ -49,47 +49,47 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Before
 	public void setup() {
-		filter = new Saml2WebSsoAuthenticationFilter(repository);
-		request.setPathInfo("/login/saml2/sso/idp-registration-id");
-		request.setParameter("SAMLResponse", "xml-data-goes-here");
+		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository);
+		this.request.setPathInfo("/login/saml2/sso/idp-registration-id");
+		this.request.setParameter("SAMLResponse", "xml-data-goes-here");
 	}
 
 	@Test
 	public void constructingFilterWithMissingRegistrationIdVariableThenThrowsException() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("filterProcessesUrl must contain a {registrationId} match variable");
-		filter = new Saml2WebSsoAuthenticationFilter(repository, "/url/missing/variable");
+		this.exception.expect(IllegalArgumentException.class);
+		this.exception.expectMessage("filterProcessesUrl must contain a {registrationId} match variable");
+		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/url/missing/variable");
 	}
 
 	@Test
 	public void constructingFilterWithValidRegistrationIdVariableThenSucceeds() {
-		filter = new Saml2WebSsoAuthenticationFilter(repository, "/url/variable/is/present/{registrationId}");
+		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/url/variable/is/present/{registrationId}");
 	}
 
 	@Test
 	public void requiresAuthenticationWhenHappyPathThenReturnsTrue() {
-		Assert.assertTrue(filter.requiresAuthentication(request, response));
+		Assert.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
 	}
 
 	@Test
 	public void requiresAuthenticationWhenCustomProcessingUrlThenReturnsTrue() {
-		filter = new Saml2WebSsoAuthenticationFilter(repository, "/some/other/path/{registrationId}");
-		request.setPathInfo("/some/other/path/idp-registration-id");
-		request.setParameter("SAMLResponse", "xml-data-goes-here");
-		Assert.assertTrue(filter.requiresAuthentication(request, response));
+		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
+		this.request.setPathInfo("/some/other/path/idp-registration-id");
+		this.request.setParameter("SAMLResponse", "xml-data-goes-here");
+		Assert.assertTrue(this.filter.requiresAuthentication(this.request, this.response));
 	}
 
 	@Test
 	public void attemptAuthenticationWhenRegistrationIdDoesNotExistThenThrowsException() {
-		when(repository.findByRegistrationId("non-existent-id")).thenReturn(null);
+		when(this.repository.findByRegistrationId("non-existent-id")).thenReturn(null);
 
-		filter = new Saml2WebSsoAuthenticationFilter(repository, "/some/other/path/{registrationId}");
+		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
 
-		request.setPathInfo("/some/other/path/non-existent-id");
-		request.setParameter("SAMLResponse", "response");
+		this.request.setPathInfo("/some/other/path/non-existent-id");
+		this.request.setParameter("SAMLResponse", "response");
 
 		try {
-			filter.attemptAuthentication(request, response);
+			this.filter.attemptAuthentication(this.request, this.response);
 			failBecauseExceptionWasNotThrown(Saml2AuthenticationException.class);
 		}
 		catch (Exception e) {

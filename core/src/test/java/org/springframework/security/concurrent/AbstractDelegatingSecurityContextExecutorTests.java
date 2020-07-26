@@ -52,13 +52,13 @@ public abstract class AbstractDelegatingSecurityContextExecutorTests
 
 	@Test
 	public void execute() {
-		executor = create();
-		executor.execute(runnable);
-		verify(getExecutor()).execute(wrappedRunnable);
+		this.executor = create();
+		this.executor.execute(this.runnable);
+		verify(getExecutor()).execute(this.wrappedRunnable);
 	}
 
 	protected Executor getExecutor() {
-		return delegate;
+		return this.delegate;
 	}
 
 	protected abstract DelegatingSecurityContextExecutor create();

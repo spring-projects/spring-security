@@ -68,15 +68,15 @@ public class SessionManagementConfigurerServlet31Tests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
 	}
 
 	@After
 	public void teardown() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -91,13 +91,13 @@ public class SessionManagementConfigurerServlet31Tests {
 		request.setParameter("password", "password");
 		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		CsrfToken token = repository.generateToken(request);
-		repository.saveToken(token, request, response);
+		repository.saveToken(token, request, this.response);
 		request.setParameter(token.getParameterName(), token.getToken());
 		request.getSession().setAttribute("attribute1", "value1");
 
 		loadConfig(SessionManagementDefaultSessionFixationServlet31Config.class);
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
@@ -137,7 +137,7 @@ public class SessionManagementConfigurerServlet31Tests {
 
 	private void login(Authentication auth) {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response);
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(this.request, this.response);
 		repo.loadContext(requestResponseHolder);
 
 		SecurityContextImpl securityContextImpl = new SecurityContextImpl();

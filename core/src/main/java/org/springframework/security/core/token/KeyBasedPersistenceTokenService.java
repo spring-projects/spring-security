@@ -138,13 +138,13 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	 * @return a pseduo random number (hex encoded)
 	 */
 	private String generatePseudoRandomNumber() {
-		byte[] randomBytes = new byte[pseudoRandomNumberBytes];
-		secureRandom.nextBytes(randomBytes);
+		byte[] randomBytes = new byte[this.pseudoRandomNumberBytes];
+		this.secureRandom.nextBytes(randomBytes);
 		return new String(Hex.encode(randomBytes));
 	}
 
 	private String computeServerSecretApplicableAt(long time) {
-		return serverSecret + ":" + new Long(time % serverInteger).intValue();
+		return this.serverSecret + ":" + new Long(time % this.serverInteger).intValue();
 	}
 
 	/**
@@ -173,9 +173,9 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	public void afterPropertiesSet() {
-		Assert.hasText(serverSecret, "Server secret required");
-		Assert.notNull(serverInteger, "Server integer required");
-		Assert.notNull(secureRandom, "SecureRandom instance required");
+		Assert.hasText(this.serverSecret, "Server secret required");
+		Assert.notNull(this.serverInteger, "Server integer required");
+		Assert.notNull(this.secureRandom, "SecureRandom instance required");
 	}
 
 }

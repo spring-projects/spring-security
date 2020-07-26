@@ -41,7 +41,7 @@ public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurity
 			Message<T> invocation) {
 		MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(authentication, invocation);
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(trustResolver);
+		root.setTrustResolver(this.trustResolver);
 		root.setRoleHierarchy(getRoleHierarchy());
 		return root;
 	}

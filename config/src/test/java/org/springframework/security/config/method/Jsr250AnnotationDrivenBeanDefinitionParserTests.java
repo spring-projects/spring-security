@@ -39,23 +39,23 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 
 	@Before
 	public void loadContext() {
-		appContext = new InMemoryXmlApplicationContext(
+		this.appContext = new InMemoryXmlApplicationContext(
 				"<b:bean id='target' class='org.springframework.security.access.annotation.Jsr250BusinessServiceImpl'/>"
 						+ "<global-method-security jsr250-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML);
-		target = (BusinessService) appContext.getBean("target");
+		this.target = (BusinessService) this.appContext.getBean("target");
 	}
 
 	@After
 	public void closeAppContext() {
-		if (appContext != null) {
-			appContext.close();
+		if (this.appContext != null) {
+			this.appContext.close();
 		}
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-		target.someUserMethod1();
+		this.target.someUserMethod1();
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
-		target.someOther(0);
+		this.target.someOther(0);
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
-		target.someUserMethod1();
+		this.target.someUserMethod1();
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -82,7 +82,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
-		target.someAdminMethod();
+		this.target.someAdminMethod();
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 
-		target.rolesAllowedUser();
+		this.target.rolesAllowedUser();
 	}
 
 }

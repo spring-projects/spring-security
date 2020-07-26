@@ -60,13 +60,13 @@ public class DelegatingSecurityContextRunnableTests {
 
 	@Before
 	public void setUp() {
-		originalSecurityContext = SecurityContextHolder.createEmptyContext();
+		this.originalSecurityContext = SecurityContextHolder.createEmptyContext();
 		doAnswer((Answer<Object>) invocation -> {
-			assertThat(SecurityContextHolder.getContext()).isEqualTo(securityContext);
+			assertThat(SecurityContextHolder.getContext()).isEqualTo(this.securityContext);
 			return null;
-		}).when(delegate).run();
+		}).when(this.delegate).run();
 
-		executor = Executors.newFixedThreadPool(1);
+		this.executor = Executors.newFixedThreadPool(1);
 	}
 
 	@After
@@ -83,7 +83,7 @@ public class DelegatingSecurityContextRunnableTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullDelegateNonNullSecurityContext() {
-		new DelegatingSecurityContextRunnable(null, securityContext);
+		new DelegatingSecurityContextRunnable(null, this.securityContext);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -93,41 +93,41 @@ public class DelegatingSecurityContextRunnableTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullSecurityContext() {
-		new DelegatingSecurityContextRunnable(delegate, null);
+		new DelegatingSecurityContextRunnable(this.delegate, null);
 	}
 
 	// --- run ---
 
 	@Test
 	public void call() throws Exception {
-		runnable = new DelegatingSecurityContextRunnable(delegate, securityContext);
-		assertWrapped(runnable);
+		this.runnable = new DelegatingSecurityContextRunnable(this.delegate, this.securityContext);
+		assertWrapped(this.runnable);
 	}
 
 	@Test
 	public void callDefaultSecurityContext() throws Exception {
-		SecurityContextHolder.setContext(securityContext);
-		runnable = new DelegatingSecurityContextRunnable(delegate);
+		SecurityContextHolder.setContext(this.securityContext);
+		this.runnable = new DelegatingSecurityContextRunnable(this.delegate);
 		SecurityContextHolder.clearContext(); // ensure runnable is what sets up the
 												// SecurityContextHolder
-		assertWrapped(runnable);
+		assertWrapped(this.runnable);
 	}
 
 	// SEC-3031
 	@Test
 	public void callOnSameThread() throws Exception {
-		originalSecurityContext = securityContext;
-		SecurityContextHolder.setContext(originalSecurityContext);
-		executor = synchronousExecutor();
-		runnable = new DelegatingSecurityContextRunnable(delegate, securityContext);
-		assertWrapped(runnable);
+		this.originalSecurityContext = this.securityContext;
+		SecurityContextHolder.setContext(this.originalSecurityContext);
+		this.executor = synchronousExecutor();
+		this.runnable = new DelegatingSecurityContextRunnable(this.delegate, this.securityContext);
+		assertWrapped(this.runnable);
 	}
 
 	// --- create ---
 
 	@Test(expected = IllegalArgumentException.class)
 	public void createNullDelegate() {
-		DelegatingSecurityContextRunnable.create(null, securityContext);
+		DelegatingSecurityContextRunnable.create(null, this.securityContext);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -137,17 +137,17 @@ public class DelegatingSecurityContextRunnableTests {
 
 	@Test
 	public void createNullSecurityContext() throws Exception {
-		SecurityContextHolder.setContext(securityContext);
-		runnable = DelegatingSecurityContextRunnable.create(delegate, null);
+		SecurityContextHolder.setContext(this.securityContext);
+		this.runnable = DelegatingSecurityContextRunnable.create(this.delegate, null);
 		SecurityContextHolder.clearContext(); // ensure runnable is what sets up the
 												// SecurityContextHolder
-		assertWrapped(runnable);
+		assertWrapped(this.runnable);
 	}
 
 	@Test
 	public void create() throws Exception {
-		runnable = DelegatingSecurityContextRunnable.create(delegate, securityContext);
-		assertWrapped(runnable);
+		this.runnable = DelegatingSecurityContextRunnable.create(this.delegate, this.securityContext);
+		assertWrapped(this.runnable);
 	}
 
 	// --- toString
@@ -155,15 +155,15 @@ public class DelegatingSecurityContextRunnableTests {
 	// SEC-2682
 	@Test
 	public void toStringDelegates() {
-		runnable = new DelegatingSecurityContextRunnable(delegate, securityContext);
-		assertThat(runnable.toString()).isEqualTo(delegate.toString());
+		this.runnable = new DelegatingSecurityContextRunnable(this.delegate, this.securityContext);
+		assertThat(this.runnable.toString()).isEqualTo(this.delegate.toString());
 	}
 
 	private void assertWrapped(Runnable runnable) throws Exception {
-		Future<?> submit = executor.submit(runnable);
+		Future<?> submit = this.executor.submit(runnable);
 		submit.get();
-		verify(delegate).run();
-		assertThat(SecurityContextHolder.getContext()).isEqualTo(originalSecurityContext);
+		verify(this.delegate).run();
+		assertThat(SecurityContextHolder.getContext()).isEqualTo(this.originalSecurityContext);
 	}
 
 	private static ExecutorService synchronousExecutor() {

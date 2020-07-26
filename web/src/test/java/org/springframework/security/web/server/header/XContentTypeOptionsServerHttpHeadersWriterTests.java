@@ -34,26 +34,27 @@ public class XContentTypeOptionsServerHttpHeadersWriterTests {
 
 	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-	HttpHeaders headers = exchange.getResponse().getHeaders();
+	HttpHeaders headers = this.exchange.getResponse().getHeaders();
 
 	@Test
 	public void writeHeadersWhenNoHeadersThenWriteHeaders() {
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 				.containsOnly(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
 
 	@Test
 	public void writeHeadersWhenHeaderWrittenThenDoesNotOverrride() {
 		String headerValue = "value";
-		headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
+		this.headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
 
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		assertThat(headers).hasSize(1);
-		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(headerValue);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
+				.containsOnly(headerValue);
 	}
 
 }

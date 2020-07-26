@@ -134,7 +134,7 @@ public class FormLoginBeanDefinitionParser {
 			authenticationFailureUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL);
 			WebConfigUtils.validateHttpRedirect(authenticationFailureUrl, pc, source);
 			alwaysUseDefault = elt.getAttribute(ATT_ALWAYS_USE_DEFAULT_TARGET_URL);
-			loginPage = elt.getAttribute(ATT_LOGIN_PAGE);
+			this.loginPage = elt.getAttribute(ATT_LOGIN_PAGE);
 			successHandlerRef = elt.getAttribute(ATT_SUCCESS_HANDLER_REF);
 			failureHandlerRef = elt.getAttribute(ATT_FAILURE_HANDLER_REF);
 			authDetailsSourceRef = elt.getAttribute(AuthenticationConfigBuilder.ATT_AUTH_DETAILS_SOURCE_REF);
@@ -143,34 +143,34 @@ public class FormLoginBeanDefinitionParser {
 			authenticationSuccessForwardUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_SUCCESS_FORWARD_URL);
 			WebConfigUtils.validateHttpRedirect(authenticationSuccessForwardUrl, pc, source);
 
-			if (!StringUtils.hasText(loginPage)) {
-				loginPage = null;
+			if (!StringUtils.hasText(this.loginPage)) {
+				this.loginPage = null;
 			}
-			WebConfigUtils.validateHttpRedirect(loginPage, pc, source);
+			WebConfigUtils.validateHttpRedirect(this.loginPage, pc, source);
 			usernameParameter = elt.getAttribute(ATT_USERNAME_PARAMETER);
 			passwordParameter = elt.getAttribute(ATT_PASSWORD_PARAMETER);
 		}
 
-		filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl,
-				successHandlerRef, failureHandlerRef, authDetailsSourceRef, authenticationFailureForwardUrl,
-				authenticationSuccessForwardUrl);
+		this.filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, this.loginPage,
+				authenticationFailureUrl, successHandlerRef, failureHandlerRef, authDetailsSourceRef,
+				authenticationFailureForwardUrl, authenticationSuccessForwardUrl);
 
 		if (StringUtils.hasText(usernameParameter)) {
-			filterBean.getPropertyValues().addPropertyValue("usernameParameter", usernameParameter);
+			this.filterBean.getPropertyValues().addPropertyValue("usernameParameter", usernameParameter);
 		}
 		if (StringUtils.hasText(passwordParameter)) {
-			filterBean.getPropertyValues().addPropertyValue("passwordParameter", passwordParameter);
+			this.filterBean.getPropertyValues().addPropertyValue("passwordParameter", passwordParameter);
 		}
 
-		filterBean.setSource(source);
+		this.filterBean.setSource(source);
 
 		BeanDefinitionBuilder entryPointBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class);
 		entryPointBuilder.getRawBeanDefinition().setSource(source);
-		entryPointBuilder.addConstructorArgValue(loginPage != null ? loginPage : DEF_LOGIN_PAGE);
-		entryPointBuilder.addPropertyValue("portMapper", portMapper);
-		entryPointBuilder.addPropertyValue("portResolver", portResolver);
-		entryPointBean = (RootBeanDefinition) entryPointBuilder.getBeanDefinition();
+		entryPointBuilder.addConstructorArgValue(this.loginPage != null ? this.loginPage : DEF_LOGIN_PAGE);
+		entryPointBuilder.addPropertyValue("portMapper", this.portMapper);
+		entryPointBuilder.addPropertyValue("portResolver", this.portResolver);
+		this.entryPointBean = (RootBeanDefinition) entryPointBuilder.getBeanDefinition();
 
 		return null;
 	}
@@ -180,10 +180,10 @@ public class FormLoginBeanDefinitionParser {
 			String authDetailsSourceRef, String authenticationFailureForwardUrl,
 			String authenticationSuccessForwardUrl) {
 
-		BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(filterClassName);
+		BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(this.filterClassName);
 
 		if (!StringUtils.hasText(loginUrl)) {
-			loginUrl = defaultLoginProcessingUrl;
+			loginUrl = this.defaultLoginProcessingUrl;
 		}
 
 		this.loginProcessingUrl = loginUrl;
@@ -191,7 +191,7 @@ public class FormLoginBeanDefinitionParser {
 		BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
 		matcherBuilder.addConstructorArgValue(loginUrl);
-		if (loginMethod != null) {
+		if (this.loginMethod != null) {
 			matcherBuilder.addConstructorArgValue("POST");
 		}
 
@@ -212,7 +212,7 @@ public class FormLoginBeanDefinitionParser {
 			if ("true".equals(alwaysUseDefault)) {
 				successHandler.addPropertyValue("alwaysUseDefaultTargetUrl", Boolean.TRUE);
 			}
-			successHandler.addPropertyValue("requestCache", requestCache);
+			successHandler.addPropertyValue("requestCache", this.requestCache);
 			successHandler.addPropertyValue("defaultTargetUrl",
 					StringUtils.hasText(defaultTargetUrl) ? defaultTargetUrl : DEF_FORM_LOGIN_TARGET_URL);
 			filterBuilder.addPropertyValue("authenticationSuccessHandler", successHandler.getBeanDefinition());
@@ -222,8 +222,8 @@ public class FormLoginBeanDefinitionParser {
 			filterBuilder.addPropertyReference("authenticationDetailsSource", authDetailsSourceRef);
 		}
 
-		if (sessionStrategy != null) {
-			filterBuilder.addPropertyValue("sessionAuthenticationStrategy", sessionStrategy);
+		if (this.sessionStrategy != null) {
+			filterBuilder.addPropertyValue("sessionAuthenticationStrategy", this.sessionStrategy);
 		}
 
 		if (StringUtils.hasText(failureHandlerRef)) {
@@ -248,7 +248,7 @@ public class FormLoginBeanDefinitionParser {
 				}
 			}
 			failureHandler.addPropertyValue("defaultFailureUrl", authenticationFailureUrl);
-			failureHandler.addPropertyValue("allowSessionCreation", allowSessionCreation);
+			failureHandler.addPropertyValue("allowSessionCreation", this.allowSessionCreation);
 			filterBuilder.addPropertyValue("authenticationFailureHandler", failureHandler.getBeanDefinition());
 		}
 
@@ -256,19 +256,19 @@ public class FormLoginBeanDefinitionParser {
 	}
 
 	RootBeanDefinition getFilterBean() {
-		return filterBean;
+		return this.filterBean;
 	}
 
 	RootBeanDefinition getEntryPointBean() {
-		return entryPointBean;
+		return this.entryPointBean;
 	}
 
 	String getLoginPage() {
-		return loginPage;
+		return this.loginPage;
 	}
 
 	String getLoginProcessingUrl() {
-		return loginProcessingUrl;
+		return this.loginProcessingUrl;
 	}
 
 }

@@ -43,7 +43,7 @@ public class Saml2AuthenticationRequestFactoryTests {
 		final String value = "Test String: " + UUID.randomUUID().toString();
 		Saml2AuthenticationRequestFactory factory = request -> value;
 		Saml2AuthenticationRequestContext request = Saml2AuthenticationRequestContext.builder()
-				.relyingPartyRegistration(registration).issuer("https://example.com/issuer")
+				.relyingPartyRegistration(this.registration).issuer("https://example.com/issuer")
 				.assertionConsumerServiceUrl("https://example.com/acs-url").build();
 		Saml2RedirectAuthenticationRequest response = factory.createRedirectAuthenticationRequest(request);
 		String resultValue = response.getSamlRequest();
@@ -57,7 +57,7 @@ public class Saml2AuthenticationRequestFactoryTests {
 		final String value = "Test String: " + UUID.randomUUID().toString();
 		Saml2AuthenticationRequestFactory factory = request -> value;
 		Saml2AuthenticationRequestContext request = Saml2AuthenticationRequestContext.builder()
-				.relyingPartyRegistration(registration).issuer("https://example.com/issuer")
+				.relyingPartyRegistration(this.registration).issuer("https://example.com/issuer")
 				.assertionConsumerServiceUrl("https://example.com/acs-url").build();
 		Saml2PostAuthenticationRequest response = factory.createPostAuthenticationRequest(request);
 		String resultValue = response.getSamlRequest();

@@ -116,9 +116,10 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		String headerName = !reportOnly ? CONTENT_SECURITY_POLICY_HEADER : CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER;
+		String headerName = !this.reportOnly ? CONTENT_SECURITY_POLICY_HEADER
+				: CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER;
 		if (!response.containsHeader(headerName)) {
-			response.setHeader(headerName, policyDirectives);
+			response.setHeader(headerName, this.policyDirectives);
 		}
 	}
 
@@ -143,7 +144,8 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [policyDirectives=" + policyDirectives + "; reportOnly=" + reportOnly + "]";
+		return getClass().getName() + " [policyDirectives=" + this.policyDirectives + "; reportOnly=" + this.reportOnly
+				+ "]";
 	}
 
 }
