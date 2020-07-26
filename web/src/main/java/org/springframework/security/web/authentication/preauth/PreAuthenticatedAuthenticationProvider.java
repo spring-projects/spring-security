@@ -60,6 +60,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	/**
 	 * Check whether all required properties have been set.
 	 */
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.preAuthenticatedUserDetailsService, "An AuthenticationUserDetailsService must be set");
 	}
@@ -70,6 +71,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	 * If the principal contained in the authentication object is null, the request will
 	 * be ignored to allow other providers to authenticate it.
 	 */
+	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
@@ -113,6 +115,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	 * Indicate that this provider only supports PreAuthenticatedAuthenticationToken
 	 * (sub)classes.
 	 */
+	@Override
 	public final boolean supports(Class<?> authentication) {
 		return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
 	}
@@ -146,6 +149,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 		this.userDetailsChecker = userDetailsChecker;
 	}
 
+	@Override
 	public int getOrder() {
 		return this.order;
 	}

@@ -56,6 +56,7 @@ public class CumulativePermission extends AbstractPermission {
 		return this;
 	}
 
+	@Override
 	public String getPattern() {
 		return this.pattern;
 	}

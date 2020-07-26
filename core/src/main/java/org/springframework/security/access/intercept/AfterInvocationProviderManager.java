@@ -52,6 +52,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 
 	private List<AfterInvocationProvider> providers;
 
+	@Override
 	public void afterPropertiesSet() {
 		checkIfValidList(this.providers);
 	}
@@ -62,6 +63,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 		}
 	}
 
+	@Override
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 			Object returnedObject) throws AccessDeniedException {
 
@@ -89,6 +91,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 		}
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		for (AfterInvocationProvider provider : this.providers) {
 			if (logger.isDebugEnabled()) {
@@ -114,6 +117,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 	 * object class, which requires every one of its <code>AfterInvocationProvider</code>s
 	 * to support the secure object class
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		for (AfterInvocationProvider provider : this.providers) {
 			if (!provider.supports(clazz)) {

@@ -93,6 +93,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 
 	private ApplicationContext context;
 
+	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 	}
 
@@ -233,6 +234,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 		return this.expressionHandler;
 	}
 
+	@Override
 	public void afterSingletonsInstantiated() {
 		if (sameOriginDisabled()) {
 			return;

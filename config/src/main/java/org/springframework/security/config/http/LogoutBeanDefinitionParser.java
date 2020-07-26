@@ -64,6 +64,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		}
 	}
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		String logoutUrl = null;
 		String successHandlerRef = null;

@@ -401,6 +401,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 			this.beanName = beanName;
 		}
 
+		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			return this.authenticationManager.authenticate(authentication);
 		}
@@ -412,6 +413,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		 * org.springframework.context.ApplicationContextAware#setApplicationContext(org
 		 * .springframework.context.ApplicationContext)
 		 */
+		@Override
 		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 			this.authenticationManager = applicationContext.getBean(this.beanName, AuthenticationManager.class);
 		}
@@ -434,6 +436,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
 	public static class ConcreteFoo implements Foo<SecurityConfig> {
 
+		@Override
 		@PreAuthorize("#action.attribute == 'A'")
 		public void foo(SecurityConfig action) {
 		}

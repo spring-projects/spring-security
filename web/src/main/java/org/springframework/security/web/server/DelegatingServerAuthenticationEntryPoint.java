@@ -58,6 +58,7 @@ public class DelegatingServerAuthenticationEntryPoint implements ServerAuthentic
 		this.entryPoints = entryPoints;
 	}
 
+	@Override
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
 		return Flux.fromIterable(this.entryPoints).filterWhen(entry -> isMatch(exchange, entry)).next()
 				.map(entry -> entry.getEntryPoint()).doOnNext(it -> {

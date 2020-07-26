@@ -27,13 +27,16 @@ import static org.mockito.Mockito.mock;
  */
 public class MockTransactionManager implements PlatformTransactionManager {
 
+	@Override
 	public TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
 		return mock(TransactionStatus.class);
 	}
 
+	@Override
 	public void commit(TransactionStatus status) throws TransactionException {
 	}
 
+	@Override
 	public void rollback(TransactionStatus status) throws TransactionException {
 	}
 

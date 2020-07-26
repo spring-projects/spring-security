@@ -38,34 +38,42 @@ class MutableUser implements MutableUserDetails {
 		this.password = user.getPassword();
 	}
 
+	@Override
 	public String getPassword() {
 		return this.password;
 	}
 
+	@Override
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
+	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return this.delegate.getAuthorities();
 	}
 
+	@Override
 	public String getUsername() {
 		return this.delegate.getUsername();
 	}
 
+	@Override
 	public boolean isAccountNonExpired() {
 		return this.delegate.isAccountNonExpired();
 	}
 
+	@Override
 	public boolean isAccountNonLocked() {
 		return this.delegate.isAccountNonLocked();
 	}
 
+	@Override
 	public boolean isCredentialsNonExpired() {
 		return this.delegate.isCredentialsNonExpired();
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return this.delegate.isEnabled();
 	}

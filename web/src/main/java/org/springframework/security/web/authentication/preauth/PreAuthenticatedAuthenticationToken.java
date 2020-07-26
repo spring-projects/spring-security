@@ -67,6 +67,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	/**
 	 * Get the credentials
 	 */
+	@Override
 	public Object getCredentials() {
 		return this.credentials;
 	}
@@ -74,6 +75,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	/**
 	 * Get the principal
 	 */
+	@Override
 	public Object getPrincipal() {
 		return this.principal;
 	}

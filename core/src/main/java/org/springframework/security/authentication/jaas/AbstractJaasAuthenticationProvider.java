@@ -134,6 +134,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	 * called with valid handlers, initializes to use {@link JaasNameCallbackHandler} and
 	 * {@link JaasPasswordCallbackHandler}.
 	 */
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		Assert.hasLength(this.loginContextName, "loginContextName cannot be null or empty");
 		Assert.notEmpty(this.authorityGranters, "authorityGranters cannot be null or empty");
@@ -154,6 +155,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	 * the message of the LoginException that will be thrown, should the
 	 * loginContext.login() method fail.
 	 */
+	@Override
 	public Authentication authenticate(Authentication auth) throws AuthenticationException {
 		if (!(auth instanceof UsernamePasswordAuthenticationToken)) {
 			return null;
@@ -261,6 +263,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 		}
 	}
 
+	@Override
 	public void onApplicationEvent(SessionDestroyedEvent event) {
 		handleLogout(event);
 	}
@@ -352,10 +355,12 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 		this.loginExceptionResolver = loginExceptionResolver;
 	}
 
+	@Override
 	public boolean supports(Class<?> aClass) {
 		return UsernamePasswordAuthenticationToken.class.isAssignableFrom(aClass);
 	}
 
+	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
@@ -375,6 +380,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 			this.authentication = authentication;
 		}
 
+		@Override
 		public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 			for (JaasAuthenticationCallbackHandler handler : AbstractJaasAuthenticationProvider.this.callbackHandlers) {
 				for (Callback callback : callbacks) {

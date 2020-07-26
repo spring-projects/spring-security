@@ -28,6 +28,7 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
  */
 public final class NullLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
+	@Override
 	public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userDetails, String username) {
 		return AuthorityUtils.NO_AUTHORITIES;
 	}

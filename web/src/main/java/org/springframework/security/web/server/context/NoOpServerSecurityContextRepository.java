@@ -35,10 +35,12 @@ public final class NoOpServerSecurityContextRepository implements ServerSecurity
 	private NoOpServerSecurityContextRepository() {
 	}
 
+	@Override
 	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
 		return Mono.empty();
 	}
 
+	@Override
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
 		return Mono.empty();
 	}

@@ -30,6 +30,7 @@ public class DataSourcePopulator implements InitializingBean {
 
 	JdbcTemplate template;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.template, "dataSource required");
 

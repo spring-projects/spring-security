@@ -70,6 +70,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
 		super(aclService, "AFTER_ACL_COLLECTION_READ", requirePermission);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 			Object returnedObject) throws AccessDeniedException {

@@ -33,7 +33,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -63,6 +63,7 @@ public class NamespaceJdbcUserServiceTests {
 		@Autowired
 		private DataSource dataSource;
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -99,6 +100,7 @@ public class NamespaceJdbcUserServiceTests {
 		@Autowired
 		private DataSource dataSource;
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -112,7 +114,7 @@ public class NamespaceJdbcUserServiceTests {
 				// jdbc-user-service@authorities-by-username-query
 				.authoritiesByUsernameQuery("select principal,role from roles where principal = ?")
 				// jdbc-user-service@group-authorities-by-username-query
-				.groupAuthoritiesByUsername(JdbcUserDetailsManager.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
+				.groupAuthoritiesByUsername(JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
 				// jdbc-user-service@role-prefix
 				.rolePrefix("ROLE_");
 			// @formatter:on

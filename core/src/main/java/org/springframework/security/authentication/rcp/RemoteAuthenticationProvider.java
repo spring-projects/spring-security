@@ -54,10 +54,12 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider, Ini
 
 	private RemoteAuthenticationManager remoteAuthenticationManager;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.remoteAuthenticationManager, "remoteAuthenticationManager is mandatory");
 	}
 
+	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String username = authentication.getPrincipal().toString();
 		Object credentials = authentication.getCredentials();
@@ -76,6 +78,7 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider, Ini
 		this.remoteAuthenticationManager = remoteAuthenticationManager;
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
 		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
 	}

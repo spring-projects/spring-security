@@ -43,6 +43,7 @@ public class CachingUserDetailsService implements UserDetailsService {
 		this.userCache = userCache;
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) {
 		UserDetails user = this.userCache.getUserFromCache(username);
 

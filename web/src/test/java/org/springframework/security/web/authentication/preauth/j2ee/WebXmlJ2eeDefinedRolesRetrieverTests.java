@@ -36,10 +36,12 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		WebXmlMappableAttributesRetriever rolesRetriever = new WebXmlMappableAttributesRetriever();
 
 		rolesRetriever.setResourceLoader(new ResourceLoader() {
+			@Override
 			public ClassLoader getClassLoader() {
 				return Thread.currentThread().getContextClassLoader();
 			}
 
+			@Override
 			public Resource getResource(String location) {
 				return webXml;
 			}
@@ -55,10 +57,12 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		final Resource webXml = new ClassPathResource("webxml/NoRoles.web.xml");
 		WebXmlMappableAttributesRetriever rolesRetriever = new WebXmlMappableAttributesRetriever();
 		rolesRetriever.setResourceLoader(new ResourceLoader() {
+			@Override
 			public ClassLoader getClassLoader() {
 				return Thread.currentThread().getContextClassLoader();
 			}
 
+			@Override
 			public Resource getResource(String location) {
 				return webXml;
 			}

@@ -36,18 +36,22 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 		super(a);
 	}
 
+	@Override
 	public void setFilterObject(Object filterObject) {
 		this.filterObject = filterObject;
 	}
 
+	@Override
 	public Object getFilterObject() {
 		return this.filterObject;
 	}
 
+	@Override
 	public void setReturnObject(Object returnObject) {
 		this.returnObject = returnObject;
 	}
 
+	@Override
 	public Object getReturnObject() {
 		return this.returnObject;
 	}
@@ -62,6 +66,7 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 		this.target = target;
 	}
 
+	@Override
 	public Object getThis() {
 		return this.target;
 	}

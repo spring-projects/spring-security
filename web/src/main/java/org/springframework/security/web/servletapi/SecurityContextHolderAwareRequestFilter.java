@@ -143,6 +143,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 		this.logoutHandlers = logoutHandlers;
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		chain.doFilter(this.requestFactory.create((HttpServletRequest) req, (HttpServletResponse) res), res);

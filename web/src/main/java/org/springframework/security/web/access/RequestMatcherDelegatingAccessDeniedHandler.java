@@ -58,6 +58,7 @@ public final class RequestMatcherDelegatingAccessDeniedHandler implements Access
 		this.defaultHandler = defaultHandler;
 	}
 
+	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		for (Entry<RequestMatcher, AccessDeniedHandler> entry : this.handlers.entrySet()) {

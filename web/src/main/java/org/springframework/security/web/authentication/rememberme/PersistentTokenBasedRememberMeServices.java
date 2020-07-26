@@ -89,6 +89,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 	 * @throws CookieTheftException if a presented series value is found, but the stored
 	 * token is different from the one presented.
 	 */
+	@Override
 	protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -149,6 +150,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 	 * the persistent token repository and adds the corresponding cookie to the response.
 	 *
 	 */
+	@Override
 	protected void onLoginSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication successfulAuthentication) {
 		String username = successfulAuthentication.getName();

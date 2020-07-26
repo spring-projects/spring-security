@@ -57,6 +57,7 @@ public class PasswordPolicyControl implements Control {
 	 * this control is always empty.
 	 * @return always null
 	 */
+	@Override
 	public byte[] getEncodedValue() {
 		return null;
 	}
@@ -64,6 +65,7 @@ public class PasswordPolicyControl implements Control {
 	/**
 	 * Returns the OID of the Password Policy Control ("1.3.6.1.4.1.42.2.27.8.5.1").
 	 */
+	@Override
 	public String getID() {
 		return OID;
 	}
@@ -71,6 +73,7 @@ public class PasswordPolicyControl implements Control {
 	/**
 	 * Returns whether the control is critical for the client.
 	 */
+	@Override
 	public boolean isCritical() {
 		return this.critical;
 	}

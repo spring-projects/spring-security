@@ -66,6 +66,7 @@ abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAtt
 		return this.authorizeExpression;
 	}
 
+	@Override
 	public String getAttribute() {
 		return null;
 	}

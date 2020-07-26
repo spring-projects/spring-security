@@ -38,6 +38,7 @@ public class TestDataSource extends DriverManagerDataSource implements Disposabl
 		setPassword("");
 	}
 
+	@Override
 	public void destroy() {
 		System.out.println("Shutting down database: " + this.name);
 		new JdbcTemplate(this).execute("SHUTDOWN");

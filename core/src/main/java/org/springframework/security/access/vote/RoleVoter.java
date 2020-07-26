@@ -66,6 +66,7 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 		this.rolePrefix = rolePrefix;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		if ((attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getRolePrefix())) {
 			return true;
@@ -81,10 +82,12 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 	 * @param clazz the secure object
 	 * @return always <code>true</code>
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
 
+	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		if (authentication == null) {
 			return ACCESS_DENIED;

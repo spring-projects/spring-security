@@ -90,6 +90,7 @@ public class Sec2515Tests {
 
 		static AuthenticationManager AUTHENTICATION_MANAGER;
 
+		@Override
 		@Bean
 		public AuthenticationManager authenticationManager() {
 			return AUTHENTICATION_MANAGER;

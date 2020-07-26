@@ -58,6 +58,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 
 	protected UserDetailsContextMapper userDetailsContextMapper = new LdapUserDetailsMapper();
 
+	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
 				() -> this.messages.getMessage("LdapAuthenticationProvider.onlySupports",
@@ -117,6 +118,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 		return result;
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
 		return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
 	}
@@ -133,6 +135,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 		this.useAuthenticationRequestCredentials = useAuthenticationRequestCredentials;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}

@@ -229,7 +229,7 @@ public class NamespaceHttpLogoutTests {
 
 	ResultMatcher session(Predicate<HttpSession> sessionPredicate) {
 		return result -> assertThat(result.getRequest().getSession(false))
-				.is(new Condition<HttpSession>(sessionPredicate, "sessionPredicate failed"));
+				.is(new Condition<>(sessionPredicate, "sessionPredicate failed"));
 	}
 
 }

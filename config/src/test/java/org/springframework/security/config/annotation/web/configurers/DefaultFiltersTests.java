@@ -122,6 +122,7 @@ public class DefaultFiltersTests {
 			super(true);
 		}
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.formLogin();
 		}
@@ -197,6 +198,7 @@ public class DefaultFiltersTests {
 	@EnableWebSecurity
 	static class DefaultFiltersConfigPermitAll extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) {
 		}
 

@@ -96,15 +96,18 @@ public class NamespaceGlobalMethodSecurityTests {
 
 		public static class DenyAllAccessDecisionManager implements AccessDecisionManager {
 
+			@Override
 			public void decide(Authentication authentication, Object object,
 					Collection<ConfigAttribute> configAttributes) {
 				throw new AccessDeniedException("Always Denied");
 			}
 
+			@Override
 			public boolean supports(ConfigAttribute attribute) {
 				return true;
 			}
 
+			@Override
 			public boolean supports(Class<?> clazz) {
 				return true;
 			}
@@ -133,16 +136,19 @@ public class NamespaceGlobalMethodSecurityTests {
 
 		public static class AfterInvocationManagerStub implements AfterInvocationManager {
 
+			@Override
 			public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes,
 					Object returnedObject) throws AccessDeniedException {
 
 				throw new AccessDeniedException("custom AfterInvocationManager");
 			}
 
+			@Override
 			public boolean supports(ConfigAttribute attribute) {
 				return true;
 			}
 
+			@Override
 			public boolean supports(Class<?> clazz) {
 				return true;
 			}
@@ -224,6 +230,7 @@ public class NamespaceGlobalMethodSecurityTests {
 		@Override
 		protected MethodSecurityMetadataSource customMethodSecurityMetadataSource() {
 			return new AbstractMethodSecurityMetadataSource() {
+				@Override
 				public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
 					// require ROLE_NOBODY for any method on MethodSecurityService
 					// interface
@@ -231,6 +238,7 @@ public class NamespaceGlobalMethodSecurityTests {
 							? Arrays.asList(new SecurityConfig("ROLE_NOBODY")) : Collections.emptyList();
 				}
 
+				@Override
 				public Collection<ConfigAttribute> getAllConfigAttributes() {
 					return null;
 				}

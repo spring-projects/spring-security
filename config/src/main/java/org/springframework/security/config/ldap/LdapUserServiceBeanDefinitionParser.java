@@ -68,10 +68,12 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 
 	public static final String LDAP_AUTHORITIES_POPULATOR_CLASS = "org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator";
 
+	@Override
 	protected String getBeanClassName(Element element) {
 		return "org.springframework.security.ldap.userdetails.LdapUserDetailsService";
 	}
 
+	@Override
 	protected void doParse(Element elt, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
 		if (!StringUtils.hasText(elt.getAttribute(ATT_USER_SEARCH_FILTER))) {

@@ -132,6 +132,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		this.template = new LdapTemplate(contextSource);
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) {
 		DistinguishedName dn = this.usernameMapper.buildDn(username);
 		List<GrantedAuthority> authorities = getUserAuthorities(dn, username);
@@ -180,6 +181,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * @param oldPassword the old password
 	 * @param newPassword the new value of the password.
 	 */
+	@Override
 	public void changePassword(final String oldPassword, final String newPassword) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Assert.notNull(authentication,
@@ -222,6 +224,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		return roleCollector.getList();
 	}
 
+	@Override
 	public void createUser(UserDetails user) {
 		DirContextAdapter ctx = new DirContextAdapter();
 		copyToContext(user, ctx);
@@ -242,6 +245,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		addAuthorities(dn, user.getAuthorities());
 	}
 
+	@Override
 	public void updateUser(UserDetails user) {
 		DistinguishedName dn = this.usernameMapper.buildDn(user.getUsername());
 
@@ -273,12 +277,14 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		addAuthorities(dn, user.getAuthorities());
 	}
 
+	@Override
 	public void deleteUser(String username) {
 		DistinguishedName dn = this.usernameMapper.buildDn(username);
 		removeAuthorities(dn, getUserAuthorities(dn, username));
 		this.template.unbind(dn);
 	}
 
+	@Override
 	public boolean userExists(String username) {
 		DistinguishedName dn = this.usernameMapper.buildDn(username);
 

@@ -20,6 +20,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
@@ -49,6 +50,7 @@ public final class CsrfTokenArgumentResolver implements HandlerMethodArgumentRes
 	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
 	 * supportsParameter (org.springframework.core.MethodParameter)
 	 */
+	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return CsrfToken.class.equals(parameter.getParameterType());
 	}
@@ -62,10 +64,11 @@ public final class CsrfTokenArgumentResolver implements HandlerMethodArgumentRes
 	 * org.springframework.web.context.request.NativeWebRequest,
 	 * org.springframework.web.bind.support.WebDataBinderFactory)
 	 */
+	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 		CsrfToken token = (CsrfToken) webRequest.getAttribute(CsrfToken.class.getName(),
-				NativeWebRequest.SCOPE_REQUEST);
+				RequestAttributes.SCOPE_REQUEST);
 		return token;
 	}
 

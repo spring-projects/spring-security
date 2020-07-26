@@ -46,6 +46,7 @@ public class ForwardAuthenticationFailureHandler implements AuthenticationFailur
 		this.forwardUrl = forwardUrl;
 	}
 
+	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);

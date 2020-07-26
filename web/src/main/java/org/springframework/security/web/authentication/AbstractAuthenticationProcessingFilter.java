@@ -205,6 +205,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * returned <tt>Authentication</tt> object is not null.
 	 * </ol>
 	 */
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 
@@ -398,6 +399,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		this.continueChainBeforeSuccessfulAuthentication = continueChainBeforeSuccessfulAuthentication;
 	}
 
+	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;
 	}
@@ -408,6 +410,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}

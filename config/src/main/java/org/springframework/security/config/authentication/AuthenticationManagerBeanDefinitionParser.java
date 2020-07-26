@@ -56,6 +56,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 
 	private static final String ATT_ERASE_CREDENTIALS = "erase-credentials";
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		String id = element.getAttribute("id");
 
@@ -148,10 +149,12 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 	 */
 	public static final class NullAuthenticationProvider implements AuthenticationProvider {
 
+		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			return null;
 		}
 
+		@Override
 		public boolean supports(Class<?> authentication) {
 			return false;
 		}

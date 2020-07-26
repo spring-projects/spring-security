@@ -24,6 +24,7 @@ package org.springframework.security.openid;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDConsumerException extends Exception {
 
 	public OpenIDConsumerException(String message) {

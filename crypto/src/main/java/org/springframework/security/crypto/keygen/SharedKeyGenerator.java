@@ -30,10 +30,12 @@ final class SharedKeyGenerator implements BytesKeyGenerator {
 		this.sharedKey = sharedKey;
 	}
 
+	@Override
 	public int getKeyLength() {
 		return this.sharedKey.length;
 	}
 
+	@Override
 	public byte[] generateKey() {
 		return this.sharedKey;
 	}

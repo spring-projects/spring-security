@@ -42,6 +42,7 @@ public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 
 	private boolean contextRelative = true;
 
+	@Override
 	public Mono<Void> sendRedirect(ServerWebExchange exchange, URI location) {
 		Assert.notNull(exchange, "exchange cannot be null");
 		Assert.notNull(location, "location cannot be null");

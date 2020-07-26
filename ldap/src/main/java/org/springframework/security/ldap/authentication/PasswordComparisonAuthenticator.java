@@ -61,6 +61,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		super(contextSource);
 	}
 
+	@Override
 	public DirContextOperations authenticate(final Authentication authentication) {
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
 				"Can only process UsernamePasswordAuthenticationToken objects");

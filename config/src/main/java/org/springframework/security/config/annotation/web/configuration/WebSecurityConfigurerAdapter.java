@@ -100,6 +100,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 	private ContentNegotiationStrategy contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 
 	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
+		@Override
 		public <T> T postProcess(T object) {
 			throw new IllegalStateException(ObjectPostProcessor.class.getName()
 					+ " is a required bean. Ensure you have used @EnableWebSecurity and @Configuration");
@@ -312,6 +313,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 		return new UserDetailsServiceDelegator(Arrays.asList(this.localConfigureAuthenticationBldr, globalAuthBuilder));
 	}
 
+	@Override
 	public void init(final WebSecurity web) throws Exception {
 		final HttpSecurity http = getHttp();
 		web.addSecurityFilterChainBuilder(http).postBuildAction(() -> {
@@ -331,6 +333,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 	 * {@link #configure(HttpSecurity)} and the {@link HttpSecurity#authorizeRequests}
 	 * configuration method.
 	 */
+	@Override
 	public void configure(WebSecurity web) throws Exception {
 	}
 
@@ -461,6 +464,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 			this.delegateBuilders = delegateBuilders;
 		}
 
+		@Override
 		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 			if (this.delegate != null) {
 				return this.delegate.loadUserByUsername(username);
@@ -514,6 +518,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 			this.delegateBuilder = delegateBuilder;
 		}
 
+		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			if (this.delegate != null) {
 				return this.delegate.authenticate(authentication);

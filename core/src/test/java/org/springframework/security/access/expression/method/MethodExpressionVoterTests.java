@@ -159,12 +159,15 @@ public class MethodExpressionVoterTests {
 
 	private static class TargetImpl implements Target {
 
+		@Override
 		public void methodTakingAnArray(Object[] args) {
 		}
 
+		@Override
 		public void methodTakingAString(String argument) {
 		};
 
+		@Override
 		public Collection methodTakingACollection(Collection collection) {
 			return collection;
 		}

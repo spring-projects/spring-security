@@ -81,6 +81,7 @@ public class MethodInvocationUtilsTests {
 
 	class AdvisedTarget extends AdvisedSupport implements Blah {
 
+		@Override
 		public void blah() {
 		}
 

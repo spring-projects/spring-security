@@ -125,6 +125,7 @@ final class RequestWrapper extends FirewalledRequest {
 		return this.stripPaths ? new FirewalledRequestAwareRequestDispatcher(path) : super.getRequestDispatcher(path);
 	}
 
+	@Override
 	public void reset() {
 		this.stripPaths = false;
 	}
@@ -148,11 +149,13 @@ final class RequestWrapper extends FirewalledRequest {
 			this.path = path;
 		}
 
+		@Override
 		public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
 			reset();
 			getDelegateDispatcher().forward(request, response);
 		}
 
+		@Override
 		public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
 			getDelegateDispatcher().include(request, response);
 		}

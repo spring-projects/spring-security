@@ -54,6 +54,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 
 	private String bearerTokenHeaderName = HttpHeaders.AUTHORIZATION;
 
+	@Override
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		return Mono.fromCallable(() -> token(exchange.getRequest())).map(token -> {
 			if (token.isEmpty()) {

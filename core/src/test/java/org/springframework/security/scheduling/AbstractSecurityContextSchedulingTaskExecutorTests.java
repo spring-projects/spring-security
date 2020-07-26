@@ -48,10 +48,12 @@ public abstract class AbstractSecurityContextSchedulingTaskExecutorTests
 		verify(this.taskExecutorDelegate).prefersShortLivedTasks();
 	}
 
+	@Override
 	protected SchedulingTaskExecutor getExecutor() {
 		return this.taskExecutorDelegate;
 	}
 
+	@Override
 	protected abstract DelegatingSecurityContextSchedulingTaskExecutor create();
 
 }

@@ -311,6 +311,7 @@ public class AbstractRememberMeServicesTests {
 	public void cookieTheftExceptionShouldBeRethrown() {
 		MockRememberMeServices services = new MockRememberMeServices(this.uds) {
 
+			@Override
 			protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
 					HttpServletResponse response) {
 				throw new CookieTheftException("Pretending cookie was stolen");
@@ -339,7 +340,7 @@ public class AbstractRememberMeServicesTests {
 
 		// Parameter set to true
 		services = new MockRememberMeServices(this.uds);
-		request.setParameter(MockRememberMeServices.DEFAULT_PARAMETER, "true");
+		request.setParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "true");
 		services.loginSuccess(request, response, auth);
 		assertThat(services.loginSuccessCalled).isTrue();
 
@@ -352,7 +353,7 @@ public class AbstractRememberMeServicesTests {
 
 		// Parameter set to false
 		services = new MockRememberMeServices(this.uds);
-		request.setParameter(MockRememberMeServices.DEFAULT_PARAMETER, "false");
+		request.setParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "false");
 		services.loginSuccess(request, response, auth);
 		assertThat(services.loginSuccessCalled).isFalse();
 
@@ -370,6 +371,7 @@ public class AbstractRememberMeServicesTests {
 		request.setContextPath("contextpath");
 		MockRememberMeServices services = new MockRememberMeServices(this.uds) {
 
+			@Override
 			protected String encodeCookie(String[] cookieTokens) {
 				return cookieTokens[0];
 			}
@@ -393,6 +395,7 @@ public class AbstractRememberMeServicesTests {
 
 		MockRememberMeServices services = new MockRememberMeServices(this.uds) {
 
+			@Override
 			protected String encodeCookie(String[] cookieTokens) {
 				return cookieTokens[0];
 			}
@@ -499,11 +502,13 @@ public class AbstractRememberMeServicesTests {
 			this(new MockUserDetailsService(null, false));
 		}
 
+		@Override
 		protected void onLoginSuccess(HttpServletRequest request, HttpServletResponse response,
 				Authentication successfulAuthentication) {
 			this.loginSuccessCalled = true;
 		}
 
+		@Override
 		protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
 				HttpServletResponse response) throws RememberMeAuthenticationException {
 			if (cookieTokens.length != 3) {
@@ -532,6 +537,7 @@ public class AbstractRememberMeServicesTests {
 			this.throwException = throwException;
 		}
 
+		@Override
 		public UserDetails loadUserByUsername(String username) {
 			if (this.throwException) {
 				throw new UsernameNotFoundException("as requested by mock");

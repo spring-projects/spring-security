@@ -37,6 +37,7 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 	/**
 	 * @return false always
 	 */
+	@Override
 	public boolean hasPermission(Authentication authentication, Object target, Object permission) {
 		this.logger.warn(
 				"Denying user " + authentication.getName() + " permission '" + permission + "' on object " + target);
@@ -46,6 +47,7 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 	/**
 	 * @return false always
 	 */
+	@Override
 	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
 			Object permission) {
 		this.logger.warn("Denying user " + authentication.getName() + " permission '" + permission

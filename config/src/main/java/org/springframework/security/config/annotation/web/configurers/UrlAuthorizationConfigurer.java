@@ -108,6 +108,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param objectPostProcessor
 	 * @return the {@link UrlAuthorizationConfigurer} for further customizations
 	 */
+	@Override
 	public UrlAuthorizationConfigurer<H> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
 		addObjectPostProcessor(objectPostProcessor);
 		return this;

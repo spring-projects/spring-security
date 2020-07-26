@@ -553,6 +553,7 @@ public class SwitchUserFilterTests {
 
 		private String password = "hawaii50";
 
+		@Override
 		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 			// jacklord, dano (active)
 			// mcgarrett (disabled)

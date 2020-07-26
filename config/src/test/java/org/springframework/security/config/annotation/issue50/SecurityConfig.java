@@ -73,10 +73,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationProvider authenticationProvider() {
 		Assert.notNull(this.myUserRepository);
 		return new AuthenticationProvider() {
+			@Override
 			public boolean supports(Class<?> authentication) {
 				return true;
 			}
 
+			@Override
 			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 				Object principal = authentication.getPrincipal();
 				String username = String.valueOf(principal);

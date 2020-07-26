@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.fail;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAuthenticationProviderTests {
 
 	private static final String USERNAME = "user.acegiopenid.com";
@@ -241,6 +242,7 @@ public class OpenIDAuthenticationProviderTests {
 
 	static class MockUserDetailsService implements UserDetailsService {
 
+		@Override
 		public UserDetails loadUserByUsername(String ssoUserId) throws AuthenticationException {
 			return new User(ssoUserId, "password", true, true, true, true,
 					AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B"));

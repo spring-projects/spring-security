@@ -110,6 +110,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 		this.transactionalTarget.doSomething();
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.appContext = applicationContext;
 	}

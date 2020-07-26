@@ -122,6 +122,7 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 		return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
 	}
 
+	@Override
 	public Mono<Object> resolveArgument(MethodParameter parameter, Message<?> message) {
 		ReactiveAdapter adapter = this.adapterRegistry.getAdapter(parameter.getParameterType());
 		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).flatMap(a -> {

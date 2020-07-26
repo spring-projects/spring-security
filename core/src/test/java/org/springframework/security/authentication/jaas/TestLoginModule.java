@@ -38,14 +38,17 @@ public class TestLoginModule implements LoginModule {
 
 	private Subject subject;
 
+	@Override
 	public boolean abort() {
 		return true;
 	}
 
+	@Override
 	public boolean commit() {
 		return true;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 		this.subject = subject;
@@ -65,6 +68,7 @@ public class TestLoginModule implements LoginModule {
 		}
 	}
 
+	@Override
 	public boolean login() throws LoginException {
 		if (!this.user.equals("user")) {
 			throw new LoginException("Bad User");
@@ -81,6 +85,7 @@ public class TestLoginModule implements LoginModule {
 		return true;
 	}
 
+	@Override
 	public boolean logout() {
 		return true;
 	}

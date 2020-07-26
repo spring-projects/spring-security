@@ -173,6 +173,7 @@ interface SecuredInterface {
 class SecuredImpl implements SecuredInterface {
 
 	// Not really secured because AspectJ doesn't inherit annotations from interfaces
+	@Override
 	public void securedMethod() {
 	}
 
@@ -197,9 +198,11 @@ class SecuredImpl implements SecuredInterface {
 
 class SecuredImplSubclass extends SecuredImpl {
 
+	@Override
 	protected void protectedMethod() {
 	}
 
+	@Override
 	public void publicCallsPrivate() {
 		super.publicCallsPrivate();
 	}

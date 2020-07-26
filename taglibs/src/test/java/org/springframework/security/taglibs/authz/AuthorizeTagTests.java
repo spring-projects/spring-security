@@ -152,10 +152,12 @@ public class AuthorizeTagTests {
 
 	public static class MockWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
 
+		@Override
 		public boolean isAllowed(String uri, Authentication authentication) {
 			return "/allowed".equals(uri);
 		}
 
+		@Override
 		public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 			return "/allowed".equals(uri) && (method == null || "GET".equals(method));
 		}

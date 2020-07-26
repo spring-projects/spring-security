@@ -24,6 +24,7 @@ import org.springframework.messaging.support.ExecutorSubscribableChannel;
  */
 public class SyncExecutorSubscribableChannelPostProcessor implements BeanPostProcessor {
 
+	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof ExecutorSubscribableChannel) {
 			ExecutorSubscribableChannel original = (ExecutorSubscribableChannel) bean;
@@ -34,6 +35,7 @@ public class SyncExecutorSubscribableChannelPostProcessor implements BeanPostPro
 		return bean;
 	}
 
+	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
 	}

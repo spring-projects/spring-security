@@ -61,6 +61,7 @@ public class JndiDnsResolver implements DnsResolver {
 	 * org.springframework.security.remoting.dns.DnsResolver#resolveIpAddress(java.lang
 	 * .String)
 	 */
+	@Override
 	public String resolveIpAddress(String hostname) {
 		return resolveIpAddress(hostname, this.ctxFactory.getCtx());
 	}
@@ -72,6 +73,7 @@ public class JndiDnsResolver implements DnsResolver {
 	 * org.springframework.security.remoting.dns.DnsResolver#resolveServiceEntry(java.
 	 * lang.String, java.lang.String)
 	 */
+	@Override
 	public String resolveServiceEntry(String serviceType, String domain) {
 		return resolveServiceEntry(serviceType, domain, this.ctxFactory.getCtx());
 	}
@@ -83,6 +85,7 @@ public class JndiDnsResolver implements DnsResolver {
 	 * org.springframework.security.remoting.dns.DnsResolver#resolveServiceIpAddress(java
 	 * .lang.String, java.lang.String)
 	 */
+	@Override
 	public String resolveServiceIpAddress(String serviceType, String domain) {
 		DirContext ctx = this.ctxFactory.getCtx();
 		String hostname = resolveServiceEntry(serviceType, domain, ctx);
@@ -165,6 +168,7 @@ public class JndiDnsResolver implements DnsResolver {
 
 	private static class DefaultInitialContextFactory implements InitialContextFactory {
 
+		@Override
 		public DirContext getCtx() {
 			Hashtable<String, String> env = new Hashtable<>();
 			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");

@@ -73,6 +73,7 @@ public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2Authenti
 	 * Gets the attributes of the OAuth 2.0 token in map form.
 	 * @return a {@link Map} of the attribute's objects keyed by the attribute's names
 	 */
+	@Override
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
 	}

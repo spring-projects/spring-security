@@ -61,8 +61,8 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
 		return Mono
-				.fromCallable(
-						() -> this.metadataExtractor.extract(exchange.getPayload(), this.COMPOSITE_METADATA_MIME_TYPE))
+				.fromCallable(() -> this.metadataExtractor.extract(exchange.getPayload(),
+						AuthenticationPayloadExchangeConverter.COMPOSITE_METADATA_MIME_TYPE))
 				.flatMap(metadata -> Mono.justOrEmpty(authentication(metadata)));
 	}
 

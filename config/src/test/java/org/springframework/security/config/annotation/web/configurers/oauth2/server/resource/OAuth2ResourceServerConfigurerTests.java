@@ -1560,6 +1560,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:on
 		}
 
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
@@ -1640,6 +1641,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:on
 		}
 
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(

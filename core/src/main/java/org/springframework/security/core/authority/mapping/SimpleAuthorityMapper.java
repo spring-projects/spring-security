@@ -42,6 +42,7 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 
 	private boolean convertToLowerCase = false;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.isTrue(!(this.convertToUpperCase && this.convertToLowerCase),
 				"Either convertToUpperCase or convertToLowerCase can be set to true, but not both");
@@ -55,6 +56,7 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 	 * @param authorities the original authorities
 	 * @return the converted set of authorities
 	 */
+	@Override
 	public Set<GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		HashSet<GrantedAuthority> mapped = new HashSet<>(authorities.size());
 		for (GrantedAuthority authority : authorities) {

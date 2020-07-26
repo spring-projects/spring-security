@@ -126,6 +126,7 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 		return (UserDetailsService) beans.values().toArray()[0];
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext beanFactory) throws BeansException {
 		this.beanFactory = beanFactory;
 	}

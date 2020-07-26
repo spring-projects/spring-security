@@ -685,6 +685,7 @@ public class DaoAuthenticationProviderTests {
 
 	private class MockUserDetailsServiceReturnsNull implements UserDetailsService {
 
+		@Override
 		public UserDetails loadUserByUsername(String username) {
 			return null;
 		}
@@ -693,6 +694,7 @@ public class DaoAuthenticationProviderTests {
 
 	private class MockUserDetailsServiceSimulateBackendError implements UserDetailsService {
 
+		@Override
 		public UserDetails loadUserByUsername(String username) {
 			throw new DataRetrievalFailureException("This mock simulator is designed to fail");
 		}
@@ -703,6 +705,7 @@ public class DaoAuthenticationProviderTests {
 
 		private String password = "koala";
 
+		@Override
 		public UserDetails loadUserByUsername(String username) {
 			if ("rod".equals(username)) {
 				return new User("rod", this.password, true, true, true, true, ROLES_12);
@@ -718,6 +721,7 @@ public class DaoAuthenticationProviderTests {
 
 	private class MockUserDetailsServiceUserPeter implements UserDetailsService {
 
+		@Override
 		public UserDetails loadUserByUsername(String username) {
 			if ("peter".equals(username)) {
 				return new User("peter", "opal", false, true, true, true, ROLES_12);
@@ -729,6 +733,7 @@ public class DaoAuthenticationProviderTests {
 
 	private class MockUserDetailsServiceUserPeterAccountExpired implements UserDetailsService {
 
+		@Override
 		public UserDetails loadUserByUsername(String username) {
 			if ("peter".equals(username)) {
 				return new User("peter", "opal", true, false, true, true, ROLES_12);
@@ -740,6 +745,7 @@ public class DaoAuthenticationProviderTests {
 
 	private class MockUserDetailsServiceUserPeterAccountLocked implements UserDetailsService {
 
+		@Override
 		public UserDetails loadUserByUsername(String username) {
 			if ("peter".equals(username)) {
 				return new User("peter", "opal", true, true, true, false, ROLES_12);
@@ -751,6 +757,7 @@ public class DaoAuthenticationProviderTests {
 
 	private class MockUserDetailsServiceUserPeterCredentialsExpired implements UserDetailsService {
 
+		@Override
 		public UserDetails loadUserByUsername(String username) {
 			if ("peter".equals(username)) {
 				return new User("peter", "opal", true, true, false, true, ROLES_12);

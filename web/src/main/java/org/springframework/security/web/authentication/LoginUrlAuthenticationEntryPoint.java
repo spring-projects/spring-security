@@ -89,6 +89,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		this.loginFormUrl = loginFormUrl;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.isTrue(StringUtils.hasText(this.loginFormUrl) && UrlUtils.isValidRedirectUrl(this.loginFormUrl),
 				"loginFormUrl must be specified and must be a valid redirect URL");
@@ -116,6 +117,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	/**
 	 * Performs the redirect (or forward) to the login form URL.
 	 */
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
 

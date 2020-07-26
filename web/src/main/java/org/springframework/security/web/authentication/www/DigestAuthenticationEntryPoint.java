@@ -57,6 +57,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 
 	private int order = Integer.MAX_VALUE; // ~ default
 
+	@Override
 	public int getOrder() {
 		return this.order;
 	}
@@ -65,6 +66,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		this.order = order;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		if ((this.realmName == null) || "".equals(this.realmName)) {
 			throw new IllegalArgumentException("realmName must be specified");
@@ -75,6 +77,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		}
 	}
 
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
 		HttpServletResponse httpResponse = response;

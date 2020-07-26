@@ -123,6 +123,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	private ManagedList<BeanMetadataElement> headerWriters;
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 
 		this.headerWriters = new ManagedList<>();

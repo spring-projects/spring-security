@@ -57,6 +57,7 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication>
 	 *
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "UserDetailsService must be set");
 	}
@@ -64,6 +65,7 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication>
 	/**
 	 * Get the UserDetails object from the wrapped UserDetailsService implementation
 	 */
+	@Override
 	public UserDetails loadUserDetails(T authentication) throws UsernameNotFoundException {
 		return this.userDetailsService.loadUserByUsername(authentication.getName());
 	}

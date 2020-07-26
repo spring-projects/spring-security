@@ -30,6 +30,7 @@ public class BeanNameCollectingPostProcessor implements BeanPostProcessor {
 
 	Set<String> afterInitPostProcessedBeans = new HashSet<>();
 
+	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (beanName != null) {
 			this.beforeInitPostProcessedBeans.add(beanName);
@@ -37,6 +38,7 @@ public class BeanNameCollectingPostProcessor implements BeanPostProcessor {
 		return bean;
 	}
 
+	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (beanName != null) {
 			this.afterInitPostProcessedBeans.add(beanName);

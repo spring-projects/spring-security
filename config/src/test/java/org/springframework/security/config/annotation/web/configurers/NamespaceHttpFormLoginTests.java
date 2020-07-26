@@ -108,6 +108,7 @@ public class NamespaceHttpFormLoginTests {
 	@EnableWebSecurity
 	static class FormLoginCustomConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			boolean alwaysUseDefaultSuccess = true;
 			// @formatter:off
@@ -143,6 +144,7 @@ public class NamespaceHttpFormLoginTests {
 	@EnableWebSecurity
 	static class FormLoginCustomRefsConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 			successHandler.setDefaultTargetUrl("/custom/targetUrl");

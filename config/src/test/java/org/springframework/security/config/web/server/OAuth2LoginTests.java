@@ -148,7 +148,7 @@ public class OAuth2LoginTests {
 
 		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage
 				.to(driver, FormLoginTests.DefaultLoginPage.class).assertAt().assertLoginFormNotPresent().oauth2Login()
-				.assertClientRegistrationByName(this.github.getClientName()).and();
+				.assertClientRegistrationByName(OAuth2LoginTests.github.getClientName()).and();
 	}
 
 	@EnableWebFluxSecurity

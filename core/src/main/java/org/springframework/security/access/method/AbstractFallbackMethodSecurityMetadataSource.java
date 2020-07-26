@@ -45,6 +45,7 @@ import org.springframework.security.access.ConfigAttribute;
  */
 public abstract class AbstractFallbackMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
+	@Override
 	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
 		// The method may be on an interface, but we need attributes from the target
 		// class.

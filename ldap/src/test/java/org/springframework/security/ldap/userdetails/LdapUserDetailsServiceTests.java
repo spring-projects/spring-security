@@ -74,6 +74,7 @@ public class LdapUserDetailsServiceTests {
 
 	class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
+		@Override
 		public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
 			return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");
 		}

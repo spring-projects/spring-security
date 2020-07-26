@@ -43,6 +43,7 @@ public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements 
 
 	protected abstract void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder);
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(getBeanClassName(element));
 

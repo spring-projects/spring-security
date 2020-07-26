@@ -31,6 +31,7 @@ final class HexEncodingStringKeyGenerator implements StringKeyGenerator {
 		this.keyGenerator = keyGenerator;
 	}
 
+	@Override
 	public String generateKey() {
 		return new String(Hex.encode(this.keyGenerator.generateKey()));
 	}

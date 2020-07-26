@@ -45,6 +45,7 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 		this.postAdvice = postAdvice;
 	}
 
+	@Override
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 			Object returnedObject) throws AccessDeniedException {
 
@@ -67,10 +68,12 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 		return null;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return attribute instanceof PostInvocationAttribute;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return clazz.isAssignableFrom(MethodInvocation.class);
 	}

@@ -136,6 +136,7 @@ public class AbstractAccessDecisionManagerTests {
 			super(decisionVoters);
 		}
 
+		@Override
 		public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
 		}
 
@@ -143,14 +144,17 @@ public class AbstractAccessDecisionManagerTests {
 
 	private class MockStringOnlyVoter implements AccessDecisionVoter<Object> {
 
+		@Override
 		public boolean supports(Class<?> clazz) {
 			return String.class.isAssignableFrom(clazz);
 		}
 
+		@Override
 		public boolean supports(ConfigAttribute attribute) {
 			throw new UnsupportedOperationException("mock method not implemented");
 		}
 
+		@Override
 		public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 			throw new UnsupportedOperationException("mock method not implemented");
 		}

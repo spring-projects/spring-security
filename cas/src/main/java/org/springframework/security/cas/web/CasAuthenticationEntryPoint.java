@@ -60,12 +60,14 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 */
 	private boolean encodeServiceUrlWithSessionId = true;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.loginUrl, "loginUrl must be specified");
 		Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
 		Assert.notNull(this.serviceProperties.getService(), "serviceProperties.getService() cannot be null.");
 	}
 
+	@Override
 	public final void commence(final HttpServletRequest servletRequest, final HttpServletResponse response,
 			final AuthenticationException authenticationException) throws IOException {
 

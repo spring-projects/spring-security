@@ -260,9 +260,10 @@ public class BCrypt {
 	 * @return the decoded value of x
 	 */
 	private static byte char64(char x) {
-		if ((int) x < 0 || (int) x >= index_64.length)
+		if (x < 0 || x >= index_64.length) {
 			return -1;
-		return index_64[(int) x];
+		}
+		return index_64[x];
 	}
 
 	/**
@@ -279,27 +280,32 @@ public class BCrypt {
 		byte ret[];
 		byte c1, c2, c3, c4, o;
 
-		if (maxolen <= 0)
+		if (maxolen <= 0) {
 			throw new IllegalArgumentException("Invalid maxolen");
+		}
 
 		while (off < slen - 1 && olen < maxolen) {
 			c1 = char64(s.charAt(off++));
 			c2 = char64(s.charAt(off++));
-			if (c1 == -1 || c2 == -1)
+			if (c1 == -1 || c2 == -1) {
 				break;
+			}
 			o = (byte) (c1 << 2);
 			o |= (c2 & 0x30) >> 4;
 			rs.append((char) o);
-			if (++olen >= maxolen || off >= slen)
+			if (++olen >= maxolen || off >= slen) {
 				break;
+			}
 			c3 = char64(s.charAt(off++));
-			if (c3 == -1)
+			if (c3 == -1) {
 				break;
+			}
 			o = (byte) ((c2 & 0x0f) << 4);
 			o |= (c3 & 0x3c) >> 2;
 			rs.append((char) o);
-			if (++olen >= maxolen || off >= slen)
+			if (++olen >= maxolen || off >= slen) {
 				break;
+			}
 			c4 = char64(s.charAt(off++));
 			o = (byte) ((c3 & 0x03) << 6);
 			o |= c4;
@@ -308,8 +314,9 @@ public class BCrypt {
 		}
 
 		ret = new byte[olen];
-		for (off = 0; off < olen; off++)
+		for (off = 0; off < olen; off++) {
 			ret[off] = (byte) rs.charAt(off);
+		}
 		return ret;
 	}
 
@@ -357,9 +364,10 @@ public class BCrypt {
 
 		for (i = 0; i < 4; i++) {
 			words[0] = (words[0] << 8) | (data[off] & 0xff);
-			words[1] = (words[1] << 8) | (int) data[off]; // sign extension bug
-			if (i > 0)
+			words[1] = (words[1] << 8) | data[off]; // sign extension bug
+			if (i > 0) {
 				sign |= words[1] & 0x80;
+			}
 			off = (off + 1) % data.length;
 		}
 
@@ -410,11 +418,14 @@ public class BCrypt {
 		int lr[] = { 0, 0 };
 		int plen = this.P.length, slen = this.S.length;
 
-		for (i = 0; i < plen; i++)
-			if (!sign_ext_bug)
+		for (i = 0; i < plen; i++) {
+			if (!sign_ext_bug) {
 				this.P[i] = this.P[i] ^ streamtoword(key, koffp);
-			else
+			}
+			else {
 				this.P[i] = this.P[i] ^ streamtoword_bug(key, koffp);
+			}
+		}
 
 		for (i = 0; i < plen; i += 2) {
 			encipher(lr, 0);
@@ -520,11 +531,13 @@ public class BCrypt {
 		int clen = cdata.length;
 		byte ret[];
 
-		if (log_rounds < 4 || log_rounds > 31)
+		if (log_rounds < 4 || log_rounds > 31) {
 			throw new IllegalArgumentException("Bad number of rounds");
+		}
 		rounds = 1 << log_rounds;
-		if (salt.length != BCRYPT_SALT_LEN)
+		if (salt.length != BCRYPT_SALT_LEN) {
 			throw new IllegalArgumentException("Bad salt length");
+		}
 
 		init_key();
 		ekskey(salt, password, sign_ext_bug, safety);
@@ -534,8 +547,9 @@ public class BCrypt {
 		}
 
 		for (i = 0; i < 64; i++) {
-			for (j = 0; j < (clen >> 1); j++)
+			for (j = 0; j < (clen >> 1); j++) {
 				encipher(cdata, j << 1);
+			}
 		}
 
 		ret = new byte[clen * 4];
@@ -586,20 +600,24 @@ public class BCrypt {
 			throw new IllegalArgumentException("Invalid salt");
 		}
 
-		if (salt.charAt(0) != '$' || salt.charAt(1) != '2')
+		if (salt.charAt(0) != '$' || salt.charAt(1) != '2') {
 			throw new IllegalArgumentException("Invalid salt version");
-		if (salt.charAt(2) == '$')
+		}
+		if (salt.charAt(2) == '$') {
 			off = 3;
+		}
 		else {
 			minor = salt.charAt(2);
-			if ((minor != 'a' && minor != 'x' && minor != 'y' && minor != 'b') || salt.charAt(3) != '$')
+			if ((minor != 'a' && minor != 'x' && minor != 'y' && minor != 'b') || salt.charAt(3) != '$') {
 				throw new IllegalArgumentException("Invalid salt revision");
+			}
 			off = 4;
 		}
 
 		// Extract number of rounds
-		if (salt.charAt(off + 2) > '$')
+		if (salt.charAt(off + 2) > '$') {
 			throw new IllegalArgumentException("Missing salt rounds");
+		}
 
 		if (off == 4 && saltLength < 29) {
 			throw new IllegalArgumentException("Invalid salt");
@@ -609,18 +627,21 @@ public class BCrypt {
 		real_salt = salt.substring(off + 3, off + 25);
 		saltb = decode_base64(real_salt, BCRYPT_SALT_LEN);
 
-		if (minor >= 'a') // add null terminator
+		if (minor >= 'a') {
 			passwordb = Arrays.copyOf(passwordb, passwordb.length + 1);
+		}
 
 		B = new BCrypt();
 		hashed = B.crypt_raw(passwordb, saltb, rounds, minor == 'x', minor == 'a' ? 0x10000 : 0);
 
 		rs.append("$2");
-		if (minor >= 'a')
+		if (minor >= 'a') {
 			rs.append(minor);
+		}
 		rs.append("$");
-		if (rounds < 10)
+		if (rounds < 10) {
 			rs.append("0");
+		}
 		rs.append(rounds);
 		rs.append("$");
 		encode_base64(saltb, saltb.length, rs);
@@ -654,8 +675,9 @@ public class BCrypt {
 		rs.append("$2");
 		rs.append(prefix.charAt(2));
 		rs.append("$");
-		if (log_rounds < 10)
+		if (log_rounds < 10) {
 			rs.append("0");
+		}
 		rs.append(log_rounds);
 		rs.append("$");
 		encode_base64(rnd, rnd.length, rs);

@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
  */
 public class HttpFirewallBeanDefinitionParser implements BeanDefinitionParser {
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		String ref = element.getAttribute("ref");
 

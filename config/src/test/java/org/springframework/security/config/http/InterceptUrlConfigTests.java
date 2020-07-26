@@ -174,7 +174,7 @@ public class InterceptUrlConfigTests {
 		this.spring.configLocations(this.xml("MvcMatchersServletPath")).autowire();
 
 		MockServletContext servletContext = mockServletContext("/spring");
-		ConfigurableWebApplicationContext context = (ConfigurableWebApplicationContext) this.spring.getContext();
+		ConfigurableWebApplicationContext context = this.spring.getContext();
 		context.setServletContext(servletContext);
 
 		this.mvc.perform(get("/spring/path").servletPath("/spring")).andExpect(status().isUnauthorized());

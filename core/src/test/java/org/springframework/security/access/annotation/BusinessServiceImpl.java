@@ -23,18 +23,22 @@ import java.util.List;
  */
 public class BusinessServiceImpl<E extends Entity> implements BusinessService {
 
+	@Override
 	@Secured({ "ROLE_USER" })
 	public void someUserMethod1() {
 	}
 
+	@Override
 	@Secured({ "ROLE_USER" })
 	public void someUserMethod2() {
 	}
 
+	@Override
 	@Secured({ "ROLE_USER", "ROLE_ADMIN" })
 	public void someUserAndAdminMethod() {
 	}
 
+	@Override
 	@Secured({ "ROLE_ADMIN" })
 	public void someAdminMethod() {
 	}
@@ -43,26 +47,32 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
 		return entity;
 	}
 
+	@Override
 	public int someOther(String s) {
 		return 0;
 	}
 
+	@Override
 	public int someOther(int input) {
 		return input;
 	}
 
+	@Override
 	public List<?> methodReturningAList(List<?> someList) {
 		return someList;
 	}
 
+	@Override
 	public List<Object> methodReturningAList(String userName, String arg2) {
 		return new ArrayList<>();
 	}
 
+	@Override
 	public Object[] methodReturningAnArray(Object[] someArray) {
 		return null;
 	}
 
+	@Override
 	public void rolesAllowedUser() {
 
 	}

@@ -156,10 +156,12 @@ public class AclEntryVoter extends AbstractAclVoter {
 		this.sidRetrievalStrategy = sidRetrievalStrategy;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return (attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute());
 	}
 
+	@Override
 	public int vote(Authentication authentication, MethodInvocation object, Collection<ConfigAttribute> attributes) {
 
 		for (ConfigAttribute attr : attributes) {

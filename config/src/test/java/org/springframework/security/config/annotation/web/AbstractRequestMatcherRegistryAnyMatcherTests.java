@@ -35,6 +35,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 	@EnableWebSecurity
 	static class AntMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -55,6 +56,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 	@EnableWebSecurity
 	static class MvcMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -75,6 +77,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 	@EnableWebSecurity
 	static class RegexMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -95,6 +98,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 	@EnableWebSecurity
 	static class AnyRequestAfterItselfConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -115,6 +119,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 	@EnableWebSecurity
 	static class RequestMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http

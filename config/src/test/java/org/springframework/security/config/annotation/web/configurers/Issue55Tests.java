@@ -153,6 +153,7 @@ public class Issue55Tests {
 
 		static Authentication RESULT = new TestingAuthenticationToken("test", "this", "ROLE_USER");
 
+		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			return RESULT;
 		}

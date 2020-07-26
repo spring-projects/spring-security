@@ -58,6 +58,7 @@ public final class OrRequestMatcher implements RequestMatcher {
 		this(Arrays.asList(requestMatchers));
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		for (RequestMatcher matcher : this.requestMatchers) {
 			if (this.logger.isDebugEnabled()) {

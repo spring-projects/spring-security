@@ -42,6 +42,7 @@ public class PortResolverImpl implements PortResolver {
 		return this.portMapper;
 	}
 
+	@Override
 	public int getServerPort(ServletRequest request) {
 		int serverPort = request.getServerPort();
 		Integer portLookup = null;

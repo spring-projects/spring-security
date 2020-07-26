@@ -36,10 +36,12 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 
 	private Ehcache cache;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.cache, "cache mandatory");
 	}
 
+	@Override
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
 		final Element element = this.cache.get(serviceTicket);
 
@@ -54,6 +56,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 		return this.cache;
 	}
 
+	@Override
 	public void putTicketInCache(final CasAuthenticationToken token) {
 		final Element element = new Element(token.getCredentials().toString(), token);
 
@@ -64,6 +67,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 		this.cache.put(element);
 	}
 
+	@Override
 	public void removeTicketFromCache(final CasAuthenticationToken token) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cache remove: " + token.getCredentials().toString());
@@ -72,6 +76,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 		this.removeTicketFromCache(token.getCredentials().toString());
 	}
 
+	@Override
 	public void removeTicketFromCache(final String serviceTicket) {
 		this.cache.remove(serviceTicket);
 	}

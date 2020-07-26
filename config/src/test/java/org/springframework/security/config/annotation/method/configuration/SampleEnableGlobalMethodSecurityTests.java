@@ -125,10 +125,12 @@ public class SampleEnableGlobalMethodSecurityTests {
 
 	static class CustomPermissionEvaluator implements PermissionEvaluator {
 
+		@Override
 		public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 			return !"denied".equals(targetDomainObject);
 		}
 
+		@Override
 		public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
 				Object permission) {
 			return !"denied".equals(targetId);

@@ -118,6 +118,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		this.ivGenerator = ivGenerator != null ? ivGenerator : alg.defaultIvGenerator();
 	}
 
+	@Override
 	public byte[] encrypt(byte[] bytes) {
 		synchronized (this.encryptor) {
 			byte[] iv = this.ivGenerator.generateKey();
@@ -127,6 +128,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		}
 	}
 
+	@Override
 	public byte[] decrypt(byte[] encryptedBytes) {
 		synchronized (this.decryptor) {
 			byte[] iv = iv(encryptedBytes);
@@ -151,10 +153,12 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 
 		private final byte[] VALUE = new byte[16];
 
+		@Override
 		public int getKeyLength() {
 			return this.VALUE.length;
 		}
 
+		@Override
 		public byte[] generateKey() {
 			return this.VALUE;
 		}

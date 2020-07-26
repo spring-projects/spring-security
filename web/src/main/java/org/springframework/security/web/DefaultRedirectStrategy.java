@@ -46,6 +46,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 	 * information (HTTP or HTTPS), so will cause problems if a redirect is being
 	 * performed to change to HTTPS, for example.
 	 */
+	@Override
 	public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException {
 		String redirectUrl = calculateRedirectUrl(request.getContextPath(), url);
 		redirectUrl = response.encodeRedirectURL(redirectUrl);

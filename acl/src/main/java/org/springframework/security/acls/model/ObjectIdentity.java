@@ -38,6 +38,7 @@ public interface ObjectIdentity extends Serializable {
 	 * @return <tt>true</tt> if the objects are equal, <tt>false</tt> otherwise
 	 * @see Object#equals(Object)
 	 */
+	@Override
 	boolean equals(Object obj);
 
 	/**
@@ -66,6 +67,7 @@ public interface ObjectIdentity extends Serializable {
 	 * @return a hash code representation of the <tt>ObjectIdentity</tt>
 	 * @see Object#hashCode()
 	 */
+	@Override
 	int hashCode();
 
 }

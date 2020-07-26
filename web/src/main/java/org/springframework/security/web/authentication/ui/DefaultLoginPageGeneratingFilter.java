@@ -212,6 +212,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.saml2AuthenticationUrlToProviderName = saml2AuthenticationUrlToProviderName;
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;

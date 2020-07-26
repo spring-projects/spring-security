@@ -85,6 +85,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String UNBOUNDID_CONTAINER_CLASSNAME = "org.springframework.security.ldap.server.UnboundIdContainer";
 
+	@Override
 	public BeanDefinition parse(Element elt, ParserContext parserContext) {
 		String url = elt.getAttribute(ATT_URL);
 

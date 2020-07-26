@@ -51,6 +51,7 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 		this.beans = beans;
 	}
 
+	@Override
 	public SecurityContext createSecurityContext(WithUserDetails withUser) {
 		String beanName = withUser.userDetailsServiceBeanName();
 		UserDetailsService userDetailsService = findUserDetailsService(beanName);

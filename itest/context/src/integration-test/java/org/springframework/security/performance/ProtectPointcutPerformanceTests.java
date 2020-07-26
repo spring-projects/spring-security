@@ -64,6 +64,7 @@ public class ProtectPointcutPerformanceTests implements ApplicationContextAware 
 
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.ctx = applicationContext;
 	}

@@ -33,6 +33,7 @@ public class MockUserSearch implements LdapUserSearch {
 		this.user = user;
 	}
 
+	@Override
 	public DirContextOperations searchForUser(String username) {
 		return this.user;
 	}

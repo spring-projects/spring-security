@@ -168,10 +168,12 @@ class DummyRequest extends HttpServletRequestWrapper {
 		super(UNSUPPORTED_REQUEST);
 	}
 
+	@Override
 	public String getCharacterEncoding() {
 		return "UTF-8";
 	}
 
+	@Override
 	public Object getAttribute(String attributeName) {
 		return null;
 	}
@@ -296,6 +298,7 @@ final class UnsupportedOperationExceptionInvocationHandler implements Invocation
 
 	private static final float JAVA_VERSION = Float.parseFloat(System.getProperty("java.class.version", "52"));
 
+	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.isDefault()) {
 			return invokeDefaultMethod(proxy, method, args);

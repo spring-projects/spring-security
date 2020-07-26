@@ -49,6 +49,7 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
 		this.messageMap = messageMap;
 	}
 
+	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
 		final Message message = (Message) object;
@@ -60,6 +61,7 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
 		return null;
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
 
@@ -70,6 +72,7 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
 		return allAttributes;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return Message.class.isAssignableFrom(clazz);
 	}

@@ -189,18 +189,22 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 	@Test
 	public void getAttributeWhenGivenKeyThenReturnsValue() {
 		OAuth2AuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, AUTHORITIES);
+		assertHasEqualAttribute(principal, ACTIVE_CLAIM, ACTIVE_VALUE);
+		assertHasEqualAttribute(principal, CLIENT_ID_CLAIM, CLIENT_ID_VALUE);
+		assertHasEqualAttribute(principal, USERNAME_CLAIM, USERNAME_VALUE);
+		assertHasEqualAttribute(principal, TOKEN_TYPE_CLAIM, TOKEN_TYPE_VALUE);
+		assertHasEqualAttribute(principal, EXP_CLAIM, EXP_VALUE);
+		assertHasEqualAttribute(principal, IAT_CLAIM, IAT_VALUE);
+		assertHasEqualAttribute(principal, NBF_CLAIM, NBF_VALUE);
+		assertHasEqualAttribute(principal, SUB_CLAIM, SUB_VALUE);
+		assertHasEqualAttribute(principal, AUD_CLAIM, AUD_VALUE);
+		assertHasEqualAttribute(principal, ISS_CLAIM, ISS_VALUE);
+		assertHasEqualAttribute(principal, JTI_CLAIM, JTI_VALUE);
+	}
 
-		assertThat((Object) principal.getAttribute(ACTIVE_CLAIM)).isEqualTo(ACTIVE_VALUE);
-		assertThat((Object) principal.getAttribute(CLIENT_ID_CLAIM)).isEqualTo(CLIENT_ID_VALUE);
-		assertThat((Object) principal.getAttribute(USERNAME_CLAIM)).isEqualTo(USERNAME_VALUE);
-		assertThat((Object) principal.getAttribute(TOKEN_TYPE_CLAIM)).isEqualTo(TOKEN_TYPE_VALUE);
-		assertThat((Object) principal.getAttribute(EXP_CLAIM)).isEqualTo(EXP_VALUE);
-		assertThat((Object) principal.getAttribute(IAT_CLAIM)).isEqualTo(IAT_VALUE);
-		assertThat((Object) principal.getAttribute(NBF_CLAIM)).isEqualTo(NBF_VALUE);
-		assertThat((Object) principal.getAttribute(SUB_CLAIM)).isEqualTo(SUB_VALUE);
-		assertThat((Object) principal.getAttribute(AUD_CLAIM)).isEqualTo(AUD_VALUE);
-		assertThat((Object) principal.getAttribute(ISS_CLAIM)).isEqualTo(ISS_VALUE);
-		assertThat((Object) principal.getAttribute(JTI_CLAIM)).isEqualTo(JTI_VALUE);
+	private void assertHasEqualAttribute(OAuth2AuthenticatedPrincipal principal, String name, Object expected) {
+		Object value = principal.getAttribute(name);
+		assertThat(value).isEqualTo(expected);
 	}
 
 }

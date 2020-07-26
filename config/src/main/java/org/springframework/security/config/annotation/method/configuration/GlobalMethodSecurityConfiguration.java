@@ -91,6 +91,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	private static final Log logger = LogFactory.getLog(GlobalMethodSecurityConfiguration.class);
 
 	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
+		@Override
 		public <T> T postProcess(T object) {
 			throw new IllegalStateException(ObjectPostProcessor.class.getName()
 					+ " is a required bean. Ensure you have used @" + EnableGlobalMethodSecurity.class.getName());
@@ -402,6 +403,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 	 * Obtains the attributes from {@link EnableGlobalMethodSecurity} if this class was
 	 * imported using the {@link EnableGlobalMethodSecurity} annotation.
 	 */
+	@Override
 	public final void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> annotationAttributes = importMetadata
 				.getAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());

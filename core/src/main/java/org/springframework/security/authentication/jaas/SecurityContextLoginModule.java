@@ -68,6 +68,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * should be ignored.
 	 * @exception LoginException if the abort fails
 	 */
+	@Override
 	public boolean abort() {
 		if (this.authen == null) {
 			return false;
@@ -85,6 +86,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * should be ignored.
 	 * @exception LoginException if the commit fails
 	 */
+	@Override
 	public boolean commit() {
 		if (this.authen == null) {
 			return false;
@@ -113,6 +115,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * @param sharedState is ignored
 	 * @param options are ignored
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 		this.subject = subject;
@@ -129,6 +132,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * <code>LoginModule</code> should be ignored.
 	 * @throws LoginException if the authentication fails
 	 */
+	@Override
 	public boolean login() throws LoginException {
 		this.authen = SecurityContextHolder.getContext().getAuthentication();
 
@@ -154,6 +158,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 * should be ignored.
 	 * @exception LoginException if the logout fails
 	 */
+	@Override
 	public boolean logout() {
 		if (this.authen == null) {
 			return false;

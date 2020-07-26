@@ -216,6 +216,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@PreAuthorize("someExpression")
 	public static class ReturnVoidImpl1 implements ReturnVoid {
 
+		@Override
 		public void doSomething(List<?> param) {
 		}
 
@@ -224,6 +225,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@PreAuthorize("someExpression")
 	public static class ReturnVoidImpl2 implements ReturnVoid {
 
+		@Override
 		@PreFilter(filterTarget = "param", value = "somePreFilterExpression")
 		public void doSomething(List<?> param) {
 		}
@@ -232,6 +234,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	public static class ReturnVoidImpl3 implements ReturnVoid {
 
+		@Override
 		@PreFilter(filterTarget = "param", value = "somePreFilterExpression")
 		public void doSomething(List<?> param) {
 		}
@@ -240,6 +243,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	public static class ReturnAListImpl1 implements ReturnAList {
 
+		@Override
 		@PostFilter("somePostFilterExpression")
 		public List<?> doSomething(List<?> param) {
 			return param;
@@ -249,6 +253,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	public static class ReturnAListImpl2 implements ReturnAList {
 
+		@Override
 		@PreAuthorize("someExpression")
 		@PreFilter(filterTarget = "param", value = "somePreFilterExpression")
 		@PostFilter("somePostFilterExpression")
@@ -261,6 +266,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	public static class ReturnAnotherListImpl1 implements ReturnAnotherList {
 
+		@Override
 		public List<?> doSomething(List<?> param) {
 			return param;
 		}
@@ -269,6 +275,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	public static class ReturnAnotherListImpl2 implements ReturnAnotherList {
 
+		@Override
 		@PreFilter(filterTarget = "param", value = "classMethodPreFilterExpression")
 		public List<?> doSomething(List<?> param) {
 			return param;
@@ -294,6 +301,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@CustomAnnotation
 	public static class CustomAnnotationAtClassLevel implements ReturnVoid {
 
+		@Override
 		public void doSomething(List<?> param) {
 		}
 
@@ -301,6 +309,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	public static class CustomAnnotationAtInterfaceLevel implements ReturnVoid2 {
 
+		@Override
 		public void doSomething(List<?> param) {
 		}
 
@@ -308,6 +317,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	public static class CustomAnnotationAtMethodLevel implements ReturnVoid {
 
+		@Override
 		@CustomAnnotation
 		public void doSomething(List<?> param) {
 		}

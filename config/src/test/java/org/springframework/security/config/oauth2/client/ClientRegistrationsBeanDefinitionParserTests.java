@@ -135,7 +135,8 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 
 	@Test
 	public void parseWhenMultipleClientsConfiguredThenAvailableInRepository() {
-		this.spring.configLocations(this.xml("MultiClientRegistration")).autowire();
+		this.spring.configLocations(ClientRegistrationsBeanDefinitionParserTests.xml("MultiClientRegistration"))
+				.autowire();
 
 		assertThat(this.clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
 

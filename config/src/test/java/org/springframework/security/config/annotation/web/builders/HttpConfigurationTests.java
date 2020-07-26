@@ -72,6 +72,7 @@ public class HttpConfigurationTests {
 	@EnableWebSecurity
 	static class UnregisteredFilterConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) {
 			// @formatter:off
 			http
@@ -79,6 +80,7 @@ public class HttpConfigurationTests {
 			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -116,6 +118,7 @@ public class HttpConfigurationTests {
 
 		static CasAuthenticationFilter CAS_AUTHENTICATION_FILTER;
 
+		@Override
 		protected void configure(HttpSecurity http) {
 			// @formatter:off
 			http

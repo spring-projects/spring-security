@@ -34,6 +34,7 @@ public final class DelegatingApplicationListener implements ApplicationListener<
 
 	private List<SmartApplicationListener> listeners = new CopyOnWriteArrayList<>();
 
+	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event == null) {
 			return;

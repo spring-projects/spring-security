@@ -53,6 +53,7 @@ public class LdapUserDetailsService implements UserDetailsService {
 		this.authoritiesPopulator = authoritiesPopulator;
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		DirContextOperations userData = this.userSearch.searchForUser(username);
 
@@ -67,6 +68,7 @@ public class LdapUserDetailsService implements UserDetailsService {
 
 	private static final class NullLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
+		@Override
 		public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userDetails, String username) {
 			return AuthorityUtils.NO_AUTHORITIES;
 		}

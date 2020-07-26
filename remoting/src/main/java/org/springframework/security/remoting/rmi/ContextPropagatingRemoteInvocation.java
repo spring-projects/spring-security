@@ -91,6 +91,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 	 * @throws IllegalAccessException if the method could not be accessed
 	 * @throws InvocationTargetException if the method invocation resulted in an exception
 	 */
+	@Override
 	public Object invoke(Object targetObject)
 			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 

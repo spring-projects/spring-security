@@ -114,6 +114,7 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	 * @return Hex string of password digest (or base64 encoded string if
 	 * encodeHashAsBase64 is enabled.
 	 */
+	@Override
 	public String encode(CharSequence rawPassword) {
 		String salt = PREFIX + this.saltGenerator.generateKey() + SUFFIX;
 		return digest(salt, rawPassword);
@@ -143,6 +144,7 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	 * @param encodedPassword previously encoded password
 	 * @return true or false
 	 */
+	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		String salt = extractSalt(encodedPassword);
 		String rawPasswordEncoded = digest(salt, rawPassword);

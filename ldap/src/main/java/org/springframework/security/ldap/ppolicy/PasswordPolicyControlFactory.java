@@ -34,6 +34,7 @@ public class PasswordPolicyControlFactory extends ControlFactory {
 	 * @param ctl the control the check
 	 * @return a response control of type PasswordPolicyResponseControl, or null
 	 */
+	@Override
 	public Control getControlInstance(Control ctl) {
 		if (ctl.getID().equals(PasswordPolicyControl.OID)) {
 			return new PasswordPolicyResponseControl(ctl.getEncodedValue());

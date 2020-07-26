@@ -51,10 +51,12 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 
 	private List<ChannelProcessor> channelProcessors;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notEmpty(this.channelProcessors, "A list of ChannelProcessors is required");
 	}
 
+	@Override
 	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
 			throws IOException, ServletException {
 		for (ConfigAttribute attribute : config) {
@@ -88,6 +90,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 		}
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		if (ANY_CHANNEL.equals(attribute.getAttribute())) {
 			return true;

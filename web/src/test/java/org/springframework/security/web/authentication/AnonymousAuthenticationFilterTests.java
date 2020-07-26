@@ -114,6 +114,7 @@ public class AnonymousAuthenticationFilterTests {
 			this.expectToProceed = expectToProceed;
 		}
 
+		@Override
 		public void doFilter(ServletRequest request, ServletResponse response) {
 			if (!this.expectToProceed) {
 				fail("Did not expect filter chain to proceed");

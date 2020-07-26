@@ -40,6 +40,7 @@ public class MockApplicationListener implements ApplicationListener<ApplicationE
 		return this.destroyedEvent;
 	}
 
+	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof HttpSessionCreatedEvent) {
 			this.createdEvent = (HttpSessionCreatedEvent) event;

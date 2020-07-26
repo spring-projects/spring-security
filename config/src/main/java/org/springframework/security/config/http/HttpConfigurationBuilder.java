@@ -855,6 +855,7 @@ class HttpConfigurationBuilder {
 
 		private RoleVoter voter = new RoleVoter();
 
+		@Override
 		public RoleVoter getBean() {
 			this.voter.setRolePrefix(this.rolePrefix);
 			return this.voter;
@@ -867,6 +868,7 @@ class HttpConfigurationBuilder {
 
 		private SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
 
+		@Override
 		public SecurityContextHolderAwareRequestFilter getBean() {
 			this.filter.setRolePrefix(this.rolePrefix);
 			return this.filter;

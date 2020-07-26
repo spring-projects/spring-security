@@ -66,6 +66,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpIn
 	 * @param contentLength the length of the content to send
 	 * @throws IOException if thrown by HttpURLConnection methods
 	 */
+	@Override
 	protected void prepareConnection(HttpURLConnection con, int contentLength) throws IOException {
 		super.prepareConnection(con, contentLength);
 

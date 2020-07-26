@@ -36,6 +36,7 @@ public class MockPortResolver implements PortResolver {
 		this.https = https;
 	}
 
+	@Override
 	public int getServerPort(ServletRequest request) {
 		if ((request.getScheme() != null) && request.getScheme().equals("https")) {
 			return this.https;

@@ -51,6 +51,7 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
 	 * being invoked
 	 * @throws AccessDeniedException if access is denied
 	 */
+	@Override
 	public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
 			throws AccessDeniedException {
 		int deny = 0;

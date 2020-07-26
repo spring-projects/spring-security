@@ -35,6 +35,7 @@ public class SecurityDebugBeanFactoryPostProcessor implements BeanDefinitionRegi
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 		this.logger.warn("\n\n" + "********************************************************************\n"
 				+ "**********        Security debugging is enabled.       *************\n"
@@ -55,6 +56,7 @@ public class SecurityDebugBeanFactoryPostProcessor implements BeanDefinitionRegi
 		}
 	}
 
+	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 	}
 

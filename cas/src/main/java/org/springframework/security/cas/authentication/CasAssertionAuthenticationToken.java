@@ -43,10 +43,12 @@ public final class CasAssertionAuthenticationToken extends AbstractAuthenticatio
 		this.ticket = ticket;
 	}
 
+	@Override
 	public Object getPrincipal() {
 		return this.assertion.getPrincipal().getName();
 	}
 
+	@Override
 	public Object getCredentials() {
 		return this.ticket;
 	}

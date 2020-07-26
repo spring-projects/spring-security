@@ -75,6 +75,7 @@ import org.springframework.util.StringUtils;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
 	public static final String DEFAULT_CLAIMED_IDENTITY_FIELD = "openid_identifier";

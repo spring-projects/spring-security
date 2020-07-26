@@ -69,6 +69,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 		this.requestMap = requestMap;
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
 
@@ -79,6 +80,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 		return allAttributes;
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAttributes(Object object) {
 		final HttpServletRequest request = ((FilterInvocation) object).getRequest();
 		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : this.requestMap.entrySet()) {
@@ -89,6 +91,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 		return null;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return FilterInvocation.class.isAssignableFrom(clazz);
 	}

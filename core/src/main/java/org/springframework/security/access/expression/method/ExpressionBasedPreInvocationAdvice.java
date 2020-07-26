@@ -39,6 +39,7 @@ public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthoriz
 
 	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
+	@Override
 	public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute attr) {
 		PreInvocationExpressionAttribute preAttr = (PreInvocationExpressionAttribute) attr;
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, mi);

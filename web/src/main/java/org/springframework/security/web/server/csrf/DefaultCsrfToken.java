@@ -53,6 +53,7 @@ public final class DefaultCsrfToken implements CsrfToken {
 	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getHeaderName()
 	 */
+	@Override
 	public String getHeaderName() {
 		return this.headerName;
 	}
@@ -62,6 +63,7 @@ public final class DefaultCsrfToken implements CsrfToken {
 	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getParameterName()
 	 */
+	@Override
 	public String getParameterName() {
 		return this.parameterName;
 	}
@@ -71,23 +73,28 @@ public final class DefaultCsrfToken implements CsrfToken {
 	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getToken()
 	 */
+	@Override
 	public String getToken() {
 		return this.token;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || !(o instanceof CsrfToken))
+		}
+		if (o == null || !(o instanceof CsrfToken)) {
 			return false;
+		}
 
 		CsrfToken that = (CsrfToken) o;
 
-		if (!getToken().equals(that.getToken()))
+		if (!getToken().equals(that.getToken())) {
 			return false;
-		if (!getParameterName().equals(that.getParameterName()))
+		}
+		if (!getParameterName().equals(that.getParameterName())) {
 			return false;
+		}
 		return getHeaderName().equals(that.getHeaderName());
 	}
 

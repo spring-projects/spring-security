@@ -35,6 +35,7 @@ public class ExplicitSecurityContextSchedulingTaskExecutorTests
 		explicitSecurityContextPowermockSetup();
 	}
 
+	@Override
 	protected DelegatingSecurityContextSchedulingTaskExecutor create() {
 		return new DelegatingSecurityContextSchedulingTaskExecutor(this.taskExecutorDelegate, this.securityContext);
 	}

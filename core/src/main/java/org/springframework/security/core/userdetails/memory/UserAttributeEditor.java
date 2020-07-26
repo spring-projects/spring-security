@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
  */
 public class UserAttributeEditor extends PropertyEditorSupport {
 
+	@Override
 	public void setAsText(String s) throws IllegalArgumentException {
 		if (StringUtils.hasText(s)) {
 			String[] tokens = StringUtils.commaDelimitedListToStringArray(s);

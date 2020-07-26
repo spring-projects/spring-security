@@ -58,6 +58,7 @@ public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler 
 		this.defaultHandler = defaultHandler;
 	}
 
+	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		for (Entry<Class<? extends AccessDeniedException>, AccessDeniedHandler> entry : this.handlers.entrySet()) {

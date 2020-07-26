@@ -57,6 +57,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 		super(contextSource);
 	}
 
+	@Override
 	public DirContextOperations authenticate(Authentication authentication) {
 		DirContextOperations user = null;
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,

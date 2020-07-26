@@ -94,14 +94,17 @@ public class SavedCookie implements Serializable {
 	public Cookie getCookie() {
 		Cookie c = new Cookie(getName(), getValue());
 
-		if (getComment() != null)
+		if (getComment() != null) {
 			c.setComment(getComment());
+		}
 
-		if (getDomain() != null)
+		if (getDomain() != null) {
 			c.setDomain(getDomain());
+		}
 
-		if (getPath() != null)
+		if (getPath() != null) {
 			c.setPath(getPath());
+		}
 
 		c.setVersion(getVersion());
 		c.setMaxAge(getMaxAge());

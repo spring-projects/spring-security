@@ -49,6 +49,7 @@ import org.springframework.util.StringUtils;
  * @author Ray Krueger
  * @author Luke Taylor
  */
+@Deprecated
 @SuppressWarnings("unchecked")
 public class OpenID4JavaConsumer implements OpenIDConsumer {
 
@@ -75,6 +76,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		this.attributesToFetchFactory = attributesToFetchFactory;
 	}
 
+	@Override
 	public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl, String realm)
 			throws OpenIDConsumerException {
 		List<DiscoveryInformation> discoveries;
@@ -117,6 +119,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		return authReq.getDestinationUrl(true);
 	}
 
+	@Override
 	public OpenIDAuthenticationToken endConsumption(HttpServletRequest request) throws OpenIDConsumerException {
 		// extract the parameters from the authentication response
 		// (which comes in as a HTTP request from the OpenID provider)

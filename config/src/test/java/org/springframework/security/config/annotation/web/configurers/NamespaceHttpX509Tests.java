@@ -268,10 +268,12 @@ public class NamespaceHttpX509Tests {
 	@EnableWebSecurity
 	public static class AuthenticationUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication().withUser("rod").password("password").roles("USER", "ADMIN");
 		}
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http

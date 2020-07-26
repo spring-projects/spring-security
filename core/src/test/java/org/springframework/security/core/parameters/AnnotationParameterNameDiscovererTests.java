@@ -135,10 +135,12 @@ public class AnnotationParameterNameDiscovererTests {
 
 	static class DaoImpl extends BaseDaoImpl implements Dao {
 
+		@Override
 		public String findMessageByTo(String to) {
 			return null;
 		}
 
+		@Override
 		public String findMessageByToAndFrom(@P("to") String to, @P("from") String from) {
 			return null;
 		}

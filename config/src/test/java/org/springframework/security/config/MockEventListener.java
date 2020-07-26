@@ -30,6 +30,7 @@ public class MockEventListener<T extends ApplicationEvent> implements Applicatio
 
 	private List<T> events = new ArrayList<>();
 
+	@Override
 	public void onApplicationEvent(T event) {
 		this.events.add(event);
 	}

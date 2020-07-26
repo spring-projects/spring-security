@@ -55,6 +55,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 		this.executor = create();
 	}
 
+	@Override
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullDelegate() {
 		new DelegatingSecurityContextExecutorService(null);
@@ -163,6 +164,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 		assertThat(result).isEqualTo(exectedResult);
 	}
 
+	@Override
 	protected abstract DelegatingSecurityContextExecutorService create();
 
 }

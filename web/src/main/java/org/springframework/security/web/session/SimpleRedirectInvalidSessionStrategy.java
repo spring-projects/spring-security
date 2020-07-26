@@ -49,6 +49,7 @@ public final class SimpleRedirectInvalidSessionStrategy implements InvalidSessio
 		this.destinationUrl = invalidSessionUrl;
 	}
 
+	@Override
 	public void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		this.logger.debug("Starting new session (if required) and redirecting to '" + this.destinationUrl + "'");
 		if (this.createNewSession) {

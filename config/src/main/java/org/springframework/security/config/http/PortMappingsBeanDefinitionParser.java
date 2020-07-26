@@ -42,6 +42,7 @@ class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
 
 	public static final String ATT_HTTPS_PORT = "https";
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		RootBeanDefinition portMapper = new RootBeanDefinition(PortMapperImpl.class);

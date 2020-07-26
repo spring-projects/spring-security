@@ -212,6 +212,7 @@ public class AuthenticationManagerBuilder
 	 * @return a {@link AuthenticationManagerBuilder} to allow further authentication to
 	 * be provided to the {@link AuthenticationManagerBuilder}
 	 */
+	@Override
 	public AuthenticationManagerBuilder authenticationProvider(AuthenticationProvider authenticationProvider) {
 		this.authenticationProviders.add(authenticationProvider);
 		return this;

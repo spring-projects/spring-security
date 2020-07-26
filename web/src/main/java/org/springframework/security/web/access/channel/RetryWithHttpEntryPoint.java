@@ -31,6 +31,7 @@ public class RetryWithHttpEntryPoint extends AbstractRetryEntryPoint {
 		super("http://", 80);
 	}
 
+	@Override
 	protected Integer getMappedPort(Integer mapFromPort) {
 		return getPortMapper().lookupHttpPort(mapFromPort);
 	}

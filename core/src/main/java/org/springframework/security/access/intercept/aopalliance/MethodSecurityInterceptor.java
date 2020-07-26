@@ -41,6 +41,7 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 
 	private MethodSecurityMetadataSource securityMetadataSource;
 
+	@Override
 	public Class<?> getSecureObjectClass() {
 		return MethodInvocation.class;
 	}
@@ -52,6 +53,7 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 	 * {@code AfterInvocationManager}).
 	 * @throws Throwable if any error occurs
 	 */
+	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		InterceptorStatusToken token = super.beforeInvocation(mi);
 
@@ -69,6 +71,7 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 		return this.securityMetadataSource;
 	}
 
+	@Override
 	public SecurityMetadataSource obtainSecurityMetadataSource() {
 		return this.securityMetadataSource;
 	}

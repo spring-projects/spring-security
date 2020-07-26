@@ -25,6 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@SuppressWarnings({ "unused", "FieldCanBeLocal" })
 	private UserRepository userRepository;
 
+	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) {
 		return null;

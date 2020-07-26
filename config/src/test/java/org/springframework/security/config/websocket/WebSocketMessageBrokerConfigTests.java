@@ -306,7 +306,7 @@ public class WebSocketMessageBrokerConfigTests {
 	public void requestWhenConnectMessageThenUsesCsrfTokenHandshakeInterceptor() throws Exception {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
 
-		WebApplicationContext context = (WebApplicationContext) this.spring.getContext();
+		WebApplicationContext context = this.spring.getContext();
 		MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
 
 		String csrfAttributeName = CsrfToken.class.getName();
@@ -329,7 +329,7 @@ public class WebSocketMessageBrokerConfigTests {
 	public void requestWhenConnectMessageAndUsingSockJsThenUsesCsrfTokenHandshakeInterceptor() throws Exception {
 		this.spring.configLocations(xml("SyncSockJsConfig")).autowire();
 
-		WebApplicationContext context = (WebApplicationContext) this.spring.getContext();
+		WebApplicationContext context = this.spring.getContext();
 		MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
 
 		String csrfAttributeName = CsrfToken.class.getName();

@@ -25,6 +25,7 @@ import java.util.Set;
  */
 public class TestAuthorityGranter implements AuthorityGranter {
 
+	@Override
 	public Set<String> grant(Principal principal) {
 		Set<String> rtnSet = new HashSet<>();
 

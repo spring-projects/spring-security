@@ -77,6 +77,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 		}
 	}
 
+	@Override
 	public void securityCheck(Acl acl, int changeType) {
 		if ((SecurityContextHolder.getContext() == null)
 				|| (SecurityContextHolder.getContext().getAuthentication() == null)

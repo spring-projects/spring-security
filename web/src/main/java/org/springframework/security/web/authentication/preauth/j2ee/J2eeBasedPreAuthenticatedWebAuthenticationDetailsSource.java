@@ -58,6 +58,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	/**
 	 * Check that all required properties have been set.
 	 */
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.j2eeMappableRoles, "No mappable roles available");
 		Assert.notNull(this.j2eeUserRoles2GrantedAuthoritiesMapper, "Roles to granted authorities mapper not set");
@@ -89,6 +90,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	 *
 	 * @see org.springframework.security.authentication.AuthenticationDetailsSource#buildDetails(Object)
 	 */
+	@Override
 	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(HttpServletRequest context) {
 
 		Collection<String> j2eeUserRoles = getUserRoles(context);

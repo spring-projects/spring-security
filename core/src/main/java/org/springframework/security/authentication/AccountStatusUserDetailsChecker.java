@@ -30,6 +30,7 @@ public class AccountStatusUserDetailsChecker implements UserDetailsChecker, Mess
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
+	@Override
 	public void check(UserDetails user) {
 		if (!user.isAccountNonLocked()) {
 			throw new LockedException(

@@ -165,6 +165,7 @@ public class AuthenticationConfigurationTests {
 	@Configuration
 	static class UserGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
 
+		@Override
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user());
 		}
@@ -217,6 +218,7 @@ public class AuthenticationConfigurationTests {
 
 	static class ServiceImpl implements Service {
 
+		@Override
 		@Secured("ROLE_USER")
 		public void run() {
 		}
@@ -238,10 +240,12 @@ public class AuthenticationConfigurationTests {
 		static List<Class<?>> inits = new ArrayList<>();
 		static List<Class<?>> configs = new ArrayList<>();
 
+		@Override
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
 			inits.add(getClass());
 		}
 
+		@Override
 		public void configure(AuthenticationManagerBuilder auth) {
 			configs.add(getClass());
 		}
@@ -288,6 +292,7 @@ public class AuthenticationConfigurationTests {
 
 	static class ConfiguresInMemoryConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
 
+		@Override
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -301,6 +306,7 @@ public class AuthenticationConfigurationTests {
 	@Order(Ordered.LOWEST_PRECEDENCE)
 	static class BootGlobalAuthenticationConfigurerAdapter extends DefaultOrderGlobalAuthenticationConfigurerAdapter {
 
+		@Override
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
 			auth.apply(new DefaultBootGlobalAuthenticationConfigurerAdapter());
 		}

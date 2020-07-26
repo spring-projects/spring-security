@@ -38,6 +38,7 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 
 	private static final String ATT_USER_DETAILS_REF = "user-service-ref";
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
 		authProvider.setSource(pc.extractSource(element));

@@ -271,6 +271,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	/**
 	 * Overridden to provide proxying capabilities.
 	 */
+	@Override
 	protected boolean requiresAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
 		final boolean serviceTicketRequest = serviceTicketRequest(request, response);
 		final boolean result = serviceTicketRequest || proxyReceptorRequest(request)
@@ -398,6 +399,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 			this.serviceTicketFailureHandler = failureHandler;
 		}
 
+		@Override
 		public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 				AuthenticationException exception) throws IOException, ServletException {
 			if (serviceTicketRequest(request, response)) {

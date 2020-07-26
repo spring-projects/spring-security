@@ -109,6 +109,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 		this.sidRetrievalStrategy = sidRetrievalStrategy;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return this.processConfigAttribute.equals(attribute.getAttribute());
 	}
@@ -119,6 +120,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 	 * @param clazz the secure object
 	 * @return always <code>true</code>
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}

@@ -31,6 +31,7 @@ public class SpringTestRule extends SpringTestContext implements MethodRule {
 	@Override
 	public Statement apply(Statement base, FrameworkMethod method, Object target) {
 		return new Statement() {
+			@Override
 			public void evaluate() throws Throwable {
 				setTest(target);
 				try {

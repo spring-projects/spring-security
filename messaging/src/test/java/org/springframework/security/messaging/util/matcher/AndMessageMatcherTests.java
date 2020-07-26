@@ -56,7 +56,7 @@ public class AndMessageMatcherTests {
 	@SuppressWarnings("unchecked")
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyArray() {
-		new AndMessageMatcher<>((MessageMatcher<Object>[]) new MessageMatcher[0]);
+		new AndMessageMatcher<>(new MessageMatcher[0]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

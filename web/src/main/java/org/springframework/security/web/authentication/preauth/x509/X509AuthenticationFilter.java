@@ -28,6 +28,7 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 
 	private X509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
 
+	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
 		X509Certificate cert = extractClientCertificate(request);
 
@@ -38,6 +39,7 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 		return this.principalExtractor.extractPrincipal(cert);
 	}
 
+	@Override
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
 		return extractClientCertificate(request);
 	}

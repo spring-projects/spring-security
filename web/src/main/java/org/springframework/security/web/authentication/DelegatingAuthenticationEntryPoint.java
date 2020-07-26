@@ -71,6 +71,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 		this.entryPoints = entryPoints;
 	}
 
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
 
@@ -103,6 +104,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 		this.defaultEntryPoint = defaultEntryPoint;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notEmpty(this.entryPoints, "entryPoints must be specified");
 		Assert.notNull(this.defaultEntryPoint, "defaultEntryPoint must be specified");

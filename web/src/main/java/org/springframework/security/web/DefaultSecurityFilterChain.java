@@ -55,10 +55,12 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 		return this.requestMatcher;
 	}
 
+	@Override
 	public List<Filter> getFilters() {
 		return this.filters;
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		return this.requestMatcher.matches(request);
 	}

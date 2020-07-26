@@ -28,6 +28,7 @@ import org.springframework.util.Assert;
  */
 public class InetOrgPersonContextMapper implements UserDetailsContextMapper {
 
+	@Override
 	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
 			Collection<? extends GrantedAuthority> authorities) {
 		InetOrgPerson.Essence p = new InetOrgPerson.Essence(ctx);
@@ -39,6 +40,7 @@ public class InetOrgPersonContextMapper implements UserDetailsContextMapper {
 
 	}
 
+	@Override
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
 		Assert.isInstanceOf(InetOrgPerson.class, user, "UserDetails must be an InetOrgPerson instance");
 

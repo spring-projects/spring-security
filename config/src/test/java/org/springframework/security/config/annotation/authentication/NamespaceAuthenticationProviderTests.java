@@ -56,6 +56,7 @@ public class NamespaceAuthenticationProviderTests {
 	@EnableWebSecurity
 	static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) {
 			// @formatter:off
 			auth
@@ -83,6 +84,7 @@ public class NamespaceAuthenticationProviderTests {
 	@EnableWebSecurity
 	static class UserServiceRefConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -90,6 +92,7 @@ public class NamespaceAuthenticationProviderTests {
 			// @formatter:on
 		}
 
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());

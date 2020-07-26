@@ -41,6 +41,7 @@ public class MethodSecurityMetadataSourceBeanDefinitionParser extends AbstractBe
 	static final String ATT_METHOD = "method";
 	static final String ATT_ACCESS = "access";
 
+	@Override
 	public AbstractBeanDefinition parseInternal(Element elt, ParserContext pc) {
 		// Parse the included methods
 		List<Element> methods = DomUtils.getChildElementsByTagName(elt, Elements.PROTECT);

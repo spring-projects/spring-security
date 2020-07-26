@@ -68,6 +68,7 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 * <code>Subject</code> obtained.
 	 * </p>
 	 */
+	@Override
 	public final void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
 			throws ServletException, IOException {
 

@@ -264,6 +264,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 	 * {@link NotFoundException}, as a chain of {@link LookupStrategy}s may be used to
 	 * automatically create entries if required)
 	 */
+	@Override
 	public final Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) {
 		Assert.isTrue(this.batchSize >= 1, "BatchSize must be >= 1");
 		Assert.notEmpty(objects, "Objects to lookup required");
@@ -543,6 +544,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		 * <tt>null</tt>)
 		 * @throws SQLException
 		 */
+		@Override
 		public Set<Long> extractData(ResultSet rs) throws SQLException {
 			Set<Long> parentIdsToLookup = new HashSet<>(); // Set of parent_id Longs
 
@@ -652,6 +654,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 			this.id = id;
 		}
 
+		@Override
 		public List<AccessControlEntry> getEntries() {
 			throw new UnsupportedOperationException("Stub only");
 		}
@@ -660,27 +663,33 @@ public class BasicLookupStrategy implements LookupStrategy {
 			return this.id;
 		}
 
+		@Override
 		public ObjectIdentity getObjectIdentity() {
 			throw new UnsupportedOperationException("Stub only");
 		}
 
+		@Override
 		public Sid getOwner() {
 			throw new UnsupportedOperationException("Stub only");
 		}
 
+		@Override
 		public Acl getParentAcl() {
 			throw new UnsupportedOperationException("Stub only");
 		}
 
+		@Override
 		public boolean isEntriesInheriting() {
 			throw new UnsupportedOperationException("Stub only");
 		}
 
+		@Override
 		public boolean isGranted(List<Permission> permission, List<Sid> sids, boolean administrativeMode)
 				throws NotFoundException, UnloadedSidException {
 			throw new UnsupportedOperationException("Stub only");
 		}
 
+		@Override
 		public boolean isSidLoaded(List<Sid> sids) {
 			throw new UnsupportedOperationException("Stub only");
 		}

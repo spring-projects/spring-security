@@ -193,6 +193,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 */
 	private class NetscapeDecoder implements PPolicyDecoder {
 
+		@Override
 		public void decode() throws IOException {
 			int[] bread = { 0 };
 			BERSequence seq = (BERSequence) BERElement.getElement(new SpecificTagDecoder(),

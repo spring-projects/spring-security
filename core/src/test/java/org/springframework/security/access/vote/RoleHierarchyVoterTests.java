@@ -17,6 +17,7 @@ package org.springframework.security.access.vote;
 
 import org.junit.Test;
 
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -35,7 +36,7 @@ public class RoleHierarchyVoterTests {
 		RoleHierarchyVoter voter = new RoleHierarchyVoter(roleHierarchyImpl);
 
 		assertThat(voter.vote(auth, new Object(), SecurityConfig.createList("ROLE_B")))
-				.isEqualTo(RoleHierarchyVoter.ACCESS_GRANTED);
+				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
 }

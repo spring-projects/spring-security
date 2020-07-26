@@ -55,6 +55,7 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
 	 * @throws PreAuthenticatedCredentialsNotFoundException if the environment variable is
 	 * missing and {@code exceptionIfVariableMissing} is set to {@code true}.
 	 */
+	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
 		String principal = (String) request.getAttribute(this.principalEnvironmentVariable);
 
@@ -71,6 +72,7 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
 	 * {@code credentialsEnvironmentVariable} is set, this will be read and used as the
 	 * credentials value. Otherwise a dummy value will be used.
 	 */
+	@Override
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
 		if (this.credentialsEnvironmentVariable != null) {
 			return request.getAttribute(this.credentialsEnvironmentVariable);

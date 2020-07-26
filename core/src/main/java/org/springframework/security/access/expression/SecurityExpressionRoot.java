@@ -73,18 +73,22 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		this.authentication = authentication;
 	}
 
+	@Override
 	public final boolean hasAuthority(String authority) {
 		return hasAnyAuthority(authority);
 	}
 
+	@Override
 	public final boolean hasAnyAuthority(String... authorities) {
 		return hasAnyAuthorityName(null, authorities);
 	}
 
+	@Override
 	public final boolean hasRole(String role) {
 		return hasAnyRole(role);
 	}
 
+	@Override
 	public final boolean hasAnyRole(String... roles) {
 		return hasAnyAuthorityName(this.defaultRolePrefix, roles);
 	}
@@ -102,30 +106,37 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		return false;
 	}
 
+	@Override
 	public final Authentication getAuthentication() {
 		return this.authentication;
 	}
 
+	@Override
 	public final boolean permitAll() {
 		return true;
 	}
 
+	@Override
 	public final boolean denyAll() {
 		return false;
 	}
 
+	@Override
 	public final boolean isAnonymous() {
 		return this.trustResolver.isAnonymous(this.authentication);
 	}
 
+	@Override
 	public final boolean isAuthenticated() {
 		return !isAnonymous();
 	}
 
+	@Override
 	public final boolean isRememberMe() {
 		return this.trustResolver.isRememberMe(this.authentication);
 	}
 
+	@Override
 	public final boolean isFullyAuthenticated() {
 		return !this.trustResolver.isAnonymous(this.authentication)
 				&& !this.trustResolver.isRememberMe(this.authentication);
@@ -179,10 +190,12 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		return this.roles;
 	}
 
+	@Override
 	public boolean hasPermission(Object target, Object permission) {
 		return this.permissionEvaluator.hasPermission(this.authentication, target, permission);
 	}
 
+	@Override
 	public boolean hasPermission(Object targetId, String targetType, Object permission) {
 		return this.permissionEvaluator.hasPermission(this.authentication, (Serializable) targetId, targetType,
 				permission);

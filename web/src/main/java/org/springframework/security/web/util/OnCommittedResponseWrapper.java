@@ -647,10 +647,12 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 			this.delegate.write(b, off, len);
 		}
 
+		@Override
 		public boolean isReady() {
 			return this.delegate.isReady();
 		}
 
+		@Override
 		public void setWriteListener(WriteListener writeListener) {
 			this.delegate.setWriteListener(writeListener);
 		}

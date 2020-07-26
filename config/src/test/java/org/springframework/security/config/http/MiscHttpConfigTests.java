@@ -517,16 +517,17 @@ public class MiscHttpConfigTests {
 
 	@Test
 	public void configureWhenUserDetailsServiceInParentContextThenLocatesSuccessfully() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("MissingUserDetailsService")).autowire())
-				.isInstanceOf(BeansException.class);
+		assertThatCode(
+				() -> this.spring.configLocations(MiscHttpConfigTests.xml("MissingUserDetailsService")).autowire())
+						.isInstanceOf(BeansException.class);
 
 		try (XmlWebApplicationContext parent = new XmlWebApplicationContext()) {
-			parent.setConfigLocations(this.xml("AutoConfig"));
+			parent.setConfigLocations(MiscHttpConfigTests.xml("AutoConfig"));
 			parent.refresh();
 
 			try (XmlWebApplicationContext child = new XmlWebApplicationContext()) {
 				child.setParent(parent);
-				child.setConfigLocation(this.xml("MissingUserDetailsService"));
+				child.setConfigLocation(MiscHttpConfigTests.xml("MissingUserDetailsService"));
 				child.refresh();
 			}
 		}
@@ -810,6 +811,7 @@ public class MiscHttpConfigTests {
 
 	static class MockAuthenticationManager implements AuthenticationManager {
 
+		@Override
 		public Authentication authenticate(Authentication authentication) {
 			return new TestingAuthenticationToken(authentication.getPrincipal(), authentication.getCredentials(),
 					AuthorityUtils.createAuthorityList("ROLE_USER"));

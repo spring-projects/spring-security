@@ -142,6 +142,7 @@ public class SpringTestContext implements Closeable {
 
 	private class AddFilter implements MockMvcConfigurer {
 
+		@Override
 		public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder,
 				WebApplicationContext context) {
 			builder.addFilters(SpringTestContext.this.filters.toArray(new Filter[0]));

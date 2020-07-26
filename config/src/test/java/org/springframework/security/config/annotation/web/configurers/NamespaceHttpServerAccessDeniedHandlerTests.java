@@ -68,6 +68,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@EnableWebSecurity
 	static class AccessDeniedPageConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -96,6 +97,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@EnableWebSecurity
 	static class AccessDeniedPageInLambdaConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -122,6 +124,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@EnableWebSecurity
 	static class AccessDeniedHandlerRefConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -155,6 +158,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 
 		static AccessDeniedHandler accessDeniedHandler = mock(AccessDeniedHandler.class);
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http

@@ -49,6 +49,7 @@ public class PortMapperImpl implements PortMapper {
 		return this.httpsPortMappings;
 	}
 
+	@Override
 	public Integer lookupHttpPort(Integer httpsPort) {
 		for (Integer httpPort : this.httpsPortMappings.keySet()) {
 			if (this.httpsPortMappings.get(httpPort).equals(httpsPort)) {
@@ -59,6 +60,7 @@ public class PortMapperImpl implements PortMapper {
 		return null;
 	}
 
+	@Override
 	public Integer lookupHttpsPort(Integer httpPort) {
 		return this.httpsPortMappings.get(httpPort);
 	}

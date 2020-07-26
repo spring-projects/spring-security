@@ -41,6 +41,7 @@ public class ExpressionBasedPostInvocationAdvice implements PostInvocationAuthor
 		this.expressionHandler = expressionHandler;
 	}
 
+	@Override
 	public Object after(Authentication authentication, MethodInvocation mi, PostInvocationAttribute postAttr,
 			Object returnedObject) throws AccessDeniedException {
 		PostInvocationExpressionAttribute pia = (PostInvocationExpressionAttribute) postAttr;

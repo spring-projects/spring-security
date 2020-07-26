@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
  */
 public final class NullAuthenticatedSessionStrategy implements SessionAuthenticationStrategy {
 
+	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) {
 	}

@@ -41,6 +41,7 @@ public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>
 
 	private SecurityExpressionHandler<Message<T>> expressionHandler = new DefaultMessageSecurityExpressionHandler<>();
 
+	@Override
 	public int vote(Authentication authentication, Message<T> message, Collection<ConfigAttribute> attributes) {
 		assert authentication != null;
 		assert message != null;
@@ -67,10 +68,12 @@ public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>
 		return null;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return attribute instanceof MessageExpressionConfigAttribute;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return Message.class.isAssignableFrom(clazz);
 	}

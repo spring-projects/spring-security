@@ -290,6 +290,7 @@ public class JaasAuthenticationProviderTests {
 			super(loginModule);
 		}
 
+		@Override
 		public void logout() {
 			this.loggedOut = true;
 		}

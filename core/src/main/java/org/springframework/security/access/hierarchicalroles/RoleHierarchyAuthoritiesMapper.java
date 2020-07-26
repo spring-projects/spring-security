@@ -31,6 +31,7 @@ public class RoleHierarchyAuthoritiesMapper implements GrantedAuthoritiesMapper 
 		this.roleHierarchy = roleHierarchy;
 	}
 
+	@Override
 	public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		return this.roleHierarchy.getReachableGrantedAuthorities(authorities);
 	}

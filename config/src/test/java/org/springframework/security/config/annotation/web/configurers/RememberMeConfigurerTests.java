@@ -89,6 +89,7 @@ public class RememberMeConfigurerTests {
 	@EnableWebSecurity
 	static class NullUserDetailsConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -188,6 +189,7 @@ public class RememberMeConfigurerTests {
 			// @formatter:on
 		}
 
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
@@ -327,6 +329,7 @@ public class RememberMeConfigurerTests {
 	@EnableWebSecurity
 	static class RememberMeCookieDomainConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -363,6 +366,7 @@ public class RememberMeConfigurerTests {
 	@EnableWebSecurity
 	static class RememberMeCookieDomainInLambdaConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -401,6 +405,7 @@ public class RememberMeConfigurerTests {
 
 		static RememberMeServices REMEMBER_ME = mock(RememberMeServices.class);
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http

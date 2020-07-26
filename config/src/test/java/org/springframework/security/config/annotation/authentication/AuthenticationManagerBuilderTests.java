@@ -144,6 +144,7 @@ public class AuthenticationManagerBuilderTests {
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -175,6 +176,7 @@ public class AuthenticationManagerBuilderTests {
 	@EnableWebSecurity
 	static class MultiAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user()).and().inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.admin());

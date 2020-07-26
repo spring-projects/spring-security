@@ -51,6 +51,7 @@ public class SimpleAttributes2GrantedAuthoritiesMapper
 	/**
 	 * Check whether all properties have been set to correct values.
 	 */
+	@Override
 	public void afterPropertiesSet() {
 		Assert.isTrue(!(isConvertAttributeToUpperCase() && isConvertAttributeToLowerCase()),
 				"Either convertAttributeToUpperCase or convertAttributeToLowerCase can be set to true, but not both");
@@ -60,6 +61,7 @@ public class SimpleAttributes2GrantedAuthoritiesMapper
 	 * Map the given list of string attributes one-to-one to Spring Security
 	 * GrantedAuthorities.
 	 */
+	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes) {
 		List<GrantedAuthority> result = new ArrayList<>(attributes.size());
 		for (String attribute : attributes) {

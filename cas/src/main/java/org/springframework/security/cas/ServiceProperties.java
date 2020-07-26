@@ -44,6 +44,7 @@ public class ServiceProperties implements InitializingBean {
 
 	private String serviceParameter = DEFAULT_CAS_SERVICE_PARAMETER;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.service, "service cannot be empty.");
 		Assert.hasLength(this.artifactParameter, "artifactParameter cannot be empty.");

@@ -31,6 +31,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 	@EnableWebSecurity
 	static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -45,6 +46,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 	@EnableWebSecurity
 	static class CustomLdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -76,6 +78,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
 		static LdapAuthoritiesPopulator LAP;
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -90,6 +93,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 	@EnableWebSecurity
 	static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth

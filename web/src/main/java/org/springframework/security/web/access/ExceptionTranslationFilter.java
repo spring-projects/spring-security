@@ -105,6 +105,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		Assert.notNull(this.authenticationEntryPoint, "authenticationEntryPoint must be specified");
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
@@ -227,6 +228,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		/**
 		 * @see org.springframework.security.web.util.ThrowableAnalyzer#initExtractorMap()
 		 */
+		@Override
 		protected void initExtractorMap() {
 			super.initExtractorMap();
 

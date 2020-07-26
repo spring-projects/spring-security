@@ -40,6 +40,7 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * @author Rob Winch
  * @since 3.2
  */
+@Deprecated
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 public class WebMvcSecurityConfiguration implements WebMvcConfigurer {

@@ -110,34 +110,42 @@ public class HttpSessionRequestCacheTests {
 			this.delegate = delegate;
 		}
 
+		@Override
 		public String getRedirectUrl() {
 			return this.delegate.getRedirectUrl();
 		}
 
+		@Override
 		public List<Cookie> getCookies() {
 			return this.delegate.getCookies();
 		}
 
+		@Override
 		public String getMethod() {
 			return this.delegate.getMethod();
 		}
 
+		@Override
 		public List<String> getHeaderValues(String name) {
 			return this.delegate.getHeaderValues(name);
 		}
 
+		@Override
 		public Collection<String> getHeaderNames() {
 			return this.delegate.getHeaderNames();
 		}
 
+		@Override
 		public List<Locale> getLocales() {
 			return this.delegate.getLocales();
 		}
 
+		@Override
 		public String[] getParameterValues(String name) {
 			return this.delegate.getParameterValues(name);
 		}
 
+		@Override
 		public Map<String, String[]> getParameterMap() {
 			return this.delegate.getParameterMap();
 		}

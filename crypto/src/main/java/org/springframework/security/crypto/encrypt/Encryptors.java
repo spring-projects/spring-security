@@ -119,10 +119,12 @@ public final class Encryptors {
 
 	private static final class NoOpTextEncryptor implements TextEncryptor {
 
+		@Override
 		public String encrypt(String text) {
 			return text;
 		}
 
+		@Override
 		public String decrypt(String encryptedText) {
 			return encryptedText;
 		}

@@ -36,6 +36,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  */
 public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor {
 
+	@Override
 	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Map<String, Object> attributes) {
 		HttpServletRequest httpRequest = ((ServletServerHttpRequest) request).getServletRequest();
@@ -47,6 +48,7 @@ public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor
 		return true;
 	}
 
+	@Override
 	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Exception exception) {
 	}

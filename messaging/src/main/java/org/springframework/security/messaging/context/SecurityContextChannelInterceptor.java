@@ -96,11 +96,13 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 		cleanup();
 	}
 
+	@Override
 	public Message<?> beforeHandle(Message<?> message, MessageChannel channel, MessageHandler handler) {
 		setup(message);
 		return message;
 	}
 
+	@Override
 	public void afterMessageHandled(Message<?> message, MessageChannel channel, MessageHandler handler, Exception ex) {
 		cleanup();
 	}

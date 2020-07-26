@@ -38,6 +38,7 @@ class HandlerMappingIntrospectorFactoryBean
 
 	private ApplicationContext context;
 
+	@Override
 	public HandlerMappingIntrospector getObject() {
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, "A Bean named "

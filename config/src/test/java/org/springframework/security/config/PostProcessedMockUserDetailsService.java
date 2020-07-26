@@ -34,6 +34,7 @@ public class PostProcessedMockUserDetailsService implements UserDetailsService {
 		this.postProcessorWasHere = postProcessorWasHere;
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) {
 		throw new UnsupportedOperationException("Not for actual use");
 	}

@@ -45,6 +45,7 @@ public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T
 
 	}
 
+	@Override
 	public boolean matches(Message<? extends T> message) {
 		for (MessageMatcher<T> matcher : getMessageMatchers()) {
 			if (this.LOGGER.isDebugEnabled()) {

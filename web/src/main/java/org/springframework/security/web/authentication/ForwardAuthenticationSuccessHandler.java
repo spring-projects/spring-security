@@ -46,6 +46,7 @@ public class ForwardAuthenticationSuccessHandler implements AuthenticationSucces
 		this.forwardUrl = forwardUrl;
 	}
 
+	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 		request.getRequestDispatcher(this.forwardUrl).forward(request, response);

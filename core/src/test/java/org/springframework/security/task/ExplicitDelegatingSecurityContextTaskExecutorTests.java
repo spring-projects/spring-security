@@ -43,10 +43,12 @@ public class ExplicitDelegatingSecurityContextTaskExecutorTests extends Abstract
 		explicitSecurityContextPowermockSetup();
 	}
 
+	@Override
 	protected Executor getExecutor() {
 		return this.taskExecutorDelegate;
 	}
 
+	@Override
 	protected DelegatingSecurityContextExecutor create() {
 		return new DelegatingSecurityContextTaskExecutor(this.taskExecutorDelegate, this.securityContext);
 	}

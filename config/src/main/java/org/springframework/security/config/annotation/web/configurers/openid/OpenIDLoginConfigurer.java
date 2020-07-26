@@ -124,6 +124,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractAuthenticationFilterConfigurer<H, OpenIDLoginConfigurer<H>, OpenIDAuthenticationFilter> {
 

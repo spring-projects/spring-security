@@ -55,6 +55,7 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 	 * invoked
 	 * @throws AccessDeniedException if access is denied
 	 */
+	@Override
 	public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes)
 			throws AccessDeniedException {
 

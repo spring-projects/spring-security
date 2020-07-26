@@ -53,6 +53,7 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource implements
 		this.wasHelper = wasHelper;
 	}
 
+	@Override
 	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(HttpServletRequest context) {
 		return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(context,
 				getWebSphereGroupsBasedGrantedAuthorities());

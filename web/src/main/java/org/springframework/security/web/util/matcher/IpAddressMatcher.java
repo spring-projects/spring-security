@@ -60,6 +60,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 				String.format("IP address %s is too short for bitmask of length %d", ipAddress, this.nMaskBits));
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		return matches(request.getRemoteAddr());
 	}

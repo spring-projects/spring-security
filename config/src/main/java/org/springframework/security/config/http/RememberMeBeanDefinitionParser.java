@@ -67,6 +67,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		this.authenticationManager = authenticationManager;
 	}
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(),
 				pc.extractSource(element));

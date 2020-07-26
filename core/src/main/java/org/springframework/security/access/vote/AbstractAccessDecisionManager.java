@@ -56,6 +56,7 @@ public abstract class AbstractAccessDecisionManager
 		this.decisionVoters = decisionVoters;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notEmpty(this.decisionVoters, "A list of AccessDecisionVoters is required");
 		Assert.notNull(this.messages, "A message source must be set");
@@ -80,10 +81,12 @@ public abstract class AbstractAccessDecisionManager
 		this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		for (AccessDecisionVoter voter : this.decisionVoters) {
 			if (voter.supports(attribute)) {
@@ -103,6 +106,7 @@ public abstract class AbstractAccessDecisionManager
 	 * @param clazz the type of secured object being presented
 	 * @return true if this type is supported
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		for (AccessDecisionVoter voter : this.decisionVoters) {
 			if (!voter.supports(clazz)) {

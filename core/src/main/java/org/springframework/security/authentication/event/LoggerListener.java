@@ -39,6 +39,7 @@ public class LoggerListener implements ApplicationListener<AbstractAuthenticatio
 	 */
 	private boolean logInteractiveAuthenticationSuccessEvents = true;
 
+	@Override
 	public void onApplicationEvent(AbstractAuthenticationEvent event) {
 		if (!this.logInteractiveAuthenticationSuccessEvents && event instanceof InteractiveAuthenticationSuccessEvent) {
 			return;

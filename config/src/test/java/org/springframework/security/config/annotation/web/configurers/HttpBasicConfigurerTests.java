@@ -265,6 +265,7 @@ public class HttpBasicConfigurerTests {
 			// @formatter:on
 		}
 
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(

@@ -159,6 +159,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		}
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
@@ -386,6 +387,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		return this.switchUserMatcher.matches(request);
 	}
 
+	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) throws BeansException {
 		this.eventPublisher = eventPublisher;
 	}
@@ -396,6 +398,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);

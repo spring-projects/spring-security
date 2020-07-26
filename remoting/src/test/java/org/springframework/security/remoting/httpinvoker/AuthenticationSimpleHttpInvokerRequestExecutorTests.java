@@ -102,22 +102,27 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 			super(u);
 		}
 
+		@Override
 		public void connect() {
 			throw new UnsupportedOperationException("mock not implemented");
 		}
 
+		@Override
 		public void disconnect() {
 			throw new UnsupportedOperationException("mock not implemented");
 		}
 
+		@Override
 		public String getRequestProperty(String key) {
 			return this.requestProperties.get(key);
 		}
 
+		@Override
 		public void setRequestProperty(String key, String value) {
 			this.requestProperties.put(key, value);
 		}
 
+		@Override
 		public boolean usingProxy() {
 			throw new UnsupportedOperationException("mock not implemented");
 		}

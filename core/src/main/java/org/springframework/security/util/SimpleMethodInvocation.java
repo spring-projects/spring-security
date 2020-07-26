@@ -43,22 +43,27 @@ public class SimpleMethodInvocation implements MethodInvocation {
 	public SimpleMethodInvocation() {
 	}
 
+	@Override
 	public Object[] getArguments() {
 		return this.arguments;
 	}
 
+	@Override
 	public Method getMethod() {
 		return this.method;
 	}
 
+	@Override
 	public AccessibleObject getStaticPart() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 
+	@Override
 	public Object getThis() {
 		return this.targetObject;
 	}
 
+	@Override
 	public Object proceed() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}

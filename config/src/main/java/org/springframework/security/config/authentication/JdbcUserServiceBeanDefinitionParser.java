@@ -33,10 +33,12 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 	static final String ATT_GROUP_AUTHORITIES_QUERY = "group-authorities-by-username-query";
 	static final String ATT_ROLE_PREFIX = "role-prefix";
 
+	@Override
 	protected String getBeanClassName(Element element) {
 		return "org.springframework.security.provisioning.JdbcUserDetailsManager";
 	}
 
+	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String dataSource = element.getAttribute(ATT_DATA_SOURCE);
 

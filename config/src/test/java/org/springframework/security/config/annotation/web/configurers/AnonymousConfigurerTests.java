@@ -119,6 +119,7 @@ public class AnonymousConfigurerTests {
 			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -151,6 +152,7 @@ public class AnonymousConfigurerTests {
 			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth

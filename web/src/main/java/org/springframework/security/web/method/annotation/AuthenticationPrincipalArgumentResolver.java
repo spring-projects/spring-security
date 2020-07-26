@@ -96,6 +96,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
 	 * supportsParameter (org.springframework.core.MethodParameter)
 	 */
+	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
 	}
@@ -109,6 +110,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	 * org.springframework.web.context.request.NativeWebRequest,
 	 * org.springframework.web.bind.support.WebDataBinderFactory)
 	 */
+	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

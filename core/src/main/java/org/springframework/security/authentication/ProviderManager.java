@@ -127,6 +127,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		checkState();
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		checkState();
 	}
@@ -161,6 +162,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	 * @return a fully authenticated object including credentials.
 	 * @throws AuthenticationException if authentication fails.
 	 */
+	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Class<? extends Authentication> toTest = authentication.getClass();
 		AuthenticationException lastException = null;
@@ -271,6 +273,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		return this.providers;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
@@ -298,9 +301,11 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 
 	private static final class NullEventPublisher implements AuthenticationEventPublisher {
 
+		@Override
 		public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
 		}
 
+		@Override
 		public void publishAuthenticationSuccess(Authentication authentication) {
 		}
 

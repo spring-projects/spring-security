@@ -41,22 +41,27 @@ public class MockMethodInvocation implements MethodInvocation {
 		this.targetObject = targetObject;
 	}
 
+	@Override
 	public Object[] getArguments() {
 		return this.arguments;
 	}
 
+	@Override
 	public Method getMethod() {
 		return this.method;
 	}
 
+	@Override
 	public AccessibleObject getStaticPart() {
 		return null;
 	}
 
+	@Override
 	public Object getThis() {
 		return this.targetObject;
 	}
 
+	@Override
 	public Object proceed() {
 		return null;
 	}

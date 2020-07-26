@@ -72,7 +72,7 @@ public class SecurityEvaluationContextExtensionTests {
 	}
 
 	private SecurityExpressionRoot getRoot() {
-		return (SecurityExpressionRoot) this.securityExtension.getRootObject();
+		return this.securityExtension.getRootObject();
 	}
 
 }

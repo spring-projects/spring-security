@@ -91,6 +91,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	 * @return the encoded password in the specified format
 	 *
 	 */
+	@Override
 	public String encode(CharSequence rawPass) {
 		byte[] salt = this.saltGenerator.generateKey();
 		return encode(rawPass, salt);
@@ -143,6 +144,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	 * @param encodedPassword the actual SSHA or SHA encoded password
 	 * @return true if they match (independent of the case of the prefix).
 	 */
+	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		return matches(rawPassword == null ? null : rawPassword.toString(), encodedPassword);
 	}

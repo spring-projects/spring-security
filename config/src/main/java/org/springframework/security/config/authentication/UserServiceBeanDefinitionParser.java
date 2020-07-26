@@ -51,10 +51,12 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 
 	private SecureRandom random;
 
+	@Override
 	protected String getBeanClassName(Element element) {
 		return InMemoryUserDetailsManager.class.getName();
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String userProperties = element.getAttribute(ATT_PROPERTIES);

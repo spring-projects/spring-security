@@ -113,6 +113,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	 * @param parserContext
 	 * @return the {@link BeanDefinition}
 	 */
+	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		BeanDefinitionRegistry registry = parserContext.getRegistry();
 		XmlReaderContext context = parserContext.getReaderContext();
@@ -234,6 +235,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			this.sameOriginDisabled = sameOriginDisabled;
 		}
 
+		@Override
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 			String[] beanNames = registry.getBeanDefinitionNames();
 			for (String beanName : beanNames) {
@@ -307,6 +309,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			bd.getPropertyValues().add(interceptorPropertyName, interceptors);
 		}
 
+		@Override
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
 		}
@@ -317,30 +320,37 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		private PathMatcher delegate = new AntPathMatcher();
 
+		@Override
 		public boolean isPattern(String path) {
 			return this.delegate.isPattern(path);
 		}
 
+		@Override
 		public boolean match(String pattern, String path) {
 			return this.delegate.match(pattern, path);
 		}
 
+		@Override
 		public boolean matchStart(String pattern, String path) {
 			return this.delegate.matchStart(pattern, path);
 		}
 
+		@Override
 		public String extractPathWithinPattern(String pattern, String path) {
 			return this.delegate.extractPathWithinPattern(pattern, path);
 		}
 
+		@Override
 		public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
 			return this.delegate.extractUriTemplateVariables(pattern, path);
 		}
 
+		@Override
 		public Comparator<String> getPatternComparator(String path) {
 			return this.delegate.getPatternComparator(path);
 		}
 
+		@Override
 		public String combine(String pattern1, String pattern2) {
 			return this.delegate.combine(pattern1, pattern2);
 		}

@@ -31,6 +31,7 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	/**
 	 * @return null since we are not storing any tickets.
 	 */
+	@Override
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
 		return null;
 	}
@@ -38,6 +39,7 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	/**
 	 * This is a no-op since we are not storing tickets.
 	 */
+	@Override
 	public void putTicketInCache(final CasAuthenticationToken token) {
 		// nothing to do
 	}
@@ -45,6 +47,7 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	/**
 	 * This is a no-op since we are not storing tickets.
 	 */
+	@Override
 	public void removeTicketFromCache(final CasAuthenticationToken token) {
 		// nothing to do
 	}
@@ -52,6 +55,7 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	/**
 	 * This is a no-op since we are not storing tickets.
 	 */
+	@Override
 	public void removeTicketFromCache(final String serviceTicket) {
 		// nothing to do
 	}

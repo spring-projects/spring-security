@@ -90,6 +90,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	 * In addition to the steps from the superclass, the sessionRegistry will be updated
 	 * with the new session information.
 	 */
+	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -194,6 +195,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	 * Sets the {@link MessageSource} used for reporting errors back to the user when the
 	 * user has exceeded the maximum number of authentications.
 	 */
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);
