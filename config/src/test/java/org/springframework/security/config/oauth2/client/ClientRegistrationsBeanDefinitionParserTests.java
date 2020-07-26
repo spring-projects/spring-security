@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link ClientRegistrationsBeanDefinitionParser}.
  *
  * @author Ruby Hartono
+ * @author Evgeniy Cheban
  */
 public class ClientRegistrationsBeanDefinitionParserTests {
 
@@ -216,6 +217,20 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(githubProviderDetails.getUserInfoEndpoint().getAuthenticationMethod())
 				.isEqualTo(AuthenticationMethod.HEADER);
 		assertThat(githubProviderDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("id");
+	}
+
+	@Test
+	public void parseWhenClientPlaceholdersThenResolvePlaceholders() {
+		System.setProperty("oauth2.client.id", "github-client-id");
+		System.setProperty("oauth2.client.secret", "github-client-secret");
+
+		this.spring.configLocations(xml("ClientPlaceholders")).autowire();
+
+		assertThat(this.clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
+
+		ClientRegistration githubRegistration = this.clientRegistrationRepository.findByRegistrationId("github");
+		assertThat(githubRegistration.getClientId()).isEqualTo("github-client-id");
+		assertThat(githubRegistration.getClientSecret()).isEqualTo("github-client-secret");
 	}
 
 	private static MockResponse jsonResponse(String json) {
