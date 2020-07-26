@@ -142,6 +142,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@EnableWebSecurity
 	static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -682,6 +683,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().permitAll()
 					.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+						@Override
 						public <O extends FilterSecurityInterceptor> O postProcess(
 								O fsi) {
 							fsi.setPublishAuthorizationSuccess(true);

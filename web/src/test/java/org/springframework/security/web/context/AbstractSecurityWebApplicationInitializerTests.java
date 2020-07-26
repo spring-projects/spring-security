@@ -107,6 +107,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected boolean enableHttpSessionEventPublisher() {
 				return true;
 			}
@@ -129,6 +130,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected EnumSet<DispatcherType> getSecurityDispatcherTypes() {
 				return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.FORWARD);
 			}
@@ -152,6 +154,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected String getDispatcherWebApplicationContextSuffix() {
 				return "dispatcher";
 			}
@@ -191,6 +194,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(anyString(), eq(filter2))).thenReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				insertFilters(context, filter1, filter2);
 			}
@@ -216,6 +220,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				insertFilters(context, filter1);
 			}
@@ -238,6 +243,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				insertFilters(context);
 			}
@@ -259,6 +265,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(anyString(), eq(filter))).thenReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				insertFilters(context, filter, null);
 			}
@@ -282,6 +289,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(anyString(), eq(filter2))).thenReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				appendFilters(context, filter1, filter2);
 			}
@@ -305,6 +313,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				appendFilters(context, filter1);
 			}
@@ -327,6 +336,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				appendFilters(context);
 			}
@@ -348,6 +358,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		when(context.addFilter(anyString(), eq(filter))).thenReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				appendFilters(context, filter, null);
 			}

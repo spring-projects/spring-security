@@ -392,6 +392,7 @@ public class NamespaceSessionManagementTests {
 
 		List<SessionFixationProtectionEvent> events = new ArrayList<>();
 
+		@Override
 		public void onApplicationEvent(SessionFixationProtectionEvent event) {
 			this.events.add(event);
 		}

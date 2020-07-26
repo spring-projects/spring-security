@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 
 public class PythonInterpreterPostInvocationAdvice implements PostInvocationAuthorizationAdvice {
 
+	@Override
 	public Object after(Authentication authentication, MethodInvocation mi, PostInvocationAttribute pia,
 			Object returnedObject) throws AccessDeniedException {
 		return returnedObject;

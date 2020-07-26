@@ -70,6 +70,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 	 * the ACL configuration. If the domain object is null, returns false (this can always
 	 * be overridden using a null check in the expression itself).
 	 */
+	@Override
 	public boolean hasPermission(Authentication authentication, Object domainObject, Object permission) {
 		if (domainObject == null) {
 			return false;
@@ -80,6 +81,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 		return checkPermission(authentication, objectIdentity, permission);
 	}
 
+	@Override
 	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
 			Object permission) {
 		ObjectIdentity objectIdentity = this.objectIdentityGenerator.createObjectIdentity(targetId, targetType);

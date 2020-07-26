@@ -59,6 +59,7 @@ public class DelegatingSecurityContextSchedulingTaskExecutor extends DelegatingS
 		this(delegateAsyncTaskExecutor, null);
 	}
 
+	@Override
 	public boolean prefersShortLivedTasks() {
 		return getDelegate().prefersShortLivedTasks();
 	}

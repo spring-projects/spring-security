@@ -20,6 +20,7 @@ package org.springframework.security.integration.multiannotation;
  */
 public class PreAuthorizeServiceImpl implements PreAuthorizeService {
 
+	@Override
 	public void preAuthorizedMethod() {
 	}
 

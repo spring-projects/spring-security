@@ -57,6 +57,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 	 * @param uri the URI excluding the context path (a default context path setting will
 	 * be used)
 	 */
+	@Override
 	public boolean isAllowed(String uri, Authentication authentication) {
 		return isAllowed(null, uri, null, authentication);
 	}
@@ -78,6 +79,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 	 * be used in evaluation whether access should be granted.
 	 * @return true if access is allowed, false if denied
 	 */
+	@Override
 	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 		Assert.notNull(uri, "uri parameter is required");
 

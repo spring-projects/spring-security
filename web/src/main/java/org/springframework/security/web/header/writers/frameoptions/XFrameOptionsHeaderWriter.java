@@ -83,6 +83,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 * @param request the servlet request
 	 * @param response the servlet response
 	 */
+	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (XFrameOptionsMode.ALLOW_FROM.equals(this.frameOptionsMode)) {
 			String allowFromValue = this.allowFromStrategy.getAllowFromValue(request);

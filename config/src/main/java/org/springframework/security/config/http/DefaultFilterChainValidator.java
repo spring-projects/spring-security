@@ -51,6 +51,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	@Override
 	public void validate(FilterChainProxy fcp) {
 		for (SecurityFilterChain filterChain : fcp.getFilterChains()) {
 			checkLoginPageIsntProtected(fcp, filterChain.getFilters());

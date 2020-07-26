@@ -99,10 +99,12 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 						supportedPrimitives);
 	}
 
+	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
 	}
 
+	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (this.processedBeans.contains(beanName)) {
 			// We already have the metadata for this bean

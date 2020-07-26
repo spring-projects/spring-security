@@ -24,11 +24,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 public class HelloWorldMessageService implements MessageService {
 
+	@Override
 	@PreAuthorize("hasRole('USER')")
 	public String getMessage() {
 		return "Hello World";
 	}
 
+	@Override
 	@RolesAllowed("USER")
 	public String getJsrMessage() {
 		return "Hello JSR";

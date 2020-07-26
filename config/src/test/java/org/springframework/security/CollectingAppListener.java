@@ -40,6 +40,7 @@ public class CollectingAppListener implements ApplicationListener {
 
 	Set<AbstractAuthorizationEvent> authorizationEvents = new HashSet<>();
 
+	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof AbstractAuthenticationEvent) {
 			this.events.add(event);

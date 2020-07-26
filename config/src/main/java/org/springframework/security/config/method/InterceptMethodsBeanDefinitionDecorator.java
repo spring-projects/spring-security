@@ -25,6 +25,7 @@ import org.springframework.aop.config.AbstractInterceptorDrivenBeanDefinitionDec
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -47,6 +48,7 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 
 	private final BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
+	@Override
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
 		MethodConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
 
@@ -66,12 +68,13 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
 
 	private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
+	@Override
 	protected BeanDefinition createInterceptorDefinition(Node node) {
 		Element interceptMethodsElt = (Element) node;
 		BeanDefinitionBuilder interceptor = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
 
 		// Default to autowiring to pick up after invocation mgr
-		interceptor.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
+		interceptor.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
 		String accessManagerId = interceptMethodsElt.getAttribute(ATT_ACCESS_MGR);
 

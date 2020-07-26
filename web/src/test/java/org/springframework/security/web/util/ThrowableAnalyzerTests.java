@@ -56,6 +56,7 @@ public class ThrowableAnalyzerTests {
 	 */
 	public static final class NonStandardExceptionCauseExtractor implements ThrowableCauseExtractor {
 
+		@Override
 		public Throwable extractCause(Throwable throwable) {
 			ThrowableAnalyzer.verifyThrowableHierarchy(throwable, NonStandardException.class);
 			return ((NonStandardException) throwable).resolveCause();

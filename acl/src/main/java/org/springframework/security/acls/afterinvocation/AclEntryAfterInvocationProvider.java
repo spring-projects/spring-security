@@ -74,6 +74,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 		super(aclService, processConfigAttribute, requirePermission);
 	}
 
+	@Override
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 			Object returnedObject) throws AccessDeniedException {
 
@@ -111,6 +112,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 		return returnedObject;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}

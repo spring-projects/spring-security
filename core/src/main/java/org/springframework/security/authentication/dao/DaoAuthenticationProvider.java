@@ -63,6 +63,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 		setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 	}
 
+	@Override
 	@SuppressWarnings("deprecation")
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
@@ -83,10 +84,12 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 		}
 	}
 
+	@Override
 	protected void doAfterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
 	}
 
+	@Override
 	protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
 			throws AuthenticationException {
 		prepareTimingAttackProtection();

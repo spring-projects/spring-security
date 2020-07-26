@@ -35,10 +35,12 @@ public class TestAuthenticationProvider implements AuthenticationProvider {
 	public TestAuthenticationProvider(AuthProviderDependency authProviderDependency) {
 	}
 
+	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
 		throw new UnsupportedOperationException();
 	}

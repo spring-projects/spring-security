@@ -120,6 +120,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 * Try to authenticate a pre-authenticated user with Spring Security if the user has
 	 * not yet been authenticated.
 	 */
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 
@@ -253,6 +254,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	/**
 	 * @param anApplicationEventPublisher The ApplicationEventPublisher to use
 	 */
+	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher anApplicationEventPublisher) {
 		this.eventPublisher = anApplicationEventPublisher;
 	}

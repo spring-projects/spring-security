@@ -119,6 +119,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 		Assert.notNull(this.sessionRegistry, "SessionRegistry required");
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;

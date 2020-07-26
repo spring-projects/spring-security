@@ -161,12 +161,14 @@ public class ChannelProcessingFilterTests {
 			this.supportAttribute = supportAttribute;
 		}
 
+		@Override
 		public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException {
 			if (this.commitAResponse) {
 				invocation.getHttpResponse().sendRedirect("/redirected");
 			}
 		}
 
+		@Override
 		public boolean supports(ConfigAttribute attribute) {
 			if (attribute.getAttribute().equals(this.supportAttribute)) {
 				return true;
@@ -192,6 +194,7 @@ public class ChannelProcessingFilterTests {
 			this.provideIterator = provideIterator;
 		}
 
+		@Override
 		public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
 			FilterInvocation fi = (FilterInvocation) object;
 
@@ -203,6 +206,7 @@ public class ChannelProcessingFilterTests {
 			}
 		}
 
+		@Override
 		public Collection<ConfigAttribute> getAllConfigAttributes() {
 			if (!this.provideIterator) {
 				return null;
@@ -211,6 +215,7 @@ public class ChannelProcessingFilterTests {
 			return this.toReturn;
 		}
 
+		@Override
 		public boolean supports(Class<?> clazz) {
 			return true;
 		}

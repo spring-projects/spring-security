@@ -88,6 +88,7 @@ public class SecurityConfigTests {
 			this.attribute = configuration;
 		}
 
+		@Override
 		public String getAttribute() {
 			return this.attribute;
 		}

@@ -612,7 +612,7 @@ public class SessionManagementConfigTests {
 	}
 
 	private ServletContext servletContext() {
-		WebApplicationContext context = (WebApplicationContext) this.spring.getContext();
+		WebApplicationContext context = this.spring.getContext();
 		return context.getServletContext();
 	}
 

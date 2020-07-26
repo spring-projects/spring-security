@@ -53,7 +53,7 @@ abstract class JsonNodeUtils {
 		}
 		JsonNode nodeValue = jsonNode.findValue(fieldName);
 		if (nodeValue != null && nodeValue.isContainerNode()) {
-			return (T) mapper.convertValue(nodeValue, valueTypeReference);
+			return mapper.convertValue(nodeValue, valueTypeReference);
 		}
 		return null;
 	}

@@ -55,6 +55,7 @@ public class StaticHeadersWriter implements HeaderWriter {
 		this(Collections.singletonList(new Header(headerName, headerValues)));
 	}
 
+	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		for (Header header : this.headers) {
 			if (!response.containsHeader(header.getName())) {

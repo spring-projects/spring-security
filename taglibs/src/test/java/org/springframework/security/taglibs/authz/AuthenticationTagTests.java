@@ -148,6 +148,7 @@ public class AuthenticationTagTests {
 			return this.lastMessage;
 		}
 
+		@Override
 		protected void writeMessage(String msg) {
 			this.lastMessage = msg;
 		}

@@ -63,6 +63,7 @@ public enum PayloadInterceptorOrder implements Ordered {
 		this.order = ordinal() * INTERVAL;
 	}
 
+	@Override
 	public int getOrder() {
 		return this.order;
 	}

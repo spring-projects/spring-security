@@ -68,6 +68,7 @@ public class ServiceAuthenticationDetailsSource
 	 * @return the {@code ServiceAuthenticationDetails} containing information about the
 	 * current request
 	 */
+	@Override
 	public ServiceAuthenticationDetails buildDetails(HttpServletRequest context) {
 		try {
 			return new DefaultServiceAuthenticationDetails(this.serviceProperties.getService(), context,

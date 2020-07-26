@@ -37,10 +37,12 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
 
 	private AuthenticationManager authenticationManager;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.authenticationManager, "authenticationManager is required");
 	}
 
+	@Override
 	public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
 			throws RemoteAuthenticationException {
 		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);

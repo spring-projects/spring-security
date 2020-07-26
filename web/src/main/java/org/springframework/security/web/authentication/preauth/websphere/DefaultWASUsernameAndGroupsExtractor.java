@@ -58,10 +58,12 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 	// SEC-803
 	private static Class<?> wsCredentialClass = null;
 
+	@Override
 	public List<String> getGroupsForCurrentUser() {
 		return getWebSphereGroups(getRunAsSubject());
 	}
 
+	@Override
 	public String getCurrentUserName() {
 		return getSecurityName(getRunAsSubject());
 	}

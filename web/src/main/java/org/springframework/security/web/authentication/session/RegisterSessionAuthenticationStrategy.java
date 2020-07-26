@@ -60,6 +60,7 @@ public class RegisterSessionAuthenticationStrategy implements SessionAuthenticat
 	 * In addition to the steps from the superclass, the sessionRegistry will be updated
 	 * with the new session information.
 	 */
+	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) {
 		this.sessionRegistry.registerNewSession(request.getSession().getId(), authentication.getPrincipal());

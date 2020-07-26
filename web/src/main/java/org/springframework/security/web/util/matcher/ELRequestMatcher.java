@@ -48,6 +48,7 @@ public class ELRequestMatcher implements RequestMatcher {
 		this.expression = parser.parseExpression(el);
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		EvaluationContext context = createELContext(request);
 		return this.expression.getValue(context, Boolean.class);

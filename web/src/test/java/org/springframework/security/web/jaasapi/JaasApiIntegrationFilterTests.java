@@ -100,9 +100,11 @@ public class JaasApiIntegrationFilterTests {
 		};
 		this.testConfiguration = new Configuration() {
 
+			@Override
 			public void refresh() {
 			}
 
+			@Override
 			public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
 				return new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
 						LoginModuleControlFlag.REQUIRED, new HashMap<>()) };
@@ -193,6 +195,7 @@ public class JaasApiIntegrationFilterTests {
 	private void assertJaasSubjectEquals(final Subject expectedValue) throws Exception {
 		MockFilterChain chain = new MockFilterChain() {
 
+			@Override
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
 				// See if the subject was updated

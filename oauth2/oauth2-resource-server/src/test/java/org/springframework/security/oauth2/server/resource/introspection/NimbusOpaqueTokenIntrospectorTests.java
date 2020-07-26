@@ -223,7 +223,6 @@ public class NimbusOpaqueTokenIntrospectorTests {
 
 		OAuth2AuthenticatedPrincipal principal = introspectionClient.introspect("token");
 		assertThat(principal.getAuthorities()).isEmpty();
-		assertThat((Object) principal.getAttribute("scope")).isNotNull().isInstanceOf(JSONArray.class);
 		JSONArray scope = principal.getAttribute("scope");
 		assertThat(scope).containsExactly("read", "write", "dolphin");
 	}

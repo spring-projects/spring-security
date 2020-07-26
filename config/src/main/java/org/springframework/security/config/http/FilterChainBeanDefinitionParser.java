@@ -36,6 +36,7 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
 
+	@Override
 	public BeanDefinition parse(Element elt, ParserContext pc) {
 		MatcherType matcherType = MatcherType.fromElement(elt);
 		String path = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);

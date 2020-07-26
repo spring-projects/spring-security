@@ -59,11 +59,13 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
 	private String rolePrefix = "ROLE_";
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.key,
 				"A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
 	}
 
+	@Override
 	public Authentication buildRunAs(Authentication authentication, Object object,
 			Collection<ConfigAttribute> attributes) {
 		List<GrantedAuthority> newAuthorities = new ArrayList<>();
@@ -108,6 +110,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 		this.rolePrefix = rolePrefix;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return attribute.getAttribute() != null && attribute.getAttribute().startsWith("RUN_AS_");
 	}
@@ -118,6 +121,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 	 * @param clazz the secure object
 	 * @return always <code>true</code>
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}

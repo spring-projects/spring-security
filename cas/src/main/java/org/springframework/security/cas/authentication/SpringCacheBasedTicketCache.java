@@ -39,6 +39,7 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 		this.cache = cache;
 	}
 
+	@Override
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
 		final Cache.ValueWrapper element = serviceTicket != null ? this.cache.get(serviceTicket) : null;
 
@@ -49,6 +50,7 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 		return element == null ? null : (CasAuthenticationToken) element.get();
 	}
 
+	@Override
 	public void putTicketInCache(final CasAuthenticationToken token) {
 		String key = token.getCredentials().toString();
 
@@ -59,6 +61,7 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 		this.cache.put(key, token);
 	}
 
+	@Override
 	public void removeTicketFromCache(final CasAuthenticationToken token) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cache remove: " + token.getCredentials().toString());
@@ -67,6 +70,7 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 		this.removeTicketFromCache(token.getCredentials().toString());
 	}
 
+	@Override
 	public void removeTicketFromCache(final String serviceTicket) {
 		this.cache.evict(serviceTicket);
 	}

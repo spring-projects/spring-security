@@ -40,6 +40,7 @@ import org.springframework.util.xml.DomUtils;
  */
 public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
 		BeanDefinition filterChainProxy = holder.getBeanDefinition();

@@ -34,6 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 final class WithAnonymousUserSecurityContextFactory implements WithSecurityContextFactory<WithAnonymousUser> {
 
+	@Override
 	public SecurityContext createSecurityContext(WithAnonymousUser withUser) {
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
 		Authentication authentication = new AnonymousAuthenticationToken("key", "anonymous", authorities);

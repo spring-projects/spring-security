@@ -48,6 +48,7 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 		updateHeaderValue();
 	}
 
+	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (!response.containsHeader(XSS_PROTECTION_HEADER)) {
 			response.setHeader(XSS_PROTECTION_HEADER, this.headerValue);

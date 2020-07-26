@@ -79,6 +79,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	@EnableWebSecurity
 	static class DefaultLdapConfig extends BaseLdapProviderConfig {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -102,6 +103,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	@EnableWebSecurity
 	static class GroupRolesConfig extends BaseLdapProviderConfig {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -126,6 +128,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	@EnableWebSecurity
 	static class GroupSearchConfig extends BaseLdapProviderConfig {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -150,6 +153,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -174,6 +178,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	@EnableWebSecurity
 	static class RolePrefixConfig extends BaseLdapProviderConfig {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -197,6 +202,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	@EnableWebSecurity
 	static class BindAuthenticationConfig extends BaseLdapServerConfig {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -222,6 +228,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends BaseLdapServerConfig {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -283,6 +290,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 			return auth.build();
 		}
 
+		@Override
 		abstract protected void configure(AuthenticationManagerBuilder auth) throws Exception;
 
 	}

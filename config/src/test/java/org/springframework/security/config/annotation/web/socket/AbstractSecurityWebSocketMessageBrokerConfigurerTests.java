@@ -278,6 +278,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	static class MsmsRegistryCustomPatternMatcherConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		// @formatter:off
+		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
 			registry
 				.addEndpoint("/other")
@@ -330,6 +331,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 			extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		// @formatter:off
+		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
 			registry
 				.addEndpoint("/other")
@@ -382,6 +384,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	static class DefaultPatternMatcherConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		// @formatter:off
+		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
 			registry
 				.addEndpoint("/other")
@@ -467,6 +470,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	static class CustomExpressionConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
 		// @formatter:off
+		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
 			registry
 				.addEndpoint("/other")
@@ -596,10 +600,12 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 	static class MyCustomArgumentResolver implements HandlerMethodArgumentResolver {
 
+		@Override
 		public boolean supportsParameter(MethodParameter parameter) {
 			return parameter.getParameterType().isAssignableFrom(MyCustomArgument.class);
 		}
 
+		@Override
 		public Object resolveArgument(MethodParameter parameter, Message<?> message) {
 			return new MyCustomArgument("");
 		}
@@ -610,6 +616,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 		Map<String, Object> attributes;
 
+		@Override
 		public boolean doHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 				Map<String, Object> attributes) throws HandshakeFailureException {
 			this.attributes = attributes;
@@ -630,6 +637,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	@Import(SyncExecutorConfig.class)
 	static class SockJsSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
+		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
 			registry.addEndpoint("/other").setHandshakeHandler(testHandshakeHandler()).withSockJS()
 					.setInterceptors(new HttpSessionHandshakeInterceptor());
@@ -687,6 +695,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	@Import(SyncExecutorConfig.class)
 	static class NoInboundSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
+		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
 			registry.addEndpoint("/other").withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());
 
@@ -725,6 +734,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	@Import(SyncExecutorConfig.class)
 	static class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
 
+		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
 			registry.addEndpoint("/websocket").setHandshakeHandler(testHandshakeHandler())
 					.addInterceptors(new HttpSessionHandshakeInterceptor());
@@ -754,6 +764,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
 		private ApplicationContext context;
 
+		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
 			registry.addEndpoint("/chat").setHandshakeHandler(this.context.getBean(TestHandshakeHandler.class))
 					.withSockJS().setInterceptors(new HttpSessionHandshakeInterceptor());

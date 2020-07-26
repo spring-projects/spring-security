@@ -133,10 +133,12 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 			this.keyLength = keyLength;
 		}
 
+		@Override
 		public int getKeyLength() {
 			return this.keyLength;
 		}
 
+		@Override
 		public byte[] generateKey() {
 			byte[] bytes = new byte[this.keyLength];
 			this.random.nextBytes(bytes);

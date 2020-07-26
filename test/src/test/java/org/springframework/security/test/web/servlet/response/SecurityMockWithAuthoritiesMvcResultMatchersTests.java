@@ -79,6 +79,7 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			// @formatter:off

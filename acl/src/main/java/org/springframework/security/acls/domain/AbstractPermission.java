@@ -50,6 +50,7 @@ public abstract class AbstractPermission implements Permission {
 		this.code = code;
 	}
 
+	@Override
 	public final boolean equals(Object arg0) {
 		if (arg0 == null) {
 			return false;
@@ -64,18 +65,22 @@ public abstract class AbstractPermission implements Permission {
 		return (this.mask == rhs.getMask());
 	}
 
+	@Override
 	public final int getMask() {
 		return this.mask;
 	}
 
+	@Override
 	public String getPattern() {
 		return AclFormattingUtils.printBinary(this.mask, this.code);
 	}
 
+	@Override
 	public final String toString() {
 		return this.getClass().getSimpleName() + "[" + getPattern() + "=" + this.mask + "]";
 	}
 
+	@Override
 	public final int hashCode() {
 		return this.mask;
 	}

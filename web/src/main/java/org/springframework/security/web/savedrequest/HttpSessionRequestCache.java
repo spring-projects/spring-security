@@ -54,6 +54,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	/**
 	 * Stores the current request, provided the configuration properties allow it.
 	 */
+	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (this.requestMatcher.matches(request)) {
 			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver);
@@ -71,6 +72,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		}
 	}
 
+	@Override
 	public SavedRequest getRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
 
@@ -81,6 +83,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		return null;
 	}
 
+	@Override
 	public void removeRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
 
@@ -90,6 +93,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		}
 	}
 
+	@Override
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		SavedRequest saved = getRequest(request, response);
 

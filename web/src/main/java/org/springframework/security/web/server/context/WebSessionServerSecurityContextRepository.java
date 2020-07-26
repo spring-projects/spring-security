@@ -53,6 +53,7 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 		this.springSecurityContextAttrName = springSecurityContextAttrName;
 	}
 
+	@Override
 	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
 		return exchange.getSession().doOnNext(session -> {
 			if (context == null) {
@@ -70,6 +71,7 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 		}).flatMap(session -> session.changeSessionId());
 	}
 
+	@Override
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
 		return exchange.getSession().flatMap(session -> {
 			SecurityContext context = (SecurityContext) session.getAttribute(this.springSecurityContextAttrName);

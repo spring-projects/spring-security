@@ -55,6 +55,7 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 		return this.authorizeExpression;
 	}
 
+	@Override
 	public String getAttribute() {
 		return null;
 	}

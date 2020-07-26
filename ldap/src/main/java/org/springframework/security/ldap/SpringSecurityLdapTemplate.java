@@ -92,6 +92,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 		class LdapCompareCallback implements ContextExecutor {
 
+			@Override
 			public Object executeWithContext(DirContext ctx) throws NamingException {
 				SearchControls ctls = new SearchControls();
 				ctls.setReturningAttributes(NO_ATTRS);

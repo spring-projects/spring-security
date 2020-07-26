@@ -36,6 +36,7 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 	 * @param configAttribute The config attribute.
 	 * @return whether the config attribute is supported.
 	 */
+	@Override
 	public boolean supports(ConfigAttribute configAttribute) {
 		return configAttribute instanceof Jsr250SecurityConfig;
 	}
@@ -45,6 +46,7 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 	 * @param clazz the class.
 	 * @return true
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
@@ -59,6 +61,7 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 	 * @param definition The configuration definition.
 	 * @return The vote.
 	 */
+	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> definition) {
 		boolean jsr250AttributeFound = false;
 

@@ -80,6 +80,7 @@ public final class RequestHeaderRequestMatcher implements RequestMatcher {
 		this.expectedHeaderValue = expectedHeaderValue;
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		String actualHeaderValue = request.getHeader(this.expectedHeaderName);
 		if (this.expectedHeaderValue == null) {

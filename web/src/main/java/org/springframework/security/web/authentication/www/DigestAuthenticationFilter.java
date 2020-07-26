@@ -111,6 +111,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 		Assert.notNull(this.authenticationEntryPoint, "A DigestAuthenticationEntryPoint is required");
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
@@ -266,6 +267,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}

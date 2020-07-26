@@ -169,6 +169,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 
 			private Set<String> roles = new HashSet<>(Arrays.asList(aRoles));
 
+			@Override
 			public boolean isUserInRole(String arg0) {
 				return this.roles.contains(arg0);
 			}

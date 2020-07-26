@@ -81,8 +81,8 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 
 		InMemoryOAuth2AuthorizedClientService authorizedClientService = new InMemoryOAuth2AuthorizedClientService(
 				clientRegistrationRepository, authorizedClients);
-		assertThat((OAuth2AuthorizedClient) authorizedClientService.loadAuthorizedClient(registrationId,
-				this.principalName1)).isNotNull();
+		assertThat((Object) authorizedClientService.loadAuthorizedClient(registrationId, this.principalName1))
+				.isNotNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

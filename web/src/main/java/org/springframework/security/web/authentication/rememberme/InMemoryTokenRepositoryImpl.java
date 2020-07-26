@@ -32,6 +32,7 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 
 	private final Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<>();
 
+	@Override
 	public synchronized void createNewToken(PersistentRememberMeToken token) {
 		PersistentRememberMeToken current = this.seriesTokens.get(token.getSeries());
 
@@ -42,6 +43,7 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 		this.seriesTokens.put(token.getSeries(), token);
 	}
 
+	@Override
 	public synchronized void updateToken(String series, String tokenValue, Date lastUsed) {
 		PersistentRememberMeToken token = getTokenForSeries(series);
 
@@ -52,10 +54,12 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 		this.seriesTokens.put(series, newToken);
 	}
 
+	@Override
 	public synchronized PersistentRememberMeToken getTokenForSeries(String seriesId) {
 		return this.seriesTokens.get(seriesId);
 	}
 
+	@Override
 	public synchronized void removeUserTokens(String username) {
 		Iterator<String> series = this.seriesTokens.keySet().iterator();
 

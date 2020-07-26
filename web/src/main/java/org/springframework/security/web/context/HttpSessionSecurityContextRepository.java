@@ -109,6 +109,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	 * the session is not an instance of {@code SecurityContext}, a new context object
 	 * will be generated and returned.
 	 */
+	@Override
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
 		HttpServletRequest request = requestResponseHolder.getRequest();
 		HttpServletResponse response = requestResponseHolder.getResponse();
@@ -134,6 +135,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		return context;
 	}
 
+	@Override
 	public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
 		SaveContextOnUpdateOrErrorResponseWrapper responseWrapper = WebUtils.getNativeResponse(response,
 				SaveContextOnUpdateOrErrorResponseWrapper.class);
@@ -150,6 +152,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		}
 	}
 
+	@Override
 	public boolean containsContext(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 

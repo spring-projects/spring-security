@@ -33,9 +33,11 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 public abstract class GlobalAuthenticationConfigurerAdapter
 		implements SecurityConfigurer<AuthenticationManager, AuthenticationManagerBuilder> {
 
+	@Override
 	public void init(AuthenticationManagerBuilder auth) throws Exception {
 	}
 
+	@Override
 	public void configure(AuthenticationManagerBuilder auth) throws Exception {
 	}
 

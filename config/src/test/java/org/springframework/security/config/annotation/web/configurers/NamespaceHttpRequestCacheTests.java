@@ -67,6 +67,7 @@ public class NamespaceHttpRequestCacheTests {
 	@EnableWebSecurity
 	static class RequestCacheRefConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -78,6 +79,7 @@ public class NamespaceHttpRequestCacheTests {
 			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -108,6 +110,7 @@ public class NamespaceHttpRequestCacheTests {
 	@EnableWebSecurity
 	static class DefaultRequestCacheRefConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -116,6 +119,7 @@ public class NamespaceHttpRequestCacheTests {
 			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth

@@ -43,10 +43,12 @@ public class CurrentDelegatingSecurityContextTaskExecutorTests extends AbstractD
 		currentSecurityContextPowermockSetup();
 	}
 
+	@Override
 	protected Executor getExecutor() {
 		return this.taskExecutorDelegate;
 	}
 
+	@Override
 	protected DelegatingSecurityContextExecutor create() {
 		return new DelegatingSecurityContextTaskExecutor(this.taskExecutorDelegate);
 	}

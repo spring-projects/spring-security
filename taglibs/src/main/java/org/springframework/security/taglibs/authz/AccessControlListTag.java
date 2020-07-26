@@ -66,6 +66,7 @@ public class AccessControlListTag extends TagSupport {
 
 	private String var;
 
+	@Override
 	public int doStartTag() throws JspException {
 		if ((null == this.hasPermission) || "".equals(this.hasPermission)) {
 			return skipBody();

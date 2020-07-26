@@ -77,11 +77,13 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 			DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
 			expressionHandler.setPermissionEvaluator(new PermissionEvaluator() {
+				@Override
 				public boolean hasPermission(Authentication authentication, Object targetDomainObject,
 						Object permission) {
 					return "granted".equals(targetDomainObject);
 				}
 
+				@Override
 				public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
 						Object permission) {
 					throw new UnsupportedOperationException();

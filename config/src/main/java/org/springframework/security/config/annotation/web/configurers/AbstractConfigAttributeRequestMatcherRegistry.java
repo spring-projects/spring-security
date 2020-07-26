@@ -69,6 +69,7 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends A
 	 * @return the chained Object for the subclass which allows association of something
 	 * else to the {@link RequestMatcher}
 	 */
+	@Override
 	protected final C chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 		this.unmappedMatchers = requestMatchers;
 		return chainRequestMatchersInternal(requestMatchers);

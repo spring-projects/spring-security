@@ -56,6 +56,7 @@ public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter 
 	 * org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax.servlet
 	 * .http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
+	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (this.requestMatcher.matches(request)) {
 			this.delegateHeaderWriter.writeHeaders(request, response);

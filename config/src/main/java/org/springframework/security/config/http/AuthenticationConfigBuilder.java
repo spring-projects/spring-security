@@ -457,6 +457,7 @@ final class AuthenticationConfigBuilder {
 	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
 	 * supported by <code>spring-security-oauth2</code>.
 	 */
+	@Deprecated
 	private RootBeanDefinition parseOpenIDFilter(BeanReference sessionStrategy, Element openIDLoginElt) {
 		RootBeanDefinition openIDFilter;
 		FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/login/openid", null,

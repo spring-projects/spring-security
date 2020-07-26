@@ -56,7 +56,7 @@ public class OrMessageMatcherTests {
 	@SuppressWarnings("unchecked")
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyArray() {
-		new OrMessageMatcher<>((MessageMatcher<Object>[]) new MessageMatcher[0]);
+		new OrMessageMatcher<>(new MessageMatcher[0]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

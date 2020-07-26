@@ -35,6 +35,7 @@ import org.springframework.security.core.Authentication;
  */
 public class DenyAgainVoter implements AccessDecisionVoter<Object> {
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
 			return true;
@@ -44,10 +45,12 @@ public class DenyAgainVoter implements AccessDecisionVoter<Object> {
 		}
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
 
+	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		Iterator<ConfigAttribute> iter = attributes.iterator();
 

@@ -127,6 +127,7 @@ public abstract class AbstractSecurityInterceptor
 
 	private boolean publishAuthorizationSuccess = false;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(getSecureObjectClass(), "Subclass must provide a non-null response to getSecureObjectClass()");
 		Assert.notNull(this.messages, "A message source must be set");
@@ -419,6 +420,7 @@ public abstract class AbstractSecurityInterceptor
 		this.alwaysReauthenticate = alwaysReauthenticate;
 	}
 
+	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.eventPublisher = applicationEventPublisher;
 	}
@@ -427,6 +429,7 @@ public abstract class AbstractSecurityInterceptor
 		this.authenticationManager = newManager;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
@@ -474,6 +477,7 @@ public abstract class AbstractSecurityInterceptor
 
 	private static class NoOpAuthenticationManager implements AuthenticationManager {
 
+		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			throw new AuthenticationServiceException("Cannot authenticate " + authentication);
 		}

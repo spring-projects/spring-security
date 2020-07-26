@@ -64,6 +64,7 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 		return this.metadataSource;
 	}
 
+	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 		InterceptorStatusToken token = beforeInvocation(message);
 		if (token != null) {
@@ -72,24 +73,29 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 		return message;
 	}
 
+	@Override
 	public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
 		InterceptorStatusToken token = clearToken();
 		afterInvocation(token, null);
 	}
 
+	@Override
 	public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
 		InterceptorStatusToken token = clearToken();
 		finallyInvocation(token);
 	}
 
+	@Override
 	public boolean preReceive(MessageChannel channel) {
 		return true;
 	}
 
+	@Override
 	public Message<?> postReceive(Message<?> message, MessageChannel channel) {
 		return message;
 	}
 
+	@Override
 	public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
 	}
 

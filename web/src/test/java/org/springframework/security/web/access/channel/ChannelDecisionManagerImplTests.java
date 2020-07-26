@@ -199,6 +199,7 @@ public class ChannelDecisionManagerImplTests {
 			this.failIfCalled = failIfCalled;
 		}
 
+		@Override
 		public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException {
 			Iterator iter = config.iterator();
 
@@ -217,6 +218,7 @@ public class ChannelDecisionManagerImplTests {
 			}
 		}
 
+		@Override
 		public boolean supports(ConfigAttribute attribute) {
 			if (attribute.getAttribute().equals(this.configAttribute)) {
 				return true;

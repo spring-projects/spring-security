@@ -60,6 +60,7 @@ public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 	 * {@link #getIdToken()} and {@link #getUserInfo()} (if available).
 	 * @return a {@code Map} of claims about the user
 	 */
+	@Override
 	Map<String, Object> getClaims();
 
 	/**

@@ -91,10 +91,12 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 		this.metadataSourceBeanName = attributeSourceBeanName;
 	}
 
+	@Override
 	public Pointcut getPointcut() {
 		return this.pointcut;
 	}
 
+	@Override
 	public Advice getAdvice() {
 		synchronized (this.adviceMonitor) {
 			if (this.interceptor == null) {
@@ -106,6 +108,7 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 		}
 	}
 
+	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		this.beanFactory = beanFactory;
 	}
@@ -119,6 +122,7 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 
 	class MethodSecurityMetadataSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public boolean matches(Method m, Class targetClass) {
 			Collection attributes = MethodSecurityMetadataSourceAdvisor.this.attributeSource.getAttributes(m,

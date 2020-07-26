@@ -199,10 +199,12 @@ public final class Saml2X509Credential {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		Saml2X509Credential that = (Saml2X509Credential) o;
 		return Objects.equals(this.privateKey, that.privateKey) && this.certificate.equals(that.certificate)
 				&& this.credentialTypes.equals(that.credentialTypes);

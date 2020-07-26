@@ -105,6 +105,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
 	 * @see org.springframework.web.WebApplicationInitializer#onStartup(javax.servlet.
 	 * ServletContext)
 	 */
+	@Override
 	public final void onStartup(ServletContext servletContext) {
 		beforeSpringSecurityFilterChain(servletContext);
 		if (this.configurationClasses != null) {

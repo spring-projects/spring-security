@@ -51,6 +51,7 @@ public class PasswordEncoderConfigurerTests {
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = passwordEncoder();
 			// @formatter:off
@@ -82,6 +83,7 @@ public class PasswordEncoderConfigurerTests {
 	@EnableWebSecurity
 	static class PasswordEncoderNoAuthManagerLoadsConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = passwordEncoder();
 			// @formatter:off

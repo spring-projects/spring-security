@@ -130,6 +130,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 		private Thread t;
 
+		@Override
 		public Thread newThread(Runnable r) {
 			this.t = new Thread(r);
 			return this.t;
@@ -143,6 +144,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 	private class VerifyingCallable implements Callable<SecurityContext> {
 
+		@Override
 		public SecurityContext call() {
 			return SecurityContextHolder.getContext();
 		}

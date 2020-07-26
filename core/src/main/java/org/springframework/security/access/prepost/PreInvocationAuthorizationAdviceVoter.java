@@ -48,14 +48,17 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
 		this.preAdvice = pre;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return attribute instanceof PreInvocationAttribute;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return MethodInvocation.class.isAssignableFrom(clazz);
 	}
 
+	@Override
 	public int vote(Authentication authentication, MethodInvocation method, Collection<ConfigAttribute> attributes) {
 
 		// Find prefilter and preauth (or combined) attributes

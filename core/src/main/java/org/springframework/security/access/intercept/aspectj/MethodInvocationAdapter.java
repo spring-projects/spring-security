@@ -78,22 +78,27 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 		return method;
 	}
 
+	@Override
 	public Method getMethod() {
 		return this.method;
 	}
 
+	@Override
 	public Object[] getArguments() {
 		return this.jp.getArgs();
 	}
 
+	@Override
 	public AccessibleObject getStaticPart() {
 		return this.method;
 	}
 
+	@Override
 	public Object getThis() {
 		return this.target;
 	}
 
+	@Override
 	public Object proceed() throws Throwable {
 		return this.jp.proceed();
 	}

@@ -32,6 +32,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
@@ -79,6 +80,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	 * Returns 'null' always, as no credentials are processed by the OpenID provider.
 	 * @see org.springframework.security.core.Authentication#getCredentials()
 	 */
+	@Override
 	public Object getCredentials() {
 		return null;
 	}
@@ -96,6 +98,7 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	 *
 	 * @see org.springframework.security.core.Authentication#getPrincipal()
 	 */
+	@Override
 	public Object getPrincipal() {
 		return this.principal;
 	}

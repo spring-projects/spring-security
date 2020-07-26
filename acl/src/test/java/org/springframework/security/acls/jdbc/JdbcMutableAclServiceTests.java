@@ -392,8 +392,8 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 
 		try {
 			this.jdbcMutableAclService.setForeignKeysInDatabase(false); // switch on FK
-																	// checking in the
-																	// class, not database
+			// checking in the
+			// class, not database
 			this.jdbcMutableAclService.deleteAcl(getTopParentOid(), false);
 			fail("It should have thrown ChildrenExistException");
 		}
@@ -401,7 +401,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 		}
 		finally {
 			this.jdbcMutableAclService.setForeignKeysInDatabase(true); // restore to the
-																	// default
+																		// default
 		}
 	}
 

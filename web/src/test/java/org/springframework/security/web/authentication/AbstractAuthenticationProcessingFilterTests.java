@@ -506,6 +506,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 			this.grantAccess = true;
 		}
 
+		@Override
 		public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 				throws AuthenticationException {
 			if (this.grantAccess) {
@@ -532,6 +533,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 			this.expectToProceed = expectToProceed;
 		}
 
+		@Override
 		public void doFilter(ServletRequest request, ServletResponse response) {
 			if (!this.expectToProceed) {
 				fail("Did not expect filter chain to proceed");

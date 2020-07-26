@@ -453,6 +453,7 @@ public class NamespaceHttpTests {
 
 		static class MyRequestMatcher implements RequestMatcher {
 
+			@Override
 			public boolean matches(HttpServletRequest request) {
 				return true;
 			}

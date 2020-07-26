@@ -121,6 +121,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 		return findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
 	}
 
+	@Override
 	public Mono<Object> resolveArgument(MethodParameter parameter, Message<?> message) {
 		ReactiveAdapter adapter = this.adapterRegistry.getAdapter(parameter.getParameterType());
 		return ReactiveSecurityContextHolder.getContext().flatMap(securityContext -> {

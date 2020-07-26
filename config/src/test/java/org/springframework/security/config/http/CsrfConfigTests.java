@@ -51,7 +51,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -148,8 +147,7 @@ public class CsrfConfigTests {
 	public void traceWhenDefaultConfigurationThenCsrfIsEnabled() throws Exception {
 		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
-		MockMvc traceEnabled = MockMvcBuilders.webAppContextSetup((WebApplicationContext) this.spring.getContext())
-				.apply(springSecurity())
+		MockMvc traceEnabled = MockMvcBuilders.webAppContextSetup(this.spring.getContext()).apply(springSecurity())
 				.addDispatcherServletCustomizer(dispatcherServlet -> dispatcherServlet.setDispatchTraceRequest(true))
 				.build();
 
@@ -226,8 +224,7 @@ public class CsrfConfigTests {
 	public void traceWhenCsrfElementEnabledThenOk() throws Exception {
 		this.spring.configLocations(this.xml("shared-controllers"), this.xml("CsrfEnabled")).autowire();
 
-		MockMvc traceEnabled = MockMvcBuilders.webAppContextSetup((WebApplicationContext) this.spring.getContext())
-				.apply(springSecurity())
+		MockMvc traceEnabled = MockMvcBuilders.webAppContextSetup(this.spring.getContext()).apply(springSecurity())
 				.addDispatcherServletCustomizer(dispatcherServlet -> dispatcherServlet.setDispatchTraceRequest(true))
 				.build();
 

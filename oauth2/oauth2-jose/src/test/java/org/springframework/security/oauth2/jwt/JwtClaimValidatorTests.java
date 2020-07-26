@@ -51,8 +51,7 @@ public class JwtClaimValidatorTests {
 
 	@Test
 	public void validateWhenClaimIsNullThenThrowsIllegalArgumentException() {
-		assertThatThrownBy(() -> new JwtClaimValidator<String>(null, test))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new JwtClaimValidator<>(null, test)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

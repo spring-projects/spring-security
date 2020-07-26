@@ -60,6 +60,7 @@ final class AutowireBeanFactoryObjectPostProcessor
 	 * org.springframework.security.config.annotation.web.Initializer#initialize(java.
 	 * lang.Object)
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T postProcess(T object) {
 		if (object == null) {
@@ -101,6 +102,7 @@ final class AutowireBeanFactoryObjectPostProcessor
 	 *
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 */
+	@Override
 	public void destroy() {
 		for (DisposableBean disposable : this.disposableBeans) {
 			try {

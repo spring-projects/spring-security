@@ -121,34 +121,42 @@ public class User implements UserDetails, CredentialsContainer {
 		this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
 	}
 
+	@Override
 	public Collection<GrantedAuthority> getAuthorities() {
 		return this.authorities;
 	}
 
+	@Override
 	public String getPassword() {
 		return this.password;
 	}
 
+	@Override
 	public String getUsername() {
 		return this.username;
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return this.enabled;
 	}
 
+	@Override
 	public boolean isAccountNonExpired() {
 		return this.accountNonExpired;
 	}
 
+	@Override
 	public boolean isAccountNonLocked() {
 		return this.accountNonLocked;
 	}
 
+	@Override
 	public boolean isCredentialsNonExpired() {
 		return this.credentialsNonExpired;
 	}
 
+	@Override
 	public void eraseCredentials() {
 		this.password = null;
 	}
@@ -171,6 +179,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
+		@Override
 		public int compare(GrantedAuthority g1, GrantedAuthority g2) {
 			// Neither should ever be null as each entry is checked before adding it to
 			// the set.

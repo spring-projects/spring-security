@@ -245,6 +245,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 
 	static class Parent implements IParent {
 
+		@Override
 		public void interfaceMethod() {
 		}
 

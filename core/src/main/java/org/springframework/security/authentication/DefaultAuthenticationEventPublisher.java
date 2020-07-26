@@ -93,12 +93,14 @@ public class DefaultAuthenticationEventPublisher
 				AuthenticationFailureBadCredentialsEvent.class);
 	}
 
+	@Override
 	public void publishAuthenticationSuccess(Authentication authentication) {
 		if (this.applicationEventPublisher != null) {
 			this.applicationEventPublisher.publishEvent(new AuthenticationSuccessEvent(authentication));
 		}
 	}
 
+	@Override
 	public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
 		Constructor<? extends AbstractAuthenticationEvent> constructor = getEventConstructor(exception);
 		AbstractAuthenticationEvent event = null;
@@ -129,6 +131,7 @@ public class DefaultAuthenticationEventPublisher
 		return (eventConstructor == null ? this.defaultAuthenticationFailureEventConstructor : eventConstructor);
 	}
 
+	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
 	}

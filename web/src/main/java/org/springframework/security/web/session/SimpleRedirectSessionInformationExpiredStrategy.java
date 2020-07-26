@@ -51,6 +51,7 @@ public final class SimpleRedirectSessionInformationExpiredStrategy implements Se
 		this.redirectStrategy = redirectStrategy;
 	}
 
+	@Override
 	public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {
 		this.logger.debug("Redirecting to '" + this.destinationUrl + "'");
 		this.redirectStrategy.sendRedirect(event.getRequest(), event.getResponse(), this.destinationUrl);

@@ -123,6 +123,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 	private static final String ATT_META_DATA_SOURCE_REF = "metadata-source-ref";
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(),
 				pc.extractSource(element));
@@ -485,6 +486,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 			this.authMgrBean = StringUtils.hasText(authMgrBean) ? authMgrBean : BeanIds.AUTHENTICATION_MANAGER;
 		}
 
+		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			synchronized (this.delegateMonitor) {
 				if (this.delegate == null) {
@@ -506,6 +508,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 			return this.delegate.authenticate(authentication);
 		}
 
+		@Override
 		public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 			this.beanFactory = beanFactory;
 		}
@@ -567,6 +570,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 			this.beanName = beanName;
 		}
 
+		@Override
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 			if (!registry.containsBeanDefinition(this.beanName)) {
 				return;
@@ -575,6 +579,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 			beanDefinition.setLazyInit(true);
 		}
 
+		@Override
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		}
 

@@ -91,6 +91,7 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	 * @return the {@link UserDetailsService} that is used with the
 	 * {@link DaoAuthenticationProvider}
 	 */
+	@Override
 	public U getUserDetailsService() {
 		return this.userDetailsService;
 	}

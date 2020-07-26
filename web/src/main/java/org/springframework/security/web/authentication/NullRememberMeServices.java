@@ -31,13 +31,16 @@ import org.springframework.security.core.Authentication;
  */
 public class NullRememberMeServices implements RememberMeServices {
 
+	@Override
 	public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 
+	@Override
 	public void loginFail(HttpServletRequest request, HttpServletResponse response) {
 	}
 
+	@Override
 	public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication successfulAuthentication) {
 	}

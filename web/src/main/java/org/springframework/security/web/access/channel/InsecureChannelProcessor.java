@@ -46,11 +46,13 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 
 	private String insecureKeyword = "REQUIRES_INSECURE_CHANNEL";
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.insecureKeyword, "insecureKeyword required");
 		Assert.notNull(this.entryPoint, "entryPoint required");
 	}
 
+	@Override
 	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
 			throws IOException, ServletException {
 		if ((invocation == null) || (config == null)) {
@@ -82,6 +84,7 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 		this.insecureKeyword = secureKeyword;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return (attribute != null) && (attribute.getAttribute() != null)
 				&& attribute.getAttribute().equals(getInsecureKeyword());

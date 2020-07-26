@@ -115,6 +115,7 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 
 	private static final class SecureRequestMatcher implements RequestMatcher {
 
+		@Override
 		public boolean matches(HttpServletRequest request) {
 			return request.isSecure();
 		}

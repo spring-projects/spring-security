@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class MockOpenIDConsumer implements OpenIDConsumer {
 
 	private OpenIDAuthenticationToken token;
@@ -46,10 +47,12 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
 		this.token = token;
 	}
 
+	@Override
 	public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm) {
 		return this.redirectUrl;
 	}
 
+	@Override
 	public OpenIDAuthenticationToken endConsumption(HttpServletRequest req) {
 		return this.token;
 	}

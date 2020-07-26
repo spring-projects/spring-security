@@ -235,6 +235,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 
 	private static final class DefaultThrowableAnalyzer extends ThrowableAnalyzer {
 
+		@Override
 		protected void initExtractorMap() {
 			super.initExtractorMap();
 			registerExtractor(ServletException.class, throwable -> {

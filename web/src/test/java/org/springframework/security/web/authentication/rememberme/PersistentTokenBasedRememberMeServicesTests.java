@@ -147,19 +147,23 @@ public class PersistentTokenBasedRememberMeServicesTests {
 			this.storedToken = token;
 		}
 
+		@Override
 		public void createNewToken(PersistentRememberMeToken token) {
 			this.storedToken = token;
 		}
 
+		@Override
 		public void updateToken(String series, String tokenValue, Date lastUsed) {
 			this.storedToken = new PersistentRememberMeToken(this.storedToken.getUsername(),
 					this.storedToken.getSeries(), tokenValue, lastUsed);
 		}
 
+		@Override
 		public PersistentRememberMeToken getTokenForSeries(String seriesId) {
 			return this.storedToken;
 		}
 
+		@Override
 		public void removeUserTokens(String username) {
 		}
 

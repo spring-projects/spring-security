@@ -30,10 +30,12 @@ final class ThreadLocalSecurityContextHolderStrategy implements SecurityContextH
 
 	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
 
+	@Override
 	public void clearContext() {
 		contextHolder.remove();
 	}
 
+	@Override
 	public SecurityContext getContext() {
 		SecurityContext ctx = contextHolder.get();
 
@@ -45,11 +47,13 @@ final class ThreadLocalSecurityContextHolderStrategy implements SecurityContextH
 		return ctx;
 	}
 
+	@Override
 	public void setContext(SecurityContext context) {
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
 		contextHolder.set(context);
 	}
 
+	@Override
 	public SecurityContext createEmptyContext() {
 		return new SecurityContextImpl();
 	}

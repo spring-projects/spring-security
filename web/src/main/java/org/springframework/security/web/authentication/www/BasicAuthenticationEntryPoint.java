@@ -44,10 +44,12 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 
 	private String realmName;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.hasText(this.realmName, "realmName must be specified");
 	}
 
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
 		response.addHeader("WWW-Authenticate", "Basic realm=\"" + this.realmName + "\"");

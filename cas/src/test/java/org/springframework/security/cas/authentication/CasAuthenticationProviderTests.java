@@ -378,6 +378,7 @@ public class CasAuthenticationProviderTests {
 
 	private class MockAuthoritiesPopulator implements AuthenticationUserDetailsService {
 
+		@Override
 		public UserDetails loadUserDetails(final Authentication token) throws UsernameNotFoundException {
 			return makeUserDetailsFromAuthoritiesPopulator();
 		}
@@ -388,18 +389,22 @@ public class CasAuthenticationProviderTests {
 
 		private Map<String, CasAuthenticationToken> cache = new HashMap<>();
 
+		@Override
 		public CasAuthenticationToken getByTicketId(String serviceTicket) {
 			return this.cache.get(serviceTicket);
 		}
 
+		@Override
 		public void putTicketInCache(CasAuthenticationToken token) {
 			this.cache.put(token.getCredentials().toString(), token);
 		}
 
+		@Override
 		public void removeTicketFromCache(CasAuthenticationToken token) {
 			throw new UnsupportedOperationException("mock method not implemented");
 		}
 
+		@Override
 		public void removeTicketFromCache(String serviceTicket) {
 			throw new UnsupportedOperationException("mock method not implemented");
 		}
@@ -414,6 +419,7 @@ public class CasAuthenticationProviderTests {
 			this.returnTicket = returnTicket;
 		}
 
+		@Override
 		public Assertion validate(final String ticket, final String service) {
 			if (this.returnTicket) {
 				return new AssertionImpl("rod");

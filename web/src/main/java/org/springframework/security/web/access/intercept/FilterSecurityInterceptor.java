@@ -55,12 +55,14 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	 * @param arg0 ignored
 	 *
 	 */
+	@Override
 	public void init(FilterConfig arg0) {
 	}
 
 	/**
 	 * Not used (we rely on IoC container lifecycle services instead)
 	 */
+	@Override
 	public void destroy() {
 	}
 
@@ -73,6 +75,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	 * @throws IOException if the filter chain fails
 	 * @throws ServletException if the filter chain fails
 	 */
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		FilterInvocation fi = new FilterInvocation(request, response, chain);
@@ -83,6 +86,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 		return this.securityMetadataSource;
 	}
 
+	@Override
 	public SecurityMetadataSource obtainSecurityMetadataSource() {
 		return this.securityMetadataSource;
 	}
@@ -91,6 +95,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 		this.securityMetadataSource = newSource;
 	}
 
+	@Override
 	public Class<?> getSecureObjectClass() {
 		return FilterInvocation.class;
 	}

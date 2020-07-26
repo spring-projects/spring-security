@@ -64,6 +64,7 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvo
 	 * @return <code>true</code> if the secure object is <code>MethodInvocation</code>,
 	 * <code>false</code> otherwise
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return (MethodInvocation.class.isAssignableFrom(clazz));
 	}

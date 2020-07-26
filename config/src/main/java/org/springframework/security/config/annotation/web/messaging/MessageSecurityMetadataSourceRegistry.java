@@ -417,6 +417,7 @@ public class MessageSecurityMetadataSourceRegistry {
 			this.matcher = matcher;
 		}
 
+		@Override
 		public MessageMatcher<?> build() {
 			return this.matcher;
 		}
@@ -434,6 +435,7 @@ public class MessageSecurityMetadataSourceRegistry {
 			this.type = type;
 		}
 
+		@Override
 		public MessageMatcher<?> build() {
 			if (this.type == null) {
 				return new SimpDestinationMessageMatcher(this.pattern,
@@ -462,30 +464,37 @@ public class MessageSecurityMetadataSourceRegistry {
 
 		private PathMatcher delegate = new AntPathMatcher();
 
+		@Override
 		public boolean isPattern(String path) {
 			return this.delegate.isPattern(path);
 		}
 
+		@Override
 		public boolean match(String pattern, String path) {
 			return this.delegate.match(pattern, path);
 		}
 
+		@Override
 		public boolean matchStart(String pattern, String path) {
 			return this.delegate.matchStart(pattern, path);
 		}
 
+		@Override
 		public String extractPathWithinPattern(String pattern, String path) {
 			return this.delegate.extractPathWithinPattern(pattern, path);
 		}
 
+		@Override
 		public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
 			return this.delegate.extractUriTemplateVariables(pattern, path);
 		}
 
+		@Override
 		public Comparator<String> getPatternComparator(String path) {
 			return this.delegate.getPatternComparator(path);
 		}
 
+		@Override
 		public String combine(String pattern1, String pattern2) {
 			return this.delegate.combine(pattern1, pattern2);
 		}

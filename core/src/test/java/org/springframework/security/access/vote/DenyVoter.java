@@ -37,6 +37,7 @@ import org.springframework.security.core.Authentication;
  */
 public class DenyVoter implements AccessDecisionVoter<Object> {
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		if ("DENY_FOR_SURE".equals(attribute.getAttribute())) {
 			return true;
@@ -46,10 +47,12 @@ public class DenyVoter implements AccessDecisionVoter<Object> {
 		}
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
 
+	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		Iterator<ConfigAttribute> iter = attributes.iterator();
 

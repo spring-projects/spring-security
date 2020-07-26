@@ -47,6 +47,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 
 	private Set<String> mappableAttributes = null;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.attributes2grantedAuthoritiesMap, "attributes2grantedAuthoritiesMap must be set");
 	}
@@ -54,6 +55,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	/**
 	 * Map the given array of attributes to Spring Security GrantedAuthorities.
 	 */
+	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes) {
 		ArrayList<GrantedAuthority> gaList = new ArrayList<>();
 		for (String attribute : attributes) {
@@ -166,6 +168,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 *
 	 * @see org.springframework.security.core.authority.mapping.MappableAttributesRetriever#getMappableAttributes()
 	 */
+	@Override
 	public Set<String> getMappableAttributes() {
 		return this.mappableAttributes;
 	}

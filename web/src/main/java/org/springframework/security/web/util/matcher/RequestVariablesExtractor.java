@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
  * @deprecated use {@link RequestMatcher.MatchResult} from
  * {@link RequestMatcher#matcher(HttpServletRequest)}
  */
+@Deprecated
 public interface RequestVariablesExtractor {
 
 	/**

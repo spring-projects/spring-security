@@ -38,6 +38,7 @@ public interface Sid extends Serializable {
 	 * @param obj to be compared
 	 * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
 	 */
+	@Override
 	boolean equals(Object obj);
 
 	/**
@@ -45,6 +46,7 @@ public interface Sid extends Serializable {
 	 * contract.
 	 * @return a hash code representation of this object
 	 */
+	@Override
 	int hashCode();
 
 }

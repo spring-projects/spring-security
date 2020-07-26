@@ -52,6 +52,7 @@ public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
 		this.aclService = aclService;
 	}
 
+	@Override
 	public void cachePermissionsFor(Authentication authentication, Collection<?> objects) {
 		if (objects.isEmpty()) {
 			return;

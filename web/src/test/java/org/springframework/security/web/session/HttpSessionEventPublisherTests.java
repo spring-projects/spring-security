@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +44,7 @@ public class HttpSessionEventPublisherTests {
 		StaticWebApplicationContext context = new StaticWebApplicationContext();
 
 		MockServletContext servletContext = new MockServletContext();
-		servletContext.setAttribute(StaticWebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
+		servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
 
 		context.setServletContext(servletContext);
 		context.registerSingleton("listener", MockApplicationListener.class, null);

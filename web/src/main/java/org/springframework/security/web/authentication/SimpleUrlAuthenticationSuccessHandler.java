@@ -55,6 +55,7 @@ public class SimpleUrlAuthenticationSuccessHandler extends AbstractAuthenticatio
 	 * URL, and then calls {@code clearAuthenticationAttributes()} to remove any leftover
 	 * session data.
 	 */
+	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 

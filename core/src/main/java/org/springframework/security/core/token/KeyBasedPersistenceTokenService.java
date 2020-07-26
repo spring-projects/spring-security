@@ -81,6 +81,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 
 	private SecureRandom secureRandom;
 
+	@Override
 	public Token allocateToken(String extendedInformation) {
 		Assert.notNull(extendedInformation, "Must provided non-null extendedInformation (but it can be empty)");
 		long creationTime = new Date().getTime();
@@ -96,6 +97,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		return new DefaultToken(key, creationTime, extendedInformation);
 	}
 
+	@Override
 	public Token verifyToken(String key) {
 		if (key == null || "".equals(key)) {
 			return null;
@@ -172,6 +174,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		this.serverInteger = serverInteger;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.hasText(this.serverSecret, "Server secret required");
 		Assert.notNull(this.serverInteger, "Server integer required");

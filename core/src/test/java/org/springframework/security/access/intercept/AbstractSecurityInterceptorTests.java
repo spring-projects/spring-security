@@ -60,10 +60,12 @@ public class AbstractSecurityInterceptorTests {
 
 		private SecurityMetadataSource securityMetadataSource;
 
+		@Override
 		public Class<?> getSecureObjectClass() {
 			return null;
 		}
 
+		@Override
 		public SecurityMetadataSource obtainSecurityMetadataSource() {
 			return this.securityMetadataSource;
 		}
@@ -78,10 +80,12 @@ public class AbstractSecurityInterceptorTests {
 
 		private SecurityMetadataSource securityMetadataSource;
 
+		@Override
 		public Class<?> getSecureObjectClass() {
 			return String.class;
 		}
 
+		@Override
 		public SecurityMetadataSource obtainSecurityMetadataSource() {
 			return this.securityMetadataSource;
 		}

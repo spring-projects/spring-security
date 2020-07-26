@@ -106,6 +106,7 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 
 		List<AbstractAuthenticationEvent> events = new ArrayList<>();
 
+		@Override
 		public void onApplicationEvent(AbstractAuthenticationEvent event) {
 			this.events.add(event);
 		}

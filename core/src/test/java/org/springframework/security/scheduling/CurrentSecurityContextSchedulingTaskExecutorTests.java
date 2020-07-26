@@ -35,6 +35,7 @@ public class CurrentSecurityContextSchedulingTaskExecutorTests
 		currentSecurityContextPowermockSetup();
 	}
 
+	@Override
 	protected DelegatingSecurityContextSchedulingTaskExecutor create() {
 		return new DelegatingSecurityContextSchedulingTaskExecutor(this.taskExecutorDelegate);
 	}

@@ -38,6 +38,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 
 	private Ehcache cache;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.cache, "cache mandatory");
 	}
@@ -46,6 +47,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 		return this.cache;
 	}
 
+	@Override
 	public UserDetails getUserFromCache(String username) {
 		Element element = this.cache.get(username);
 
@@ -61,6 +63,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 		}
 	}
 
+	@Override
 	public void putUserInCache(UserDetails user) {
 		Element element = new Element(user.getUsername(), user);
 
@@ -79,6 +82,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 		this.removeUserFromCache(user.getUsername());
 	}
 
+	@Override
 	public void removeUserFromCache(String username) {
 		this.cache.remove(username);
 	}

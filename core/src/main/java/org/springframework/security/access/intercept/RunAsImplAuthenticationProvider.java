@@ -46,10 +46,12 @@ public class RunAsImplAuthenticationProvider implements InitializingBean, Authen
 
 	private String key;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.key, "A Key is required and should match that configured for the RunAsManagerImpl");
 	}
 
+	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		RunAsUserToken token = (RunAsUserToken) authentication;
 
@@ -70,10 +72,12 @@ public class RunAsImplAuthenticationProvider implements InitializingBean, Authen
 		this.key = key;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
 		return RunAsUserToken.class.isAssignableFrom(authentication);
 	}

@@ -64,6 +64,7 @@ final class PermitAllSupport {
 			this.processUrl = processUrl;
 		}
 
+		@Override
 		public boolean matches(HttpServletRequest request) {
 			String uri = request.getRequestURI();
 			String query = request.getQueryString();

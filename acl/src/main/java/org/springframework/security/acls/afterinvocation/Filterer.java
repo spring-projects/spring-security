@@ -36,6 +36,7 @@ interface Filterer<T> extends Iterable<T> {
 	 * Returns an iterator over the filtered collection or array.
 	 * @return an Iterator
 	 */
+	@Override
 	Iterator<T> iterator();
 
 	/**

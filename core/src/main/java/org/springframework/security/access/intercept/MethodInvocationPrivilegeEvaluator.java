@@ -49,6 +49,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 
 	private AbstractSecurityInterceptor securityInterceptor;
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.securityInterceptor, "SecurityInterceptor required");
 	}

@@ -76,10 +76,12 @@ public class AuthenticationTag extends TagSupport {
 		this.scopeSpecified = true;
 	}
 
+	@Override
 	public int doStartTag() throws JspException {
 		return super.doStartTag();
 	}
 
+	@Override
 	public int doEndTag() throws JspException {
 		Object result = null;
 		// determine the value by...

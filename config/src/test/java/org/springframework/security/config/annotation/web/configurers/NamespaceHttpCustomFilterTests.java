@@ -68,6 +68,7 @@ public class NamespaceHttpCustomFilterTests {
 	@EnableWebSecurity
 	static class CustomFilterBeforeConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -87,6 +88,7 @@ public class NamespaceHttpCustomFilterTests {
 	@EnableWebSecurity
 	static class CustomFilterAfterConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -111,6 +113,7 @@ public class NamespaceHttpCustomFilterTests {
 			super(true);
 		}
 
+		@Override
 		protected void configure(HttpSecurity http) {
 			// @formatter:off
 			http
@@ -136,6 +139,7 @@ public class NamespaceHttpCustomFilterTests {
 			super(true);
 		}
 
+		@Override
 		protected void configure(HttpSecurity http) {
 			// @formatter:off
 			http
@@ -158,6 +162,7 @@ public class NamespaceHttpCustomFilterTests {
 			super(true);
 		}
 
+		@Override
 		protected AuthenticationManager authenticationManager() {
 			return new CustomAuthenticationManager();
 		}
@@ -198,6 +203,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	static class OtherCustomFilter extends OncePerRequestFilter {
 
+		@Override
 		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws ServletException, IOException {
 			filterChain.doFilter(request, response);
@@ -207,6 +213,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	static class CustomAuthenticationManager implements AuthenticationManager {
 
+		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			return null;
 		}

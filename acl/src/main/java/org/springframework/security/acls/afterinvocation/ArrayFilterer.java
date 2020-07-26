@@ -52,6 +52,7 @@ class ArrayFilterer<T> implements Filterer<T> {
 	 *
 	 * @see org.springframework.security.acls.afterinvocation.Filterer#getFilteredObject()
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public T[] getFilteredObject() {
 		// Recreate an array of same type and filter the removed objects.
@@ -80,14 +81,17 @@ class ArrayFilterer<T> implements Filterer<T> {
 	 *
 	 * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
 	 */
+	@Override
 	public Iterator<T> iterator() {
 		return new Iterator<T>() {
 			private int index = 0;
 
+			@Override
 			public boolean hasNext() {
 				return this.index < ArrayFilterer.this.list.length;
 			}
 
+			@Override
 			public T next() {
 				if (!hasNext()) {
 					throw new NoSuchElementException();
@@ -95,6 +99,7 @@ class ArrayFilterer<T> implements Filterer<T> {
 				return ArrayFilterer.this.list[this.index++];
 			}
 
+			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
@@ -105,6 +110,7 @@ class ArrayFilterer<T> implements Filterer<T> {
 	 *
 	 * @see org.springframework.security.acls.afterinvocation.Filterer#remove(java.lang.Object)
 	 */
+	@Override
 	public void remove(T object) {
 		this.removeList.add(object);
 	}

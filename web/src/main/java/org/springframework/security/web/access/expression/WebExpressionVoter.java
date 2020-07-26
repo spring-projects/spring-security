@@ -35,6 +35,7 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
 
+	@Override
 	public int vote(Authentication authentication, FilterInvocation fi, Collection<ConfigAttribute> attributes) {
 		assert authentication != null;
 		assert fi != null;
@@ -61,10 +62,12 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 		return null;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return attribute instanceof WebExpressionConfigAttribute;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return FilterInvocation.class.isAssignableFrom(clazz);
 	}

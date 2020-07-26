@@ -81,14 +81,17 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 			return null;
 		}
 
+		@Override
 		protected List<RequestMatcher> chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
 		}
 
+		@Override
 		public List<RequestMatcher> mvcMatchers(String... mvcPatterns) {
 			return null;
 		}
 
+		@Override
 		public List<RequestMatcher> mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			return null;
 		}

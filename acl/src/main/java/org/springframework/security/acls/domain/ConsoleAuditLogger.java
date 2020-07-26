@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
  */
 public class ConsoleAuditLogger implements AuditLogger {
 
+	@Override
 	public void logIfNeeded(boolean granted, AccessControlEntry ace) {
 		Assert.notNull(ace, "AccessControlEntry required");
 

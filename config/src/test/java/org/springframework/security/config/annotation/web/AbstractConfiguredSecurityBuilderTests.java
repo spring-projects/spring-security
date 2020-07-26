@@ -156,6 +156,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 			super(objectPostProcessor, allowConfigurersOfSameType);
 		}
 
+		@Override
 		public Object performBuild() {
 			return "success";
 		}

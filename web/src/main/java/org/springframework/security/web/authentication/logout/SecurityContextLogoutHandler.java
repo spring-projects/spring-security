@@ -55,6 +55,7 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	 * @param response not used (can be <code>null</code>)
 	 * @param authentication not used (can be <code>null</code>)
 	 */
+	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		Assert.notNull(request, "HttpServletRequest required");
 		if (this.invalidateHttpSession) {

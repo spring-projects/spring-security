@@ -70,6 +70,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * Uses a {@link MethodSecurityEvaluationContext} as the <tt>EvaluationContext</tt>
 	 * implementation.
 	 */
+	@Override
 	public StandardEvaluationContext createEvaluationContextInternal(Authentication auth, MethodInvocation mi) {
 		return new MethodSecurityEvaluationContext(auth, mi, getParameterNameDiscoverer());
 	}
@@ -77,6 +78,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	/**
 	 * Creates the root object for expression evaluation.
 	 */
+	@Override
 	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 			MethodInvocation invocation) {
 		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
@@ -97,6 +99,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * modified to contain the elements for which the permission expression evaluates to
 	 * {@code true}. For an array, a new array instance will be returned.
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
@@ -248,6 +251,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		this.permissionCacheOptimizer = permissionCacheOptimizer;
 	}
 
+	@Override
 	public void setReturnObject(Object returnObject, EvaluationContext ctx) {
 		((MethodSecurityExpressionOperations) ctx.getRootObject().getValue()).setReturnObject(returnObject);
 	}

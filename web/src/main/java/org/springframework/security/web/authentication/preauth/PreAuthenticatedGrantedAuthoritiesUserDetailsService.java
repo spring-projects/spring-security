@@ -52,6 +52,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
 	 * the GrantedAuthorities as returned by the GrantedAuthoritiesContainer
 	 * implementation as returned by the token.getDetails() method.
 	 */
+	@Override
 	public final UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws AuthenticationException {
 		Assert.notNull(token.getDetails(), "token.getDetails() cannot be null");
 		Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());

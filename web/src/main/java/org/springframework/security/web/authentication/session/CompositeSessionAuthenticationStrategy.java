@@ -78,6 +78,7 @@ public class CompositeSessionAuthenticationStrategy implements SessionAuthentica
 	 * #onAuthentication(org.springframework.security.core.Authentication,
 	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
+	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {
 		for (SessionAuthenticationStrategy delegate : this.delegateStrategies) {

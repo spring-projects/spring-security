@@ -28,6 +28,7 @@ import org.springframework.security.config.debug.SecurityDebugBeanFactoryPostPro
  */
 public class DebugBeanDefinitionParser implements BeanDefinitionParser {
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		RootBeanDefinition debugPP = new RootBeanDefinition(SecurityDebugBeanFactoryPostProcessor.class);
 		parserContext.getReaderContext().registerWithGeneratedName(debugPP);

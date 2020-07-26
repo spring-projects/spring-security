@@ -46,11 +46,13 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
 
 	private String secureKeyword = "REQUIRES_SECURE_CHANNEL";
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.secureKeyword, "secureKeyword required");
 		Assert.notNull(this.entryPoint, "entryPoint required");
 	}
 
+	@Override
 	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
 			throws IOException, ServletException {
 		Assert.isTrue((invocation != null) && (config != null), "Nulls cannot be provided");
@@ -80,6 +82,7 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
 		this.secureKeyword = secureKeyword;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return (attribute != null) && (attribute.getAttribute() != null)
 				&& attribute.getAttribute().equals(getSecureKeyword());

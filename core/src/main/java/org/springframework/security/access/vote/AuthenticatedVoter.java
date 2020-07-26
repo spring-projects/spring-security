@@ -66,6 +66,7 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 		this.authenticationTrustResolver = authenticationTrustResolver;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		if ((attribute.getAttribute() != null) && (IS_AUTHENTICATED_FULLY.equals(attribute.getAttribute())
 				|| IS_AUTHENTICATED_REMEMBERED.equals(attribute.getAttribute())
@@ -83,10 +84,12 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 	 * @param clazz the secure object type
 	 * @return always {@code true}
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
 
+	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		int result = ACCESS_ABSTAIN;
 

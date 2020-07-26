@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class HelloMessageService implements MessageService {
 
+	@Override
 	@PreAuthorize("authenticated")
 	public String getMessage() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

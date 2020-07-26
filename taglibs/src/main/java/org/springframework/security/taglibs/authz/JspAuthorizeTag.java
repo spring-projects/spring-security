@@ -63,6 +63,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	 * the body of the tag should be skipped or not.
 	 * @return {@link Tag#SKIP_BODY} or {@link Tag#EVAL_BODY_INCLUDE}
 	 */
+	@Override
 	public int doStartTag() throws JspException {
 		try {
 			this.authorized = super.authorize();
@@ -93,6 +94,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	 * @return EVAL_PAGE
 	 * @see Tag#doEndTag()
 	 */
+	@Override
 	public int doEndTag() throws JspException {
 		try {
 			if (!this.authorized && TagLibConfig.isUiSecurityDisabled()) {
@@ -114,10 +116,12 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		this.id = id;
 	}
 
+	@Override
 	public Tag getParent() {
 		return this.parent;
 	}
 
+	@Override
 	public void setParent(Tag parent) {
 		this.parent = parent;
 	}
@@ -130,11 +134,13 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		this.var = var;
 	}
 
+	@Override
 	public void release() {
 		this.parent = null;
 		this.id = null;
 	}
 
+	@Override
 	public void setPageContext(PageContext pageContext) {
 		this.pageContext = pageContext;
 	}
@@ -162,46 +168,57 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 			this.delegate = delegate;
 		}
 
+		@Override
 		public TypedValue getRootObject() {
 			return this.delegate.getRootObject();
 		}
 
+		@Override
 		public List<ConstructorResolver> getConstructorResolvers() {
 			return this.delegate.getConstructorResolvers();
 		}
 
+		@Override
 		public List<MethodResolver> getMethodResolvers() {
 			return this.delegate.getMethodResolvers();
 		}
 
+		@Override
 		public List<PropertyAccessor> getPropertyAccessors() {
 			return this.delegate.getPropertyAccessors();
 		}
 
+		@Override
 		public TypeLocator getTypeLocator() {
 			return this.delegate.getTypeLocator();
 		}
 
+		@Override
 		public TypeConverter getTypeConverter() {
 			return this.delegate.getTypeConverter();
 		}
 
+		@Override
 		public TypeComparator getTypeComparator() {
 			return this.delegate.getTypeComparator();
 		}
 
+		@Override
 		public OperatorOverloader getOperatorOverloader() {
 			return this.delegate.getOperatorOverloader();
 		}
 
+		@Override
 		public BeanResolver getBeanResolver() {
 			return this.delegate.getBeanResolver();
 		}
 
+		@Override
 		public void setVariable(String name, Object value) {
 			this.delegate.setVariable(name, value);
 		}
 
+		@Override
 		public Object lookupVariable(String name) {
 			Object result = this.delegate.lookupVariable(name);
 

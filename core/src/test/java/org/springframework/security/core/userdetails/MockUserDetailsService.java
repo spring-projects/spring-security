@@ -43,6 +43,7 @@ public class MockUserDetailsService implements UserDetailsService {
 		this.users.put("expired", new User("expired", "", true, false, true, true, this.auths));
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) {
 		if (this.users.get(username) == null) {
 			throw new UsernameNotFoundException("User not found: " + username);

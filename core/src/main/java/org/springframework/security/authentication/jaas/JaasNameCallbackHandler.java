@@ -43,6 +43,7 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
 	 * @param authentication
 	 *
 	 */
+	@Override
 	public void handle(Callback callback, Authentication authentication) {
 		if (callback instanceof NameCallback) {
 			NameCallback ncb = (NameCallback) callback;

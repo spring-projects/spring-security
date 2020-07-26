@@ -107,6 +107,7 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static MockServerConfigurer springSecurity() {
 		return new MockServerConfigurer() {
+			@Override
 			public void beforeServerCreated(WebHttpHandlerBuilder builder) {
 				builder.filters(filters -> filters.add(0, new MutatorFilter()));
 			}

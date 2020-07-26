@@ -46,6 +46,7 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 			+ "to your configuration (with child <authentication-provider> elements)? Alternatively you can use the "
 			+ "authentication-manager-ref attribute on your <http> and <global-method-security> elements.";
 
+	@Override
 	public AuthenticationManager getObject() throws Exception {
 		try {
 			return (AuthenticationManager) this.bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
@@ -71,14 +72,17 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 		}
 	}
 
+	@Override
 	public Class<? extends AuthenticationManager> getObjectType() {
 		return ProviderManager.class;
 	}
 
+	@Override
 	public boolean isSingleton() {
 		return true;
 	}
 
+	@Override
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		this.bf = beanFactory;
 	}

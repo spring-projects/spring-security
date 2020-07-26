@@ -59,14 +59,17 @@ public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMet
 				+ " must supply a generic parameter for AnnotationMetadataExtractor");
 	}
 
+	@Override
 	protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
 		return processAnnotation(AnnotationUtils.findAnnotation(clazz, this.annotationType));
 	}
 
+	@Override
 	protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
 		return processAnnotation(AnnotationUtils.findAnnotation(method, this.annotationType));
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		return null;
 	}
@@ -83,6 +86,7 @@ public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMet
 
 class SecuredAnnotationMetadataExtractor implements AnnotationMetadataExtractor<Secured> {
 
+	@Override
 	public Collection<ConfigAttribute> extractAttributes(Secured secured) {
 		String[] attributeTokens = secured.value();
 		List<ConfigAttribute> attributes = new ArrayList<>(attributeTokens.length);

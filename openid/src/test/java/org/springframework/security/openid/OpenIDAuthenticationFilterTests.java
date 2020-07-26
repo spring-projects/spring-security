@@ -41,6 +41,7 @@ import static org.mockito.Mockito.verify;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAuthenticationFilterTests {
 
 	OpenIDAuthenticationFilter filter;
@@ -78,6 +79,7 @@ public class OpenIDAuthenticationFilterTests {
 		req.setRemoteHost("www.example.com");
 
 		this.filter.setConsumer(new MockOpenIDConsumer() {
+			@Override
 			public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl,
 					String realm) {
 				assertThat(claimedIdentity).isEqualTo(CLAIMED_IDENTITY_URL);

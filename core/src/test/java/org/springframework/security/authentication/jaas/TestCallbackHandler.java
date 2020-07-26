@@ -28,6 +28,7 @@ import org.springframework.security.core.Authentication;
  */
 public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
 
+	@Override
 	public void handle(Callback callback, Authentication auth) {
 		if (callback instanceof TextInputCallback) {
 			TextInputCallback tic = (TextInputCallback) callback;

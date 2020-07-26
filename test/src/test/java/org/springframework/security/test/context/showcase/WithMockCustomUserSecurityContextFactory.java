@@ -26,6 +26,7 @@ import org.springframework.security.test.context.support.WithSecurityContextFact
  */
 public class WithMockCustomUserSecurityContextFactory implements WithSecurityContextFactory<WithMockCustomUser> {
 
+	@Override
 	public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 

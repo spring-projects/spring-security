@@ -66,6 +66,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 		this.contextSource = contextSource;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.isTrue((this.userDnFormat != null) || (this.userSearch != null),
 				"Either an LdapUserSearch or DN pattern (or both) must be supplied.");
@@ -107,6 +108,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 		return this.userSearch;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "Message source must not be null");
 		this.messages = new MessageSourceAccessor(messageSource);

@@ -44,6 +44,7 @@ class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ord
 	 */
 	private boolean defaultNameRequired;
 
+	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory bf) throws BeansException {
 		Class<?> contextSourceClass;
 
@@ -80,6 +81,7 @@ class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ord
 		this.defaultNameRequired = defaultNameRequired;
 	}
 
+	@Override
 	public int getOrder() {
 		return LOWEST_PRECEDENCE;
 	}

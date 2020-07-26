@@ -44,6 +44,7 @@ public final class HttpStatusEntryPoint implements AuthenticationEntryPoint {
 		this.httpStatus = httpStatus;
 	}
 
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) {
 		response.setStatus(this.httpStatus.value());

@@ -65,6 +65,7 @@ abstract class AbstractSessionFixationProtectionStrategy
 	 * property is set, in which case a session will be created if one doesn't already
 	 * exist.
 	 */
+	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) {
 		boolean hadSessionAlready = request.getSession(false) != null;
@@ -135,6 +136,7 @@ abstract class AbstractSessionFixationProtectionStrategy
 	 * @param applicationEventPublisher the {@link ApplicationEventPublisher}. Cannot be
 	 * null.
 	 */
+	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
 		this.applicationEventPublisher = applicationEventPublisher;
@@ -146,9 +148,11 @@ abstract class AbstractSessionFixationProtectionStrategy
 
 	protected static final class NullEventPublisher implements ApplicationEventPublisher {
 
+		@Override
 		public void publishEvent(ApplicationEvent event) {
 		}
 
+		@Override
 		public void publishEvent(Object event) {
 		}
 

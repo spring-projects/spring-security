@@ -72,6 +72,7 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
 		};
 	}
 
+	@Override
 	protected Resource[] getConfigResources() {
 		return new Resource[] { this.inMemoryXml };
 	}

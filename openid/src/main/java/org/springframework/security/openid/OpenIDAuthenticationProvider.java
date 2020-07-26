@@ -51,12 +51,14 @@ import org.springframework.util.Assert;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenIDAuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
 	private AuthenticationUserDetailsService<OpenIDAuthenticationToken> userDetailsService;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "The userDetailsService must be set");
 	}
@@ -68,6 +70,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
 	 * org.springframework.security.authentication.AuthenticationProvider#authenticate
 	 * (org.springframework.security.Authentication)
 	 */
+	@Override
 	public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
 
 		if (!supports(authentication.getClass())) {
@@ -146,6 +149,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
 	 * org.springframework.security.authentication.AuthenticationProvider#supports(java
 	 * .lang.Class)
 	 */
+	@Override
 	public boolean supports(Class<?> authentication) {
 		return OpenIDAuthenticationToken.class.isAssignableFrom(authentication);
 	}

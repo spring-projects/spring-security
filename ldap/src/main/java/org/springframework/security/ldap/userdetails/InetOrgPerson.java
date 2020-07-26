@@ -144,6 +144,7 @@ public class InetOrgPerson extends Person {
 		return this.street;
 	}
 
+	@Override
 	protected void populateContext(DirContextAdapter adapter) {
 		super.populateContext(adapter);
 		adapter.setAttributeValue("carLicense", this.carLicense);
@@ -216,6 +217,7 @@ public class InetOrgPerson extends Person {
 			setUid(ctx.getStringAttribute("uid"));
 		}
 
+		@Override
 		protected LdapUserDetailsImpl createTarget() {
 			return new InetOrgPerson();
 		}

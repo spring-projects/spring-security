@@ -34,6 +34,7 @@ public class LoggerListener implements ApplicationListener<AbstractAuthorization
 
 	private static final Log logger = LogFactory.getLog(LoggerListener.class);
 
+	@Override
 	public void onApplicationEvent(AbstractAuthorizationEvent event) {
 		if (event instanceof AuthenticationCredentialsNotFoundEvent) {
 			AuthenticationCredentialsNotFoundEvent authEvent = (AuthenticationCredentialsNotFoundEvent) event;

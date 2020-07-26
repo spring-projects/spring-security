@@ -34,6 +34,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationTar
 public class SimpleUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
 		implements LogoutSuccessHandler {
 
+	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException, ServletException {
 		super.handle(request, response, authentication);

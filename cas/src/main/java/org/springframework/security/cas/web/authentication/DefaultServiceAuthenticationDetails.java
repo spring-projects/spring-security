@@ -61,6 +61,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * Returns the current URL minus the artifact parameter and its value, if present.
 	 * @see org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails#getServiceUrl()
 	 */
+	@Override
 	public String getServiceUrl() {
 		return this.serviceUrl;
 	}

@@ -82,6 +82,7 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 		Assert.notNull(this.authorities, "Anonymous authorities must be set");
 	}
 
+	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
 

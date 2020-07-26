@@ -292,7 +292,7 @@ public class TokenBasedRememberMeServicesTests {
 		// SEC-822
 		this.services.setTokenValiditySeconds(500000000);
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");
+		request.addParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "true");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.services.loginSuccess(request, response,
@@ -312,7 +312,7 @@ public class TokenBasedRememberMeServicesTests {
 	@Test
 	public void loginSuccessNormalWithUserDetailsBasedPrincipalSetsExpectedCookie() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addParameter(TokenBasedRememberMeServices.DEFAULT_PARAMETER, "true");
+		request.addParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "true");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.services.loginSuccess(request, response,

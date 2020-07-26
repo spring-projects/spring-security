@@ -42,6 +42,7 @@ public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocat
 		this.handler = handler;
 	}
 
+	@Override
 	public PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute, String filterObject,
 			String preAuthorizeAttribute) {
 		try {
@@ -58,6 +59,7 @@ public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocat
 		}
 	}
 
+	@Override
 	public PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute,
 			String postAuthorizeAttribute) {
 		try {

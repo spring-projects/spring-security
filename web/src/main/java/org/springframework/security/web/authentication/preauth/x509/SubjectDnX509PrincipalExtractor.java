@@ -53,6 +53,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 		setSubjectDnRegex("CN=(.*?)(?:,|$)");
 	}
 
+	@Override
 	public Object extractPrincipal(X509Certificate clientCert) {
 		// String subjectDN = clientCert.getSubjectX500Principal().getName();
 		String subjectDN = clientCert.getSubjectDN().getName();

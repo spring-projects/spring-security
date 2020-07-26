@@ -95,6 +95,7 @@ public class NamespaceHttpAnonymousTests {
 			// @formatter:on
 		}
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth

@@ -65,10 +65,12 @@ public abstract class AbstractDelegatingSecurityContextAsyncTaskExecutorTests
 		verify(getExecutor()).submit(this.wrappedCallable);
 	}
 
+	@Override
 	protected AsyncTaskExecutor getExecutor() {
 		return this.taskExecutorDelegate;
 	}
 
+	@Override
 	protected abstract DelegatingSecurityContextAsyncTaskExecutor create();
 
 }

@@ -179,6 +179,7 @@ public class LdapAuthenticationProviderTests {
 
 	class MockAuthenticator implements LdapAuthenticator {
 
+		@Override
 		public DirContextOperations authenticate(Authentication authentication) {
 			DirContextAdapter ctx = new DirContextAdapter();
 			ctx.setAttributeValue("ou", "FROM_ENTRY");
@@ -206,6 +207,7 @@ public class LdapAuthenticationProviderTests {
 
 		String username;
 
+		@Override
 		public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
 			this.username = username;
 			return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");

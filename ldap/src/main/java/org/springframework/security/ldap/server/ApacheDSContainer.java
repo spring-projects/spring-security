@@ -140,6 +140,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		this.service.setDenormalizeOpAttrsEnabled(true);
 	}
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (this.workingDir == null) {
 			String apacheWorkDir = System.getProperty("apacheDSWorkDir");
@@ -168,10 +169,12 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		start();
 	}
 
+	@Override
 	public void destroy() {
 		stop();
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.ctxt = applicationContext;
 	}
@@ -241,6 +244,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		return this.service;
 	}
 
+	@Override
 	public void start() {
 		if (isRunning()) {
 			return;
@@ -294,6 +298,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		}
 	}
 
+	@Override
 	public void stop() {
 		if (!isRunning()) {
 			return;
@@ -390,6 +395,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		return dir.delete();
 	}
 
+	@Override
 	public boolean isRunning() {
 		return this.running;
 	}

@@ -55,6 +55,7 @@ public class EhCacheBasedAclCache implements AclCache {
 		this.aclAuthorizationStrategy = aclAuthorizationStrategy;
 	}
 
+	@Override
 	public void evictFromCache(Serializable pk) {
 		Assert.notNull(pk, "Primary key (identifier) required");
 
@@ -66,6 +67,7 @@ public class EhCacheBasedAclCache implements AclCache {
 		}
 	}
 
+	@Override
 	public void evictFromCache(ObjectIdentity objectIdentity) {
 		Assert.notNull(objectIdentity, "ObjectIdentity required");
 
@@ -77,6 +79,7 @@ public class EhCacheBasedAclCache implements AclCache {
 		}
 	}
 
+	@Override
 	public MutableAcl getFromCache(ObjectIdentity objectIdentity) {
 		Assert.notNull(objectIdentity, "ObjectIdentity required");
 
@@ -95,6 +98,7 @@ public class EhCacheBasedAclCache implements AclCache {
 		return initializeTransientFields((MutableAcl) element.getValue());
 	}
 
+	@Override
 	public MutableAcl getFromCache(Serializable pk) {
 		Assert.notNull(pk, "Primary key (identifier) required");
 
@@ -113,6 +117,7 @@ public class EhCacheBasedAclCache implements AclCache {
 		return initializeTransientFields((MutableAcl) element.getValue());
 	}
 
+	@Override
 	public void putInCache(MutableAcl acl) {
 		Assert.notNull(acl, "Acl required");
 		Assert.notNull(acl.getObjectIdentity(), "ObjectIdentity required");
@@ -147,6 +152,7 @@ public class EhCacheBasedAclCache implements AclCache {
 		return value;
 	}
 
+	@Override
 	public void clearCache() {
 		this.cache.removeAll();
 	}

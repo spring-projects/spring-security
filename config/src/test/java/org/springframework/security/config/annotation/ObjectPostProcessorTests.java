@@ -37,6 +37,7 @@ public class ObjectPostProcessorTests {
 
 	static class ListToLinkedListObjectPostProcessor implements ObjectPostProcessor<List<?>> {
 
+		@Override
 		public <O extends List<?>> O postProcess(O l) {
 			return (O) new LinkedList(l);
 		}

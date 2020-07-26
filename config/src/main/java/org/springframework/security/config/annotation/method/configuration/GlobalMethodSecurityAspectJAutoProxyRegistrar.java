@@ -43,6 +43,7 @@ class GlobalMethodSecurityAspectJAutoProxyRegistrar implements ImportBeanDefinit
 	 * of the @{@link EnableGlobalMethodSecurity#proxyTargetClass()} attribute on the
 	 * importing {@code @Configuration} class.
 	 */
+	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
 		BeanDefinition interceptor = registry.getBeanDefinition("methodSecurityInterceptor");

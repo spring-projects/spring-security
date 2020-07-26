@@ -56,17 +56,20 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 
 	private boolean createTableOnStartup;
 
+	@Override
 	protected void initDao() {
 		if (this.createTableOnStartup) {
 			getJdbcTemplate().execute(CREATE_TABLE_SQL);
 		}
 	}
 
+	@Override
 	public void createNewToken(PersistentRememberMeToken token) {
 		getJdbcTemplate().update(this.insertTokenSql, token.getUsername(), token.getSeries(), token.getTokenValue(),
 				token.getDate());
 	}
 
+	@Override
 	public void updateToken(String series, String tokenValue, Date lastUsed) {
 		getJdbcTemplate().update(this.updateTokenSql, tokenValue, lastUsed, series);
 	}
@@ -80,6 +83,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	 * @return the token matching the series, or null if no match found or an exception
 	 * occurred.
 	 */
+	@Override
 	public PersistentRememberMeToken getTokenForSeries(String seriesId) {
 		try {
 			return getJdbcTemplate().queryForObject(this.tokensBySeriesSql,
@@ -103,6 +107,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 		return null;
 	}
 
+	@Override
 	public void removeUserTokens(String username) {
 		getJdbcTemplate().update(this.removeUserTokensSql, username);
 	}

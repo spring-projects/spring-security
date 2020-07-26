@@ -57,6 +57,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 	 * application appContext.
 	 * @param event HttpSessionEvent passed in by the container
 	 */
+	@Override
 	public void sessionCreated(HttpSessionEvent event) {
 		HttpSessionCreatedEvent e = new HttpSessionCreatedEvent(event.getSession());
 		Log log = LogFactory.getLog(LOGGER_NAME);
@@ -73,6 +74,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 	 * the application appContext.
 	 * @param event The HttpSessionEvent pass in by the container
 	 */
+	@Override
 	public void sessionDestroyed(HttpSessionEvent event) {
 		HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event.getSession());
 		Log log = LogFactory.getLog(LOGGER_NAME);

@@ -62,6 +62,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
 	private static final Log logger = LogFactory.getLog(FilterInvocationSecurityMetadataSourceParser.class);
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		List<Element> interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
 
@@ -223,6 +224,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
 		private DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
 
+		@Override
 		public DefaultWebSecurityExpressionHandler getBean() {
 			this.handler.setDefaultRolePrefix(this.rolePrefix);
 			return this.handler;

@@ -510,8 +510,9 @@ public class DefaultSavedRequest implements SavedRequest {
 					savedRequest.addCookie(cookie.getCookie());
 				}
 			}
-			if (!ObjectUtils.isEmpty(this.locales))
+			if (!ObjectUtils.isEmpty(this.locales)) {
 				savedRequest.locales.addAll(this.locales);
+			}
 			savedRequest.addParameters(this.parameters);
 
 			this.headers.remove(HEADER_IF_MODIFIED_SINCE);

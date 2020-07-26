@@ -177,6 +177,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * @see org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax
 	 * .servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
+	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (this.requestMatcher.matches(request)) {
 			if (!this.pins.isEmpty()) {
@@ -441,6 +442,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	private static final class SecureRequestMatcher implements RequestMatcher {
 
+		@Override
 		public boolean matches(HttpServletRequest request) {
 			return request.isSecure();
 		}

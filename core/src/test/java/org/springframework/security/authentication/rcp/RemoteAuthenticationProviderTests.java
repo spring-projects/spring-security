@@ -112,6 +112,7 @@ public class RemoteAuthenticationProviderTests {
 			this.grantAccess = grantAccess;
 		}
 
+		@Override
 		public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
 				throws RemoteAuthenticationException {
 			if (this.grantAccess) {

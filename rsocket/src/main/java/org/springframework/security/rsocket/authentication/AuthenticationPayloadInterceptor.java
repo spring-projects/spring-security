@@ -70,6 +70,7 @@ public class AuthenticationPayloadInterceptor implements PayloadInterceptor, Ord
 		this.authenticationConverter = authenticationConverter;
 	}
 
+	@Override
 	public Mono<Void> intercept(PayloadExchange exchange, PayloadInterceptorChain chain) {
 		return this.authenticationConverter.convert(exchange).switchIfEmpty(chain.next(exchange).then(Mono.empty()))
 				.flatMap(a -> this.authenticationManager.authenticate(a))

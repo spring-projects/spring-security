@@ -48,10 +48,12 @@ public class SecurityConfigurerAdapterTests {
 			this.order = order;
 		}
 
+		@Override
 		public int getOrder() {
 			return this.order;
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public String postProcess(String object) {
 			return object + " " + this.order;

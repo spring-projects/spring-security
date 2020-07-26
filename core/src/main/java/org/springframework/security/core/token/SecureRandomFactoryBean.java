@@ -35,6 +35,7 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 
 	private Resource seed;
 
+	@Override
 	public SecureRandom getObject() throws Exception {
 		SecureRandom rnd = SecureRandom.getInstance(this.algorithm);
 
@@ -51,10 +52,12 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 		return rnd;
 	}
 
+	@Override
 	public Class<SecureRandom> getObjectType() {
 		return SecureRandom.class;
 	}
 
+	@Override
 	public boolean isSingleton() {
 		return false;
 	}

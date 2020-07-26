@@ -43,6 +43,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 	 * Get the principals of the logged in user, in this case the distinguished name.
 	 * @return the distinguished name of the logged in user.
 	 */
+	@Override
 	public String getPrincipal() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -72,6 +73,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 	/**
 	 * @see org.springframework.ldap.core.AuthenticationSource#getCredentials()
 	 */
+	@Override
 	public String getCredentials() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

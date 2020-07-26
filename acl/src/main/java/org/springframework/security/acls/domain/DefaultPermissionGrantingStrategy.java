@@ -70,6 +70,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 	 * @throws NotFoundException if an exact ACE for one of the permission bit masks and
 	 * SID combination could not be found
 	 */
+	@Override
 	public boolean isGranted(Acl acl, List<Permission> permission, List<Sid> sids, boolean administrativeMode)
 			throws NotFoundException {
 

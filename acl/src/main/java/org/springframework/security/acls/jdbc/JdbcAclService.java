@@ -90,6 +90,7 @@ public class JdbcAclService implements AclService {
 		this.aclClassIdUtils = new AclClassIdUtils();
 	}
 
+	@Override
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
 		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
 		List<ObjectIdentity> objects = this.jdbcOperations.query(this.findChildrenSql, args, (rs, rowNum) -> {
@@ -106,6 +107,7 @@ public class JdbcAclService implements AclService {
 		return objects;
 	}
 
+	@Override
 	public Acl readAclById(ObjectIdentity object, List<Sid> sids) throws NotFoundException {
 		Map<ObjectIdentity, Acl> map = readAclsById(Collections.singletonList(object), sids);
 		Assert.isTrue(map.containsKey(object),
@@ -114,14 +116,17 @@ public class JdbcAclService implements AclService {
 		return map.get(object);
 	}
 
+	@Override
 	public Acl readAclById(ObjectIdentity object) throws NotFoundException {
 		return readAclById(object, null);
 	}
 
+	@Override
 	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects) throws NotFoundException {
 		return readAclsById(objects, null);
 	}
 
+	@Override
 	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids)
 			throws NotFoundException {
 		Map<ObjectIdentity, Acl> result = this.lookupStrategy.readAclsById(objects, sids);

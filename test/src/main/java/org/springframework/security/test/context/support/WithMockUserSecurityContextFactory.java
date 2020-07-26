@@ -37,6 +37,7 @@ import org.springframework.util.StringUtils;
  */
 final class WithMockUserSecurityContextFactory implements WithSecurityContextFactory<WithMockUser> {
 
+	@Override
 	public SecurityContext createSecurityContext(WithMockUser withUser) {
 		String username = StringUtils.hasLength(withUser.username()) ? withUser.username() : withUser.value();
 		if (username == null) {

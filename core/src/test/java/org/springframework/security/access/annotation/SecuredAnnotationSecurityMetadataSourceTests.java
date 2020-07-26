@@ -214,6 +214,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	@SuppressWarnings("serial")
 	class DepartmentServiceImpl extends BusinessServiceImpl<Department> implements DepartmentService {
 
+		@Override
 		@Secured({ "ROLE_ADMIN" })
 		public Department someUserMethod3(final Department dept) {
 			return super.someUserMethod3(dept);
@@ -236,10 +237,12 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 
 		ADMIN, USER;
 
+		@Override
 		public String getAttribute() {
 			return toString();
 		}
 
+		@Override
 		public String getAuthority() {
 			return toString();
 		}
@@ -256,6 +259,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 
 	class CustomSecurityAnnotationMetadataExtractor implements AnnotationMetadataExtractor<CustomSecurityAnnotation> {
 
+		@Override
 		public Collection<? extends ConfigAttribute> extractAttributes(CustomSecurityAnnotation securityAnnotation) {
 			SecurityEnum[] values = securityAnnotation.value();
 
@@ -288,6 +292,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	@AnnotatedAnnotation
 	public static class AnnotatedAnnotationAtClassLevel implements ReturnVoid {
 
+		@Override
 		public void doSomething(List<?> param) {
 		}
 
@@ -295,6 +300,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 
 	public static class AnnotatedAnnotationAtInterfaceLevel implements ReturnVoid2 {
 
+		@Override
 		public void doSomething(List<?> param) {
 		}
 
@@ -302,6 +308,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 
 	public static class AnnotatedAnnotationAtMethodLevel implements ReturnVoid {
 
+		@Override
 		@AnnotatedAnnotation
 		public void doSomething(List<?> param) {
 		}

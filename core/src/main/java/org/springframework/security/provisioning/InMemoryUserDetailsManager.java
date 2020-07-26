@@ -84,26 +84,31 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		}
 	}
 
+	@Override
 	public void createUser(UserDetails user) {
 		Assert.isTrue(!userExists(user.getUsername()), "user should not exist");
 
 		this.users.put(user.getUsername().toLowerCase(), new MutableUser(user));
 	}
 
+	@Override
 	public void deleteUser(String username) {
 		this.users.remove(username.toLowerCase());
 	}
 
+	@Override
 	public void updateUser(UserDetails user) {
 		Assert.isTrue(userExists(user.getUsername()), "user should exist");
 
 		this.users.put(user.getUsername().toLowerCase(), new MutableUser(user));
 	}
 
+	@Override
 	public boolean userExists(String username) {
 		return this.users.containsKey(username.toLowerCase());
 	}
 
+	@Override
 	public void changePassword(String oldPassword, String newPassword) {
 		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 
@@ -145,6 +150,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		return mutableUser;
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserDetails user = this.users.get(username.toLowerCase());
 

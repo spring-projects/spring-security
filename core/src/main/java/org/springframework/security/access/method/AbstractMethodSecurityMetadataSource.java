@@ -36,6 +36,7 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	@Override
 	public final Collection<ConfigAttribute> getAttributes(Object object) {
 		if (object instanceof MethodInvocation) {
 			MethodInvocation mi = (MethodInvocation) object;
@@ -59,6 +60,7 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 		throw new IllegalArgumentException("Object must be a non-null MethodInvocation");
 	}
 
+	@Override
 	public final boolean supports(Class<?> clazz) {
 		return (MethodInvocation.class.isAssignableFrom(clazz));
 	}

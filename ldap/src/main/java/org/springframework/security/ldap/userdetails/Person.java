@@ -111,6 +111,7 @@ public class Person extends LdapUserDetailsImpl {
 			((Person) this.instance).cn = new ArrayList<>(copyMe.cn);
 		}
 
+		@Override
 		protected LdapUserDetailsImpl createTarget() {
 			return new Person();
 		}
@@ -139,6 +140,7 @@ public class Person extends LdapUserDetailsImpl {
 			((Person) this.instance).description = desc;
 		}
 
+		@Override
 		public LdapUserDetails createUserDetails() {
 			Person p = (Person) super.createUserDetails();
 			Assert.notNull(p.cn, "person.sn cannot be null");

@@ -34,10 +34,12 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class TestingAuthenticationProvider implements AuthenticationProvider {
 
+	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		return authentication;
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
 		return TestingAuthenticationToken.class.isAssignableFrom(authentication);
 	}

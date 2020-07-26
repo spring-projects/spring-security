@@ -67,6 +67,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 		DATABASE_HELPER.getDataSource().destroy();
 	}
 
+	@Override
 	@Before
 	public void initializeBeans() {
 		super.initializeBeans();

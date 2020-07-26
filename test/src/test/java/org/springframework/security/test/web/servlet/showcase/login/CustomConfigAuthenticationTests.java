@@ -107,6 +107,7 @@ public class CustomConfigAuthenticationTests {
 		}
 
 		// @formatter:off
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build();

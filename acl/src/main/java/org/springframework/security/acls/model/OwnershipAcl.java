@@ -26,6 +26,7 @@ package org.springframework.security.acls.model;
  */
 public interface OwnershipAcl extends MutableAcl {
 
+	@Override
 	void setOwner(Sid newOwner);
 
 }

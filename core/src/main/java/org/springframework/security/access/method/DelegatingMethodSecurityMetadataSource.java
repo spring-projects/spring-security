@@ -49,6 +49,7 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 		this.methodSecurityMetadataSources = methodSecurityMetadataSources;
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
 		DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
 		synchronized (this.attributeCache) {

@@ -47,6 +47,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 
 	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
+	@Override
 	public final ExpressionParser getExpressionParser() {
 		return this.expressionParser;
 	}
@@ -64,6 +65,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	 * @return the context object for use in evaluating the expression, populated with a
 	 * suitable root object.
 	 */
+	@Override
 	public final EvaluationContext createEvaluationContext(Authentication authentication, T invocation) {
 		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
 		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
@@ -114,6 +116,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 		this.permissionEvaluator = permissionEvaluator;
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.br = new BeanFactoryResolver(applicationContext);
 	}

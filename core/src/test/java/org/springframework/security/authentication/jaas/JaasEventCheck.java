@@ -30,6 +30,7 @@ public class JaasEventCheck implements ApplicationListener<JaasAuthenticationEve
 
 	JaasAuthenticationSuccessEvent successEvent;
 
+	@Override
 	public void onApplicationEvent(JaasAuthenticationEvent event) {
 		if (event instanceof JaasAuthenticationFailedEvent) {
 			this.failedEvent = (JaasAuthenticationFailedEvent) event;

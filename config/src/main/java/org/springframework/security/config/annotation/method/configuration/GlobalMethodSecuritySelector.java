@@ -36,6 +36,7 @@ import org.springframework.util.ClassUtils;
  */
 final class GlobalMethodSecuritySelector implements ImportSelector {
 
+	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		Class<EnableGlobalMethodSecurity> annoType = EnableGlobalMethodSecurity.class;
 		Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(annoType.getName(),

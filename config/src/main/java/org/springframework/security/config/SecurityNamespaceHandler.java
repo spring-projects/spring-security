@@ -91,6 +91,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		}
 	}
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		if (!namespaceMatchesVersion(element)) {
 			pc.getReaderContext().fatal(
@@ -121,6 +122,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		return parser.parse(element, pc);
 	}
 
+	@Override
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext pc) {
 		String name = pc.getDelegate().getLocalName(node);
 
@@ -165,6 +167,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		}
 	}
 
+	@Override
 	public void init() {
 		loadParsers();
 	}

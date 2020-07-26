@@ -44,6 +44,7 @@ public class JaasPasswordCallbackHandler implements JaasAuthenticationCallbackHa
 	 * @param auth
 	 *
 	 */
+	@Override
 	public void handle(Callback callback, Authentication auth) {
 		if (callback instanceof PasswordCallback) {
 			PasswordCallback pc = (PasswordCallback) callback;

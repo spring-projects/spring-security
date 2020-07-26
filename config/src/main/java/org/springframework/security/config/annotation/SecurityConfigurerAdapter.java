@@ -39,9 +39,11 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 
 	private CompositeObjectPostProcessor objectPostProcessor = new CompositeObjectPostProcessor();
 
+	@Override
 	public void init(B builder) throws Exception {
 	}
 
+	@Override
 	public void configure(B builder) throws Exception {
 	}
 
@@ -106,6 +108,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 
 		private List<ObjectPostProcessor<?>> postProcessors = new ArrayList<>();
 
+		@Override
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Object postProcess(Object object) {
 			for (ObjectPostProcessor opp : this.postProcessors) {

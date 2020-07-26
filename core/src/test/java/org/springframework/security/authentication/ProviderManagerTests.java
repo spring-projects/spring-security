@@ -48,10 +48,12 @@ public class ProviderManagerTests {
 	@Test(expected = ProviderNotFoundException.class)
 	public void authenticationFailsWithUnsupportedToken() {
 		Authentication token = new AbstractAuthenticationToken(null) {
+			@Override
 			public Object getCredentials() {
 				return "";
 			}
 
+			@Override
 			public Object getPrincipal() {
 				return "";
 			}
@@ -131,11 +133,13 @@ public class ProviderManagerTests {
 
 		// A provider which sets the details object
 		AuthenticationProvider provider = new AuthenticationProvider() {
+			@Override
 			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 				((TestingAuthenticationToken) authentication).setDetails(resultDetails);
 				return authentication;
 			}
 
+			@Override
 			public boolean supports(Class<?> authentication) {
 				return true;
 			}
@@ -360,6 +364,7 @@ public class ProviderManagerTests {
 
 	private static class MockProvider implements AuthenticationProvider {
 
+		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			if (supports(authentication.getClass())) {
 				return authentication;
@@ -369,6 +374,7 @@ public class ProviderManagerTests {
 			}
 		}
 
+		@Override
 		public boolean supports(Class<?> authentication) {
 			return TestingAuthenticationToken.class.isAssignableFrom(authentication)
 					|| UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);

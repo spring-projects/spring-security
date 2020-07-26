@@ -35,6 +35,7 @@ class SpringWebMvcImportSelector implements ImportSelector {
 	 * @see org.springframework.context.annotation.ImportSelector#selectImports(org.
 	 * springframework .core.type.AnnotationMetadata)
 	 */
+	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		boolean webmvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet",
 				getClass().getClassLoader());

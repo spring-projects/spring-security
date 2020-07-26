@@ -53,6 +53,7 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 	 * Returns the Subject identifier {@code (sub)}.
 	 * @return the Subject identifier
 	 */
+	@Override
 	default String getSubject() {
 		return this.getClaimAsString(IdTokenClaimNames.SUB);
 	}

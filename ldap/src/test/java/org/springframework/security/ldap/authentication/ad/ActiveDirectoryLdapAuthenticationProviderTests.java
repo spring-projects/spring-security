@@ -290,12 +290,14 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 			private Matcher<String> causeDataCode = CoreMatchers.equalTo(dataCode);
 
+			@Override
 			public boolean matches(Object that) {
 				Throwable t = (Throwable) that;
 				ActiveDirectoryAuthenticationException cause = (ActiveDirectoryAuthenticationException) t.getCause();
 				return this.causeInstance.matches(cause) && this.causeDataCode.matches(cause.getDataCode());
 			}
 
+			@Override
 			public void describeTo(Description desc) {
 				desc.appendText("getCause() ");
 				this.causeInstance.describeTo(desc);
@@ -468,23 +470,28 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 			this.sr = sr;
 		}
 
+		@Override
 		public SearchResult next() {
 			SearchResult result = this.sr;
 			this.sr = null;
 			return result;
 		}
 
+		@Override
 		public boolean hasMore() {
 			return this.sr != null;
 		}
 
+		@Override
 		public void close() {
 		}
 
+		@Override
 		public boolean hasMoreElements() {
 			return hasMore();
 		}
 
+		@Override
 		public SearchResult nextElement() {
 			return next();
 		}

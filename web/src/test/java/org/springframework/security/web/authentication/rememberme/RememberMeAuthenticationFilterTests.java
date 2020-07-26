@@ -122,6 +122,7 @@ public class RememberMeAuthenticationFilterTests {
 
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
 				new MockRememberMeServices(this.remembered)) {
+			@Override
 			protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 					AuthenticationException failed) {
 				super.onUnsuccessfulAuthentication(request, response, failed);
@@ -167,13 +168,16 @@ public class RememberMeAuthenticationFilterTests {
 			this.authToReturn = authToReturn;
 		}
 
+		@Override
 		public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 			return this.authToReturn;
 		}
 
+		@Override
 		public void loginFail(HttpServletRequest request, HttpServletResponse response) {
 		}
 
+		@Override
 		public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 				Authentication successfulAuthentication) {
 		}

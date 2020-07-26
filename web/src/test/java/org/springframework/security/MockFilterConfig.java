@@ -31,10 +31,12 @@ public class MockFilterConfig implements FilterConfig {
 
 	private Map map = new HashMap();
 
+	@Override
 	public String getFilterName() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 
+	@Override
 	public String getInitParameter(String arg0) {
 		Object result = this.map.get(arg0);
 
@@ -46,10 +48,12 @@ public class MockFilterConfig implements FilterConfig {
 		}
 	}
 
+	@Override
 	public Enumeration getInitParameterNames() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 
+	@Override
 	public ServletContext getServletContext() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}

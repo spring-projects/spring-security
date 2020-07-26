@@ -49,6 +49,7 @@ import static org.mockito.Mockito.when;
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
  */
+@Deprecated
 public class OpenID4JavaConsumerTests {
 
 	List<OpenIDAttribute> attributes = Arrays.asList(new OpenIDAttribute("a", "b"),
@@ -228,6 +229,7 @@ public class OpenID4JavaConsumerTests {
 
 	private class MockAttributesFactory implements AxFetchListFactory {
 
+		@Override
 		public List<OpenIDAttribute> createAttributeList(String identifier) {
 			return OpenID4JavaConsumerTests.this.attributes;
 		}

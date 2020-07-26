@@ -26,10 +26,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class TargetObject implements ITargetObject {
 
+	@Override
 	public Integer computeHashCode(String input) {
 		return input.hashCode();
 	}
 
+	@Override
 	public int countLength(String input) {
 		return input.length();
 	}
@@ -42,6 +44,7 @@ public class TargetObject implements ITargetObject {
 	 * boolean indicating if the <code>Authentication</code> object is authenticated or
 	 * not
 	 */
+	@Override
 	public String makeLowerCase(String input) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -61,6 +64,7 @@ public class TargetObject implements ITargetObject {
 	 * boolean indicating if the <code>Authentication</code> object is authenticated or
 	 * not
 	 */
+	@Override
 	public String makeUpperCase(String input) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -71,6 +75,7 @@ public class TargetObject implements ITargetObject {
 	 * Delegates through to the {@link #makeLowerCase(String)} method.
 	 * @param input the message to be made lower-case
 	 */
+	@Override
 	public String publicMakeLowerCase(String input) {
 		return this.makeLowerCase(input);
 	}

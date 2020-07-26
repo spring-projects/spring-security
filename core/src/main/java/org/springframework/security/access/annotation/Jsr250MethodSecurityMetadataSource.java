@@ -56,14 +56,17 @@ public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSe
 		this.defaultRolePrefix = defaultRolePrefix;
 	}
 
+	@Override
 	protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
 		return processAnnotations(clazz.getAnnotations());
 	}
 
+	@Override
 	protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
 		return processAnnotations(AnnotationUtils.getAnnotations(method));
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		return null;
 	}

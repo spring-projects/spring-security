@@ -43,6 +43,7 @@ public class DefaultLdapUsernameToDnMapper implements LdapUsernameToDnMapper {
 	/**
 	 * Assembles the Distinguished Name that should be used the given username.
 	 */
+	@Override
 	public DistinguishedName buildDn(String username) {
 		DistinguishedName dn = new DistinguishedName(this.userDnBase);
 

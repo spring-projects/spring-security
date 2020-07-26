@@ -80,6 +80,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 * @param request the request to match
 	 * @return true if the pattern matches the URL, false otherwise.
 	 */
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		if (this.httpMethod != null && request.getMethod() != null && this.httpMethod != valueOf(request.getMethod())) {
 			return false;

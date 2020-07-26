@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -123,10 +124,10 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 		Mockito.verify(spyRequest, Mockito.never()).getReader();
 		Mockito.verify(spyRequest, Mockito.never()).getInputStream();
-		Mockito.verify(spyRequest, Mockito.never()).getParameter(Mockito.anyString());
+		Mockito.verify(spyRequest, Mockito.never()).getParameter(ArgumentMatchers.anyString());
 		Mockito.verify(spyRequest, Mockito.never()).getParameterMap();
 		Mockito.verify(spyRequest, Mockito.never()).getParameterNames();
-		Mockito.verify(spyRequest, Mockito.never()).getParameterValues(Mockito.anyString());
+		Mockito.verify(spyRequest, Mockito.never()).getParameterValues(ArgumentMatchers.anyString());
 	}
 
 	@Test

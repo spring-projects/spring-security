@@ -116,6 +116,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		this.pattern = pattern;
 	}
 
+	@Override
 	public boolean matches(Message<?> message) {
 		if (!this.messageTypeMatcher.matches(message)) {
 			return false;

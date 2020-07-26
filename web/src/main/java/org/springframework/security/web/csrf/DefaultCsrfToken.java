@@ -53,6 +53,7 @@ public final class DefaultCsrfToken implements CsrfToken {
 	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getHeaderName()
 	 */
+	@Override
 	public String getHeaderName() {
 		return this.headerName;
 	}
@@ -62,6 +63,7 @@ public final class DefaultCsrfToken implements CsrfToken {
 	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getParameterName()
 	 */
+	@Override
 	public String getParameterName() {
 		return this.parameterName;
 	}
@@ -71,6 +73,7 @@ public final class DefaultCsrfToken implements CsrfToken {
 	 *
 	 * @see org.springframework.security.web.csrf.CsrfToken#getToken()
 	 */
+	@Override
 	public String getToken() {
 		return this.token;
 	}

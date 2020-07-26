@@ -46,6 +46,7 @@ public class NegatedRequestMatcher implements RequestMatcher {
 		this.requestMatcher = requestMatcher;
 	}
 
+	@Override
 	public boolean matches(HttpServletRequest request) {
 		boolean result = !this.requestMatcher.matches(request);
 		if (this.logger.isDebugEnabled()) {

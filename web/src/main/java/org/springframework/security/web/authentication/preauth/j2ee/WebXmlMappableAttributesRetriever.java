@@ -61,10 +61,12 @@ public class WebXmlMappableAttributesRetriever
 
 	private Set<String> mappableAttributes;
 
+	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
 		this.resourceLoader = resourceLoader;
 	}
 
+	@Override
 	public Set<String> getMappableAttributes() {
 		return this.mappableAttributes;
 	}
@@ -74,6 +76,7 @@ public class WebXmlMappableAttributesRetriever
 	 * role-name elements from it, using these as the set of <tt>mappableAttributes</tt>.
 	 */
 
+	@Override
 	public void afterPropertiesSet() throws Exception {
 		Resource webXml = this.resourceLoader.getResource("/WEB-INF/web.xml");
 		Document doc = getDocument(webXml.getInputStream());
@@ -133,6 +136,7 @@ public class WebXmlMappableAttributesRetriever
 	 */
 	private static final class MyEntityResolver implements EntityResolver {
 
+		@Override
 		public InputSource resolveEntity(String publicId, String systemId) {
 			return new InputSource(new StringReader(""));
 		}

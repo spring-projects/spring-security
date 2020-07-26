@@ -42,6 +42,7 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 		return action;
 	}
 
+	@Override
 	public String processAction(HttpServletRequest request, String action, String method) {
 		if (method != null && this.DISABLE_CSRF_TOKEN_PATTERN.matcher(method).matches()) {
 			request.setAttribute(this.DISABLE_CSRF_TOKEN_ATTR, Boolean.TRUE);
@@ -52,10 +53,12 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 		return action;
 	}
 
+	@Override
 	public String processFormFieldValue(HttpServletRequest request, String name, String value, String type) {
 		return value;
 	}
 
+	@Override
 	public Map<String, String> getExtraHiddenFields(HttpServletRequest request) {
 		if (Boolean.TRUE.equals(request.getAttribute(this.DISABLE_CSRF_TOKEN_ATTR))) {
 			request.removeAttribute(this.DISABLE_CSRF_TOKEN_ATTR);
@@ -71,6 +74,7 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 		return hiddenFields;
 	}
 
+	@Override
 	public String processUrl(HttpServletRequest request, String url) {
 		return url;
 	}
