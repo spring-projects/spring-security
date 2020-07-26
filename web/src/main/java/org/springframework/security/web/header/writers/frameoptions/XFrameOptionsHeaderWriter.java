@@ -84,7 +84,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 * @param response the servlet response
 	 */
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		if (XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode)) {
+		if (XFrameOptionsMode.ALLOW_FROM.equals(this.frameOptionsMode)) {
 			String allowFromValue = this.allowFromStrategy.getAllowFromValue(request);
 			if (XFrameOptionsMode.DENY.getMode().equals(allowFromValue)) {
 				if (!response.containsHeader(XFRAME_OPTIONS_HEADER)) {
@@ -99,7 +99,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 			}
 		}
 		else {
-			response.setHeader(XFRAME_OPTIONS_HEADER, frameOptionsMode.getMode());
+			response.setHeader(XFRAME_OPTIONS_HEADER, this.frameOptionsMode.getMode());
 		}
 	}
 
@@ -133,7 +133,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 		 * @return the mode for the X-Frame-Options header value.
 		 */
 		private String getMode() {
-			return mode;
+			return this.mode;
 		}
 
 	}

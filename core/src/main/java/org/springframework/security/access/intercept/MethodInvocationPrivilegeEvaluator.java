@@ -50,17 +50,17 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 	private AbstractSecurityInterceptor securityInterceptor;
 
 	public void afterPropertiesSet() {
-		Assert.notNull(securityInterceptor, "SecurityInterceptor required");
+		Assert.notNull(this.securityInterceptor, "SecurityInterceptor required");
 	}
 
 	public boolean isAllowed(MethodInvocation mi, Authentication authentication) {
 		Assert.notNull(mi, "MethodInvocation required");
 		Assert.notNull(mi.getMethod(), "MethodInvocation must provide a non-null getMethod()");
 
-		Collection<ConfigAttribute> attrs = securityInterceptor.obtainSecurityMetadataSource().getAttributes(mi);
+		Collection<ConfigAttribute> attrs = this.securityInterceptor.obtainSecurityMetadataSource().getAttributes(mi);
 
 		if (attrs == null) {
-			if (securityInterceptor.isRejectPublicInvocations()) {
+			if (this.securityInterceptor.isRejectPublicInvocations()) {
 				return false;
 			}
 
@@ -72,7 +72,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 		}
 
 		try {
-			securityInterceptor.getAccessDecisionManager().decide(authentication, mi, attrs);
+			this.securityInterceptor.getAccessDecisionManager().decide(authentication, mi, attrs);
 		}
 		catch (AccessDeniedException unauthorized) {
 			if (logger.isDebugEnabled()) {

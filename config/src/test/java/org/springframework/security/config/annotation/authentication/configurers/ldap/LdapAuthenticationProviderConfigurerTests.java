@@ -30,15 +30,15 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	@Before
 	public void setUp() {
-		configurer = new LdapAuthenticationProviderConfigurer<>();
+		this.configurer = new LdapAuthenticationProviderConfigurer<>();
 	}
 
 	// SEC-2557
 	@Test
 	public void getAuthoritiesMapper() throws Exception {
-		assertThat(configurer.getAuthoritiesMapper()).isInstanceOf(SimpleAuthorityMapper.class);
-		configurer.authoritiesMapper(new NullAuthoritiesMapper());
-		assertThat(configurer.getAuthoritiesMapper()).isInstanceOf(NullAuthoritiesMapper.class);
+		assertThat(this.configurer.getAuthoritiesMapper()).isInstanceOf(SimpleAuthorityMapper.class);
+		this.configurer.authoritiesMapper(new NullAuthoritiesMapper());
+		assertThat(this.configurer.getAuthoritiesMapper()).isInstanceOf(NullAuthoritiesMapper.class);
 
 	}
 

@@ -46,7 +46,7 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 	public void filterWhenExistingContextAndPrincipalNotNullThenContextPopulated() {
 		Mono<Void> result = this.filter
 				.filter(this.exchange, new DefaultWebFilterChain(e -> e.getPrincipal()
-						.doOnSuccess(contextPrincipal -> assertThat(contextPrincipal).isEqualTo(principal))
+						.doOnSuccess(contextPrincipal -> assertThat(contextPrincipal).isEqualTo(this.principal))
 						.flatMap(contextPrincipal -> Mono.subscriberContext())
 						.doOnSuccess(context -> assertThat(context.<String>get("foo")).isEqualTo("bar")).then()))
 				.subscriberContext(context -> context.put("foo", "bar"))

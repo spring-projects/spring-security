@@ -40,7 +40,7 @@ public enum Saml2MessageBinding {
 	 * @return URN value representing this binding
 	 */
 	public String getUrn() {
-		return urn;
+		return this.urn;
 	}
 
 }

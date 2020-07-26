@@ -71,7 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
-		Assert.notNull(myUserRepository);
+		Assert.notNull(this.myUserRepository);
 		return new AuthenticationProvider() {
 			public boolean supports(Class<?> authentication) {
 				return true;
@@ -80,7 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 				Object principal = authentication.getPrincipal();
 				String username = String.valueOf(principal);
-				User user = myUserRepository.findByUsername(username);
+				User user = SecurityConfig.this.myUserRepository.findByUsername(username);
 				if (user == null) {
 					throw new UsernameNotFoundException("No user for principal " + principal);
 				}

@@ -31,38 +31,38 @@ public class Argon2EncodingUtilsTests {
 
 	private TestDataEntry testDataEntry1 = new TestDataEntry(
 			"$argon2i$v=19$m=1024,t=3,p=2$Y1JkRmJDdzIzZ3oyTWx4aw$cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs",
-			new Argon2EncodingUtils.Argon2Hash(decoder.decode("cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"),
+			new Argon2EncodingUtils.Argon2Hash(this.decoder.decode("cGE5Cbd/cx7micVhXVBdH5qTr66JI1iUyuNNVAnErXs"),
 					(new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i)).withVersion(19).withMemoryAsKB(1024)
 							.withIterations(3).withParallelism(2).withSalt("cRdFbCw23gz2Mlxk".getBytes()).build()));
 
 	private TestDataEntry testDataEntry2 = new TestDataEntry(
 			"$argon2id$v=19$m=333,t=5,p=2$JDR8N3k1QWx0$+PrEoHOHsWkU9lnsxqnOFrWTVEuOh7ZRIUIbe2yUG8FgTYNCWJfHQI09JAAFKzr2JAvoejEpTMghUt0WsntQYA",
 			new Argon2EncodingUtils.Argon2Hash(
-					decoder.decode(
+					this.decoder.decode(
 							"+PrEoHOHsWkU9lnsxqnOFrWTVEuOh7ZRIUIbe2yUG8FgTYNCWJfHQI09JAAFKzr2JAvoejEpTMghUt0WsntQYA"),
 					(new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)).withVersion(19).withMemoryAsKB(333)
 							.withIterations(5).withParallelism(2).withSalt("$4|7y5Alt".getBytes()).build()));
 
 	@Test
 	public void decodeWhenValidEncodedHashWithIThenDecodeCorrectly() {
-		assertArgon2HashEquals(testDataEntry1.decoded, Argon2EncodingUtils.decode(testDataEntry1.encoded));
+		assertArgon2HashEquals(this.testDataEntry1.decoded, Argon2EncodingUtils.decode(this.testDataEntry1.encoded));
 	}
 
 	@Test
 	public void decodeWhenValidEncodedHashWithIDThenDecodeCorrectly() {
-		assertArgon2HashEquals(testDataEntry2.decoded, Argon2EncodingUtils.decode(testDataEntry2.encoded));
+		assertArgon2HashEquals(this.testDataEntry2.decoded, Argon2EncodingUtils.decode(this.testDataEntry2.encoded));
 	}
 
 	@Test
 	public void encodeWhenValidArgumentsWithIThenEncodeToCorrectHash() {
-		assertThat(Argon2EncodingUtils.encode(testDataEntry1.decoded.getHash(), testDataEntry1.decoded.getParameters()))
-				.isEqualTo(testDataEntry1.encoded);
+		assertThat(Argon2EncodingUtils.encode(this.testDataEntry1.decoded.getHash(),
+				this.testDataEntry1.decoded.getParameters())).isEqualTo(this.testDataEntry1.encoded);
 	}
 
 	@Test
 	public void encodeWhenValidArgumentsWithID2ThenEncodeToCorrectHash() {
-		assertThat(Argon2EncodingUtils.encode(testDataEntry2.decoded.getHash(), testDataEntry2.decoded.getParameters()))
-				.isEqualTo(testDataEntry2.encoded);
+		assertThat(Argon2EncodingUtils.encode(this.testDataEntry2.decoded.getHash(),
+				this.testDataEntry2.decoded.getParameters())).isEqualTo(this.testDataEntry2.encoded);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

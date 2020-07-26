@@ -705,7 +705,7 @@ public class DaoAuthenticationProviderTests {
 
 		public UserDetails loadUserByUsername(String username) {
 			if ("rod".equals(username)) {
-				return new User("rod", password, true, true, true, true, ROLES_12);
+				return new User("rod", this.password, true, true, true, true, ROLES_12);
 			}
 			throw new UsernameNotFoundException("Could not find: " + username);
 		}

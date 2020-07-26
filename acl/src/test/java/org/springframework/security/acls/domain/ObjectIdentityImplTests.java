@@ -179,7 +179,7 @@ public class ObjectIdentityImplTests {
 		private Object id;
 
 		public Object getId() {
-			return id;
+			return this.id;
 		}
 
 		public void setId(Object id) {
@@ -193,7 +193,7 @@ public class ObjectIdentityImplTests {
 		private Object id;
 
 		public Object getId() {
-			return id;
+			return this.id;
 		}
 
 		public void setId(Object id) {

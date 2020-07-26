@@ -52,13 +52,13 @@ public class DefaultfSecurityRequestsTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).defaultRequest(get("/").with(user("user").roles("ADMIN")))
-				.apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
+				.defaultRequest(get("/").with(user("user").roles("ADMIN"))).apply(springSecurity()).build();
 	}
 
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
-		mvc.perform(get("/"))
+		this.mvc.perform(get("/"))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
@@ -67,7 +67,7 @@ public class DefaultfSecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
-		mvc.perform(get("/admin"))
+		this.mvc.perform(get("/admin"))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
@@ -76,7 +76,7 @@ public class DefaultfSecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithAnonymous() throws Exception {
-		mvc.perform(get("/admin").with(anonymous()))
+		this.mvc.perform(get("/admin").with(anonymous()))
 				// Ensure we got past Security
 				.andExpect(status().isUnauthorized())
 				// Ensure it appears we are authenticated with user

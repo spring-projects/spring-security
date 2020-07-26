@@ -65,15 +65,15 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 	}
 
 	public AccessDeniedException getAccessDeniedException() {
-		return accessDeniedException;
+		return this.accessDeniedException;
 	}
 
 	public Authentication getAuthentication() {
-		return authentication;
+		return this.authentication;
 	}
 
 	public Collection<ConfigAttribute> getConfigAttributes() {
-		return configAttributes;
+		return this.configAttributes;
 	}
 
 }

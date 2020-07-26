@@ -58,50 +58,50 @@ public class MultiAnnotationTests {
 
 	@Test(expected = AccessDeniedException.class)
 	public void preAuthorizeDeniedIsDenied() {
-		SecurityContextHolder.getContext().setAuthentication(joe_a);
-		service.preAuthorizeDenyAllMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
+		this.service.preAuthorizeDenyAllMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void preAuthorizeRoleAIsDeniedIfRoleMissing() {
-		SecurityContextHolder.getContext().setAuthentication(joe_b);
-		service.preAuthorizeHasRoleAMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
+		this.service.preAuthorizeHasRoleAMethod();
 	}
 
 	@Test
 	public void preAuthorizeRoleAIsAllowedIfRolePresent() {
-		SecurityContextHolder.getContext().setAuthentication(joe_a);
-		service.preAuthorizeHasRoleAMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
+		this.service.preAuthorizeHasRoleAMethod();
 	}
 
 	@Test
 	public void securedAnonymousIsAllowed() {
-		SecurityContextHolder.getContext().setAuthentication(joe_a);
-		service.securedAnonymousMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
+		this.service.securedAnonymousMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void securedRoleAIsDeniedIfRoleMissing() {
-		SecurityContextHolder.getContext().setAuthentication(joe_b);
-		service.securedRoleAMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
+		this.service.securedRoleAMethod();
 	}
 
 	@Test
 	public void securedRoleAIsAllowedIfRolePresent() {
-		SecurityContextHolder.getContext().setAuthentication(joe_a);
-		service.securedRoleAMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
+		this.service.securedRoleAMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void preAuthorizedOnlyServiceDeniesIfRoleMissing() {
-		SecurityContextHolder.getContext().setAuthentication(joe_b);
-		preService.preAuthorizedMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
+		this.preService.preAuthorizedMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void securedOnlyRoleAServiceDeniesIfRoleMissing() {
-		SecurityContextHolder.getContext().setAuthentication(joe_b);
-		secService.securedMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
+		this.secService.securedMethod();
 	}
 
 }

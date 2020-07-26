@@ -141,7 +141,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 */
 	public T loginProcessingUrl(String loginProcessingUrl) {
 		this.loginProcessingUrl = loginProcessingUrl;
-		authFilter.setRequiresAuthenticationRequestMatcher(createLoginProcessingUrlMatcher(loginProcessingUrl));
+		this.authFilter.setRequiresAuthenticationRequestMatcher(createLoginProcessingUrlMatcher(loginProcessingUrl));
 		return getSelf();
 	}
 
@@ -268,7 +268,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	public void configure(B http) throws Exception {
 		PortMapper portMapper = http.getSharedObject(PortMapper.class);
 		if (portMapper != null) {
-			authenticationEntryPoint.setPortMapper(portMapper);
+			this.authenticationEntryPoint.setPortMapper(portMapper);
 		}
 
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
@@ -276,22 +276,22 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 			this.defaultSuccessHandler.setRequestCache(requestCache);
 		}
 
-		authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-		authFilter.setAuthenticationSuccessHandler(successHandler);
-		authFilter.setAuthenticationFailureHandler(failureHandler);
-		if (authenticationDetailsSource != null) {
-			authFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+		this.authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+		this.authFilter.setAuthenticationSuccessHandler(this.successHandler);
+		this.authFilter.setAuthenticationFailureHandler(this.failureHandler);
+		if (this.authenticationDetailsSource != null) {
+			this.authFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 		}
 		SessionAuthenticationStrategy sessionAuthenticationStrategy = http
 				.getSharedObject(SessionAuthenticationStrategy.class);
 		if (sessionAuthenticationStrategy != null) {
-			authFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+			this.authFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
 		}
 		RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
 		if (rememberMeServices != null) {
-			authFilter.setRememberMeServices(rememberMeServices);
+			this.authFilter.setRememberMeServices(rememberMeServices);
 		}
-		F filter = postProcess(authFilter);
+		F filter = postProcess(this.authFilter);
 		http.addFilter(filter);
 	}
 
@@ -319,7 +319,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * @return true if a custom login page has been specified, else false
 	 */
 	public final boolean isCustomLoginPage() {
-		return customLoginPage;
+		return this.customLoginPage;
 	}
 
 	/**
@@ -327,7 +327,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * @return the Authentication Filter
 	 */
 	protected final F getAuthenticationFilter() {
-		return authFilter;
+		return this.authFilter;
 	}
 
 	/**
@@ -343,7 +343,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * @return the login page
 	 */
 	protected final String getLoginPage() {
-		return loginPage;
+		return this.loginPage;
 	}
 
 	/**
@@ -351,7 +351,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * @return the Authentication Entry Point
 	 */
 	protected final AuthenticationEntryPoint getAuthenticationEntryPoint() {
-		return authenticationEntryPoint;
+		return this.authenticationEntryPoint;
 	}
 
 	/**
@@ -360,7 +360,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * @return the URL to submit an authentication request to
 	 */
 	protected final String getLoginProcessingUrl() {
-		return loginProcessingUrl;
+		return this.loginProcessingUrl;
 	}
 
 	/**
@@ -368,7 +368,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * @return the URL to send users if authentication fails (e.g. "/login?error").
 	 */
 	protected final String getFailureUrl() {
-		return failureUrl;
+		return this.failureUrl;
 	}
 
 	/**
@@ -376,16 +376,16 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * @throws Exception
 	 */
 	protected final void updateAuthenticationDefaults() {
-		if (loginProcessingUrl == null) {
-			loginProcessingUrl(loginPage);
+		if (this.loginProcessingUrl == null) {
+			loginProcessingUrl(this.loginPage);
 		}
-		if (failureHandler == null) {
-			failureUrl(loginPage + "?error");
+		if (this.failureHandler == null) {
+			failureUrl(this.loginPage + "?error");
 		}
 
 		final LogoutConfigurer<B> logoutConfigurer = getBuilder().getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null && !logoutConfigurer.isCustomLogoutSuccess()) {
-			logoutConfigurer.logoutSuccessUrl(loginPage + "?logout");
+			logoutConfigurer.logoutSuccessUrl(this.loginPage + "?logout");
 		}
 	}
 
@@ -393,8 +393,8 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * Updates the default values for access.
 	 */
 	protected final void updateAccessDefaults(B http) {
-		if (permitAll) {
-			PermitAllSupport.permitAll(http, loginPage, loginProcessingUrl, failureUrl);
+		if (this.permitAll) {
+			PermitAllSupport.permitAll(http, this.loginPage, this.loginProcessingUrl, this.failureUrl);
 		}
 	}
 

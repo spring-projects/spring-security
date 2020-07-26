@@ -43,13 +43,13 @@ public abstract class AbstractSecurityContextSchedulingTaskExecutorTests
 
 	@Test
 	public void prefersShortLivedTasks() {
-		executor = create();
-		executor.prefersShortLivedTasks();
-		verify(taskExecutorDelegate).prefersShortLivedTasks();
+		this.executor = create();
+		this.executor.prefersShortLivedTasks();
+		verify(this.taskExecutorDelegate).prefersShortLivedTasks();
 	}
 
 	protected SchedulingTaskExecutor getExecutor() {
-		return taskExecutorDelegate;
+		return this.taskExecutorDelegate;
 	}
 
 	protected abstract DelegatingSecurityContextSchedulingTaskExecutor create();

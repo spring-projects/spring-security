@@ -448,12 +448,12 @@ class OrderDecorator implements Ordered {
 
 	@Override
 	public int getOrder() {
-		return order;
+		return this.order;
 	}
 
 	@Override
 	public String toString() {
-		return bean + ", order = " + order;
+		return this.bean + ", order = " + this.order;
 	}
 
 }

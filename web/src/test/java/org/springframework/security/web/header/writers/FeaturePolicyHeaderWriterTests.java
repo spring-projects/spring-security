@@ -52,7 +52,7 @@ public class FeaturePolicyHeaderWriterTests {
 
 	@Test
 	public void writeHeadersFeaturePolicyDefault() {
-		writer.writeHeaders(this.request, this.response);
+		this.writer.writeHeaders(this.request, this.response);
 
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Feature-Policy")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);

@@ -78,9 +78,9 @@ public class Sec2758Tests {
 
 		this.spring.register(SecurityConfig.class).autowire();
 
-		assertThatCode(() -> service.doJsr250()).doesNotThrowAnyException();
+		assertThatCode(() -> this.service.doJsr250()).doesNotThrowAnyException();
 
-		assertThatCode(() -> service.doPreAuthorize()).doesNotThrowAnyException();
+		assertThatCode(() -> this.service.doPreAuthorize()).doesNotThrowAnyException();
 	}
 
 	@EnableWebSecurity

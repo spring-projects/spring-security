@@ -39,17 +39,17 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvo
 		args = invocation.getArguments();
 
 		for (int i = 0; i < params.length; i++) {
-			if (processDomainObjectClass.isAssignableFrom(params[i])) {
+			if (this.processDomainObjectClass.isAssignableFrom(params[i])) {
 				return args[i];
 			}
 		}
 
 		throw new AuthorizationServiceException("MethodInvocation: " + invocation
-				+ " did not provide any argument of type: " + processDomainObjectClass);
+				+ " did not provide any argument of type: " + this.processDomainObjectClass);
 	}
 
 	public Class<?> getProcessDomainObjectClass() {
-		return processDomainObjectClass;
+		return this.processDomainObjectClass;
 	}
 
 	public void setProcessDomainObjectClass(Class<?> processDomainObjectClass) {

@@ -54,7 +54,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	public MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source) {
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
 				"securityMethodInterceptor", source, "methodMetadataSource");
-		advisor.setOrder(advisorOrder);
+		advisor.setOrder(this.advisorOrder);
 		return advisor;
 	}
 

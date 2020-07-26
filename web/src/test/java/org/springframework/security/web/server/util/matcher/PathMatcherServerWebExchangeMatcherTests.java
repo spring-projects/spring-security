@@ -59,10 +59,10 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		MockServerHttpRequest request = MockServerHttpRequest.post("/path").build();
 		MockServerHttpResponse response = new MockServerHttpResponse();
 		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-		exchange = MockServerWebExchange.from(request);
-		path = "/path";
+		this.exchange = MockServerWebExchange.from(request);
+		this.path = "/path";
 
-		matcher = new PathPatternParserServerWebExchangeMatcher(pattern);
+		this.matcher = new PathPatternParserServerWebExchangeMatcher(this.pattern);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -77,39 +77,40 @@ public class PathMatcherServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenPathMatcherTrueThenReturnTrue() {
-		when(pattern.matches(any())).thenReturn(true);
-		when(pattern.matchAndExtract(any())).thenReturn(pathMatchInfo);
-		when(pathMatchInfo.getUriVariables()).thenReturn(new HashMap<>());
+		when(this.pattern.matches(any())).thenReturn(true);
+		when(this.pattern.matchAndExtract(any())).thenReturn(this.pathMatchInfo);
+		when(this.pathMatchInfo.getUriVariables()).thenReturn(new HashMap<>());
 
-		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
+		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void matchesWhenPathMatcherFalseThenReturnFalse() {
-		when(pattern.matches(any())).thenReturn(false);
+		when(this.pattern.matches(any())).thenReturn(false);
 
-		assertThat(matcher.matches(exchange).block().isMatch()).isFalse();
+		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void matchesWhenPathMatcherTrueAndMethodTrueThenReturnTrue() {
-		matcher = new PathPatternParserServerWebExchangeMatcher(pattern, exchange.getRequest().getMethod());
-		when(pattern.matches(any())).thenReturn(true);
-		when(pattern.matchAndExtract(any())).thenReturn(pathMatchInfo);
-		when(pathMatchInfo.getUriVariables()).thenReturn(new HashMap<>());
+		this.matcher = new PathPatternParserServerWebExchangeMatcher(this.pattern,
+				this.exchange.getRequest().getMethod());
+		when(this.pattern.matches(any())).thenReturn(true);
+		when(this.pattern.matchAndExtract(any())).thenReturn(this.pathMatchInfo);
+		when(this.pathMatchInfo.getUriVariables()).thenReturn(new HashMap<>());
 
-		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
+		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void matchesWhenPathMatcherTrueAndMethodFalseThenReturnFalse() {
 		HttpMethod method = HttpMethod.OPTIONS;
-		assertThat(exchange.getRequest().getMethod()).isNotEqualTo(method);
-		matcher = new PathPatternParserServerWebExchangeMatcher(pattern, method);
+		assertThat(this.exchange.getRequest().getMethod()).isNotEqualTo(method);
+		this.matcher = new PathPatternParserServerWebExchangeMatcher(this.pattern, method);
 
-		assertThat(matcher.matches(exchange).block().isMatch()).isFalse();
+		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 
-		verifyZeroInteractions(pattern);
+		verifyZeroInteractions(this.pattern);
 	}
 
 }

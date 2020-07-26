@@ -60,7 +60,7 @@ public class ServerRequestCacheWebFilterTests {
 	@Before
 	public void setup() {
 		this.requestCacheFilter = new ServerRequestCacheWebFilter();
-		this.requestCacheFilter.setRequestCache(requestCache);
+		this.requestCacheFilter.setRequestCache(this.requestCache);
 		when(this.chain.filter(any(ServerWebExchange.class))).thenReturn(Mono.empty());
 	}
 
@@ -73,8 +73,8 @@ public class ServerRequestCacheWebFilterTests {
 
 		this.requestCacheFilter.filter(exchange, this.chain).block();
 
-		verify(chain).filter(exchangeCaptor.capture());
-		ServerWebExchange updatedExchange = exchangeCaptor.getValue();
+		verify(this.chain).filter(this.exchangeCaptor.capture());
+		ServerWebExchange updatedExchange = this.exchangeCaptor.getValue();
 		assertThat(updatedExchange.getRequest()).isEqualTo(savedRequest);
 	}
 
@@ -86,8 +86,8 @@ public class ServerRequestCacheWebFilterTests {
 
 		this.requestCacheFilter.filter(exchange, this.chain).block();
 
-		verify(chain).filter(exchangeCaptor.capture());
-		ServerWebExchange updatedExchange = exchangeCaptor.getValue();
+		verify(this.chain).filter(this.exchangeCaptor.capture());
+		ServerWebExchange updatedExchange = this.exchangeCaptor.getValue();
 		assertThat(updatedExchange.getRequest()).isEqualTo(initialRequest);
 	}
 

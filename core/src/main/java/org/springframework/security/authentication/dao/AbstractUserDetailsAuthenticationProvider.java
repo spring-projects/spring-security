@@ -120,7 +120,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
-				() -> messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
+				() -> this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
 						"Only UsernamePasswordAuthenticationToken is supported"));
 
 		// Determine username
@@ -136,10 +136,10 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
 			}
 			catch (UsernameNotFoundException notFound) {
-				logger.debug("User '" + username + "' not found");
+				this.logger.debug("User '" + username + "' not found");
 
-				if (hideUserNotFoundExceptions) {
-					throw new BadCredentialsException(messages
+				if (this.hideUserNotFoundExceptions) {
+					throw new BadCredentialsException(this.messages
 							.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 				}
 				else {
@@ -151,7 +151,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		}
 
 		try {
-			preAuthenticationChecks.check(user);
+			this.preAuthenticationChecks.check(user);
 			additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
 		}
 		catch (AuthenticationException exception) {
@@ -160,7 +160,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 				// we're using latest data (i.e. not from the cache)
 				cacheWasUsed = false;
 				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
-				preAuthenticationChecks.check(user);
+				this.preAuthenticationChecks.check(user);
 				additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
 			}
 			else {
@@ -168,7 +168,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 			}
 		}
 
-		postAuthenticationChecks.check(user);
+		this.postAuthenticationChecks.check(user);
 
 		if (!cacheWasUsed) {
 			this.userCache.putUserInCache(user);
@@ -176,7 +176,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 		Object principalToReturn = user;
 
-		if (forcePrincipalAsString) {
+		if (this.forcePrincipalAsString) {
 			principalToReturn = user.getUsername();
 		}
 
@@ -205,7 +205,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		// Also ensure we return the original getDetails(), so that future
 		// authentication events after cache expiry contain the details
 		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
-				authentication.getCredentials(), authoritiesMapper.mapAuthorities(user.getAuthorities()));
+				authentication.getCredentials(), this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		result.setDetails(authentication.getDetails());
 
 		return result;
@@ -215,15 +215,15 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 	}
 
 	public UserCache getUserCache() {
-		return userCache;
+		return this.userCache;
 	}
 
 	public boolean isForcePrincipalAsString() {
-		return forcePrincipalAsString;
+		return this.forcePrincipalAsString;
 	}
 
 	public boolean isHideUserNotFoundExceptions() {
-		return hideUserNotFoundExceptions;
+		return this.hideUserNotFoundExceptions;
 	}
 
 	/**
@@ -299,7 +299,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 	}
 
 	protected UserDetailsChecker getPreAuthenticationChecks() {
-		return preAuthenticationChecks;
+		return this.preAuthenticationChecks;
 	}
 
 	/**
@@ -312,7 +312,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 	}
 
 	protected UserDetailsChecker getPostAuthenticationChecks() {
-		return postAuthenticationChecks;
+		return this.postAuthenticationChecks;
 	}
 
 	public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
@@ -327,23 +327,23 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 		public void check(UserDetails user) {
 			if (!user.isAccountNonLocked()) {
-				logger.debug("User account is locked");
+				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is locked");
 
-				throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
-						"User account is locked"));
+				throw new LockedException(AbstractUserDetailsAuthenticationProvider.this.messages
+						.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
 			}
 
 			if (!user.isEnabled()) {
-				logger.debug("User account is disabled");
+				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is disabled");
 
-				throw new DisabledException(
-						messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
+				throw new DisabledException(AbstractUserDetailsAuthenticationProvider.this.messages
+						.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
 			}
 
 			if (!user.isAccountNonExpired()) {
-				logger.debug("User account is expired");
+				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is expired");
 
-				throw new AccountExpiredException(messages
+				throw new AccountExpiredException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
 			}
 		}
@@ -354,10 +354,10 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 		public void check(UserDetails user) {
 			if (!user.isCredentialsNonExpired()) {
-				logger.debug("User account credentials have expired");
+				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account credentials have expired");
 
-				throw new CredentialsExpiredException(
-						messages.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired",
+				throw new CredentialsExpiredException(AbstractUserDetailsAuthenticationProvider.this.messages
+						.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired",
 								"User credentials have expired"));
 			}
 		}

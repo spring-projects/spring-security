@@ -64,7 +64,7 @@ public abstract class AbstractAccessDecisionManager
 	protected final void checkAllowIfAllAbstainDecisions() {
 		if (!this.isAllowIfAllAbstainDecisions()) {
 			throw new AccessDeniedException(
-					messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+					this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 		}
 	}
 
@@ -73,7 +73,7 @@ public abstract class AbstractAccessDecisionManager
 	}
 
 	public boolean isAllowIfAllAbstainDecisions() {
-		return allowIfAllAbstainDecisions;
+		return this.allowIfAllAbstainDecisions;
 	}
 
 	public void setAllowIfAllAbstainDecisions(boolean allowIfAllAbstainDecisions) {

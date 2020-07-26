@@ -61,7 +61,7 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 
 	@Override
 	public SecurityMetadataSource obtainSecurityMetadataSource() {
-		return metadataSource;
+		return this.metadataSource;
 	}
 
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {

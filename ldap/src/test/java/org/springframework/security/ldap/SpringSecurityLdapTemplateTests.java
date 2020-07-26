@@ -60,15 +60,16 @@ public class SpringSecurityLdapTemplateTests {
 		Object[] params = new Object[] {};
 		DirContextAdapter searchResultObject = mock(DirContextAdapter.class);
 
-		when(ctx.search(any(DistinguishedName.class), eq(filter), eq(params), searchControls.capture()))
-				.thenReturn(resultsEnum);
-		when(resultsEnum.hasMore()).thenReturn(true, false);
-		when(resultsEnum.next()).thenReturn(searchResult);
-		when(searchResult.getObject()).thenReturn(searchResultObject);
+		when(this.ctx.search(any(DistinguishedName.class), eq(filter), eq(params), this.searchControls.capture()))
+				.thenReturn(this.resultsEnum);
+		when(this.resultsEnum.hasMore()).thenReturn(true, false);
+		when(this.resultsEnum.next()).thenReturn(this.searchResult);
+		when(this.searchResult.getObject()).thenReturn(searchResultObject);
 
-		SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx, mock(SearchControls.class), base, filter, params);
+		SpringSecurityLdapTemplate.searchForSingleEntryInternal(this.ctx, mock(SearchControls.class), base, filter,
+				params);
 
-		assertThat(searchControls.getValue().getReturningObjFlag()).isTrue();
+		assertThat(this.searchControls.getValue().getReturningObjFlag()).isTrue();
 	}
 
 }

@@ -66,14 +66,14 @@ public final class SecurityContextCallableProcessingInterceptor extends Callable
 
 	@Override
 	public <T> void beforeConcurrentHandling(NativeWebRequest request, Callable<T> task) {
-		if (securityContext == null) {
+		if (this.securityContext == null) {
 			setSecurityContext(SecurityContextHolder.getContext());
 		}
 	}
 
 	@Override
 	public <T> void preProcess(NativeWebRequest request, Callable<T> task) {
-		SecurityContextHolder.setContext(securityContext);
+		SecurityContextHolder.setContext(this.securityContext);
 	}
 
 	@Override

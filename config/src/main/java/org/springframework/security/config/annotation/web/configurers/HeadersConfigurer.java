@@ -125,7 +125,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link ContentTypeOptionsConfig} for additional customizations
 	 */
 	public ContentTypeOptionsConfig contentTypeOptions() {
-		return contentTypeOptions.enable();
+		return this.contentTypeOptions.enable();
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 */
 	public HeadersConfigurer<H> contentTypeOptions(Customizer<ContentTypeOptionsConfig> contentTypeOptionsCustomizer) {
-		contentTypeOptionsCustomizer.customize(contentTypeOptions.enable());
+		contentTypeOptionsCustomizer.customize(this.contentTypeOptions.enable());
 		return HeadersConfigurer.this;
 	}
 
@@ -158,7 +158,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return {@link HeadersConfigurer} for additional customization.
 		 */
 		public HeadersConfigurer<H> disable() {
-			writer = null;
+			this.writer = null;
 			return and();
 		}
 
@@ -175,8 +175,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link ContentTypeOptionsConfig} for additional customization
 		 */
 		private ContentTypeOptionsConfig enable() {
-			if (writer == null) {
-				writer = new XContentTypeOptionsHeaderWriter();
+			if (this.writer == null) {
+				this.writer = new XContentTypeOptionsHeaderWriter();
 			}
 			return this;
 		}
@@ -194,7 +194,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link XXssConfig} for additional customizations
 	 */
 	public XXssConfig xssProtection() {
-		return xssProtection.enable();
+		return this.xssProtection.enable();
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 */
 	public HeadersConfigurer<H> xssProtection(Customizer<XXssConfig> xssCustomizer) {
-		xssCustomizer.customize(xssProtection.enable());
+		xssCustomizer.customize(this.xssProtection.enable());
 		return HeadersConfigurer.this;
 	}
 
@@ -228,7 +228,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @param enabled the new value
 		 */
 		public XXssConfig block(boolean enabled) {
-			writer.setBlock(enabled);
+			this.writer.setBlock(enabled);
 			return this;
 		}
 
@@ -256,7 +256,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @param enabled the new value
 		 */
 		public XXssConfig xssProtectionEnabled(boolean enabled) {
-			writer.setEnabled(enabled);
+			this.writer.setEnabled(enabled);
 			return this;
 		}
 
@@ -265,7 +265,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
-			writer = null;
+			this.writer = null;
 			return and();
 		}
 
@@ -283,8 +283,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link XXssConfig} for additional customization
 		 */
 		private XXssConfig enable() {
-			if (writer == null) {
-				writer = new XXssProtectionHeaderWriter();
+			if (this.writer == null) {
+				this.writer = new XXssProtectionHeaderWriter();
 			}
 			return this;
 		}
@@ -302,7 +302,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link CacheControlConfig} for additional customizations
 	 */
 	public CacheControlConfig cacheControl() {
-		return cacheControl.enable();
+		return this.cacheControl.enable();
 	}
 
 	/**
@@ -318,7 +318,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 */
 	public HeadersConfigurer<H> cacheControl(Customizer<CacheControlConfig> cacheControlCustomizer) {
-		cacheControlCustomizer.customize(cacheControl.enable());
+		cacheControlCustomizer.customize(this.cacheControl.enable());
 		return HeadersConfigurer.this;
 	}
 
@@ -335,7 +335,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
-			writer = null;
+			this.writer = null;
 			return HeadersConfigurer.this;
 		}
 
@@ -353,8 +353,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link CacheControlConfig} for additional customization
 		 */
 		private CacheControlConfig enable() {
-			if (writer == null) {
-				writer = new CacheControlHeadersWriter();
+			if (this.writer == null) {
+				this.writer = new CacheControlHeadersWriter();
 			}
 			return this;
 		}
@@ -368,7 +368,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HstsConfig} for additional customizations
 	 */
 	public HstsConfig httpStrictTransportSecurity() {
-		return hsts.enable();
+		return this.hsts.enable();
 	}
 
 	/**
@@ -380,7 +380,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 */
 	public HeadersConfigurer<H> httpStrictTransportSecurity(Customizer<HstsConfig> hstsCustomizer) {
-		hstsCustomizer.customize(hsts.enable());
+		hstsCustomizer.customize(this.hsts.enable());
 		return HeadersConfigurer.this;
 	}
 
@@ -409,7 +409,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @throws IllegalArgumentException if maxAgeInSeconds is negative
 		 */
 		public HstsConfig maxAgeInSeconds(long maxAgeInSeconds) {
-			writer.setMaxAgeInSeconds(maxAgeInSeconds);
+			this.writer.setMaxAgeInSeconds(maxAgeInSeconds);
 			return this;
 		}
 
@@ -422,7 +422,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @throws IllegalArgumentException if {@link RequestMatcher} is null
 		 */
 		public HstsConfig requestMatcher(RequestMatcher requestMatcher) {
-			writer.setRequestMatcher(requestMatcher);
+			this.writer.setRequestMatcher(requestMatcher);
 			return this;
 		}
 
@@ -438,7 +438,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @param includeSubDomains true to include subdomains, else false
 		 */
 		public HstsConfig includeSubDomains(boolean includeSubDomains) {
-			writer.setIncludeSubDomains(includeSubDomains);
+			this.writer.setIncludeSubDomains(includeSubDomains);
 			return this;
 		}
 
@@ -456,7 +456,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @author Ankur Pathak
 		 */
 		public HstsConfig preload(boolean preload) {
-			writer.setPreload(preload);
+			this.writer.setPreload(preload);
 			return this;
 		}
 
@@ -465,7 +465,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
-			writer = null;
+			this.writer = null;
 			return HeadersConfigurer.this;
 		}
 
@@ -483,8 +483,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HstsConfig} for additional customization
 		 */
 		private HstsConfig enable() {
-			if (writer == null) {
-				writer = new HstsHeaderWriter();
+			if (this.writer == null) {
+				this.writer = new HstsHeaderWriter();
 			}
 			return this;
 		}
@@ -496,7 +496,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link FrameOptionsConfig} for additional customizations
 	 */
 	public FrameOptionsConfig frameOptions() {
-		return frameOptions.enable();
+		return this.frameOptions.enable();
 	}
 
 	/**
@@ -506,7 +506,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 */
 	public HeadersConfigurer<H> frameOptions(Customizer<FrameOptionsConfig> frameOptionsCustomizer) {
-		frameOptionsCustomizer.customize(frameOptions.enable());
+		frameOptionsCustomizer.customize(this.frameOptions.enable());
 		return HeadersConfigurer.this;
 	}
 
@@ -523,7 +523,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HeadersConfigurer} for additional customization.
 		 */
 		public HeadersConfigurer<H> deny() {
-			writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
+			this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
 			return and();
 		}
 
@@ -537,7 +537,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HeadersConfigurer} for additional customization.
 		 */
 		public HeadersConfigurer<H> sameOrigin() {
-			writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
+			this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
 			return and();
 		}
 
@@ -546,7 +546,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HeadersConfigurer} for additional configuration.
 		 */
 		public HeadersConfigurer<H> disable() {
-			writer = null;
+			this.writer = null;
 			return and();
 		}
 
@@ -563,8 +563,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the FrameOptionsConfig for additional customization.
 		 */
 		private FrameOptionsConfig enable() {
-			if (writer == null) {
-				writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
+			if (this.writer == null) {
+				this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
 			}
 			return this;
 		}
@@ -579,7 +579,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @since 4.1
 	 */
 	public HpkpConfig httpPublicKeyPinning() {
-		return hpkp.enable();
+		return this.hpkp.enable();
 	}
 
 	/**
@@ -590,7 +590,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 */
 	public HeadersConfigurer<H> httpPublicKeyPinning(Customizer<HpkpConfig> hpkpCustomizer) {
-		hpkpCustomizer.customize(hpkp.enable());
+		hpkpCustomizer.customize(this.hpkp.enable());
 		return HeadersConfigurer.this;
 	}
 
@@ -617,7 +617,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @throws IllegalArgumentException if pins is null
 		 */
 		public HpkpConfig withPins(Map<String, String> pins) {
-			writer.setPins(pins);
+			this.writer.setPins(pins);
 			return this;
 		}
 
@@ -637,7 +637,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @throws IllegalArgumentException if a pin is null
 		 */
 		public HpkpConfig addSha256Pins(String... pins) {
-			writer.addSha256Pins(pins);
+			this.writer.addSha256Pins(pins);
 			return this;
 		}
 
@@ -658,7 +658,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @throws IllegalArgumentException if maxAgeInSeconds is negative
 		 */
 		public HpkpConfig maxAgeInSeconds(long maxAgeInSeconds) {
-			writer.setMaxAgeInSeconds(maxAgeInSeconds);
+			this.writer.setMaxAgeInSeconds(maxAgeInSeconds);
 			return this;
 		}
 
@@ -675,7 +675,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @param includeSubDomains true to include subdomains, else false
 		 */
 		public HpkpConfig includeSubDomains(boolean includeSubDomains) {
-			writer.setIncludeSubDomains(includeSubDomains);
+			this.writer.setIncludeSubDomains(includeSubDomains);
 			return this;
 		}
 
@@ -692,7 +692,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @param reportOnly true to report only, else false
 		 */
 		public HpkpConfig reportOnly(boolean reportOnly) {
-			writer.setReportOnly(reportOnly);
+			this.writer.setReportOnly(reportOnly);
 			return this;
 		}
 
@@ -708,7 +708,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @param reportUri the URI where the browser should send the report to.
 		 */
 		public HpkpConfig reportUri(URI reportUri) {
-			writer.setReportUri(reportUri);
+			this.writer.setReportUri(reportUri);
 			return this;
 		}
 
@@ -725,7 +725,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @throws IllegalArgumentException if the reportUri is not a valid URI
 		 */
 		public HpkpConfig reportUri(String reportUri) {
-			writer.setReportUri(reportUri);
+			this.writer.setReportUri(reportUri);
 			return this;
 		}
 
@@ -734,7 +734,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HeadersConfigurer} for additional configuration.
 		 */
 		public HeadersConfigurer<H> disable() {
-			writer = null;
+			this.writer = null;
 			return and();
 		}
 
@@ -753,8 +753,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link HstsConfig} for additional customization
 		 */
 		private HpkpConfig enable() {
-			if (writer == null) {
-				writer = new HpkpHeaderWriter();
+			if (this.writer == null) {
+				this.writer = new HpkpHeaderWriter();
 			}
 			return this;
 		}
@@ -788,7 +788,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public ContentSecurityPolicyConfig contentSecurityPolicy(String policyDirectives) {
 		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter(policyDirectives);
-		return contentSecurityPolicy;
+		return this.contentSecurityPolicy;
 	}
 
 	/**
@@ -874,11 +874,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HeadersConfigurer} for additional customization
 	 */
 	public HeadersConfigurer<H> defaultsDisabled() {
-		contentTypeOptions.disable();
-		xssProtection.disable();
-		cacheControl.disable();
-		hsts.disable();
-		frameOptions.disable();
+		this.contentTypeOptions.disable();
+		this.xssProtection.disable();
+		this.cacheControl.disable();
+		this.hsts.disable();
+		this.frameOptions.disable();
 		return this;
 	}
 
@@ -909,16 +909,16 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private List<HeaderWriter> getHeaderWriters() {
 		List<HeaderWriter> writers = new ArrayList<>();
-		addIfNotNull(writers, contentTypeOptions.writer);
-		addIfNotNull(writers, xssProtection.writer);
-		addIfNotNull(writers, cacheControl.writer);
-		addIfNotNull(writers, hsts.writer);
-		addIfNotNull(writers, frameOptions.writer);
-		addIfNotNull(writers, hpkp.writer);
-		addIfNotNull(writers, contentSecurityPolicy.writer);
-		addIfNotNull(writers, referrerPolicy.writer);
-		addIfNotNull(writers, featurePolicy.writer);
-		writers.addAll(headerWriters);
+		addIfNotNull(writers, this.contentTypeOptions.writer);
+		addIfNotNull(writers, this.xssProtection.writer);
+		addIfNotNull(writers, this.cacheControl.writer);
+		addIfNotNull(writers, this.hsts.writer);
+		addIfNotNull(writers, this.frameOptions.writer);
+		addIfNotNull(writers, this.hpkp.writer);
+		addIfNotNull(writers, this.contentSecurityPolicy.writer);
+		addIfNotNull(writers, this.referrerPolicy.writer);
+		addIfNotNull(writers, this.featurePolicy.writer);
+		writers.addAll(this.headerWriters);
 		return writers;
 	}
 
@@ -1045,7 +1045,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
 		this.featurePolicy.writer = new FeaturePolicyHeaderWriter(policyDirectives);
-		return featurePolicy;
+		return this.featurePolicy;
 	}
 
 	public final class FeaturePolicyConfig {

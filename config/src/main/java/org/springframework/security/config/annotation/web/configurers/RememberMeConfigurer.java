@@ -424,7 +424,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	private String getKey() {
 		if (this.key == null) {
 			if (this.rememberMeServices instanceof AbstractRememberMeServices) {
-				this.key = ((AbstractRememberMeServices) rememberMeServices).getKey();
+				this.key = ((AbstractRememberMeServices) this.rememberMeServices).getKey();
 			}
 			else {
 				this.key = UUID.randomUUID().toString();

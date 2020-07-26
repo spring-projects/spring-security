@@ -52,19 +52,19 @@ public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMet
 
 	public SecuredAnnotationSecurityMetadataSource(AnnotationMetadataExtractor annotationMetadataExtractor) {
 		Assert.notNull(annotationMetadataExtractor, "annotationMetadataExtractor cannot be null");
-		annotationExtractor = annotationMetadataExtractor;
-		annotationType = (Class<? extends Annotation>) GenericTypeResolver
-				.resolveTypeArgument(annotationExtractor.getClass(), AnnotationMetadataExtractor.class);
-		Assert.notNull(annotationType, () -> annotationExtractor.getClass().getName()
+		this.annotationExtractor = annotationMetadataExtractor;
+		this.annotationType = (Class<? extends Annotation>) GenericTypeResolver
+				.resolveTypeArgument(this.annotationExtractor.getClass(), AnnotationMetadataExtractor.class);
+		Assert.notNull(this.annotationType, () -> this.annotationExtractor.getClass().getName()
 				+ " must supply a generic parameter for AnnotationMetadataExtractor");
 	}
 
 	protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
-		return processAnnotation(AnnotationUtils.findAnnotation(clazz, annotationType));
+		return processAnnotation(AnnotationUtils.findAnnotation(clazz, this.annotationType));
 	}
 
 	protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
-		return processAnnotation(AnnotationUtils.findAnnotation(method, annotationType));
+		return processAnnotation(AnnotationUtils.findAnnotation(method, this.annotationType));
 	}
 
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
@@ -76,7 +76,7 @@ public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMet
 			return null;
 		}
 
-		return annotationExtractor.extractAttributes(a);
+		return this.annotationExtractor.extractAttributes(a);
 	}
 
 }

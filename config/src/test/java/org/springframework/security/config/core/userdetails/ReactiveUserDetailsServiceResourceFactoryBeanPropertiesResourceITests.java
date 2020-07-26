@@ -40,7 +40,7 @@ public class ReactiveUserDetailsServiceResourceFactoryBeanPropertiesResourceITes
 
 	@Test
 	public void loadUserByUsernameWhenUserFoundThenNotNull() {
-		assertThat(users.findByUsername("user").block()).isNotNull();
+		assertThat(this.users.findByUsername("user").block()).isNotNull();
 	}
 
 	@Configuration

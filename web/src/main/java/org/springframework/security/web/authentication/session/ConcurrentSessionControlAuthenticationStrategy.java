@@ -93,7 +93,8 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) {
 
-		final List<SessionInformation> sessions = sessionRegistry.getAllSessions(authentication.getPrincipal(), false);
+		final List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getPrincipal(),
+				false);
 
 		int sessionCount = sessions.size();
 		int allowedSessions = getMaximumSessionsForThisUser(authentication);
@@ -124,7 +125,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 			// exceeding the allowed number
 		}
 
-		allowableSessionsExceeded(sessions, allowedSessions, sessionRegistry);
+		allowableSessionsExceeded(sessions, allowedSessions, this.sessionRegistry);
 	}
 
 	/**
@@ -135,7 +136,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	 * @return either -1 meaning unlimited, or a positive integer to limit (never zero)
 	 */
 	protected int getMaximumSessionsForThisUser(Authentication authentication) {
-		return maximumSessions;
+		return this.maximumSessions;
 	}
 
 	/**
@@ -149,9 +150,9 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	 */
 	protected void allowableSessionsExceeded(List<SessionInformation> sessions, int allowableSessions,
 			SessionRegistry registry) throws SessionAuthenticationException {
-		if (exceptionIfMaximumExceeded || (sessions == null)) {
+		if (this.exceptionIfMaximumExceeded || (sessions == null)) {
 			throw new SessionAuthenticationException(
-					messages.getMessage("ConcurrentSessionControlAuthenticationStrategy.exceededAllowed",
+					this.messages.getMessage("ConcurrentSessionControlAuthenticationStrategy.exceededAllowed",
 							new Object[] { allowableSessions }, "Maximum sessions of {0} for this principal exceeded"));
 		}
 

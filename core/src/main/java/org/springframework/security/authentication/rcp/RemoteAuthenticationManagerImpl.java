@@ -46,7 +46,7 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
 		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
 
 		try {
-			return authenticationManager.authenticate(request).getAuthorities();
+			return this.authenticationManager.authenticate(request).getAuthorities();
 		}
 		catch (AuthenticationException authEx) {
 			throw new RemoteAuthenticationException(authEx.getMessage());
@@ -54,7 +54,7 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
 	}
 
 	protected AuthenticationManager getAuthenticationManager() {
-		return authenticationManager;
+		return this.authenticationManager;
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {

@@ -56,34 +56,34 @@ public class MapReactiveUserDetailsServiceTests {
 
 	@Test
 	public void findByUsernameWhenFoundThenReturns() {
-		assertThat((users.findByUsername(USER_DETAILS.getUsername()).block())).isEqualTo(USER_DETAILS);
+		assertThat((this.users.findByUsername(USER_DETAILS.getUsername()).block())).isEqualTo(USER_DETAILS);
 	}
 
 	@Test
 	public void findByUsernameWhenDifferentCaseThenReturns() {
-		assertThat((users.findByUsername("uSeR").block())).isEqualTo(USER_DETAILS);
+		assertThat((this.users.findByUsername("uSeR").block())).isEqualTo(USER_DETAILS);
 	}
 
 	@Test
 	public void findByUsernameWhenClearCredentialsThenFindByUsernameStillHasCredentials() {
-		User foundUser = users.findByUsername(USER_DETAILS.getUsername()).cast(User.class).block();
+		User foundUser = this.users.findByUsername(USER_DETAILS.getUsername()).cast(User.class).block();
 		assertThat(foundUser.getPassword()).isNotEmpty();
 		foundUser.eraseCredentials();
 		assertThat(foundUser.getPassword()).isNull();
 
-		foundUser = users.findByUsername(USER_DETAILS.getUsername()).cast(User.class).block();
+		foundUser = this.users.findByUsername(USER_DETAILS.getUsername()).cast(User.class).block();
 		assertThat(foundUser.getPassword()).isNotEmpty();
 	}
 
 	@Test
 	public void findByUsernameWhenNotFoundThenEmpty() {
-		assertThat((users.findByUsername("notfound"))).isEqualTo(Mono.empty());
+		assertThat((this.users.findByUsername("notfound"))).isEqualTo(Mono.empty());
 	}
 
 	@Test
 	public void updatePassword() {
-		users.updatePassword(USER_DETAILS, "new").block();
-		assertThat(users.findByUsername(USER_DETAILS.getUsername()).block().getPassword()).isEqualTo("new");
+		this.users.updatePassword(USER_DETAILS, "new").block();
+		assertThat(this.users.findByUsername(USER_DETAILS.getUsername()).block().getPassword()).isEqualTo("new");
 	}
 
 }

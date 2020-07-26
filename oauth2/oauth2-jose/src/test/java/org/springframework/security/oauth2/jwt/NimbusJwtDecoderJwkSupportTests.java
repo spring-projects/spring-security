@@ -230,7 +230,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 	@Test
 	public void setClaimSetConverterWhenIsNullThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> jwtDecoder.setClaimSetConverter(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> this.jwtDecoder.setClaimSetConverter(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	private static RestOperations mockJwkSetResponse(String response) {

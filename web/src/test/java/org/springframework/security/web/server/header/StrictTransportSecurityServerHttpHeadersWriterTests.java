@@ -39,11 +39,11 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenHttpsThenWrites() {
-		exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
+		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 
-		hsts.writeHttpHeaders(exchange);
+		this.hsts.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				Arrays.asList("max-age=31536000 ; includeSubDomains"));
@@ -52,12 +52,12 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 	@Test
 	public void writeHttpHeadersWhenCustomMaxAgeThenWrites() {
 		Duration maxAge = Duration.ofDays(1);
-		hsts.setMaxAge(maxAge);
-		exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
+		this.hsts.setMaxAge(maxAge);
+		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 
-		hsts.writeHttpHeaders(exchange);
+		this.hsts.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				Arrays.asList("max-age=" + maxAge.getSeconds() + " ; includeSubDomains"));
@@ -65,12 +65,12 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenCustomIncludeSubDomainsThenWrites() {
-		hsts.setIncludeSubDomains(false);
-		exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
+		this.hsts.setIncludeSubDomains(false);
+		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
 
-		hsts.writeHttpHeaders(exchange);
+		this.hsts.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				Arrays.asList("max-age=31536000"));
@@ -78,21 +78,21 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenNullSchemeThenNoHeaders() {
-		exchange = exchange(MockServerHttpRequest.get("/"));
+		this.exchange = exchange(MockServerHttpRequest.get("/"));
 
-		hsts.writeHttpHeaders(exchange);
+		this.hsts.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).isEmpty();
 	}
 
 	@Test
 	public void writeHttpHeadersWhenHttpThenNoHeaders() {
-		exchange = exchange(MockServerHttpRequest.get("http://localhost/"));
+		this.exchange = exchange(MockServerHttpRequest.get("http://localhost/"));
 
-		hsts.writeHttpHeaders(exchange);
+		this.hsts.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).isEmpty();
 	}
 

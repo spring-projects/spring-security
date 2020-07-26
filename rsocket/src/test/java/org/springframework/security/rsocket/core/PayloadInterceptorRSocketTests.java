@@ -95,22 +95,22 @@ public class PayloadInterceptorRSocketTests {
 		this.delegate = null;
 		List<PayloadInterceptor> interceptors = Arrays.asList(this.interceptor);
 		assertThatCode(() -> {
-			new PayloadInterceptorRSocket(this.delegate, interceptors, metadataMimeType, dataMimeType);
+			new PayloadInterceptorRSocket(this.delegate, interceptors, this.metadataMimeType, this.dataMimeType);
 		}).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenNullInterceptorsThenException() {
 		List<PayloadInterceptor> interceptors = null;
-		assertThatCode(() -> new PayloadInterceptorRSocket(this.delegate, interceptors, metadataMimeType, dataMimeType))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> new PayloadInterceptorRSocket(this.delegate, interceptors, this.metadataMimeType,
+				this.dataMimeType)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenEmptyInterceptorsThenException() {
 		List<PayloadInterceptor> interceptors = Collections.emptyList();
-		assertThatCode(() -> new PayloadInterceptorRSocket(this.delegate, interceptors, metadataMimeType, dataMimeType))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> new PayloadInterceptorRSocket(this.delegate, interceptors, this.metadataMimeType,
+				this.dataMimeType)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	// single interceptor
@@ -121,7 +121,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.delegate.fireAndForget(any())).thenReturn(this.voidResult.mono());
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.fireAndForget(this.payload)).then(() -> this.voidResult.assertWasSubscribed())
 				.verifyComplete();
@@ -136,7 +136,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.interceptor.intercept(any(), any())).thenReturn(Mono.error(expected));
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.fireAndForget(this.payload))
 				.then(() -> this.voidResult.assertWasNotSubscribed())
@@ -159,7 +159,7 @@ public class PayloadInterceptorRSocketTests {
 			}
 		};
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(assertAuthentication,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		interceptor.fireAndForget(this.payload).block();
 
@@ -174,7 +174,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.delegate.requestResponse(any())).thenReturn(this.payloadResult.mono());
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.requestResponse(this.payload))
 				.then(() -> this.payloadResult.assertSubscribers()).then(() -> this.payloadResult.emit(this.payload))
@@ -191,7 +191,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.interceptor.intercept(any(), any())).thenReturn(Mono.error(expected));
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		assertThatCode(() -> interceptor.requestResponse(this.payload).block()).isEqualTo(expected);
 
@@ -213,7 +213,7 @@ public class PayloadInterceptorRSocketTests {
 			}
 		};
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(assertAuthentication,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.requestResponse(this.payload))
 				.then(() -> this.payloadResult.assertSubscribers()).then(() -> this.payloadResult.emit(this.payload))
@@ -230,7 +230,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.delegate.requestStream(any())).thenReturn(this.payloadResult.flux());
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.requestStream(this.payload)).then(() -> this.payloadResult.assertSubscribers())
 				.then(() -> this.payloadResult.emit(this.payload)).expectNext(this.payload).verifyComplete();
@@ -245,7 +245,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.interceptor.intercept(any(), any())).thenReturn(Mono.error(expected));
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.requestStream(this.payload))
 				.then(() -> this.payloadResult.assertNoSubscribers())
@@ -268,7 +268,7 @@ public class PayloadInterceptorRSocketTests {
 			}
 		};
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(assertAuthentication,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.requestStream(this.payload)).then(() -> this.payloadResult.assertSubscribers())
 				.then(() -> this.payloadResult.emit(this.payload)).expectNext(this.payload).verifyComplete();
@@ -284,7 +284,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.delegate.requestChannel(any())).thenReturn(this.payloadResult.flux());
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.requestChannel(Flux.just(this.payload)))
 				.then(() -> this.payloadResult.assertSubscribers()).then(() -> this.payloadResult.emit(this.payload))
@@ -325,7 +325,7 @@ public class PayloadInterceptorRSocketTests {
 			}
 		};
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(assertAuthentication,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.requestChannel(payload)).then(() -> this.payloadResult.assertSubscribers())
 				.then(() -> this.payloadResult.emit(this.payload)).expectNext(this.payload).verifyComplete();
@@ -341,7 +341,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.delegate.metadataPush(any())).thenReturn(this.voidResult.mono());
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.metadataPush(this.payload)).then(() -> this.voidResult.assertWasSubscribed())
 				.verifyComplete();
@@ -356,7 +356,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.interceptor.intercept(any(), any())).thenReturn(Mono.error(expected));
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.metadataPush(this.payload)).then(() -> this.voidResult.assertWasNotSubscribed())
 				.verifyErrorSatisfies(e -> assertThat(e).isEqualTo(expected));
@@ -378,7 +378,7 @@ public class PayloadInterceptorRSocketTests {
 			}
 		};
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(assertAuthentication,
-				Arrays.asList(this.interceptor), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
 
 		StepVerifier.create(interceptor.metadataPush(this.payload)).verifyComplete();
 
@@ -397,7 +397,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.delegate.fireAndForget(any())).thenReturn(this.voidResult.mono());
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor, this.interceptor2), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor, this.interceptor2), this.metadataMimeType, this.dataMimeType);
 
 		interceptor.fireAndForget(this.payload).block();
 
@@ -413,7 +413,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.delegate.fireAndForget(any())).thenReturn(this.voidResult.mono());
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor, this.interceptor2), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor, this.interceptor2), this.metadataMimeType, this.dataMimeType);
 
 		interceptor.fireAndForget(this.payload).block();
 
@@ -430,7 +430,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.interceptor.intercept(any(), any())).thenReturn(Mono.error(expected));
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor, this.interceptor2), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor, this.interceptor2), this.metadataMimeType, this.dataMimeType);
 
 		assertThatCode(() -> interceptor.fireAndForget(this.payload).block()).isEqualTo(expected);
 
@@ -447,7 +447,7 @@ public class PayloadInterceptorRSocketTests {
 		when(this.interceptor2.intercept(any(), any())).thenReturn(Mono.error(expected));
 
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
-				Arrays.asList(this.interceptor, this.interceptor2), metadataMimeType, dataMimeType);
+				Arrays.asList(this.interceptor, this.interceptor2), this.metadataMimeType, this.dataMimeType);
 
 		assertThatCode(() -> interceptor.fireAndForget(this.payload).block()).isEqualTo(expected);
 

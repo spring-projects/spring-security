@@ -32,7 +32,7 @@ public class RoleHierarchyAuthoritiesMapper implements GrantedAuthoritiesMapper 
 	}
 
 	public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
-		return roleHierarchy.getReachableGrantedAuthorities(authorities);
+		return this.roleHierarchy.getReachableGrantedAuthorities(authorities);
 	}
 
 }

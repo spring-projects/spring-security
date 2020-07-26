@@ -92,8 +92,9 @@ public class SwitchUserWebFilterTests {
 
 	@Before
 	public void setUp() {
-		switchUserWebFilter = new SwitchUserWebFilter(userDetailsService, successHandler, failureHandler);
-		switchUserWebFilter.setSecurityContextRepository(serverSecurityContextRepository);
+		this.switchUserWebFilter = new SwitchUserWebFilter(this.userDetailsService, this.successHandler,
+				this.failureHandler);
+		this.switchUserWebFilter.setSecurityContextRepository(this.serverSecurityContextRepository);
 	}
 
 	@Test
@@ -105,12 +106,12 @@ public class SwitchUserWebFilterTests {
 		when(chain.filter(exchange)).thenReturn(Mono.empty());
 
 		// when
-		switchUserWebFilter.filter(exchange, chain).block();
+		this.switchUserWebFilter.filter(exchange, chain).block();
 		// then
-		verifyNoInteractions(userDetailsService);
-		verifyNoInteractions(successHandler);
-		verifyNoInteractions(failureHandler);
-		verifyNoInteractions(serverSecurityContextRepository);
+		verifyNoInteractions(this.userDetailsService);
+		verifyNoInteractions(this.successHandler);
+		verifyNoInteractions(this.failureHandler);
+		verifyNoInteractions(this.serverSecurityContextRepository);
 
 		verify(chain).filter(exchange);
 	}
@@ -130,25 +131,27 @@ public class SwitchUserWebFilterTests {
 				"credentials");
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
 
-		when(userDetailsService.findByUsername(targetUsername)).thenReturn(Mono.just(switchUserDetails));
-		when(serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class))).thenReturn(Mono.empty());
-		when(successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
+		when(this.userDetailsService.findByUsername(targetUsername)).thenReturn(Mono.just(switchUserDetails));
+		when(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
+				.thenReturn(Mono.empty());
+		when(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
 				.thenReturn(Mono.empty());
 
 		// when
-		switchUserWebFilter.filter(exchange, chain).subscriberContext(withSecurityContext(Mono.just(securityContext)))
-				.block();
+		this.switchUserWebFilter.filter(exchange, chain)
+				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
 
 		// then
 		verifyNoInteractions(chain);
-		verify(userDetailsService).findByUsername(targetUsername);
+		verify(this.userDetailsService).findByUsername(targetUsername);
 
 		final ArgumentCaptor<SecurityContext> securityContextCaptor = ArgumentCaptor.forClass(SecurityContext.class);
-		verify(serverSecurityContextRepository).save(eq(exchange), securityContextCaptor.capture());
+		verify(this.serverSecurityContextRepository).save(eq(exchange), securityContextCaptor.capture());
 		final SecurityContext savedSecurityContext = securityContextCaptor.getValue();
 
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(successHandler).onAuthenticationSuccess(any(WebFilterExchange.class), authenticationCaptor.capture());
+		verify(this.successHandler).onAuthenticationSuccess(any(WebFilterExchange.class),
+				authenticationCaptor.capture());
 
 		final Authentication switchUserAuthentication = authenticationCaptor.getValue();
 
@@ -185,19 +188,21 @@ public class SwitchUserWebFilterTests {
 
 		final WebFilterChain chain = mock(WebFilterChain.class);
 
-		when(serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class))).thenReturn(Mono.empty());
-		when(successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
+		when(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
 				.thenReturn(Mono.empty());
-		when(userDetailsService.findByUsername(targetUsername))
+		when(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
+				.thenReturn(Mono.empty());
+		when(this.userDetailsService.findByUsername(targetUsername))
 				.thenReturn(Mono.just(switchUserDetails(targetUsername, true)));
 
 		// when
-		switchUserWebFilter.filter(exchange, chain).subscriberContext(withSecurityContext(Mono.just(securityContext)))
-				.block();
+		this.switchUserWebFilter.filter(exchange, chain)
+				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
 
 		// then
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(successHandler).onAuthenticationSuccess(any(WebFilterExchange.class), authenticationCaptor.capture());
+		verify(this.successHandler).onAuthenticationSuccess(any(WebFilterExchange.class),
+				authenticationCaptor.capture());
 
 		final Authentication secondSwitchUserAuthentication = authenticationCaptor.getValue();
 
@@ -220,12 +225,12 @@ public class SwitchUserWebFilterTests {
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
 
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("The userName can not be null.");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("The userName can not be null.");
 
 		// when
-		switchUserWebFilter.filter(exchange, chain).subscriberContext(withSecurityContext(Mono.just(securityContext)))
-				.block();
+		this.switchUserWebFilter.filter(exchange, chain)
+				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
 		verifyNoInteractions(chain);
 	}
 
@@ -239,22 +244,22 @@ public class SwitchUserWebFilterTests {
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
 
 		final UserDetails switchUserDetails = switchUserDetails(targetUsername, false);
-		when(userDetailsService.findByUsername(any(String.class))).thenReturn(Mono.just(switchUserDetails));
-		when(failureHandler.onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class)))
+		when(this.userDetailsService.findByUsername(any(String.class))).thenReturn(Mono.just(switchUserDetails));
+		when(this.failureHandler.onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class)))
 				.thenReturn(Mono.empty());
 
 		// when
-		switchUserWebFilter.filter(exchange, chain).subscriberContext(withSecurityContext(Mono.just(securityContext)))
-				.block();
+		this.switchUserWebFilter.filter(exchange, chain)
+				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
 
-		verify(failureHandler).onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class));
+		verify(this.failureHandler).onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class));
 		verifyNoInteractions(chain);
 	}
 
 	@Test
 	public void switchUserWhenFailureHandlerNotDefinedThenReturnError() {
 		// given
-		switchUserWebFilter = new SwitchUserWebFilter(userDetailsService, successHandler, null);
+		this.switchUserWebFilter = new SwitchUserWebFilter(this.userDetailsService, this.successHandler, null);
 
 		final String targetUsername = "TEST_USERNAME";
 		final MockServerWebExchange exchange = MockServerWebExchange
@@ -264,13 +269,13 @@ public class SwitchUserWebFilterTests {
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
 
 		final UserDetails switchUserDetails = switchUserDetails(targetUsername, false);
-		when(userDetailsService.findByUsername(any(String.class))).thenReturn(Mono.just(switchUserDetails));
+		when(this.userDetailsService.findByUsername(any(String.class))).thenReturn(Mono.just(switchUserDetails));
 
-		exceptionRule.expect(DisabledException.class);
+		this.exceptionRule.expect(DisabledException.class);
 
 		// when then
-		switchUserWebFilter.filter(exchange, chain).subscriberContext(withSecurityContext(Mono.just(securityContext)))
-				.block();
+		this.switchUserWebFilter.filter(exchange, chain)
+				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
 		verifyNoInteractions(chain);
 	}
 
@@ -291,21 +296,23 @@ public class SwitchUserWebFilterTests {
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(switchUserAuthentication);
 
-		when(serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class))).thenReturn(Mono.empty());
-		when(successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
+		when(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
+				.thenReturn(Mono.empty());
+		when(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
 				.thenReturn(Mono.empty());
 
 		// when
-		switchUserWebFilter.filter(exchange, chain).subscriberContext(withSecurityContext(Mono.just(securityContext)))
-				.block();
+		this.switchUserWebFilter.filter(exchange, chain)
+				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
 
 		// then
 		final ArgumentCaptor<SecurityContext> securityContextCaptor = ArgumentCaptor.forClass(SecurityContext.class);
-		verify(serverSecurityContextRepository).save(eq(exchange), securityContextCaptor.capture());
+		verify(this.serverSecurityContextRepository).save(eq(exchange), securityContextCaptor.capture());
 		final SecurityContext savedSecurityContext = securityContextCaptor.getValue();
 
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
-		verify(successHandler).onAuthenticationSuccess(any(WebFilterExchange.class), authenticationCaptor.capture());
+		verify(this.successHandler).onAuthenticationSuccess(any(WebFilterExchange.class),
+				authenticationCaptor.capture());
 
 		final Authentication originalAuthenticationValue = authenticationCaptor.getValue();
 
@@ -326,12 +333,12 @@ public class SwitchUserWebFilterTests {
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
 
-		exceptionRule.expect(AuthenticationCredentialsNotFoundException.class);
-		exceptionRule.expectMessage("Could not find original Authentication object");
+		this.exceptionRule.expect(AuthenticationCredentialsNotFoundException.class);
+		this.exceptionRule.expectMessage("Could not find original Authentication object");
 
 		// when then
-		switchUserWebFilter.filter(exchange, chain).subscriberContext(withSecurityContext(Mono.just(securityContext)))
-				.block();
+		this.switchUserWebFilter.filter(exchange, chain)
+				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
 		verifyNoInteractions(chain);
 	}
 
@@ -343,11 +350,11 @@ public class SwitchUserWebFilterTests {
 
 		final WebFilterChain chain = mock(WebFilterChain.class);
 
-		exceptionRule.expect(AuthenticationCredentialsNotFoundException.class);
-		exceptionRule.expectMessage("No current user associated with this request");
+		this.exceptionRule.expect(AuthenticationCredentialsNotFoundException.class);
+		this.exceptionRule.expectMessage("No current user associated with this request");
 
 		// when
-		switchUserWebFilter.filter(exchange, chain).block();
+		this.switchUserWebFilter.filter(exchange, chain).block();
 		// then
 		verifyNoInteractions(chain);
 	}
@@ -355,77 +362,77 @@ public class SwitchUserWebFilterTests {
 	@Test
 	public void constructorUserDetailsServiceRequired() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("userDetailsService must be specified");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("userDetailsService must be specified");
 
 		// when
-		switchUserWebFilter = new SwitchUserWebFilter(null, mock(ServerAuthenticationSuccessHandler.class),
+		this.switchUserWebFilter = new SwitchUserWebFilter(null, mock(ServerAuthenticationSuccessHandler.class),
 				mock(ServerAuthenticationFailureHandler.class));
 	}
 
 	@Test
 	public void constructorServerAuthenticationSuccessHandlerRequired() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("successHandler must be specified");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("successHandler must be specified");
 		// when
-		switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), null,
+		this.switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), null,
 				mock(ServerAuthenticationFailureHandler.class));
 	}
 
 	@Test
 	public void constructorSuccessTargetUrlRequired() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("successTargetUrl must be specified");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("successTargetUrl must be specified");
 		// when
-		switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), null,
+		this.switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), null,
 				"failure/target/url");
 	}
 
 	@Test
 	public void constructorFirstDefaultValues() {
 		// when
-		switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class),
+		this.switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class),
 				mock(ServerAuthenticationSuccessHandler.class), mock(ServerAuthenticationFailureHandler.class));
 
 		// then
-		final Object securityContextRepository = ReflectionTestUtils.getField(switchUserWebFilter,
+		final Object securityContextRepository = ReflectionTestUtils.getField(this.switchUserWebFilter,
 				"securityContextRepository");
 		assertTrue(securityContextRepository instanceof WebSessionServerSecurityContextRepository);
 
-		final Object userDetailsChecker = ReflectionTestUtils.getField(switchUserWebFilter, "userDetailsChecker");
+		final Object userDetailsChecker = ReflectionTestUtils.getField(this.switchUserWebFilter, "userDetailsChecker");
 		assertTrue(userDetailsChecker instanceof AccountStatusUserDetailsChecker);
 	}
 
 	@Test
 	public void constructorSecondDefaultValues() {
 		// when
-		switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), "success/target/url",
+		this.switchUserWebFilter = new SwitchUserWebFilter(mock(ReactiveUserDetailsService.class), "success/target/url",
 				"failure/target/url");
 
 		// then
-		final Object successHandler = ReflectionTestUtils.getField(switchUserWebFilter, "successHandler");
+		final Object successHandler = ReflectionTestUtils.getField(this.switchUserWebFilter, "successHandler");
 		assertTrue(successHandler instanceof RedirectServerAuthenticationSuccessHandler);
 
-		final Object failureHandler = ReflectionTestUtils.getField(switchUserWebFilter, "failureHandler");
+		final Object failureHandler = ReflectionTestUtils.getField(this.switchUserWebFilter, "failureHandler");
 		assertTrue(failureHandler instanceof RedirectServerAuthenticationFailureHandler);
 
-		final Object securityContextRepository = ReflectionTestUtils.getField(switchUserWebFilter,
+		final Object securityContextRepository = ReflectionTestUtils.getField(this.switchUserWebFilter,
 				"securityContextRepository");
 		assertTrue(securityContextRepository instanceof WebSessionServerSecurityContextRepository);
 
-		final Object userDetailsChecker = ReflectionTestUtils.getField(switchUserWebFilter, "userDetailsChecker");
+		final Object userDetailsChecker = ReflectionTestUtils.getField(this.switchUserWebFilter, "userDetailsChecker");
 		assertTrue(userDetailsChecker instanceof AccountStatusUserDetailsChecker);
 	}
 
 	@Test
 	public void setSecurityContextRepositoryWhenNullThenThrowException() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("securityContextRepository cannot be null");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("securityContextRepository cannot be null");
 		// when
-		switchUserWebFilter.setSecurityContextRepository(null);
+		this.switchUserWebFilter.setSecurityContextRepository(null);
 		// then
 		fail("Test should fail with exception");
 	}
@@ -433,16 +440,16 @@ public class SwitchUserWebFilterTests {
 	@Test
 	public void setSecurityContextRepositoryWhenDefinedThenChangeDefaultValue() {
 		// given
-		final Object oldSecurityContextRepository = ReflectionTestUtils.getField(switchUserWebFilter,
+		final Object oldSecurityContextRepository = ReflectionTestUtils.getField(this.switchUserWebFilter,
 				"securityContextRepository");
-		assertSame(serverSecurityContextRepository, oldSecurityContextRepository);
+		assertSame(this.serverSecurityContextRepository, oldSecurityContextRepository);
 
 		final ServerSecurityContextRepository newSecurityContextRepository = mock(
 				ServerSecurityContextRepository.class);
 		// when
-		switchUserWebFilter.setSecurityContextRepository(newSecurityContextRepository);
+		this.switchUserWebFilter.setSecurityContextRepository(newSecurityContextRepository);
 		// then
-		final Object currentSecurityContextRepository = ReflectionTestUtils.getField(switchUserWebFilter,
+		final Object currentSecurityContextRepository = ReflectionTestUtils.getField(this.switchUserWebFilter,
 				"securityContextRepository");
 		assertSame(newSecurityContextRepository, currentSecurityContextRepository);
 	}
@@ -450,10 +457,10 @@ public class SwitchUserWebFilterTests {
 	@Test
 	public void setExitUserUrlWhenNullThenThrowException() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("exitUserUrl cannot be empty and must be a valid redirect URL");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("exitUserUrl cannot be empty and must be a valid redirect URL");
 		// when
-		switchUserWebFilter.setExitUserUrl(null);
+		this.switchUserWebFilter.setExitUserUrl(null);
 		// then
 		fail("Test should fail with exception");
 	}
@@ -461,10 +468,10 @@ public class SwitchUserWebFilterTests {
 	@Test
 	public void setExitUserUrlWhenInvalidUrlThenThrowException() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("exitUserUrl cannot be empty and must be a valid redirect URL");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("exitUserUrl cannot be empty and must be a valid redirect URL");
 		// when
-		switchUserWebFilter.setExitUserUrl("wrongUrl");
+		this.switchUserWebFilter.setExitUserUrl("wrongUrl");
 		// then
 		fail("Test should fail with exception");
 	}
@@ -476,18 +483,18 @@ public class SwitchUserWebFilterTests {
 				.from(MockServerHttpRequest.post("/logout/impersonate"));
 
 		final ServerWebExchangeMatcher oldExitUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
-				.getField(switchUserWebFilter, "exitUserMatcher");
+				.getField(this.switchUserWebFilter, "exitUserMatcher");
 
 		assertThat(oldExitUserMatcher.matches(exchange).block().isMatch()).isTrue();
 
 		// when
-		switchUserWebFilter.setExitUserUrl("/exit-url");
+		this.switchUserWebFilter.setExitUserUrl("/exit-url");
 
 		// then
 		final MockServerWebExchange newExchange = MockServerWebExchange.from(MockServerHttpRequest.post("/exit-url"));
 
 		final ServerWebExchangeMatcher newExitUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
-				.getField(switchUserWebFilter, "exitUserMatcher");
+				.getField(this.switchUserWebFilter, "exitUserMatcher");
 
 		assertThat(newExitUserMatcher.matches(newExchange).block().isMatch()).isTrue();
 	}
@@ -495,10 +502,10 @@ public class SwitchUserWebFilterTests {
 	@Test
 	public void setExitUserMatcherWhenNullThenThrowException() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("exitUserMatcher cannot be null");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("exitUserMatcher cannot be null");
 		// when
-		switchUserWebFilter.setExitUserMatcher(null);
+		this.switchUserWebFilter.setExitUserMatcher(null);
 		// then
 		fail("Test should fail with exception");
 	}
@@ -510,7 +517,7 @@ public class SwitchUserWebFilterTests {
 				.from(MockServerHttpRequest.post("/logout/impersonate"));
 
 		final ServerWebExchangeMatcher oldExitUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
-				.getField(switchUserWebFilter, "exitUserMatcher");
+				.getField(this.switchUserWebFilter, "exitUserMatcher");
 
 		assertThat(oldExitUserMatcher.matches(exchange).block().isMatch()).isTrue();
 
@@ -518,12 +525,12 @@ public class SwitchUserWebFilterTests {
 				"/exit-url");
 
 		// when
-		switchUserWebFilter.setExitUserMatcher(newExitUserMatcher);
+		this.switchUserWebFilter.setExitUserMatcher(newExitUserMatcher);
 
 		// then
 
 		final ServerWebExchangeMatcher currentExitUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
-				.getField(switchUserWebFilter, "exitUserMatcher");
+				.getField(this.switchUserWebFilter, "exitUserMatcher");
 
 		assertSame(newExitUserMatcher, currentExitUserMatcher);
 	}
@@ -531,10 +538,10 @@ public class SwitchUserWebFilterTests {
 	@Test
 	public void setSwitchUserUrlWhenNullThenThrowException() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("switchUserUrl cannot be empty and must be a valid redirect URL");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("switchUserUrl cannot be empty and must be a valid redirect URL");
 		// when
-		switchUserWebFilter.setSwitchUserUrl(null);
+		this.switchUserWebFilter.setSwitchUserUrl(null);
 		// then
 		fail("Test should fail with exception");
 	}
@@ -542,10 +549,10 @@ public class SwitchUserWebFilterTests {
 	@Test
 	public void setSwitchUserUrlWhenInvalidThenThrowException() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("switchUserUrl cannot be empty and must be a valid redirect URL");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("switchUserUrl cannot be empty and must be a valid redirect URL");
 		// when
-		switchUserWebFilter.setSwitchUserUrl("wrongUrl");
+		this.switchUserWebFilter.setSwitchUserUrl("wrongUrl");
 		// then
 		fail("Test should fail with exception");
 	}
@@ -557,18 +564,18 @@ public class SwitchUserWebFilterTests {
 				.from(MockServerHttpRequest.post("/login/impersonate"));
 
 		final ServerWebExchangeMatcher oldSwitchUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
-				.getField(switchUserWebFilter, "switchUserMatcher");
+				.getField(this.switchUserWebFilter, "switchUserMatcher");
 
 		assertThat(oldSwitchUserMatcher.matches(exchange).block().isMatch()).isTrue();
 
 		// when
-		switchUserWebFilter.setSwitchUserUrl("/switch-url");
+		this.switchUserWebFilter.setSwitchUserUrl("/switch-url");
 
 		// then
 		final MockServerWebExchange newExchange = MockServerWebExchange.from(MockServerHttpRequest.post("/switch-url"));
 
 		final ServerWebExchangeMatcher newSwitchUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
-				.getField(switchUserWebFilter, "switchUserMatcher");
+				.getField(this.switchUserWebFilter, "switchUserMatcher");
 
 		assertThat(newSwitchUserMatcher.matches(newExchange).block().isMatch()).isTrue();
 	}
@@ -576,10 +583,10 @@ public class SwitchUserWebFilterTests {
 	@Test
 	public void setSwitchUserMatcherWhenNullThenThrowException() {
 		// given
-		exceptionRule.expect(IllegalArgumentException.class);
-		exceptionRule.expectMessage("switchUserMatcher cannot be null");
+		this.exceptionRule.expect(IllegalArgumentException.class);
+		this.exceptionRule.expectMessage("switchUserMatcher cannot be null");
 		// when
-		switchUserWebFilter.setSwitchUserMatcher(null);
+		this.switchUserWebFilter.setSwitchUserMatcher(null);
 		// then
 		fail("Test should fail with exception");
 	}
@@ -591,7 +598,7 @@ public class SwitchUserWebFilterTests {
 				.from(MockServerHttpRequest.post("/login/impersonate"));
 
 		final ServerWebExchangeMatcher oldSwitchUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
-				.getField(switchUserWebFilter, "switchUserMatcher");
+				.getField(this.switchUserWebFilter, "switchUserMatcher");
 
 		assertThat(oldSwitchUserMatcher.matches(exchange).block().isMatch()).isTrue();
 
@@ -599,12 +606,12 @@ public class SwitchUserWebFilterTests {
 				"/switch-url");
 
 		// when
-		switchUserWebFilter.setSwitchUserMatcher(newSwitchUserMatcher);
+		this.switchUserWebFilter.setSwitchUserMatcher(newSwitchUserMatcher);
 
 		// then
 
 		final ServerWebExchangeMatcher currentExitUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
-				.getField(switchUserWebFilter, "switchUserMatcher");
+				.getField(this.switchUserWebFilter, "switchUserMatcher");
 
 		assertSame(newSwitchUserMatcher, currentExitUserMatcher);
 	}

@@ -31,7 +31,7 @@ public class CustomSid implements Sid {
 	}
 
 	public String getSid() {
-		return sid;
+		return this.sid;
 	}
 
 	public void setSid(String sid) {

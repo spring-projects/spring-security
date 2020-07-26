@@ -78,16 +78,16 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 		this.originalSecurityContext = SecurityContextHolder.getContext();
 
 		try {
-			SecurityContextHolder.setContext(delegateSecurityContext);
-			delegate.run();
+			SecurityContextHolder.setContext(this.delegateSecurityContext);
+			this.delegate.run();
 		}
 		finally {
 			SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
-			if (emptyContext.equals(originalSecurityContext)) {
+			if (emptyContext.equals(this.originalSecurityContext)) {
 				SecurityContextHolder.clearContext();
 			}
 			else {
-				SecurityContextHolder.setContext(originalSecurityContext);
+				SecurityContextHolder.setContext(this.originalSecurityContext);
 			}
 			this.originalSecurityContext = null;
 		}
@@ -95,7 +95,7 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 
 	@Override
 	public String toString() {
-		return delegate.toString();
+		return this.delegate.toString();
 	}
 
 	/**

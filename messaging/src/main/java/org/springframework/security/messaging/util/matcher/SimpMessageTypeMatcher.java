@@ -49,7 +49,7 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 		MessageHeaders headers = message.getHeaders();
 		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(headers);
 
-		return typeToMatch == messageType;
+		return this.typeToMatch == messageType;
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 
 	@Override
 	public String toString() {
-		return "SimpMessageTypeMatcher [typeToMatch=" + typeToMatch + "]";
+		return "SimpMessageTypeMatcher [typeToMatch=" + this.typeToMatch + "]";
 	}
 
 }

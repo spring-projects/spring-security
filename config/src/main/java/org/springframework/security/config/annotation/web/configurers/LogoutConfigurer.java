@@ -114,7 +114,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link LogoutConfigurer} for further customization
 	 */
 	public LogoutConfigurer<H> clearAuthentication(boolean clearAuthentication) {
-		contextLogoutHandler.setClearAuthentication(clearAuthentication);
+		this.contextLogoutHandler.setClearAuthentication(clearAuthentication);
 		return this;
 	}
 
@@ -126,7 +126,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link LogoutConfigurer} for further customization
 	 */
 	public LogoutConfigurer<H> invalidateHttpSession(boolean invalidateHttpSession) {
-		contextLogoutHandler.setInvalidateHttpSession(invalidateHttpSession);
+		this.contextLogoutHandler.setInvalidateHttpSession(invalidateHttpSession);
 		return this;
 	}
 
@@ -259,19 +259,19 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private LogoutSuccessHandler createDefaultSuccessHandler() {
 		SimpleUrlLogoutSuccessHandler urlLogoutHandler = new SimpleUrlLogoutSuccessHandler();
-		urlLogoutHandler.setDefaultTargetUrl(logoutSuccessUrl);
-		if (defaultLogoutSuccessHandlerMappings.isEmpty()) {
+		urlLogoutHandler.setDefaultTargetUrl(this.logoutSuccessUrl);
+		if (this.defaultLogoutSuccessHandlerMappings.isEmpty()) {
 			return urlLogoutHandler;
 		}
 		DelegatingLogoutSuccessHandler successHandler = new DelegatingLogoutSuccessHandler(
-				defaultLogoutSuccessHandlerMappings);
+				this.defaultLogoutSuccessHandlerMappings);
 		successHandler.setDefaultLogoutSuccessHandler(urlLogoutHandler);
 		return successHandler;
 	}
 
 	@Override
 	public void init(H http) {
-		if (permitAll) {
+		if (this.permitAll) {
 			PermitAllSupport.permitAll(http, this.logoutSuccessUrl);
 			PermitAllSupport.permitAll(http, this.getLogoutRequestMatcher(http));
 		}
@@ -296,7 +296,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return true if logout success handling has been customized, else false
 	 */
 	boolean isCustomLogoutSuccess() {
-		return customLogoutSuccess;
+		return this.customLogoutSuccess;
 	}
 
 	/**
@@ -305,7 +305,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the logoutSuccessUrl
 	 */
 	private String getLogoutSuccessUrl() {
-		return logoutSuccessUrl;
+		return this.logoutSuccessUrl;
 	}
 
 	/**
@@ -313,7 +313,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link LogoutHandler} instances. Cannot be null.
 	 */
 	List<LogoutHandler> getLogoutHandlers() {
-		return logoutHandlers;
+		return this.logoutHandlers;
 	}
 
 	/**
@@ -324,9 +324,9 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link LogoutFilter} to use.
 	 */
 	private LogoutFilter createLogoutFilter(H http) {
-		logoutHandlers.add(contextLogoutHandler);
-		logoutHandlers.add(postProcess(new LogoutSuccessEventPublishingLogoutHandler()));
-		LogoutHandler[] handlers = logoutHandlers.toArray(new LogoutHandler[0]);
+		this.logoutHandlers.add(this.contextLogoutHandler);
+		this.logoutHandlers.add(postProcess(new LogoutSuccessEventPublishingLogoutHandler()));
+		LogoutHandler[] handlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		LogoutFilter result = new LogoutFilter(getLogoutSuccessHandler(), handlers);
 		result.setLogoutRequestMatcher(getLogoutRequestMatcher(http));
 		result = postProcess(result);
@@ -335,8 +335,8 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@SuppressWarnings("unchecked")
 	private RequestMatcher getLogoutRequestMatcher(H http) {
-		if (logoutRequestMatcher != null) {
-			return logoutRequestMatcher;
+		if (this.logoutRequestMatcher != null) {
+			return this.logoutRequestMatcher;
 		}
 		if (http.getConfigurer(CsrfConfigurer.class) != null) {
 			this.logoutRequestMatcher = new AntPathRequestMatcher(this.logoutUrl, "POST");

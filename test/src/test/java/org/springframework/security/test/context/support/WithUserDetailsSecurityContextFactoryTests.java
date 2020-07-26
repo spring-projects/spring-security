@@ -57,33 +57,33 @@ public class WithUserDetailsSecurityContextFactoryTests {
 
 	@Before
 	public void setup() {
-		factory = new WithUserDetailsSecurityContextFactory(beans);
+		this.factory = new WithUserDetailsSecurityContextFactory(this.beans);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void createSecurityContextNullValue() {
-		factory.createSecurityContext(withUserDetails);
+		this.factory.createSecurityContext(this.withUserDetails);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void createSecurityContextEmptyValue() {
 
-		when(withUserDetails.value()).thenReturn("");
-		factory.createSecurityContext(withUserDetails);
+		when(this.withUserDetails.value()).thenReturn("");
+		this.factory.createSecurityContext(this.withUserDetails);
 	}
 
 	@Test
 	public void createSecurityContextWithExistingUser() {
 		String username = "user";
 		when(this.beans.getBean(ReactiveUserDetailsService.class)).thenThrow(new NoSuchBeanDefinitionException(""));
-		when(beans.getBean(UserDetailsService.class)).thenReturn(userDetailsService);
-		when(withUserDetails.value()).thenReturn(username);
-		when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+		when(this.beans.getBean(UserDetailsService.class)).thenReturn(this.userDetailsService);
+		when(this.withUserDetails.value()).thenReturn(username);
+		when(this.userDetailsService.loadUserByUsername(username)).thenReturn(this.userDetails);
 
-		SecurityContext context = factory.createSecurityContext(withUserDetails);
+		SecurityContext context = this.factory.createSecurityContext(this.withUserDetails);
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
-		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(userDetails);
-		verify(beans).getBean(UserDetailsService.class);
+		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(this.userDetails);
+		verify(this.beans).getBean(UserDetailsService.class);
 	}
 
 	// gh-3346
@@ -93,27 +93,27 @@ public class WithUserDetailsSecurityContextFactoryTests {
 		String username = "user";
 		when(this.beans.getBean(beanName, ReactiveUserDetailsService.class)).thenThrow(
 				new BeanNotOfRequiredTypeException("", ReactiveUserDetailsService.class, UserDetailsService.class));
-		when(withUserDetails.value()).thenReturn(username);
-		when(withUserDetails.userDetailsServiceBeanName()).thenReturn(beanName);
-		when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
-		when(beans.getBean(beanName, UserDetailsService.class)).thenReturn(userDetailsService);
+		when(this.withUserDetails.value()).thenReturn(username);
+		when(this.withUserDetails.userDetailsServiceBeanName()).thenReturn(beanName);
+		when(this.userDetailsService.loadUserByUsername(username)).thenReturn(this.userDetails);
+		when(this.beans.getBean(beanName, UserDetailsService.class)).thenReturn(this.userDetailsService);
 
-		SecurityContext context = factory.createSecurityContext(withUserDetails);
+		SecurityContext context = this.factory.createSecurityContext(this.withUserDetails);
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
-		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(userDetails);
-		verify(beans).getBean(beanName, UserDetailsService.class);
+		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(this.userDetails);
+		verify(this.beans).getBean(beanName, UserDetailsService.class);
 	}
 
 	@Test
 	public void createSecurityContextWithReactiveUserDetailsService() {
 		String username = "user";
-		when(withUserDetails.value()).thenReturn(username);
+		when(this.withUserDetails.value()).thenReturn(username);
 		when(this.beans.getBean(ReactiveUserDetailsService.class)).thenReturn(this.reactiveUserDetailsService);
-		when(this.reactiveUserDetailsService.findByUsername(username)).thenReturn(Mono.just(userDetails));
+		when(this.reactiveUserDetailsService.findByUsername(username)).thenReturn(Mono.just(this.userDetails));
 
-		SecurityContext context = factory.createSecurityContext(withUserDetails);
+		SecurityContext context = this.factory.createSecurityContext(this.withUserDetails);
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
-		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(userDetails);
+		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(this.userDetails);
 		verify(this.beans).getBean(ReactiveUserDetailsService.class);
 	}
 
@@ -121,15 +121,15 @@ public class WithUserDetailsSecurityContextFactoryTests {
 	public void createSecurityContextWithReactiveUserDetailsServiceAndBeanName() {
 		String beanName = "secondUserDetailsServiceBean";
 		String username = "user";
-		when(withUserDetails.value()).thenReturn(username);
-		when(withUserDetails.userDetailsServiceBeanName()).thenReturn(beanName);
+		when(this.withUserDetails.value()).thenReturn(username);
+		when(this.withUserDetails.userDetailsServiceBeanName()).thenReturn(beanName);
 		when(this.beans.getBean(beanName, ReactiveUserDetailsService.class))
 				.thenReturn(this.reactiveUserDetailsService);
-		when(this.reactiveUserDetailsService.findByUsername(username)).thenReturn(Mono.just(userDetails));
+		when(this.reactiveUserDetailsService.findByUsername(username)).thenReturn(Mono.just(this.userDetails));
 
-		SecurityContext context = factory.createSecurityContext(withUserDetails);
+		SecurityContext context = this.factory.createSecurityContext(this.withUserDetails);
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
-		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(userDetails);
+		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(this.userDetails);
 		verify(this.beans).getBean(beanName, ReactiveUserDetailsService.class);
 	}
 

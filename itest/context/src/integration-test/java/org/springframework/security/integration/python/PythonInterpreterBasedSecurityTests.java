@@ -37,7 +37,7 @@ public class PythonInterpreterBasedSecurityTests {
 				.setAuthentication(new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
 
 		// for (int i=0; i < 1000; i++) {
-		service.someMethod();
+		this.service.someMethod();
 		// }
 	}
 

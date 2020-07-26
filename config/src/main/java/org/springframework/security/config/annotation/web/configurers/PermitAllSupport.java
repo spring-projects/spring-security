@@ -73,16 +73,16 @@ final class PermitAllSupport {
 			}
 
 			if ("".equals(request.getContextPath())) {
-				return uri.equals(processUrl);
+				return uri.equals(this.processUrl);
 			}
 
-			return uri.equals(request.getContextPath() + processUrl);
+			return uri.equals(request.getContextPath() + this.processUrl);
 		}
 
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			sb.append("ExactUrl [processUrl='").append(processUrl).append("']");
+			sb.append("ExactUrl [processUrl='").append(this.processUrl).append("']");
 			return sb.toString();
 		}
 

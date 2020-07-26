@@ -39,8 +39,8 @@ public abstract class AbstractWebServerIntegrationTests {
 
 	@After
 	public void close() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 

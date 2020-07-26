@@ -59,8 +59,8 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	 * Check that all required properties have been set.
 	 */
 	public void afterPropertiesSet() {
-		Assert.notNull(j2eeMappableRoles, "No mappable roles available");
-		Assert.notNull(j2eeUserRoles2GrantedAuthoritiesMapper, "Roles to granted authorities mapper not set");
+		Assert.notNull(this.j2eeMappableRoles, "No mappable roles available");
+		Assert.notNull(this.j2eeUserRoles2GrantedAuthoritiesMapper, "Roles to granted authorities mapper not set");
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	protected Collection<String> getUserRoles(HttpServletRequest request) {
 		ArrayList<String> j2eeUserRolesList = new ArrayList<>();
 
-		for (String role : j2eeMappableRoles) {
+		for (String role : this.j2eeMappableRoles) {
 			if (request.isUserInRole(role)) {
 				j2eeUserRolesList.add(role);
 			}
@@ -92,11 +92,11 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(HttpServletRequest context) {
 
 		Collection<String> j2eeUserRoles = getUserRoles(context);
-		Collection<? extends GrantedAuthority> userGas = j2eeUserRoles2GrantedAuthoritiesMapper
+		Collection<? extends GrantedAuthority> userGas = this.j2eeUserRoles2GrantedAuthoritiesMapper
 				.getGrantedAuthorities(j2eeUserRoles);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("J2EE roles [" + j2eeUserRoles + "] mapped to Granted Authorities: [" + userGas + "]");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("J2EE roles [" + j2eeUserRoles + "] mapped to Granted Authorities: [" + userGas + "]");
 		}
 
 		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails result = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
@@ -116,7 +116,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	 * @param mapper The Attributes2GrantedAuthoritiesMapper to use
 	 */
 	public void setUserRoles2GrantedAuthoritiesMapper(Attributes2GrantedAuthoritiesMapper mapper) {
-		j2eeUserRoles2GrantedAuthoritiesMapper = mapper;
+		this.j2eeUserRoles2GrantedAuthoritiesMapper = mapper;
 	}
 
 }

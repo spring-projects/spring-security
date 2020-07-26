@@ -54,7 +54,7 @@ public class SecurityContextPersistenceFilterTests {
 		final MockHttpServletRequest request = new MockHttpServletRequest();
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 
 		filter.doFilter(request, response, chain);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
@@ -67,7 +67,7 @@ public class SecurityContextPersistenceFilterTests {
 		final MockHttpServletRequest request = new MockHttpServletRequest();
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
-		SecurityContextHolder.getContext().setAuthentication(testToken);
+		SecurityContextHolder.getContext().setAuthentication(this.testToken);
 		doThrow(new IOException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		try {
 			filter.doFilter(request, response, chain);
@@ -86,7 +86,7 @@ public class SecurityContextPersistenceFilterTests {
 		final TestingAuthenticationToken beforeAuth = new TestingAuthenticationToken("someoneelse", "passwd", "ROLE_B");
 		final SecurityContext scBefore = new SecurityContextImpl();
 		final SecurityContext scExpectedAfter = new SecurityContextImpl();
-		scExpectedAfter.setAuthentication(testToken);
+		scExpectedAfter.setAuthentication(this.testToken);
 		scBefore.setAuthentication(beforeAuth);
 		final SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(repo);

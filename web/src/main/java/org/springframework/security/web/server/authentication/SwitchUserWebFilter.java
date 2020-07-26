@@ -181,7 +181,7 @@ public class SwitchUserWebFilter implements WebFilter {
 	 * found by username
 	 */
 	protected Mono<Authentication> switchUser(WebFilterExchange webFilterExchange) {
-		return switchUserMatcher.matches(webFilterExchange.getExchange())
+		return this.switchUserMatcher.matches(webFilterExchange.getExchange())
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
 				.flatMap(matchResult -> ReactiveSecurityContextHolder.getContext())
 				.map(SecurityContext::getAuthentication).flatMap(currentAuthentication -> {
@@ -200,7 +200,7 @@ public class SwitchUserWebFilter implements WebFilter {
 	 * switched.
 	 */
 	protected Mono<Authentication> exitSwitchUser(WebFilterExchange webFilterExchange) {
-		return exitUserMatcher.matches(webFilterExchange.getExchange())
+		return this.exitUserMatcher.matches(webFilterExchange.getExchange())
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
 				.flatMap(matchResult -> ReactiveSecurityContextHolder.getContext()
 						.map(SecurityContext::getAuthentication)
@@ -225,8 +225,9 @@ public class SwitchUserWebFilter implements WebFilter {
 			this.logger.debug("Attempt to switch to user [" + userName + "]");
 		}
 
-		return userDetailsService.findByUsername(userName)
-				.switchIfEmpty(Mono.error(this::noTargetAuthenticationException)).doOnNext(userDetailsChecker::check)
+		return this.userDetailsService.findByUsername(userName)
+				.switchIfEmpty(Mono.error(this::noTargetAuthenticationException))
+				.doOnNext(this.userDetailsChecker::check)
 				.map(userDetails -> createSwitchUserToken(userDetails, currentAuthentication));
 	}
 
@@ -245,14 +246,14 @@ public class SwitchUserWebFilter implements WebFilter {
 	private Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
 		final ServerWebExchange exchange = webFilterExchange.getExchange();
 		final SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
-		return securityContextRepository.save(exchange, securityContext)
+		return this.securityContextRepository.save(exchange, securityContext)
 				.then(this.successHandler.onAuthenticationSuccess(webFilterExchange, authentication))
 				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
 	}
 
 	private Mono<Void> onAuthenticationFailure(AuthenticationException exception, WebFilterExchange webFilterExchange) {
-		return Mono.justOrEmpty(failureHandler).switchIfEmpty(Mono.defer(() -> {
-			logger.error("Switch User failed", exception);
+		return Mono.justOrEmpty(this.failureHandler).switchIfEmpty(Mono.defer(() -> {
+			this.logger.error("Switch User failed", exception);
 			return Mono.error(exception);
 		})).flatMap(failureHandler -> failureHandler.onAuthenticationFailure(webFilterExchange, exception));
 	}
@@ -262,7 +263,7 @@ public class SwitchUserWebFilter implements WebFilter {
 
 		if (sourceAuthentication.isPresent()) {
 			// SEC-1763. Check first if we are already switched.
-			logger.info("Found original switch user granted authority [" + sourceAuthentication.get() + "]");
+			this.logger.info("Found original switch user granted authority [" + sourceAuthentication.get() + "]");
 			currentAuthentication = sourceAuthentication.get();
 		}
 

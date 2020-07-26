@@ -62,14 +62,14 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * @see org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails#getServiceUrl()
 	 */
 	public String getServiceUrl() {
-		return serviceUrl;
+		return this.serviceUrl;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + serviceUrl.hashCode();
+		result = prime * result + this.serviceUrl.hashCode();
 		return result;
 	}
 
@@ -82,7 +82,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 			return false;
 		}
 		ServiceAuthenticationDetails that = (ServiceAuthenticationDetails) obj;
-		return serviceUrl.equals(that.getServiceUrl());
+		return this.serviceUrl.equals(that.getServiceUrl());
 	}
 
 	@Override
@@ -90,7 +90,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		StringBuilder result = new StringBuilder();
 		result.append(super.toString());
 		result.append("ServiceUrl: ");
-		result.append(serviceUrl);
+		result.append(this.serviceUrl);
 		return result.toString();
 	}
 

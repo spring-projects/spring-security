@@ -36,13 +36,13 @@ public final class LogoutSuccessEventPublishingLogoutHandler implements LogoutHa
 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		if (eventPublisher == null) {
+		if (this.eventPublisher == null) {
 			return;
 		}
 		if (authentication == null) {
 			return;
 		}
-		eventPublisher.publishEvent(new LogoutSuccessEvent(authentication));
+		this.eventPublisher.publishEvent(new LogoutSuccessEvent(authentication));
 	}
 
 	@Override

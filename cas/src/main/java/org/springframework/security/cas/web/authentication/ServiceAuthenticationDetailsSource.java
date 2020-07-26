@@ -70,7 +70,8 @@ public class ServiceAuthenticationDetailsSource
 	 */
 	public ServiceAuthenticationDetails buildDetails(HttpServletRequest context) {
 		try {
-			return new DefaultServiceAuthenticationDetails(serviceProperties.getService(), context, artifactPattern);
+			return new DefaultServiceAuthenticationDetails(this.serviceProperties.getService(), context,
+					this.artifactPattern);
 		}
 		catch (MalformedURLException e) {
 			throw new RuntimeException(e);

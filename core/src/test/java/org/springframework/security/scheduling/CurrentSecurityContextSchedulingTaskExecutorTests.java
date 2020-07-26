@@ -36,7 +36,7 @@ public class CurrentSecurityContextSchedulingTaskExecutorTests
 	}
 
 	protected DelegatingSecurityContextSchedulingTaskExecutor create() {
-		return new DelegatingSecurityContextSchedulingTaskExecutor(taskExecutorDelegate);
+		return new DelegatingSecurityContextSchedulingTaskExecutor(this.taskExecutorDelegate);
 	}
 
 }

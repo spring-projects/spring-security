@@ -122,35 +122,35 @@ public class User implements UserDetails, CredentialsContainer {
 	}
 
 	public Collection<GrantedAuthority> getAuthorities() {
-		return authorities;
+		return this.authorities;
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
 	public boolean isAccountNonExpired() {
-		return accountNonExpired;
+		return this.accountNonExpired;
 	}
 
 	public boolean isAccountNonLocked() {
-		return accountNonLocked;
+		return this.accountNonLocked;
 	}
 
 	public boolean isCredentialsNonExpired() {
-		return credentialsNonExpired;
+		return this.credentialsNonExpired;
 	}
 
 	public void eraseCredentials() {
-		password = null;
+		this.password = null;
 	}
 
 	private static SortedSet<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
@@ -199,7 +199,7 @@ public class User implements UserDetails, CredentialsContainer {
 	@Override
 	public boolean equals(Object rhs) {
 		if (rhs instanceof User) {
-			return username.equals(((User) rhs).username);
+			return this.username.equals(((User) rhs).username);
 		}
 		return false;
 	}
@@ -209,7 +209,7 @@ public class User implements UserDetails, CredentialsContainer {
 	 */
 	@Override
 	public int hashCode() {
-		return username.hashCode();
+		return this.username.hashCode();
 	}
 
 	@Override
@@ -223,11 +223,11 @@ public class User implements UserDetails, CredentialsContainer {
 		sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
 		sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
 
-		if (!authorities.isEmpty()) {
+		if (!this.authorities.isEmpty()) {
 			sb.append("Granted Authorities: ");
 
 			boolean first = true;
-			for (GrantedAuthority auth : authorities) {
+			for (GrantedAuthority auth : this.authorities) {
 				if (!first) {
 					sb.append(",");
 				}
@@ -511,9 +511,9 @@ public class User implements UserDetails, CredentialsContainer {
 		}
 
 		public UserDetails build() {
-			String encodedPassword = this.passwordEncoder.apply(password);
-			return new User(username, encodedPassword, !disabled, !accountExpired, !credentialsExpired, !accountLocked,
-					authorities);
+			String encodedPassword = this.passwordEncoder.apply(this.password);
+			return new User(this.username, encodedPassword, !this.disabled, !this.accountExpired,
+					!this.credentialsExpired, !this.accountLocked, this.authorities);
 		}
 
 	}

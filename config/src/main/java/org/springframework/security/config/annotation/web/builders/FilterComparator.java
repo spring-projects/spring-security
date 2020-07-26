@@ -74,27 +74,29 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 		put(CorsFilter.class, order.next());
 		put(CsrfFilter.class, order.next());
 		put(LogoutFilter.class, order.next());
-		filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",
+		this.filterToOrder.put(
+				"org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",
 				order.next());
-		filterToOrder.put(
+		this.filterToOrder.put(
 				"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter",
 				order.next());
 		put(X509AuthenticationFilter.class, order.next());
 		put(AbstractPreAuthenticatedProcessingFilter.class, order.next());
-		filterToOrder.put("org.springframework.security.cas.web.CasAuthenticationFilter", order.next());
-		filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter",
+		this.filterToOrder.put("org.springframework.security.cas.web.CasAuthenticationFilter", order.next());
+		this.filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter",
 				order.next());
-		filterToOrder.put(
+		this.filterToOrder.put(
 				"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter",
 				order.next());
 		put(UsernamePasswordAuthenticationFilter.class, order.next());
 		order.next(); // gh-8105
-		filterToOrder.put("org.springframework.security.openid.OpenIDAuthenticationFilter", order.next());
+		this.filterToOrder.put("org.springframework.security.openid.OpenIDAuthenticationFilter", order.next());
 		put(DefaultLoginPageGeneratingFilter.class, order.next());
 		put(DefaultLogoutPageGeneratingFilter.class, order.next());
 		put(ConcurrentSessionFilter.class, order.next());
 		put(DigestAuthenticationFilter.class, order.next());
-		filterToOrder.put("org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter",
+		this.filterToOrder.put(
+				"org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter",
 				order.next());
 		put(BasicAuthenticationFilter.class, order.next());
 		put(RequestCacheAwareFilter.class, order.next());
@@ -102,7 +104,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 		put(JaasApiIntegrationFilter.class, order.next());
 		put(RememberMeAuthenticationFilter.class, order.next());
 		put(AnonymousAuthenticationFilter.class, order.next());
-		filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter",
+		this.filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter",
 				order.next());
 		put(SessionManagementFilter.class, order.next());
 		put(ExceptionTranslationFilter.class, order.next());
@@ -174,7 +176,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 
 	private void put(Class<? extends Filter> filter, int position) {
 		String className = filter.getName();
-		filterToOrder.put(className, position);
+		this.filterToOrder.put(className, position);
 	}
 
 	/**
@@ -185,7 +187,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 */
 	private Integer getOrder(Class<?> clazz) {
 		while (clazz != null) {
-			Integer result = filterToOrder.get(clazz.getName());
+			Integer result = this.filterToOrder.get(clazz.getName());
 			if (result != null) {
 				return result;
 			}

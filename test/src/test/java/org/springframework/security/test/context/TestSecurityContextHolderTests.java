@@ -32,7 +32,7 @@ public class TestSecurityContextHolderTests {
 
 	@Before
 	public void setup() {
-		context = SecurityContextHolder.createEmptyContext();
+		this.context = SecurityContextHolder.createEmptyContext();
 	}
 
 	@After
@@ -42,13 +42,13 @@ public class TestSecurityContextHolderTests {
 
 	@Test
 	public void clearContextClearsBoth() {
-		SecurityContextHolder.setContext(context);
-		TestSecurityContextHolder.setContext(context);
+		SecurityContextHolder.setContext(this.context);
+		TestSecurityContextHolder.setContext(this.context);
 
 		TestSecurityContextHolder.clearContext();
 
-		assertThat(SecurityContextHolder.getContext()).isNotSameAs(context);
-		assertThat(TestSecurityContextHolder.getContext()).isNotSameAs(context);
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.context);
+		assertThat(TestSecurityContextHolder.getContext()).isNotSameAs(this.context);
 	}
 
 	@Test
@@ -59,10 +59,10 @@ public class TestSecurityContextHolderTests {
 
 	@Test
 	public void setContextSetsBoth() {
-		TestSecurityContextHolder.setContext(context);
+		TestSecurityContextHolder.setContext(this.context);
 
-		assertThat(TestSecurityContextHolder.getContext()).isSameAs(context);
-		assertThat(SecurityContextHolder.getContext()).isSameAs(context);
+		assertThat(TestSecurityContextHolder.getContext()).isSameAs(this.context);
+		assertThat(SecurityContextHolder.getContext()).isSameAs(this.context);
 	}
 
 	@Test

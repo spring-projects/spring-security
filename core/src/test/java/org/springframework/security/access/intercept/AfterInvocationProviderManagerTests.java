@@ -167,19 +167,19 @@ public class AfterInvocationProviderManagerTests {
 
 		public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 				Object returnedObject) throws AccessDeniedException {
-			if (config.contains(configAttribute)) {
-				return forceReturnObject;
+			if (config.contains(this.configAttribute)) {
+				return this.forceReturnObject;
 			}
 
 			return returnedObject;
 		}
 
 		public boolean supports(Class<?> clazz) {
-			return secureObject.isAssignableFrom(clazz);
+			return this.secureObject.isAssignableFrom(clazz);
 		}
 
 		public boolean supports(ConfigAttribute attribute) {
-			return attribute.equals(configAttribute);
+			return attribute.equals(this.configAttribute);
 		}
 
 	}

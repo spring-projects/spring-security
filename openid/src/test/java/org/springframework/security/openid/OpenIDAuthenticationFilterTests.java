@@ -57,13 +57,13 @@ public class OpenIDAuthenticationFilterTests {
 
 	@Before
 	public void setUp() {
-		filter = new OpenIDAuthenticationFilter();
-		filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
+		this.filter = new OpenIDAuthenticationFilter();
+		this.filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
 		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-		filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
+		this.filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
 		successHandler.setDefaultTargetUrl(DEFAULT_TARGET_URL);
-		filter.setAuthenticationManager(a -> a);
-		filter.afterPropertiesSet();
+		this.filter.setAuthenticationManager(a -> a);
+		this.filter.afterPropertiesSet();
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class OpenIDAuthenticationFilterTests {
 		req.setParameter("openid_identifier", " " + CLAIMED_IDENTITY_URL);
 		req.setRemoteHost("www.example.com");
 
-		filter.setConsumer(new MockOpenIDConsumer() {
+		this.filter.setConsumer(new MockOpenIDConsumer() {
 			public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl,
 					String realm) {
 				assertThat(claimedIdentity).isEqualTo(CLAIMED_IDENTITY_URL);
@@ -88,7 +88,7 @@ public class OpenIDAuthenticationFilterTests {
 		});
 
 		FilterChain fc = mock(FilterChain.class);
-		filter.doFilter(req, response, fc);
+		this.filter.doFilter(req, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo(REDIRECT_URL);
 		// Filter chain shouldn't proceed
 		verify(fc, never()).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
@@ -104,9 +104,9 @@ public class OpenIDAuthenticationFilterTests {
 		String paramValue = "https://example.com/path?a=b&c=d";
 		MockHttpServletRequest req = new MockHttpServletRequest("GET", REQUEST_PATH);
 		req.addParameter(paramName, paramValue);
-		filter.setReturnToUrlParameters(Collections.singleton(paramName));
+		this.filter.setReturnToUrlParameters(Collections.singleton(paramName));
 
-		URI returnTo = new URI(filter.buildReturnToUrl(req));
+		URI returnTo = new URI(this.filter.buildReturnToUrl(req));
 		String query = returnTo.getRawQuery();
 		assertThat(count(query, '=')).isEqualTo(1);
 		assertThat(count(query, '&')).isZero();

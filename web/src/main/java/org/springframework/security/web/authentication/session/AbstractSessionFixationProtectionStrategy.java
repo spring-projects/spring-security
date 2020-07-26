@@ -69,7 +69,7 @@ abstract class AbstractSessionFixationProtectionStrategy
 			HttpServletResponse response) {
 		boolean hadSessionAlready = request.getSession(false) != null;
 
-		if (!hadSessionAlready && !alwaysCreateSession) {
+		if (!hadSessionAlready && !this.alwaysCreateSession) {
 			// Session fixation isn't a problem if there's no session
 
 			return;
@@ -92,7 +92,7 @@ abstract class AbstractSessionFixationProtectionStrategy
 			}
 
 			if (originalSessionId.equals(newSessionId)) {
-				logger.warn(
+				this.logger.warn(
 						"Your servlet container did not change the session ID when a new session was created. You will"
 								+ " not be adequately protected against session-fixation attacks");
 			}
@@ -124,7 +124,7 @@ abstract class AbstractSessionFixationProtectionStrategy
 	 * @param auth the token for the newly authenticated principal
 	 */
 	protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
-		applicationEventPublisher
+		this.applicationEventPublisher
 				.publishEvent(new SessionFixationProtectionEvent(auth, originalSessionId, newSession.getId()));
 	}
 

@@ -90,35 +90,35 @@ public class SimpleAttributes2GrantedAuthoritiesMapper
 	}
 
 	private boolean isConvertAttributeToLowerCase() {
-		return convertAttributeToLowerCase;
+		return this.convertAttributeToLowerCase;
 	}
 
 	public void setConvertAttributeToLowerCase(boolean b) {
-		convertAttributeToLowerCase = b;
+		this.convertAttributeToLowerCase = b;
 	}
 
 	private boolean isConvertAttributeToUpperCase() {
-		return convertAttributeToUpperCase;
+		return this.convertAttributeToUpperCase;
 	}
 
 	public void setConvertAttributeToUpperCase(boolean b) {
-		convertAttributeToUpperCase = b;
+		this.convertAttributeToUpperCase = b;
 	}
 
 	private String getAttributePrefix() {
-		return attributePrefix == null ? "" : attributePrefix;
+		return this.attributePrefix == null ? "" : this.attributePrefix;
 	}
 
 	public void setAttributePrefix(String string) {
-		attributePrefix = string;
+		this.attributePrefix = string;
 	}
 
 	private boolean isAddPrefixIfAlreadyExisting() {
-		return addPrefixIfAlreadyExisting;
+		return this.addPrefixIfAlreadyExisting;
 	}
 
 	public void setAddPrefixIfAlreadyExisting(boolean b) {
-		addPrefixIfAlreadyExisting = b;
+		this.addPrefixIfAlreadyExisting = b;
 	}
 
 }

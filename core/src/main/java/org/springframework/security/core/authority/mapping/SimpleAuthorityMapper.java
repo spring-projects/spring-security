@@ -43,7 +43,7 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 	private boolean convertToLowerCase = false;
 
 	public void afterPropertiesSet() {
-		Assert.isTrue(!(convertToUpperCase && convertToLowerCase),
+		Assert.isTrue(!(this.convertToUpperCase && this.convertToLowerCase),
 				"Either convertToUpperCase or convertToLowerCase can be set to true, but not both");
 	}
 
@@ -61,23 +61,23 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 			mapped.add(mapAuthority(authority.getAuthority()));
 		}
 
-		if (defaultAuthority != null) {
-			mapped.add(defaultAuthority);
+		if (this.defaultAuthority != null) {
+			mapped.add(this.defaultAuthority);
 		}
 
 		return mapped;
 	}
 
 	private GrantedAuthority mapAuthority(String name) {
-		if (convertToUpperCase) {
+		if (this.convertToUpperCase) {
 			name = name.toUpperCase();
 		}
-		else if (convertToLowerCase) {
+		else if (this.convertToLowerCase) {
 			name = name.toLowerCase();
 		}
 
-		if (prefix.length() > 0 && !name.startsWith(prefix)) {
-			name = prefix + name;
+		if (this.prefix.length() > 0 && !name.startsWith(this.prefix)) {
+			name = this.prefix + name;
 		}
 
 		return new SimpleGrantedAuthority(name);

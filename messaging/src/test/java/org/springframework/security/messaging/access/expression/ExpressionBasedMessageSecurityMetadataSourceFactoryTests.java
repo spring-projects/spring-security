@@ -61,47 +61,47 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 
 	@Before
 	public void setup() {
-		expression1 = "permitAll";
-		expression2 = "denyAll";
-		matcherToExpression = new LinkedHashMap<>();
-		matcherToExpression.put(matcher1, expression1);
-		matcherToExpression.put(matcher2, expression2);
+		this.expression1 = "permitAll";
+		this.expression2 = "denyAll";
+		this.matcherToExpression = new LinkedHashMap<>();
+		this.matcherToExpression.put(this.matcher1, this.expression1);
+		this.matcherToExpression.put(this.matcher2, this.expression2);
 
-		source = createExpressionMessageMetadataSource(matcherToExpression);
-		rootObject = new MessageSecurityExpressionRoot(authentication, message);
+		this.source = createExpressionMessageMetadataSource(this.matcherToExpression);
+		this.rootObject = new MessageSecurityExpressionRoot(this.authentication, this.message);
 	}
 
 	@Test
 	public void createExpressionMessageMetadataSourceNoMatch() {
 
-		Collection<ConfigAttribute> attrs = source.getAttributes(message);
+		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
 
 		assertThat(attrs).isNull();
 	}
 
 	@Test
 	public void createExpressionMessageMetadataSourceMatchFirst() {
-		when(matcher1.matches(message)).thenReturn(true);
+		when(this.matcher1.matches(this.message)).thenReturn(true);
 
-		Collection<ConfigAttribute> attrs = source.getAttributes(message);
+		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
 
 		assertThat(attrs).hasSize(1);
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
-		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(rootObject))
+		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(this.rootObject))
 				.isEqualTo(true);
 	}
 
 	@Test
 	public void createExpressionMessageMetadataSourceMatchSecond() {
-		when(matcher2.matches(message)).thenReturn(true);
+		when(this.matcher2.matches(this.message)).thenReturn(true);
 
-		Collection<ConfigAttribute> attrs = source.getAttributes(message);
+		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
 
 		assertThat(attrs).hasSize(1);
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
-		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(rootObject))
+		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(this.rootObject))
 				.isEqualTo(false);
 	}
 

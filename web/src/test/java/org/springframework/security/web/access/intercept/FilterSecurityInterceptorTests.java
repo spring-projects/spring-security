@@ -76,17 +76,17 @@ public class FilterSecurityInterceptorTests {
 
 	@Before
 	public final void setUp() {
-		interceptor = new FilterSecurityInterceptor();
-		am = mock(AuthenticationManager.class);
-		ods = mock(FilterInvocationSecurityMetadataSource.class);
-		adm = mock(AccessDecisionManager.class);
-		ram = mock(RunAsManager.class);
-		publisher = mock(ApplicationEventPublisher.class);
-		interceptor.setAuthenticationManager(am);
-		interceptor.setSecurityMetadataSource(ods);
-		interceptor.setAccessDecisionManager(adm);
-		interceptor.setRunAsManager(ram);
-		interceptor.setApplicationEventPublisher(publisher);
+		this.interceptor = new FilterSecurityInterceptor();
+		this.am = mock(AuthenticationManager.class);
+		this.ods = mock(FilterInvocationSecurityMetadataSource.class);
+		this.adm = mock(AccessDecisionManager.class);
+		this.ram = mock(RunAsManager.class);
+		this.publisher = mock(ApplicationEventPublisher.class);
+		this.interceptor.setAuthenticationManager(this.am);
+		this.interceptor.setSecurityMetadataSource(this.ods);
+		this.interceptor.setAccessDecisionManager(this.adm);
+		this.interceptor.setRunAsManager(this.ram);
+		this.interceptor.setApplicationEventPublisher(this.publisher);
 		SecurityContextHolder.clearContext();
 	}
 
@@ -97,14 +97,14 @@ public class FilterSecurityInterceptorTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() throws Exception {
-		when(adm.supports(FilterInvocation.class)).thenReturn(true);
-		interceptor.afterPropertiesSet();
+		when(this.adm.supports(FilterInvocation.class)).thenReturn(true);
+		this.interceptor.afterPropertiesSet();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testEnsuresRunAsManagerSupportsFilterInvocationClass() throws Exception {
-		when(adm.supports(FilterInvocation.class)).thenReturn(false);
-		interceptor.afterPropertiesSet();
+		when(this.adm.supports(FilterInvocation.class)).thenReturn(false);
+		this.interceptor.afterPropertiesSet();
 	}
 
 	/**
@@ -120,12 +120,12 @@ public class FilterSecurityInterceptorTests {
 
 		FilterInvocation fi = createinvocation();
 
-		when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		when(this.ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
-		interceptor.invoke(fi);
+		this.interceptor.invoke(fi);
 
 		// SEC-1697
-		verify(publisher, never()).publishEvent(any(AuthorizedEvent.class));
+		verify(this.publisher, never()).publishEvent(any(AuthorizedEvent.class));
 	}
 
 	@Test
@@ -138,13 +138,13 @@ public class FilterSecurityInterceptorTests {
 
 		doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
-		when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		when(this.ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
-		interceptor.setAfterInvocationManager(aim);
+		this.interceptor.setAfterInvocationManager(aim);
 
 		try {
-			interceptor.invoke(fi);
+			this.interceptor.invoke(fi);
 			fail("Expected exception");
 		}
 		catch (RuntimeException expected) {
@@ -165,20 +165,20 @@ public class FilterSecurityInterceptorTests {
 		RunAsManager runAsManager = mock(RunAsManager.class);
 		when(runAsManager.buildRunAs(eq(token), any(), anyCollection()))
 				.thenReturn(new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), token.getClass()));
-		interceptor.setRunAsManager(runAsManager);
+		this.interceptor.setRunAsManager(runAsManager);
 
 		FilterInvocation fi = createinvocation();
 		FilterChain chain = fi.getChain();
 
 		doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
-		when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		when(this.ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
-		interceptor.setAfterInvocationManager(aim);
+		this.interceptor.setAfterInvocationManager(aim);
 
 		try {
-			interceptor.invoke(fi);
+			this.interceptor.invoke(fi);
 			fail("Expected exception");
 		}
 		catch (RuntimeException expected) {

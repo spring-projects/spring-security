@@ -47,7 +47,7 @@ public class ObjectIdentityRetrievalStrategyImplTests {
 		private Object id;
 
 		public Object getId() {
-			return id;
+			return this.id;
 		}
 
 		public void setId(Object id) {

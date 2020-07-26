@@ -79,44 +79,44 @@ public class AndRequestMatcherTests {
 
 	@Test
 	public void matchesSingleTrue() {
-		when(delegate.matches(request)).thenReturn(true);
-		matcher = new AndRequestMatcher(delegate);
+		when(this.delegate.matches(this.request)).thenReturn(true);
+		this.matcher = new AndRequestMatcher(this.delegate);
 
-		assertThat(matcher.matches(request)).isTrue();
+		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
 	@Test
 	public void matchesMultiTrue() {
-		when(delegate.matches(request)).thenReturn(true);
-		when(delegate2.matches(request)).thenReturn(true);
-		matcher = new AndRequestMatcher(delegate, delegate2);
+		when(this.delegate.matches(this.request)).thenReturn(true);
+		when(this.delegate2.matches(this.request)).thenReturn(true);
+		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
 
-		assertThat(matcher.matches(request)).isTrue();
+		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
 	@Test
 	public void matchesSingleFalse() {
-		when(delegate.matches(request)).thenReturn(false);
-		matcher = new AndRequestMatcher(delegate);
+		when(this.delegate.matches(this.request)).thenReturn(false);
+		this.matcher = new AndRequestMatcher(this.delegate);
 
-		assertThat(matcher.matches(request)).isFalse();
+		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
 	@Test
 	public void matchesMultiBothFalse() {
-		when(delegate.matches(request)).thenReturn(false);
-		matcher = new AndRequestMatcher(delegate, delegate2);
+		when(this.delegate.matches(this.request)).thenReturn(false);
+		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
 
-		assertThat(matcher.matches(request)).isFalse();
+		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
 	@Test
 	public void matchesMultiSingleFalse() {
-		when(delegate.matches(request)).thenReturn(true);
-		when(delegate2.matches(request)).thenReturn(false);
-		matcher = new AndRequestMatcher(delegate, delegate2);
+		when(this.delegate.matches(this.request)).thenReturn(true);
+		when(this.delegate2.matches(this.request)).thenReturn(false);
+		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
 
-		assertThat(matcher.matches(request)).isFalse();
+		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
 }

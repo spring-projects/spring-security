@@ -34,7 +34,7 @@ public class Contact {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 }

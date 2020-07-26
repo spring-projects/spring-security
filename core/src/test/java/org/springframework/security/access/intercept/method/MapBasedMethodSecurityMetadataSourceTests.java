@@ -47,25 +47,25 @@ public class MapBasedMethodSecurityMetadataSourceTests {
 
 	@Before
 	public void initialize() throws Exception {
-		mds = new MapBasedMethodSecurityMetadataSource();
-		someMethodString = MockService.class.getMethod("someMethod", String.class);
-		someMethodInteger = MockService.class.getMethod("someMethod", Integer.class);
+		this.mds = new MapBasedMethodSecurityMetadataSource();
+		this.someMethodString = MockService.class.getMethod("someMethod", String.class);
+		this.someMethodInteger = MockService.class.getMethod("someMethod", Integer.class);
 	}
 
 	@Test
 	public void wildcardedMatchIsOverwrittenByMoreSpecificMatch() {
-		mds.addSecureMethod(MockService.class, "some*", ROLE_A);
-		mds.addSecureMethod(MockService.class, "someMethod*", ROLE_B);
-		assertThat(mds.getAttributes(someMethodInteger, MockService.class)).isEqualTo(ROLE_B);
+		this.mds.addSecureMethod(MockService.class, "some*", this.ROLE_A);
+		this.mds.addSecureMethod(MockService.class, "someMethod*", this.ROLE_B);
+		assertThat(this.mds.getAttributes(this.someMethodInteger, MockService.class)).isEqualTo(this.ROLE_B);
 	}
 
 	@Test
 	public void methodsWithDifferentArgumentsAreMatchedCorrectly() {
-		mds.addSecureMethod(MockService.class, someMethodInteger, ROLE_A);
-		mds.addSecureMethod(MockService.class, someMethodString, ROLE_B);
+		this.mds.addSecureMethod(MockService.class, this.someMethodInteger, this.ROLE_A);
+		this.mds.addSecureMethod(MockService.class, this.someMethodString, this.ROLE_B);
 
-		assertThat(mds.getAttributes(someMethodInteger, MockService.class)).isEqualTo(ROLE_A);
-		assertThat(mds.getAttributes(someMethodString, MockService.class)).isEqualTo(ROLE_B);
+		assertThat(this.mds.getAttributes(this.someMethodInteger, MockService.class)).isEqualTo(this.ROLE_A);
+		assertThat(this.mds.getAttributes(this.someMethodString, MockService.class)).isEqualTo(this.ROLE_B);
 	}
 
 	@SuppressWarnings("unused")

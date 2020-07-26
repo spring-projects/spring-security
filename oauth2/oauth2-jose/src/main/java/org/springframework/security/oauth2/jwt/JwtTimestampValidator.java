@@ -77,7 +77,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 		Instant expiry = jwt.getExpiresAt();
 
 		if (expiry != null) {
-			if (Instant.now(this.clock).minus(clockSkew).isAfter(expiry)) {
+			if (Instant.now(this.clock).minus(this.clockSkew).isAfter(expiry)) {
 				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt expired at %s", jwt.getExpiresAt()));
 				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
@@ -86,7 +86,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 		Instant notBefore = jwt.getNotBefore();
 
 		if (notBefore != null) {
-			if (Instant.now(this.clock).plus(clockSkew).isBefore(notBefore)) {
+			if (Instant.now(this.clock).plus(this.clockSkew).isBefore(notBefore)) {
 				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt used before %s", jwt.getNotBefore()));
 				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
@@ -96,7 +96,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	private OAuth2Error createOAuth2Error(String reason) {
-		logger.debug(reason);
+		this.logger.debug(reason);
 		return new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, reason,
 				"https://tools.ietf.org/html/rfc6750#section-3.1");
 	}

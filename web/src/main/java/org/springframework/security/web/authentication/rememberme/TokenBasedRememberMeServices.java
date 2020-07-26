@@ -170,7 +170,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		// TokenBasedRememberMeServices is
 		// unable to construct a valid token in this case.
 		if (!StringUtils.hasLength(username)) {
-			logger.debug("Unable to retrieve username");
+			this.logger.debug("Unable to retrieve username");
 			return;
 		}
 
@@ -179,7 +179,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 			password = user.getPassword();
 
 			if (!StringUtils.hasLength(password)) {
-				logger.debug("Unable to obtain password for user: " + username);
+				this.logger.debug("Unable to obtain password for user: " + username);
 				return;
 			}
 		}
@@ -194,8 +194,8 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		setCookie(new String[] { username, Long.toString(expiryTime), signatureValue }, tokenLifetime, request,
 				response);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug(
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(
 					"Added remember-me cookie for user '" + username + "', expiry: '" + new Date(expiryTime) + "'");
 		}
 	}

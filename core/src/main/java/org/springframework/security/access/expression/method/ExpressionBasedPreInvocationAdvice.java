@@ -41,14 +41,14 @@ public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthoriz
 
 	public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute attr) {
 		PreInvocationExpressionAttribute preAttr = (PreInvocationExpressionAttribute) attr;
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, mi);
 		Expression preFilter = preAttr.getFilterExpression();
 		Expression preAuthorize = preAttr.getAuthorizeExpression();
 
 		if (preFilter != null) {
 			Object filterTarget = findFilterTarget(preAttr.getFilterTarget(), ctx, mi);
 
-			expressionHandler.filter(filterTarget, preFilter, ctx);
+			this.expressionHandler.filter(filterTarget, preFilter, ctx);
 		}
 
 		if (preAuthorize == null) {

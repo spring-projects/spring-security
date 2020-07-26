@@ -60,7 +60,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 	private String rolePrefix = "ROLE_";
 
 	public void afterPropertiesSet() {
-		Assert.notNull(key,
+		Assert.notNull(this.key,
 				"A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
 	}
 
@@ -88,11 +88,11 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	public String getRolePrefix() {
-		return rolePrefix;
+		return this.rolePrefix;
 	}
 
 	public void setKey(String key) {

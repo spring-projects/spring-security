@@ -45,12 +45,12 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 
 	@Before
 	public void setup() {
-		servletContext = new MockServletContext();
+		this.servletContext = new MockServletContext();
 	}
 
 	@Test
 	public void defaults() {
-		MockHttpServletRequest request = logout().buildRequest(servletContext);
+		MockHttpServletRequest request = logout().buildRequest(this.servletContext);
 
 		CsrfToken token = (CsrfToken) request
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
@@ -62,7 +62,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 
 	@Test
 	public void custom() {
-		MockHttpServletRequest request = logout("/admin/logout").buildRequest(servletContext);
+		MockHttpServletRequest request = logout("/admin/logout").buildRequest(this.servletContext);
 
 		CsrfToken token = (CsrfToken) request
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
@@ -75,7 +75,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	@Test
 	public void customWithUriVars() {
 		MockHttpServletRequest request = logout().logoutUrl("/uri-logout/{var1}/{var2}", "val1", "val2")
-				.buildRequest(servletContext);
+				.buildRequest(this.servletContext);
 
 		CsrfToken token = (CsrfToken) request
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);

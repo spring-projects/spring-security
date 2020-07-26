@@ -47,16 +47,16 @@ public class NegatedRequestMatcher implements RequestMatcher {
 	}
 
 	public boolean matches(HttpServletRequest request) {
-		boolean result = !requestMatcher.matches(request);
-		if (logger.isDebugEnabled()) {
-			logger.debug("matches = " + result);
+		boolean result = !this.requestMatcher.matches(request);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("matches = " + result);
 		}
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "NegatedRequestMatcher [requestMatcher=" + requestMatcher + "]";
+		return "NegatedRequestMatcher [requestMatcher=" + this.requestMatcher + "]";
 	}
 
 }

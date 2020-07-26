@@ -70,18 +70,18 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 	@Before
 	public void setUp() {
-		filterChain = new MockFilterChain();
+		this.filterChain = new MockFilterChain();
 
-		threadFactory = new JoinableThreadFactory();
+		this.threadFactory = new JoinableThreadFactory();
 		SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
-		executor.setThreadFactory(threadFactory);
+		executor.setThreadFactory(this.threadFactory);
 
-		asyncManager = WebAsyncUtils.getAsyncManager(request);
-		asyncManager.setAsyncWebRequest(asyncWebRequest);
-		asyncManager.setTaskExecutor(executor);
-		when(request.getAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE)).thenReturn(asyncManager);
+		this.asyncManager = WebAsyncUtils.getAsyncManager(this.request);
+		this.asyncManager.setAsyncWebRequest(this.asyncWebRequest);
+		this.asyncManager.setTaskExecutor(executor);
+		when(this.request.getAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE)).thenReturn(this.asyncManager);
 
-		filter = new WebAsyncManagerIntegrationFilter();
+		this.filter = new WebAsyncManagerIntegrationFilter();
 	}
 
 	@After
@@ -91,37 +91,39 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 	@Test
 	public void doFilterInternalRegistersSecurityContextCallableProcessor() throws Exception {
-		SecurityContextHolder.setContext(securityContext);
-		asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
+		SecurityContextHolder.setContext(this.securityContext);
+		this.asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
 			@Override
 			public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
-				assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+				assertThat(SecurityContextHolder.getContext())
+						.isNotSameAs(WebAsyncManagerIntegrationFilterTests.this.securityContext);
 			}
 		});
-		filter.doFilterInternal(request, response, filterChain);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 
 		VerifyingCallable verifyingCallable = new VerifyingCallable();
-		asyncManager.startCallableProcessing(verifyingCallable);
-		threadFactory.join();
-		assertThat(asyncManager.getConcurrentResult()).isSameAs(securityContext);
+		this.asyncManager.startCallableProcessing(verifyingCallable);
+		this.threadFactory.join();
+		assertThat(this.asyncManager.getConcurrentResult()).isSameAs(this.securityContext);
 	}
 
 	@Test
 	public void doFilterInternalRegistersSecurityContextCallableProcessorContextUpdated() throws Exception {
 		SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
-		asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
+		this.asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
 			@Override
 			public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
-				assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+				assertThat(SecurityContextHolder.getContext())
+						.isNotSameAs(WebAsyncManagerIntegrationFilterTests.this.securityContext);
 			}
 		});
-		filter.doFilterInternal(request, response, filterChain);
-		SecurityContextHolder.setContext(securityContext);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		SecurityContextHolder.setContext(this.securityContext);
 
 		VerifyingCallable verifyingCallable = new VerifyingCallable();
-		asyncManager.startCallableProcessing(verifyingCallable);
-		threadFactory.join();
-		assertThat(asyncManager.getConcurrentResult()).isSameAs(securityContext);
+		this.asyncManager.startCallableProcessing(verifyingCallable);
+		this.threadFactory.join();
+		assertThat(this.asyncManager.getConcurrentResult()).isSameAs(this.securityContext);
 	}
 
 	private static final class JoinableThreadFactory implements ThreadFactory {
@@ -129,12 +131,12 @@ public class WebAsyncManagerIntegrationFilterTests {
 		private Thread t;
 
 		public Thread newThread(Runnable r) {
-			t = new Thread(r);
-			return t;
+			this.t = new Thread(r);
+			return this.t;
 		}
 
 		public void join() throws InterruptedException {
-			t.join();
+			this.t.join();
 		}
 
 	}

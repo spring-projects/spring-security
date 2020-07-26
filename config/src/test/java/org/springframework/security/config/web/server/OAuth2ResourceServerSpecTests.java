@@ -390,7 +390,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void introspectWhenValidThenReturnsOk() {
 		this.spring.register(IntrospectionConfig.class, RootController.class).autowire();
 		this.spring.getContext().getBean(MockWebServer.class)
-				.setDispatcher(requiresAuth(clientId, clientSecret, active));
+				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
 
 		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
@@ -400,7 +400,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void introspectWhenValidAndIntrospectionInLambdaThenReturnsOk() {
 		this.spring.register(IntrospectionInLambdaConfig.class, RootController.class).autowire();
 		this.spring.getContext().getBean(MockWebServer.class)
-				.setDispatcher(requiresAuth(clientId, clientSecret, active));
+				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
 
 		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();

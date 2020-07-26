@@ -29,15 +29,15 @@ public class MockUserCache implements UserCache {
 	private Map<String, UserDetails> cache = new HashMap<>();
 
 	public UserDetails getUserFromCache(String username) {
-		return cache.get(username);
+		return this.cache.get(username);
 	}
 
 	public void putUserInCache(UserDetails user) {
-		cache.put(user.getUsername(), user);
+		this.cache.put(user.getUsername(), user);
 	}
 
 	public void removeUserFromCache(String username) {
-		cache.remove(username);
+		this.cache.remove(username);
 	}
 
 }

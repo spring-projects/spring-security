@@ -162,13 +162,13 @@ public class ChannelProcessingFilterTests {
 		}
 
 		public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException {
-			if (commitAResponse) {
+			if (this.commitAResponse) {
 				invocation.getHttpResponse().sendRedirect("/redirected");
 			}
 		}
 
 		public boolean supports(ConfigAttribute attribute) {
-			if (attribute.getAttribute().equals(supportAttribute)) {
+			if (attribute.getAttribute().equals(this.supportAttribute)) {
 				return true;
 			}
 			else {
@@ -195,8 +195,8 @@ public class ChannelProcessingFilterTests {
 		public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
 			FilterInvocation fi = (FilterInvocation) object;
 
-			if (servletPath.equals(fi.getHttpRequest().getServletPath())) {
-				return toReturn;
+			if (this.servletPath.equals(fi.getHttpRequest().getServletPath())) {
+				return this.toReturn;
 			}
 			else {
 				return null;
@@ -204,11 +204,11 @@ public class ChannelProcessingFilterTests {
 		}
 
 		public Collection<ConfigAttribute> getAllConfigAttributes() {
-			if (!provideIterator) {
+			if (!this.provideIterator) {
 				return null;
 			}
 
-			return toReturn;
+			return this.toReturn;
 		}
 
 		public boolean supports(Class<?> clazz) {

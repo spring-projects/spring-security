@@ -57,18 +57,18 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	private boolean createTableOnStartup;
 
 	protected void initDao() {
-		if (createTableOnStartup) {
+		if (this.createTableOnStartup) {
 			getJdbcTemplate().execute(CREATE_TABLE_SQL);
 		}
 	}
 
 	public void createNewToken(PersistentRememberMeToken token) {
-		getJdbcTemplate().update(insertTokenSql, token.getUsername(), token.getSeries(), token.getTokenValue(),
+		getJdbcTemplate().update(this.insertTokenSql, token.getUsername(), token.getSeries(), token.getTokenValue(),
 				token.getDate());
 	}
 
 	public void updateToken(String series, String tokenValue, Date lastUsed) {
-		getJdbcTemplate().update(updateTokenSql, tokenValue, lastUsed, series);
+		getJdbcTemplate().update(this.updateTokenSql, tokenValue, lastUsed, series);
 	}
 
 	/**
@@ -82,29 +82,29 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	 */
 	public PersistentRememberMeToken getTokenForSeries(String seriesId) {
 		try {
-			return getJdbcTemplate().queryForObject(tokensBySeriesSql,
+			return getJdbcTemplate().queryForObject(this.tokensBySeriesSql,
 					(rs, rowNum) -> new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3),
 							rs.getTimestamp(4)),
 					seriesId);
 		}
 		catch (EmptyResultDataAccessException zeroResults) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Querying token for series '" + seriesId + "' returned no results.", zeroResults);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Querying token for series '" + seriesId + "' returned no results.", zeroResults);
 			}
 		}
 		catch (IncorrectResultSizeDataAccessException moreThanOne) {
-			logger.error("Querying token for series '" + seriesId + "' returned more than one value. Series"
+			this.logger.error("Querying token for series '" + seriesId + "' returned more than one value. Series"
 					+ " should be unique");
 		}
 		catch (DataAccessException e) {
-			logger.error("Failed to load token for series " + seriesId, e);
+			this.logger.error("Failed to load token for series " + seriesId, e);
 		}
 
 		return null;
 	}
 
 	public void removeUserTokens(String username) {
-		getJdbcTemplate().update(removeUserTokensSql, username);
+		getJdbcTemplate().update(this.removeUserTokensSql, username);
 	}
 
 	/**

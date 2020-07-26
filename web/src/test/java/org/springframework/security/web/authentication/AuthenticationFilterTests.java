@@ -212,7 +212,7 @@ public class AuthenticationFilterTests {
 
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManagerResolver,
 				this.authenticationConverter);
-		filter.setSuccessHandler(successHandler);
+		filter.setSuccessHandler(this.successHandler);
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -232,7 +232,7 @@ public class AuthenticationFilterTests {
 
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManagerResolver,
 				this.authenticationConverter);
-		filter.setSuccessHandler(successHandler);
+		filter.setSuccessHandler(this.successHandler);
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		MockHttpServletResponse response = new MockHttpServletResponse();

@@ -60,8 +60,9 @@ public class WebExpressionVoterTests {
 	@Test
 	public void abstainsIfNoAttributeFound() {
 		WebExpressionVoter voter = new WebExpressionVoter();
-		assertThat(voter.vote(user, new FilterInvocation("/path", "GET"), SecurityConfig.createList("A", "B", "C")))
-				.isEqualTo(AccessDecisionVoter.ACCESS_ABSTAIN);
+		assertThat(
+				voter.vote(this.user, new FilterInvocation("/path", "GET"), SecurityConfig.createList("A", "B", "C")))
+						.isEqualTo(AccessDecisionVoter.ACCESS_ABSTAIN);
 	}
 
 	@Test
@@ -76,16 +77,16 @@ public class WebExpressionVoterTests {
 		SecurityExpressionHandler eh = mock(SecurityExpressionHandler.class);
 		FilterInvocation fi = new FilterInvocation("/path", "GET");
 		voter.setExpressionHandler(eh);
-		when(eh.createEvaluationContext(user, fi)).thenReturn(ctx);
+		when(eh.createEvaluationContext(this.user, fi)).thenReturn(ctx);
 		when(ex.getValue(ctx, Boolean.class)).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
 		ArrayList attributes = new ArrayList();
 		attributes.addAll(SecurityConfig.createList("A", "B", "C"));
 		attributes.add(weca);
 
-		assertThat(voter.vote(user, fi, attributes)).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+		assertThat(voter.vote(this.user, fi, attributes)).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 
 		// Second time false
-		assertThat(voter.vote(user, fi, attributes)).isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
+		assertThat(voter.vote(this.user, fi, attributes)).isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 	}
 
 	// SEC-2507

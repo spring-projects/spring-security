@@ -102,7 +102,7 @@ public class HttpSecurityRequestMatchersTests {
 	public void mvcMatcherGetFiltersNoUnsupportedMethodExceptionFromDummyRequest() {
 		loadConfig(MvcMatcherConfig.class);
 
-		assertThat(springSecurityFilterChain.getFilters("/path")).isNotEmpty();
+		assertThat(this.springSecurityFilterChain.getFilters("/path")).isNotEmpty();
 	}
 
 	@EnableWebSecurity

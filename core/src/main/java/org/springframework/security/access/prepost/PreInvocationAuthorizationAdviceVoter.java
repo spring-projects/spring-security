@@ -69,7 +69,7 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
 			return ACCESS_ABSTAIN;
 		}
 
-		boolean allowed = preAdvice.before(authentication, method, preAttr);
+		boolean allowed = this.preAdvice.before(authentication, method, preAttr);
 
 		return allowed ? ACCESS_GRANTED : ACCESS_DENIED;
 	}

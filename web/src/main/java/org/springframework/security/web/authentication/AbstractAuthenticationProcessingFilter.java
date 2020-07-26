@@ -178,7 +178,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(authenticationManager, "authenticationManager must be specified");
+		Assert.notNull(this.authenticationManager, "authenticationManager must be specified");
 	}
 
 	/**
@@ -217,8 +217,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 			return;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Request is to process authentication");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Request is to process authentication");
 		}
 
 		Authentication authResult;
@@ -230,10 +230,10 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 				// authentication
 				return;
 			}
-			sessionStrategy.onAuthentication(authResult, request, response);
+			this.sessionStrategy.onAuthentication(authResult, request, response);
 		}
 		catch (InternalAuthenticationServiceException failed) {
-			logger.error("An internal error occurred while trying to authenticate the user.", failed);
+			this.logger.error("An internal error occurred while trying to authenticate the user.", failed);
 			unsuccessfulAuthentication(request, response, failed);
 
 			return;
@@ -246,7 +246,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		}
 
 		// Authentication success
-		if (continueChainBeforeSuccessfulAuthentication) {
+		if (this.continueChainBeforeSuccessfulAuthentication) {
 			chain.doFilter(request, response);
 		}
 
@@ -266,7 +266,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * <code>false</code> otherwise.
 	 */
 	protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-		return requiresAuthenticationRequestMatcher.matches(request);
+		return this.requiresAuthenticationRequestMatcher.matches(request);
 	}
 
 	/**
@@ -316,20 +316,20 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
 		}
 
 		SecurityContextHolder.getContext().setAuthentication(authResult);
 
-		rememberMeServices.loginSuccess(request, response, authResult);
+		this.rememberMeServices.loginSuccess(request, response, authResult);
 
 		// Fire event
 		if (this.eventPublisher != null) {
-			eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
+			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
 
-		successHandler.onAuthenticationSuccess(request, response, authResult);
+		this.successHandler.onAuthenticationSuccess(request, response, authResult);
 	}
 
 	/**
@@ -347,19 +347,19 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 			AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication request failed: " + failed.toString(), failed);
-			logger.debug("Updated SecurityContextHolder to contain null Authentication");
-			logger.debug("Delegating to authentication failure handler " + failureHandler);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Authentication request failed: " + failed.toString(), failed);
+			this.logger.debug("Updated SecurityContextHolder to contain null Authentication");
+			this.logger.debug("Delegating to authentication failure handler " + this.failureHandler);
 		}
 
-		rememberMeServices.loginFail(request, response);
+		this.rememberMeServices.loginFail(request, response);
 
-		failureHandler.onAuthenticationFailure(request, response, failed);
+		this.failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 
 	protected AuthenticationManager getAuthenticationManager() {
-		return authenticationManager;
+		return this.authenticationManager;
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
@@ -380,7 +380,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	}
 
 	public RememberMeServices getRememberMeServices() {
-		return rememberMeServices;
+		return this.rememberMeServices;
 	}
 
 	public void setRememberMeServices(RememberMeServices rememberMeServices) {
@@ -413,7 +413,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	}
 
 	protected boolean getAllowSessionCreation() {
-		return allowSessionCreation;
+		return this.allowSessionCreation;
 	}
 
 	public void setAllowSessionCreation(boolean allowSessionCreation) {
@@ -447,11 +447,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	}
 
 	protected AuthenticationSuccessHandler getSuccessHandler() {
-		return successHandler;
+		return this.successHandler;
 	}
 
 	protected AuthenticationFailureHandler getFailureHandler() {
-		return failureHandler;
+		return this.failureHandler;
 	}
 
 }

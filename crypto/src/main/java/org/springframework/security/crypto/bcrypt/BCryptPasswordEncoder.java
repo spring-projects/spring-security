@@ -106,11 +106,11 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 		}
 
 		String salt;
-		if (random != null) {
-			salt = BCrypt.gensalt(version.getVersion(), strength, random);
+		if (this.random != null) {
+			salt = BCrypt.gensalt(this.version.getVersion(), this.strength, this.random);
 		}
 		else {
-			salt = BCrypt.gensalt(version.getVersion(), strength);
+			salt = BCrypt.gensalt(this.version.getVersion(), this.strength);
 		}
 		return BCrypt.hashpw(rawPassword.toString(), salt);
 	}
@@ -121,12 +121,12 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 		}
 
 		if (encodedPassword == null || encodedPassword.length() == 0) {
-			logger.warn("Empty encoded password");
+			this.logger.warn("Empty encoded password");
 			return false;
 		}
 
-		if (!BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
-			logger.warn("Encoded password does not look like BCrypt");
+		if (!this.BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
+			this.logger.warn("Encoded password does not look like BCrypt");
 			return false;
 		}
 
@@ -136,11 +136,11 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	@Override
 	public boolean upgradeEncoding(String encodedPassword) {
 		if (encodedPassword == null || encodedPassword.length() == 0) {
-			logger.warn("Empty encoded password");
+			this.logger.warn("Empty encoded password");
 			return false;
 		}
 
-		Matcher matcher = BCRYPT_PATTERN.matcher(encodedPassword);
+		Matcher matcher = this.BCRYPT_PATTERN.matcher(encodedPassword);
 		if (!matcher.matches()) {
 			throw new IllegalArgumentException("Encoded password does not look like BCrypt: " + encodedPassword);
 		}

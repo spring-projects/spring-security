@@ -48,7 +48,7 @@ public class ReactiveAuthenticationManagerAdapter implements ReactiveAuthenticat
 	public Mono<Authentication> authenticate(Authentication token) {
 		return Mono.just(token).publishOn(this.scheduler).flatMap(t -> {
 			try {
-				return Mono.just(authenticationManager.authenticate(t));
+				return Mono.just(this.authenticationManager.authenticate(t));
 			}
 			catch (Throwable error) {
 				return Mono.error(error);

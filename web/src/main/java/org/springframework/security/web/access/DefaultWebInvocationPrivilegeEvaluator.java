@@ -82,10 +82,10 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 		Assert.notNull(uri, "uri parameter is required");
 
 		FilterInvocation fi = new FilterInvocation(contextPath, uri, method);
-		Collection<ConfigAttribute> attrs = securityInterceptor.obtainSecurityMetadataSource().getAttributes(fi);
+		Collection<ConfigAttribute> attrs = this.securityInterceptor.obtainSecurityMetadataSource().getAttributes(fi);
 
 		if (attrs == null) {
-			if (securityInterceptor.isRejectPublicInvocations()) {
+			if (this.securityInterceptor.isRejectPublicInvocations()) {
 				return false;
 			}
 
@@ -97,7 +97,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 		}
 
 		try {
-			securityInterceptor.getAccessDecisionManager().decide(authentication, fi, attrs);
+			this.securityInterceptor.getAccessDecisionManager().decide(authentication, fi, attrs);
 		}
 		catch (AccessDeniedException unauthorized) {
 			if (logger.isDebugEnabled()) {

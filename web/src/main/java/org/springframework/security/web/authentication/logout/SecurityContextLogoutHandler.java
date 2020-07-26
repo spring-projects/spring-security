@@ -57,15 +57,15 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	 */
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		Assert.notNull(request, "HttpServletRequest required");
-		if (invalidateHttpSession) {
+		if (this.invalidateHttpSession) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
-				logger.debug("Invalidating session: " + session.getId());
+				this.logger.debug("Invalidating session: " + session.getId());
 				session.invalidate();
 			}
 		}
 
-		if (clearAuthentication) {
+		if (this.clearAuthentication) {
 			SecurityContext context = SecurityContextHolder.getContext();
 			context.setAuthentication(null);
 		}
@@ -74,7 +74,7 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	}
 
 	public boolean isInvalidateHttpSession() {
-		return invalidateHttpSession;
+		return this.invalidateHttpSession;
 	}
 
 	/**

@@ -53,9 +53,9 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 	@After
 	public void closeAppContext() {
-		if (appCtx != null) {
-			appCtx.close();
-			appCtx = null;
+		if (this.appCtx != null) {
+			this.appCtx.close();
+			this.appCtx = null;
 		}
 	}
 
@@ -81,7 +81,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 		setContext(
 				"<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-search-filter='member={0}' /><ldap-server ldif='classpath:test-server.ldif'/>");
 
-		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+		UserDetailsService uds = (UserDetailsService) this.appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
 
 		Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
@@ -95,7 +95,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 				+ "       user-search-filter='(cn={0})' "
 				+ "       group-search-filter='member={0}' /><ldap-server ldif='classpath:test-server.ldif'/>");
 
-		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+		UserDetailsService uds = (UserDetailsService) this.appCtx.getBean("ldapUDS");
 		UserDetails joe = uds.loadUserByUsername("Joe Smeth");
 
 		assertThat(joe.getUsername()).isEqualTo("Joe Smeth");
@@ -108,11 +108,11 @@ public class LdapUserServiceBeanDefinitionParserTests {
 				+ "<ldap-user-service id='ldapUDSNoPrefix' " + "     user-search-filter='(uid={0})' "
 				+ "     group-search-filter='member={0}' role-prefix='none'/><ldap-server ldif='classpath:test-server.ldif'/>");
 
-		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+		UserDetailsService uds = (UserDetailsService) this.appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
 		assertThat(AuthorityUtils.authorityListToSet(ben.getAuthorities())).contains("PREFIX_DEVELOPERS");
 
-		uds = (UserDetailsService) appCtx.getBean("ldapUDSNoPrefix");
+		uds = (UserDetailsService) this.appCtx.getBean("ldapUDSNoPrefix");
 		ben = uds.loadUserByUsername("ben");
 		assertThat(AuthorityUtils.authorityListToSet(ben.getAuthorities())).contains("DEVELOPERS");
 	}
@@ -122,7 +122,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 		setContext(
 				"<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-role-attribute='ou' group-search-filter='member={0}' /><ldap-server ldif='classpath:test-server.ldif'/>");
 
-		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+		UserDetailsService uds = (UserDetailsService) this.appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
 
 		Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
@@ -144,7 +144,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 	public void personContextMapperIsSupported() {
 		setContext("<ldap-server ldif='classpath:test-server.ldif'/>"
 				+ "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-details-class='person'/>");
-		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+		UserDetailsService uds = (UserDetailsService) this.appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
 		assertThat(ben instanceof Person).isTrue();
 	}
@@ -153,7 +153,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 	public void inetOrgContextMapperIsSupported() {
 		setContext("<ldap-server id='someServer' ldif='classpath:test-server.ldif'/>"
 				+ "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-details-class='inetOrgPerson'/>");
-		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+		UserDetailsService uds = (UserDetailsService) this.appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
 		assertThat(ben instanceof InetOrgPerson).isTrue();
 	}
@@ -164,13 +164,13 @@ public class LdapUserServiceBeanDefinitionParserTests {
 				+ "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-context-mapper-ref='mapper'/>"
 				+ "<b:bean id='mapper' class='" + InetOrgPersonContextMapper.class.getName() + "'/>");
 
-		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
+		UserDetailsService uds = (UserDetailsService) this.appCtx.getBean("ldapUDS");
 		UserDetails ben = uds.loadUserByUsername("ben");
 		assertThat(ben instanceof InetOrgPerson).isTrue();
 	}
 
 	private void setContext(String context) {
-		appCtx = new InMemoryXmlApplicationContext(context);
+		this.appCtx = new InMemoryXmlApplicationContext(context);
 	}
 
 }

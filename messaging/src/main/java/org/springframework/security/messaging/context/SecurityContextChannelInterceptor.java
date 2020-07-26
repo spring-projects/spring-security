@@ -115,7 +115,7 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 		}
 		contextStack.push(currentContext);
 
-		Object user = message.getHeaders().get(authenticationHeaderName);
+		Object user = message.getHeaders().get(this.authenticationHeaderName);
 
 		Authentication authentication;
 		if ((user instanceof Authentication)) {
@@ -141,7 +141,7 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 		SecurityContext originalContext = contextStack.pop();
 
 		try {
-			if (EMPTY_CONTEXT.equals(originalContext)) {
+			if (this.EMPTY_CONTEXT.equals(originalContext)) {
 				SecurityContextHolder.clearContext();
 				ORIGINAL_CONTEXT.remove();
 			}

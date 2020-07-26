@@ -31,15 +31,15 @@ public class NullStatelessTicketCacheTests extends AbstractStatelessTicketCacheT
 
 	@Test
 	public void testGetter() {
-		assertThat(cache.getByTicketId(null)).isNull();
-		assertThat(cache.getByTicketId("test")).isNull();
+		assertThat(this.cache.getByTicketId(null)).isNull();
+		assertThat(this.cache.getByTicketId("test")).isNull();
 	}
 
 	@Test
 	public void testInsertAndGet() {
 		final CasAuthenticationToken token = getToken();
-		cache.putTicketInCache(token);
-		assertThat(cache.getByTicketId((String) token.getCredentials())).isNull();
+		this.cache.putTicketInCache(token);
+		assertThat(this.cache.getByTicketId((String) token.getCredentials())).isNull();
 	}
 
 }

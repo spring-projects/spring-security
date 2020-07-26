@@ -50,7 +50,8 @@ public class ServerBearerExchangeFilterFunctionTests {
 	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token-0",
 			Instant.now(), Instant.now().plus(Duration.ofDays(1)));
 
-	private Authentication authentication = new AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken>(accessToken) {
+	private Authentication authentication = new AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken>(
+			this.accessToken) {
 		@Override
 		public Map<String, Object> getTokenAttributes() {
 			return Collections.emptyMap();

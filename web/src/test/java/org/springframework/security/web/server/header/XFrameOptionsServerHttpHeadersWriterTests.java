@@ -37,36 +37,36 @@ public class XFrameOptionsServerHttpHeadersWriterTests {
 
 	@Before
 	public void setup() {
-		writer = new XFrameOptionsServerHttpHeadersWriter();
+		this.writer = new XFrameOptionsServerHttpHeadersWriter();
 	}
 
 	@Test
 	public void writeHeadersWhenUsingDefaultsThenWritesDeny() {
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("DENY");
 	}
 
 	@Test
 	public void writeHeadersWhenUsingExplicitDenyThenWritesDeny() {
-		writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.DENY);
+		this.writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.DENY);
 
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("DENY");
 	}
 
 	@Test
 	public void writeHeadersWhenUsingSameOriginThenWritesSameOrigin() {
-		writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
+		this.writer.setMode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
 
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly("SAMEORIGIN");
 	}
@@ -74,11 +74,11 @@ public class XFrameOptionsServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenAlreadyWrittenThenWritesHeader() {
 		String headerValue = "other";
-		exchange.getResponse().getHeaders().set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, headerValue);
+		this.exchange.getResponse().getHeaders().set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, headerValue);
 
-		writer.writeHttpHeaders(exchange);
+		this.writer.writeHttpHeaders(this.exchange);
 
-		HttpHeaders headers = exchange.getResponse().getHeaders();
+		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)).containsOnly(headerValue);
 	}

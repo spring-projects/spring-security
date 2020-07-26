@@ -65,7 +65,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 * @return the LDAP attributes, map can be null
 	 */
 	public Map<String, List<String>> getAttributes() {
-		return attributes;
+		return this.attributes;
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 * @return
 	 */
 	public String getDn() {
-		return dn;
+		return this.dn;
 	}
 
 	/**
@@ -83,8 +83,8 @@ public class LdapAuthority implements GrantedAuthority {
 	 */
 	public List<String> getAttributeValues(String name) {
 		List<String> result = null;
-		if (attributes != null) {
-			result = attributes.get(name);
+		if (this.attributes != null) {
+			result = this.attributes.get(name);
 		}
 		if (result == null) {
 			result = Collections.emptyList();
@@ -112,7 +112,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 */
 	@Override
 	public String getAuthority() {
-		return role;
+		return this.role;
 	}
 
 	/**
@@ -130,22 +130,22 @@ public class LdapAuthority implements GrantedAuthority {
 
 		LdapAuthority that = (LdapAuthority) o;
 
-		if (!dn.equals(that.dn)) {
+		if (!this.dn.equals(that.dn)) {
 			return false;
 		}
-		return role.equals(that.role);
+		return this.role.equals(that.role);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = dn.hashCode();
-		result = 31 * result + (role != null ? role.hashCode() : 0);
+		int result = this.dn.hashCode();
+		result = 31 * result + (this.role != null ? this.role.hashCode() : 0);
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "LdapAuthority{" + "dn='" + dn + '\'' + ", role='" + role + '\'' + '}';
+		return "LdapAuthority{" + "dn='" + this.dn + '\'' + ", role='" + this.role + '\'' + '}';
 	}
 
 }

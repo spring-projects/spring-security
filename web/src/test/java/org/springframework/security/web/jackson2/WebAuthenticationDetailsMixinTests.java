@@ -52,7 +52,7 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
 
-		WebAuthenticationDetails authenticationDetails = mapper.readValue(AUTHENTICATION_DETAILS_JSON,
+		WebAuthenticationDetails authenticationDetails = this.mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
 		assertThat(details.equals(authenticationDetails));
 	}
@@ -63,13 +63,13 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 		request.setRemoteAddr("/localhost");
 		request.setSession(new MockHttpSession(null, "1"));
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
-		String actualJson = mapper.writeValueAsString(details);
+		String actualJson = this.mapper.writeValueAsString(details);
 		JSONAssert.assertEquals(AUTHENTICATION_DETAILS_JSON, actualJson, true);
 	}
 
 	@Test
 	public void webAuthenticationDetailsDeserializeTest() throws IOException {
-		WebAuthenticationDetails details = mapper.readValue(AUTHENTICATION_DETAILS_JSON,
+		WebAuthenticationDetails details = this.mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
 		assertThat(details).isNotNull();
 		assertThat(details.getRemoteAddress()).isEqualTo("/localhost");

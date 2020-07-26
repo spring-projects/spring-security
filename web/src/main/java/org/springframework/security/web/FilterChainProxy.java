@@ -166,7 +166,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	@Override
 	public void afterPropertiesSet() {
-		filterChainValidator.validate(this);
+		this.filterChainValidator.validate(this);
 	}
 
 	@Override
@@ -194,8 +194,8 @@ public class FilterChainProxy extends GenericFilterBean {
 	private void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 
-		FirewalledRequest fwRequest = firewall.getFirewalledRequest((HttpServletRequest) request);
-		HttpServletResponse fwResponse = firewall.getFirewalledResponse((HttpServletResponse) response);
+		FirewalledRequest fwRequest = this.firewall.getFirewalledRequest((HttpServletRequest) request);
+		HttpServletResponse fwResponse = this.firewall.getFirewalledResponse((HttpServletResponse) response);
 
 		List<Filter> filters = getFilters(fwRequest);
 
@@ -222,7 +222,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * @return an ordered array of Filters defining the filter chain
 	 */
 	private List<Filter> getFilters(HttpServletRequest request) {
-		for (SecurityFilterChain chain : filterChains) {
+		for (SecurityFilterChain chain : this.filterChains) {
 			if (chain.matches(request)) {
 				return chain.getFilters();
 			}
@@ -237,7 +237,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * @return matching filter list
 	 */
 	public List<Filter> getFilters(String url) {
-		return getFilters(firewall.getFirewalledRequest((new FilterInvocation(url, "GET").getRequest())));
+		return getFilters(this.firewall.getFirewalledRequest((new FilterInvocation(url, "GET").getRequest())));
 	}
 
 	/**
@@ -245,7 +245,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * applied to incoming requests.
 	 */
 	public List<SecurityFilterChain> getFilterChains() {
-		return Collections.unmodifiableList(filterChains);
+		return Collections.unmodifiableList(this.filterChains);
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class FilterChainProxy extends GenericFilterBean {
 		StringBuilder sb = new StringBuilder();
 		sb.append("FilterChainProxy[");
 		sb.append("Filter Chains: ");
-		sb.append(filterChains);
+		sb.append(this.filterChains);
 		sb.append("]");
 
 		return sb.toString();
@@ -316,26 +316,27 @@ public class FilterChainProxy extends GenericFilterBean {
 
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-			if (currentPosition == size) {
+			if (this.currentPosition == this.size) {
 				if (logger.isDebugEnabled()) {
-					logger.debug(UrlUtils.buildRequestUrl(firewalledRequest)
+					logger.debug(UrlUtils.buildRequestUrl(this.firewalledRequest)
 							+ " reached end of additional filter chain; proceeding with original chain");
 				}
 
 				// Deactivate path stripping as we exit the security filter chain
 				this.firewalledRequest.reset();
 
-				originalChain.doFilter(request, response);
+				this.originalChain.doFilter(request, response);
 			}
 			else {
-				currentPosition++;
+				this.currentPosition++;
 
-				Filter nextFilter = additionalFilters.get(currentPosition - 1);
+				Filter nextFilter = this.additionalFilters.get(this.currentPosition - 1);
 
 				if (logger.isDebugEnabled()) {
-					logger.debug(UrlUtils.buildRequestUrl(firewalledRequest) + " at position " + currentPosition
-							+ " of " + size + " in additional filter chain; firing Filter: '"
-							+ nextFilter.getClass().getSimpleName() + "'");
+					logger.debug(
+							UrlUtils.buildRequestUrl(this.firewalledRequest) + " at position " + this.currentPosition
+									+ " of " + this.size + " in additional filter chain; firing Filter: '"
+									+ nextFilter.getClass().getSimpleName() + "'");
 				}
 
 				nextFilter.doFilter(request, response, this);

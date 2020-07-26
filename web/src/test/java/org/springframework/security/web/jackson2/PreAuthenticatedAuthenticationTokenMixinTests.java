@@ -49,24 +49,24 @@ public class PreAuthenticatedAuthenticationTokenMixinTests extends AbstractMixin
 
 	@Before
 	public void setupExpected() {
-		expected = new PreAuthenticatedAuthenticationToken("principal", "credentials",
+		this.expected = new PreAuthenticatedAuthenticationToken("principal", "credentials",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 	}
 
 	@Test
 	public void serializeWhenPrincipalCredentialsAuthoritiesThenSuccess()
 			throws JsonProcessingException, JSONException {
-		String serializedJson = mapper.writeValueAsString(expected);
+		String serializedJson = this.mapper.writeValueAsString(this.expected);
 		JSONAssert.assertEquals(PREAUTH_JSON, serializedJson, true);
 	}
 
 	@Test
 	public void deserializeAuthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws Exception {
-		PreAuthenticatedAuthenticationToken deserialized = mapper.readValue(PREAUTH_JSON,
+		PreAuthenticatedAuthenticationToken deserialized = this.mapper.readValue(PREAUTH_JSON,
 				PreAuthenticatedAuthenticationToken.class);
 		assertThat(deserialized).isNotNull();
 		assertThat(deserialized.isAuthenticated()).isTrue();
-		assertThat(deserialized.getAuthorities()).isEqualTo(expected.getAuthorities());
+		assertThat(deserialized.getAuthorities()).isEqualTo(this.expected.getAuthorities());
 	}
 
 }

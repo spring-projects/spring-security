@@ -63,17 +63,17 @@ public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
 			if (domainObject == null) {
 				continue;
 			}
-			ObjectIdentity oid = oidRetrievalStrategy.getObjectIdentity(domainObject);
+			ObjectIdentity oid = this.oidRetrievalStrategy.getObjectIdentity(domainObject);
 			oidsToCache.add(oid);
 		}
 
-		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
+		List<Sid> sids = this.sidRetrievalStrategy.getSids(authentication);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Eagerly loading Acls for " + oidsToCache.size() + " objects");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Eagerly loading Acls for " + oidsToCache.size() + " objects");
 		}
 
-		aclService.readAclsById(oidsToCache, sids);
+		this.aclService.readAclsById(oidsToCache, sids);
 	}
 
 	public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {

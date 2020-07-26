@@ -111,35 +111,35 @@ public class HttpSessionRequestCacheTests {
 		}
 
 		public String getRedirectUrl() {
-			return delegate.getRedirectUrl();
+			return this.delegate.getRedirectUrl();
 		}
 
 		public List<Cookie> getCookies() {
-			return delegate.getCookies();
+			return this.delegate.getCookies();
 		}
 
 		public String getMethod() {
-			return delegate.getMethod();
+			return this.delegate.getMethod();
 		}
 
 		public List<String> getHeaderValues(String name) {
-			return delegate.getHeaderValues(name);
+			return this.delegate.getHeaderValues(name);
 		}
 
 		public Collection<String> getHeaderNames() {
-			return delegate.getHeaderNames();
+			return this.delegate.getHeaderNames();
 		}
 
 		public List<Locale> getLocales() {
-			return delegate.getLocales();
+			return this.delegate.getLocales();
 		}
 
 		public String[] getParameterValues(String name) {
-			return delegate.getParameterValues(name);
+			return this.delegate.getParameterValues(name);
 		}
 
 		public Map<String, String[]> getParameterMap() {
-			return delegate.getParameterMap();
+			return this.delegate.getParameterMap();
 		}
 
 		private static final long serialVersionUID = 2426831999233621470L;

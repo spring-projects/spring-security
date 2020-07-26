@@ -68,21 +68,21 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 	}
 
 	protected Class<?> getProcessDomainObjectClass() {
-		return processDomainObjectClass;
+		return this.processDomainObjectClass;
 	}
 
 	protected boolean hasPermission(Authentication authentication, Object domainObject) {
 		// Obtain the OID applicable to the domain object
-		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
+		ObjectIdentity objectIdentity = this.objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
 		// Obtain the SIDs applicable to the principal
-		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
+		List<Sid> sids = this.sidRetrievalStrategy.getSids(authentication);
 
 		try {
 			// Lookup only ACLs for SIDs we're interested in
-			Acl acl = aclService.readAclById(objectIdentity, sids);
+			Acl acl = this.aclService.readAclById(objectIdentity, sids);
 
-			return acl.isGranted(requirePermission, sids, false);
+			return acl.isGranted(this.requirePermission, sids, false);
 		}
 		catch (NotFoundException ignore) {
 			return false;
@@ -110,7 +110,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 	}
 
 	public boolean supports(ConfigAttribute attribute) {
-		return processConfigAttribute.equals(attribute.getAttribute());
+		return this.processConfigAttribute.equals(attribute.getAttribute());
 	}
 
 	/**

@@ -83,56 +83,57 @@ public class JdbcUserDetailsManagerTests {
 
 	@Before
 	public void initializeManagerAndCreateTables() {
-		manager = new JdbcUserDetailsManager();
-		cache = new MockUserCache();
-		manager.setUserCache(cache);
-		manager.setDataSource(dataSource);
-		manager.setCreateUserSql(JdbcUserDetailsManager.DEF_CREATE_USER_SQL);
-		manager.setUpdateUserSql(JdbcUserDetailsManager.DEF_UPDATE_USER_SQL);
-		manager.setUserExistsSql(JdbcUserDetailsManager.DEF_USER_EXISTS_SQL);
-		manager.setCreateAuthoritySql(JdbcUserDetailsManager.DEF_INSERT_AUTHORITY_SQL);
-		manager.setDeleteUserAuthoritiesSql(JdbcUserDetailsManager.DEF_DELETE_USER_AUTHORITIES_SQL);
-		manager.setDeleteUserSql(JdbcUserDetailsManager.DEF_DELETE_USER_SQL);
-		manager.setChangePasswordSql(JdbcUserDetailsManager.DEF_CHANGE_PASSWORD_SQL);
-		manager.initDao();
-		template = manager.getJdbcTemplate();
+		this.manager = new JdbcUserDetailsManager();
+		this.cache = new MockUserCache();
+		this.manager.setUserCache(this.cache);
+		this.manager.setDataSource(dataSource);
+		this.manager.setCreateUserSql(JdbcUserDetailsManager.DEF_CREATE_USER_SQL);
+		this.manager.setUpdateUserSql(JdbcUserDetailsManager.DEF_UPDATE_USER_SQL);
+		this.manager.setUserExistsSql(JdbcUserDetailsManager.DEF_USER_EXISTS_SQL);
+		this.manager.setCreateAuthoritySql(JdbcUserDetailsManager.DEF_INSERT_AUTHORITY_SQL);
+		this.manager.setDeleteUserAuthoritiesSql(JdbcUserDetailsManager.DEF_DELETE_USER_AUTHORITIES_SQL);
+		this.manager.setDeleteUserSql(JdbcUserDetailsManager.DEF_DELETE_USER_SQL);
+		this.manager.setChangePasswordSql(JdbcUserDetailsManager.DEF_CHANGE_PASSWORD_SQL);
+		this.manager.initDao();
+		this.template = this.manager.getJdbcTemplate();
 
-		template.execute("create table users(username varchar(20) not null primary key,"
+		this.template.execute("create table users(username varchar(20) not null primary key,"
 				+ "password varchar(20) not null, enabled boolean not null)");
-		template.execute("create table authorities (username varchar(20) not null, authority varchar(20) not null, "
-				+ "constraint fk_authorities_users foreign key(username) references users(username))");
-		PopulatedDatabase.createGroupTables(template);
-		PopulatedDatabase.insertGroupData(template);
+		this.template
+				.execute("create table authorities (username varchar(20) not null, authority varchar(20) not null, "
+						+ "constraint fk_authorities_users foreign key(username) references users(username))");
+		PopulatedDatabase.createGroupTables(this.template);
+		PopulatedDatabase.insertGroupData(this.template);
 	}
 
 	@After
 	public void dropTablesAndClearContext() {
-		template.execute("drop table authorities");
-		template.execute("drop table users");
-		template.execute("drop table group_authorities");
-		template.execute("drop table group_members");
-		template.execute("drop table groups");
+		this.template.execute("drop table authorities");
+		this.template.execute("drop table users");
+		this.template.execute("drop table group_authorities");
+		this.template.execute("drop table group_members");
+		this.template.execute("drop table groups");
 		SecurityContextHolder.clearContext();
 	}
 
 	private void setUpAccLockingColumns() {
-		template.execute("alter table users add column acc_locked boolean default false not null");
-		template.execute("alter table users add column acc_expired boolean default false not null");
-		template.execute("alter table users add column creds_expired boolean default false not null");
+		this.template.execute("alter table users add column acc_locked boolean default false not null");
+		this.template.execute("alter table users add column acc_expired boolean default false not null");
+		this.template.execute("alter table users add column creds_expired boolean default false not null");
 
-		manager.setUsersByUsernameQuery(
+		this.manager.setUsersByUsernameQuery(
 				"select username,password,enabled, acc_locked, acc_expired, creds_expired from users where username = ?");
-		manager.setCreateUserSql(
+		this.manager.setCreateUserSql(
 				"insert into users (username, password, enabled, acc_locked, acc_expired, creds_expired) values (?,?,?,?,?,?)");
-		manager.setUpdateUserSql(
+		this.manager.setUpdateUserSql(
 				"update users set password = ?, enabled = ?, acc_locked=?, acc_expired=?, creds_expired=? where username = ?");
 	}
 
 	@Test
 	public void createUserInsertsCorrectData() {
-		manager.createUser(joe);
+		this.manager.createUser(joe);
 
-		UserDetails joe2 = manager.loadUserByUsername("joe");
+		UserDetails joe2 = this.manager.loadUserByUsername("joe");
 
 		assertThat(joe2).isEqualTo(joe);
 	}
@@ -143,9 +144,9 @@ public class JdbcUserDetailsManagerTests {
 
 		UserDetails user = new User("joe", "pass", true, false, true, false,
 				AuthorityUtils.createAuthorityList("A", "B"));
-		manager.createUser(user);
+		this.manager.createUser(user);
 
-		UserDetails user2 = manager.loadUserByUsername(user.getUsername());
+		UserDetails user2 = this.manager.loadUserByUsername(user.getUsername());
 
 		assertThat(user2).isEqualToComparingFieldByField(user);
 	}
@@ -153,11 +154,11 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void deleteUserRemovesUserDataAndAuthoritiesAndClearsCache() {
 		insertJoe();
-		manager.deleteUser("joe");
+		this.manager.deleteUser("joe");
 
-		assertThat(template.queryForList(SELECT_JOE_SQL)).isEmpty();
-		assertThat(template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
-		assertThat(cache.getUserMap().containsKey("joe")).isFalse();
+		assertThat(this.template.queryForList(SELECT_JOE_SQL)).isEmpty();
+		assertThat(this.template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
+		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
 	}
 
 	@Test
@@ -166,12 +167,12 @@ public class JdbcUserDetailsManagerTests {
 		User newJoe = new User("joe", "newpassword", false, true, true, true,
 				AuthorityUtils.createAuthorityList(new String[] { "D", "F", "E" }));
 
-		manager.updateUser(newJoe);
+		this.manager.updateUser(newJoe);
 
-		UserDetails joe = manager.loadUserByUsername("joe");
+		UserDetails joe = this.manager.loadUserByUsername("joe");
 
 		assertThat(joe).isEqualTo(newJoe);
-		assertThat(cache.getUserMap().containsKey("joe")).isFalse();
+		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
 	}
 
 	@Test
@@ -183,40 +184,40 @@ public class JdbcUserDetailsManagerTests {
 		User newJoe = new User("joe", "newpassword", false, false, false, true,
 				AuthorityUtils.createAuthorityList("D", "F", "E"));
 
-		manager.updateUser(newJoe);
+		this.manager.updateUser(newJoe);
 
-		UserDetails joe = manager.loadUserByUsername(newJoe.getUsername());
+		UserDetails joe = this.manager.loadUserByUsername(newJoe.getUsername());
 
 		assertThat(joe).isEqualToComparingFieldByField(newJoe);
-		assertThat(cache.getUserMap().containsKey(newJoe.getUsername())).isFalse();
+		assertThat(this.cache.getUserMap().containsKey(newJoe.getUsername())).isFalse();
 	}
 
 	@Test
 	public void userExistsReturnsFalseForNonExistentUsername() {
-		assertThat(manager.userExists("joe")).isFalse();
+		assertThat(this.manager.userExists("joe")).isFalse();
 	}
 
 	@Test
 	public void userExistsReturnsTrueForExistingUsername() {
 		insertJoe();
-		assertThat(manager.userExists("joe")).isTrue();
-		assertThat(cache.getUserMap().containsKey("joe")).isTrue();
+		assertThat(this.manager.userExists("joe")).isTrue();
+		assertThat(this.cache.getUserMap().containsKey("joe")).isTrue();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void changePasswordFailsForUnauthenticatedUser() {
-		manager.changePassword("password", "newPassword");
+		this.manager.changePassword("password", "newPassword");
 	}
 
 	@Test
 	public void changePasswordSucceedsWithAuthenticatedUserAndNoAuthenticationManagerSet() {
 		insertJoe();
 		authenticateJoe();
-		manager.changePassword("wrongpassword", "newPassword");
-		UserDetails newJoe = manager.loadUserByUsername("joe");
+		this.manager.changePassword("wrongpassword", "newPassword");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 
 		assertThat(newJoe.getPassword()).isEqualTo("newPassword");
-		assertThat(cache.getUserMap().containsKey("joe")).isFalse();
+		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
 	}
 
 	@Test
@@ -226,9 +227,9 @@ public class JdbcUserDetailsManagerTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(currentAuth)).thenReturn(currentAuth);
 
-		manager.setAuthenticationManager(am);
-		manager.changePassword("password", "newPassword");
-		UserDetails newJoe = manager.loadUserByUsername("joe");
+		this.manager.setAuthenticationManager(am);
+		this.manager.changePassword("password", "newPassword");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 
 		assertThat(newJoe.getPassword()).isEqualTo("newPassword");
 		// The password in the context should also be altered
@@ -236,7 +237,7 @@ public class JdbcUserDetailsManagerTests {
 		assertThat(newAuth.getName()).isEqualTo("joe");
 		assertThat(newAuth.getDetails()).isEqualTo(currentAuth.getDetails());
 		assertThat(newAuth.getCredentials()).isNull();
-		assertThat(cache.getUserMap().containsKey("joe")).isFalse();
+		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
 	}
 
 	@Test
@@ -246,25 +247,25 @@ public class JdbcUserDetailsManagerTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
 
-		manager.setAuthenticationManager(am);
+		this.manager.setAuthenticationManager(am);
 
 		try {
-			manager.changePassword("password", "newPassword");
+			this.manager.changePassword("password", "newPassword");
 			fail("Expected BadCredentialsException");
 		}
 		catch (BadCredentialsException expected) {
 		}
 
 		// Check password hasn't changed.
-		UserDetails newJoe = manager.loadUserByUsername("joe");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 		assertThat(newJoe.getPassword()).isEqualTo("password");
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("password");
-		assertThat(cache.getUserMap().containsKey("joe")).isTrue();
+		assertThat(this.cache.getUserMap().containsKey("joe")).isTrue();
 	}
 
 	@Test
 	public void findAllGroupsReturnsExpectedGroupNames() {
-		List<String> groups = manager.findAllGroups();
+		List<String> groups = this.manager.findAllGroups();
 		assertThat(groups).hasSize(4);
 
 		Collections.sort(groups);
@@ -276,19 +277,19 @@ public class JdbcUserDetailsManagerTests {
 
 	@Test
 	public void findGroupMembersReturnsCorrectData() {
-		List<String> groupMembers = manager.findUsersInGroup("GROUP_0");
+		List<String> groupMembers = this.manager.findUsersInGroup("GROUP_0");
 		assertThat(groupMembers).hasSize(1);
 		assertThat(groupMembers.get(0)).isEqualTo("jerry");
-		groupMembers = manager.findUsersInGroup("GROUP_1");
+		groupMembers = this.manager.findUsersInGroup("GROUP_1");
 		assertThat(groupMembers).hasSize(2);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createGroupInsertsCorrectData() {
-		manager.createGroup("TEST_GROUP", AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
+		this.manager.createGroup("TEST_GROUP", AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
 
-		List roles = template.queryForList("select ga.authority from groups g, group_authorities ga "
+		List roles = this.template.queryForList("select ga.authority from groups g, group_authorities ga "
 				+ "where ga.group_id = g.id " + "and g.group_name = 'TEST_GROUP'");
 
 		assertThat(roles).hasSize(2);
@@ -296,78 +297,80 @@ public class JdbcUserDetailsManagerTests {
 
 	@Test
 	public void deleteGroupRemovesData() {
-		manager.deleteGroup("GROUP_0");
-		manager.deleteGroup("GROUP_1");
-		manager.deleteGroup("GROUP_2");
-		manager.deleteGroup("GROUP_3");
+		this.manager.deleteGroup("GROUP_0");
+		this.manager.deleteGroup("GROUP_1");
+		this.manager.deleteGroup("GROUP_2");
+		this.manager.deleteGroup("GROUP_3");
 
-		assertThat(template.queryForList("select * from group_authorities")).isEmpty();
-		assertThat(template.queryForList("select * from group_members")).isEmpty();
-		assertThat(template.queryForList("select id from groups")).isEmpty();
+		assertThat(this.template.queryForList("select * from group_authorities")).isEmpty();
+		assertThat(this.template.queryForList("select * from group_members")).isEmpty();
+		assertThat(this.template.queryForList("select id from groups")).isEmpty();
 	}
 
 	@Test
 	public void renameGroupIsSuccessful() {
-		manager.renameGroup("GROUP_0", "GROUP_X");
+		this.manager.renameGroup("GROUP_0", "GROUP_X");
 
-		assertThat(template.queryForObject("select id from groups where group_name = 'GROUP_X'", Integer.class))
+		assertThat(this.template.queryForObject("select id from groups where group_name = 'GROUP_X'", Integer.class))
 				.isZero();
 	}
 
 	@Test
 	public void addingGroupUserSetsCorrectData() {
-		manager.addUserToGroup("tom", "GROUP_0");
+		this.manager.addUserToGroup("tom", "GROUP_0");
 
-		assertThat(template.queryForList("select username from group_members where group_id = 0")).hasSize(2);
+		assertThat(this.template.queryForList("select username from group_members where group_id = 0")).hasSize(2);
 	}
 
 	@Test
 	public void removeUserFromGroupDeletesGroupMemberRow() {
-		manager.removeUserFromGroup("jerry", "GROUP_1");
+		this.manager.removeUserFromGroup("jerry", "GROUP_1");
 
-		assertThat(template.queryForList("select group_id from group_members where username = 'jerry'")).hasSize(1);
+		assertThat(this.template.queryForList("select group_id from group_members where username = 'jerry'"))
+				.hasSize(1);
 	}
 
 	@Test
 	public void findGroupAuthoritiesReturnsCorrectAuthorities() {
-		assertThat(AuthorityUtils.createAuthorityList("ROLE_A")).isEqualTo(manager.findGroupAuthorities("GROUP_0"));
+		assertThat(AuthorityUtils.createAuthorityList("ROLE_A"))
+				.isEqualTo(this.manager.findGroupAuthorities("GROUP_0"));
 	}
 
 	@Test
 	public void addGroupAuthorityInsertsCorrectGroupAuthorityRow() {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_X");
-		manager.addGroupAuthority("GROUP_0", auth);
+		this.manager.addGroupAuthority("GROUP_0", auth);
 
-		template.queryForObject("select authority from group_authorities where authority = 'ROLE_X' and group_id = 0",
-				String.class);
+		this.template.queryForObject(
+				"select authority from group_authorities where authority = 'ROLE_X' and group_id = 0", String.class);
 	}
 
 	@Test
 	public void deleteGroupAuthorityRemovesCorrectRows() {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_A");
-		manager.removeGroupAuthority("GROUP_0", auth);
-		assertThat(template.queryForList("select authority from group_authorities where group_id = 0")).isEmpty();
+		this.manager.removeGroupAuthority("GROUP_0", auth);
+		assertThat(this.template.queryForList("select authority from group_authorities where group_id = 0")).isEmpty();
 
-		manager.removeGroupAuthority("GROUP_2", auth);
-		assertThat(template.queryForList("select authority from group_authorities where group_id = 2")).hasSize(2);
+		this.manager.removeGroupAuthority("GROUP_2", auth);
+		assertThat(this.template.queryForList("select authority from group_authorities where group_id = 2")).hasSize(2);
 	}
 
 	// SEC-1156
 	@Test
 	public void createUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse() {
-		manager.setEnableAuthorities(false);
-		manager.createUser(joe);
-		assertThat(template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
+		this.manager.setEnableAuthorities(false);
+		this.manager.createUser(joe);
+		assertThat(this.template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
 	}
 
 	// SEC-1156
 	@Test
 	public void updateUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse() {
-		manager.setEnableAuthorities(false);
+		this.manager.setEnableAuthorities(false);
 		insertJoe();
-		template.execute("delete from authorities where username='joe'");
-		manager.updateUser(joe);
-		assertThat(template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
+		this.template.execute("delete from authorities where username='joe'");
+		this.manager.updateUser(joe);
+		assertThat(this.template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
 	}
 
 	// SEC-2166
@@ -376,7 +379,7 @@ public class JdbcUserDetailsManagerTests {
 		insertJoe();
 		UsernamePasswordAuthenticationToken currentAuth = new UsernamePasswordAuthenticationToken("joe", null,
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		Authentication updatedAuth = manager.createNewAuthentication(currentAuth, "new");
+		Authentication updatedAuth = this.manager.createNewAuthentication(currentAuth, "new");
 		assertThat(updatedAuth.getCredentials()).isNull();
 	}
 
@@ -389,11 +392,11 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	private void insertJoe() {
-		template.execute("insert into users (username, password, enabled) values ('joe','password','true')");
-		template.execute("insert into authorities (username, authority) values ('joe','A')");
-		template.execute("insert into authorities (username, authority) values ('joe','B')");
-		template.execute("insert into authorities (username, authority) values ('joe','C')");
-		cache.putUserInCache(joe);
+		this.template.execute("insert into users (username, password, enabled) values ('joe','password','true')");
+		this.template.execute("insert into authorities (username, authority) values ('joe','A')");
+		this.template.execute("insert into authorities (username, authority) values ('joe','B')");
+		this.template.execute("insert into authorities (username, authority) values ('joe','C')");
+		this.cache.putUserInCache(joe);
 	}
 
 	private class MockUserCache implements UserCache {
@@ -401,19 +404,19 @@ public class JdbcUserDetailsManagerTests {
 		private Map<String, UserDetails> cache = new HashMap<>();
 
 		public UserDetails getUserFromCache(String username) {
-			return cache.get(username);
+			return this.cache.get(username);
 		}
 
 		public void putUserInCache(UserDetails user) {
-			cache.put(user.getUsername(), user);
+			this.cache.put(user.getUsername(), user);
 		}
 
 		public void removeUserFromCache(String username) {
-			cache.remove(username);
+			this.cache.remove(username);
 		}
 
 		Map<String, UserDetails> getUserMap() {
-			return cache;
+			return this.cache;
 		}
 
 	}

@@ -65,12 +65,12 @@ public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 		private HttpHeaders headers = new HttpHeaders();
 
 		public Builder header(String headerName, String... values) {
-			headers.put(headerName, Arrays.asList(values));
+			this.headers.put(headerName, Arrays.asList(values));
 			return this;
 		}
 
 		public StaticServerHttpHeadersWriter build() {
-			return new StaticServerHttpHeadersWriter(headers);
+			return new StaticServerHttpHeadersWriter(this.headers);
 		}
 
 	}

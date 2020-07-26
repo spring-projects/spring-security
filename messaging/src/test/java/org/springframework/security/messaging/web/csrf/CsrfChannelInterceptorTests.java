@@ -48,106 +48,106 @@ public class CsrfChannelInterceptorTests {
 
 	@Before
 	public void setup() {
-		token = new DefaultCsrfToken("header", "param", "token");
-		interceptor = new CsrfChannelInterceptor();
+		this.token = new DefaultCsrfToken("header", "param", "token");
+		this.interceptor = new CsrfChannelInterceptor();
 
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
-		messageHeaders.setNativeHeader(token.getHeaderName(), token.getToken());
-		messageHeaders.setSessionAttributes(new HashMap<>());
-		messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), token);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
+		this.messageHeaders.setSessionAttributes(new HashMap<>());
+		this.messageHeaders.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
 	}
 
 	@Test
 	public void preSendValidToken() {
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test
 	public void preSendIgnoresConnectAck() {
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT_ACK);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT_ACK);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test
 	public void preSendIgnoresDisconnect() {
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.DISCONNECT);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.DISCONNECT);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test
 	public void preSendIgnoresDisconnectAck() {
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.DISCONNECT_ACK);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.DISCONNECT_ACK);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test
 	public void preSendIgnoresHeartbeat() {
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.HEARTBEAT);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.HEARTBEAT);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test
 	public void preSendIgnoresMessage() {
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test
 	public void preSendIgnoresOther() {
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.OTHER);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.OTHER);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test
 	public void preSendIgnoresSubscribe() {
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.SUBSCRIBE);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.SUBSCRIBE);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test
 	public void preSendIgnoresUnsubscribe() {
-		messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.UNSUBSCRIBE);
+		this.messageHeaders = SimpMessageHeaderAccessor.create(SimpMessageType.UNSUBSCRIBE);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test(expected = InvalidCsrfTokenException.class)
 	public void preSendNoToken() {
-		messageHeaders.removeNativeHeader(token.getHeaderName());
+		this.messageHeaders.removeNativeHeader(this.token.getHeaderName());
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test(expected = InvalidCsrfTokenException.class)
 	public void preSendInvalidToken() {
-		messageHeaders.setNativeHeader(token.getHeaderName(), token.getToken() + "invalid");
+		this.messageHeaders.setNativeHeader(this.token.getHeaderName(), this.token.getToken() + "invalid");
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test(expected = MissingCsrfTokenException.class)
 	public void preSendMissingToken() {
-		messageHeaders.getSessionAttributes().clear();
+		this.messageHeaders.getSessionAttributes().clear();
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	@Test(expected = MissingCsrfTokenException.class)
 	public void preSendMissingTokenNullSessionAttributes() {
-		messageHeaders.setSessionAttributes(null);
+		this.messageHeaders.setSessionAttributes(null);
 
-		interceptor.preSend(message(), channel);
+		this.interceptor.preSend(message(), this.channel);
 	}
 
 	private Message<String> message() {
-		Map<String, Object> headersToCopy = messageHeaders.toMap();
+		Map<String, Object> headersToCopy = this.messageHeaders.toMap();
 		return MessageBuilder.withPayload("hi").copyHeaders(headersToCopy).build();
 	}
 

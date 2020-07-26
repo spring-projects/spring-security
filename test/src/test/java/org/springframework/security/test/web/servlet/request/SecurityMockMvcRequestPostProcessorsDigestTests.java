@@ -53,16 +53,16 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Before
 	public void setup() {
 		this.password = "password";
-		request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest();
 
-		entryPoint = new DigestAuthenticationEntryPoint();
-		entryPoint.setKey("key");
-		entryPoint.setRealmName("Spring Security");
-		filter = new DigestAuthenticationFilter();
-		filter.setUserDetailsService(
-				username -> new User(username, password, AuthorityUtils.createAuthorityList("ROLE_USER")));
-		filter.setAuthenticationEntryPoint(entryPoint);
-		filter.afterPropertiesSet();
+		this.entryPoint = new DigestAuthenticationEntryPoint();
+		this.entryPoint.setKey("key");
+		this.entryPoint.setRealmName("Spring Security");
+		this.filter = new DigestAuthenticationFilter();
+		this.filter.setUserDetailsService(
+				username -> new User(username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER")));
+		this.filter.setAuthenticationEntryPoint(this.entryPoint);
+		this.filter.afterPropertiesSet();
 	}
 
 	@After
@@ -72,7 +72,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 
 	@Test
 	public void digestWithFilter() throws Exception {
-		MockHttpServletRequest postProcessedRequest = digest().postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = digest().postProcessRequest(this.request);
 
 		assertThat(extractUser()).isEqualTo("user");
 	}
@@ -80,7 +80,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Test
 	public void digestWithFilterCustomUsername() throws Exception {
 		String username = "admin";
-		MockHttpServletRequest postProcessedRequest = digest(username).postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = digest(username).postProcessRequest(this.request);
 
 		assertThat(extractUser()).isEqualTo(username);
 	}
@@ -88,8 +88,9 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Test
 	public void digestWithFilterCustomPassword() throws Exception {
 		String username = "custom";
-		password = "secret";
-		MockHttpServletRequest postProcessedRequest = digest(username).password(password).postProcessRequest(request);
+		this.password = "secret";
+		MockHttpServletRequest postProcessedRequest = digest(username).password(this.password)
+				.postProcessRequest(this.request);
 
 		assertThat(extractUser()).isEqualTo(username);
 	}
@@ -97,9 +98,9 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Test
 	public void digestWithFilterCustomRealm() throws Exception {
 		String username = "admin";
-		entryPoint.setRealmName("Custom");
-		MockHttpServletRequest postProcessedRequest = digest(username).realm(entryPoint.getRealmName())
-				.postProcessRequest(request);
+		this.entryPoint.setRealmName("Custom");
+		MockHttpServletRequest postProcessedRequest = digest(username).realm(this.entryPoint.getRealmName())
+				.postProcessRequest(this.request);
 
 		assertThat(extractUser()).isEqualTo(username);
 	}
@@ -107,20 +108,22 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Test
 	public void digestWithFilterFails() throws Exception {
 		String username = "admin";
-		MockHttpServletRequest postProcessedRequest = digest(username).realm("Invalid").postProcessRequest(request);
+		MockHttpServletRequest postProcessedRequest = digest(username).realm("Invalid")
+				.postProcessRequest(this.request);
 
 		assertThat(extractUser()).isNull();
 	}
 
 	private String extractUser() throws IOException, ServletException {
-		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain() {
+		this.filter.doFilter(this.request, new MockHttpServletResponse(), new MockFilterChain() {
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response) {
 				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-				username = authentication == null ? null : authentication.getName();
+				SecurityMockMvcRequestPostProcessorsDigestTests.this.username = authentication == null ? null
+						: authentication.getName();
 			}
 		});
-		return username;
+		return this.username;
 	}
 
 }

@@ -32,7 +32,7 @@ final class HexEncodingStringKeyGenerator implements StringKeyGenerator {
 	}
 
 	public String generateKey() {
-		return new String(Hex.encode(keyGenerator.generateKey()));
+		return new String(Hex.encode(this.keyGenerator.generateKey()));
 	}
 
 }

@@ -58,32 +58,34 @@ public class CsrfTokenArgumentResolverTests {
 
 	@Before
 	public void setup() {
-		token = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "secret");
-		resolver = new CsrfTokenArgumentResolver();
-		request = new MockHttpServletRequest();
-		webRequest = new ServletWebRequest(request);
+		this.token = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "secret");
+		this.resolver = new CsrfTokenArgumentResolver();
+		this.request = new MockHttpServletRequest();
+		this.webRequest = new ServletWebRequest(this.request);
 	}
 
 	@Test
 	public void supportsParameterFalse() {
-		assertThat(resolver.supportsParameter(noToken())).isFalse();
+		assertThat(this.resolver.supportsParameter(noToken())).isFalse();
 	}
 
 	@Test
 	public void supportsParameterTrue() {
-		assertThat(resolver.supportsParameter(token())).isTrue();
+		assertThat(this.resolver.supportsParameter(token())).isTrue();
 	}
 
 	@Test
 	public void resolveArgumentNotFound() throws Exception {
-		assertThat(resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory)).isNull();
+		assertThat(this.resolver.resolveArgument(token(), this.mavContainer, this.webRequest, this.binderFactory))
+				.isNull();
 	}
 
 	@Test
 	public void resolveArgumentFound() throws Exception {
-		request.setAttribute(CsrfToken.class.getName(), token);
+		this.request.setAttribute(CsrfToken.class.getName(), this.token);
 
-		assertThat(resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory)).isSameAs(token);
+		assertThat(this.resolver.resolveArgument(token(), this.mavContainer, this.webRequest, this.binderFactory))
+				.isSameAs(this.token);
 	}
 
 	private MethodParameter noToken() {

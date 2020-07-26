@@ -61,7 +61,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	 * Check whether all required properties have been set.
 	 */
 	public void afterPropertiesSet() {
-		Assert.notNull(preAuthenticatedUserDetailsService, "An AuthenticationUserDetailsService must be set");
+		Assert.notNull(this.preAuthenticatedUserDetailsService, "An AuthenticationUserDetailsService must be set");
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 		if (authentication.getPrincipal() == null) {
 			logger.debug("No pre-authenticated principal found in request.");
 
-			if (throwExceptionWhenTokenRejected) {
+			if (this.throwExceptionWhenTokenRejected) {
 				throw new BadCredentialsException("No pre-authenticated principal found in request.");
 			}
 			return null;
@@ -91,16 +91,16 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 		if (authentication.getCredentials() == null) {
 			logger.debug("No pre-authenticated credentials found in request.");
 
-			if (throwExceptionWhenTokenRejected) {
+			if (this.throwExceptionWhenTokenRejected) {
 				throw new BadCredentialsException("No pre-authenticated credentials found in request.");
 			}
 			return null;
 		}
 
-		UserDetails ud = preAuthenticatedUserDetailsService
+		UserDetails ud = this.preAuthenticatedUserDetailsService
 				.loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
 
-		userDetailsChecker.check(ud);
+		this.userDetailsChecker.check(ud);
 
 		PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(ud,
 				authentication.getCredentials(), ud.getAuthorities());
@@ -147,11 +147,11 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	}
 
 	public int getOrder() {
-		return order;
+		return this.order;
 	}
 
 	public void setOrder(int i) {
-		order = i;
+		this.order = i;
 	}
 
 }

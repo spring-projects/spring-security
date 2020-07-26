@@ -67,16 +67,16 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	}
 
 	public void afterPropertiesSet() {
-		Assert.isTrue((userDnFormat != null) || (userSearch != null),
+		Assert.isTrue((this.userDnFormat != null) || (this.userSearch != null),
 				"Either an LdapUserSearch or DN pattern (or both) must be supplied.");
 	}
 
 	protected ContextSource getContextSource() {
-		return contextSource;
+		return this.contextSource;
 	}
 
 	public String[] getUserAttributes() {
-		return userAttributes;
+		return this.userAttributes;
 	}
 
 	/**
@@ -87,15 +87,15 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	 * set.
 	 */
 	protected List<String> getUserDns(String username) {
-		if (userDnFormat == null) {
+		if (this.userDnFormat == null) {
 			return Collections.emptyList();
 		}
 
-		List<String> userDns = new ArrayList<>(userDnFormat.length);
+		List<String> userDns = new ArrayList<>(this.userDnFormat.length);
 		String[] args = new String[] { LdapEncoder.nameEncode(username) };
 
-		synchronized (userDnFormat) {
-			for (MessageFormat formatter : userDnFormat) {
+		synchronized (this.userDnFormat) {
+			for (MessageFormat formatter : this.userDnFormat) {
 				userDns.add(formatter.format(args));
 			}
 		}
@@ -104,7 +104,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	}
 
 	protected LdapUserSearch getUserSearch() {
-		return userSearch;
+		return this.userSearch;
 	}
 
 	public void setMessageSource(MessageSource messageSource) {
@@ -131,10 +131,10 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	public void setUserDnPatterns(String[] dnPattern) {
 		Assert.notNull(dnPattern, "The array of DN patterns cannot be set to null");
 		// this.userDnPattern = dnPattern;
-		userDnFormat = new MessageFormat[dnPattern.length];
+		this.userDnFormat = new MessageFormat[dnPattern.length];
 
 		for (int i = 0; i < dnPattern.length; i++) {
-			userDnFormat[i] = new MessageFormat(dnPattern[i]);
+			this.userDnFormat[i] = new MessageFormat(dnPattern[i]);
 		}
 	}
 

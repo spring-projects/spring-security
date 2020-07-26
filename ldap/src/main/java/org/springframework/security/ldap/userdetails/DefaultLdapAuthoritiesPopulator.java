@@ -246,7 +246,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 		}
 
 		for (Map<String, List<String>> role : userRoles) {
-			authorities.add(authorityMapper.apply(role));
+			authorities.add(this.authorityMapper.apply(role));
 		}
 
 		return authorities;

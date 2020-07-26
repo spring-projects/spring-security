@@ -69,11 +69,11 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		String tokenValue = token == null ? "" : token.getToken();
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
-		if (secure == null) {
+		if (this.secure == null) {
 			cookie.setSecure(request.isSecure());
 		}
 		else {
-			cookie.setSecure(secure);
+			cookie.setSecure(this.secure);
 		}
 
 		if (this.cookiePath != null && !this.cookiePath.isEmpty()) {
@@ -88,7 +88,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		else {
 			cookie.setMaxAge(-1);
 		}
-		cookie.setHttpOnly(cookieHttpOnly);
+		cookie.setHttpOnly(this.cookieHttpOnly);
 		if (this.cookieDomain != null && !this.cookieDomain.isEmpty()) {
 			cookie.setDomain(this.cookieDomain);
 		}

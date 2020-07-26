@@ -107,7 +107,7 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 		}
 
 		List<String> getHeader() {
-			return actual.getHeaders().get(ClearSiteDataServerHttpHeadersWriter.CLEAR_SITE_DATA_HEADER);
+			return this.actual.getHeaders().get(ClearSiteDataServerHttpHeadersWriter.CLEAR_SITE_DATA_HEADER);
 		}
 
 	}

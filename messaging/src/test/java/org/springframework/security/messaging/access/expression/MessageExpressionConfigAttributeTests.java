@@ -47,34 +47,34 @@ public class MessageExpressionConfigAttributeTests {
 
 	@Before
 	public void setup() {
-		attribute = new MessageExpressionConfigAttribute(expression, matcher);
+		this.attribute = new MessageExpressionConfigAttribute(this.expression, this.matcher);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullExpression() {
-		new MessageExpressionConfigAttribute(null, matcher);
+		new MessageExpressionConfigAttribute(null, this.matcher);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullMatcher() {
-		new MessageExpressionConfigAttribute(expression, null);
+		new MessageExpressionConfigAttribute(this.expression, null);
 	}
 
 	@Test
 	public void getAuthorizeExpression() {
-		assertThat(attribute.getAuthorizeExpression()).isSameAs(expression);
+		assertThat(this.attribute.getAuthorizeExpression()).isSameAs(this.expression);
 	}
 
 	@Test
 	public void getAttribute() {
-		assertThat(attribute.getAttribute()).isNull();
+		assertThat(this.attribute.getAttribute()).isNull();
 	}
 
 	@Test
 	public void toStringUsesExpressionString() {
-		when(expression.getExpressionString()).thenReturn("toString");
+		when(this.expression.getExpressionString()).thenReturn("toString");
 
-		assertThat(attribute.toString()).isEqualTo(expression.getExpressionString());
+		assertThat(this.attribute.toString()).isEqualTo(this.expression.getExpressionString());
 	}
 
 	@Test
@@ -84,8 +84,8 @@ public class MessageExpressionConfigAttributeTests {
 				.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1").build();
 		EvaluationContext context = mock(EvaluationContext.class);
 
-		attribute = new MessageExpressionConfigAttribute(expression, matcher);
-		attribute.postProcess(context, message);
+		this.attribute = new MessageExpressionConfigAttribute(this.expression, matcher);
+		this.attribute.postProcess(context, message);
 
 		verify(context).setVariable("topic", "someTopic");
 	}

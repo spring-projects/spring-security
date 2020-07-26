@@ -27,7 +27,7 @@ public final class TargetObjectWithUUID {
 	private UUID id;
 
 	public UUID getId() {
-		return id;
+		return this.id;
 	}
 
 	public void setId(UUID id) {

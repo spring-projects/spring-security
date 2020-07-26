@@ -47,30 +47,30 @@ public class HttpHeaderWriterWebFilterTests {
 
 	@Before
 	public void setup() {
-		when(writer.writeHttpHeaders(any())).thenReturn(Mono.empty());
-		filter = new HttpHeaderWriterWebFilter(writer);
+		when(this.writer.writeHttpHeaders(any())).thenReturn(Mono.empty());
+		this.filter = new HttpHeaderWriterWebFilter(this.writer);
 	}
 
 	@Test
 	public void filterWhenCompleteThenWritten() {
-		WebTestClient rest = WebTestClientBuilder.bindToWebFilters(filter).build();
+		WebTestClient rest = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 
 		rest.get().uri("/foo").exchange();
 
-		verify(writer).writeHttpHeaders(any());
+		verify(this.writer).writeHttpHeaders(any());
 	}
 
 	@Test
 	public void filterWhenNotCompleteThenNotWritten() {
-		WebTestHandler handler = WebTestHandler.bindToWebFilters(filter);
+		WebTestHandler handler = WebTestHandler.bindToWebFilters(this.filter);
 
 		WebHandlerResult result = handler.exchange(MockServerHttpRequest.get("/foo"));
 
-		verify(writer, never()).writeHttpHeaders(any());
+		verify(this.writer, never()).writeHttpHeaders(any());
 
 		result.getExchange().getResponse().setComplete().block();
 
-		verify(writer).writeHttpHeaders(any());
+		verify(this.writer).writeHttpHeaders(any());
 	}
 
 }

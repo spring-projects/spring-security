@@ -48,7 +48,7 @@ public final class RegExpAllowFromStrategy extends AbstractRequestParameterAllow
 
 	@Override
 	protected boolean allowed(String allowFromOrigin) {
-		return pattern.matcher(allowFromOrigin).matches();
+		return this.pattern.matcher(allowFromOrigin).matches();
 	}
 
 }

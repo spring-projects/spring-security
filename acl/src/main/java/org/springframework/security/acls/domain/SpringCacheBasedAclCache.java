@@ -62,8 +62,8 @@ public class SpringCacheBasedAclCache implements AclCache {
 		MutableAcl acl = getFromCache(pk);
 
 		if (acl != null) {
-			cache.evict(acl.getId());
-			cache.evict(acl.getObjectIdentity());
+			this.cache.evict(acl.getId());
+			this.cache.evict(acl.getObjectIdentity());
 		}
 	}
 
@@ -73,8 +73,8 @@ public class SpringCacheBasedAclCache implements AclCache {
 		MutableAcl acl = getFromCache(objectIdentity);
 
 		if (acl != null) {
-			cache.evict(acl.getId());
-			cache.evict(acl.getObjectIdentity());
+			this.cache.evict(acl.getId());
+			this.cache.evict(acl.getObjectIdentity());
 		}
 	}
 
@@ -97,12 +97,12 @@ public class SpringCacheBasedAclCache implements AclCache {
 			putInCache((MutableAcl) acl.getParentAcl());
 		}
 
-		cache.put(acl.getObjectIdentity(), acl);
-		cache.put(acl.getId(), acl);
+		this.cache.put(acl.getObjectIdentity(), acl);
+		this.cache.put(acl.getId(), acl);
 	}
 
 	private MutableAcl getFromCache(Object key) {
-		Cache.ValueWrapper element = cache.get(key);
+		Cache.ValueWrapper element = this.cache.get(key);
 
 		if (element == null) {
 			return null;
@@ -124,7 +124,7 @@ public class SpringCacheBasedAclCache implements AclCache {
 	}
 
 	public void clearCache() {
-		cache.clear();
+		this.cache.clear();
 	}
 
 }

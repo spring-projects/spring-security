@@ -87,21 +87,21 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	public void createUser(UserDetails user) {
 		Assert.isTrue(!userExists(user.getUsername()), "user should not exist");
 
-		users.put(user.getUsername().toLowerCase(), new MutableUser(user));
+		this.users.put(user.getUsername().toLowerCase(), new MutableUser(user));
 	}
 
 	public void deleteUser(String username) {
-		users.remove(username.toLowerCase());
+		this.users.remove(username.toLowerCase());
 	}
 
 	public void updateUser(UserDetails user) {
 		Assert.isTrue(userExists(user.getUsername()), "user should exist");
 
-		users.put(user.getUsername().toLowerCase(), new MutableUser(user));
+		this.users.put(user.getUsername().toLowerCase(), new MutableUser(user));
 	}
 
 	public boolean userExists(String username) {
-		return users.containsKey(username.toLowerCase());
+		return this.users.containsKey(username.toLowerCase());
 	}
 
 	public void changePassword(String oldPassword, String newPassword) {
@@ -115,20 +115,20 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 
 		String username = currentUser.getName();
 
-		logger.debug("Changing password for user '" + username + "'");
+		this.logger.debug("Changing password for user '" + username + "'");
 
 		// If an authentication manager has been set, re-authenticate the user with the
 		// supplied password.
-		if (authenticationManager != null) {
-			logger.debug("Reauthenticating user '" + username + "' for password change request.");
+		if (this.authenticationManager != null) {
+			this.logger.debug("Reauthenticating user '" + username + "' for password change request.");
 
-			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
+			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
 		}
 		else {
-			logger.debug("No authentication manager set. Password won't be re-checked.");
+			this.logger.debug("No authentication manager set. Password won't be re-checked.");
 		}
 
-		MutableUserDetails user = users.get(username);
+		MutableUserDetails user = this.users.get(username);
 
 		if (user == null) {
 			throw new IllegalStateException("Current user doesn't exist in database.");
@@ -146,7 +146,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	}
 
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserDetails user = users.get(username.toLowerCase());
+		UserDetails user = this.users.get(username.toLowerCase());
 
 		if (user == null) {
 			throw new UsernameNotFoundException(username);

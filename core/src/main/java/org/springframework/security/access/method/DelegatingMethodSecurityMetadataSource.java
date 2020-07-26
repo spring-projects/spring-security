@@ -51,8 +51,8 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 
 	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
 		DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
-		synchronized (attributeCache) {
-			Collection<ConfigAttribute> cached = attributeCache.get(cacheKey);
+		synchronized (this.attributeCache) {
+			Collection<ConfigAttribute> cached = this.attributeCache.get(cacheKey);
 			// Check for canonical value indicating there is no config attribute,
 
 			if (cached != null) {
@@ -61,7 +61,7 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 
 			// No cached value, so query the sources to find a result
 			Collection<ConfigAttribute> attributes = null;
-			for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
+			for (MethodSecurityMetadataSource s : this.methodSecurityMetadataSources) {
 				attributes = s.getAttributes(method, targetClass);
 				if (attributes != null && !attributes.isEmpty()) {
 					break;
@@ -74,8 +74,8 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 				return NULL_CONFIG_ATTRIBUTE;
 			}
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Caching method [" + cacheKey + "] with attributes " + attributes);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Caching method [" + cacheKey + "] with attributes " + attributes);
 			}
 
 			this.attributeCache.put(cacheKey, attributes);
@@ -87,7 +87,7 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> set = new HashSet<>();
-		for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
+		for (MethodSecurityMetadataSource s : this.methodSecurityMetadataSources) {
 			Collection<ConfigAttribute> attrs = s.getAllConfigAttributes();
 			if (attrs != null) {
 				set.addAll(attrs);
@@ -97,7 +97,7 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 	}
 
 	public List<MethodSecurityMetadataSource> getMethodSecurityMetadataSources() {
-		return methodSecurityMetadataSources;
+		return this.methodSecurityMetadataSources;
 	}
 
 	private static class DefaultCacheKey {
@@ -125,7 +125,8 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 
 		@Override
 		public String toString() {
-			return "CacheKey[" + (targetClass == null ? "-" : targetClass.getName()) + "; " + method + "]";
+			return "CacheKey[" + (this.targetClass == null ? "-" : this.targetClass.getName()) + "; " + this.method
+					+ "]";
 		}
 
 	}

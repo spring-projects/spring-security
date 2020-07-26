@@ -110,7 +110,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
 	public ApacheDSContainer(String root, String ldifs) throws Exception {
 		this.ldifResources = ldifs;
-		service = new DefaultDirectoryService();
+		this.service = new DefaultDirectoryService();
 		List<Interceptor> list = new ArrayList<>();
 
 		list.add(new NormalizationInterceptor());
@@ -128,20 +128,20 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		// list.add( new TriggerInterceptor() );
 		// list.add( new JournalInterceptor() );
 
-		service.setInterceptors(list);
-		partition = new JdbmPartition();
-		partition.setId("rootPartition");
-		partition.setSuffix(root);
+		this.service.setInterceptors(list);
+		this.partition = new JdbmPartition();
+		this.partition.setId("rootPartition");
+		this.partition.setSuffix(root);
 		this.root = root;
-		service.addPartition(partition);
-		service.setExitVmOnShutdown(false);
-		service.setShutdownHookEnabled(false);
-		service.getChangeLog().setEnabled(false);
-		service.setDenormalizeOpAttrsEnabled(true);
+		this.service.addPartition(this.partition);
+		this.service.setExitVmOnShutdown(false);
+		this.service.setShutdownHookEnabled(false);
+		this.service.getChangeLog().setEnabled(false);
+		this.service.setDenormalizeOpAttrsEnabled(true);
 	}
 
 	public void afterPropertiesSet() throws Exception {
-		if (workingDir == null) {
+		if (this.workingDir == null) {
 			String apacheWorkDir = System.getProperty("apacheDSWorkDir");
 
 			if (apacheWorkDir == null) {
@@ -154,17 +154,17 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			throw new IllegalArgumentException("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
 		}
 
-		server = new LdapServer();
-		server.setDirectoryService(service);
+		this.server = new LdapServer();
+		this.server.setDirectoryService(this.service);
 		// AbstractLdapIntegrationTests assume IPv4, so we specify the same here
 
-		this.transport = new TcpTransport(port);
-		if (ldapOverSslEnabled) {
-			transport.setEnableSSL(true);
-			server.setKeystoreFile(this.keyStoreFile.getAbsolutePath());
-			server.setCertificatePassword(this.certificatePassord);
+		this.transport = new TcpTransport(this.port);
+		if (this.ldapOverSslEnabled) {
+			this.transport.setEnableSSL(true);
+			this.server.setKeystoreFile(this.keyStoreFile.getAbsolutePath());
+			this.server.setCertificatePassword(this.certificatePassord);
 		}
-		server.setTransports(transport);
+		this.server.setTransports(this.transport);
 		start();
 	}
 
@@ -173,13 +173,13 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		ctxt = applicationContext;
+		this.ctxt = applicationContext;
 	}
 
 	public void setWorkingDirectory(File workingDir) {
 		Assert.notNull(workingDir, "workingDir cannot be null");
 
-		logger.info("Setting working directory for LDAP_PROVIDER: " + workingDir.getAbsolutePath());
+		this.logger.info("Setting working directory for LDAP_PROVIDER: " + workingDir.getAbsolutePath());
 
 		if (workingDir.exists()) {
 			throw new IllegalArgumentException("The specified working directory '" + workingDir.getAbsolutePath()
@@ -190,7 +190,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
 		this.workingDir = workingDir;
 
-		service.setWorkingDirectory(workingDir);
+		this.service.setWorkingDirectory(workingDir);
 	}
 
 	public void setPort(int port) {
@@ -238,7 +238,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	}
 
 	public DefaultDirectoryService getService() {
-		return service;
+		return this.service;
 	}
 
 	public void start() {
@@ -246,45 +246,45 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			return;
 		}
 
-		if (service.isStarted()) {
+		if (this.service.isStarted()) {
 			throw new IllegalStateException("DirectoryService is already running.");
 		}
 
-		logger.info("Starting directory server...");
+		this.logger.info("Starting directory server...");
 		try {
-			service.startup();
-			server.start();
+			this.service.startup();
+			this.server.start();
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Server startup failed", e);
 		}
 
 		try {
-			service.getAdminSession().lookup(partition.getSuffixDn());
+			this.service.getAdminSession().lookup(this.partition.getSuffixDn());
 		}
 		catch (LdapNameNotFoundException e) {
 			try {
-				LdapDN dn = new LdapDN(root);
-				Assert.isTrue(root.startsWith("dc="), "root must start with dc=");
-				String dc = root.substring(3, root.indexOf(','));
-				ServerEntry entry = service.newEntry(dn);
+				LdapDN dn = new LdapDN(this.root);
+				Assert.isTrue(this.root.startsWith("dc="), "root must start with dc=");
+				String dc = this.root.substring(3, this.root.indexOf(','));
+				ServerEntry entry = this.service.newEntry(dn);
 				entry.add("objectClass", "top", "domain", "extensibleObject");
 				entry.add("dc", dc);
-				service.getAdminSession().add(entry);
+				this.service.getAdminSession().add(entry);
 			}
 			catch (Exception e1) {
-				logger.error("Failed to create dc entry", e1);
+				this.logger.error("Failed to create dc entry", e1);
 			}
 		}
 		catch (Exception e) {
-			logger.error("Lookup failed", e);
+			this.logger.error("Lookup failed", e);
 		}
 
 		SocketAcceptor socketAcceptor = this.server.getSocketAcceptor(this.transport);
 		InetSocketAddress localAddress = socketAcceptor.getLocalAddress();
 		this.localPort = localAddress.getPort();
 
-		running = true;
+		this.running = true;
 
 		try {
 			importLdifs();
@@ -299,21 +299,21 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			return;
 		}
 
-		logger.info("Shutting down directory server ...");
+		this.logger.info("Shutting down directory server ...");
 		try {
-			server.stop();
-			service.shutdown();
+			this.server.stop();
+			this.service.shutdown();
 		}
 		catch (Exception e) {
-			logger.error("Shutdown failed", e);
+			this.logger.error("Shutdown failed", e);
 			return;
 		}
 
-		running = false;
+		this.running = false;
 
-		if (workingDir.exists()) {
-			logger.info("Deleting working directory " + workingDir.getAbsolutePath());
-			deleteDir(workingDir);
+		if (this.workingDir.exists()) {
+			this.logger.info("Deleting working directory " + this.workingDir.getAbsolutePath());
+			deleteDir(this.workingDir);
 		}
 	}
 
@@ -321,12 +321,12 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		// Import any ldif files
 		Resource[] ldifs;
 
-		if (ctxt == null) {
+		if (this.ctxt == null) {
 			// Not running within an app context
-			ldifs = new PathMatchingResourcePatternResolver().getResources(ldifResources);
+			ldifs = new PathMatchingResourcePatternResolver().getResources(this.ldifResources);
 		}
 		else {
-			ldifs = ctxt.getResources(ldifResources);
+			ldifs = this.ctxt.getResources(this.ldifResources);
 		}
 
 		// Note that we can't just import using the ServerContext returned
@@ -348,14 +348,14 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			catch (IOException e) {
 				ldifFile = ldifs[0].getURI().toString();
 			}
-			logger.info("Loading LDIF file: " + ldifFile);
-			LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), new File(ldifFile), null,
+			this.logger.info("Loading LDIF file: " + ldifFile);
+			LdifFileLoader loader = new LdifFileLoader(this.service.getAdminSession(), new File(ldifFile), null,
 					getClass().getClassLoader());
 			loader.execute();
 		}
 		else {
 			throw new IllegalArgumentException("More than one LDIF resource found with the supplied pattern:"
-					+ ldifResources + " Got " + Arrays.toString(ldifs));
+					+ this.ldifResources + " Got " + Arrays.toString(ldifs));
 		}
 	}
 
@@ -391,7 +391,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	}
 
 	public boolean isRunning() {
-		return running;
+		return this.running;
 	}
 
 }

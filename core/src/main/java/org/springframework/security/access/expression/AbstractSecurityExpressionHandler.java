@@ -48,7 +48,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
 	public final ExpressionParser getExpressionParser() {
-		return expressionParser;
+		return this.expressionParser;
 	}
 
 	public final void setExpressionParser(ExpressionParser expressionParser) {
@@ -67,7 +67,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	public final EvaluationContext createEvaluationContext(Authentication authentication, T invocation) {
 		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
 		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
-		ctx.setBeanResolver(br);
+		ctx.setBeanResolver(this.br);
 		ctx.setRootObject(root);
 
 		return ctx;
@@ -99,7 +99,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 			T invocation);
 
 	protected RoleHierarchy getRoleHierarchy() {
-		return roleHierarchy;
+		return this.roleHierarchy;
 	}
 
 	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
@@ -107,7 +107,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	}
 
 	protected PermissionEvaluator getPermissionEvaluator() {
-		return permissionEvaluator;
+		return this.permissionEvaluator;
 	}
 
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
@@ -115,7 +115,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) {
-		br = new BeanFactoryResolver(applicationContext);
+		this.br = new BeanFactoryResolver(applicationContext);
 	}
 
 }

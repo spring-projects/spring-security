@@ -46,28 +46,28 @@ public class PreAuthorizeTests {
 	public void preAuthorizeAdminRoleDenied() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
-		service.preAuthorizeAdminRole();
+		this.service.preAuthorizeAdminRole();
 	}
 
 	@Test
 	public void preAuthorizeAdminRoleGranted() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		service.preAuthorizeAdminRole();
+		this.service.preAuthorizeAdminRole();
 	}
 
 	@Test
 	public void preAuthorizeContactPermissionGranted() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		service.contactPermission(new Contact("user"));
+		this.service.contactPermission(new Contact("user"));
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void preAuthorizeContactPermissionDenied() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		service.contactPermission(new Contact("admin"));
+		this.service.contactPermission(new Contact("admin"));
 	}
 
 }

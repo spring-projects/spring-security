@@ -150,8 +150,9 @@ public abstract class AbstractSecurityInterceptor
 			Collection<ConfigAttribute> attributeDefs = this.obtainSecurityMetadataSource().getAllConfigAttributes();
 
 			if (attributeDefs == null) {
-				logger.warn("Could not validate configuration attributes as the SecurityMetadataSource did not return "
-						+ "any attributes from getAllConfigAttributes()");
+				this.logger.warn(
+						"Could not validate configuration attributes as the SecurityMetadataSource did not return "
+								+ "any attributes from getAllConfigAttributes()");
 				return;
 			}
 
@@ -168,13 +169,13 @@ public abstract class AbstractSecurityInterceptor
 				throw new IllegalArgumentException("Unsupported configuration attributes: " + unsupportedAttrs);
 			}
 
-			logger.debug("Validated configuration attributes");
+			this.logger.debug("Validated configuration attributes");
 		}
 	}
 
 	protected InterceptorStatusToken beforeInvocation(Object object) {
 		Assert.notNull(object, "Object was null");
-		final boolean debug = logger.isDebugEnabled();
+		final boolean debug = this.logger.isDebugEnabled();
 
 		if (!getSecureObjectClass().isAssignableFrom(object.getClass())) {
 			throw new IllegalArgumentException("Security invocation attempted for object " + object.getClass().getName()
@@ -185,7 +186,7 @@ public abstract class AbstractSecurityInterceptor
 		Collection<ConfigAttribute> attributes = this.obtainSecurityMetadataSource().getAttributes(object);
 
 		if (attributes == null || attributes.isEmpty()) {
-			if (rejectPublicInvocations) {
+			if (this.rejectPublicInvocations) {
 				throw new IllegalArgumentException("Secure object invocation " + object
 						+ " was denied as public invocations are not allowed via this interceptor. "
 						+ "This indicates a configuration error because the "
@@ -193,7 +194,7 @@ public abstract class AbstractSecurityInterceptor
 			}
 
 			if (debug) {
-				logger.debug("Public object - authentication not attempted");
+				this.logger.debug("Public object - authentication not attempted");
 			}
 
 			publishEvent(new PublicInvocationEvent(object));
@@ -202,11 +203,11 @@ public abstract class AbstractSecurityInterceptor
 		}
 
 		if (debug) {
-			logger.debug("Secure object: " + object + "; Attributes: " + attributes);
+			this.logger.debug("Secure object: " + object + "; Attributes: " + attributes);
 		}
 
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			credentialsNotFound(messages.getMessage("AbstractSecurityInterceptor.authenticationNotFound",
+			credentialsNotFound(this.messages.getMessage("AbstractSecurityInterceptor.authenticationNotFound",
 					"An Authentication object was not found in the SecurityContext"), object, attributes);
 		}
 
@@ -223,10 +224,10 @@ public abstract class AbstractSecurityInterceptor
 		}
 
 		if (debug) {
-			logger.debug("Authorization successful");
+			this.logger.debug("Authorization successful");
 		}
 
-		if (publishAuthorizationSuccess) {
+		if (this.publishAuthorizationSuccess) {
 			publishEvent(new AuthorizedEvent(object, attributes, authenticated));
 		}
 
@@ -235,7 +236,7 @@ public abstract class AbstractSecurityInterceptor
 
 		if (runAs == null) {
 			if (debug) {
-				logger.debug("RunAsManager did not change Authentication object");
+				this.logger.debug("RunAsManager did not change Authentication object");
 			}
 
 			// no further work post-invocation
@@ -243,7 +244,7 @@ public abstract class AbstractSecurityInterceptor
 		}
 		else {
 			if (debug) {
-				logger.debug("Switching to RunAs Authentication: " + runAs);
+				this.logger.debug("Switching to RunAs Authentication: " + runAs);
 			}
 
 			SecurityContext origCtx = SecurityContextHolder.getContext();
@@ -264,8 +265,9 @@ public abstract class AbstractSecurityInterceptor
 	 */
 	protected void finallyInvocation(InterceptorStatusToken token) {
 		if (token != null && token.isContextHolderRefreshRequired()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Reverting to original Authentication: " + token.getSecurityContext().getAuthentication());
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(
+						"Reverting to original Authentication: " + token.getSecurityContext().getAuthentication());
 			}
 
 			SecurityContextHolder.setContext(token.getSecurityContext());
@@ -289,10 +291,10 @@ public abstract class AbstractSecurityInterceptor
 
 		finallyInvocation(token); // continue to clean in this method for passivity
 
-		if (afterInvocationManager != null) {
+		if (this.afterInvocationManager != null) {
 			// Attempt after invocation handling
 			try {
-				returnedObject = afterInvocationManager.decide(token.getSecurityContext().getAuthentication(),
+				returnedObject = this.afterInvocationManager.decide(token.getSecurityContext().getAuthentication(),
 						token.getSecureObject(), token.getAttributes(), returnedObject);
 			}
 			catch (AccessDeniedException accessDeniedException) {
@@ -316,20 +318,20 @@ public abstract class AbstractSecurityInterceptor
 	private Authentication authenticateIfRequired() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		if (authentication.isAuthenticated() && !alwaysReauthenticate) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Previously Authenticated: " + authentication);
+		if (authentication.isAuthenticated() && !this.alwaysReauthenticate) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Previously Authenticated: " + authentication);
 			}
 
 			return authentication;
 		}
 
-		authentication = authenticationManager.authenticate(authentication);
+		authentication = this.authenticationManager.authenticate(authentication);
 
 		// We don't authenticated.setAuthentication(true), because each provider should do
 		// that
-		if (logger.isDebugEnabled()) {
-			logger.debug("Successfully Authenticated: " + authentication);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Successfully Authenticated: " + authentication);
 		}
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -357,11 +359,11 @@ public abstract class AbstractSecurityInterceptor
 	}
 
 	public AccessDecisionManager getAccessDecisionManager() {
-		return accessDecisionManager;
+		return this.accessDecisionManager;
 	}
 
 	public AfterInvocationManager getAfterInvocationManager() {
-		return afterInvocationManager;
+		return this.afterInvocationManager;
 	}
 
 	public AuthenticationManager getAuthenticationManager() {
@@ -369,7 +371,7 @@ public abstract class AbstractSecurityInterceptor
 	}
 
 	public RunAsManager getRunAsManager() {
-		return runAsManager;
+		return this.runAsManager;
 	}
 
 	/**
@@ -381,15 +383,15 @@ public abstract class AbstractSecurityInterceptor
 	public abstract Class<?> getSecureObjectClass();
 
 	public boolean isAlwaysReauthenticate() {
-		return alwaysReauthenticate;
+		return this.alwaysReauthenticate;
 	}
 
 	public boolean isRejectPublicInvocations() {
-		return rejectPublicInvocations;
+		return this.rejectPublicInvocations;
 	}
 
 	public boolean isValidateConfigAttributes() {
-		return validateConfigAttributes;
+		return this.validateConfigAttributes;
 	}
 
 	public abstract SecurityMetadataSource obtainSecurityMetadataSource();

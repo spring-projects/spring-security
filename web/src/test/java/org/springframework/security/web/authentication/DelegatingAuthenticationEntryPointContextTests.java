@@ -56,9 +56,9 @@ public class DelegatingAuthenticationEntryPointContextTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("192.168.1.10");
 		request.addHeader("User-Agent", "Mozilla/5.0");
-		daep.commence(request, null, null);
-		verify(firstAEP).commence(request, null, null);
-		verify(defaultAEP, never()).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
+		this.daep.commence(request, null, null);
+		verify(this.firstAEP).commence(request, null, null);
+		verify(this.defaultAEP, never()).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(AuthenticationException.class));
 
 	}
@@ -68,9 +68,9 @@ public class DelegatingAuthenticationEntryPointContextTests {
 	public void testDefaultAEP() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("192.168.1.10");
-		daep.commence(request, null, null);
-		verify(defaultAEP).commence(request, null, null);
-		verify(firstAEP, never()).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
+		this.daep.commence(request, null, null);
+		verify(this.defaultAEP).commence(request, null, null);
+		verify(this.firstAEP, never()).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(AuthenticationException.class));
 
 	}

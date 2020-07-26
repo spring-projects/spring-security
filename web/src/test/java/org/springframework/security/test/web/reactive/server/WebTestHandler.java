@@ -37,7 +37,7 @@ public final class WebTestHandler {
 	private final WebHandler handler;
 
 	private WebTestHandler(WebFilter... filters) {
-		this.handler = new FilteringWebHandler(webHandler, Arrays.asList(filters));
+		this.handler = new FilteringWebHandler(this.webHandler, Arrays.asList(filters));
 	}
 
 	public WebHandlerResult exchange(BaseBuilder<?> baseBuilder) {
@@ -46,8 +46,8 @@ public final class WebTestHandler {
 	}
 
 	public WebHandlerResult exchange(ServerWebExchange exchange) {
-		handler.handle(exchange).block();
-		return new WebHandlerResult(webHandler.exchange);
+		this.handler.handle(exchange).block();
+		return new WebHandlerResult(this.webHandler.exchange);
 	}
 
 	public static final class WebHandlerResult {
@@ -59,7 +59,7 @@ public final class WebTestHandler {
 		}
 
 		public ServerWebExchange getExchange() {
-			return exchange;
+			return this.exchange;
 		}
 
 	}

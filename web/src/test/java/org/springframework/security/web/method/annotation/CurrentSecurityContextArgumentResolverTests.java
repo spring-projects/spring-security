@@ -334,7 +334,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 		@Override
 		public Authentication getAuthentication() {
-			return authentication;
+			return this.authentication;
 		}
 
 		@Override

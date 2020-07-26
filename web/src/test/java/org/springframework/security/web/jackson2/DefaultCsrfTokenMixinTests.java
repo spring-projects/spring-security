@@ -46,13 +46,13 @@ public class DefaultCsrfTokenMixinTests extends AbstractMixinTests {
 	@Test
 	public void defaultCsrfTokenSerializedTest() throws JsonProcessingException, JSONException {
 		DefaultCsrfToken token = new DefaultCsrfToken("csrf-header", "_csrf", "1");
-		String serializedJson = mapper.writeValueAsString(token);
+		String serializedJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(CSRF_JSON, serializedJson, true);
 	}
 
 	@Test
 	public void defaultCsrfTokenDeserializeTest() throws IOException {
-		DefaultCsrfToken token = mapper.readValue(CSRF_JSON, DefaultCsrfToken.class);
+		DefaultCsrfToken token = this.mapper.readValue(CSRF_JSON, DefaultCsrfToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderName()).isEqualTo("csrf-header");
 		assertThat(token.getParameterName()).isEqualTo("_csrf");
@@ -62,13 +62,13 @@ public class DefaultCsrfTokenMixinTests extends AbstractMixinTests {
 	@Test(expected = JsonMappingException.class)
 	public void defaultCsrfTokenDeserializeWithoutClassTest() throws IOException {
 		String tokenJson = "{\"headerName\": \"csrf-header\", \"parameterName\": \"_csrf\", \"token\": \"1\"}";
-		mapper.readValue(tokenJson, DefaultCsrfToken.class);
+		this.mapper.readValue(tokenJson, DefaultCsrfToken.class);
 	}
 
 	@Test(expected = JsonMappingException.class)
 	public void defaultCsrfTokenDeserializeNullValuesTest() throws IOException {
 		String tokenJson = "{\"@class\": \"org.springframework.security.web.csrf.DefaultCsrfToken\", \"headerName\": \"\", \"parameterName\": null, \"token\": \"1\"}";
-		mapper.readValue(tokenJson, DefaultCsrfToken.class);
+		this.mapper.readValue(tokenJson, DefaultCsrfToken.class);
 	}
 
 }

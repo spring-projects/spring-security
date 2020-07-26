@@ -61,8 +61,8 @@ public class EhCacheBasedAclCache implements AclCache {
 		MutableAcl acl = getFromCache(pk);
 
 		if (acl != null) {
-			cache.remove(acl.getId());
-			cache.remove(acl.getObjectIdentity());
+			this.cache.remove(acl.getId());
+			this.cache.remove(acl.getObjectIdentity());
 		}
 	}
 
@@ -72,8 +72,8 @@ public class EhCacheBasedAclCache implements AclCache {
 		MutableAcl acl = getFromCache(objectIdentity);
 
 		if (acl != null) {
-			cache.remove(acl.getId());
-			cache.remove(acl.getObjectIdentity());
+			this.cache.remove(acl.getId());
+			this.cache.remove(acl.getObjectIdentity());
 		}
 	}
 
@@ -83,7 +83,7 @@ public class EhCacheBasedAclCache implements AclCache {
 		Element element = null;
 
 		try {
-			element = cache.get(objectIdentity);
+			element = this.cache.get(objectIdentity);
 		}
 		catch (CacheException ignored) {
 		}
@@ -101,7 +101,7 @@ public class EhCacheBasedAclCache implements AclCache {
 		Element element = null;
 
 		try {
-			element = cache.get(pk);
+			element = this.cache.get(pk);
 		}
 		catch (CacheException ignored) {
 		}
@@ -131,8 +131,8 @@ public class EhCacheBasedAclCache implements AclCache {
 			putInCache((MutableAcl) acl.getParentAcl());
 		}
 
-		cache.put(new Element(acl.getObjectIdentity(), acl));
-		cache.put(new Element(acl.getId(), acl));
+		this.cache.put(new Element(acl.getObjectIdentity(), acl));
+		this.cache.put(new Element(acl.getId(), acl));
 	}
 
 	private MutableAcl initializeTransientFields(MutableAcl value) {
@@ -148,7 +148,7 @@ public class EhCacheBasedAclCache implements AclCache {
 	}
 
 	public void clearCache() {
-		cache.removeAll();
+		this.cache.removeAll();
 	}
 
 }

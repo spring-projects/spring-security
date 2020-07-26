@@ -53,14 +53,14 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends 
 
 	@Override
 	public List<GrantedAuthority> getGrantedAuthorities() {
-		return authorities;
+		return this.authorities;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString()).append("; ");
-		sb.append(authorities);
+		sb.append(this.authorities);
 		return sb.toString();
 	}
 

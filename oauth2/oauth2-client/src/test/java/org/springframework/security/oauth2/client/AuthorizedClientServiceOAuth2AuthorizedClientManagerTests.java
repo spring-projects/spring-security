@@ -85,7 +85,8 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 			@Override
 			public void onAuthorizationSuccess(OAuth2AuthorizedClient authorizedClient, Authentication principal,
 					Map<String, Object> attributes) {
-				authorizedClientService.saveAuthorizedClient(authorizedClient, principal);
+				AuthorizedClientServiceOAuth2AuthorizedClientManagerTests.this.authorizedClientService
+						.saveAuthorizedClient(authorizedClient, principal);
 			}
 		});
 		this.authorizationFailureHandler = spy(new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(

@@ -66,7 +66,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
 
 	private AuthenticationFailureHandler authenticationFailureHandler = (request, response,
-			exception) -> authenticationEntryPoint.commence(request, response, exception);
+			exception) -> this.authenticationEntryPoint.commence(request, response, exception);
 
 	/**
 	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)

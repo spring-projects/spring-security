@@ -39,8 +39,8 @@ public class HttpInterceptUrlTests {
 
 	@After
 	public void close() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -48,11 +48,11 @@ public class HttpInterceptUrlTests {
 	public void interceptUrlWhenRequestMatcherRefThenWorks() throws Exception {
 		loadConfig("interceptUrlWhenRequestMatcherRefThenWorks.xml");
 
-		mockMvc.perform(get("/foo")).andExpect(status().isUnauthorized());
+		this.mockMvc.perform(get("/foo")).andExpect(status().isUnauthorized());
 
-		mockMvc.perform(get("/FOO")).andExpect(status().isUnauthorized());
+		this.mockMvc.perform(get("/FOO")).andExpect(status().isUnauthorized());
 
-		mockMvc.perform(get("/other")).andExpect(status().isOk());
+		this.mockMvc.perform(get("/other")).andExpect(status().isOk());
 	}
 
 	private void loadConfig(String... configLocations) {
@@ -68,7 +68,8 @@ public class HttpInterceptUrlTests {
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 
 		Filter springSecurityFilterChain = context.getBean("springSecurityFilterChain", Filter.class);
-		mockMvc = MockMvcBuilders.standaloneSetup(new FooController()).addFilters(springSecurityFilterChain).build();
+		this.mockMvc = MockMvcBuilders.standaloneSetup(new FooController()).addFilters(springSecurityFilterChain)
+				.build();
 	}
 
 	@RestController

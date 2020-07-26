@@ -30,7 +30,7 @@ public class PythonInterpreterPreInvocationAttribute implements PreInvocationAtt
 	}
 
 	public String getScript() {
-		return script;
+		return this.script;
 	}
 
 }

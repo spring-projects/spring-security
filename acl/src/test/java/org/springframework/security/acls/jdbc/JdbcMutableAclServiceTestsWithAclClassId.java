@@ -52,17 +52,17 @@ public class JdbcMutableAclServiceTestsWithAclClassId extends JdbcMutableAclServ
 
 	@Override
 	protected ObjectIdentity getTopParentOid() {
-		return topParentOid;
+		return this.topParentOid;
 	}
 
 	@Override
 	protected ObjectIdentity getMiddleParentOid() {
-		return middleParentOid;
+		return this.middleParentOid;
 	}
 
 	@Override
 	protected ObjectIdentity getChildOid() {
-		return childOid;
+		return this.childOid;
 	}
 
 	@Override

@@ -83,20 +83,20 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 			return;
 		}
 
-		final boolean debug = logger.isDebugEnabled();
+		final boolean debug = this.logger.isDebugEnabled();
 
 		request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
-		if (forceEagerSessionCreation) {
+		if (this.forceEagerSessionCreation) {
 			HttpSession session = request.getSession();
 
 			if (debug && session.isNew()) {
-				logger.debug("Eagerly created session: " + session.getId());
+				this.logger.debug("Eagerly created session: " + session.getId());
 			}
 		}
 
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
-		SecurityContext contextBeforeChainExecution = repo.loadContext(holder);
+		SecurityContext contextBeforeChainExecution = this.repo.loadContext(holder);
 
 		try {
 			SecurityContextHolder.setContext(contextBeforeChainExecution);
@@ -109,11 +109,11 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 			// Crucial removal of SecurityContextHolder contents - do this before anything
 			// else.
 			SecurityContextHolder.clearContext();
-			repo.saveContext(contextAfterChainExecution, holder.getRequest(), holder.getResponse());
+			this.repo.saveContext(contextAfterChainExecution, holder.getRequest(), holder.getResponse());
 			request.removeAttribute(FILTER_APPLIED);
 
 			if (debug) {
-				logger.debug("SecurityContextHolder now cleared, as request processing completed");
+				this.logger.debug("SecurityContextHolder now cleared, as request processing completed");
 			}
 		}
 	}

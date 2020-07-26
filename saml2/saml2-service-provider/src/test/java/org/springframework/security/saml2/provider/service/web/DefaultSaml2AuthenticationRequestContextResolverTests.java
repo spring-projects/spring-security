@@ -50,7 +50,7 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 	private RelyingPartyRegistration.Builder relyingPartyBuilder;
 
 	private Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver = new DefaultSaml2AuthenticationRequestContextResolver(
-			new DefaultRelyingPartyRegistrationResolver(id -> relyingPartyBuilder.build()));
+			new DefaultRelyingPartyRegistrationResolver(id -> this.relyingPartyBuilder.build()));
 
 	@Before
 	public void setup() {

@@ -57,14 +57,14 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	@Test
 	public void serializeUserTest() throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();
-		String userJson = mapper.writeValueAsString(user);
+		String userJson = this.mapper.writeValueAsString(user);
 		JSONAssert.assertEquals(userWithPasswordJson(user.getPassword()), userJson, true);
 	}
 
 	@Test
 	public void serializeUserWithoutAuthority() throws JsonProcessingException, JSONException {
 		User user = new User("admin", "1234", Collections.<GrantedAuthority>emptyList());
-		String userJson = mapper.writeValueAsString(user);
+		String userJson = this.mapper.writeValueAsString(user);
 		JSONAssert.assertEquals(userWithNoAuthoritiesJson(), userJson, true);
 	}
 
@@ -73,14 +73,14 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
 				"[]");
 
-		mapper.readValue(userJsonWithoutPasswordString, User.class);
+		this.mapper.readValue(userJsonWithoutPasswordString, User.class);
 	}
 
 	@Test
 	public void deserializeUserWithNullPasswordNoAuthorityTest() throws Exception {
-		String userJsonWithoutPasswordString = removeNode(userWithNoAuthoritiesJson(), mapper, "password");
+		String userJsonWithoutPasswordString = removeNode(userWithNoAuthoritiesJson(), this.mapper, "password");
 
-		User user = mapper.readValue(userJsonWithoutPasswordString, User.class);
+		User user = this.mapper.readValue(userJsonWithoutPasswordString, User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
 		assertThat(user.getPassword()).isNull();
@@ -92,12 +92,12 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	public void deserializeUserWithNoClassIdInAuthoritiesTest() throws Exception {
 		String userJson = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
 				"[{\"authority\": \"ROLE_USER\"}]");
-		mapper.readValue(userJson, User.class);
+		this.mapper.readValue(userJson, User.class);
 	}
 
 	@Test
 	public void deserializeUserWithClassIdInAuthoritiesTest() throws IOException {
-		User user = mapper.readValue(userJson(), User.class);
+		User user = this.mapper.readValue(userJson(), User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
 		assertThat(user.getPassword()).isEqualTo("1234");

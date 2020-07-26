@@ -68,14 +68,14 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	@Before
 	public void setup() {
-		filter = new Saml2WebSsoAuthenticationRequestFilter(repository);
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		request.setPathInfo("/saml2/authenticate/registration-id");
+		this.filter = new Saml2WebSsoAuthenticationRequestFilter(this.repository);
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.request.setPathInfo("/saml2/authenticate/registration-id");
 
-		filterChain = new MockFilterChain();
+		this.filterChain = new MockFilterChain();
 
-		rpBuilder = RelyingPartyRegistration.withRegistrationId("registration-id")
+		this.rpBuilder = RelyingPartyRegistration.withRegistrationId("registration-id")
 				.providerDetails(c -> c.entityId("idp-entity-id")).providerDetails(c -> c.webSsoUrl(IDP_SSO_URL))
 				.assertionConsumerServiceUrlTemplate("template")
 				.credentials(c -> c.add(assertingPartyPrivateCredential()));
@@ -83,62 +83,63 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	@Test
 	public void doFilterWhenNoRelayStateThenRedirectDoesNotContainParameter() throws ServletException, IOException {
-		when(repository.findByRegistrationId("registration-id")).thenReturn(rpBuilder.build());
-		filter.doFilterInternal(request, response, filterChain);
-		assertThat(response.getHeader("Location")).doesNotContain("RelayState=").startsWith(IDP_SSO_URL);
+		when(this.repository.findByRegistrationId("registration-id")).thenReturn(this.rpBuilder.build());
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getHeader("Location")).doesNotContain("RelayState=").startsWith(IDP_SSO_URL);
 	}
 
 	@Test
 	public void doFilterWhenRelayStateThenRedirectDoesContainParameter() throws ServletException, IOException {
-		when(repository.findByRegistrationId("registration-id")).thenReturn(rpBuilder.build());
-		request.setParameter("RelayState", "my-relay-state");
-		filter.doFilterInternal(request, response, filterChain);
-		assertThat(response.getHeader("Location")).contains("RelayState=my-relay-state").startsWith(IDP_SSO_URL);
+		when(this.repository.findByRegistrationId("registration-id")).thenReturn(this.rpBuilder.build());
+		this.request.setParameter("RelayState", "my-relay-state");
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getHeader("Location")).contains("RelayState=my-relay-state").startsWith(IDP_SSO_URL);
 	}
 
 	@Test
 	public void doFilterWhenRelayStateThatRequiresEncodingThenRedirectDoesContainsEncodedParameter() throws Exception {
-		when(repository.findByRegistrationId("registration-id")).thenReturn(rpBuilder.build());
+		when(this.repository.findByRegistrationId("registration-id")).thenReturn(this.rpBuilder.build());
 		final String relayStateValue = "https://my-relay-state.example.com?with=param&other=param";
 		final String relayStateEncoded = UriUtils.encode(relayStateValue, StandardCharsets.ISO_8859_1);
-		request.setParameter("RelayState", relayStateValue);
-		filter.doFilterInternal(request, response, filterChain);
-		assertThat(response.getHeader("Location")).contains("RelayState=" + relayStateEncoded).startsWith(IDP_SSO_URL);
+		this.request.setParameter("RelayState", relayStateValue);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getHeader("Location")).contains("RelayState=" + relayStateEncoded)
+				.startsWith(IDP_SSO_URL);
 	}
 
 	@Test
 	public void doFilterWhenSimpleSignatureSpecifiedThenSignatureParametersAreInTheRedirectURL() throws Exception {
-		when(repository.findByRegistrationId("registration-id")).thenReturn(rpBuilder.build());
+		when(this.repository.findByRegistrationId("registration-id")).thenReturn(this.rpBuilder.build());
 		final String relayStateValue = "https://my-relay-state.example.com?with=param&other=param";
 		final String relayStateEncoded = UriUtils.encode(relayStateValue, StandardCharsets.ISO_8859_1);
-		request.setParameter("RelayState", relayStateValue);
-		filter.doFilterInternal(request, response, filterChain);
-		assertThat(response.getHeader("Location")).contains("RelayState=" + relayStateEncoded).contains("SigAlg=")
+		this.request.setParameter("RelayState", relayStateValue);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getHeader("Location")).contains("RelayState=" + relayStateEncoded).contains("SigAlg=")
 				.contains("Signature=").startsWith(IDP_SSO_URL);
 	}
 
 	@Test
 	public void doFilterWhenSignatureIsDisabledThenSignatureParametersAreNotInTheRedirectURL() throws Exception {
-		when(repository.findByRegistrationId("registration-id"))
-				.thenReturn(rpBuilder.providerDetails(c -> c.signAuthNRequest(false)).build());
+		when(this.repository.findByRegistrationId("registration-id"))
+				.thenReturn(this.rpBuilder.providerDetails(c -> c.signAuthNRequest(false)).build());
 		final String relayStateValue = "https://my-relay-state.example.com?with=param&other=param";
 		final String relayStateEncoded = UriUtils.encode(relayStateValue, StandardCharsets.ISO_8859_1);
-		request.setParameter("RelayState", relayStateValue);
-		filter.doFilterInternal(request, response, filterChain);
-		assertThat(response.getHeader("Location")).contains("RelayState=" + relayStateEncoded).doesNotContain("SigAlg=")
-				.doesNotContain("Signature=").startsWith(IDP_SSO_URL);
+		this.request.setParameter("RelayState", relayStateValue);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getHeader("Location")).contains("RelayState=" + relayStateEncoded)
+				.doesNotContain("SigAlg=").doesNotContain("Signature=").startsWith(IDP_SSO_URL);
 	}
 
 	@Test
 	public void doFilterWhenPostFormDataIsPresent() throws Exception {
-		when(repository.findByRegistrationId("registration-id"))
-				.thenReturn(rpBuilder.providerDetails(c -> c.binding(POST)).build());
+		when(this.repository.findByRegistrationId("registration-id"))
+				.thenReturn(this.rpBuilder.providerDetails(c -> c.binding(POST)).build());
 		final String relayStateValue = "https://my-relay-state.example.com?with=param&other=param&javascript{alert('1');}";
 		final String relayStateEncoded = HtmlUtils.htmlEscape(relayStateValue);
-		request.setParameter("RelayState", relayStateValue);
-		filter.doFilterInternal(request, response, filterChain);
-		assertThat(response.getHeader("Location")).isNull();
-		assertThat(response.getContentAsString())
+		this.request.setParameter("RelayState", relayStateValue);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getHeader("Location")).isNull();
+		assertThat(this.response.getContentAsString())
 				.contains("<form action=\"https://sso-url.example.com/IDP/SSO\" method=\"post\">")
 				.contains("<input type=\"hidden\" name=\"SAMLRequest\"")
 				.contains("value=\"" + relayStateEncoded + "\"");

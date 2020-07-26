@@ -59,7 +59,7 @@ public class SecurityContextImpl implements SecurityContext {
 
 	@Override
 	public Authentication getAuthentication() {
-		return authentication;
+		return this.authentication;
 	}
 
 	@Override

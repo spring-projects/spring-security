@@ -66,7 +66,7 @@ public class DelegatingServerAuthenticationEntryPoint implements ServerAuthentic
 					}
 				}).switchIfEmpty(Mono.just(this.defaultEntryPoint).doOnNext(it -> {
 					if (logger.isDebugEnabled()) {
-						logger.debug("No match found. Using default entry point " + defaultEntryPoint);
+						logger.debug("No match found. Using default entry point " + this.defaultEntryPoint);
 					}
 				})).flatMap(entryPoint -> entryPoint.commence(exchange, e));
 	}

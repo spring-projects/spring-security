@@ -44,34 +44,34 @@ public class WithMockUserTests {
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void getMessageUnauthenticated() {
-		messageService.getMessage();
+		this.messageService.getMessage();
 	}
 
 	@Test
 	@WithMockUser
 	public void getMessageWithMockUser() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("user");
 	}
 
 	@Test
 	@WithMockUser("customUsername")
 	public void getMessageWithMockUserCustomUsername() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("customUsername");
 	}
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
 	public void getMessageWithMockUserCustomUser() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("admin").contains("ROLE_USER").contains("ROLE_ADMIN");
 	}
 
 	@Test
 	@WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
 	public void getMessageWithMockUserCustomAuthorities() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("admin").contains("ADMIN").contains("USER").doesNotContain("ROLE_");
 	}
 

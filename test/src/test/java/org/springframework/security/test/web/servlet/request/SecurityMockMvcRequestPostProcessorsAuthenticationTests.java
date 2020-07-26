@@ -62,7 +62,7 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest();
 		mockWebTestUtils();
 	}
 
@@ -73,16 +73,17 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationTests {
 
 	@Test
 	public void userDetails() {
-		authentication(authentication).postProcessRequest(request);
+		authentication(this.authentication).postProcessRequest(this.request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
-		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication()).isSameAs(authentication);
+		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
+				any(HttpServletResponse.class));
+		SecurityContext context = this.contextCaptor.getValue();
+		assertThat(context.getAuthentication()).isSameAs(this.authentication);
 	}
 
 	private void mockWebTestUtils() {
 		spy(WebTestUtils.class);
-		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
+		when(WebTestUtils.getSecurityContextRepository(this.request)).thenReturn(this.repository);
 	}
 
 }

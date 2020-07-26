@@ -69,7 +69,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest();
 		mockWebTestUtils();
 	}
 
@@ -82,10 +82,11 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	public void userWithDefaults() {
 		String username = "userabc";
 
-		user(username).postProcessRequest(request);
+		user(username).postProcessRequest(this.request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
-		SecurityContext context = contextCaptor.getValue();
+		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
+				any(HttpServletResponse.class));
+		SecurityContext context = this.contextCaptor.getValue();
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getName()).isEqualTo(username);
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("password");
@@ -96,10 +97,11 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	public void userWithCustom() {
 		String username = "customuser";
 
-		user(username).roles("CUSTOM", "ADMIN").password("newpass").postProcessRequest(request);
+		user(username).roles("CUSTOM", "ADMIN").password("newpass").postProcessRequest(this.request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
-		SecurityContext context = contextCaptor.getValue();
+		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
+				any(HttpServletResponse.class));
+		SecurityContext context = this.contextCaptor.getValue();
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getName()).isEqualTo(username);
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("newpass");
@@ -111,34 +113,36 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	public void userCustomAuthoritiesVarargs() {
 		String username = "customuser";
 
-		user(username).authorities(authority1, authority2).postProcessRequest(request);
+		user(username).authorities(this.authority1, this.authority2).postProcessRequest(this.request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
-		SecurityContext context = contextCaptor.getValue();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(authority1,
-				authority2);
+		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
+				any(HttpServletResponse.class));
+		SecurityContext context = this.contextCaptor.getValue();
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1,
+				this.authority2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void userRolesWithRolePrefixErrors() {
-		user("user").roles("ROLE_INVALID").postProcessRequest(request);
+		user("user").roles("ROLE_INVALID").postProcessRequest(this.request);
 	}
 
 	@Test
 	public void userCustomAuthoritiesList() {
 		String username = "customuser";
 
-		user(username).authorities(Arrays.asList(authority1, authority2)).postProcessRequest(request);
+		user(username).authorities(Arrays.asList(this.authority1, this.authority2)).postProcessRequest(this.request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
-		SecurityContext context = contextCaptor.getValue();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(authority1,
-				authority2);
+		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
+				any(HttpServletResponse.class));
+		SecurityContext context = this.contextCaptor.getValue();
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1,
+				this.authority2);
 	}
 
 	private void mockWebTestUtils() {
 		spy(WebTestUtils.class);
-		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
+		when(WebTestUtils.getSecurityContextRepository(this.request)).thenReturn(this.repository);
 	}
 
 }

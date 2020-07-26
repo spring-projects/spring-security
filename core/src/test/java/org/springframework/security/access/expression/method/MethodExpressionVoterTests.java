@@ -43,8 +43,8 @@ public class MethodExpressionVoterTests {
 	@Test
 	public void hasRoleExpressionAllowsUserWithRole() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAnArray());
-		assertThat(
-				am.vote(joe, mi, createAttributes(new PreInvocationExpressionAttribute(null, null, "hasRole('blah')"))))
+		assertThat(this.am.vote(this.joe, mi,
+				createAttributes(new PreInvocationExpressionAttribute(null, null, "hasRole('blah')"))))
 						.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
@@ -53,13 +53,13 @@ public class MethodExpressionVoterTests {
 		List<ConfigAttribute> cad = new ArrayList<>(1);
 		cad.add(new PreInvocationExpressionAttribute(null, null, "hasRole('joedoesnt')"));
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAnArray());
-		assertThat(am.vote(joe, mi, cad)).isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
+		assertThat(this.am.vote(this.joe, mi, cad)).isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 	}
 
 	@Test
 	public void matchingArgAgainstAuthenticationNameIsSuccessful() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAString(), "joe");
-		assertThat(am.vote(joe, mi,
+		assertThat(this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute(null, null,
 						"(#argument == principal) and (principal == 'joe')"))))
 								.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
@@ -69,7 +69,7 @@ public class MethodExpressionVoterTests {
 	public void accessIsGrantedIfNoPreAuthorizeAttributeIsUsed() throws Exception {
 		Collection arg = createCollectionArg("joe", "bob", "sam");
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(), arg);
-		assertThat(am.vote(joe, mi,
+		assertThat(this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'jim')", "collection", null))))
 						.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 		// All objects should have been removed, because the expression is always false
@@ -80,7 +80,7 @@ public class MethodExpressionVoterTests {
 	public void collectionPreFilteringIsSuccessful() throws Exception {
 		List arg = createCollectionArg("joe", "bob", "sam");
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(), arg);
-		am.vote(joe, mi, createAttributes(new PreInvocationExpressionAttribute(
+		this.am.vote(this.joe, mi, createAttributes(new PreInvocationExpressionAttribute(
 				"(filterObject == 'joe' or filterObject == 'sam')", "collection", "permitAll")));
 		assertThat(arg).containsExactly("joe", "sam");
 	}
@@ -89,7 +89,7 @@ public class MethodExpressionVoterTests {
 	public void arraysCannotBePrefiltered() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAnArray(),
 				createArrayArg("sam", "joe"));
-		am.vote(joe, mi,
+		this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'jim')", "someArray", null)));
 	}
 
@@ -97,7 +97,7 @@ public class MethodExpressionVoterTests {
 	public void incorrectFilterTargetNameIsRejected() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(),
 				createCollectionArg("joe", "bob"));
-		am.vote(joe, mi,
+		this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'joe')", "collcetion", null)));
 	}
 
@@ -105,7 +105,7 @@ public class MethodExpressionVoterTests {
 	public void nullNamedFilterTargetIsRejected() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(),
 				new Object[] { null });
-		am.vote(joe, mi,
+		this.am.vote(this.joe, mi,
 				createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'joe')", "collection", null)));
 	}
 
@@ -114,7 +114,7 @@ public class MethodExpressionVoterTests {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAString(), "joe");
 		assertThat(
 
-				am.vote(joe, mi, createAttributes(new PreInvocationExpressionAttribute(null, null,
+				this.am.vote(this.joe, mi, createAttributes(new PreInvocationExpressionAttribute(null, null,
 						"T(org.springframework.security.access.expression.method.SecurityRules).isJoe(#argument)"))))
 								.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}

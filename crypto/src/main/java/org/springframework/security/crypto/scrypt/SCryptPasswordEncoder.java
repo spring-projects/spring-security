@@ -117,12 +117,12 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	public String encode(CharSequence rawPassword) {
-		return digest(rawPassword, saltGenerator.generateKey());
+		return digest(rawPassword, this.saltGenerator.generateKey());
 	}
 
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		if (encodedPassword == null || encodedPassword.length() < keyLength) {
-			logger.warn("Empty encoded password");
+		if (encodedPassword == null || encodedPassword.length() < this.keyLength) {
+			this.logger.warn("Empty encoded password");
 			return false;
 		}
 		return decodeAndCheckMatches(rawPassword, encodedPassword);
@@ -165,17 +165,18 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		int parallelization = (int) params & 0xff;
 
 		byte[] generated = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization,
-				keyLength);
+				this.keyLength);
 
 		return MessageDigest.isEqual(derived, generated);
 	}
 
 	private String digest(CharSequence rawPassword, byte[] salt) {
-		byte[] derived = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization,
-				keyLength);
+		byte[] derived = SCrypt.generate(Utf8.encode(rawPassword), salt, this.cpuCost, this.memoryCost,
+				this.parallelization, this.keyLength);
 
-		String params = Long
-				.toString(((int) (Math.log(cpuCost) / Math.log(2)) << 16L) | memoryCost << 8 | parallelization, 16);
+		String params = Long.toString(
+				((int) (Math.log(this.cpuCost) / Math.log(2)) << 16L) | this.memoryCost << 8 | this.parallelization,
+				16);
 
 		StringBuilder sb = new StringBuilder((salt.length + derived.length) * 2);
 		sb.append("$").append(params).append('$');

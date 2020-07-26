@@ -57,7 +57,7 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	@Test
@@ -65,14 +65,14 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SELLER"));
-		mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
 	}
 
 	@Test(expected = AssertionError.class)
 	public void withAuthoritiesFailsIfNotAllRoles() throws Exception {
 		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-		mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
 	}
 
 	@EnableWebSecurity

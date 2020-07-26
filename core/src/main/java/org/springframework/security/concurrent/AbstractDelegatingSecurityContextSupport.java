@@ -44,11 +44,11 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	}
 
 	protected final Runnable wrap(Runnable delegate) {
-		return DelegatingSecurityContextRunnable.create(delegate, securityContext);
+		return DelegatingSecurityContextRunnable.create(delegate, this.securityContext);
 	}
 
 	protected final <T> Callable<T> wrap(Callable<T> delegate) {
-		return DelegatingSecurityContextCallable.create(delegate, securityContext);
+		return DelegatingSecurityContextCallable.create(delegate, this.securityContext);
 	}
 
 }

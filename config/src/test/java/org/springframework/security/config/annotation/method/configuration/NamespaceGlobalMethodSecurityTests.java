@@ -437,7 +437,7 @@ public class NamespaceGlobalMethodSecurityTests {
 	public void methodSecurityWhenCustomRunAsManagerThenRunAsWrapsAuthentication() {
 		this.spring.register(CustomRunAsManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
 
-		assertThat(service.runAs().getAuthorities())
+		assertThat(this.service.runAs().getAuthorities())
 				.anyMatch(authority -> "ROLE_RUN_AS_SUPER".equals(authority.getAuthority()));
 	}
 

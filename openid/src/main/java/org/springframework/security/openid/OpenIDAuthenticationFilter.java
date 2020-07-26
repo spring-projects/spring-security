@@ -95,18 +95,18 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
 
-		if (consumer == null) {
+		if (this.consumer == null) {
 			try {
-				consumer = new OpenID4JavaConsumer();
+				this.consumer = new OpenID4JavaConsumer();
 			}
 			catch (ConsumerException e) {
 				throw new IllegalArgumentException("Failed to initialize OpenID", e);
 			}
 		}
 
-		if (returnToUrlParameters.isEmpty() && getRememberMeServices() instanceof AbstractRememberMeServices) {
-			returnToUrlParameters = new HashSet<>();
-			returnToUrlParameters.add(((AbstractRememberMeServices) getRememberMeServices()).getParameter());
+		if (this.returnToUrlParameters.isEmpty() && getRememberMeServices() instanceof AbstractRememberMeServices) {
+			this.returnToUrlParameters = new HashSet<>();
+			this.returnToUrlParameters.add(((AbstractRememberMeServices) getRememberMeServices()).getParameter());
 		}
 	}
 
@@ -132,10 +132,10 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 			try {
 				String returnToUrl = buildReturnToUrl(request);
 				String realm = lookupRealm(returnToUrl);
-				String openIdUrl = consumer.beginConsumption(request, claimedIdentity, returnToUrl, realm);
-				if (logger.isDebugEnabled()) {
-					logger.debug("return_to is '" + returnToUrl + "', realm is '" + realm + "'");
-					logger.debug("Redirecting to " + openIdUrl);
+				String openIdUrl = this.consumer.beginConsumption(request, claimedIdentity, returnToUrl, realm);
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug("return_to is '" + returnToUrl + "', realm is '" + realm + "'");
+					this.logger.debug("Redirecting to " + openIdUrl);
 				}
 				response.sendRedirect(openIdUrl);
 
@@ -143,24 +143,24 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				return null;
 			}
 			catch (OpenIDConsumerException e) {
-				logger.debug("Failed to consume claimedIdentity: " + claimedIdentity, e);
+				this.logger.debug("Failed to consume claimedIdentity: " + claimedIdentity, e);
 				throw new AuthenticationServiceException(
 						"Unable to process claimed identity '" + claimedIdentity + "'");
 			}
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Supplied OpenID identity is " + identity);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Supplied OpenID identity is " + identity);
 		}
 
 		try {
-			token = consumer.endConsumption(request);
+			token = this.consumer.endConsumption(request);
 		}
 		catch (OpenIDConsumerException oice) {
 			throw new AuthenticationServiceException("Consumer error", oice);
 		}
 
-		token.setDetails(authenticationDetailsSource.buildDetails(request));
+		token.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		// delegate to the authentication provider
 		Authentication authentication = this.getAuthenticationManager().authenticate(token);
@@ -169,7 +169,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	}
 
 	protected String lookupRealm(String returnToUrl) {
-		String mapping = realmMapping.get(returnToUrl);
+		String mapping = this.realmMapping.get(returnToUrl);
 
 		if (mapping == null) {
 			try {
@@ -185,7 +185,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				mapping = realmBuffer.toString();
 			}
 			catch (MalformedURLException e) {
-				logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", e);
+				this.logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", e);
 			}
 		}
 
@@ -201,7 +201,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	protected String buildReturnToUrl(HttpServletRequest request) {
 		StringBuffer sb = request.getRequestURL();
 
-		Iterator<String> iterator = returnToUrlParameters.iterator();
+		Iterator<String> iterator = this.returnToUrlParameters.iterator();
 		boolean isFirst = true;
 
 		while (iterator.hasNext()) {
@@ -230,10 +230,10 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 * Reads the <tt>claimedIdentityFieldName</tt> from the submitted request.
 	 */
 	protected String obtainUsername(HttpServletRequest req) {
-		String claimedIdentity = req.getParameter(claimedIdentityFieldName);
+		String claimedIdentity = req.getParameter(this.claimedIdentityFieldName);
 
 		if (!StringUtils.hasText(claimedIdentity)) {
-			logger.error("No claimed identity supplied in authentication request");
+			this.logger.error("No claimed identity supplied in authentication request");
 			return "";
 		}
 

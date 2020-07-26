@@ -48,7 +48,7 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends A
 	 * {@link #chainRequestMatchers(java.util.List)}
 	 */
 	final List<UrlMapping> getUrlMappings() {
-		return urlMappings;
+		return this.urlMappings;
 	}
 
 	/**
@@ -100,8 +100,8 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends A
 	 * {@link ConfigAttribute} instances. Cannot be null.
 	 */
 	final LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> createRequestMap() {
-		if (unmappedMatchers != null) {
-			throw new IllegalStateException("An incomplete mapping was found for " + unmappedMatchers
+		if (this.unmappedMatchers != null) {
+			throw new IllegalStateException("An incomplete mapping was found for " + this.unmappedMatchers
 					+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
 		}
 
@@ -130,11 +130,11 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends A
 		}
 
 		public RequestMatcher getRequestMatcher() {
-			return requestMatcher;
+			return this.requestMatcher;
 		}
 
 		public Collection<ConfigAttribute> getConfigAttrs() {
-			return configAttrs;
+			return this.configAttrs;
 		}
 
 	}

@@ -41,11 +41,11 @@ public class AuthorizationContext {
 	}
 
 	public ServerWebExchange getExchange() {
-		return exchange;
+		return this.exchange;
 	}
 
 	public Map<String, Object> getVariables() {
-		return Collections.unmodifiableMap(variables);
+		return Collections.unmodifiableMap(this.variables);
 	}
 
 }

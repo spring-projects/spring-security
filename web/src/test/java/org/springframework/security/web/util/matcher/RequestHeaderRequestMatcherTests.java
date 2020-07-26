@@ -36,7 +36,7 @@ public class RequestHeaderRequestMatcherTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -51,39 +51,39 @@ public class RequestHeaderRequestMatcherTests {
 
 	@Test
 	public void matchesHeaderNameMatches() {
-		request.addHeader(headerName, headerValue);
-		assertThat(new RequestHeaderRequestMatcher(headerName).matches(request)).isTrue();
+		this.request.addHeader(this.headerName, this.headerValue);
+		assertThat(new RequestHeaderRequestMatcher(this.headerName).matches(this.request)).isTrue();
 	}
 
 	@Test
 	public void matchesHeaderNameDoesNotMatch() {
-		request.addHeader(headerName + "notMatch", headerValue);
-		assertThat(new RequestHeaderRequestMatcher(headerName).matches(request)).isFalse();
+		this.request.addHeader(this.headerName + "notMatch", this.headerValue);
+		assertThat(new RequestHeaderRequestMatcher(this.headerName).matches(this.request)).isFalse();
 	}
 
 	@Test
 	public void matchesHeaderNameValueMatches() {
-		request.addHeader(headerName, headerValue);
-		assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isTrue();
+		this.request.addHeader(this.headerName, this.headerValue);
+		assertThat(new RequestHeaderRequestMatcher(this.headerName, this.headerValue).matches(this.request)).isTrue();
 	}
 
 	@Test
 	public void matchesHeaderNameValueHeaderNameNotMatch() {
-		request.addHeader(headerName + "notMatch", headerValue);
-		assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
+		this.request.addHeader(this.headerName + "notMatch", this.headerValue);
+		assertThat(new RequestHeaderRequestMatcher(this.headerName, this.headerValue).matches(this.request)).isFalse();
 	}
 
 	@Test
 	public void matchesHeaderNameValueHeaderValueNotMatch() {
-		request.addHeader(headerName, headerValue + "notMatch");
-		assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
+		this.request.addHeader(this.headerName, this.headerValue + "notMatch");
+		assertThat(new RequestHeaderRequestMatcher(this.headerName, this.headerValue).matches(this.request)).isFalse();
 	}
 
 	@Test
 	public void matchesHeaderNameValueHeaderValueMultiNotMatch() {
-		request.addHeader(headerName, headerValue + "notMatch");
-		request.addHeader(headerName, headerValue);
-		assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
+		this.request.addHeader(this.headerName, this.headerValue + "notMatch");
+		this.request.addHeader(this.headerName, this.headerValue);
+		assertThat(new RequestHeaderRequestMatcher(this.headerName, this.headerValue).matches(this.request)).isFalse();
 	}
 
 }

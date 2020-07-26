@@ -40,19 +40,19 @@ public class LdapProviderBeanDefinitionParserTests {
 
 	@After
 	public void closeAppContext() {
-		if (appCtx != null) {
-			appCtx.close();
-			appCtx = null;
+		if (this.appCtx != null) {
+			this.appCtx.close();
+			this.appCtx = null;
 		}
 	}
 
 	@Test
 	public void simpleProviderAuthenticatesCorrectly() {
-		appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
+		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
 				+ "<authentication-manager>" + "  <ldap-authentication-provider group-search-filter='member={0}' />"
 				+ "</authentication-manager>");
 
-		AuthenticationManager authenticationManager = appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
+		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));
@@ -62,12 +62,12 @@ public class LdapProviderBeanDefinitionParserTests {
 
 	@Test
 	public void multipleProvidersAreSupported() {
-		appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
+		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
 				+ "<authentication-manager>" + "  <ldap-authentication-provider group-search-filter='member={0}' />"
 				+ "  <ldap-authentication-provider group-search-filter='uniqueMember={0}' />"
 				+ "</authentication-manager>");
 
-		ProviderManager providerManager = appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
+		ProviderManager providerManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
 		assertThat(providerManager.getProviders()).hasSize(2);
 		assertThat(providerManager.getProviders()).extracting("authoritiesPopulator.groupSearchFilter")
 				.containsExactly("member={0}", "uniqueMember={0}");
@@ -81,11 +81,11 @@ public class LdapProviderBeanDefinitionParserTests {
 
 	@Test
 	public void supportsPasswordComparisonAuthentication() {
-		appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
+		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
 				+ "<authentication-manager>" + "  <ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>"
 				+ "    <password-compare />" + "  </ldap-authentication-provider>" + "</authentication-manager>");
 
-		AuthenticationManager authenticationManager = appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
+		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));
@@ -95,13 +95,13 @@ public class LdapProviderBeanDefinitionParserTests {
 
 	@Test
 	public void supportsPasswordComparisonAuthenticationWithPasswordEncoder() {
-		appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
+		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
 				+ "<authentication-manager>" + "  <ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>"
 				+ "    <password-compare password-attribute='uid'>" + "      <password-encoder ref='passwordEncoder' />"
 				+ "    </password-compare>" + "  </ldap-authentication-provider>" + "</authentication-manager>"
 				+ "<b:bean id='passwordEncoder' class='org.springframework.security.crypto.password.NoOpPasswordEncoder' factory-method='getInstance' />");
 
-		AuthenticationManager authenticationManager = appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
+		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));
 
@@ -111,13 +111,13 @@ public class LdapProviderBeanDefinitionParserTests {
 	// SEC-2472
 	@Test
 	public void supportsCryptoPasswordEncoder() {
-		appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
+		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='0'/>"
 				+ "<authentication-manager>" + "  <ldap-authentication-provider user-dn-pattern='uid={0},ou=people'>"
 				+ "    <password-compare>" + "      <password-encoder ref='pe' />" + "    </password-compare>"
 				+ "  </ldap-authentication-provider>" + "</authentication-manager>"
 				+ "<b:bean id='pe' class='org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder' />");
 
-		AuthenticationManager authenticationManager = appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
+		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken("bcrypt", "password"));
@@ -127,13 +127,13 @@ public class LdapProviderBeanDefinitionParserTests {
 
 	@Test
 	public void inetOrgContextMapperIsSupported() {
-		appCtx = new InMemoryXmlApplicationContext(
+		this.appCtx = new InMemoryXmlApplicationContext(
 				"<ldap-server url='ldap://127.0.0.1:343/dc=springframework,dc=org' port='0'/>"
 						+ "<authentication-manager>"
 						+ "  <ldap-authentication-provider user-details-class='inetOrgPerson' />"
 						+ "</authentication-manager>");
 
-		ProviderManager providerManager = appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
+		ProviderManager providerManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
 		assertThat(providerManager.getProviders()).hasSize(1);
 		assertThat(providerManager.getProviders()).extracting("userDetailsContextMapper")
 				.allSatisfy(contextMapper -> assertThat(contextMapper).isInstanceOf(InetOrgPersonContextMapper.class));
@@ -143,12 +143,12 @@ public class LdapProviderBeanDefinitionParserTests {
 	public void ldapAuthenticationProviderWorksWithPlaceholders() {
 		System.setProperty("udp", "people");
 		System.setProperty("gsf", "member");
-		appCtx = new InMemoryXmlApplicationContext("<ldap-server />" + "<authentication-manager>"
+		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server />" + "<authentication-manager>"
 				+ "  <ldap-authentication-provider user-dn-pattern='uid={0},ou=${udp}' group-search-filter='${gsf}={0}' />"
 				+ "</authentication-manager>"
 				+ "<b:bean id='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer' />");
 
-		ProviderManager providerManager = appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
+		ProviderManager providerManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
 		assertThat(providerManager.getProviders()).hasSize(1);
 
 		AuthenticationProvider authenticationProvider = providerManager.getProviders().get(0);

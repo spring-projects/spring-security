@@ -43,10 +43,10 @@ public class SecurityContextLogoutHandlerTests {
 
 	@Before
 	public void setUp() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 
-		handler = new SecurityContextLogoutHandler();
+		this.handler = new SecurityContextLogoutHandler();
 
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(
@@ -63,16 +63,16 @@ public class SecurityContextLogoutHandlerTests {
 	@Test
 	public void clearsAuthentication() {
 		SecurityContext beforeContext = SecurityContextHolder.getContext();
-		handler.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+		this.handler.logout(this.request, this.response, SecurityContextHolder.getContext().getAuthentication());
 		assertThat(beforeContext.getAuthentication()).isNull();
 	}
 
 	@Test
 	public void disableClearsAuthentication() {
-		handler.setClearAuthentication(false);
+		this.handler.setClearAuthentication(false);
 		SecurityContext beforeContext = SecurityContextHolder.getContext();
 		Authentication beforeAuthentication = beforeContext.getAuthentication();
-		handler.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+		this.handler.logout(this.request, this.response, SecurityContextHolder.getContext().getAuthentication());
 
 		assertThat(beforeContext.getAuthentication()).isNotNull();
 		assertThat(beforeContext.getAuthentication()).isSameAs(beforeAuthentication);

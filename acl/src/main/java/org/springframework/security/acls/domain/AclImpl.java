@@ -121,10 +121,10 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 	@Override
 	public void deleteAce(int aceIndex) throws NotFoundException {
-		aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
+		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
 		verifyAceIndexExists(aceIndex);
 
-		synchronized (aces) {
+		synchronized (this.aces) {
 			this.aces.remove(aceIndex);
 		}
 	}
@@ -135,14 +135,14 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		}
 		if (aceIndex >= this.aces.size()) {
 			throw new NotFoundException("aceIndex must refer to an index of the AccessControlEntry list. "
-					+ "List size is " + aces.size() + ", index was " + aceIndex);
+					+ "List size is " + this.aces.size() + ", index was " + aceIndex);
 		}
 	}
 
 	@Override
 	public void insertAce(int atIndexLocation, Permission permission, Sid sid, boolean granting)
 			throws NotFoundException {
-		aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
+		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
 		Assert.notNull(permission, "Permission required");
 		Assert.notNull(sid, "Sid required");
 		if (atIndexLocation < 0) {
@@ -155,7 +155,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 		AccessControlEntryImpl ace = new AccessControlEntryImpl(null, this, sid, permission, granting, false, false);
 
-		synchronized (aces) {
+		synchronized (this.aces) {
 			this.aces.add(atIndexLocation, ace);
 		}
 	}
@@ -164,7 +164,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	public List<AccessControlEntry> getEntries() {
 		// Can safely return AccessControlEntry directly, as they're immutable outside the
 		// ACL package
-		return new ArrayList<>(aces);
+		return new ArrayList<>(this.aces);
 	}
 
 	@Override
@@ -174,12 +174,12 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 	@Override
 	public ObjectIdentity getObjectIdentity() {
-		return objectIdentity;
+		return this.objectIdentity;
 	}
 
 	@Override
 	public boolean isEntriesInheriting() {
-		return entriesInheriting;
+		return this.entriesInheriting;
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 			throw new UnloadedSidException("ACL was not loaded for one or more SID");
 		}
 
-		return permissionGrantingStrategy.isGranted(this, permission, sids, administrativeMode);
+		return this.permissionGrantingStrategy.isGranted(this, permission, sids, administrativeMode);
 	}
 
 	@Override
@@ -213,7 +213,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		for (Sid sid : sids) {
 			boolean found = false;
 
-			for (Sid loadedSid : loadedSids) {
+			for (Sid loadedSid : this.loadedSids) {
 				if (sid.equals(loadedSid)) {
 					// this SID is OK
 					found = true;
@@ -232,13 +232,13 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 	@Override
 	public void setEntriesInheriting(boolean entriesInheriting) {
-		aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
+		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
 		this.entriesInheriting = entriesInheriting;
 	}
 
 	@Override
 	public void setOwner(Sid newOwner) {
-		aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
+		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
 		Assert.notNull(newOwner, "Owner required");
 		this.owner = newOwner;
 	}
@@ -250,34 +250,34 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 	@Override
 	public void setParent(Acl newParent) {
-		aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
+		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
 		Assert.isTrue(newParent == null || !newParent.equals(this), "Cannot be the parent of yourself");
 		this.parentAcl = newParent;
 	}
 
 	@Override
 	public Acl getParentAcl() {
-		return parentAcl;
+		return this.parentAcl;
 	}
 
 	@Override
 	public void updateAce(int aceIndex, Permission permission) throws NotFoundException {
-		aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
+		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
 		verifyAceIndexExists(aceIndex);
 
-		synchronized (aces) {
-			AccessControlEntryImpl ace = (AccessControlEntryImpl) aces.get(aceIndex);
+		synchronized (this.aces) {
+			AccessControlEntryImpl ace = (AccessControlEntryImpl) this.aces.get(aceIndex);
 			ace.setPermission(permission);
 		}
 	}
 
 	@Override
 	public void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure) {
-		aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_AUDITING);
+		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_AUDITING);
 		verifyAceIndexExists(aceIndex);
 
-		synchronized (aces) {
-			AccessControlEntryImpl ace = (AccessControlEntryImpl) aces.get(aceIndex);
+		synchronized (this.aces) {
+			AccessControlEntryImpl ace = (AccessControlEntryImpl) this.aces.get(aceIndex);
 			ace.setAuditSuccess(auditSuccess);
 			ace.setAuditFailure(auditFailure);
 		}
@@ -342,7 +342,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 		int count = 0;
 
-		for (AccessControlEntry ace : aces) {
+		for (AccessControlEntry ace : this.aces) {
 			count++;
 
 			if (count == 1) {

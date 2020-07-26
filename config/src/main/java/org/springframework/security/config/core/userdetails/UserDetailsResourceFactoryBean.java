@@ -98,9 +98,9 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 	}
 
 	private Resource getPropertiesResource() {
-		Resource result = resource;
-		if (result == null && resourceLocation != null) {
-			result = resourceLoader.getResource(resourceLocation);
+		Resource result = this.resource;
+		if (result == null && this.resourceLocation != null) {
+			result = this.resourceLoader.getResource(this.resourceLocation);
 		}
 		Assert.notNull(result, "resource cannot be null if resourceLocation is null");
 		return result;

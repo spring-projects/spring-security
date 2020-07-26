@@ -70,7 +70,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		if (postOnly && !request.getMethod().equals("POST")) {
+		if (this.postOnly && !request.getMethod().equals("POST")) {
 			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 		}
 
@@ -110,7 +110,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 	 */
 	@Nullable
 	protected String obtainPassword(HttpServletRequest request) {
-		return request.getParameter(passwordParameter);
+		return request.getParameter(this.passwordParameter);
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 	 */
 	@Nullable
 	protected String obtainUsername(HttpServletRequest request) {
-		return request.getParameter(usernameParameter);
+		return request.getParameter(this.usernameParameter);
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 	 * set
 	 */
 	protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
-		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 	}
 
 	/**
@@ -170,11 +170,11 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 	}
 
 	public final String getUsernameParameter() {
-		return usernameParameter;
+		return this.usernameParameter;
 	}
 
 	public final String getPasswordParameter() {
-		return passwordParameter;
+		return this.passwordParameter;
 	}
 
 }

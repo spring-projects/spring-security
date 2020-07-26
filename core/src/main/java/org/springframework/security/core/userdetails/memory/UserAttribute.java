@@ -68,15 +68,15 @@ public class UserAttribute {
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
 	public boolean isValid() {
-		if ((this.password != null) && (authorities.size() > 0)) {
+		if ((this.password != null) && (this.authorities.size() > 0)) {
 			return true;
 		}
 		else {

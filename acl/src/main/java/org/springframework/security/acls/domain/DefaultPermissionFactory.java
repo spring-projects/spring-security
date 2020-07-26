@@ -103,21 +103,21 @@ public class DefaultPermissionFactory implements PermissionFactory {
 		Integer mask = perm.getMask();
 
 		// Ensure no existing Permission uses this integer or code
-		Assert.isTrue(!registeredPermissionsByInteger.containsKey(mask),
+		Assert.isTrue(!this.registeredPermissionsByInteger.containsKey(mask),
 				() -> "An existing Permission already provides mask " + mask);
-		Assert.isTrue(!registeredPermissionsByName.containsKey(permissionName),
+		Assert.isTrue(!this.registeredPermissionsByName.containsKey(permissionName),
 				() -> "An existing Permission already provides name '" + permissionName + "'");
 
 		// Register the new Permission
-		registeredPermissionsByInteger.put(mask, perm);
-		registeredPermissionsByName.put(permissionName, perm);
+		this.registeredPermissionsByInteger.put(mask, perm);
+		this.registeredPermissionsByName.put(permissionName, perm);
 	}
 
 	public Permission buildFromMask(int mask) {
-		if (registeredPermissionsByInteger.containsKey(mask)) {
+		if (this.registeredPermissionsByInteger.containsKey(mask)) {
 			// The requested mask has an exact match against a statically-defined
 			// Permission, so return it
-			return registeredPermissionsByInteger.get(mask);
+			return this.registeredPermissionsByInteger.get(mask);
 		}
 
 		// To get this far, we have to use a CumulativePermission
@@ -127,7 +127,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
 			int permissionToCheck = 1 << i;
 
 			if ((mask & permissionToCheck) == permissionToCheck) {
-				Permission p = registeredPermissionsByInteger.get(permissionToCheck);
+				Permission p = this.registeredPermissionsByInteger.get(permissionToCheck);
 
 				if (p == null) {
 					throw new IllegalStateException(
@@ -141,7 +141,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
 	}
 
 	public Permission buildFromName(String name) {
-		Permission p = registeredPermissionsByName.get(name);
+		Permission p = this.registeredPermissionsByName.get(name);
 
 		if (p == null) {
 			throw new IllegalArgumentException("Unknown permission '" + name + "'");

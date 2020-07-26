@@ -78,15 +78,16 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		Package pkg = SpringSecurityCoreVersion.class.getPackage();
 
 		if (pkg == null || coreVersion == null) {
-			logger.info("Couldn't determine package version information.");
+			this.logger.info("Couldn't determine package version information.");
 			return;
 		}
 
 		String version = pkg.getImplementationVersion();
-		logger.info("Spring Security 'config' module version is " + version);
+		this.logger.info("Spring Security 'config' module version is " + version);
 
 		if (version.compareTo(coreVersion) != 0) {
-			logger.error("You are running with different versions of the Spring Security 'core' and 'config' modules");
+			this.logger.error(
+					"You are running with different versions of the Spring Security 'core' and 'config' modules");
 		}
 	}
 
@@ -98,7 +99,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 					element);
 		}
 		String name = pc.getDelegate().getLocalName(element);
-		BeanDefinitionParser parser = parsers.get(name);
+		BeanDefinitionParser parser = this.parsers.get(name);
 
 		if (parser == null) {
 			// SEC-1455. Load parsers when required, not just on init().
@@ -126,17 +127,17 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		// We only handle elements
 		if (node instanceof Element) {
 			if (Elements.INTERCEPT_METHODS.equals(name)) {
-				return interceptMethodsBDD.decorate(node, definition, pc);
+				return this.interceptMethodsBDD.decorate(node, definition, pc);
 			}
 
 			if (Elements.FILTER_CHAIN_MAP.equals(name)) {
-				if (filterChainMapBDD == null) {
+				if (this.filterChainMapBDD == null) {
 					loadParsers();
 				}
-				if (filterChainMapBDD == null) {
+				if (this.filterChainMapBDD == null) {
 					reportMissingWebClasses(name, pc, node);
 				}
-				return filterChainMapBDD.decorate(node, definition, pc);
+				return this.filterChainMapBDD.decorate(node, definition, pc);
 			}
 		}
 
@@ -170,29 +171,32 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
 	private void loadParsers() {
 		// Parsers
-		parsers.put(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
-		parsers.put(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
-		parsers.put(Elements.LDAP_USER_SERVICE, new LdapUserServiceBeanDefinitionParser());
-		parsers.put(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());
-		parsers.put(Elements.JDBC_USER_SERVICE, new JdbcUserServiceBeanDefinitionParser());
-		parsers.put(Elements.AUTHENTICATION_PROVIDER, new AuthenticationProviderBeanDefinitionParser());
-		parsers.put(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
-		parsers.put(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
-		parsers.put(Elements.METHOD_SECURITY_METADATA_SOURCE, new MethodSecurityMetadataSourceBeanDefinitionParser());
+		this.parsers.put(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
+		this.parsers.put(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
+		this.parsers.put(Elements.LDAP_USER_SERVICE, new LdapUserServiceBeanDefinitionParser());
+		this.parsers.put(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());
+		this.parsers.put(Elements.JDBC_USER_SERVICE, new JdbcUserServiceBeanDefinitionParser());
+		this.parsers.put(Elements.AUTHENTICATION_PROVIDER, new AuthenticationProviderBeanDefinitionParser());
+		this.parsers.put(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
+		this.parsers.put(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
+		this.parsers.put(Elements.METHOD_SECURITY_METADATA_SOURCE,
+				new MethodSecurityMetadataSourceBeanDefinitionParser());
 
 		// Only load the web-namespace parsers if the web classes are available
 		if (ClassUtils.isPresent(FILTER_CHAIN_PROXY_CLASSNAME, getClass().getClassLoader())) {
-			parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
-			parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
-			parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
-			parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
-			parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
-			filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
-			parsers.put(Elements.CLIENT_REGISTRATIONS, new ClientRegistrationsBeanDefinitionParser());
+			this.parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
+			this.parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
+			this.parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
+			this.parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE,
+					new FilterInvocationSecurityMetadataSourceParser());
+			this.parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
+			this.filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
+			this.parsers.put(Elements.CLIENT_REGISTRATIONS, new ClientRegistrationsBeanDefinitionParser());
 		}
 
 		if (ClassUtils.isPresent(MESSAGE_CLASSNAME, getClass().getClassLoader())) {
-			parsers.put(Elements.WEBSOCKET_MESSAGE_BROKER, new WebSocketMessageBrokerSecurityBeanDefinitionParser());
+			this.parsers.put(Elements.WEBSOCKET_MESSAGE_BROKER,
+					new WebSocketMessageBrokerSecurityBeanDefinitionParser());
 		}
 	}
 

@@ -40,12 +40,12 @@ public class HttpSessionIdChangedEvent extends SessionIdChangedEvent {
 
 	@Override
 	public String getOldSessionId() {
-		return oldSessionId;
+		return this.oldSessionId;
 	}
 
 	@Override
 	public String getNewSessionId() {
-		return newSessionId;
+		return this.newSessionId;
 	}
 
 }

@@ -52,7 +52,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		if (!response.isCommitted()) {
-			if (errorPage != null) {
+			if (this.errorPage != null) {
 				// Put exception into request scope (perhaps of use to a view)
 				request.setAttribute(WebAttributes.ACCESS_DENIED_403, accessDeniedException);
 
@@ -60,7 +60,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 				response.setStatus(HttpStatus.FORBIDDEN.value());
 
 				// forward to error page.
-				RequestDispatcher dispatcher = request.getRequestDispatcher(errorPage);
+				RequestDispatcher dispatcher = request.getRequestDispatcher(this.errorPage);
 				dispatcher.forward(request, response);
 			}
 			else {

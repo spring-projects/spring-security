@@ -86,8 +86,8 @@ public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocat
 		if (this.parser != null) {
 			return this.parser;
 		}
-		synchronized (parserLock) {
-			this.parser = handler.getExpressionParser();
+		synchronized (this.parserLock) {
+			this.parser = this.handler.getExpressionParser();
 			this.handler = null;
 		}
 		return this.parser;

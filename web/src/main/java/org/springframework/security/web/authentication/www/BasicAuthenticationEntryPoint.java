@@ -45,17 +45,17 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 	private String realmName;
 
 	public void afterPropertiesSet() {
-		Assert.hasText(realmName, "realmName must be specified");
+		Assert.hasText(this.realmName, "realmName must be specified");
 	}
 
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
-		response.addHeader("WWW-Authenticate", "Basic realm=\"" + realmName + "\"");
+		response.addHeader("WWW-Authenticate", "Basic realm=\"" + this.realmName + "\"");
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
 	public String getRealmName() {
-		return realmName;
+		return this.realmName;
 	}
 
 	public void setRealmName(String realmName) {

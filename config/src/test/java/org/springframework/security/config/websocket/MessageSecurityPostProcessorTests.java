@@ -30,7 +30,7 @@ public class MessageSecurityPostProcessorTests {
 	public void handlesBeansWithoutClass() {
 		BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 		registry.registerBeanDefinition("beanWithoutClass", new GenericBeanDefinition());
-		postProcessor.postProcessBeanDefinitionRegistry(registry);
+		this.postProcessor.postProcessBeanDefinitionRegistry(registry);
 	}
 
 }

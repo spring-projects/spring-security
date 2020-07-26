@@ -47,15 +47,15 @@ public final class AndMessageMatcher<T> extends AbstractMessageMatcherComposite<
 
 	public boolean matches(Message<? extends T> message) {
 		for (MessageMatcher<T> matcher : getMessageMatchers()) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Trying to match using " + matcher);
+			if (this.LOGGER.isDebugEnabled()) {
+				this.LOGGER.debug("Trying to match using " + matcher);
 			}
 			if (!matcher.matches(message)) {
-				LOGGER.debug("Did not match");
+				this.LOGGER.debug("Did not match");
 				return false;
 			}
 		}
-		LOGGER.debug("All messageMatchers returned true");
+		this.LOGGER.debug("All messageMatchers returned true");
 		return true;
 	}
 

@@ -102,7 +102,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
+		Assert.notNull(this.authenticationEntryPoint, "authenticationEntryPoint must be specified");
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -113,20 +113,20 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		try {
 			chain.doFilter(request, response);
 
-			logger.debug("Chain processed normally");
+			this.logger.debug("Chain processed normally");
 		}
 		catch (IOException ex) {
 			throw ex;
 		}
 		catch (Exception ex) {
 			// Try to extract a SpringSecurityException from the stacktrace
-			Throwable[] causeChain = throwableAnalyzer.determineCauseChain(ex);
-			RuntimeException ase = (AuthenticationException) throwableAnalyzer
+			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
+			RuntimeException ase = (AuthenticationException) this.throwableAnalyzer
 					.getFirstThrowableOfType(AuthenticationException.class, causeChain);
 
 			if (ase == null) {
-				ase = (AccessDeniedException) throwableAnalyzer.getFirstThrowableOfType(AccessDeniedException.class,
-						causeChain);
+				ase = (AccessDeniedException) this.throwableAnalyzer
+						.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
 			}
 
 			if (ase != null) {
@@ -154,37 +154,41 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 	}
 
 	public AuthenticationEntryPoint getAuthenticationEntryPoint() {
-		return authenticationEntryPoint;
+		return this.authenticationEntryPoint;
 	}
 
 	protected AuthenticationTrustResolver getAuthenticationTrustResolver() {
-		return authenticationTrustResolver;
+		return this.authenticationTrustResolver;
 	}
 
 	private void handleSpringSecurityException(HttpServletRequest request, HttpServletResponse response,
 			FilterChain chain, RuntimeException exception) throws IOException, ServletException {
 		if (exception instanceof AuthenticationException) {
-			logger.debug("Authentication exception occurred; redirecting to authentication entry point", exception);
+			this.logger.debug("Authentication exception occurred; redirecting to authentication entry point",
+					exception);
 
 			sendStartAuthentication(request, response, chain, (AuthenticationException) exception);
 		}
 		else if (exception instanceof AccessDeniedException) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			if (authenticationTrustResolver.isAnonymous(authentication)
-					|| authenticationTrustResolver.isRememberMe(authentication)) {
-				logger.debug("Access is denied (user is " + (authenticationTrustResolver.isAnonymous(authentication)
-						? "anonymous" : "not fully authenticated") + "); redirecting to authentication entry point",
+			if (this.authenticationTrustResolver.isAnonymous(authentication)
+					|| this.authenticationTrustResolver.isRememberMe(authentication)) {
+				this.logger.debug(
+						"Access is denied (user is " + (this.authenticationTrustResolver.isAnonymous(authentication)
+								? "anonymous" : "not fully authenticated")
+								+ "); redirecting to authentication entry point",
 						exception);
 
 				sendStartAuthentication(request, response, chain,
 						new InsufficientAuthenticationException(
-								messages.getMessage("ExceptionTranslationFilter.insufficientAuthentication",
+								this.messages.getMessage("ExceptionTranslationFilter.insufficientAuthentication",
 										"Full authentication is required to access this resource")));
 			}
 			else {
-				logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler", exception);
+				this.logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler",
+						exception);
 
-				accessDeniedHandler.handle(request, response, (AccessDeniedException) exception);
+				this.accessDeniedHandler.handle(request, response, (AccessDeniedException) exception);
 			}
 		}
 	}
@@ -194,9 +198,9 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		// SEC-112: Clear the SecurityContextHolder's Authentication, as the
 		// existing Authentication is no longer considered valid
 		SecurityContextHolder.getContext().setAuthentication(null);
-		requestCache.saveRequest(request, response);
-		logger.debug("Calling Authentication entry point.");
-		authenticationEntryPoint.commence(request, response, reason);
+		this.requestCache.saveRequest(request, response);
+		this.logger.debug("Calling Authentication entry point.");
+		this.authenticationEntryPoint.commence(request, response, reason);
 	}
 
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {

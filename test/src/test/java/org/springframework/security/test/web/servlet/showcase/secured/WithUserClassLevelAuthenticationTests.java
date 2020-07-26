@@ -53,12 +53,12 @@ public class WithUserClassLevelAuthenticationTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
-		mvc.perform(get("/"))
+		this.mvc.perform(get("/"))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
@@ -67,7 +67,7 @@ public class WithUserClassLevelAuthenticationTests {
 
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
-		mvc.perform(get("/admin"))
+		this.mvc.perform(get("/admin"))
 				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
@@ -77,7 +77,7 @@ public class WithUserClassLevelAuthenticationTests {
 	@Test
 	@WithAnonymousUser
 	public void requestProtectedUrlWithAnonymous() throws Exception {
-		mvc.perform(get("/"))
+		this.mvc.perform(get("/"))
 				// Ensure did not get past security
 				.andExpect(status().isUnauthorized())
 				// Ensure not authenticated

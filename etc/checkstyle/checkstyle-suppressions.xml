@@ -23,7 +23,6 @@
 	<suppress files=".*" checks="ParenPad" />
 	<suppress files=".*" checks="RedundantImport" />
 	<suppress files=".*" checks="RegexpSinglelineJava" />
-	<suppress files=".*" checks="RequireThis" />
 	<suppress files=".*" checks="SimplifyBooleanExpression" />
 	<suppress files=".*" checks="SimplifyBooleanReturn" />
 	<suppress files=".*" checks="SpringAvoidStaticImport" />

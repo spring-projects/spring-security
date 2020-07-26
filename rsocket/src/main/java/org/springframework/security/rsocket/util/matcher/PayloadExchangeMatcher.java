@@ -53,7 +53,7 @@ public interface PayloadExchangeMatcher {
 		}
 
 		public boolean isMatch() {
-			return match;
+			return this.match;
 		}
 
 		/**
@@ -61,7 +61,7 @@ public interface PayloadExchangeMatcher {
 		 * @return
 		 */
 		public Map<String, Object> getVariables() {
-			return variables;
+			return this.variables;
 		}
 
 		/**

@@ -44,57 +44,57 @@ public class SecurityJackson2ModulesTests {
 
 	@Before
 	public void setup() {
-		mapper = new ObjectMapper();
-		SecurityJackson2Modules.enableDefaultTyping(mapper);
+		this.mapper = new ObjectMapper();
+		SecurityJackson2Modules.enableDefaultTyping(this.mapper);
 	}
 
 	@Test
 	public void readValueWhenNotAllowedOrMappedThenThrowsException() {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
 		assertThatThrownBy(() -> {
-			mapper.readValue(content, Object.class);
+			this.mapper.readValue(content, Object.class);
 		}).hasStackTraceContaining("allowlist");
 	}
 
 	@Test
 	public void readValueWhenExplicitDefaultTypingAfterSecuritySetupThenReadsAsSpecificType() throws Exception {
-		mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+		this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
 
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
 	@Test
 	public void readValueWhenExplicitDefaultTypingBeforeSecuritySetupThenReadsAsSpecificType() throws Exception {
-		mapper = new ObjectMapper();
-		mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-		SecurityJackson2Modules.enableDefaultTyping(mapper);
+		this.mapper = new ObjectMapper();
+		this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+		SecurityJackson2Modules.enableDefaultTyping(this.mapper);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
 
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
 	@Test
 	public void readValueWhenAnnotatedThenReadsAsSpecificType() throws Exception {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlistedButAnnotated\",\"property\":\"bar\"}";
 
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlistedButAnnotated.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlistedButAnnotated.class);
 	}
 
 	@Test
 	public void readValueWhenMixinProvidedThenReadsAsSpecificType() throws Exception {
-		mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
+		this.mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
 
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
 	@Test
 	public void readValueWhenHashMapThenReadsAsSpecificType() throws Exception {
-		mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
+		this.mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
 		String content = "{\"@class\":\"java.util.HashMap\"}";
 
-		assertThat(mapper.readValue(content, Object.class)).isInstanceOf(HashMap.class);
+		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(HashMap.class);
 	}
 
 	@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
@@ -110,7 +110,7 @@ public class SecurityJackson2ModulesTests {
 		private String property = "bar";
 
 		public String getProperty() {
-			return property;
+			return this.property;
 		}
 
 		public void setProperty(String property) {
@@ -124,7 +124,7 @@ public class SecurityJackson2ModulesTests {
 		private String property = "bar";
 
 		public String getProperty() {
-			return property;
+			return this.property;
 		}
 
 		public void setProperty(String property) {

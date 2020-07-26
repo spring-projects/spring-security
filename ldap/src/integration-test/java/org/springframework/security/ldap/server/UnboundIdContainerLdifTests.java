@@ -41,17 +41,17 @@ public class UnboundIdContainerLdifTests {
 
 	@After
 	public void closeAppContext() {
-		if (appCtx != null) {
-			appCtx.close();
-			appCtx = null;
+		if (this.appCtx != null) {
+			this.appCtx.close();
+			this.appCtx = null;
 		}
 	}
 
 	@Test
 	public void unboundIdContainerWhenCustomLdifNameThenLdifLoaded() {
-		appCtx = new AnnotationConfigApplicationContext(CustomLdifConfig.class);
+		this.appCtx = new AnnotationConfigApplicationContext(CustomLdifConfig.class);
 
-		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx
+		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) this.appCtx
 				.getBean(ContextSource.class);
 
 		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(contextSource);
@@ -85,9 +85,9 @@ public class UnboundIdContainerLdifTests {
 
 	@Test
 	public void unboundIdContainerWhenWildcardLdifNameThenLdifLoaded() {
-		appCtx = new AnnotationConfigApplicationContext(WildcardLdifConfig.class);
+		this.appCtx = new AnnotationConfigApplicationContext(WildcardLdifConfig.class);
 
-		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx
+		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) this.appCtx
 				.getBean(ContextSource.class);
 
 		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(contextSource);
@@ -122,7 +122,7 @@ public class UnboundIdContainerLdifTests {
 	@Test
 	public void unboundIdContainerWhenMalformedLdifThenException() {
 		try {
-			appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class);
+			this.appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class);
 			failBecauseExceptionWasNotThrown(IllegalStateException.class);
 		}
 		catch (Exception e) {
@@ -153,7 +153,7 @@ public class UnboundIdContainerLdifTests {
 	@Test
 	public void unboundIdContainerWhenMissingLdifThenException() {
 		try {
-			appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class);
+			this.appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class);
 			failBecauseExceptionWasNotThrown(IllegalStateException.class);
 		}
 		catch (Exception e) {

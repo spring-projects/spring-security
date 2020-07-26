@@ -132,11 +132,11 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	}
 
 	private void checkState() {
-		if (parent == null && providers.isEmpty()) {
+		if (this.parent == null && this.providers.isEmpty()) {
 			throw new IllegalArgumentException(
 					"A parent AuthenticationManager or a list " + "of AuthenticationProviders is required");
 		}
-		else if (CollectionUtils.contains(providers.iterator(), null)) {
+		else if (CollectionUtils.contains(this.providers.iterator(), null)) {
 			throw new IllegalArgumentException("providers list cannot contain null values");
 		}
 	}
@@ -197,10 +197,10 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			}
 		}
 
-		if (result == null && parent != null) {
+		if (result == null && this.parent != null) {
 			// Allow the parent to try.
 			try {
-				result = parentResult = parent.authenticate(authentication);
+				result = parentResult = this.parent.authenticate(authentication);
 			}
 			catch (ProviderNotFoundException e) {
 				// ignore as we will throw below if no other exception occurred prior to
@@ -214,7 +214,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		}
 
 		if (result != null) {
-			if (eraseCredentialsAfterAuthentication && (result instanceof CredentialsContainer)) {
+			if (this.eraseCredentialsAfterAuthentication && (result instanceof CredentialsContainer)) {
 				// Authentication is complete. Remove credentials and other secret data
 				// from authentication
 				((CredentialsContainer) result).eraseCredentials();
@@ -225,7 +225,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			// This check prevents a duplicate AuthenticationSuccessEvent if the parent
 			// AuthenticationManager already published it
 			if (parentResult == null) {
-				eventPublisher.publishAuthenticationSuccess(result);
+				this.eventPublisher.publishAuthenticationSuccess(result);
 			}
 			return result;
 		}
@@ -233,7 +233,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		// Parent was null, or didn't authenticate (or throw an exception).
 
 		if (lastException == null) {
-			lastException = new ProviderNotFoundException(messages.getMessage("ProviderManager.providerNotFound",
+			lastException = new ProviderNotFoundException(this.messages.getMessage("ProviderManager.providerNotFound",
 					new Object[] { toTest.getName() }, "No AuthenticationProvider found for {0}"));
 		}
 
@@ -250,7 +250,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 
 	@SuppressWarnings("deprecation")
 	private void prepareException(AuthenticationException ex, Authentication auth) {
-		eventPublisher.publishAuthenticationFailure(ex, auth);
+		this.eventPublisher.publishAuthenticationFailure(ex, auth);
 	}
 
 	/**
@@ -268,7 +268,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	}
 
 	public List<AuthenticationProvider> getProviders() {
-		return providers;
+		return this.providers;
 	}
 
 	public void setMessageSource(MessageSource messageSource) {
@@ -293,7 +293,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	}
 
 	public boolean isEraseCredentialsAfterAuthentication() {
-		return eraseCredentialsAfterAuthentication;
+		return this.eraseCredentialsAfterAuthentication;
 	}
 
 	private static final class NullEventPublisher implements AuthenticationEventPublisher {

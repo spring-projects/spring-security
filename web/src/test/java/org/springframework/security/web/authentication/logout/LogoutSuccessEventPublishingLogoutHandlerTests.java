@@ -61,7 +61,7 @@ public class LogoutSuccessEventPublishingLogoutHandlerTests {
 		@Override
 		public void publishEvent(Object event) {
 			if (LogoutSuccessEvent.class.isAssignableFrom(event.getClass())) {
-				flag = true;
+				this.flag = true;
 			}
 		}
 

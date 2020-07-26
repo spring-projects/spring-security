@@ -58,8 +58,8 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
 		for (AccessDecisionVoter voter : getDecisionVoters()) {
 			int result = voter.vote(authentication, object, configAttributes);
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Voter: " + voter + ", returned: " + result);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Voter: " + voter + ", returned: " + result);
 			}
 
 			switch (result) {
@@ -78,7 +78,7 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
 
 		if (deny > 0) {
 			throw new AccessDeniedException(
-					messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+					this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 		}
 
 		// To get this far, every AccessDecisionVoter abstained

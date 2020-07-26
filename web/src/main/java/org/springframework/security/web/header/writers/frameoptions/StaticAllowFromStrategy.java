@@ -37,7 +37,7 @@ public final class StaticAllowFromStrategy implements AllowFromStrategy {
 	}
 
 	public String getAllowFromValue(HttpServletRequest request) {
-		return uri.toString();
+		return this.uri.toString();
 	}
 
 }

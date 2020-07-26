@@ -47,8 +47,8 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 	private String insecureKeyword = "REQUIRES_INSECURE_CHANNEL";
 
 	public void afterPropertiesSet() {
-		Assert.hasLength(insecureKeyword, "insecureKeyword required");
-		Assert.notNull(entryPoint, "entryPoint required");
+		Assert.hasLength(this.insecureKeyword, "insecureKeyword required");
+		Assert.notNull(this.entryPoint, "entryPoint required");
 	}
 
 	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
@@ -60,18 +60,18 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 		for (ConfigAttribute attribute : config) {
 			if (supports(attribute)) {
 				if (invocation.getHttpRequest().isSecure()) {
-					entryPoint.commence(invocation.getRequest(), invocation.getResponse());
+					this.entryPoint.commence(invocation.getRequest(), invocation.getResponse());
 				}
 			}
 		}
 	}
 
 	public ChannelEntryPoint getEntryPoint() {
-		return entryPoint;
+		return this.entryPoint;
 	}
 
 	public String getInsecureKeyword() {
-		return insecureKeyword;
+		return this.insecureKeyword;
 	}
 
 	public void setEntryPoint(ChannelEntryPoint entryPoint) {

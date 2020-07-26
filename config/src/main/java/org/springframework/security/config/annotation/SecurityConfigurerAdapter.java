@@ -60,10 +60,10 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	 * @throws IllegalStateException if {@link SecurityBuilder} is null
 	 */
 	protected final B getBuilder() {
-		if (securityBuilder == null) {
+		if (this.securityBuilder == null) {
 			throw new IllegalStateException("securityBuilder cannot be null");
 		}
-		return securityBuilder;
+		return this.securityBuilder;
 	}
 
 	/**
@@ -108,7 +108,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Object postProcess(Object object) {
-			for (ObjectPostProcessor opp : postProcessors) {
+			for (ObjectPostProcessor opp : this.postProcessors) {
 				Class<?> oppClass = opp.getClass();
 				Class<?> oppType = GenericTypeResolver.resolveTypeArgument(oppClass, ObjectPostProcessor.class);
 				if (oppType == null || oppType.isAssignableFrom(object.getClass())) {
@@ -125,7 +125,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 		 */
 		private boolean addObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
 			boolean result = this.postProcessors.add(objectPostProcessor);
-			postProcessors.sort(AnnotationAwareOrderComparator.INSTANCE);
+			this.postProcessors.sort(AnnotationAwareOrderComparator.INSTANCE);
 			return result;
 		}
 

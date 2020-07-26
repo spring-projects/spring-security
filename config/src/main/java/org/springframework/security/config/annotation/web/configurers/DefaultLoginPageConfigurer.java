@@ -84,7 +84,7 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 		};
 		this.loginPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
 		this.logoutPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
-		http.setSharedObject(DefaultLoginPageGeneratingFilter.class, loginPageGeneratingFilter);
+		http.setSharedObject(DefaultLoginPageGeneratingFilter.class, this.loginPageGeneratingFilter);
 	}
 
 	@Override
@@ -96,9 +96,9 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 			authenticationEntryPoint = exceptionConf.getAuthenticationEntryPoint();
 		}
 
-		if (loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
-			loginPageGeneratingFilter = postProcess(loginPageGeneratingFilter);
-			http.addFilter(loginPageGeneratingFilter);
+		if (this.loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
+			this.loginPageGeneratingFilter = postProcess(this.loginPageGeneratingFilter);
+			http.addFilter(this.loginPageGeneratingFilter);
 			http.addFilter(this.logoutPageGeneratingFilter);
 		}
 	}

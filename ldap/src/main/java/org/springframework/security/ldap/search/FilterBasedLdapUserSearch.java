@@ -99,13 +99,13 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 			logger.debug("Searching for user '" + username + "', with user search " + this);
 		}
 
-		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(contextSource);
+		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(this.contextSource);
 
-		template.setSearchControls(searchControls);
+		template.setSearchControls(this.searchControls);
 
 		try {
 
-			return template.searchForSingleEntry(searchBase, searchFilter, new String[] { username });
+			return template.searchForSingleEntry(this.searchBase, this.searchFilter, new String[] { username });
 
 		}
 		catch (IncorrectResultSizeDataAccessException notFound) {
@@ -124,7 +124,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 * @param deref the derefLinkFlag value as defined in SearchControls..
 	 */
 	public void setDerefLinkFlag(boolean deref) {
-		searchControls.setDerefLinkFlag(deref);
+		this.searchControls.setDerefLinkFlag(deref);
 	}
 
 	/**
@@ -134,7 +134,8 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 * SearchControls.SUBTREE_SCOPE rather than SearchControls.ONELEVEL_SCOPE.
 	 */
 	public void setSearchSubtree(boolean searchSubtree) {
-		searchControls.setSearchScope(searchSubtree ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE);
+		this.searchControls
+				.setSearchScope(searchSubtree ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE);
 	}
 
 	/**
@@ -142,7 +143,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 * @param searchTimeLimit the time limit for the search (in milliseconds).
 	 */
 	public void setSearchTimeLimit(int searchTimeLimit) {
-		searchControls.setTimeLimit(searchTimeLimit);
+		this.searchControls.setTimeLimit(searchTimeLimit);
 	}
 
 	/**
@@ -154,19 +155,19 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 * returned. Can be null.
 	 */
 	public void setReturningAttributes(String[] attrs) {
-		searchControls.setReturningAttributes(attrs);
+		this.searchControls.setReturningAttributes(attrs);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("[ searchFilter: '").append(searchFilter).append("', ");
-		sb.append("searchBase: '").append(searchBase).append("'");
-		sb.append(", scope: ")
-				.append(searchControls.getSearchScope() == SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
-		sb.append(", searchTimeLimit: ").append(searchControls.getTimeLimit());
-		sb.append(", derefLinkFlag: ").append(searchControls.getDerefLinkFlag()).append(" ]");
+		sb.append("[ searchFilter: '").append(this.searchFilter).append("', ");
+		sb.append("searchBase: '").append(this.searchBase).append("'");
+		sb.append(", scope: ").append(
+				this.searchControls.getSearchScope() == SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
+		sb.append(", searchTimeLimit: ").append(this.searchControls.getTimeLimit());
+		sb.append(", derefLinkFlag: ").append(this.searchControls.getDerefLinkFlag()).append(" ]");
 		return sb.toString();
 	}
 

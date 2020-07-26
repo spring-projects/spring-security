@@ -36,37 +36,37 @@ class DelegatingTestExecutionListener extends AbstractTestExecutionListener {
 
 	@Override
 	public void beforeTestClass(TestContext testContext) throws Exception {
-		delegate.beforeTestClass(testContext);
+		this.delegate.beforeTestClass(testContext);
 	}
 
 	@Override
 	public void prepareTestInstance(TestContext testContext) throws Exception {
-		delegate.prepareTestInstance(testContext);
+		this.delegate.prepareTestInstance(testContext);
 	}
 
 	@Override
 	public void beforeTestMethod(TestContext testContext) throws Exception {
-		delegate.beforeTestMethod(testContext);
+		this.delegate.beforeTestMethod(testContext);
 	}
 
 	@Override
 	public void beforeTestExecution(TestContext testContext) throws Exception {
-		delegate.beforeTestExecution(testContext);
+		this.delegate.beforeTestExecution(testContext);
 	}
 
 	@Override
 	public void afterTestExecution(TestContext testContext) throws Exception {
-		delegate.afterTestExecution(testContext);
+		this.delegate.afterTestExecution(testContext);
 	}
 
 	@Override
 	public void afterTestMethod(TestContext testContext) throws Exception {
-		delegate.afterTestMethod(testContext);
+		this.delegate.afterTestMethod(testContext);
 	}
 
 	@Override
 	public void afterTestClass(TestContext testContext) throws Exception {
-		delegate.afterTestClass(testContext);
+		this.delegate.afterTestClass(testContext);
 	}
 
 }

@@ -76,7 +76,7 @@ public class Saml2AuthenticationRequestContext {
 	 * @return the AssertionConsumerServiceURL value
 	 */
 	public String getAssertionConsumerServiceUrl() {
-		return assertionConsumerServiceUrl;
+		return this.assertionConsumerServiceUrl;
 	}
 
 	/**

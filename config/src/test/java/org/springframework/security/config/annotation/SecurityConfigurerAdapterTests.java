@@ -28,15 +28,15 @@ public class SecurityConfigurerAdapterTests {
 
 	@Before
 	public void setup() {
-		adapter = new ConcereteSecurityConfigurerAdapter();
+		this.adapter = new ConcereteSecurityConfigurerAdapter();
 	}
 
 	@Test
 	public void postProcessObjectPostProcessorsAreSorted() {
-		adapter.addObjectPostProcessor(new OrderedObjectPostProcessor(Ordered.LOWEST_PRECEDENCE));
-		adapter.addObjectPostProcessor(new OrderedObjectPostProcessor(Ordered.HIGHEST_PRECEDENCE));
+		this.adapter.addObjectPostProcessor(new OrderedObjectPostProcessor(Ordered.LOWEST_PRECEDENCE));
+		this.adapter.addObjectPostProcessor(new OrderedObjectPostProcessor(Ordered.HIGHEST_PRECEDENCE));
 
-		assertThat(adapter.postProcess("hi"))
+		assertThat(this.adapter.postProcess("hi"))
 				.isEqualTo("hi " + Ordered.HIGHEST_PRECEDENCE + " " + Ordered.LOWEST_PRECEDENCE);
 	}
 
@@ -49,12 +49,12 @@ public class SecurityConfigurerAdapterTests {
 		}
 
 		public int getOrder() {
-			return order;
+			return this.order;
 		}
 
 		@SuppressWarnings("unchecked")
 		public String postProcess(String object) {
-			return object + " " + order;
+			return object + " " + this.order;
 		}
 
 	}

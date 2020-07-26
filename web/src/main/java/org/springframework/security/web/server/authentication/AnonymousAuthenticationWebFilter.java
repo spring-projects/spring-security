@@ -95,7 +95,8 @@ public class AnonymousAuthenticationWebFilter implements WebFilter {
 	}
 
 	protected Authentication createAuthentication(ServerWebExchange exchange) {
-		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key, principal, authorities);
+		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(this.key, this.principal,
+				this.authorities);
 		return auth;
 	}
 

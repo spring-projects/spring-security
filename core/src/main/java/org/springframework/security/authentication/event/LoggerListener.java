@@ -40,7 +40,7 @@ public class LoggerListener implements ApplicationListener<AbstractAuthenticatio
 	private boolean logInteractiveAuthenticationSuccessEvents = true;
 
 	public void onApplicationEvent(AbstractAuthenticationEvent event) {
-		if (!logInteractiveAuthenticationSuccessEvents && event instanceof InteractiveAuthenticationSuccessEvent) {
+		if (!this.logInteractiveAuthenticationSuccessEvents && event instanceof InteractiveAuthenticationSuccessEvent) {
 			return;
 		}
 
@@ -63,7 +63,7 @@ public class LoggerListener implements ApplicationListener<AbstractAuthenticatio
 	}
 
 	public boolean isLogInteractiveAuthenticationSuccessEvents() {
-		return logInteractiveAuthenticationSuccessEvents;
+		return this.logInteractiveAuthenticationSuccessEvents;
 	}
 
 	public void setLogInteractiveAuthenticationSuccessEvents(boolean logInteractiveAuthenticationSuccessEvents) {

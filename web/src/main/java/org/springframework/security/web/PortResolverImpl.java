@@ -39,7 +39,7 @@ public class PortResolverImpl implements PortResolver {
 	private PortMapper portMapper = new PortMapperImpl();
 
 	public PortMapper getPortMapper() {
-		return portMapper;
+		return this.portMapper;
 	}
 
 	public int getServerPort(ServletRequest request) {
@@ -49,11 +49,11 @@ public class PortResolverImpl implements PortResolver {
 		String scheme = request.getScheme().toLowerCase();
 
 		if ("http".equals(scheme)) {
-			portLookup = portMapper.lookupHttpPort(serverPort);
+			portLookup = this.portMapper.lookupHttpPort(serverPort);
 
 		}
 		else if ("https".equals(scheme)) {
-			portLookup = portMapper.lookupHttpsPort(serverPort);
+			portLookup = this.portMapper.lookupHttpsPort(serverPort);
 		}
 
 		if (portLookup != null) {

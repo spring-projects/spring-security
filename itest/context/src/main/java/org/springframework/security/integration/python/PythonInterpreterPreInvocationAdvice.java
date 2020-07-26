@@ -68,7 +68,7 @@ public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthor
 		Object[] args = mi.getArguments();
 		Object targetObject = mi.getThis();
 		Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
-		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
+		String[] paramNames = this.parameterNameDiscoverer.getParameterNames(method);
 
 		Map<String, Object> argMap = new HashMap<>();
 		for (int i = 0; i < args.length; i++) {

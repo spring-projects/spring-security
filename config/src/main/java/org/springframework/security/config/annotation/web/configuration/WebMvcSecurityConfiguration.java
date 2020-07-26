@@ -53,13 +53,13 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	@SuppressWarnings("deprecation")
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 		AuthenticationPrincipalArgumentResolver authenticationPrincipalResolver = new AuthenticationPrincipalArgumentResolver();
-		authenticationPrincipalResolver.setBeanResolver(beanResolver);
+		authenticationPrincipalResolver.setBeanResolver(this.beanResolver);
 		argumentResolvers.add(authenticationPrincipalResolver);
 		argumentResolvers
 				.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
 
 		CurrentSecurityContextArgumentResolver currentSecurityContextArgumentResolver = new CurrentSecurityContextArgumentResolver();
-		currentSecurityContextArgumentResolver.setBeanResolver(beanResolver);
+		currentSecurityContextArgumentResolver.setBeanResolver(this.beanResolver);
 		argumentResolvers.add(currentSecurityContextArgumentResolver);
 		argumentResolvers.add(new CsrfTokenArgumentResolver());
 	}

@@ -63,11 +63,11 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource implements
 	 * @return authorities mapped from the user's WebSphere groups.
 	 */
 	private Collection<? extends GrantedAuthority> getWebSphereGroupsBasedGrantedAuthorities() {
-		List<String> webSphereGroups = wasHelper.getGroupsForCurrentUser();
-		Collection<? extends GrantedAuthority> userGas = webSphereGroups2GrantedAuthoritiesMapper
+		List<String> webSphereGroups = this.wasHelper.getGroupsForCurrentUser();
+		Collection<? extends GrantedAuthority> userGas = this.webSphereGroups2GrantedAuthoritiesMapper
 				.getGrantedAuthorities(webSphereGroups);
-		if (logger.isDebugEnabled()) {
-			logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: " + userGas);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: " + userGas);
 		}
 		return userGas;
 	}
@@ -77,7 +77,7 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource implements
 	 * groups to authorities
 	 */
 	public void setWebSphereGroups2GrantedAuthoritiesMapper(Attributes2GrantedAuthoritiesMapper mapper) {
-		webSphereGroups2GrantedAuthoritiesMapper = mapper;
+		this.webSphereGroups2GrantedAuthoritiesMapper = mapper;
 	}
 
 }

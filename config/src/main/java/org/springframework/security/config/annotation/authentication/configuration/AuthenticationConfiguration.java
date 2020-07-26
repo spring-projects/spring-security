@@ -115,18 +115,18 @@ public class AuthenticationConfiguration {
 			return new AuthenticationManagerDelegator(authBuilder);
 		}
 
-		for (GlobalAuthenticationConfigurerAdapter config : globalAuthConfigurers) {
+		for (GlobalAuthenticationConfigurerAdapter config : this.globalAuthConfigurers) {
 			authBuilder.apply(config);
 		}
 
-		authenticationManager = authBuilder.build();
+		this.authenticationManager = authBuilder.build();
 
-		if (authenticationManager == null) {
-			authenticationManager = getAuthenticationManagerBean();
+		if (this.authenticationManager == null) {
+			this.authenticationManager = getAuthenticationManagerBean();
 		}
 
 		this.authenticationManagerInitialized = true;
-		return authenticationManager;
+		return this.authenticationManager;
 	}
 
 	@Autowired(required = false)
@@ -148,7 +148,7 @@ public class AuthenticationConfiguration {
 	@SuppressWarnings("unchecked")
 	private <T> T lazyBean(Class<T> interfaceName) {
 		LazyInitTargetSource lazyTargetSource = new LazyInitTargetSource();
-		String[] beanNamesForType = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext,
+		String[] beanNamesForType = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.applicationContext,
 				interfaceName);
 		if (beanNamesForType.length == 0) {
 			return null;
@@ -168,20 +168,20 @@ public class AuthenticationConfiguration {
 		}
 
 		lazyTargetSource.setTargetBeanName(beanName);
-		lazyTargetSource.setBeanFactory(applicationContext);
+		lazyTargetSource.setBeanFactory(this.applicationContext);
 		ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
-		proxyFactory = objectPostProcessor.postProcess(proxyFactory);
+		proxyFactory = this.objectPostProcessor.postProcess(proxyFactory);
 		proxyFactory.setTargetSource(lazyTargetSource);
 		return (T) proxyFactory.getObject();
 	}
 
 	private List<String> getPrimaryBeanNames(String[] beanNamesForType) {
 		List<String> list = new ArrayList<>();
-		if (!(applicationContext instanceof ConfigurableApplicationContext)) {
+		if (!(this.applicationContext instanceof ConfigurableApplicationContext)) {
 			return Collections.emptyList();
 		}
 		for (String beanName : beanNamesForType) {
-			if (((ConfigurableApplicationContext) applicationContext).getBeanFactory().getBeanDefinition(beanName)
+			if (((ConfigurableApplicationContext) this.applicationContext).getBeanFactory().getBeanDefinition(beanName)
 					.isPrimary()) {
 				list.add(beanName);
 			}
@@ -214,7 +214,8 @@ public class AuthenticationConfiguration {
 
 		@Override
 		public void init(AuthenticationManagerBuilder auth) {
-			Map<String, Object> beansWithAnnotation = context.getBeansWithAnnotation(EnableGlobalAuthentication.class);
+			Map<String, Object> beansWithAnnotation = this.context
+					.getBeansWithAnnotation(EnableGlobalAuthentication.class);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Eagerly initializing " + beansWithAnnotation);
 			}

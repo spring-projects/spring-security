@@ -80,30 +80,30 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		List<DiscoveryInformation> discoveries;
 
 		try {
-			discoveries = consumerManager.discover(identityUrl);
+			discoveries = this.consumerManager.discover(identityUrl);
 		}
 		catch (DiscoveryException e) {
 			throw new OpenIDConsumerException("Error during discovery", e);
 		}
 
-		DiscoveryInformation information = consumerManager.associate(discoveries);
+		DiscoveryInformation information = this.consumerManager.associate(discoveries);
 		req.getSession().setAttribute(DISCOVERY_INFO_KEY, information);
 
 		AuthRequest authReq;
 
 		try {
-			authReq = consumerManager.authenticate(information, returnToUrl, realm);
+			authReq = this.consumerManager.authenticate(information, returnToUrl, realm);
 
-			logger.debug("Looking up attribute fetch list for identifier: " + identityUrl);
+			this.logger.debug("Looking up attribute fetch list for identifier: " + identityUrl);
 
-			List<OpenIDAttribute> attributesToFetch = attributesToFetchFactory.createAttributeList(identityUrl);
+			List<OpenIDAttribute> attributesToFetch = this.attributesToFetchFactory.createAttributeList(identityUrl);
 
 			if (!attributesToFetch.isEmpty()) {
 				req.getSession().setAttribute(ATTRIBUTE_LIST_KEY, attributesToFetch);
 				FetchRequest fetchRequest = FetchRequest.createFetchRequest();
 				for (OpenIDAttribute attr : attributesToFetch) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Adding attribute " + attr.getType() + " to fetch request");
+					if (this.logger.isDebugEnabled()) {
+						this.logger.debug("Adding attribute " + attr.getType() + " to fetch request");
 					}
 					fetchRequest.addAttribute(attr.getName(), attr.getType(), attr.isRequired(), attr.getCount());
 				}
@@ -148,7 +148,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		VerificationResult verification;
 
 		try {
-			verification = consumerManager.verify(receivingURL.toString(), openidResp, discovered);
+			verification = this.consumerManager.verify(receivingURL.toString(), openidResp, discovered);
 		}
 		catch (MessageException | AssociationException | DiscoveryException e) {
 			throw new OpenIDConsumerException("Error verifying openid response", e);
@@ -178,7 +178,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 			return Collections.emptyList();
 		}
 
-		logger.debug("Extracting attributes retrieved by attribute exchange");
+		this.logger.debug("Extracting attributes retrieved by attribute exchange");
 
 		List<OpenIDAttribute> attributes = Collections.emptyList();
 
@@ -202,8 +202,8 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 			throw new OpenIDConsumerException("Attribute retrieval failed", e);
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Retrieved attributes" + attributes);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Retrieved attributes" + attributes);
 		}
 
 		return attributes;

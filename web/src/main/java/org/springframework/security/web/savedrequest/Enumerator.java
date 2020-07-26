@@ -116,7 +116,7 @@ public class Enumerator<T> implements Enumeration<T> {
 	 * one more element to provide, <code>false</code> otherwise
 	 */
 	public boolean hasMoreElements() {
-		return (iterator.hasNext());
+		return (this.iterator.hasNext());
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class Enumerator<T> implements Enumeration<T> {
 	 * @exception NoSuchElementException if no more elements exist
 	 */
 	public T nextElement() throws NoSuchElementException {
-		return (iterator.next());
+		return (this.iterator.next());
 	}
 
 }

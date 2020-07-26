@@ -60,7 +60,7 @@ public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler 
 
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
-		for (Entry<Class<? extends AccessDeniedException>, AccessDeniedHandler> entry : handlers.entrySet()) {
+		for (Entry<Class<? extends AccessDeniedException>, AccessDeniedHandler> entry : this.handlers.entrySet()) {
 			Class<? extends AccessDeniedException> handlerClass = entry.getKey();
 			if (handlerClass.isAssignableFrom(accessDeniedException.getClass())) {
 				AccessDeniedHandler handler = entry.getValue();
@@ -68,7 +68,7 @@ public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler 
 				return;
 			}
 		}
-		defaultHandler.handle(request, response, accessDeniedException);
+		this.defaultHandler.handle(request, response, accessDeniedException);
 	}
 
 }

@@ -389,11 +389,11 @@ public class CasAuthenticationProviderTests {
 		private Map<String, CasAuthenticationToken> cache = new HashMap<>();
 
 		public CasAuthenticationToken getByTicketId(String serviceTicket) {
-			return cache.get(serviceTicket);
+			return this.cache.get(serviceTicket);
 		}
 
 		public void putTicketInCache(CasAuthenticationToken token) {
-			cache.put(token.getCredentials().toString(), token);
+			this.cache.put(token.getCredentials().toString(), token);
 		}
 
 		public void removeTicketFromCache(CasAuthenticationToken token) {
@@ -415,7 +415,7 @@ public class CasAuthenticationProviderTests {
 		}
 
 		public Assertion validate(final String ticket, final String service) {
-			if (returnTicket) {
+			if (this.returnTicket) {
 				return new AssertionImpl("rod");
 			}
 			throw new BadCredentialsException("As requested from mock");

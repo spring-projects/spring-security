@@ -60,15 +60,15 @@ public class WithSecurityContextTestExcecutionListenerTests {
 
 	@Before
 	public void setup() {
-		listener = new WithSecurityContextTestExecutionListener();
-		context = new AnnotationConfigApplicationContext(Config.class);
+		this.listener = new WithSecurityContextTestExecutionListener();
+		this.context = new AnnotationConfigApplicationContext(Config.class);
 	}
 
 	@After
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -76,20 +76,20 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void beforeTestMethodNullSecurityContextNoError() throws Exception {
 		Class testClass = FakeTest.class;
-		when(testContext.getTestClass()).thenReturn(testClass);
-		when(testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
+		when(this.testContext.getTestClass()).thenReturn(testClass);
+		when(this.testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
 
-		listener.beforeTestMethod(testContext);
+		this.listener.beforeTestMethod(this.testContext);
 	}
 
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void beforeTestMethodNoApplicationContext() throws Exception {
 		Class testClass = FakeTest.class;
-		when(testContext.getApplicationContext()).thenThrow(new IllegalStateException());
-		when(testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testWithMockUser"));
+		when(this.testContext.getApplicationContext()).thenThrow(new IllegalStateException());
+		when(this.testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testWithMockUser"));
 
-		listener.beforeTestMethod(testContext);
+		this.listener.beforeTestMethod(this.testContext);
 
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
 	}

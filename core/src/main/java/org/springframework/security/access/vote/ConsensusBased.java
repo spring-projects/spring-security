@@ -66,8 +66,8 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 		for (AccessDecisionVoter voter : getDecisionVoters()) {
 			int result = voter.vote(authentication, object, configAttributes);
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Voter: " + voter + ", returned: " + result);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Voter: " + voter + ", returned: " + result);
 			}
 
 			switch (result) {
@@ -92,7 +92,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 
 		if (deny > grant) {
 			throw new AccessDeniedException(
-					messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+					this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 		}
 
 		if ((grant == deny) && (grant != 0)) {
@@ -101,7 +101,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 			}
 			else {
 				throw new AccessDeniedException(
-						messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+						this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 			}
 		}
 
@@ -110,7 +110,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 	}
 
 	public boolean isAllowIfEqualGrantedDeniedDecisions() {
-		return allowIfEqualGrantedDeniedDecisions;
+		return this.allowIfEqualGrantedDeniedDecisions;
 	}
 
 	public void setAllowIfEqualGrantedDeniedDecisions(boolean allowIfEqualGrantedDeniedDecisions) {

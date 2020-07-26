@@ -66,7 +66,7 @@ public class WebXmlMappableAttributesRetriever
 	}
 
 	public Set<String> getMappableAttributes() {
-		return mappableAttributes;
+		return this.mappableAttributes;
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class WebXmlMappableAttributesRetriever
 	 */
 
 	public void afterPropertiesSet() throws Exception {
-		Resource webXml = resourceLoader.getResource("/WEB-INF/web.xml");
+		Resource webXml = this.resourceLoader.getResource("/WEB-INF/web.xml");
 		Document doc = getDocument(webXml.getInputStream());
 		NodeList webApp = doc.getElementsByTagName("web-app");
 		if (webApp.getLength() != 1) {
@@ -92,14 +92,14 @@ public class WebXmlMappableAttributesRetriever
 			if (roles.getLength() > 0) {
 				String roleName = roles.item(0).getTextContent().trim();
 				roleNames.add(roleName);
-				logger.info("Retrieved role-name '" + roleName + "' from web.xml");
+				this.logger.info("Retrieved role-name '" + roleName + "' from web.xml");
 			}
 			else {
-				logger.info("No security-role elements found in " + webXml);
+				this.logger.info("No security-role elements found in " + webXml);
 			}
 		}
 
-		mappableAttributes = Collections.unmodifiableSet(new HashSet<>(roleNames));
+		this.mappableAttributes = Collections.unmodifiableSet(new HashSet<>(roleNames));
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class WebXmlMappableAttributesRetriever
 				aStream.close();
 			}
 			catch (IOException e) {
-				logger.warn("Failed to close input stream for web.xml", e);
+				this.logger.warn("Failed to close input stream for web.xml", e);
 			}
 		}
 	}

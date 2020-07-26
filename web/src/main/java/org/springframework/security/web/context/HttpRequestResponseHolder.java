@@ -39,7 +39,7 @@ public final class HttpRequestResponseHolder {
 	}
 
 	public HttpServletRequest getRequest() {
-		return request;
+		return this.request;
 	}
 
 	public void setRequest(HttpServletRequest request) {
@@ -47,7 +47,7 @@ public final class HttpRequestResponseHolder {
 	}
 
 	public HttpServletResponse getResponse() {
-		return response;
+		return this.response;
 	}
 
 	public void setResponse(HttpServletResponse response) {

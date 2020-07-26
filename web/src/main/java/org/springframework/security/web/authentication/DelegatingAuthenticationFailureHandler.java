@@ -67,7 +67,7 @@ public class DelegatingAuthenticationFailureHandler implements AuthenticationFai
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-		for (Map.Entry<Class<? extends AuthenticationException>, AuthenticationFailureHandler> entry : handlers
+		for (Map.Entry<Class<? extends AuthenticationException>, AuthenticationFailureHandler> entry : this.handlers
 				.entrySet()) {
 			Class<? extends AuthenticationException> handlerMappedExceptionClass = entry.getKey();
 			if (handlerMappedExceptionClass.isAssignableFrom(exception.getClass())) {
@@ -76,7 +76,7 @@ public class DelegatingAuthenticationFailureHandler implements AuthenticationFai
 				return;
 			}
 		}
-		defaultHandler.onAuthenticationFailure(request, response, exception);
+		this.defaultHandler.onAuthenticationFailure(request, response, exception);
 	}
 
 }

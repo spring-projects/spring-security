@@ -30,7 +30,7 @@ public class SomeDomainObject {
 	}
 
 	public String getParent() {
-		return "parentOf" + identity;
+		return "parentOf" + this.identity;
 	}
 
 }

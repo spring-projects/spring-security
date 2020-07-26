@@ -40,8 +40,8 @@ public class InvalidConfigurationTests {
 
 	@After
 	public void closeAppContext() {
-		if (appContext != null) {
-			appContext.close();
+		if (this.appContext != null) {
+			this.appContext.close();
 		}
 	}
 
@@ -79,7 +79,7 @@ public class InvalidConfigurationTests {
 	}
 
 	private void setContext(String context) {
-		appContext = new InMemoryXmlApplicationContext(context);
+		this.appContext = new InMemoryXmlApplicationContext(context);
 	}
 
 }

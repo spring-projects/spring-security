@@ -37,7 +37,7 @@ public class ExplicitDelegatingSecurityContextAsyncTaskExecutorTests
 
 	@Override
 	protected DelegatingSecurityContextAsyncTaskExecutor create() {
-		return new DelegatingSecurityContextAsyncTaskExecutor(taskExecutorDelegate, securityContext);
+		return new DelegatingSecurityContextAsyncTaskExecutor(this.taskExecutorDelegate, this.securityContext);
 	}
 
 }

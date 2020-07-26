@@ -60,35 +60,35 @@ public class SavedCookie implements Serializable {
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public String getValue() {
-		return value;
+		return this.value;
 	}
 
 	public String getComment() {
-		return comment;
+		return this.comment;
 	}
 
 	public String getDomain() {
-		return domain;
+		return this.domain;
 	}
 
 	public int getMaxAge() {
-		return maxAge;
+		return this.maxAge;
 	}
 
 	public String getPath() {
-		return path;
+		return this.path;
 	}
 
 	public boolean isSecure() {
-		return secure;
+		return this.secure;
 	}
 
 	public int getVersion() {
-		return version;
+		return this.version;
 	}
 
 	public Cookie getCookie() {

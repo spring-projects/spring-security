@@ -47,13 +47,13 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		when(delegate.getAttributes(ArgumentMatchers.<Method>any(), ArgumentMatchers.any(Class.class)))
 				.thenReturn(null);
 		sources.add(delegate);
-		mds = new DelegatingMethodSecurityMetadataSource(sources);
-		assertThat(mds.getMethodSecurityMetadataSources()).isSameAs(sources);
-		assertThat(mds.getAllConfigAttributes().isEmpty()).isTrue();
+		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
+		assertThat(this.mds.getMethodSecurityMetadataSources()).isSameAs(sources);
+		assertThat(this.mds.getAllConfigAttributes().isEmpty()).isTrue();
 		MethodInvocation mi = new SimpleMethodInvocation(null, String.class.getMethod("toString"));
-		assertThat(mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
+		assertThat(this.mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
 		// Exercise the cached case
-		assertThat(mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
+		assertThat(this.mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
 	}
 
 	@Test
@@ -65,14 +65,15 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		Method toString = String.class.getMethod("toString");
 		when(delegate.getAttributes(toString, String.class)).thenReturn(attributes);
 		sources.add(delegate);
-		mds = new DelegatingMethodSecurityMetadataSource(sources);
-		assertThat(mds.getMethodSecurityMetadataSources()).isSameAs(sources);
-		assertThat(mds.getAllConfigAttributes().isEmpty()).isTrue();
+		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
+		assertThat(this.mds.getMethodSecurityMetadataSources()).isSameAs(sources);
+		assertThat(this.mds.getAllConfigAttributes().isEmpty()).isTrue();
 		MethodInvocation mi = new SimpleMethodInvocation("", toString);
-		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
+		assertThat(this.mds.getAttributes(mi)).isSameAs(attributes);
 		// Exercise the cached case
-		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
-		assertThat(mds.getAttributes(new SimpleMethodInvocation(null, String.class.getMethod("length")))).isEmpty();
+		assertThat(this.mds.getAttributes(mi)).isSameAs(attributes);
+		assertThat(this.mds.getAttributes(new SimpleMethodInvocation(null, String.class.getMethod("length"))))
+				.isEmpty();
 	}
 
 }

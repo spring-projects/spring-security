@@ -241,7 +241,7 @@ public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 
 		@Override
 		public Mono<Map<String, Object>> apply(OAuth2AuthorizeRequest authorizeRequest) {
-			return Mono.fromCallable(() -> mapper.apply(authorizeRequest));
+			return Mono.fromCallable(() -> this.mapper.apply(authorizeRequest));
 		}
 
 	}

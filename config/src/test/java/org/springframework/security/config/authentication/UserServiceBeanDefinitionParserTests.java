@@ -35,8 +35,8 @@ public class UserServiceBeanDefinitionParserTests {
 
 	@After
 	public void closeAppContext() {
-		if (appContext != null) {
-			appContext.close();
+		if (this.appContext != null) {
+			this.appContext.close();
 		}
 	}
 
@@ -44,7 +44,7 @@ public class UserServiceBeanDefinitionParserTests {
 	public void userServiceWithValidPropertiesFileWorksSuccessfully() {
 		setContext("<user-service id='service' "
 				+ "properties='classpath:org/springframework/security/config/users.properties'/>");
-		UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		userService.loadUserByUsername("bob");
 		userService.loadUserByUsername("joe");
 	}
@@ -53,7 +53,7 @@ public class UserServiceBeanDefinitionParserTests {
 	public void userServiceWithEmbeddedUsersWorksSuccessfully() {
 		setContext("<user-service id='service'>" + "    <user name='joe' password='joespassword' authorities='ROLE_A'/>"
 				+ "</user-service>");
-		UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		userService.loadUserByUsername("joe");
 	}
 
@@ -66,7 +66,7 @@ public class UserServiceBeanDefinitionParserTests {
 				+ "<user-service id='service'>"
 				+ "    <user name='${principal.name}' password='${principal.pass}' authorities='${principal.authorities}'/>"
 				+ "</user-service>");
-		UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		UserDetails joe = userService.loadUserByUsername("joe");
 		assertThat(joe.getPassword()).isEqualTo("joespassword");
 		assertThat(joe.getAuthorities()).hasSize(2);
@@ -75,7 +75,7 @@ public class UserServiceBeanDefinitionParserTests {
 	@Test
 	public void embeddedUsersWithNoPasswordIsGivenGeneratedValue() {
 		setContext("<user-service id='service'>" + "    <user name='joe' authorities='ROLE_A'/>" + "</user-service>");
-		UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		UserDetails joe = userService.loadUserByUsername("joe");
 		assertThat(joe.getPassword().length() > 0).isTrue();
 		Long.parseLong(joe.getPassword());
@@ -86,7 +86,7 @@ public class UserServiceBeanDefinitionParserTests {
 		setContext("<user-service id='service'>" + "    <user name='https://joe.myopenid.com/' authorities='ROLE_A'/>"
 				+ "    <user name='https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9' authorities='ROLE_A'/>"
 				+ "</user-service>");
-		UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		assertThat(userService.loadUserByUsername("https://joe.myopenid.com/").getUsername())
 				.isEqualTo("https://joe.myopenid.com/");
 		assertThat(userService.loadUserByUsername("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9")
@@ -99,7 +99,7 @@ public class UserServiceBeanDefinitionParserTests {
 				+ "    <user name='joe' password='joespassword' authorities='ROLE_A' locked='true'/>"
 				+ "    <user name='Bob' password='bobspassword' authorities='ROLE_A' disabled='true'/>"
 				+ "</user-service>");
-		UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		UserDetails joe = userService.loadUserByUsername("joe");
 		assertThat(joe.isAccountNonLocked()).isFalse();
 		// Check case-sensitive lookup SEC-1432
@@ -111,7 +111,7 @@ public class UserServiceBeanDefinitionParserTests {
 	public void userWithBothPropertiesAndEmbeddedUsersThrowsException() {
 		setContext("<user-service id='service' properties='doesntmatter.props'>"
 				+ "    <user name='joe' password='joespassword' authorities='ROLE_A'/>" + "</user-service>");
-		UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
 		userService.loadUserByUsername("Joe");
 	}
 
@@ -128,7 +128,7 @@ public class UserServiceBeanDefinitionParserTests {
 	}
 
 	private void setContext(String context) {
-		appContext = new InMemoryXmlApplicationContext(context);
+		this.appContext = new InMemoryXmlApplicationContext(context);
 	}
 
 }

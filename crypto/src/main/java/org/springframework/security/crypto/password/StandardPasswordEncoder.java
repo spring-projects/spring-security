@@ -74,12 +74,12 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	}
 
 	public String encode(CharSequence rawPassword) {
-		return encode(rawPassword, saltGenerator.generateKey());
+		return encode(rawPassword, this.saltGenerator.generateKey());
 	}
 
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		byte[] digested = decode(encodedPassword);
-		byte[] salt = subArray(digested, 0, saltGenerator.getKeyLength());
+		byte[] salt = subArray(digested, 0, this.saltGenerator.getKeyLength());
 		return MessageDigest.isEqual(digested, digest(rawPassword, salt));
 	}
 
@@ -97,7 +97,7 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	}
 
 	private byte[] digest(CharSequence rawPassword, byte[] salt) {
-		byte[] digest = digester.digest(concatenate(salt, secret, Utf8.encode(rawPassword)));
+		byte[] digest = this.digester.digest(concatenate(salt, this.secret, Utf8.encode(rawPassword)));
 		return concatenate(salt, digest);
 	}
 

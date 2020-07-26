@@ -116,10 +116,10 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		String prefix;
 
 		if (salt == null || salt.length == 0) {
-			prefix = forceLowerCasePrefix ? SHA_PREFIX_LC : SHA_PREFIX;
+			prefix = this.forceLowerCasePrefix ? SHA_PREFIX_LC : SHA_PREFIX;
 		}
 		else {
-			prefix = forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
+			prefix = this.forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
 		}
 
 		return prefix + Utf8.decode(Base64.getEncoder().encode(hash));

@@ -57,8 +57,8 @@ public class TestLoginModule implements LoginModule {
 
 			callbackHandler.handle(new Callback[] { textCallback, nameCallback, passwordCallback });
 
-			password = new String(passwordCallback.getPassword());
-			user = nameCallback.getName();
+			this.password = new String(passwordCallback.getPassword());
+			this.user = nameCallback.getName();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -66,17 +66,17 @@ public class TestLoginModule implements LoginModule {
 	}
 
 	public boolean login() throws LoginException {
-		if (!user.equals("user")) {
+		if (!this.user.equals("user")) {
 			throw new LoginException("Bad User");
 		}
 
-		if (!password.equals("password")) {
+		if (!this.password.equals("password")) {
 			throw new LoginException("Bad Password");
 		}
 
-		subject.getPrincipals().add(() -> "TEST_PRINCIPAL");
+		this.subject.getPrincipals().add(() -> "TEST_PRINCIPAL");
 
-		subject.getPrincipals().add(() -> "NULL_PRINCIPAL");
+		this.subject.getPrincipals().add(() -> "NULL_PRINCIPAL");
 
 		return true;
 	}

@@ -101,7 +101,7 @@ public class ExceptionTranslationFilterTests {
 				new AnonymousAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("IGNORED")));
 
 		// Test
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 		filter.setAuthenticationTrustResolver(new AuthenticationTrustResolverImpl());
 		assertThat(filter.getAuthenticationTrustResolver()).isNotNull();
 
@@ -134,7 +134,7 @@ public class ExceptionTranslationFilterTests {
 		SecurityContextHolder.setContext(securityContext);
 
 		// Test
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
@@ -161,7 +161,7 @@ public class ExceptionTranslationFilterTests {
 		adh.setErrorPage("/error.jsp");
 
 		// Test
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 		filter.setAccessDeniedHandler(adh);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -217,7 +217,7 @@ public class ExceptionTranslationFilterTests {
 				any(HttpServletResponse.class));
 
 		// Test
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 		filter.afterPropertiesSet();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
@@ -244,7 +244,7 @@ public class ExceptionTranslationFilterTests {
 
 		// Test
 		HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint, requestCache);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint, requestCache);
 		requestCache.setPortResolver(new MockPortResolver(8080, 8443));
 		filter.afterPropertiesSet();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -260,7 +260,7 @@ public class ExceptionTranslationFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void startupDetectsMissingRequestCache() {
-		new ExceptionTranslationFilter(mockEntryPoint, null);
+		new ExceptionTranslationFilter(this.mockEntryPoint, null);
 	}
 
 	@Test
@@ -270,8 +270,8 @@ public class ExceptionTranslationFilterTests {
 		request.setServletPath("/secure/page.html");
 
 		// Test
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
-		assertThat(filter.getAuthenticationEntryPoint()).isSameAs(mockEntryPoint);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
+		assertThat(filter.getAuthenticationEntryPoint()).isSameAs(this.mockEntryPoint);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, mock(FilterChain.class));
@@ -279,7 +279,7 @@ public class ExceptionTranslationFilterTests {
 
 	@Test
 	public void thrownIOExceptionServletExceptionAndRuntimeExceptionsAreRethrown() throws Exception {
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 
 		filter.afterPropertiesSet();
 		Exception[] exceptions = { new IOException(), new ServletException(), new RuntimeException() };
@@ -307,12 +307,12 @@ public class ExceptionTranslationFilterTests {
 		};
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(mockEntryPoint);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 
 		assertThatThrownBy(() -> filter.doFilter(request, response, chain)).isInstanceOf(ServletException.class)
 				.hasCauseInstanceOf(AccessDeniedException.class);
 
-		verifyZeroInteractions(mockEntryPoint);
+		verifyZeroInteractions(this.mockEntryPoint);
 	}
 
 	private AuthenticationEntryPoint mockEntryPoint = (request, response, authException) -> response

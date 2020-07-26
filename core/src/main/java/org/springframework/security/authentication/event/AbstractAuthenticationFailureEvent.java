@@ -36,7 +36,7 @@ public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthent
 	}
 
 	public AuthenticationException getException() {
-		return exception;
+		return this.exception;
 	}
 
 }

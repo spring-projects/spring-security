@@ -45,7 +45,7 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 	private ReactiveUserDetailsService mockUserDetailsService = mock(ReactiveUserDetailsService.class);
 
 	private ReactivePreAuthenticatedAuthenticationManager manager = new ReactivePreAuthenticatedAuthenticationManager(
-			mockUserDetailsService);
+			this.mockUserDetailsService);
 
 	private final User validAccount = new User("valid", "", Collections.emptySet());
 
@@ -62,45 +62,47 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 
 	@Test
 	public void returnsAuthenticatedTokenForValidAccount() {
-		when(mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(validAccount));
+		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(this.validAccount));
 
-		Authentication authentication = manager.authenticate(tokenForUser(validAccount.getUsername())).block();
+		Authentication authentication = this.manager.authenticate(tokenForUser(this.validAccount.getUsername()))
+				.block();
 		assertThat(authentication.isAuthenticated()).isEqualTo(true);
 	}
 
 	@Test(expected = UsernameNotFoundException.class)
 	public void returnsNullForNonExistingAccount() {
-		when(mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.empty());
+		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.empty());
 
-		manager.authenticate(tokenForUser(nonExistingAccount.getUsername())).block();
+		this.manager.authenticate(tokenForUser(this.nonExistingAccount.getUsername())).block();
 	}
 
 	@Test(expected = LockedException.class)
 	public void throwsExceptionForLockedAccount() {
-		when(mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(lockedAccount));
+		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(this.lockedAccount));
 
-		manager.authenticate(tokenForUser(lockedAccount.getUsername())).block();
+		this.manager.authenticate(tokenForUser(this.lockedAccount.getUsername())).block();
 	}
 
 	@Test(expected = DisabledException.class)
 	public void throwsExceptionForDisabledAccount() {
-		when(mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(disabledAccount));
+		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(this.disabledAccount));
 
-		manager.authenticate(tokenForUser(disabledAccount.getUsername())).block();
+		this.manager.authenticate(tokenForUser(this.disabledAccount.getUsername())).block();
 	}
 
 	@Test(expected = AccountExpiredException.class)
 	public void throwsExceptionForExpiredAccount() {
-		when(mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(expiredAccount));
+		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(this.expiredAccount));
 
-		manager.authenticate(tokenForUser(expiredAccount.getUsername())).block();
+		this.manager.authenticate(tokenForUser(this.expiredAccount.getUsername())).block();
 	}
 
 	@Test(expected = CredentialsExpiredException.class)
 	public void throwsExceptionForAccountWithExpiredCredentials() {
-		when(mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(accountWithExpiredCredentials));
+		when(this.mockUserDetailsService.findByUsername(anyString()))
+				.thenReturn(Mono.just(this.accountWithExpiredCredentials));
 
-		manager.authenticate(tokenForUser(accountWithExpiredCredentials.getUsername())).block();
+		this.manager.authenticate(tokenForUser(this.accountWithExpiredCredentials.getUsername())).block();
 	}
 
 	private Authentication tokenForUser(String username) {

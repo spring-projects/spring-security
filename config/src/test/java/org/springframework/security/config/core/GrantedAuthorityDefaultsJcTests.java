@@ -70,10 +70,10 @@ public class GrantedAuthorityDefaultsJcTests {
 	public void setup() {
 		setup("USER");
 
-		request = new MockHttpServletRequest("GET", "");
-		request.setMethod("GET");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		this.request = new MockHttpServletRequest("GET", "");
+		this.request.setMethod("GET");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
 	}
 
 	@After
@@ -84,11 +84,12 @@ public class GrantedAuthorityDefaultsJcTests {
 	@Test
 	public void doFilter() throws Exception {
 		SecurityContext context = SecurityContextHolder.getContext();
-		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				context);
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
@@ -96,44 +97,46 @@ public class GrantedAuthorityDefaultsJcTests {
 		setup("DENIED");
 
 		SecurityContext context = SecurityContextHolder.getContext();
-		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				context);
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
 	@Test
 	public void message() {
-		messageService.getMessage();
+		this.messageService.getMessage();
 	}
 
 	@Test
 	public void jsrMessage() {
-		messageService.getJsrMessage();
+		this.messageService.getJsrMessage();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void messageDenied() {
 		setup("DENIED");
 
-		messageService.getMessage();
+		this.messageService.getMessage();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void jsrMessageDenied() {
 		setup("DENIED");
 
-		messageService.getJsrMessage();
+		this.messageService.getJsrMessage();
 	}
 
 	// SEC-2926
 	@Test
 	public void doFilterIsUserInRole() throws Exception {
 		SecurityContext context = SecurityContextHolder.getContext();
-		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				context);
 
-		chain = new MockFilterChain() {
+		this.chain = new MockFilterChain() {
 
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response)
@@ -146,9 +149,9 @@ public class GrantedAuthorityDefaultsJcTests {
 
 		};
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(chain.getRequest()).isNotNull();
+		assertThat(this.chain.getRequest()).isNotNull();
 	}
 
 	private void setup(String role) {

@@ -36,7 +36,7 @@ public class ExplicitDelegatingSecurityContextExecutorTests extends AbstractDele
 
 	@Override
 	protected DelegatingSecurityContextExecutor create() {
-		return new DelegatingSecurityContextExecutor(getExecutor(), securityContext);
+		return new DelegatingSecurityContextExecutor(getExecutor(), this.securityContext);
 	}
 
 }

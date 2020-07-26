@@ -321,23 +321,23 @@ public class BCrypt {
 	private void encipher(int lr[], int off) {
 		int i, n, l = lr[off], r = lr[off + 1];
 
-		l ^= P[0];
+		l ^= this.P[0];
 		for (i = 0; i <= BLOWFISH_NUM_ROUNDS - 2;) {
 			// Feistel substitution on left word
-			n = S[(l >> 24) & 0xff];
-			n += S[0x100 | ((l >> 16) & 0xff)];
-			n ^= S[0x200 | ((l >> 8) & 0xff)];
-			n += S[0x300 | (l & 0xff)];
-			r ^= n ^ P[++i];
+			n = this.S[(l >> 24) & 0xff];
+			n += this.S[0x100 | ((l >> 16) & 0xff)];
+			n ^= this.S[0x200 | ((l >> 8) & 0xff)];
+			n += this.S[0x300 | (l & 0xff)];
+			r ^= n ^ this.P[++i];
 
 			// Feistel substitution on right word
-			n = S[(r >> 24) & 0xff];
-			n += S[0x100 | ((r >> 16) & 0xff)];
-			n ^= S[0x200 | ((r >> 8) & 0xff)];
-			n += S[0x300 | (r & 0xff)];
-			l ^= n ^ P[++i];
+			n = this.S[(r >> 24) & 0xff];
+			n += this.S[0x100 | ((r >> 16) & 0xff)];
+			n ^= this.S[0x200 | ((r >> 8) & 0xff)];
+			n += this.S[0x300 | (r & 0xff)];
+			l ^= n ^ this.P[++i];
 		}
-		lr[off] = r ^ P[BLOWFISH_NUM_ROUNDS + 1];
+		lr[off] = r ^ this.P[BLOWFISH_NUM_ROUNDS + 1];
 		lr[off + 1] = l;
 	}
 
@@ -394,8 +394,8 @@ public class BCrypt {
 	 * Initialise the Blowfish key schedule
 	 */
 	private void init_key() {
-		P = P_orig.clone();
-		S = S_orig.clone();
+		this.P = P_orig.clone();
+		this.S = S_orig.clone();
 	}
 
 	/**
@@ -408,24 +408,24 @@ public class BCrypt {
 		int i;
 		int koffp[] = { 0 };
 		int lr[] = { 0, 0 };
-		int plen = P.length, slen = S.length;
+		int plen = this.P.length, slen = this.S.length;
 
 		for (i = 0; i < plen; i++)
 			if (!sign_ext_bug)
-				P[i] = P[i] ^ streamtoword(key, koffp);
+				this.P[i] = this.P[i] ^ streamtoword(key, koffp);
 			else
-				P[i] = P[i] ^ streamtoword_bug(key, koffp);
+				this.P[i] = this.P[i] ^ streamtoword_bug(key, koffp);
 
 		for (i = 0; i < plen; i += 2) {
 			encipher(lr, 0);
-			P[i] = lr[0];
-			P[i + 1] = lr[1];
+			this.P[i] = lr[0];
+			this.P[i + 1] = lr[1];
 		}
 
 		for (i = 0; i < slen; i += 2) {
 			encipher(lr, 0);
-			S[i] = lr[0];
-			S[i + 1] = lr[1];
+			this.S[i] = lr[0];
+			this.S[i + 1] = lr[1];
 		}
 	}
 
@@ -441,14 +441,14 @@ public class BCrypt {
 		int i;
 		int koffp[] = { 0 }, doffp[] = { 0 };
 		int lr[] = { 0, 0 };
-		int plen = P.length, slen = S.length;
+		int plen = this.P.length, slen = this.S.length;
 		int signp[] = { 0 }; // non-benign sign-extension flag
 		int diff = 0; // zero iff correct and buggy are same
 
 		for (i = 0; i < plen; i++) {
 			int words[] = streamtowords(key, koffp, signp);
 			diff |= words[0] ^ words[1];
-			P[i] = P[i] ^ words[sign_ext_bug ? 1 : 0];
+			this.P[i] = this.P[i] ^ words[sign_ext_bug ? 1 : 0];
 		}
 
 		int sign = signp[0];
@@ -479,22 +479,22 @@ public class BCrypt {
 		 * that could be directly specified by a password to the buggy algorithm (and to
 		 * the fully correct one as well, but that's a side-effect).
 		 */
-		P[0] ^= sign;
+		this.P[0] ^= sign;
 
 		for (i = 0; i < plen; i += 2) {
 			lr[0] ^= streamtoword(data, doffp);
 			lr[1] ^= streamtoword(data, doffp);
 			encipher(lr, 0);
-			P[i] = lr[0];
-			P[i + 1] = lr[1];
+			this.P[i] = lr[0];
+			this.P[i + 1] = lr[1];
 		}
 
 		for (i = 0; i < slen; i += 2) {
 			lr[0] ^= streamtoword(data, doffp);
 			lr[1] ^= streamtoword(data, doffp);
 			encipher(lr, 0);
-			S[i] = lr[0];
-			S[i + 1] = lr[1];
+			this.S[i] = lr[0];
+			this.S[i + 1] = lr[1];
 		}
 	}
 

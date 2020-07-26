@@ -40,13 +40,13 @@ public class JwtClaimValidatorTests {
 	@Test
 	public void validateWhenClaimPassesTheTestThenReturnsSuccess() {
 		Jwt jwt = jwt().claim(ISS, "http://test").build();
-		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
+		assertThat(this.validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
 	public void validateWhenClaimFailsTheTestThenReturnsFailure() {
 		Jwt jwt = jwt().claim(ISS, "http://abc").build();
-		assertThat(validator.validate(jwt).getErrors().isEmpty()).isFalse();
+		assertThat(this.validator.validate(jwt).getErrors().isEmpty()).isFalse();
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class JwtClaimValidatorTests {
 
 	@Test
 	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatThrownBy(() -> validator.validate(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> this.validator.validate(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 }

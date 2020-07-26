@@ -70,11 +70,11 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 	@Before
 	public void initializeBeans() {
 		super.initializeBeans();
-		uuidEnabledStrategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
+		this.uuidEnabledStrategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
 				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
-		uuidEnabledStrategy.setPermissionFactory(new DefaultPermissionFactory());
-		uuidEnabledStrategy.setAclClassIdSupported(true);
-		uuidEnabledStrategy.setConversionService(new DefaultConversionService());
+		this.uuidEnabledStrategy.setPermissionFactory(new DefaultPermissionFactory());
+		this.uuidEnabledStrategy.setAclClassIdSupported(true);
+		this.uuidEnabledStrategy.setConversionService(new DefaultConversionService());
 	}
 
 	@Before
@@ -93,7 +93,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 	@Test
 	public void testReadObjectIdentityUsingUuidType() {
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, OBJECT_IDENTITY_UUID);
-		Map<ObjectIdentity, Acl> foundAcls = uuidEnabledStrategy.readAclsById(Arrays.asList(oid),
+		Map<ObjectIdentity, Acl> foundAcls = this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid),
 				Arrays.asList(BEN_SID));
 		Assert.assertEquals(1, foundAcls.size());
 		Assert.assertNotNull(foundAcls.get(oid));
@@ -102,7 +102,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 	@Test
 	public void testReadObjectIdentityUsingLongTypeWithConversionServiceEnabled() {
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
-		Map<ObjectIdentity, Acl> foundAcls = uuidEnabledStrategy.readAclsById(Arrays.asList(oid),
+		Map<ObjectIdentity, Acl> foundAcls = this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid),
 				Arrays.asList(BEN_SID));
 		Assert.assertEquals(1, foundAcls.size());
 		Assert.assertNotNull(foundAcls.get(oid));
@@ -111,7 +111,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 	@Test(expected = ConversionFailedException.class)
 	public void testReadObjectIdentityUsingNonUuidInDatabase() {
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, OBJECT_IDENTITY_LONG_AS_UUID);
-		uuidEnabledStrategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
+		this.uuidEnabledStrategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
 	}
 
 }

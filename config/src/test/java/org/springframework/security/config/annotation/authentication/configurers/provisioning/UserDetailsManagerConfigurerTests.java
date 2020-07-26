@@ -38,13 +38,13 @@ public class UserDetailsManagerConfigurerTests {
 
 	@Before
 	public void setup() {
-		userDetailsManager = new InMemoryUserDetailsManager();
+		this.userDetailsManager = new InMemoryUserDetailsManager();
 	}
 
 	@Test
 	public void allAttributesSupported() {
 		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
-				userDetailsManager).withUser("user").password("password").roles("USER").disabled(true)
+				this.userDetailsManager).withUser("user").password("password").roles("USER").disabled(true)
 						.accountExpired(true).accountLocked(true).credentialsExpired(true).build();
 
 		assertThat(userDetails.getUsername()).isEqualTo("user");
@@ -61,7 +61,7 @@ public class UserDetailsManagerConfigurerTests {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
 
 		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
-				userDetailsManager).withUser("user").password("password").authorities(authority).build();
+				this.userDetailsManager).withUser("user").password("password").authorities(authority).build();
 
 		assertThat(userDetails.getAuthorities().stream().findFirst().get()).isEqualTo(authority);
 	}
@@ -71,7 +71,7 @@ public class UserDetailsManagerConfigurerTests {
 		String authority = "ROLE_USER";
 
 		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
-				userDetailsManager).withUser("user").password("password").authorities(authority).build();
+				this.userDetailsManager).withUser("user").password("password").authorities(authority).build();
 
 		assertThat(userDetails.getAuthorities().stream().findFirst().get().getAuthority()).isEqualTo(authority);
 	}
@@ -81,7 +81,8 @@ public class UserDetailsManagerConfigurerTests {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
 
 		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
-				userDetailsManager).withUser("user").password("password").authorities(Arrays.asList(authority)).build();
+				this.userDetailsManager).withUser("user").password("password").authorities(Arrays.asList(authority))
+						.build();
 
 		assertThat(userDetails.getAuthorities().stream().findFirst().get()).isEqualTo(authority);
 	}

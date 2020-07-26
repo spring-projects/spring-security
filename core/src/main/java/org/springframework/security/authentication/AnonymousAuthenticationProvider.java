@@ -50,7 +50,7 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
 		}
 
 		if (this.key.hashCode() != ((AnonymousAuthenticationToken) authentication).getKeyHash()) {
-			throw new BadCredentialsException(messages.getMessage("AnonymousAuthenticationProvider.incorrectKey",
+			throw new BadCredentialsException(this.messages.getMessage("AnonymousAuthenticationProvider.incorrectKey",
 					"The presented AnonymousAuthenticationToken does not contain the expected key"));
 		}
 
@@ -58,7 +58,7 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	public void setMessageSource(MessageSource messageSource) {

@@ -31,13 +31,13 @@ public class DataSourcePopulator implements InitializingBean {
 	JdbcTemplate template;
 
 	public void afterPropertiesSet() {
-		Assert.notNull(template, "dataSource required");
+		Assert.notNull(this.template, "dataSource required");
 
-		template.execute(
+		this.template.execute(
 				"CREATE TABLE USERS(USERNAME VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,PASSWORD VARCHAR_IGNORECASE(500) NOT NULL,ENABLED BOOLEAN NOT NULL);");
-		template.execute(
+		this.template.execute(
 				"CREATE TABLE AUTHORITIES(USERNAME VARCHAR_IGNORECASE(50) NOT NULL,AUTHORITY VARCHAR_IGNORECASE(50) NOT NULL,CONSTRAINT FK_AUTHORITIES_USERS FOREIGN KEY(USERNAME) REFERENCES USERS(USERNAME));");
-		template.execute("CREATE UNIQUE INDEX IX_AUTH_USERNAME ON AUTHORITIES(USERNAME,AUTHORITY);");
+		this.template.execute("CREATE UNIQUE INDEX IX_AUTH_USERNAME ON AUTHORITIES(USERNAME,AUTHORITY);");
 
 		/*
 		 * Passwords encoded using MD5, NOT in Base64 format, with null as salt Encoded
@@ -46,21 +46,21 @@ public class DataSourcePopulator implements InitializingBean {
 		 * is disabled) Encoded password for bill is "wombat" Encoded password for bob is
 		 * "wombat" Encoded password for jane is "wombat"
 		 */
-		template.execute("INSERT INTO USERS VALUES('rod','{noop}koala',TRUE);");
-		template.execute("INSERT INTO USERS VALUES('dianne','{MD5}65d15fe9156f9c4bbffd98085992a44e',TRUE);");
-		template.execute("INSERT INTO USERS VALUES('scott','{MD5}2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-		template.execute("INSERT INTO USERS VALUES('peter','{MD5}22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
-		template.execute("INSERT INTO USERS VALUES('bill','{MD5}2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-		template.execute("INSERT INTO USERS VALUES('bob','{MD5}2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-		template.execute("INSERT INTO USERS VALUES('jane','{MD5}2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-		template.execute("INSERT INTO AUTHORITIES VALUES('rod','ROLE_USER');");
-		template.execute("INSERT INTO AUTHORITIES VALUES('rod','ROLE_SUPERVISOR');");
-		template.execute("INSERT INTO AUTHORITIES VALUES('dianne','ROLE_USER');");
-		template.execute("INSERT INTO AUTHORITIES VALUES('scott','ROLE_USER');");
-		template.execute("INSERT INTO AUTHORITIES VALUES('peter','ROLE_USER');");
-		template.execute("INSERT INTO AUTHORITIES VALUES('bill','ROLE_USER');");
-		template.execute("INSERT INTO AUTHORITIES VALUES('bob','ROLE_USER');");
-		template.execute("INSERT INTO AUTHORITIES VALUES('jane','ROLE_USER');");
+		this.template.execute("INSERT INTO USERS VALUES('rod','{noop}koala',TRUE);");
+		this.template.execute("INSERT INTO USERS VALUES('dianne','{MD5}65d15fe9156f9c4bbffd98085992a44e',TRUE);");
+		this.template.execute("INSERT INTO USERS VALUES('scott','{MD5}2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+		this.template.execute("INSERT INTO USERS VALUES('peter','{MD5}22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
+		this.template.execute("INSERT INTO USERS VALUES('bill','{MD5}2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+		this.template.execute("INSERT INTO USERS VALUES('bob','{MD5}2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+		this.template.execute("INSERT INTO USERS VALUES('jane','{MD5}2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+		this.template.execute("INSERT INTO AUTHORITIES VALUES('rod','ROLE_USER');");
+		this.template.execute("INSERT INTO AUTHORITIES VALUES('rod','ROLE_SUPERVISOR');");
+		this.template.execute("INSERT INTO AUTHORITIES VALUES('dianne','ROLE_USER');");
+		this.template.execute("INSERT INTO AUTHORITIES VALUES('scott','ROLE_USER');");
+		this.template.execute("INSERT INTO AUTHORITIES VALUES('peter','ROLE_USER');");
+		this.template.execute("INSERT INTO AUTHORITIES VALUES('bill','ROLE_USER');");
+		this.template.execute("INSERT INTO AUTHORITIES VALUES('bob','ROLE_USER');");
+		this.template.execute("INSERT INTO AUTHORITIES VALUES('jane','ROLE_USER');");
 	}
 
 	public void setDataSource(DataSource dataSource) {

@@ -74,26 +74,26 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
 
-		for (RequestMatcher requestMatcher : entryPoints.keySet()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Trying to match using " + requestMatcher);
+		for (RequestMatcher requestMatcher : this.entryPoints.keySet()) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Trying to match using " + requestMatcher);
 			}
 			if (requestMatcher.matches(request)) {
-				AuthenticationEntryPoint entryPoint = entryPoints.get(requestMatcher);
-				if (logger.isDebugEnabled()) {
-					logger.debug("Match found! Executing " + entryPoint);
+				AuthenticationEntryPoint entryPoint = this.entryPoints.get(requestMatcher);
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug("Match found! Executing " + entryPoint);
 				}
 				entryPoint.commence(request, response, authException);
 				return;
 			}
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("No match found. Using default entry point " + defaultEntryPoint);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("No match found. Using default entry point " + this.defaultEntryPoint);
 		}
 
 		// No EntryPoint matched, use defaultEntryPoint
-		defaultEntryPoint.commence(request, response, authException);
+		this.defaultEntryPoint.commence(request, response, authException);
 	}
 
 	/**
@@ -104,8 +104,8 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 	}
 
 	public void afterPropertiesSet() {
-		Assert.notEmpty(entryPoints, "entryPoints must be specified");
-		Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");
+		Assert.notEmpty(this.entryPoints, "entryPoints must be specified");
+		Assert.notNull(this.defaultEntryPoint, "defaultEntryPoint must be specified");
 	}
 
 }

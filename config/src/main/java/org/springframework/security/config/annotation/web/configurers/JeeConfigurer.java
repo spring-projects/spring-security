@@ -212,14 +212,15 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 	 * @return the {@link J2eePreAuthenticatedProcessingFilter} to use.
 	 */
 	private J2eePreAuthenticatedProcessingFilter getFilter(AuthenticationManager authenticationManager) {
-		if (j2eePreAuthenticatedProcessingFilter == null) {
-			j2eePreAuthenticatedProcessingFilter = new J2eePreAuthenticatedProcessingFilter();
-			j2eePreAuthenticatedProcessingFilter.setAuthenticationManager(authenticationManager);
-			j2eePreAuthenticatedProcessingFilter.setAuthenticationDetailsSource(createWebAuthenticationDetailsSource());
-			j2eePreAuthenticatedProcessingFilter = postProcess(j2eePreAuthenticatedProcessingFilter);
+		if (this.j2eePreAuthenticatedProcessingFilter == null) {
+			this.j2eePreAuthenticatedProcessingFilter = new J2eePreAuthenticatedProcessingFilter();
+			this.j2eePreAuthenticatedProcessingFilter.setAuthenticationManager(authenticationManager);
+			this.j2eePreAuthenticatedProcessingFilter
+					.setAuthenticationDetailsSource(createWebAuthenticationDetailsSource());
+			this.j2eePreAuthenticatedProcessingFilter = postProcess(this.j2eePreAuthenticatedProcessingFilter);
 		}
 
-		return j2eePreAuthenticatedProcessingFilter;
+		return this.j2eePreAuthenticatedProcessingFilter;
 	}
 
 	/**
@@ -228,8 +229,8 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 	 * @return the {@link AuthenticationUserDetailsService} to use
 	 */
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getUserDetailsService() {
-		return authenticationUserDetailsService == null ? new PreAuthenticatedGrantedAuthoritiesUserDetailsService()
-				: authenticationUserDetailsService;
+		return this.authenticationUserDetailsService == null
+				? new PreAuthenticatedGrantedAuthoritiesUserDetailsService() : this.authenticationUserDetailsService;
 	}
 
 	/**
@@ -241,7 +242,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 	private J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource createWebAuthenticationDetailsSource() {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource detailsSource = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
 		SimpleMappableAttributesRetriever rolesRetriever = new SimpleMappableAttributesRetriever();
-		rolesRetriever.setMappableAttributes(mappableRoles);
+		rolesRetriever.setMappableAttributes(this.mappableRoles);
 		detailsSource.setMappableRolesRetriever(rolesRetriever);
 
 		detailsSource = postProcess(detailsSource);

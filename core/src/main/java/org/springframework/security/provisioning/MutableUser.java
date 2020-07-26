@@ -39,7 +39,7 @@ class MutableUser implements MutableUserDetails {
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	public void setPassword(String password) {
@@ -47,27 +47,27 @@ class MutableUser implements MutableUserDetails {
 	}
 
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return delegate.getAuthorities();
+		return this.delegate.getAuthorities();
 	}
 
 	public String getUsername() {
-		return delegate.getUsername();
+		return this.delegate.getUsername();
 	}
 
 	public boolean isAccountNonExpired() {
-		return delegate.isAccountNonExpired();
+		return this.delegate.isAccountNonExpired();
 	}
 
 	public boolean isAccountNonLocked() {
-		return delegate.isAccountNonLocked();
+		return this.delegate.isAccountNonLocked();
 	}
 
 	public boolean isCredentialsNonExpired() {
-		return delegate.isCredentialsNonExpired();
+		return this.delegate.isCredentialsNonExpired();
 	}
 
 	public boolean isEnabled() {
-		return delegate.isEnabled();
+		return this.delegate.isEnabled();
 	}
 
 }

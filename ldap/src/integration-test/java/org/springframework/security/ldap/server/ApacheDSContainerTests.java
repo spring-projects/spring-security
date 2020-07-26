@@ -125,7 +125,7 @@ public class ApacheDSContainerTests {
 	public void startWithLdapOverSslWithWrongPassword() throws Exception {
 		final ClassPathResource keyStoreResource = new ClassPathResource(
 				"/org/springframework/security/ldap/server/spring.keystore");
-		final File temporaryKeyStoreFile = new File(temporaryFolder.getRoot(), "spring.keystore");
+		final File temporaryKeyStoreFile = new File(this.temporaryFolder.getRoot(), "spring.keystore");
 		FileCopyUtils.copy(keyStoreResource.getInputStream(), new FileOutputStream(temporaryKeyStoreFile));
 
 		assertThat(temporaryKeyStoreFile).isFile();
@@ -166,7 +166,7 @@ public class ApacheDSContainerTests {
 
 		final ClassPathResource keyStoreResource = new ClassPathResource(
 				"/org/springframework/security/ldap/server/spring.keystore");
-		final File temporaryKeyStoreFile = new File(temporaryFolder.getRoot(), "spring.keystore");
+		final File temporaryKeyStoreFile = new File(this.temporaryFolder.getRoot(), "spring.keystore");
 		FileCopyUtils.copy(keyStoreResource.getInputStream(), new FileOutputStream(temporaryKeyStoreFile));
 
 		assertThat(temporaryKeyStoreFile).isFile();

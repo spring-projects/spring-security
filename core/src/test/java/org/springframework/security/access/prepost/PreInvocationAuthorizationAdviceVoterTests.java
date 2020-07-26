@@ -37,23 +37,23 @@ public class PreInvocationAuthorizationAdviceVoterTests {
 
 	@Before
 	public void setUp() {
-		voter = new PreInvocationAuthorizationAdviceVoter(authorizationAdvice);
+		this.voter = new PreInvocationAuthorizationAdviceVoter(this.authorizationAdvice);
 	}
 
 	@Test
 	public void supportsMethodInvocation() {
-		assertThat(voter.supports(MethodInvocation.class)).isTrue();
+		assertThat(this.voter.supports(MethodInvocation.class)).isTrue();
 	}
 
 	// SEC-2031
 	@Test
 	public void supportsProxyMethodInvocation() {
-		assertThat(voter.supports(ProxyMethodInvocation.class)).isTrue();
+		assertThat(this.voter.supports(ProxyMethodInvocation.class)).isTrue();
 	}
 
 	@Test
 	public void supportsMethodInvocationAdapter() {
-		assertThat(voter.supports(MethodInvocationAdapter.class)).isTrue();
+		assertThat(this.voter.supports(MethodInvocationAdapter.class)).isTrue();
 	}
 
 }

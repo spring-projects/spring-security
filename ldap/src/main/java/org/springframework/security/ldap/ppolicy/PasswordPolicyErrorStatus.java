@@ -65,11 +65,11 @@ public enum PasswordPolicyErrorStatus {
 	}
 
 	public String getErrorCode() {
-		return errorCode;
+		return this.errorCode;
 	}
 
 	public String getDefaultMessage() {
-		return defaultMessage;
+		return this.defaultMessage;
 	}
 
 }

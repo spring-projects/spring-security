@@ -59,25 +59,25 @@ public class FilterChainProxyConfigTests {
 	public void loadContext() {
 		System.setProperty("sec1235.pattern1", "/login");
 		System.setProperty("sec1235.pattern2", "/logout");
-		appCtx = new ClassPathXmlApplicationContext("org/springframework/security/util/filtertest-valid.xml");
+		this.appCtx = new ClassPathXmlApplicationContext("org/springframework/security/util/filtertest-valid.xml");
 	}
 
 	@After
 	public void closeContext() {
-		if (appCtx != null) {
-			appCtx.close();
+		if (this.appCtx != null) {
+			this.appCtx.close();
 		}
 	}
 
 	@Test
 	public void normalOperation() throws Exception {
-		FilterChainProxy filterChainProxy = appCtx.getBean("filterChain", FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = this.appCtx.getBean("filterChain", FilterChainProxy.class);
 		doNormalOperation(filterChainProxy);
 	}
 
 	@Test
 	public void normalOperationWithNewConfig() throws Exception {
-		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = this.appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
 		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
@@ -85,7 +85,7 @@ public class FilterChainProxyConfigTests {
 
 	@Test
 	public void normalOperationWithNewConfigRegex() throws Exception {
-		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = this.appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
 		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
@@ -93,7 +93,8 @@ public class FilterChainProxyConfigTests {
 
 	@Test
 	public void normalOperationWithNewConfigNonNamespace() throws Exception {
-		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = this.appCtx.getBean("newFilterChainProxyNonNamespace",
+				FilterChainProxy.class);
 		filterChainProxy.setFirewall(new DefaultHttpFirewall());
 		checkPathAndFilterOrder(filterChainProxy);
 		doNormalOperation(filterChainProxy);
@@ -101,14 +102,15 @@ public class FilterChainProxyConfigTests {
 
 	@Test
 	public void pathWithNoMatchHasNoFilters() {
-		FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = this.appCtx.getBean("newFilterChainProxyNoDefaultPath",
+				FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilters("/nomatch")).isNull();
 	}
 
 	// SEC-1235
 	@Test
 	public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() {
-		FilterChainProxy fcp = appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
+		FilterChainProxy fcp = this.appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
 
 		List<SecurityFilterChain> chains = fcp.getFilterChains();
 		assertThat(getPattern(chains.get(0))).isEqualTo("/login*");

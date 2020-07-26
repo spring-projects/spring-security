@@ -49,7 +49,7 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 		// @formatter:off
 		http
 			.authorizeRequests()
-				.antMatchers(permitAllPattern).permitAll()
+				.antMatchers(this.permitAllPattern).permitAll()
 				.anyRequest().authenticated();
 		// @formatter:on
 		if (http.getConfigurer(FormLoginConfigurer.class) == null) {
@@ -57,7 +57,7 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 			// @formatter:off
 			http
 				.formLogin()
-					.loginPage(loginPage);
+					.loginPage(this.loginPage);
 			// @formatter:on
 		}
 	}

@@ -117,27 +117,28 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	}
 
 	public boolean matches(Message<?> message) {
-		if (!messageTypeMatcher.matches(message)) {
+		if (!this.messageTypeMatcher.matches(message)) {
 			return false;
 		}
 
 		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
-		return destination != null && matcher.match(pattern, destination);
+		return destination != null && this.matcher.match(this.pattern, destination);
 	}
 
 	public Map<String, String> extractPathVariables(Message<?> message) {
 		final String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
-		return destination != null ? matcher.extractUriTemplateVariables(pattern, destination) : Collections.emptyMap();
+		return destination != null ? this.matcher.extractUriTemplateVariables(this.pattern, destination)
+				: Collections.emptyMap();
 	}
 
 	public MessageMatcher<Object> getMessageTypeMatcher() {
-		return messageTypeMatcher;
+		return this.messageTypeMatcher;
 	}
 
 	@Override
 	public String toString() {
-		return "SimpDestinationMessageMatcher [matcher=" + matcher + ", messageTypeMatcher=" + messageTypeMatcher
-				+ ", pattern=" + pattern + "]";
+		return "SimpDestinationMessageMatcher [matcher=" + this.matcher + ", messageTypeMatcher="
+				+ this.messageTypeMatcher + ", pattern=" + this.pattern + "]";
 	}
 
 	private boolean isTypeWithDestination(SimpMessageType type) {

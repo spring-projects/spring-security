@@ -118,7 +118,7 @@ public class ChannelSecurityConfigurerTests {
 	public void requiresChannelWhenInvokesTwiceThenUsesOriginalRequiresSecure() throws Exception {
 		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
 
-		mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
 	}
 
 	@EnableWebSecurity
@@ -141,7 +141,7 @@ public class ChannelSecurityConfigurerTests {
 	public void requestWhenRequiresChannelConfiguredInLambdaThenRedirectsToHttps() throws Exception {
 		this.spring.register(RequiresChannelInLambdaConfig.class).autowire();
 
-		mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
 	}
 
 	@EnableWebSecurity

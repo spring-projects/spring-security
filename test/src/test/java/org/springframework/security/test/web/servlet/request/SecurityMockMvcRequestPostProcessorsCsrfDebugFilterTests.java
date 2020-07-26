@@ -46,7 +46,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 	// SEC-3836
 	@Test
 	public void findCookieCsrfTokenRepository() {
-		MockHttpServletRequest request = post("/").buildRequest(wac.getServletContext());
+		MockHttpServletRequest request = post("/").buildRequest(this.wac.getServletContext());
 		CsrfTokenRepository csrfTokenRepository = WebTestUtils.getCsrfTokenRepository(request);
 		assertThat(csrfTokenRepository).isNotNull();
 		assertThat(csrfTokenRepository).isEqualTo(Config.cookieCsrfTokenRepository);

@@ -67,13 +67,13 @@ public class AccessControlListTag extends TagSupport {
 	private String var;
 
 	public int doStartTag() throws JspException {
-		if ((null == hasPermission) || "".equals(hasPermission)) {
+		if ((null == this.hasPermission) || "".equals(this.hasPermission)) {
 			return skipBody();
 		}
 
 		initializeIfRequired();
 
-		if (domainObject == null) {
+		if (this.domainObject == null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("domainObject resolved to null, so including tag body");
 			}
@@ -92,9 +92,9 @@ public class AccessControlListTag extends TagSupport {
 			return skipBody();
 		}
 
-		List<Object> requiredPermissions = parseHasPermission(hasPermission);
+		List<Object> requiredPermissions = parseHasPermission(this.hasPermission);
 		for (Object requiredPermission : requiredPermissions) {
-			if (!permissionEvaluator.hasPermission(authentication, domainObject, requiredPermission)) {
+			if (!this.permissionEvaluator.hasPermission(authentication, this.domainObject, requiredPermission)) {
 				return skipBody();
 			}
 		}
@@ -118,15 +118,15 @@ public class AccessControlListTag extends TagSupport {
 	}
 
 	private int skipBody() {
-		if (var != null) {
-			pageContext.setAttribute(var, Boolean.FALSE, PageContext.PAGE_SCOPE);
+		if (this.var != null) {
+			this.pageContext.setAttribute(this.var, Boolean.FALSE, PageContext.PAGE_SCOPE);
 		}
 		return TagLibConfig.evalOrSkip(false);
 	}
 
 	private int evalBody() {
-		if (var != null) {
-			pageContext.setAttribute(var, Boolean.TRUE, PageContext.PAGE_SCOPE);
+		if (this.var != null) {
+			this.pageContext.setAttribute(this.var, Boolean.TRUE, PageContext.PAGE_SCOPE);
 		}
 		return TagLibConfig.evalOrSkip(true);
 	}
@@ -144,27 +144,27 @@ public class AccessControlListTag extends TagSupport {
 	}
 
 	public Object getDomainObject() {
-		return domainObject;
+		return this.domainObject;
 	}
 
 	public String getHasPermission() {
-		return hasPermission;
+		return this.hasPermission;
 	}
 
 	private void initializeIfRequired() throws JspException {
-		if (applicationContext != null) {
+		if (this.applicationContext != null) {
 			return;
 		}
 
-		this.applicationContext = getContext(pageContext);
+		this.applicationContext = getContext(this.pageContext);
 
-		permissionEvaluator = getBeanOfType(PermissionEvaluator.class);
+		this.permissionEvaluator = getBeanOfType(PermissionEvaluator.class);
 	}
 
 	private <T> T getBeanOfType(Class<T> type) throws JspException {
-		Map<String, T> map = applicationContext.getBeansOfType(type);
+		Map<String, T> map = this.applicationContext.getBeansOfType(type);
 
-		for (ApplicationContext context = applicationContext.getParent(); context != null; context = context
+		for (ApplicationContext context = this.applicationContext.getParent(); context != null; context = context
 				.getParent()) {
 			map.putAll(context.getBeansOfType(type));
 		}

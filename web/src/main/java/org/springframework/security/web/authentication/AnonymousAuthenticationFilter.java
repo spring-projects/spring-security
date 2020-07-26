@@ -77,9 +77,9 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.hasLength(key, "key must have length");
-		Assert.notNull(principal, "Anonymous authentication principal must be set");
-		Assert.notNull(authorities, "Anonymous authorities must be set");
+		Assert.hasLength(this.key, "key must have length");
+		Assert.notNull(this.principal, "Anonymous authentication principal must be set");
+		Assert.notNull(this.authorities, "Anonymous authorities must be set");
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -88,14 +88,14 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			SecurityContextHolder.getContext().setAuthentication(createAuthentication((HttpServletRequest) req));
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Populated SecurityContextHolder with anonymous token: '"
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Populated SecurityContextHolder with anonymous token: '"
 						+ SecurityContextHolder.getContext().getAuthentication() + "'");
 			}
 		}
 		else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("SecurityContextHolder not populated with anonymous token, as it already contained: '"
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("SecurityContextHolder not populated with anonymous token, as it already contained: '"
 						+ SecurityContextHolder.getContext().getAuthentication() + "'");
 			}
 		}
@@ -104,8 +104,9 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 	}
 
 	protected Authentication createAuthentication(HttpServletRequest request) {
-		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key, principal, authorities);
-		auth.setDetails(authenticationDetailsSource.buildDetails(request));
+		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(this.key, this.principal,
+				this.authorities);
+		auth.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		return auth;
 	}
@@ -117,11 +118,11 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 	}
 
 	public Object getPrincipal() {
-		return principal;
+		return this.principal;
 	}
 
 	public List<GrantedAuthority> getAuthorities() {
-		return authorities;
+		return this.authorities;
 	}
 
 }

@@ -42,12 +42,12 @@ class Md4 {
 	}
 
 	public void reset() {
-		bufferOffset = 0;
-		byteCount = 0;
-		state[0] = 0x67452301;
-		state[1] = 0xEFCDAB89;
-		state[2] = 0x98BADCFE;
-		state[3] = 0x10325476;
+		this.bufferOffset = 0;
+		this.byteCount = 0;
+		this.state[0] = 0x67452301;
+		this.state[1] = 0xEFCDAB89;
+		this.state[2] = 0x98BADCFE;
+		this.state[3] = 0x10325476;
 	}
 
 	public byte[] digest() {
@@ -59,7 +59,7 @@ class Md4 {
 	private void digest(byte[] buffer, int off) {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				buffer[off + (i * 4 + j)] = (byte) (state[i] >>> (8 * j));
+				buffer[off + (i * 4 + j)] = (byte) (this.state[i] >>> (8 * j));
 			}
 		}
 	}
@@ -80,7 +80,7 @@ class Md4 {
 			this.buffer[this.bufferOffset++] = (byte) 0x00;
 		}
 
-		long bitCount = byteCount * 8;
+		long bitCount = this.byteCount * 8;
 		for (int i = 0; i < 64; i += 8) {
 			this.buffer[this.bufferOffset++] = (byte) (bitCount >>> (i));
 		}
@@ -90,7 +90,7 @@ class Md4 {
 	}
 
 	public void update(byte[] input, int offset, int length) {
-		byteCount += length;
+		this.byteCount += length;
 		int todo;
 		while (length >= (todo = BLOCK_SIZE - this.bufferOffset)) {
 			System.arraycopy(input, offset, this.buffer, this.bufferOffset, todo);
@@ -101,75 +101,75 @@ class Md4 {
 		}
 
 		System.arraycopy(input, offset, this.buffer, this.bufferOffset, length);
-		bufferOffset += length;
+		this.bufferOffset += length;
 	}
 
 	private void update(byte[] block, int offset) {
 		for (int i = 0; i < 16; i++) {
-			tmp[i] = (block[offset++] & 0xFF) | (block[offset++] & 0xFF) << 8 | (block[offset++] & 0xFF) << 16
+			this.tmp[i] = (block[offset++] & 0xFF) | (block[offset++] & 0xFF) << 8 | (block[offset++] & 0xFF) << 16
 					| (block[offset++] & 0xFF) << 24;
 		}
 
-		int A = state[0];
-		int B = state[1];
-		int C = state[2];
-		int D = state[3];
+		int A = this.state[0];
+		int B = this.state[1];
+		int C = this.state[2];
+		int D = this.state[3];
 
-		A = FF(A, B, C, D, tmp[0], 3);
-		D = FF(D, A, B, C, tmp[1], 7);
-		C = FF(C, D, A, B, tmp[2], 11);
-		B = FF(B, C, D, A, tmp[3], 19);
-		A = FF(A, B, C, D, tmp[4], 3);
-		D = FF(D, A, B, C, tmp[5], 7);
-		C = FF(C, D, A, B, tmp[6], 11);
-		B = FF(B, C, D, A, tmp[7], 19);
-		A = FF(A, B, C, D, tmp[8], 3);
-		D = FF(D, A, B, C, tmp[9], 7);
-		C = FF(C, D, A, B, tmp[10], 11);
-		B = FF(B, C, D, A, tmp[11], 19);
-		A = FF(A, B, C, D, tmp[12], 3);
-		D = FF(D, A, B, C, tmp[13], 7);
-		C = FF(C, D, A, B, tmp[14], 11);
-		B = FF(B, C, D, A, tmp[15], 19);
+		A = FF(A, B, C, D, this.tmp[0], 3);
+		D = FF(D, A, B, C, this.tmp[1], 7);
+		C = FF(C, D, A, B, this.tmp[2], 11);
+		B = FF(B, C, D, A, this.tmp[3], 19);
+		A = FF(A, B, C, D, this.tmp[4], 3);
+		D = FF(D, A, B, C, this.tmp[5], 7);
+		C = FF(C, D, A, B, this.tmp[6], 11);
+		B = FF(B, C, D, A, this.tmp[7], 19);
+		A = FF(A, B, C, D, this.tmp[8], 3);
+		D = FF(D, A, B, C, this.tmp[9], 7);
+		C = FF(C, D, A, B, this.tmp[10], 11);
+		B = FF(B, C, D, A, this.tmp[11], 19);
+		A = FF(A, B, C, D, this.tmp[12], 3);
+		D = FF(D, A, B, C, this.tmp[13], 7);
+		C = FF(C, D, A, B, this.tmp[14], 11);
+		B = FF(B, C, D, A, this.tmp[15], 19);
 
-		A = GG(A, B, C, D, tmp[0], 3);
-		D = GG(D, A, B, C, tmp[4], 5);
-		C = GG(C, D, A, B, tmp[8], 9);
-		B = GG(B, C, D, A, tmp[12], 13);
-		A = GG(A, B, C, D, tmp[1], 3);
-		D = GG(D, A, B, C, tmp[5], 5);
-		C = GG(C, D, A, B, tmp[9], 9);
-		B = GG(B, C, D, A, tmp[13], 13);
-		A = GG(A, B, C, D, tmp[2], 3);
-		D = GG(D, A, B, C, tmp[6], 5);
-		C = GG(C, D, A, B, tmp[10], 9);
-		B = GG(B, C, D, A, tmp[14], 13);
-		A = GG(A, B, C, D, tmp[3], 3);
-		D = GG(D, A, B, C, tmp[7], 5);
-		C = GG(C, D, A, B, tmp[11], 9);
-		B = GG(B, C, D, A, tmp[15], 13);
+		A = GG(A, B, C, D, this.tmp[0], 3);
+		D = GG(D, A, B, C, this.tmp[4], 5);
+		C = GG(C, D, A, B, this.tmp[8], 9);
+		B = GG(B, C, D, A, this.tmp[12], 13);
+		A = GG(A, B, C, D, this.tmp[1], 3);
+		D = GG(D, A, B, C, this.tmp[5], 5);
+		C = GG(C, D, A, B, this.tmp[9], 9);
+		B = GG(B, C, D, A, this.tmp[13], 13);
+		A = GG(A, B, C, D, this.tmp[2], 3);
+		D = GG(D, A, B, C, this.tmp[6], 5);
+		C = GG(C, D, A, B, this.tmp[10], 9);
+		B = GG(B, C, D, A, this.tmp[14], 13);
+		A = GG(A, B, C, D, this.tmp[3], 3);
+		D = GG(D, A, B, C, this.tmp[7], 5);
+		C = GG(C, D, A, B, this.tmp[11], 9);
+		B = GG(B, C, D, A, this.tmp[15], 13);
 
-		A = HH(A, B, C, D, tmp[0], 3);
-		D = HH(D, A, B, C, tmp[8], 9);
-		C = HH(C, D, A, B, tmp[4], 11);
-		B = HH(B, C, D, A, tmp[12], 15);
-		A = HH(A, B, C, D, tmp[2], 3);
-		D = HH(D, A, B, C, tmp[10], 9);
-		C = HH(C, D, A, B, tmp[6], 11);
-		B = HH(B, C, D, A, tmp[14], 15);
-		A = HH(A, B, C, D, tmp[1], 3);
-		D = HH(D, A, B, C, tmp[9], 9);
-		C = HH(C, D, A, B, tmp[5], 11);
-		B = HH(B, C, D, A, tmp[13], 15);
-		A = HH(A, B, C, D, tmp[3], 3);
-		D = HH(D, A, B, C, tmp[11], 9);
-		C = HH(C, D, A, B, tmp[7], 11);
-		B = HH(B, C, D, A, tmp[15], 15);
+		A = HH(A, B, C, D, this.tmp[0], 3);
+		D = HH(D, A, B, C, this.tmp[8], 9);
+		C = HH(C, D, A, B, this.tmp[4], 11);
+		B = HH(B, C, D, A, this.tmp[12], 15);
+		A = HH(A, B, C, D, this.tmp[2], 3);
+		D = HH(D, A, B, C, this.tmp[10], 9);
+		C = HH(C, D, A, B, this.tmp[6], 11);
+		B = HH(B, C, D, A, this.tmp[14], 15);
+		A = HH(A, B, C, D, this.tmp[1], 3);
+		D = HH(D, A, B, C, this.tmp[9], 9);
+		C = HH(C, D, A, B, this.tmp[5], 11);
+		B = HH(B, C, D, A, this.tmp[13], 15);
+		A = HH(A, B, C, D, this.tmp[3], 3);
+		D = HH(D, A, B, C, this.tmp[11], 9);
+		C = HH(C, D, A, B, this.tmp[7], 11);
+		B = HH(B, C, D, A, this.tmp[15], 15);
 
-		state[0] += A;
-		state[1] += B;
-		state[2] += C;
-		state[3] += D;
+		this.state[0] += A;
+		this.state[1] += B;
+		this.state[2] += C;
+		this.state[3] += D;
 	}
 
 	private int FF(int a, int b, int c, int d, int x, int s) {

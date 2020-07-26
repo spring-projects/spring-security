@@ -52,7 +52,7 @@ public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>
 			return ACCESS_ABSTAIN;
 		}
 
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, message);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, message);
 		ctx = attr.postProcess(ctx, message);
 
 		return ExpressionUtils.evaluateAsBoolean(attr.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED : ACCESS_DENIED;

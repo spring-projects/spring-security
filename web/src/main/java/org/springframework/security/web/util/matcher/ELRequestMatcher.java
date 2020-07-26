@@ -45,12 +45,12 @@ public class ELRequestMatcher implements RequestMatcher {
 
 	public ELRequestMatcher(String el) {
 		SpelExpressionParser parser = new SpelExpressionParser();
-		expression = parser.parseExpression(el);
+		this.expression = parser.parseExpression(el);
 	}
 
 	public boolean matches(HttpServletRequest request) {
 		EvaluationContext context = createELContext(request);
-		return expression.getValue(context, Boolean.class);
+		return this.expression.getValue(context, Boolean.class);
 	}
 
 	/**

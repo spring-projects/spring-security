@@ -343,7 +343,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizedClientRepository).saveAuthorizedClient(this.authorizedClientCaptor.capture(),
 				eq(this.authentication), any(), any());
 
-		OAuth2AuthorizedClient newAuthorizedClient = authorizedClientCaptor.getValue();
+		OAuth2AuthorizedClient newAuthorizedClient = this.authorizedClientCaptor.getValue();
 		assertThat(newAuthorizedClient.getAccessToken()).isEqualTo(response.getAccessToken());
 		assertThat(newAuthorizedClient.getRefreshToken()).isEqualTo(response.getRefreshToken());
 
@@ -396,7 +396,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizedClientRepository).saveAuthorizedClient(this.authorizedClientCaptor.capture(),
 				eq(this.authentication), any(), any());
 
-		OAuth2AuthorizedClient newAuthorizedClient = authorizedClientCaptor.getValue();
+		OAuth2AuthorizedClient newAuthorizedClient = this.authorizedClientCaptor.getValue();
 		assertThat(newAuthorizedClient.getAccessToken()).isEqualTo(response.getAccessToken());
 		assertThat(newAuthorizedClient.getRefreshToken().getTokenValue()).isEqualTo(refreshToken.getTokenValue());
 
@@ -426,7 +426,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), eq(this.authentication), any(),
 				any());
 
-		verify(clientCredentialsTokenResponseClient, never()).getTokenResponse(any());
+		verify(this.clientCredentialsTokenResponseClient, never()).getTokenResponse(any());
 
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
@@ -510,7 +510,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.filter(request, this.exchange).block();
 
 		verify(this.passwordTokenResponseClient).getTokenResponse(any());
-		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any(), any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(this.authentication), any(), any());
 
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);

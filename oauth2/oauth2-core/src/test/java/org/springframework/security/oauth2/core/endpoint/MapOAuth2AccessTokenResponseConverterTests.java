@@ -51,7 +51,7 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		map.put("refresh_token", "refresh-token-1234");
 		map.put("custom_parameter_1", "custom-value-1");
 		map.put("custom_parameter_2", "custom-value-2");
-		OAuth2AccessTokenResponse converted = messageConverter.convert(map);
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
 		OAuth2AccessToken accessToken = converted.getAccessToken();
 		Assert.assertNotNull(accessToken);
 		Assert.assertEquals("access-token-1234", accessToken.getTokenValue());
@@ -79,7 +79,7 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		Map<String, String> map = new HashMap<>();
 		map.put("access_token", "access-token-1234");
 		map.put("token_type", "bearer");
-		OAuth2AccessTokenResponse converted = messageConverter.convert(map);
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
 		OAuth2AccessToken accessToken = converted.getAccessToken();
 		Assert.assertNotNull(accessToken);
 		Assert.assertEquals("access-token-1234", accessToken.getTokenValue());
@@ -104,7 +104,7 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		map.put("access_token", "access-token-1234");
 		map.put("token_type", "bearer");
 		map.put("expires_in", "2100-01-01-abc");
-		OAuth2AccessTokenResponse converted = messageConverter.convert(map);
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
 		OAuth2AccessToken accessToken = converted.getAccessToken();
 		Assert.assertNotNull(accessToken);
 		Assert.assertEquals("access-token-1234", accessToken.getTokenValue());

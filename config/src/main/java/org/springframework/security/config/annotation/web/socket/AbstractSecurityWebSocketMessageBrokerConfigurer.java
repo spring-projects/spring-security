@@ -103,12 +103,12 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 
 	@Override
 	public final void configureClientInboundChannel(ChannelRegistration registration) {
-		ChannelSecurityInterceptor inboundChannelSecurity = context.getBean(ChannelSecurityInterceptor.class);
-		registration.setInterceptors(context.getBean(SecurityContextChannelInterceptor.class));
+		ChannelSecurityInterceptor inboundChannelSecurity = this.context.getBean(ChannelSecurityInterceptor.class);
+		registration.setInterceptors(this.context.getBean(SecurityContextChannelInterceptor.class));
 		if (!sameOriginDisabled()) {
-			registration.setInterceptors(context.getBean(CsrfChannelInterceptor.class));
+			registration.setInterceptors(this.context.getBean(CsrfChannelInterceptor.class));
 		}
-		if (inboundRegistry.containsMapping()) {
+		if (this.inboundRegistry.containsMapping()) {
 			registration.setInterceptors(inboundChannelSecurity);
 		}
 		customizeClientInboundChannel(registration);
@@ -116,7 +116,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 
 	private PathMatcher getDefaultPathMatcher() {
 		try {
-			return context.getBean(SimpAnnotationMethodMessageHandler.class).getPathMatcher();
+			return this.context.getBean(SimpAnnotationMethodMessageHandler.class).getPathMatcher();
 		}
 		catch (NoSuchBeanDefinitionException e) {
 			return new AntPathMatcher();
@@ -174,9 +174,9 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 
 	@Bean
 	public MessageSecurityMetadataSource inboundMessageSecurityMetadataSource() {
-		inboundRegistry.expressionHandler(getMessageExpressionHandler());
-		configureInbound(inboundRegistry);
-		return inboundRegistry.createMetadataSource();
+		this.inboundRegistry.expressionHandler(getMessageExpressionHandler());
+		configureInbound(this.inboundRegistry);
+		return this.inboundRegistry.createMetadataSource();
 	}
 
 	/**
@@ -223,14 +223,14 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 
 	@Autowired(required = false)
 	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
-		defaultExpressionHandler = objectPostProcessor.postProcess(defaultExpressionHandler);
+		this.defaultExpressionHandler = objectPostProcessor.postProcess(this.defaultExpressionHandler);
 	}
 
 	private SecurityExpressionHandler<Message<Object>> getMessageExpressionHandler() {
-		if (expressionHandler == null) {
-			return defaultExpressionHandler;
+		if (this.expressionHandler == null) {
+			return this.defaultExpressionHandler;
 		}
-		return expressionHandler;
+		return this.expressionHandler;
 	}
 
 	public void afterSingletonsInstantiated() {
@@ -239,7 +239,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 		}
 
 		String beanName = "stompWebSocketHandlerMapping";
-		SimpleUrlHandlerMapping mapping = context.getBean(beanName, SimpleUrlHandlerMapping.class);
+		SimpleUrlHandlerMapping mapping = this.context.getBean(beanName, SimpleUrlHandlerMapping.class);
 		Map<String, Object> mappings = mapping.getHandlerMap();
 		for (Object object : mappings.values()) {
 			if (object instanceof SockJsHttpRequestHandler) {
@@ -275,9 +275,9 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 			}
 		}
 
-		if (inboundRegistry.containsMapping() && !inboundRegistry.isSimpDestPathMatcherConfigured()) {
+		if (this.inboundRegistry.containsMapping() && !this.inboundRegistry.isSimpDestPathMatcherConfigured()) {
 			PathMatcher pathMatcher = getDefaultPathMatcher();
-			inboundRegistry.simpDestPathMatcher(pathMatcher);
+			this.inboundRegistry.simpDestPathMatcher(pathMatcher);
 		}
 	}
 

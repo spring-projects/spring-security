@@ -74,30 +74,30 @@ public class CompositeSessionAuthenticationStrategyTests {
 	@Test
 	public void delegatesToAll() {
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
-				Arrays.asList(strategy1, strategy2));
-		strategy.onAuthentication(authentication, request, response);
+				Arrays.asList(this.strategy1, this.strategy2));
+		strategy.onAuthentication(this.authentication, this.request, this.response);
 
-		verify(strategy1).onAuthentication(authentication, request, response);
-		verify(strategy2).onAuthentication(authentication, request, response);
+		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
+		verify(this.strategy2).onAuthentication(this.authentication, this.request, this.response);
 	}
 
 	@Test
 	public void delegateShortCircuits() {
-		doThrow(new SessionAuthenticationException("oops")).when(strategy1).onAuthentication(authentication, request,
-				response);
+		doThrow(new SessionAuthenticationException("oops")).when(this.strategy1).onAuthentication(this.authentication,
+				this.request, this.response);
 
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
-				Arrays.asList(strategy1, strategy2));
+				Arrays.asList(this.strategy1, this.strategy2));
 
 		try {
-			strategy.onAuthentication(authentication, request, response);
+			strategy.onAuthentication(this.authentication, this.request, this.response);
 			fail("Expected Exception");
 		}
 		catch (SessionAuthenticationException success) {
 		}
 
-		verify(strategy1).onAuthentication(authentication, request, response);
-		verify(strategy2, times(0)).onAuthentication(authentication, request, response);
+		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
+		verify(this.strategy2, times(0)).onAuthentication(this.authentication, this.request, this.response);
 	}
 
 }

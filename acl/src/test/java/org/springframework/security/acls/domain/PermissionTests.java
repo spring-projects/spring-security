@@ -33,12 +33,12 @@ public class PermissionTests {
 
 	@Before
 	public void createPermissionfactory() {
-		permissionFactory = new DefaultPermissionFactory();
+		this.permissionFactory = new DefaultPermissionFactory();
 	}
 
 	@Test
 	public void basePermissionTest() {
-		Permission p = permissionFactory.buildFromName("WRITE");
+		Permission p = this.permissionFactory.buildFromName("WRITE");
 		assertThat(p).isNotNull();
 	}
 
@@ -54,13 +54,13 @@ public class PermissionTests {
 
 	@Test
 	public void fromInteger() {
-		Permission permission = permissionFactory.buildFromMask(7);
-		permission = permissionFactory.buildFromMask(4);
+		Permission permission = this.permissionFactory.buildFromMask(7);
+		permission = this.permissionFactory.buildFromMask(4);
 	}
 
 	@Test
 	public void stringConversion() {
-		permissionFactory.registerPublicPermissions(SpecialPermission.class);
+		this.permissionFactory.registerPublicPermissions(SpecialPermission.class);
 
 		assertThat(BasePermission.READ.toString()).isEqualTo("BasePermission[...............................R=1]");
 

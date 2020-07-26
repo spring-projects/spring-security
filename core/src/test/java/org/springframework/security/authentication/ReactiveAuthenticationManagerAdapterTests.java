@@ -47,7 +47,7 @@ public class ReactiveAuthenticationManagerAdapterTests {
 
 	@Before
 	public void setup() {
-		manager = new ReactiveAuthenticationManagerAdapter(delegate);
+		this.manager = new ReactiveAuthenticationManagerAdapter(this.delegate);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -62,28 +62,28 @@ public class ReactiveAuthenticationManagerAdapterTests {
 
 	@Test
 	public void authenticateWhenSuccessThenSuccess() {
-		when(delegate.authenticate(any())).thenReturn(authentication);
-		when(authentication.isAuthenticated()).thenReturn(true);
+		when(this.delegate.authenticate(any())).thenReturn(this.authentication);
+		when(this.authentication.isAuthenticated()).thenReturn(true);
 
-		Authentication result = manager.authenticate(authentication).block();
+		Authentication result = this.manager.authenticate(this.authentication).block();
 
-		assertThat(result).isEqualTo(authentication);
+		assertThat(result).isEqualTo(this.authentication);
 	}
 
 	@Test
 	public void authenticateWhenReturnNotAuthenticatedThenError() {
-		when(delegate.authenticate(any())).thenReturn(authentication);
+		when(this.delegate.authenticate(any())).thenReturn(this.authentication);
 
-		Authentication result = manager.authenticate(authentication).block();
+		Authentication result = this.manager.authenticate(this.authentication).block();
 
 		assertThat(result).isNull();
 	}
 
 	@Test
 	public void authenticateWhenBadCredentialsThenError() {
-		when(delegate.authenticate(any())).thenThrow(new BadCredentialsException("Failed"));
+		when(this.delegate.authenticate(any())).thenThrow(new BadCredentialsException("Failed"));
 
-		Mono<Authentication> result = manager.authenticate(authentication);
+		Mono<Authentication> result = this.manager.authenticate(this.authentication);
 
 		StepVerifier.create(result).expectError(BadCredentialsException.class).verify();
 	}

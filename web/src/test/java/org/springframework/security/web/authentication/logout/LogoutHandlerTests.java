@@ -33,7 +33,7 @@ public class LogoutHandlerTests {
 
 	@Before
 	public void setUp() {
-		filter = new LogoutFilter("/success", new SecurityContextLogoutHandler());
+		this.filter = new LogoutFilter("/success", new SecurityContextLogoutHandler());
 	}
 
 	@Test
@@ -46,7 +46,7 @@ public class LogoutHandlerTests {
 		request.setQueryString("otherparam=blah");
 
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
-		assertThat(filter.requiresLogout(fw.getFirewalledRequest(request), response)).isTrue();
+		assertThat(this.filter.requiresLogout(fw.getFirewalledRequest(request), response)).isTrue();
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class LogoutHandlerTests {
 		request.setRequestURI("/context/logout?param=blah");
 		request.setQueryString("otherparam=blah");
 
-		assertThat(filter.requiresLogout(request, response)).isTrue();
+		assertThat(this.filter.requiresLogout(request, response)).isTrue();
 	}
 
 }

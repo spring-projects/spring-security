@@ -84,11 +84,11 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	public String getIdentityUrl() {
-		return identityUrl;
+		return this.identityUrl;
 	}
 
 	public String getMessage() {
-		return message;
+		return this.message;
 	}
 
 	/**
@@ -97,20 +97,20 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	 * @see org.springframework.security.core.Authentication#getPrincipal()
 	 */
 	public Object getPrincipal() {
-		return principal;
+		return this.principal;
 	}
 
 	public OpenIDAuthenticationStatus getStatus() {
-		return status;
+		return this.status;
 	}
 
 	public List<OpenIDAttribute> getAttributes() {
-		return attributes;
+		return this.attributes;
 	}
 
 	@Override
 	public String toString() {
-		return "[" + super.toString() + ", attributes : " + attributes + "]";
+		return "[" + super.toString() + ", attributes : " + this.attributes + "]";
 	}
 
 }

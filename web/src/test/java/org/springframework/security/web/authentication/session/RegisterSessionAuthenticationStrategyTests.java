@@ -49,10 +49,10 @@ public class RegisterSessionAuthenticationStrategyTests {
 
 	@Before
 	public void setup() {
-		authenticationStrategy = new RegisterSessionAuthenticationStrategy(registry);
-		authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+		this.authenticationStrategy = new RegisterSessionAuthenticationStrategy(this.registry);
+		this.authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -62,9 +62,9 @@ public class RegisterSessionAuthenticationStrategyTests {
 
 	@Test
 	public void onAuthenticationRegistersSession() {
-		authenticationStrategy.onAuthentication(authentication, request, response);
+		this.authenticationStrategy.onAuthentication(this.authentication, this.request, this.response);
 
-		verify(registry).registerNewSession(request.getSession().getId(), authentication.getPrincipal());
+		verify(this.registry).registerNewSession(this.request.getSession().getId(), this.authentication.getPrincipal());
 	}
 
 }

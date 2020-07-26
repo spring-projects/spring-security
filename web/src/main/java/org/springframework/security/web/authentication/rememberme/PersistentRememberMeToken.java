@@ -38,19 +38,19 @@ public class PersistentRememberMeToken {
 	}
 
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	public String getSeries() {
-		return series;
+		return this.series;
 	}
 
 	public String getTokenValue() {
-		return tokenValue;
+		return this.tokenValue;
 	}
 
 	public Date getDate() {
-		return date;
+		return this.date;
 	}
 
 }

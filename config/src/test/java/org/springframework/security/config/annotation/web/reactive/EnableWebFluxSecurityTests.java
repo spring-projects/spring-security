@@ -381,7 +381,7 @@ public class EnableWebFluxSecurityTests {
 		}
 
 		public Child getChild() {
-			return child;
+			return this.child;
 		}
 
 	}

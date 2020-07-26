@@ -59,21 +59,21 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	private UserDetailsChecker preAuthenticationChecks = user -> {
 		if (!user.isAccountNonLocked()) {
-			logger.debug("User account is locked");
+			this.logger.debug("User account is locked");
 
 			throw new LockedException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
 					"User account is locked"));
 		}
 
 		if (!user.isEnabled()) {
-			logger.debug("User account is disabled");
+			this.logger.debug("User account is disabled");
 
 			throw new DisabledException(
 					this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
 		}
 
 		if (!user.isAccountNonExpired()) {
-			logger.debug("User account is expired");
+			this.logger.debug("User account is expired");
 
 			throw new AccountExpiredException(this.messages
 					.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
@@ -82,7 +82,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	private UserDetailsChecker postAuthenticationChecks = user -> {
 		if (!user.isCredentialsNonExpired()) {
-			logger.debug("User account credentials have expired");
+			this.logger.debug("User account credentials have expired");
 
 			throw new CredentialsExpiredException(this.messages.getMessage(
 					"AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));

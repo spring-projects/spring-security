@@ -29,7 +29,7 @@ public class AuthorizationDecision {
 	}
 
 	public boolean isGranted() {
-		return granted;
+		return this.granted;
 	}
 
 }

@@ -249,7 +249,7 @@ public class SidTests {
 
 		@Override
 		public String getName() {
-			return principal.getName();
+			return this.principal.getName();
 		}
 
 	}
@@ -263,7 +263,7 @@ public class SidTests {
 		}
 
 		String getName() {
-			return name;
+			return this.name;
 		}
 
 	}

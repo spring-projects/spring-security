@@ -34,11 +34,11 @@ final class HexEncodingTextEncryptor implements TextEncryptor {
 	}
 
 	public String encrypt(String text) {
-		return new String(Hex.encode(encryptor.encrypt(Utf8.encode(text))));
+		return new String(Hex.encode(this.encryptor.encrypt(Utf8.encode(text))));
 	}
 
 	public String decrypt(String encryptedText) {
-		return Utf8.decode(encryptor.decrypt(Hex.decode(encryptedText)));
+		return Utf8.decode(this.encryptor.decrypt(Hex.decode(encryptedText)));
 	}
 
 }

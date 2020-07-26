@@ -106,9 +106,9 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		String contextConfig = ISSUER_URI_XML_CONFIG.replace("${issuer-uri}", serverUrl);
 		this.spring.context(contextConfig).autowire();
 
-		assertThat(clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
+		assertThat(this.clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
 
-		ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google-login");
+		ClientRegistration googleRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
 		assertThat(googleRegistration).isNotNull();
 		assertThat(googleRegistration.getRegistrationId()).isEqualTo("google-login");
 		assertThat(googleRegistration.getClientId()).isEqualTo("google-client-id");
@@ -137,9 +137,9 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 	public void parseWhenMultipleClientsConfiguredThenAvailableInRepository() {
 		this.spring.configLocations(this.xml("MultiClientRegistration")).autowire();
 
-		assertThat(clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
+		assertThat(this.clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
 
-		ClientRegistration googleRegistration = clientRegistrationRepository.findByRegistrationId("google-login");
+		ClientRegistration googleRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
 		assertThat(googleRegistration).isNotNull();
 		assertThat(googleRegistration.getRegistrationId()).isEqualTo("google-login");
 		assertThat(googleRegistration.getClientId()).isEqualTo("google-client-id");
@@ -164,7 +164,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleProviderDetails.getJwkSetUri()).isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
 		assertThat(googleProviderDetails.getIssuerUri()).isEqualTo("https://accounts.google.com");
 
-		ClientRegistration githubRegistration = clientRegistrationRepository.findByRegistrationId("github-login");
+		ClientRegistration githubRegistration = this.clientRegistrationRepository.findByRegistrationId("github-login");
 		assertThat(githubRegistration).isNotNull();
 		assertThat(githubRegistration.getRegistrationId()).isEqualTo("github-login");
 		assertThat(githubRegistration.getClientId()).isEqualTo("github-client-id");

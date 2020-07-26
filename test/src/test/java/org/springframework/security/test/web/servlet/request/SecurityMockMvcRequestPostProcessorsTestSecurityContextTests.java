@@ -56,7 +56,7 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
+		this.request = new MockHttpServletRequest();
 		mockWebTestUtils();
 	}
 
@@ -67,25 +67,25 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 
 	@Test
 	public void testSecurityContextSaves() {
-		TestSecurityContextHolder.setContext(context);
+		TestSecurityContextHolder.setContext(this.context);
 
-		testSecurityContext().postProcessRequest(request);
+		testSecurityContext().postProcessRequest(this.request);
 
-		verify(repository).saveContext(eq(context), eq(request), any(HttpServletResponse.class));
+		verify(this.repository).saveContext(eq(this.context), eq(this.request), any(HttpServletResponse.class));
 	}
 
 	// Ensure it does not fail if TestSecurityContextHolder is not initialized
 	@Test
 	public void testSecurityContextNoContext() {
-		testSecurityContext().postProcessRequest(request);
+		testSecurityContext().postProcessRequest(this.request);
 
-		verify(repository, never()).saveContext(any(SecurityContext.class), eq(request),
+		verify(this.repository, never()).saveContext(any(SecurityContext.class), eq(this.request),
 				any(HttpServletResponse.class));
 	}
 
 	private void mockWebTestUtils() {
 		spy(WebTestUtils.class);
-		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
+		when(WebTestUtils.getSecurityContextRepository(this.request)).thenReturn(this.repository);
 	}
 
 }

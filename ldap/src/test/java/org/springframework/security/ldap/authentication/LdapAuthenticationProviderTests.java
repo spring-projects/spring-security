@@ -212,7 +212,7 @@ public class LdapAuthenticationProviderTests {
 		}
 
 		String getRequestedUsername() {
-			return username;
+			return this.username;
 		}
 
 	}

@@ -47,11 +47,11 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
 	}
 
 	public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm) {
-		return redirectUrl;
+		return this.redirectUrl;
 	}
 
 	public OpenIDAuthenticationToken endConsumption(HttpServletRequest req) {
-		return token;
+		return this.token;
 	}
 
 	/**

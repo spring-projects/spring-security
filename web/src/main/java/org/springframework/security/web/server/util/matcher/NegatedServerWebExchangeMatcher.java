@@ -49,7 +49,7 @@ public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher
 	 */
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return matcher.matches(exchange).flatMap(m -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())
+		return this.matcher.matches(exchange).flatMap(m -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())
 				.doOnNext(it -> {
 					if (logger.isDebugEnabled()) {
 						logger.debug("matches = " + it.isMatch());
@@ -59,7 +59,7 @@ public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher
 
 	@Override
 	public String toString() {
-		return "NegatedServerWebExchangeMatcher{" + "matcher=" + matcher + '}';
+		return "NegatedServerWebExchangeMatcher{" + "matcher=" + this.matcher + '}';
 	}
 
 }

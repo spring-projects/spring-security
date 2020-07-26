@@ -51,13 +51,13 @@ public class CookieMixinTests extends AbstractMixinTests {
 	@Test
 	public void serializeCookie() throws JsonProcessingException, JSONException {
 		Cookie cookie = new Cookie("demo", "cookie1");
-		String actualString = mapper.writeValueAsString(cookie);
+		String actualString = this.mapper.writeValueAsString(cookie);
 		JSONAssert.assertEquals(COOKIE_JSON, actualString, true);
 	}
 
 	@Test
 	public void deserializeCookie() throws IOException {
-		Cookie cookie = mapper.readValue(COOKIE_JSON, Cookie.class);
+		Cookie cookie = this.mapper.readValue(COOKIE_JSON, Cookie.class);
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getName()).isEqualTo("demo");
 		assertThat(cookie.getDomain()).isEqualTo("");

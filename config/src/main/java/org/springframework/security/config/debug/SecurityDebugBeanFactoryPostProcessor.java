@@ -36,7 +36,7 @@ public class SecurityDebugBeanFactoryPostProcessor implements BeanDefinitionRegi
 	private final Log logger = LogFactory.getLog(getClass());
 
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		logger.warn("\n\n" + "********************************************************************\n"
+		this.logger.warn("\n\n" + "********************************************************************\n"
 				+ "**********        Security debugging is enabled.       *************\n"
 				+ "**********    This may include sensitive information.  *************\n"
 				+ "**********      Do not use in a production system!     *************\n"

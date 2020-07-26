@@ -55,19 +55,19 @@ public class HttpSessionRequestCache implements RequestCache {
 	 * Stores the current request, provided the configuration properties allow it.
 	 */
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
-		if (requestMatcher.matches(request)) {
-			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, portResolver);
+		if (this.requestMatcher.matches(request)) {
+			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver);
 
-			if (createSessionAllowed || request.getSession(false) != null) {
+			if (this.createSessionAllowed || request.getSession(false) != null) {
 				// Store the HTTP request itself. Used by
 				// AbstractAuthenticationProcessingFilter
 				// for redirection after successful authentication (SEC-29)
 				request.getSession().setAttribute(this.sessionAttrName, savedRequest);
-				logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
+				this.logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
 			}
 		}
 		else {
-			logger.debug("Request not saved as configured RequestMatcher did not match");
+			this.logger.debug("Request not saved as configured RequestMatcher did not match");
 		}
 	}
 
@@ -85,7 +85,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		HttpSession session = currentRequest.getSession(false);
 
 		if (session != null) {
-			logger.debug("Removing DefaultSavedRequest from session if present");
+			this.logger.debug("Removing DefaultSavedRequest from session if present");
 			session.removeAttribute(this.sessionAttrName);
 		}
 	}
@@ -94,7 +94,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		SavedRequest saved = getRequest(request, response);
 
 		if (!matchesSavedRequest(request, saved)) {
-			logger.debug("saved request doesn't match");
+			this.logger.debug("saved request doesn't match");
 			return null;
 		}
 

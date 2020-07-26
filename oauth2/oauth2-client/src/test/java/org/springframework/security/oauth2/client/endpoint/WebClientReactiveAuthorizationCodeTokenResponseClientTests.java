@@ -265,7 +265,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setWebClientNullThenIllegalArgumentException() {
-		tokenResponseClient.setWebClient(null);
+		this.tokenResponseClient.setWebClient(null);
 	}
 
 	@Test
@@ -273,7 +273,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		WebClient customClient = mock(WebClient.class);
 		when(customClient.post()).thenReturn(WebClient.builder().build().post());
 
-		tokenResponseClient.setWebClient(customClient);
+		this.tokenResponseClient.setWebClient(customClient);
 
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"

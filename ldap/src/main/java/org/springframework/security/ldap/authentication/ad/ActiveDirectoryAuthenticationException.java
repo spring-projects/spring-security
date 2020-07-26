@@ -50,7 +50,7 @@ public final class ActiveDirectoryAuthenticationException extends Authentication
 	}
 
 	public String getDataCode() {
-		return dataCode;
+		return this.dataCode;
 	}
 
 }

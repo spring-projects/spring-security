@@ -45,12 +45,12 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 	}
 
 	public Principal getPrincipal() {
-		return principal;
+		return this.principal;
 	}
 
 	@Override
 	public String getAuthority() {
-		return role;
+		return this.role;
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 
 	@Override
 	public String toString() {
-		return "Jaas Authority [" + role + "," + principal + "]";
+		return "Jaas Authority [" + this.role + "," + this.principal + "]";
 	}
 
 }

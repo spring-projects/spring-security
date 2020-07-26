@@ -41,75 +41,76 @@ public class PersistentTokenBasedRememberMeServicesTests {
 
 	@Before
 	public void setUpData() throws Exception {
-		services = new PersistentTokenBasedRememberMeServices("key",
+		this.services = new PersistentTokenBasedRememberMeServices("key",
 				new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false),
 				new InMemoryTokenRepositoryImpl());
-		services.setCookieName("mycookiename");
+		this.services.setCookieName("mycookiename");
 		// Default to 100 days (see SEC-1081).
-		services.setTokenValiditySeconds(100 * 24 * 60 * 60);
-		services.afterPropertiesSet();
+		this.services.setTokenValiditySeconds(100 * 24 * 60 * 60);
+		this.services.afterPropertiesSet();
 	}
 
 	@Test(expected = InvalidCookieException.class)
 	public void loginIsRejectedWithWrongNumberOfCookieTokens() {
-		services.processAutoLoginCookie(new String[] { "series", "token", "extra" }, new MockHttpServletRequest(),
+		this.services.processAutoLoginCookie(new String[] { "series", "token", "extra" }, new MockHttpServletRequest(),
 				new MockHttpServletResponse());
 	}
 
 	@Test(expected = RememberMeAuthenticationException.class)
 	public void loginIsRejectedWhenNoTokenMatchingSeriesIsFound() {
-		services = create(null);
-		services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
+		this.services = create(null);
+		this.services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
 				new MockHttpServletResponse());
 	}
 
 	@Test(expected = RememberMeAuthenticationException.class)
 	public void loginIsRejectedWhenTokenIsExpired() {
-		services = create(new PersistentRememberMeToken("joe", "series", "token",
+		this.services = create(new PersistentRememberMeToken("joe", "series", "token",
 				new Date(System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(1) - 100)));
-		services.setTokenValiditySeconds(1);
+		this.services.setTokenValiditySeconds(1);
 
-		services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
+		this.services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
 				new MockHttpServletResponse());
 	}
 
 	@Test(expected = CookieTheftException.class)
 	public void cookieTheftIsDetectedWhenSeriesAndTokenDontMatch() {
-		services = create(new PersistentRememberMeToken("joe", "series", "wrongtoken", new Date()));
-		services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
+		this.services = create(new PersistentRememberMeToken("joe", "series", "wrongtoken", new Date()));
+		this.services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
 				new MockHttpServletResponse());
 	}
 
 	@Test
 	public void successfulAutoLoginCreatesNewTokenAndCookieWithSameSeries() {
-		services = create(new PersistentRememberMeToken("joe", "series", "token", new Date()));
+		this.services = create(new PersistentRememberMeToken("joe", "series", "token", new Date()));
 		// 12 => b64 length will be 16
-		services.setTokenLength(12);
+		this.services.setTokenLength(12);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(), response);
-		assertThat(repo.getStoredToken().getSeries()).isEqualTo("series");
-		assertThat(repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
-		String[] cookie = services.decodeCookie(response.getCookie("mycookiename").getValue());
+		this.services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
+				response);
+		assertThat(this.repo.getStoredToken().getSeries()).isEqualTo("series");
+		assertThat(this.repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
+		String[] cookie = this.services.decodeCookie(response.getCookie("mycookiename").getValue());
 		assertThat(cookie[0]).isEqualTo("series");
-		assertThat(cookie[1]).isEqualTo(repo.getStoredToken().getTokenValue());
+		assertThat(cookie[1]).isEqualTo(this.repo.getStoredToken().getTokenValue());
 	}
 
 	@Test
 	public void loginSuccessCreatesNewTokenAndCookieWithNewSeries() {
-		services = create(null);
-		services.setAlwaysRemember(true);
-		services.setTokenLength(12);
-		services.setSeriesLength(12);
+		this.services = create(null);
+		this.services.setAlwaysRemember(true);
+		this.services.setTokenLength(12);
+		this.services.setSeriesLength(12);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		services.loginSuccess(new MockHttpServletRequest(), response,
+		this.services.loginSuccess(new MockHttpServletRequest(), response,
 				new UsernamePasswordAuthenticationToken("joe", "password"));
-		assertThat(repo.getStoredToken().getSeries().length()).isEqualTo(16);
-		assertThat(repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
+		assertThat(this.repo.getStoredToken().getSeries().length()).isEqualTo(16);
+		assertThat(this.repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
 
-		String[] cookie = services.decodeCookie(response.getCookie("mycookiename").getValue());
+		String[] cookie = this.services.decodeCookie(response.getCookie("mycookiename").getValue());
 
-		assertThat(cookie[0]).isEqualTo(repo.getStoredToken().getSeries());
-		assertThat(cookie[1]).isEqualTo(repo.getStoredToken().getTokenValue());
+		assertThat(cookie[0]).isEqualTo(this.repo.getStoredToken().getSeries());
+		assertThat(cookie[1]).isEqualTo(this.repo.getStoredToken().getTokenValue());
 	}
 
 	@Test
@@ -118,21 +119,21 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(cookie);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		services = create(new PersistentRememberMeToken("joe", "series", "token", new Date()));
-		services.logout(request, response, new TestingAuthenticationToken("joe", "somepass", "SOME_AUTH"));
+		this.services = create(new PersistentRememberMeToken("joe", "series", "token", new Date()));
+		this.services.logout(request, response, new TestingAuthenticationToken("joe", "somepass", "SOME_AUTH"));
 		Cookie returnedCookie = response.getCookie("mycookiename");
 		assertThat(returnedCookie).isNotNull();
 		assertThat(returnedCookie.getMaxAge()).isZero();
 
 		// SEC-1280
-		services.logout(request, response, null);
+		this.services.logout(request, response, null);
 	}
 
 	private PersistentTokenBasedRememberMeServices create(PersistentRememberMeToken token) {
-		repo = new MockTokenRepository(token);
+		this.repo = new MockTokenRepository(token);
 		PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices("key",
 				new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false),
-				repo);
+				this.repo);
 
 		services.setCookieName("mycookiename");
 		return services;
@@ -143,27 +144,27 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		private PersistentRememberMeToken storedToken;
 
 		private MockTokenRepository(PersistentRememberMeToken token) {
-			storedToken = token;
+			this.storedToken = token;
 		}
 
 		public void createNewToken(PersistentRememberMeToken token) {
-			storedToken = token;
+			this.storedToken = token;
 		}
 
 		public void updateToken(String series, String tokenValue, Date lastUsed) {
-			storedToken = new PersistentRememberMeToken(storedToken.getUsername(), storedToken.getSeries(), tokenValue,
-					lastUsed);
+			this.storedToken = new PersistentRememberMeToken(this.storedToken.getUsername(),
+					this.storedToken.getSeries(), tokenValue, lastUsed);
 		}
 
 		public PersistentRememberMeToken getTokenForSeries(String seriesId) {
-			return storedToken;
+			return this.storedToken;
 		}
 
 		public void removeUserTokens(String username) {
 		}
 
 		PersistentRememberMeToken getStoredToken() {
-			return storedToken;
+			return this.storedToken;
 		}
 
 	}

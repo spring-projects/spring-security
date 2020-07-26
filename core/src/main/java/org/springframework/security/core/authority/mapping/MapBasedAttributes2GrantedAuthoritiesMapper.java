@@ -48,7 +48,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	private Set<String> mappableAttributes = null;
 
 	public void afterPropertiesSet() {
-		Assert.notNull(attributes2grantedAuthoritiesMap, "attributes2grantedAuthoritiesMap must be set");
+		Assert.notNull(this.attributes2grantedAuthoritiesMap, "attributes2grantedAuthoritiesMap must be set");
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes) {
 		ArrayList<GrantedAuthority> gaList = new ArrayList<>();
 		for (String attribute : attributes) {
-			Collection<GrantedAuthority> c = attributes2grantedAuthoritiesMap.get(attribute);
+			Collection<GrantedAuthority> c = this.attributes2grantedAuthoritiesMap.get(attribute);
 			if (c != null) {
 				gaList.addAll(c);
 			}
@@ -71,7 +71,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 * @return Returns the attributes2grantedAuthoritiesMap.
 	 */
 	public Map<String, Collection<GrantedAuthority>> getAttributes2grantedAuthoritiesMap() {
-		return attributes2grantedAuthoritiesMap;
+		return this.attributes2grantedAuthoritiesMap;
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 				"A non-empty attributes2grantedAuthoritiesMap must be supplied");
 		this.attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
 
-		mappableAttributes = Collections.unmodifiableSet(this.attributes2grantedAuthoritiesMap.keySet());
+		this.mappableAttributes = Collections.unmodifiableSet(this.attributes2grantedAuthoritiesMap.keySet());
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, String value) {
-		StringTokenizer st = new StringTokenizer(value, stringSeparator, false);
+		StringTokenizer st = new StringTokenizer(value, this.stringSeparator, false);
 		while (st.hasMoreTokens()) {
 			String nextToken = st.nextToken();
 			if (StringUtils.hasText(nextToken)) {
@@ -167,14 +167,14 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 * @see org.springframework.security.core.authority.mapping.MappableAttributesRetriever#getMappableAttributes()
 	 */
 	public Set<String> getMappableAttributes() {
-		return mappableAttributes;
+		return this.mappableAttributes;
 	}
 
 	/**
 	 * @return Returns the stringSeparator.
 	 */
 	public String getStringSeparator() {
-		return stringSeparator;
+		return this.stringSeparator;
 	}
 
 	/**

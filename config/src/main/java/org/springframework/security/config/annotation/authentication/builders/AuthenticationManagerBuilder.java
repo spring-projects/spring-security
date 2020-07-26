@@ -220,15 +220,16 @@ public class AuthenticationManagerBuilder
 	@Override
 	protected ProviderManager performBuild() throws Exception {
 		if (!isConfigured()) {
-			logger.debug("No authenticationProviders and no parentAuthenticationManager defined. Returning null.");
+			this.logger.debug("No authenticationProviders and no parentAuthenticationManager defined. Returning null.");
 			return null;
 		}
-		ProviderManager providerManager = new ProviderManager(authenticationProviders, parentAuthenticationManager);
-		if (eraseCredentials != null) {
-			providerManager.setEraseCredentialsAfterAuthentication(eraseCredentials);
+		ProviderManager providerManager = new ProviderManager(this.authenticationProviders,
+				this.parentAuthenticationManager);
+		if (this.eraseCredentials != null) {
+			providerManager.setEraseCredentialsAfterAuthentication(this.eraseCredentials);
 		}
-		if (eventPublisher != null) {
-			providerManager.setAuthenticationEventPublisher(eventPublisher);
+		if (this.eventPublisher != null) {
+			providerManager.setAuthenticationEventPublisher(this.eventPublisher);
 		}
 		providerManager = postProcess(providerManager);
 		return providerManager;
@@ -250,7 +251,7 @@ public class AuthenticationManagerBuilder
 	 * false
 	 */
 	public boolean isConfigured() {
-		return !authenticationProviders.isEmpty() || parentAuthenticationManager != null;
+		return !this.authenticationProviders.isEmpty() || this.parentAuthenticationManager != null;
 	}
 
 	/**

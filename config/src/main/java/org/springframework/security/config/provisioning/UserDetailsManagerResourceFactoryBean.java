@@ -42,7 +42,7 @@ public class UserDetailsManagerResourceFactoryBean
 
 	@Override
 	public InMemoryUserDetailsManager getObject() throws Exception {
-		Collection<UserDetails> users = userDetails.getObject();
+		Collection<UserDetails> users = this.userDetails.getObject();
 		return new InMemoryUserDetailsManager(users);
 	}
 
@@ -53,7 +53,7 @@ public class UserDetailsManagerResourceFactoryBean
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
-		userDetails.setResourceLoader(resourceLoader);
+		this.userDetails.setResourceLoader(resourceLoader);
 	}
 
 	/**

@@ -36,7 +36,7 @@ public class ExplicitSecurityContextSchedulingTaskExecutorTests
 	}
 
 	protected DelegatingSecurityContextSchedulingTaskExecutor create() {
-		return new DelegatingSecurityContextSchedulingTaskExecutor(taskExecutorDelegate, securityContext);
+		return new DelegatingSecurityContextSchedulingTaskExecutor(this.taskExecutorDelegate, this.securityContext);
 	}
 
 }

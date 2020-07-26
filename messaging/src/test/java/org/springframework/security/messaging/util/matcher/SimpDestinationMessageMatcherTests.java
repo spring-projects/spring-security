@@ -36,9 +36,9 @@ public class SimpDestinationMessageMatcherTests {
 
 	@Before
 	public void setup() {
-		messageBuilder = MessageBuilder.withPayload("M");
-		matcher = new SimpDestinationMessageMatcher("/**");
-		pathMatcher = new AntPathMatcher();
+		this.messageBuilder = MessageBuilder.withPayload("M");
+		this.matcher = new SimpDestinationMessageMatcher("/**");
+		this.pathMatcher = new AntPathMatcher();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -52,96 +52,96 @@ public class SimpDestinationMessageMatcherTests {
 
 	@Test
 	public void matchesDoesNotMatchNullDestination() {
-		assertThat(matcher.matches(messageBuilder.build())).isFalse();
+		assertThat(this.matcher.matches(this.messageBuilder.build())).isFalse();
 	}
 
 	@Test
 	public void matchesAllWithDestination() {
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/1");
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/1");
 
-		assertThat(matcher.matches(messageBuilder.build())).isTrue();
+		assertThat(this.matcher.matches(this.messageBuilder.build())).isTrue();
 	}
 
 	@Test
 	public void matchesSpecificWithDestination() {
-		matcher = new SimpDestinationMessageMatcher("/destination/1");
+		this.matcher = new SimpDestinationMessageMatcher("/destination/1");
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/1");
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/1");
 
-		assertThat(matcher.matches(messageBuilder.build())).isTrue();
+		assertThat(this.matcher.matches(this.messageBuilder.build())).isTrue();
 	}
 
 	@Test
 	public void matchesFalseWithDestination() {
-		matcher = new SimpDestinationMessageMatcher("/nomatch");
+		this.matcher = new SimpDestinationMessageMatcher("/nomatch");
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/1");
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/destination/1");
 
-		assertThat(matcher.matches(messageBuilder.build())).isFalse();
+		assertThat(this.matcher.matches(this.messageBuilder.build())).isFalse();
 	}
 
 	@Test
 	public void matchesFalseMessageTypeNotDisconnectType() {
-		matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match", pathMatcher);
+		this.matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match", this.pathMatcher);
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.DISCONNECT);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.DISCONNECT);
 
-		assertThat(matcher.matches(messageBuilder.build())).isFalse();
+		assertThat(this.matcher.matches(this.messageBuilder.build())).isFalse();
 	}
 
 	@Test
 	public void matchesTrueMessageType() {
-		matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match", pathMatcher);
+		this.matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match", this.pathMatcher);
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
 
-		assertThat(matcher.matches(messageBuilder.build())).isTrue();
+		assertThat(this.matcher.matches(this.messageBuilder.build())).isTrue();
 	}
 
 	@Test
 	public void matchesTrueSubscribeType() {
-		matcher = SimpDestinationMessageMatcher.createSubscribeMatcher("/match", pathMatcher);
+		this.matcher = SimpDestinationMessageMatcher.createSubscribeMatcher("/match", this.pathMatcher);
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.SUBSCRIBE);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.SUBSCRIBE);
 
-		assertThat(matcher.matches(messageBuilder.build())).isTrue();
+		assertThat(this.matcher.matches(this.messageBuilder.build())).isTrue();
 	}
 
 	@Test
 	public void matchesNullMessageType() {
-		matcher = new SimpDestinationMessageMatcher("/match");
+		this.matcher = new SimpDestinationMessageMatcher("/match");
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
 
-		assertThat(matcher.matches(messageBuilder.build())).isTrue();
+		assertThat(this.matcher.matches(this.messageBuilder.build())).isTrue();
 	}
 
 	@Test
 	public void extractPathVariablesFromDestination() {
-		matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
+		this.matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
 
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1");
-		messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1");
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
 
-		assertThat(matcher.extractPathVariables(messageBuilder.build()).get("topic")).isEqualTo("someTopic");
+		assertThat(this.matcher.extractPathVariables(this.messageBuilder.build()).get("topic")).isEqualTo("someTopic");
 	}
 
 	@Test
 	public void extractedVariablesAreEmptyInNullDestination() {
-		matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
-		assertThat(matcher.extractPathVariables(messageBuilder.build())).isEmpty();
+		this.matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
+		assertThat(this.matcher.extractPathVariables(this.messageBuilder.build())).isEmpty();
 	}
 
 	@Test
 	public void typeConstructorParameterIsTransmitted() {
-		matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match", pathMatcher);
+		this.matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match", this.pathMatcher);
 
 		MessageMatcher<Object> expectedTypeMatcher = new SimpMessageTypeMatcher(SimpMessageType.MESSAGE);
 
-		assertThat(matcher.getMessageTypeMatcher()).isEqualTo(expectedTypeMatcher);
+		assertThat(this.matcher.getMessageTypeMatcher()).isEqualTo(expectedTypeMatcher);
 
 	}
 

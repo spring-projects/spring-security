@@ -226,8 +226,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
 			Exception failed) throws IOException {
 
-		if (logger.isErrorEnabled()) {
-			logger.error("Authorization Request failed: " + failed.toString(), failed);
+		if (this.logger.isErrorEnabled()) {
+			this.logger.error("Authorization Request failed: " + failed.toString(), failed);
 		}
 		response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());

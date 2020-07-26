@@ -43,8 +43,8 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
 	@After
 	public void closeAppContext() {
-		if (appContext != null) {
-			appContext.close();
+		if (this.appContext != null) {
+			this.appContext.close();
 		}
 	}
 
@@ -53,17 +53,17 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 		setContext(" <authentication-provider>" + "        <user-service>"
 				+ "            <user name='bob' password='{noop}bobspassword' authorities='ROLE_A' />"
 				+ "        </user-service>" + "    </authentication-provider>");
-		getProvider().authenticate(bob);
+		getProvider().authenticate(this.bob);
 	}
 
 	@Test
 	public void externalUserServiceRefWorks() {
-		appContext = new InMemoryXmlApplicationContext(
+		this.appContext = new InMemoryXmlApplicationContext(
 				"    <authentication-manager>" + "        <authentication-provider user-service-ref='myUserService' />"
 						+ "    </authentication-manager>" + "    <user-service id='myUserService'>"
 						+ "       <user name='bob' password='{noop}bobspassword' authorities='ROLE_A' />"
 						+ "    </user-service>");
-		getProvider().authenticate(bob);
+		getProvider().authenticate(this.bob);
 	}
 
 	@Test
@@ -72,35 +72,35 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 				+ "            <user name='bob' password='$2a$05$dRmjl1T05J7rvCPD2NgsHesCEJHww3pdmesUhjM3PD4m/gaEYyx/G' authorities='ROLE_A' />"
 				+ "        </user-service>" + "    </authentication-provider>");
 
-		getProvider().authenticate(bob);
+		getProvider().authenticate(this.bob);
 	}
 
 	@Test
 	public void providerWithMd5PasswordEncoderWorks() {
-		appContext = new InMemoryXmlApplicationContext(" <authentication-manager>" + " <authentication-provider>"
+		this.appContext = new InMemoryXmlApplicationContext(" <authentication-manager>" + " <authentication-provider>"
 				+ "        <password-encoder ref='passwordEncoder'/>" + "        <user-service>"
 				+ "            <user name='bob' password='12b141f35d58b8b3a46eea65e6ac179e' authorities='ROLE_A' />"
 				+ "        </user-service>" + "    </authentication-provider>" + " </authentication-manager>"
 				+ " <b:bean id='passwordEncoder'  class='" + MessageDigestPasswordEncoder.class.getName() + "'>"
 				+ "     <b:constructor-arg value='MD5'/>" + " </b:bean>");
 
-		getProvider().authenticate(bob);
+		getProvider().authenticate(this.bob);
 	}
 
 	@Test
 	public void providerWithShaPasswordEncoderWorks() {
-		appContext = new InMemoryXmlApplicationContext(" <authentication-manager>" + " <authentication-provider>"
+		this.appContext = new InMemoryXmlApplicationContext(" <authentication-manager>" + " <authentication-provider>"
 				+ "        <password-encoder ref='passwordEncoder'/>" + "        <user-service>"
 				+ "            <user name='bob' password='{SSHA}PpuEwfdj7M1rs0C2W4ssSM2XEN/Y6S5U' authorities='ROLE_A' />"
 				+ "        </user-service>" + "    </authentication-provider>" + " </authentication-manager>"
 				+ " <b:bean id='passwordEncoder'  class='" + LdapShaPasswordEncoder.class.getName() + "'/>");
 
-		getProvider().authenticate(bob);
+		getProvider().authenticate(this.bob);
 	}
 
 	@Test
 	public void passwordIsBase64EncodedWhenBase64IsEnabled() {
-		appContext = new InMemoryXmlApplicationContext(" <authentication-manager>" + " <authentication-provider>"
+		this.appContext = new InMemoryXmlApplicationContext(" <authentication-manager>" + " <authentication-provider>"
 				+ "        <password-encoder ref='passwordEncoder'/>" + "        <user-service>"
 				+ "            <user name='bob' password='ErFB811YuLOkbupl5qwXng==' authorities='ROLE_A' />"
 				+ "        </user-service>" + "    </authentication-provider>" + " </authentication-manager>"
@@ -108,13 +108,13 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 				+ "     <b:constructor-arg value='MD5'/>" + "     <b:property name='encodeHashAsBase64' value='true'/>"
 				+ " </b:bean>");
 
-		getProvider().authenticate(bob);
+		getProvider().authenticate(this.bob);
 	}
 
 	// SEC-1466
 	@Test(expected = BeanDefinitionParsingException.class)
 	public void exernalProviderDoesNotSupportChildElements() {
-		appContext = new InMemoryXmlApplicationContext("    <authentication-manager>"
+		this.appContext = new InMemoryXmlApplicationContext("    <authentication-manager>"
 				+ "      <authentication-provider ref='aProvider'> "
 				+ "        <password-encoder ref='customPasswordEncoder'/>" + "      </authentication-provider>"
 				+ "    </authentication-manager>"
@@ -124,14 +124,14 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	}
 
 	private AuthenticationProvider getProvider() {
-		List<AuthenticationProvider> providers = ((ProviderManager) appContext.getBean(BeanIds.AUTHENTICATION_MANAGER))
-				.getProviders();
+		List<AuthenticationProvider> providers = ((ProviderManager) this.appContext
+				.getBean(BeanIds.AUTHENTICATION_MANAGER)).getProviders();
 
 		return providers.get(0);
 	}
 
 	private void setContext(String context) {
-		appContext = new InMemoryXmlApplicationContext(
+		this.appContext = new InMemoryXmlApplicationContext(
 				"<authentication-manager>" + context + "</authentication-manager>");
 	}
 

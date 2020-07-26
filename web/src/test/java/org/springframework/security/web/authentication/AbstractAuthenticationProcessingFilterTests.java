@@ -83,10 +83,10 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 	@Before
 	public void setUp() {
-		successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-		successHandler.setDefaultTargetUrl("/logged_in.jsp");
-		failureHandler = new SimpleUrlAuthenticationFailureHandler();
-		failureHandler.setDefaultFailureUrl("/failed.jsp");
+		this.successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+		this.successHandler.setDefaultTargetUrl("/logged_in.jsp");
+		this.failureHandler = new SimpleUrlAuthenticationFailureHandler();
+		this.failureHandler.setDefaultFailureUrl("/failed.jsp");
 		SecurityContextHolder.clearContext();
 	}
 
@@ -128,7 +128,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		// Setup our test object, to grant access
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
 		filter.setFilterProcessesUrl("/j_OTHER_LOCATION");
-		filter.setAuthenticationSuccessHandler(successHandler);
+		filter.setAuthenticationSuccessHandler(this.successHandler);
 
 		// Test
 		filter.doFilter(request, response, chain);
@@ -192,8 +192,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		filter.setFilterProcessesUrl("/j_mock_post");
 		filter.setSessionAuthenticationStrategy(mock(SessionAuthenticationStrategy.class));
-		filter.setAuthenticationSuccessHandler(successHandler);
-		filter.setAuthenticationFailureHandler(failureHandler);
+		filter.setAuthenticationSuccessHandler(this.successHandler);
+		filter.setAuthenticationFailureHandler(this.failureHandler);
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.afterPropertiesSet();
 
@@ -225,8 +225,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 				mock(AuthenticationManager.class));
 
 		filter.setSessionAuthenticationStrategy(mock(SessionAuthenticationStrategy.class));
-		filter.setAuthenticationSuccessHandler(successHandler);
-		filter.setAuthenticationFailureHandler(failureHandler);
+		filter.setAuthenticationSuccessHandler(this.successHandler);
+		filter.setAuthenticationFailureHandler(this.failureHandler);
 		filter.afterPropertiesSet();
 
 		// Test
@@ -259,8 +259,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 				new AntPathRequestMatcher("/j_eradicate_corona_virus"), mock(AuthenticationManager.class));
 
 		filter.setSessionAuthenticationStrategy(mock(SessionAuthenticationStrategy.class));
-		filter.setAuthenticationSuccessHandler(successHandler);
-		filter.setAuthenticationFailureHandler(failureHandler);
+		filter.setAuthenticationSuccessHandler(this.successHandler);
+		filter.setAuthenticationFailureHandler(this.failureHandler);
 		filter.afterPropertiesSet();
 
 		// Test
@@ -275,9 +275,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 	@Test
 	public void testStartupDetectsInvalidAuthenticationManager() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
-		filter.setAuthenticationFailureHandler(failureHandler);
-		successHandler.setDefaultTargetUrl("/");
-		filter.setAuthenticationSuccessHandler(successHandler);
+		filter.setAuthenticationFailureHandler(this.failureHandler);
+		this.successHandler.setDefaultTargetUrl("/");
+		filter.setAuthenticationSuccessHandler(this.successHandler);
 		filter.setFilterProcessesUrl("/login");
 
 		try {
@@ -292,9 +292,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 	@Test
 	public void testStartupDetectsInvalidFilterProcessesUrl() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
-		filter.setAuthenticationFailureHandler(failureHandler);
+		filter.setAuthenticationFailureHandler(this.failureHandler);
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
-		filter.setAuthenticationSuccessHandler(successHandler);
+		filter.setAuthenticationSuccessHandler(this.successHandler);
 
 		try {
 			filter.setFilterProcessesUrl(null);
@@ -321,7 +321,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		// Setup our test object, to grant access
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
 		filter.setFilterProcessesUrl("/j_mock_post");
-		filter.setAuthenticationSuccessHandler(successHandler);
+		filter.setAuthenticationSuccessHandler(this.successHandler);
 
 		// Test
 		filter.doFilter(request, response, chain);
@@ -339,7 +339,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		// Setup our test object, to deny access
 		filter = new MockAuthenticationFilter(false);
 		filter.setFilterProcessesUrl("/j_mock_post");
-		filter.setAuthenticationFailureHandler(failureHandler);
+		filter.setAuthenticationFailureHandler(this.failureHandler);
 
 		// Test
 		filter.doFilter(request, response, chain);
@@ -414,8 +414,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		// Reject authentication, so exception would normally be stored in session
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
-		failureHandler.setAllowSessionCreation(false);
-		filter.setAuthenticationFailureHandler(failureHandler);
+		this.failureHandler.setAllowSessionCreation(false);
+		filter.setAuthenticationFailureHandler(this.failureHandler);
 
 		filter.doFilter(request, response, chain);
 
@@ -434,8 +434,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
-		successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
-		filter.setAuthenticationSuccessHandler(successHandler);
+		this.successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
+		filter.setAuthenticationSuccessHandler(this.successHandler);
 
 		filter.doFilter(request, response, chain);
 
@@ -456,8 +456,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
 		ReflectionTestUtils.setField(filter, "logger", logger);
 		filter.exceptionToThrow = new InternalAuthenticationServiceException("Mock requested to do so");
-		successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
-		filter.setAuthenticationSuccessHandler(successHandler);
+		this.successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
+		filter.setAuthenticationSuccessHandler(this.successHandler);
 
 		filter.doFilter(request, response, chain);
 
@@ -508,12 +508,12 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 				throws AuthenticationException {
-			if (grantAccess) {
+			if (this.grantAccess) {
 				return new UsernamePasswordAuthenticationToken("test", "test",
 						AuthorityUtils.createAuthorityList("TEST"));
 			}
 			else {
-				throw exceptionToThrow;
+				throw this.exceptionToThrow;
 			}
 		}
 
@@ -533,7 +533,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		}
 
 		public void doFilter(ServletRequest request, ServletResponse response) {
-			if (!expectToProceed) {
+			if (!this.expectToProceed) {
 				fail("Did not expect filter chain to proceed");
 			}
 		}

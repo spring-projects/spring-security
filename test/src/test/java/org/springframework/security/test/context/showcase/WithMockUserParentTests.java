@@ -41,7 +41,7 @@ public class WithMockUserParentTests extends WithMockUserParent {
 
 	@Test
 	public void getMessageWithMockUser() {
-		String message = messageService.getMessage();
+		String message = this.messageService.getMessage();
 		assertThat(message).contains("user");
 	}
 

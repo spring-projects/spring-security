@@ -41,7 +41,7 @@ public class SpringCacheBasedUserCache implements UserCache {
 	}
 
 	public UserDetails getUserFromCache(String username) {
-		Cache.ValueWrapper element = username != null ? cache.get(username) : null;
+		Cache.ValueWrapper element = username != null ? this.cache.get(username) : null;
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cache hit: " + (element != null) + "; username: " + username);
@@ -59,7 +59,7 @@ public class SpringCacheBasedUserCache implements UserCache {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cache put: " + user.getUsername());
 		}
-		cache.put(user.getUsername(), user);
+		this.cache.put(user.getUsername(), user);
 	}
 
 	public void removeUserFromCache(UserDetails user) {
@@ -71,7 +71,7 @@ public class SpringCacheBasedUserCache implements UserCache {
 	}
 
 	public void removeUserFromCache(String username) {
-		cache.evict(username);
+		this.cache.evict(username);
 	}
 
 }

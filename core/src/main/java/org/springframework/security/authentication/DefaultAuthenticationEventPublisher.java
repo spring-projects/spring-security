@@ -94,8 +94,8 @@ public class DefaultAuthenticationEventPublisher
 	}
 
 	public void publishAuthenticationSuccess(Authentication authentication) {
-		if (applicationEventPublisher != null) {
-			applicationEventPublisher.publishEvent(new AuthenticationSuccessEvent(authentication));
+		if (this.applicationEventPublisher != null) {
+			this.applicationEventPublisher.publishEvent(new AuthenticationSuccessEvent(authentication));
 		}
 	}
 
@@ -112,13 +112,13 @@ public class DefaultAuthenticationEventPublisher
 		}
 
 		if (event != null) {
-			if (applicationEventPublisher != null) {
-				applicationEventPublisher.publishEvent(event);
+			if (this.applicationEventPublisher != null) {
+				this.applicationEventPublisher.publishEvent(event);
 			}
 		}
 		else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No event was found for the exception " + exception.getClass().getName());
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("No event was found for the exception " + exception.getClass().getName());
 			}
 		}
 	}
@@ -201,7 +201,7 @@ public class DefaultAuthenticationEventPublisher
 		try {
 			Constructor<? extends AbstractAuthenticationEvent> constructor = eventClass
 					.getConstructor(Authentication.class, AuthenticationException.class);
-			exceptionMappings.put(exceptionClass, constructor);
+			this.exceptionMappings.put(exceptionClass, constructor);
 		}
 		catch (NoSuchMethodException e) {
 			throw new RuntimeException(

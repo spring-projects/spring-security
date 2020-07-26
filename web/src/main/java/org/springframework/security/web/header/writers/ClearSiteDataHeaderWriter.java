@@ -76,8 +76,8 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 				response.setHeader(CLEAR_SITE_DATA_HEADER, this.headerValue);
 			}
 		}
-		else if (logger.isDebugEnabled()) {
-			logger.debug("Not injecting Clear-Site-Data header since it did not match the " + "requestMatcher "
+		else if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Not injecting Clear-Site-Data header since it did not match the " + "requestMatcher "
 					+ this.requestMatcher);
 		}
 	}

@@ -41,7 +41,7 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 
 	@Override
 	public String getAuthority() {
-		return role;
+		return this.role;
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 		}
 
 		if (obj instanceof SimpleGrantedAuthority) {
-			return role.equals(((SimpleGrantedAuthority) obj).role);
+			return this.role.equals(((SimpleGrantedAuthority) obj).role);
 		}
 
 		return false;

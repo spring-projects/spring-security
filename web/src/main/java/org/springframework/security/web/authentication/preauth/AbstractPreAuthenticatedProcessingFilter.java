@@ -113,7 +113,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			// convert to RuntimeException for passivity on afterPropertiesSet signature
 			throw new RuntimeException(e);
 		}
-		Assert.notNull(authenticationManager, "An AuthenticationManager must be set");
+		Assert.notNull(this.authenticationManager, "An AuthenticationManager must be set");
 	}
 
 	/**
@@ -123,11 +123,12 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Checking secure context token: " + SecurityContextHolder.getContext().getAuthentication());
+		if (this.logger.isDebugEnabled()) {
+			this.logger
+					.debug("Checking secure context token: " + SecurityContextHolder.getContext().getAuthentication());
 		}
 
-		if (requiresAuthenticationRequestMatcher.matches((HttpServletRequest) request)) {
+		if (this.requiresAuthenticationRequestMatcher.matches((HttpServletRequest) request)) {
 			doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
 		}
 
@@ -164,8 +165,9 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			return false;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
+		if (this.logger.isDebugEnabled()) {
+			this.logger
+					.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
 		}
 		return true;
 	}
@@ -181,28 +183,28 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 		Object credentials = getPreAuthenticatedCredentials(request);
 
 		if (principal == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No pre-authenticated principal found in request");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("No pre-authenticated principal found in request");
 			}
 
 			return;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("preAuthenticatedPrincipal = " + principal + ", trying to authenticate");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("preAuthenticatedPrincipal = " + principal + ", trying to authenticate");
 		}
 
 		try {
 			PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(principal,
 					credentials);
-			authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
-			authResult = authenticationManager.authenticate(authRequest);
+			authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+			authResult = this.authenticationManager.authenticate(authRequest);
 			successfulAuthentication(request, response, authResult);
 		}
 		catch (AuthenticationException failed) {
 			unsuccessfulAuthentication(request, response, failed);
 
-			if (!continueFilterChainOnUnsuccessfulAuthentication) {
+			if (!this.continueFilterChainOnUnsuccessfulAuthentication) {
 				throw failed;
 			}
 		}
@@ -214,17 +216,17 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 */
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			Authentication authResult) throws IOException, ServletException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication success: " + authResult);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Authentication success: " + authResult);
 		}
 		SecurityContextHolder.getContext().setAuthentication(authResult);
 		// Fire event
 		if (this.eventPublisher != null) {
-			eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
+			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
 
-		if (authenticationSuccessHandler != null) {
-			authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
+		if (this.authenticationSuccessHandler != null) {
+			this.authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
 		}
 	}
 
@@ -238,13 +240,13 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cleared security context due to exception", failed);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Cleared security context due to exception", failed);
 		}
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
 
-		if (authenticationFailureHandler != null) {
-			authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
+		if (this.authenticationFailureHandler != null) {
+			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
 	}
 
@@ -265,7 +267,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	protected AuthenticationDetailsSource<HttpServletRequest, ?> getAuthenticationDetailsSource() {
-		return authenticationDetailsSource;
+		return this.authenticationDetailsSource;
 	}
 
 	/**
@@ -284,7 +286,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 * failed authentication.
 	 */
 	public void setContinueFilterChainOnUnsuccessfulAuthentication(boolean shouldContinue) {
-		continueFilterChainOnUnsuccessfulAuthentication = shouldContinue;
+		this.continueFilterChainOnUnsuccessfulAuthentication = shouldContinue;
 	}
 
 	/**
@@ -357,7 +359,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 				return true;
 			}
 
-			if (!checkForPrincipalChanges) {
+			if (!AbstractPreAuthenticatedProcessingFilter.this.checkForPrincipalChanges) {
 				return false;
 			}
 
@@ -365,15 +367,16 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 				return false;
 			}
 
-			logger.debug("Pre-authenticated principal has changed and will be reauthenticated");
+			AbstractPreAuthenticatedProcessingFilter.this.logger
+					.debug("Pre-authenticated principal has changed and will be reauthenticated");
 
-			if (invalidateSessionOnPrincipalChange) {
+			if (AbstractPreAuthenticatedProcessingFilter.this.invalidateSessionOnPrincipalChange) {
 				SecurityContextHolder.clearContext();
 
 				HttpSession session = request.getSession(false);
 
 				if (session != null) {
-					logger.debug("Invalidating existing session");
+					AbstractPreAuthenticatedProcessingFilter.this.logger.debug("Invalidating existing session");
 					session.invalidate();
 					request.getSession();
 				}

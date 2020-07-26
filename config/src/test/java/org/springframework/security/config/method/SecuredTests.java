@@ -46,14 +46,14 @@ public class SecuredTests {
 	public void securedAdminRoleDenied() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
-		service.securedAdminRole();
+		this.service.securedAdminRole();
 	}
 
 	@Test
 	public void securedAdminRoleGranted() {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		service.securedAdminRole();
+		this.service.securedAdminRole();
 	}
 
 }

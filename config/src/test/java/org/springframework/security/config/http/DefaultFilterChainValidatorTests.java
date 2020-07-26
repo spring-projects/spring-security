@@ -68,17 +68,17 @@ public class DefaultFilterChainValidatorTests {
 	@Before
 	public void setUp() {
 		AnonymousAuthenticationFilter aaf = new AnonymousAuthenticationFilter("anonymous");
-		fsi = new FilterSecurityInterceptor();
-		fsi.setAccessDecisionManager(accessDecisionManager);
-		fsi.setSecurityMetadataSource(metadataSource);
+		this.fsi = new FilterSecurityInterceptor();
+		this.fsi.setAccessDecisionManager(this.accessDecisionManager);
+		this.fsi.setSecurityMetadataSource(this.metadataSource);
 		AuthenticationEntryPoint authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint("/login");
 		ExceptionTranslationFilter etf = new ExceptionTranslationFilter(authenticationEntryPoint);
 		DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, aaf, etf,
-				fsi);
-		fcp = new FilterChainProxy(securityChain);
-		validator = new DefaultFilterChainValidator();
+				this.fsi);
+		this.fcp = new FilterChainProxy(securityChain);
+		this.validator = new DefaultFilterChainValidator();
 
-		ReflectionTestUtils.setField(validator, "logger", logger);
+		ReflectionTestUtils.setField(this.validator, "logger", this.logger);
 	}
 
 	// SEC-1878
@@ -86,10 +86,10 @@ public class DefaultFilterChainValidatorTests {
 	@Test
 	public void validateCheckLoginPageIsntProtectedThrowsIllegalArgumentException() {
 		IllegalArgumentException toBeThrown = new IllegalArgumentException("failed to eval expression");
-		doThrow(toBeThrown).when(accessDecisionManager).decide(any(Authentication.class), anyObject(),
+		doThrow(toBeThrown).when(this.accessDecisionManager).decide(any(Authentication.class), anyObject(),
 				any(Collection.class));
-		validator.validate(fcp);
-		verify(logger).info(
+		this.validator.validate(this.fcp);
+		verify(this.logger).info(
 				"Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.",
 				toBeThrown);
 	}
@@ -99,9 +99,9 @@ public class DefaultFilterChainValidatorTests {
 	public void validateCustomMetadataSource() {
 		FilterInvocationSecurityMetadataSource customMetaDataSource = mock(
 				FilterInvocationSecurityMetadataSource.class);
-		fsi.setSecurityMetadataSource(customMetaDataSource);
+		this.fsi.setSecurityMetadataSource(customMetaDataSource);
 
-		validator.validate(fcp);
+		this.validator.validate(this.fcp);
 
 		verify(customMetaDataSource).getAttributes(any());
 	}

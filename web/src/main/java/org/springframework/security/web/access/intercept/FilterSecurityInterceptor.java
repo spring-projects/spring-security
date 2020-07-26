@@ -97,14 +97,14 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
 	public void invoke(FilterInvocation fi) throws IOException, ServletException {
 		if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
-				&& observeOncePerRequest) {
+				&& this.observeOncePerRequest) {
 			// filter already applied to this request and user wants us to observe
 			// once-per-request handling, so don't re-do security checking
 			fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
 		}
 		else {
 			// first time this request being called, so perform security checking
-			if (fi.getRequest() != null && observeOncePerRequest) {
+			if (fi.getRequest() != null && this.observeOncePerRequest) {
 				fi.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
 			}
 
@@ -132,7 +132,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	 * authorizations for each and every fragment of the HTTP request.
 	 */
 	public boolean isObserveOncePerRequest() {
-		return observeOncePerRequest;
+		return this.observeOncePerRequest;
 	}
 
 	public void setObserveOncePerRequest(boolean observeOncePerRequest) {

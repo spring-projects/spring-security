@@ -55,7 +55,8 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 			.providerConfigurationMetadata(Collections.singletonMap("end_session_endpoint", "https://endpoint"))
 			.build();
 
-	ReactiveClientRegistrationRepository repository = new InMemoryReactiveClientRegistrationRepository(registration);
+	ReactiveClientRegistrationRepository repository = new InMemoryReactiveClientRegistrationRepository(
+			this.registration);
 
 	ServerWebExchange exchange;
 
@@ -78,7 +79,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
-		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 		this.handler.onLogoutSuccess(f, token).block();
 
 		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?id_token_hint=id-token");
@@ -89,7 +90,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		Authentication token = mock(Authentication.class);
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
-		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		this.handler.setLogoutSuccessUrl(URI.create("https://default"));
 		this.handler.onLogoutSuccess(f, token).block();
@@ -103,7 +104,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
-		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		this.handler.setLogoutSuccessUrl(URI.create("https://default"));
 		this.handler.onLogoutSuccess(f, token).block();
@@ -124,7 +125,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 				AuthorityUtils.NO_AUTHORITIES, registration.getRegistrationId());
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
-		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		handler.setLogoutSuccessUrl(URI.create("https://default"));
 		handler.onLogoutSuccess(f, token).block();
@@ -139,7 +140,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
-		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
 		this.handler.onLogoutSuccess(f, token).block();
@@ -157,7 +158,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		MockServerHttpRequest request = MockServerHttpRequest.get("https://rp.example.org/").build();
 		when(this.exchange.getRequest()).thenReturn(request);
-		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		this.handler.setPostLogoutRedirectUri("{baseUrl}");
 		this.handler.onLogoutSuccess(f, token).block();

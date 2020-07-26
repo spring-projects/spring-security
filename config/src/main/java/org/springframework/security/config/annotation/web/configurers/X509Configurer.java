@@ -185,27 +185,27 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private X509AuthenticationFilter getFilter(AuthenticationManager authenticationManager) {
-		if (x509AuthenticationFilter == null) {
-			x509AuthenticationFilter = new X509AuthenticationFilter();
-			x509AuthenticationFilter.setAuthenticationManager(authenticationManager);
-			if (x509PrincipalExtractor != null) {
-				x509AuthenticationFilter.setPrincipalExtractor(x509PrincipalExtractor);
+		if (this.x509AuthenticationFilter == null) {
+			this.x509AuthenticationFilter = new X509AuthenticationFilter();
+			this.x509AuthenticationFilter.setAuthenticationManager(authenticationManager);
+			if (this.x509PrincipalExtractor != null) {
+				this.x509AuthenticationFilter.setPrincipalExtractor(this.x509PrincipalExtractor);
 			}
-			if (authenticationDetailsSource != null) {
-				x509AuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+			if (this.authenticationDetailsSource != null) {
+				this.x509AuthenticationFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 			}
-			x509AuthenticationFilter = postProcess(x509AuthenticationFilter);
+			this.x509AuthenticationFilter = postProcess(this.x509AuthenticationFilter);
 		}
 
-		return x509AuthenticationFilter;
+		return this.x509AuthenticationFilter;
 	}
 
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getAuthenticationUserDetailsService(
 			H http) {
-		if (authenticationUserDetailsService == null) {
+		if (this.authenticationUserDetailsService == null) {
 			userDetailsService(http.getSharedObject(UserDetailsService.class));
 		}
-		return authenticationUserDetailsService;
+		return this.authenticationUserDetailsService;
 	}
 
 }

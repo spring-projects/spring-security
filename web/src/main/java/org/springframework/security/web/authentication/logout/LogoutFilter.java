@@ -78,7 +78,7 @@ public class LogoutFilter extends GenericFilterBean {
 		if (StringUtils.hasText(logoutSuccessUrl)) {
 			urlLogoutSuccessHandler.setDefaultTargetUrl(logoutSuccessUrl);
 		}
-		logoutSuccessHandler = urlLogoutSuccessHandler;
+		this.logoutSuccessHandler = urlLogoutSuccessHandler;
 		setFilterProcessesUrl("/logout");
 	}
 
@@ -90,13 +90,13 @@ public class LogoutFilter extends GenericFilterBean {
 		if (requiresLogout(request, response)) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Logging out user '" + auth + "' and transferring to logout destination");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Logging out user '" + auth + "' and transferring to logout destination");
 			}
 
 			this.handler.logout(request, response, auth);
 
-			logoutSuccessHandler.onLogoutSuccess(request, response, auth);
+			this.logoutSuccessHandler.onLogoutSuccess(request, response, auth);
 
 			return;
 		}
@@ -111,7 +111,7 @@ public class LogoutFilter extends GenericFilterBean {
 	 * @return <code>true</code> if logout should occur, <code>false</code> otherwise
 	 */
 	protected boolean requiresLogout(HttpServletRequest request, HttpServletResponse response) {
-		return logoutRequestMatcher.matches(request);
+		return this.logoutRequestMatcher.matches(request);
 	}
 
 	public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {

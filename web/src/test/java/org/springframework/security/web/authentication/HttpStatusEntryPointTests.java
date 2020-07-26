@@ -42,11 +42,11 @@ public class HttpStatusEntryPointTests {
 	@SuppressWarnings("serial")
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		authException = new AuthenticationException("") {
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.authException = new AuthenticationException("") {
 		};
-		entryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
+		this.entryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -56,9 +56,9 @@ public class HttpStatusEntryPointTests {
 
 	@Test
 	public void unauthorized() throws Exception {
-		entryPoint.commence(request, response, authException);
+		this.entryPoint.commence(this.request, this.response, this.authException);
 
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 	}
 
 }

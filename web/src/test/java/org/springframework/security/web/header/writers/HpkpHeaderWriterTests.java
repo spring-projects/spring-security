@@ -55,154 +55,154 @@ public class HpkpHeaderWriterTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 
-		writer = new HpkpHeaderWriter();
+		this.writer = new HpkpHeaderWriter();
 
 		Map<String, String> defaultPins = new LinkedHashMap<>();
 		defaultPins.put("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "sha256");
 
-		writer.setPins(defaultPins);
+		this.writer.setPins(defaultPins);
 
-		request.setSecure(true);
+		this.request.setSecure(true);
 	}
 
 	@Test
 	public void writeHeadersDefaultValues() {
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins-Report-Only"))
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins-Report-Only"))
 				.isEqualTo("max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"");
 	}
 
 	@Test
 	public void maxAgeCustomConstructorWriteHeaders() {
-		writer = new HpkpHeaderWriter(2592000);
-		writer.setPins(DEFAULT_PINS);
+		this.writer = new HpkpHeaderWriter(2592000);
+		this.writer.setPins(DEFAULT_PINS);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins-Report-Only"))
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins-Report-Only"))
 				.isEqualTo("max-age=2592000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"");
 	}
 
 	@Test
 	public void maxAgeAndIncludeSubdomainsCustomConstructorWriteHeaders() {
-		writer = new HpkpHeaderWriter(2592000, true);
-		writer.setPins(DEFAULT_PINS);
+		this.writer = new HpkpHeaderWriter(2592000, true);
+		this.writer.setPins(DEFAULT_PINS);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins-Report-Only")).isEqualTo(
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins-Report-Only")).isEqualTo(
 				"max-age=2592000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; includeSubDomains");
 	}
 
 	@Test
 	public void allArgsCustomConstructorWriteHeaders() {
-		writer = new HpkpHeaderWriter(2592000, true, false);
-		writer.setPins(DEFAULT_PINS);
+		this.writer = new HpkpHeaderWriter(2592000, true, false);
+		this.writer.setPins(DEFAULT_PINS);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins")).isEqualTo(
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins")).isEqualTo(
 				"max-age=2592000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; includeSubDomains");
 	}
 
 	@Test
 	public void writeHeadersCustomMaxAgeInSeconds() {
-		writer.setMaxAgeInSeconds(2592000);
+		this.writer.setMaxAgeInSeconds(2592000);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins-Report-Only"))
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins-Report-Only"))
 				.isEqualTo("max-age=2592000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"");
 	}
 
 	@Test
 	public void writeHeadersIncludeSubDomains() {
-		writer.setIncludeSubDomains(true);
+		this.writer.setIncludeSubDomains(true);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins-Report-Only")).isEqualTo(
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins-Report-Only")).isEqualTo(
 				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; includeSubDomains");
 	}
 
 	@Test
 	public void writeHeadersTerminateConnection() {
-		writer.setReportOnly(false);
+		this.writer.setReportOnly(false);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins"))
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins"))
 				.isEqualTo("max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"");
 	}
 
 	@Test
 	public void writeHeadersTerminateConnectionWithURI() throws URISyntaxException {
-		writer.setReportOnly(false);
-		writer.setReportUri(new URI("https://example.com/pkp-report"));
+		this.writer.setReportOnly(false);
+		this.writer.setReportUri(new URI("https://example.com/pkp-report"));
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins")).isEqualTo(
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins")).isEqualTo(
 				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.com/pkp-report\"");
 	}
 
 	@Test
 	public void writeHeadersTerminateConnectionWithURIAsString() {
-		writer.setReportOnly(false);
-		writer.setReportUri("https://example.com/pkp-report");
+		this.writer.setReportOnly(false);
+		this.writer.setReportUri("https://example.com/pkp-report");
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins")).isEqualTo(
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins")).isEqualTo(
 				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.com/pkp-report\"");
 	}
 
 	@Test
 	public void writeHeadersAddSha256Pins() {
-		writer.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=",
+		this.writer.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=",
 				"E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=");
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader("Public-Key-Pins-Report-Only")).isEqualTo(
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeader("Public-Key-Pins-Report-Only")).isEqualTo(
 				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; pin-sha256=\"E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=\"");
 	}
 
 	@Test
 	public void writeHeadersInsecureRequestDoesNotWriteHeader() {
-		request.setSecure(false);
+		this.request.setSecure(false);
 
-		writer.writeHeaders(request, response);
+		this.writer.writeHeaders(this.request, this.response);
 
-		assertThat(response.getHeaderNames()).isEmpty();
+		assertThat(this.response.getHeaderNames()).isEmpty();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setMaxAgeInSecondsToNegative() {
-		writer.setMaxAgeInSeconds(-1);
+		this.writer.setMaxAgeInSeconds(-1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void addSha256PinsWithNullPin() {
-		writer.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", null);
+		this.writer.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setIncorrectReportUri() {
-		writer.setReportUri("some url here...");
+		this.writer.setReportUri("some url here...");
 	}
 
 	@Test

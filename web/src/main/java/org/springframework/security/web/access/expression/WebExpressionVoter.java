@@ -46,7 +46,7 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 			return ACCESS_ABSTAIN;
 		}
 
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, fi);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, fi);
 		ctx = weca.postProcess(ctx, fi);
 
 		return ExpressionUtils.evaluateAsBoolean(weca.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED : ACCESS_DENIED;

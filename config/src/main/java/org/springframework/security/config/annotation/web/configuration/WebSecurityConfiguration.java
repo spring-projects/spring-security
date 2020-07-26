@@ -88,7 +88,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	@Bean
 	@DependsOn(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
 	public SecurityExpressionHandler<FilterInvocation> webSecurityExpressionHandler() {
-		return webSecurity.getExpressionHandler();
+		return this.webSecurity.getExpressionHandler();
 	}
 
 	/**
@@ -98,28 +98,28 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	 */
 	@Bean(name = AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
 	public Filter springSecurityFilterChain() throws Exception {
-		boolean hasConfigurers = webSecurityConfigurers != null && !webSecurityConfigurers.isEmpty();
-		boolean hasFilterChain = !securityFilterChains.isEmpty();
+		boolean hasConfigurers = this.webSecurityConfigurers != null && !this.webSecurityConfigurers.isEmpty();
+		boolean hasFilterChain = !this.securityFilterChains.isEmpty();
 		if (hasConfigurers && hasFilterChain) {
 			throw new IllegalStateException(
 					"Found WebSecurityConfigurerAdapter as well as SecurityFilterChain." + "Please select just one.");
 		}
 		if (!hasConfigurers && !hasFilterChain) {
-			WebSecurityConfigurerAdapter adapter = objectObjectPostProcessor
+			WebSecurityConfigurerAdapter adapter = this.objectObjectPostProcessor
 					.postProcess(new WebSecurityConfigurerAdapter() {
 					});
-			webSecurity.apply(adapter);
+			this.webSecurity.apply(adapter);
 		}
-		for (SecurityFilterChain securityFilterChain : securityFilterChains) {
-			webSecurity.addSecurityFilterChainBuilder(() -> securityFilterChain);
+		for (SecurityFilterChain securityFilterChain : this.securityFilterChains) {
+			this.webSecurity.addSecurityFilterChainBuilder(() -> securityFilterChain);
 			for (Filter filter : securityFilterChain.getFilters()) {
 				if (filter instanceof FilterSecurityInterceptor) {
-					webSecurity.securityInterceptor((FilterSecurityInterceptor) filter);
+					this.webSecurity.securityInterceptor((FilterSecurityInterceptor) filter);
 					break;
 				}
 			}
 		}
-		return webSecurity.build();
+		return this.webSecurity.build();
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	@Bean
 	@DependsOn(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
 	public WebInvocationPrivilegeEvaluator privilegeEvaluator() {
-		return webSecurity.getPrivilegeEvaluator();
+		return this.webSecurity.getPrivilegeEvaluator();
 	}
 
 	/**
@@ -147,9 +147,9 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	public void setFilterChainProxySecurityConfigurer(ObjectPostProcessor<Object> objectPostProcessor,
 			@Value("#{@autowiredWebSecurityConfigurersIgnoreParents.getWebSecurityConfigurers()}") List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers)
 			throws Exception {
-		webSecurity = objectPostProcessor.postProcess(new WebSecurity(objectPostProcessor));
-		if (debugEnabled != null) {
-			webSecurity.debug(debugEnabled);
+		this.webSecurity = objectPostProcessor.postProcess(new WebSecurity(objectPostProcessor));
+		if (this.debugEnabled != null) {
+			this.webSecurity.debug(this.debugEnabled);
 		}
 
 		webSecurityConfigurers.sort(AnnotationAwareOrderComparator.INSTANCE);
@@ -166,7 +166,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 			previousConfig = config;
 		}
 		for (SecurityConfigurer<Filter, WebSecurity> webSecurityConfigurer : webSecurityConfigurers) {
-			webSecurity.apply(webSecurityConfigurer);
+			this.webSecurity.apply(webSecurityConfigurer);
 		}
 		this.webSecurityConfigurers = webSecurityConfigurers;
 	}
@@ -231,9 +231,9 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		Map<String, Object> enableWebSecurityAttrMap = importMetadata
 				.getAnnotationAttributes(EnableWebSecurity.class.getName());
 		AnnotationAttributes enableWebSecurityAttrs = AnnotationAttributes.fromMap(enableWebSecurityAttrMap);
-		debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
-		if (webSecurity != null) {
-			webSecurity.debug(debugEnabled);
+		this.debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
+		if (this.webSecurity != null) {
+			this.webSecurity.debug(this.debugEnabled);
 		}
 	}
 

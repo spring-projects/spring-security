@@ -36,7 +36,7 @@ public class CachingUserDetailsService implements UserDetailsService {
 	}
 
 	public UserCache getUserCache() {
-		return userCache;
+		return this.userCache;
 	}
 
 	public void setUserCache(UserCache userCache) {
@@ -44,16 +44,16 @@ public class CachingUserDetailsService implements UserDetailsService {
 	}
 
 	public UserDetails loadUserByUsername(String username) {
-		UserDetails user = userCache.getUserFromCache(username);
+		UserDetails user = this.userCache.getUserFromCache(username);
 
 		if (user == null) {
-			user = delegate.loadUserByUsername(username);
+			user = this.delegate.loadUserByUsername(username);
 		}
 
-		Assert.notNull(user, () -> "UserDetailsService " + delegate + " returned null for username " + username + ". "
-				+ "This is an interface contract violation");
+		Assert.notNull(user, () -> "UserDetailsService " + this.delegate + " returned null for username " + username
+				+ ". " + "This is an interface contract violation");
 
-		userCache.putUserInCache(user);
+		this.userCache.putUserInCache(user);
 
 		return user;
 	}

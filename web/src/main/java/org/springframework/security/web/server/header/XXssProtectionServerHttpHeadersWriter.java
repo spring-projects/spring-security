@@ -53,7 +53,7 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return delegate.writeHttpHeaders(exchange);
+		return this.delegate.writeHttpHeaders(exchange);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	 * @param block the new value
 	 */
 	public void setBlock(boolean block) {
-		if (!enabled && block) {
+		if (!this.enabled && block) {
 			throw new IllegalArgumentException("Cannot set block to true with enabled false");
 		}
 		this.block = block;
@@ -105,10 +105,10 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	}
 
 	private String createHeaderValue() {
-		if (!enabled) {
+		if (!this.enabled) {
 			return "0";
 		}
-		if (!block) {
+		if (!this.block) {
 			return "1";
 		}
 		return "1 ; mode=block";

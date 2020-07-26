@@ -40,7 +40,7 @@ public class EnableGlobalAuthenticationTests {
 	public void authenticationConfigurationWhenGetAuthenticationManagerThenNotNull() throws Exception {
 		this.spring.register(Config.class).autowire();
 
-		AuthenticationConfiguration auth = spring.getContext().getBean(AuthenticationConfiguration.class);
+		AuthenticationConfiguration auth = this.spring.getContext().getBean(AuthenticationConfiguration.class);
 
 		assertThat(auth.getAuthenticationManager()).isNotNull();
 	}
@@ -116,7 +116,7 @@ public class EnableGlobalAuthenticationTests {
 		}
 
 		public Child getChild() {
-			return child;
+			return this.child;
 		}
 
 	}

@@ -101,11 +101,11 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
 				.getValue();
-		final boolean debug = logger.isDebugEnabled();
+		final boolean debug = this.logger.isDebugEnabled();
 		List retainList;
 
 		if (debug) {
-			logger.debug("Filtering with expression: " + filterExpression.getExpressionString());
+			this.logger.debug("Filtering with expression: " + filterExpression.getExpressionString());
 		}
 
 		if (filterTarget instanceof Collection) {
@@ -113,11 +113,11 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			retainList = new ArrayList(collection.size());
 
 			if (debug) {
-				logger.debug("Filtering collection with " + collection.size() + " elements");
+				this.logger.debug("Filtering collection with " + collection.size() + " elements");
 			}
 
-			if (permissionCacheOptimizer != null) {
-				permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), collection);
+			if (this.permissionCacheOptimizer != null) {
+				this.permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), collection);
 			}
 
 			for (Object filterObject : (Collection) filterTarget) {
@@ -129,7 +129,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			}
 
 			if (debug) {
-				logger.debug("Retaining elements: " + retainList);
+				this.logger.debug("Retaining elements: " + retainList);
 			}
 
 			collection.clear();
@@ -143,11 +143,11 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			retainList = new ArrayList(array.length);
 
 			if (debug) {
-				logger.debug("Filtering array with " + array.length + " elements");
+				this.logger.debug("Filtering array with " + array.length + " elements");
 			}
 
-			if (permissionCacheOptimizer != null) {
-				permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), Arrays.asList(array));
+			if (this.permissionCacheOptimizer != null) {
+				this.permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), Arrays.asList(array));
 			}
 
 			for (Object o : array) {
@@ -159,7 +159,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			}
 
 			if (debug) {
-				logger.debug("Retaining elements: " + retainList);
+				this.logger.debug("Retaining elements: " + retainList);
 			}
 
 			Object[] filtered = (Object[]) Array.newInstance(filterTarget.getClass().getComponentType(),
@@ -176,7 +176,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			final Map retainMap = new LinkedHashMap(map.size());
 
 			if (debug) {
-				logger.debug("Filtering map with " + map.size() + " elements");
+				this.logger.debug("Filtering map with " + map.size() + " elements");
 			}
 
 			for (Map.Entry<?, ?> filterObject : map.entrySet()) {
@@ -188,7 +188,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			}
 
 			if (debug) {
-				logger.debug("Retaining elements: " + retainMap);
+				this.logger.debug("Retaining elements: " + retainMap);
 			}
 
 			map.clear();
@@ -225,7 +225,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * @return The current {@link AuthenticationTrustResolver}
 	 */
 	protected AuthenticationTrustResolver getTrustResolver() {
-		return trustResolver;
+		return this.trustResolver;
 	}
 
 	/**
@@ -241,7 +241,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * @return The current {@link ParameterNameDiscoverer}
 	 */
 	protected ParameterNameDiscoverer getParameterNameDiscoverer() {
-		return parameterNameDiscoverer;
+		return this.parameterNameDiscoverer;
 	}
 
 	public void setPermissionCacheOptimizer(PermissionCacheOptimizer permissionCacheOptimizer) {
@@ -275,7 +275,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * @return The default role prefix
 	 */
 	protected String getDefaultRolePrefix() {
-		return defaultRolePrefix;
+		return this.defaultRolePrefix;
 	}
 
 }

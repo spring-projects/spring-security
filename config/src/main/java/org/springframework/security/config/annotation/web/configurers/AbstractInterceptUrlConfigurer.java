@@ -75,8 +75,8 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 		}
 		FilterSecurityInterceptor securityInterceptor = createFilterSecurityInterceptor(http, metadataSource,
 				http.getSharedObject(AuthenticationManager.class));
-		if (filterSecurityInterceptorOncePerRequest != null) {
-			securityInterceptor.setObserveOncePerRequest(filterSecurityInterceptorOncePerRequest);
+		if (this.filterSecurityInterceptorOncePerRequest != null) {
+			securityInterceptor.setObserveOncePerRequest(this.filterSecurityInterceptorOncePerRequest);
 		}
 		securityInterceptor = postProcess(securityInterceptor);
 		http.addFilter(securityInterceptor);
@@ -157,10 +157,10 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 	 * @return the {@link AccessDecisionManager} to use
 	 */
 	private AccessDecisionManager getAccessDecisionManager(H http) {
-		if (accessDecisionManager == null) {
-			accessDecisionManager = createDefaultAccessDecisionManager(http);
+		if (this.accessDecisionManager == null) {
+			this.accessDecisionManager = createDefaultAccessDecisionManager(http);
 		}
-		return accessDecisionManager;
+		return this.accessDecisionManager;
 	}
 
 	/**

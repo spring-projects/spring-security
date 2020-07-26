@@ -72,7 +72,7 @@ public class PasswordPolicyControl implements Control {
 	 * Returns whether the control is critical for the client.
 	 */
 	public boolean isCritical() {
-		return critical;
+		return this.critical;
 	}
 
 }

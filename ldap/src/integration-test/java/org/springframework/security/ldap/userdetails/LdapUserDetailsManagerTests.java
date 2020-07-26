@@ -61,32 +61,32 @@ public class LdapUserDetailsManagerTests {
 
 	@Before
 	public void setUp() {
-		mgr = new LdapUserDetailsManager(this.contextSource);
-		template = new SpringSecurityLdapTemplate(this.contextSource);
+		this.mgr = new LdapUserDetailsManager(this.contextSource);
+		this.template = new SpringSecurityLdapTemplate(this.contextSource);
 		DirContextAdapter ctx = new DirContextAdapter();
 
 		ctx.setAttributeValue("objectclass", "organizationalUnit");
 		ctx.setAttributeValue("ou", "test people");
-		template.bind("ou=test people", ctx, null);
+		this.template.bind("ou=test people", ctx, null);
 
 		ctx.setAttributeValue("ou", "testgroups");
-		template.bind("ou=testgroups", ctx, null);
+		this.template.bind("ou=testgroups", ctx, null);
 
 		DirContextAdapter group = new DirContextAdapter();
 
 		group.setAttributeValue("objectclass", "groupOfNames");
 		group.setAttributeValue("cn", "clowns");
 		group.setAttributeValue("member", "cn=nobody,ou=test people,dc=springframework,dc=org");
-		template.bind("cn=clowns,ou=testgroups", group, null);
+		this.template.bind("cn=clowns,ou=testgroups", group, null);
 
 		group.setAttributeValue("cn", "acrobats");
-		template.bind("cn=acrobats,ou=testgroups", group, null);
+		this.template.bind("cn=acrobats,ou=testgroups", group, null);
 
-		mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=test people", "uid"));
-		mgr.setGroupSearchBase("ou=testgroups");
-		mgr.setGroupRoleAttributeName("cn");
-		mgr.setGroupMemberAttributeName("member");
-		mgr.setUserDetailsMapper(new PersonContextMapper());
+		this.mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=test people", "uid"));
+		this.mgr.setGroupSearchBase("ou=testgroups");
+		this.mgr.setGroupRoleAttributeName("cn");
+		this.mgr.setGroupMemberAttributeName("member");
+		this.mgr.setUserDetailsMapper(new PersonContextMapper());
 	}
 
 	@After
@@ -100,17 +100,17 @@ public class LdapUserDetailsManagerTests {
 		// template.unbind((String) people.next() + ",ou=testpeople");
 		// }
 
-		template.unbind("ou=test people", true);
-		template.unbind("ou=testgroups", true);
+		this.template.unbind("ou=test people", true);
+		this.template.unbind("ou=testgroups", true);
 
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test
 	public void testLoadUserByUsernameReturnsCorrectData() {
-		mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
-		mgr.setGroupSearchBase("ou=groups");
-		LdapUserDetails bob = (LdapUserDetails) mgr.loadUserByUsername("bob");
+		this.mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
+		this.mgr.setGroupSearchBase("ou=groups");
+		LdapUserDetails bob = (LdapUserDetails) this.mgr.loadUserByUsername("bob");
 		assertThat(bob.getUsername()).isEqualTo("bob");
 		assertThat(bob.getDn()).isEqualTo("uid=bob,ou=people,dc=springframework,dc=org");
 		assertThat(bob.getPassword()).isEqualTo("bobspassword");
@@ -120,18 +120,18 @@ public class LdapUserDetailsManagerTests {
 
 	@Test(expected = UsernameNotFoundException.class)
 	public void testLoadingInvalidUsernameThrowsUsernameNotFoundException() {
-		mgr.loadUserByUsername("jim");
+		this.mgr.loadUserByUsername("jim");
 	}
 
 	@Test
 	public void testUserExistsReturnsTrueForValidUser() {
-		mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
-		assertThat(mgr.userExists("bob")).isTrue();
+		this.mgr.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
+		assertThat(this.mgr.userExists("bob")).isTrue();
 	}
 
 	@Test
 	public void testUserExistsReturnsFalseForInValidUser() {
-		assertThat(mgr.userExists("jim")).isFalse();
+		assertThat(this.mgr.userExists("jim")).isFalse();
 	}
 
 	@Test
@@ -154,7 +154,7 @@ public class LdapUserDetailsManagerTests {
 
 		p.setAuthorities(TEST_AUTHORITIES);
 
-		mgr.createUser(p.createUserDetails());
+		this.mgr.createUser(p.createUserDetails());
 	}
 
 	@Test
@@ -166,17 +166,17 @@ public class LdapUserDetailsManagerTests {
 		p.setUid("don");
 		p.setAuthorities(TEST_AUTHORITIES);
 
-		mgr.createUser(p.createUserDetails());
-		mgr.setUserDetailsMapper(new InetOrgPersonContextMapper());
+		this.mgr.createUser(p.createUserDetails());
+		this.mgr.setUserDetailsMapper(new InetOrgPersonContextMapper());
 
-		InetOrgPerson don = (InetOrgPerson) mgr.loadUserByUsername("don");
+		InetOrgPerson don = (InetOrgPerson) this.mgr.loadUserByUsername("don");
 
 		assertThat(don.getAuthorities()).hasSize(2);
 
-		mgr.deleteUser("don");
+		this.mgr.deleteUser("don");
 
 		try {
-			mgr.loadUserByUsername("don");
+			this.mgr.loadUserByUsername("don");
 			fail("Expected UsernameNotFoundException after deleting user");
 		}
 		catch (UsernameNotFoundException expected) {
@@ -184,7 +184,7 @@ public class LdapUserDetailsManagerTests {
 		}
 
 		// Check that no authorities are left
-		assertThat(mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don")).hasSize(0);
+		assertThat(this.mgr.getUserAuthorities(this.mgr.usernameMapper.buildDn("don"), "don")).hasSize(0);
 	}
 
 	@Test
@@ -197,14 +197,14 @@ public class LdapUserDetailsManagerTests {
 		p.setPassword("yossarianspassword");
 		p.setAuthorities(TEST_AUTHORITIES);
 
-		mgr.createUser(p.createUserDetails());
+		this.mgr.createUser(p.createUserDetails());
 
 		SecurityContextHolder.getContext().setAuthentication(
 				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
-		mgr.changePassword("yossarianspassword", "yossariansnewpassword");
+		this.mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
-		assertThat(template.compare("uid=johnyossarian,ou=test people", "userPassword", "yossariansnewpassword"))
+		assertThat(this.template.compare("uid=johnyossarian,ou=test people", "userPassword", "yossariansnewpassword"))
 				.isTrue();
 	}
 
@@ -218,12 +218,12 @@ public class LdapUserDetailsManagerTests {
 		p.setPassword("yossarianspassword");
 		p.setAuthorities(TEST_AUTHORITIES);
 
-		mgr.createUser(p.createUserDetails());
+		this.mgr.createUser(p.createUserDetails());
 
 		SecurityContextHolder.getContext().setAuthentication(
 				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
-		mgr.changePassword("wrongpassword", "yossariansnewpassword");
+		this.mgr.changePassword("wrongpassword", "yossariansnewpassword");
 	}
 
 }

@@ -34,8 +34,8 @@ public class J2eePreAuthenticatedProcessingFilter extends AbstractPreAuthenticat
 	 */
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
 		Object principal = httpRequest.getUserPrincipal() == null ? null : httpRequest.getUserPrincipal().getName();
-		if (logger.isDebugEnabled()) {
-			logger.debug("PreAuthenticated J2EE principal: " + principal);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("PreAuthenticated J2EE principal: " + principal);
 		}
 		return principal;
 	}

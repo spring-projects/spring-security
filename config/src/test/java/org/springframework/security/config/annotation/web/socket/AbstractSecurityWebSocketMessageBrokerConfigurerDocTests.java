@@ -61,15 +61,15 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 
 	@Before
 	public void setup() {
-		token = new DefaultCsrfToken("header", "param", "token");
-		sessionAttr = "sessionAttr";
-		messageUser = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
+		this.token = new DefaultCsrfToken("header", "param", "token");
+		this.sessionAttr = "sessionAttr";
+		this.messageUser = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
 	}
 
 	@After
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -89,15 +89,15 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 	}
 
 	private void loadConfig(Class<?>... configs) {
-		context = new AnnotationConfigWebApplicationContext();
-		context.register(configs);
-		context.register(WebSocketConfig.class, SyncExecutorConfig.class);
-		context.setServletConfig(new MockServletConfig());
-		context.refresh();
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.register(WebSocketConfig.class, SyncExecutorConfig.class);
+		this.context.setServletConfig(new MockServletConfig());
+		this.context.refresh();
 	}
 
 	private MessageChannel clientInboundChannel() {
-		return context.getBean("clientInboundChannel", MessageChannel.class);
+		return this.context.getBean("clientInboundChannel", MessageChannel.class);
 	}
 
 	private Message<String> message(String destination, SimpMessageType type) {
@@ -111,8 +111,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 		if (destination != null) {
 			headers.setDestination(destination);
 		}
-		if (messageUser != null) {
-			headers.setUser(messageUser);
+		if (this.messageUser != null) {
+			headers.setUser(this.messageUser);
 		}
 		return new GenericMessage<>("hi", headers.getMessageHeaders());
 	}

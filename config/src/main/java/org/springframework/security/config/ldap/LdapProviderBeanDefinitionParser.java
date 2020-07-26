@@ -65,7 +65,7 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
 			// TODO: Validate the pattern and make sure it is a valid DN.
 		}
 		else if (searchBean == null) {
-			logger.info("No search information or DN pattern specified. Using default search filter '"
+			this.logger.info("No search information or DN pattern specified. Using default search filter '"
 					+ DEF_USER_SEARCH_FILTER + "'");
 			BeanDefinitionBuilder searchBeanBuilder = BeanDefinitionBuilder
 					.rootBeanDefinition(LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS);

@@ -124,7 +124,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(principal);
 			context.setVariable("this", principal);
-			context.setBeanResolver(beanResolver);
+			context.setBeanResolver(this.beanResolver);
 
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			principal = expression.getValue(context);

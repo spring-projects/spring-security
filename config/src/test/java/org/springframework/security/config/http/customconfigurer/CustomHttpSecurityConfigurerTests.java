@@ -59,16 +59,16 @@ public class CustomHttpSecurityConfigurerTests {
 
 	@Before
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
-		request.setMethod("GET");
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
+		this.request.setMethod("GET");
 	}
 
 	@After
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -76,42 +76,42 @@ public class CustomHttpSecurityConfigurerTests {
 	public void customConfiguerPermitAll() throws Exception {
 		loadContext(Config.class);
 
-		request.setPathInfo("/public/something");
+		this.request.setPathInfo("/public/something");
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
 	public void customConfiguerFormLogin() throws Exception {
 		loadContext(Config.class);
-		request.setPathInfo("/requires-authentication");
+		this.request.setPathInfo("/requires-authentication");
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(response.getRedirectedUrl()).endsWith("/custom");
+		assertThat(this.response.getRedirectedUrl()).endsWith("/custom");
 	}
 
 	@Test
 	public void customConfiguerCustomizeDisablesCsrf() throws Exception {
 		loadContext(ConfigCustomize.class);
-		request.setPathInfo("/public/something");
-		request.setMethod("POST");
+		this.request.setPathInfo("/public/something");
+		this.request.setMethod("POST");
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
 	public void customConfiguerCustomizeFormLogin() throws Exception {
 		loadContext(ConfigCustomize.class);
-		request.setPathInfo("/requires-authentication");
+		this.request.setPathInfo("/requires-authentication");
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(response.getRedirectedUrl()).endsWith("/other");
+		assertThat(this.response.getRedirectedUrl()).endsWith("/other");
 	}
 
 	private void loadContext(Class<?> clazz) {

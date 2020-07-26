@@ -38,33 +38,33 @@ public class IpAddressMatcherTests {
 
 	@Before
 	public void setup() {
-		ipv6Request.setRemoteAddr("fe80::21f:5bff:fe33:bd68");
-		ipv4Request.setRemoteAddr("192.168.1.104");
+		this.ipv6Request.setRemoteAddr("fe80::21f:5bff:fe33:bd68");
+		this.ipv4Request.setRemoteAddr("192.168.1.104");
 	}
 
 	@Test
 	public void ipv6MatcherMatchesIpv6Address() {
-		assertThat(v6matcher.matches(ipv6Request)).isTrue();
+		assertThat(this.v6matcher.matches(this.ipv6Request)).isTrue();
 	}
 
 	@Test
 	public void ipv6MatcherDoesntMatchIpv4Address() {
-		assertThat(v6matcher.matches(ipv4Request)).isFalse();
+		assertThat(this.v6matcher.matches(this.ipv4Request)).isFalse();
 	}
 
 	@Test
 	public void ipv4MatcherMatchesIpv4Address() {
-		assertThat(v4matcher.matches(ipv4Request)).isTrue();
+		assertThat(this.v4matcher.matches(this.ipv4Request)).isTrue();
 	}
 
 	@Test
 	public void ipv4SubnetMatchesCorrectly() {
 		IpAddressMatcher matcher = new IpAddressMatcher("192.168.1.0/24");
-		assertThat(matcher.matches(ipv4Request)).isTrue();
+		assertThat(matcher.matches(this.ipv4Request)).isTrue();
 		matcher = new IpAddressMatcher("192.168.1.128/25");
-		assertThat(matcher.matches(ipv4Request)).isFalse();
-		ipv4Request.setRemoteAddr("192.168.1.159"); // 159 = 0x9f
-		assertThat(matcher.matches(ipv4Request)).isTrue();
+		assertThat(matcher.matches(this.ipv4Request)).isFalse();
+		this.ipv4Request.setRemoteAddr("192.168.1.159"); // 159 = 0x9f
+		assertThat(matcher.matches(this.ipv4Request)).isTrue();
 	}
 
 	@Test

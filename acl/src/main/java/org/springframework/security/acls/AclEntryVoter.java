@@ -135,7 +135,7 @@ public class AclEntryVoter extends AbstractAclVoter {
 	 * which will be the domain object used for ACL evaluation
 	 */
 	protected String getInternalMethod() {
-		return internalMethod;
+		return this.internalMethod;
 	}
 
 	public void setInternalMethod(String internalMethod) {
@@ -143,7 +143,7 @@ public class AclEntryVoter extends AbstractAclVoter {
 	}
 
 	protected String getProcessConfigAttribute() {
-		return processConfigAttribute;
+		return this.processConfigAttribute;
 	}
 
 	public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
@@ -181,41 +181,41 @@ public class AclEntryVoter extends AbstractAclVoter {
 			}
 
 			// Evaluate if we are required to use an inner domain object
-			if (StringUtils.hasText(internalMethod)) {
+			if (StringUtils.hasText(this.internalMethod)) {
 				try {
 					Class<?> clazz = domainObject.getClass();
-					Method method = clazz.getMethod(internalMethod, new Class[0]);
+					Method method = clazz.getMethod(this.internalMethod, new Class[0]);
 					domainObject = method.invoke(domainObject);
 				}
 				catch (NoSuchMethodException nsme) {
 					throw new AuthorizationServiceException("Object of class '" + domainObject.getClass()
-							+ "' does not provide the requested internalMethod: " + internalMethod);
+							+ "' does not provide the requested internalMethod: " + this.internalMethod);
 				}
 				catch (IllegalAccessException iae) {
 					logger.debug("IllegalAccessException", iae);
 
 					throw new AuthorizationServiceException(
-							"Problem invoking internalMethod: " + internalMethod + " for object: " + domainObject);
+							"Problem invoking internalMethod: " + this.internalMethod + " for object: " + domainObject);
 				}
 				catch (InvocationTargetException ite) {
 					logger.debug("InvocationTargetException", ite);
 
 					throw new AuthorizationServiceException(
-							"Problem invoking internalMethod: " + internalMethod + " for object: " + domainObject);
+							"Problem invoking internalMethod: " + this.internalMethod + " for object: " + domainObject);
 				}
 			}
 
 			// Obtain the OID applicable to the domain object
-			ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
+			ObjectIdentity objectIdentity = this.objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
 			// Obtain the SIDs applicable to the principal
-			List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
+			List<Sid> sids = this.sidRetrievalStrategy.getSids(authentication);
 
 			Acl acl;
 
 			try {
 				// Lookup only ACLs for SIDs we're interested in
-				acl = aclService.readAclById(objectIdentity, sids);
+				acl = this.aclService.readAclById(objectIdentity, sids);
 			}
 			catch (NotFoundException nfe) {
 				if (logger.isDebugEnabled()) {
@@ -226,7 +226,7 @@ public class AclEntryVoter extends AbstractAclVoter {
 			}
 
 			try {
-				if (acl.isGranted(requirePermission, sids, false)) {
+				if (acl.isGranted(this.requirePermission, sids, false)) {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Voting to grant access");
 					}

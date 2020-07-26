@@ -59,22 +59,22 @@ public final class OrRequestMatcher implements RequestMatcher {
 	}
 
 	public boolean matches(HttpServletRequest request) {
-		for (RequestMatcher matcher : requestMatchers) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Trying to match using " + matcher);
+		for (RequestMatcher matcher : this.requestMatchers) {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Trying to match using " + matcher);
 			}
 			if (matcher.matches(request)) {
-				logger.debug("matched");
+				this.logger.debug("matched");
 				return true;
 			}
 		}
-		logger.debug("No matches found");
+		this.logger.debug("No matches found");
 		return false;
 	}
 
 	@Override
 	public String toString() {
-		return "OrRequestMatcher [requestMatchers=" + requestMatchers + "]";
+		return "OrRequestMatcher [requestMatchers=" + this.requestMatchers + "]";
 	}
 
 }

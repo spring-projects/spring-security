@@ -52,7 +52,7 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
 		final Message message = (Message) object;
-		for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : messageMap.entrySet()) {
+		for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : this.messageMap.entrySet()) {
 			if (entry.getKey().matches(message)) {
 				return entry.getValue();
 			}
@@ -63,7 +63,7 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
 
-		for (Collection<ConfigAttribute> entry : messageMap.values()) {
+		for (Collection<ConfigAttribute> entry : this.messageMap.values()) {
 			allAttributes.addAll(entry);
 		}
 

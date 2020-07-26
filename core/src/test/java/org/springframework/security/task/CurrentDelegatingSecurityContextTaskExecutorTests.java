@@ -44,11 +44,11 @@ public class CurrentDelegatingSecurityContextTaskExecutorTests extends AbstractD
 	}
 
 	protected Executor getExecutor() {
-		return taskExecutorDelegate;
+		return this.taskExecutorDelegate;
 	}
 
 	protected DelegatingSecurityContextExecutor create() {
-		return new DelegatingSecurityContextTaskExecutor(taskExecutorDelegate);
+		return new DelegatingSecurityContextTaskExecutor(this.taskExecutorDelegate);
 	}
 
 }

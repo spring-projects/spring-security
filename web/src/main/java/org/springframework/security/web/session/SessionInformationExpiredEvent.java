@@ -54,14 +54,14 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	 * @return the request
 	 */
 	public HttpServletRequest getRequest() {
-		return request;
+		return this.request;
 	}
 
 	/**
 	 * @return the response
 	 */
 	public HttpServletResponse getResponse() {
-		return response;
+		return this.response;
 	}
 
 	public SessionInformation getSessionInformation() {
