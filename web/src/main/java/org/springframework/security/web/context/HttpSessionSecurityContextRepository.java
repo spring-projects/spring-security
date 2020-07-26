@@ -256,6 +256,21 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		this.springSecurityContextKey = springSecurityContextKey;
 	}
 
+	private boolean isTransientAuthentication(Authentication authentication) {
+		return AnnotationUtils.getAnnotation(authentication.getClass(), Transient.class) != null;
+	}
+
+	/**
+	 * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+	 * {@link AuthenticationTrustResolverImpl}.
+	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
+	 * null.
+	 */
+	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+		Assert.notNull(trustResolver, "trustResolver cannot be null");
+		this.trustResolver = trustResolver;
+	}
+
 	private static class SaveToSessionRequestWrapper extends HttpServletRequestWrapper {
 
 		private final SaveContextOnUpdateOrErrorResponseWrapper response;
@@ -433,21 +448,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 			return null;
 		}
 
-	}
-
-	private boolean isTransientAuthentication(Authentication authentication) {
-		return AnnotationUtils.getAnnotation(authentication.getClass(), Transient.class) != null;
-	}
-
-	/**
-	 * Sets the {@link AuthenticationTrustResolver} to be used. The default is
-	 * {@link AuthenticationTrustResolverImpl}.
-	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
-	 * null.
-	 */
-	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-		Assert.notNull(trustResolver, "trustResolver cannot be null");
-		this.trustResolver = trustResolver;
 	}
 
 }

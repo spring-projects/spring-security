@@ -177,6 +177,28 @@ public final class ClientRegistration implements Serializable {
 	}
 
 	/**
+	 * Returns a new {@link Builder}, initialized with the provided registration
+	 * identifier.
+	 * @param registrationId the identifier for the registration
+	 * @return the {@link Builder}
+	 */
+	public static Builder withRegistrationId(String registrationId) {
+		Assert.hasText(registrationId, "registrationId cannot be empty");
+		return new Builder(registrationId);
+	}
+
+	/**
+	 * Returns a new {@link Builder}, initialized with the provided
+	 * {@link ClientRegistration}.
+	 * @param clientRegistration the {@link ClientRegistration} to copy from
+	 * @return the {@link Builder}
+	 */
+	public static Builder withClientRegistration(ClientRegistration clientRegistration) {
+		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		return new Builder(clientRegistration);
+	}
+
+	/**
 	 * Details of the Provider.
 	 */
 	public class ProviderDetails implements Serializable {
@@ -295,28 +317,6 @@ public final class ClientRegistration implements Serializable {
 
 		}
 
-	}
-
-	/**
-	 * Returns a new {@link Builder}, initialized with the provided registration
-	 * identifier.
-	 * @param registrationId the identifier for the registration
-	 * @return the {@link Builder}
-	 */
-	public static Builder withRegistrationId(String registrationId) {
-		Assert.hasText(registrationId, "registrationId cannot be empty");
-		return new Builder(registrationId);
-	}
-
-	/**
-	 * Returns a new {@link Builder}, initialized with the provided
-	 * {@link ClientRegistration}.
-	 * @param clientRegistration the {@link ClientRegistration} to copy from
-	 * @return the {@link Builder}
-	 */
-	public static Builder withClientRegistration(ClientRegistration clientRegistration) {
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		return new Builder(clientRegistration);
 	}
 
 	/**

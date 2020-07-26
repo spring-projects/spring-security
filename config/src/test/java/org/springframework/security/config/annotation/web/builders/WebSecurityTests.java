@@ -103,6 +103,50 @@ public class WebSecurityTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
+	@Test
+	public void ignoringMvcMatcherServletPath() throws Exception {
+		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
+
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+
+		setup();
+
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path.html");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+
+		setup();
+
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path/");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+
+		setup();
+
+		this.request.setServletPath("/other");
+		this.request.setRequestURI("/other/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+	}
+
+	public void loadConfig(Class<?>... configs) {
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.setServletContext(new MockServletContext());
+		this.context.refresh();
+
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
@@ -145,41 +189,6 @@ public class WebSecurityTests {
 
 		}
 
-	}
-
-	@Test
-	public void ignoringMvcMatcherServletPath() throws Exception {
-		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
-
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
-		setup();
-
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path.html");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
-		setup();
-
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path/");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
-		setup();
-
-		this.request.setServletPath("/other");
-		this.request.setRequestURI("/other/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@EnableWebSecurity
@@ -235,15 +244,6 @@ public class WebSecurityTests {
 			configurer.setUseSuffixPatternMatch(true);
 		}
 
-	}
-
-	public void loadConfig(Class<?>... configs) {
-		this.context = new AnnotationConfigWebApplicationContext();
-		this.context.register(configs);
-		this.context.setServletContext(new MockServletContext());
-		this.context.refresh();
-
-		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 }

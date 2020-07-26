@@ -348,6 +348,10 @@ public class CurrentSecurityContextArgumentResolverTests {
 			@CurrentSecurityWithErrorOnInvalidType Mono<String> typeMisMatch) {
 	}
 
+	private Authentication buildAuthenticationWithPrincipal(Object principal) {
+		return new TestingAuthenticationToken(principal, "password", "ROLE_USER");
+	}
+
 	@Target({ ElementType.PARAMETER })
 	@Retention(RetentionPolicy.RUNTIME)
 	@CurrentSecurityContext
@@ -387,10 +391,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 			this.authentication = authentication;
 		}
 
-	}
-
-	private Authentication buildAuthenticationWithPrincipal(Object principal) {
-		return new TestingAuthenticationToken(principal, "password", "ROLE_USER");
 	}
 
 }

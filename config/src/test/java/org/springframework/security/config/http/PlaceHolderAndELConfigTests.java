@@ -169,6 +169,10 @@ public class PlaceHolderAndELConfigTests {
 		this.mvc.perform(get("/secured")).andExpect(forwardedUrl("/go-away"));
 	}
 
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	@RestController
 	static class SimpleController {
 
@@ -182,10 +186,6 @@ public class PlaceHolderAndELConfigTests {
 			return "secured";
 		}
 
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

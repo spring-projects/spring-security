@@ -145,6 +145,357 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		return HeadersConfigurer.this;
 	}
 
+	/**
+	 * <strong>Note this is not comprehensive XSS protection!</strong>
+	 *
+	 * <p>
+	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
+	 * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
+	 * >X-XSS-Protection header</a>
+	 * </p>
+	 * @return the {@link XXssConfig} for additional customizations
+	 */
+	public XXssConfig xssProtection() {
+		return this.xssProtection.enable();
+	}
+
+	/**
+	 * <strong>Note this is not comprehensive XSS protection!</strong>
+	 *
+	 * <p>
+	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
+	 * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
+	 * >X-XSS-Protection header</a>
+	 * </p>
+	 * @param xssCustomizer the {@link Customizer} to provide more options for the
+	 * {@link XXssConfig}
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 */
+	public HeadersConfigurer<H> xssProtection(Customizer<XXssConfig> xssCustomizer) {
+		xssCustomizer.customize(this.xssProtection.enable());
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * Allows customizing the {@link CacheControlHeadersWriter}. Specifically it adds the
+	 * following headers:
+	 * <ul>
+	 * <li>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</li>
+	 * <li>Pragma: no-cache</li>
+	 * <li>Expires: 0</li>
+	 * </ul>
+	 * @return the {@link CacheControlConfig} for additional customizations
+	 */
+	public CacheControlConfig cacheControl() {
+		return this.cacheControl.enable();
+	}
+
+	/**
+	 * Allows customizing the {@link CacheControlHeadersWriter}. Specifically it adds the
+	 * following headers:
+	 * <ul>
+	 * <li>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</li>
+	 * <li>Pragma: no-cache</li>
+	 * <li>Expires: 0</li>
+	 * </ul>
+	 * @param cacheControlCustomizer the {@link Customizer} to provide more options for
+	 * the {@link CacheControlConfig}
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 */
+	public HeadersConfigurer<H> cacheControl(Customizer<CacheControlConfig> cacheControlCustomizer) {
+		cacheControlCustomizer.customize(this.cacheControl.enable());
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * Allows customizing the {@link HstsHeaderWriter} which provides support for
+	 * <a href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
+	 * (HSTS)</a>.
+	 * @return the {@link HstsConfig} for additional customizations
+	 */
+	public HstsConfig httpStrictTransportSecurity() {
+		return this.hsts.enable();
+	}
+
+	/**
+	 * Allows customizing the {@link HstsHeaderWriter} which provides support for
+	 * <a href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
+	 * (HSTS)</a>.
+	 * @param hstsCustomizer the {@link Customizer} to provide more options for the
+	 * {@link HstsConfig}
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 */
+	public HeadersConfigurer<H> httpStrictTransportSecurity(Customizer<HstsConfig> hstsCustomizer) {
+		hstsCustomizer.customize(this.hsts.enable());
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * Allows customizing the {@link XFrameOptionsHeaderWriter}.
+	 * @return the {@link FrameOptionsConfig} for additional customizations
+	 */
+	public FrameOptionsConfig frameOptions() {
+		return this.frameOptions.enable();
+	}
+
+	/**
+	 * Allows customizing the {@link XFrameOptionsHeaderWriter}.
+	 * @param frameOptionsCustomizer the {@link Customizer} to provide more options for
+	 * the {@link FrameOptionsConfig}
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 */
+	public HeadersConfigurer<H> frameOptions(Customizer<FrameOptionsConfig> frameOptionsCustomizer) {
+		frameOptionsCustomizer.customize(this.frameOptions.enable());
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * Allows customizing the {@link HpkpHeaderWriter} which provides support for
+	 * <a href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
+	 * @return the {@link HpkpConfig} for additional customizations
+	 *
+	 * @since 4.1
+	 */
+	public HpkpConfig httpPublicKeyPinning() {
+		return this.hpkp.enable();
+	}
+
+	/**
+	 * Allows customizing the {@link HpkpHeaderWriter} which provides support for
+	 * <a href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
+	 * @param hpkpCustomizer the {@link Customizer} to provide more options for the
+	 * {@link HpkpConfig}
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 */
+	public HeadersConfigurer<H> httpPublicKeyPinning(Customizer<HpkpConfig> hpkpCustomizer) {
+		hpkpCustomizer.customize(this.hpkp.enable());
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * <p>
+	 * Allows configuration for <a href="https://www.w3.org/TR/CSP2/">Content Security
+	 * Policy (CSP) Level 2</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Calling this method automatically enables (includes) the Content-Security-Policy
+	 * header in the response using the supplied security policy directive(s).
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link ContentSecurityPolicyHeaderWriter} which
+	 * supports the writing of the two headers as detailed in the W3C Candidate
+	 * Recommendation:
+	 * </p>
+	 * <ul>
+	 * <li>Content-Security-Policy</li>
+	 * <li>Content-Security-Policy-Report-Only</li>
+	 * </ul>
+	 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+	 * @throws IllegalArgumentException if policyDirectives is null or empty
+	 * @since 4.1
+	 * @see ContentSecurityPolicyHeaderWriter
+	 */
+	public ContentSecurityPolicyConfig contentSecurityPolicy(String policyDirectives) {
+		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter(policyDirectives);
+		return this.contentSecurityPolicy;
+	}
+
+	/**
+	 * <p>
+	 * Allows configuration for <a href="https://www.w3.org/TR/CSP2/">Content Security
+	 * Policy (CSP) Level 2</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Calling this method automatically enables (includes) the Content-Security-Policy
+	 * header in the response using the supplied security policy directive(s).
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link ContentSecurityPolicyHeaderWriter} which
+	 * supports the writing of the two headers as detailed in the W3C Candidate
+	 * Recommendation:
+	 * </p>
+	 * <ul>
+	 * <li>Content-Security-Policy</li>
+	 * <li>Content-Security-Policy-Report-Only</li>
+	 * </ul>
+	 * @param contentSecurityCustomizer the {@link Customizer} to provide more options for
+	 * the {@link ContentSecurityPolicyConfig}
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @see ContentSecurityPolicyHeaderWriter
+	 */
+	public HeadersConfigurer<H> contentSecurityPolicy(
+			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
+		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter();
+		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
+
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * Clears all of the default headers from the response. After doing so, one can add
+	 * headers back. For example, if you only want to use Spring Security's cache control
+	 * you can use the following:
+	 *
+	 * <pre>
+	 * http.headers().defaultsDisabled().cacheControl();
+	 * </pre>
+	 * @return the {@link HeadersConfigurer} for additional customization
+	 */
+	public HeadersConfigurer<H> defaultsDisabled() {
+		this.contentTypeOptions.disable();
+		this.xssProtection.disable();
+		this.cacheControl.disable();
+		this.hsts.disable();
+		this.frameOptions.disable();
+		return this;
+	}
+
+	@Override
+	public void configure(H http) {
+		HeaderWriterFilter headersFilter = createHeaderWriterFilter();
+		http.addFilter(headersFilter);
+	}
+
+	/**
+	 * Creates the {@link HeaderWriter}
+	 * @return the {@link HeaderWriter}
+	 */
+	private HeaderWriterFilter createHeaderWriterFilter() {
+		List<HeaderWriter> writers = getHeaderWriters();
+		if (writers.isEmpty()) {
+			throw new IllegalStateException(
+					"Headers security is enabled, but no headers will be added. Either add headers or disable headers security");
+		}
+		HeaderWriterFilter headersFilter = new HeaderWriterFilter(writers);
+		headersFilter = postProcess(headersFilter);
+		return headersFilter;
+	}
+
+	/**
+	 * Gets the {@link HeaderWriter} instances and possibly initializes with the defaults.
+	 * @return
+	 */
+	private List<HeaderWriter> getHeaderWriters() {
+		List<HeaderWriter> writers = new ArrayList<>();
+		addIfNotNull(writers, this.contentTypeOptions.writer);
+		addIfNotNull(writers, this.xssProtection.writer);
+		addIfNotNull(writers, this.cacheControl.writer);
+		addIfNotNull(writers, this.hsts.writer);
+		addIfNotNull(writers, this.frameOptions.writer);
+		addIfNotNull(writers, this.hpkp.writer);
+		addIfNotNull(writers, this.contentSecurityPolicy.writer);
+		addIfNotNull(writers, this.referrerPolicy.writer);
+		addIfNotNull(writers, this.featurePolicy.writer);
+		writers.addAll(this.headerWriters);
+		return writers;
+	}
+
+	private <T> void addIfNotNull(List<T> values, T value) {
+		if (value != null) {
+			values.add(value);
+		}
+	}
+
+	/**
+	 * <p>
+	 * Allows configuration for <a href="https://www.w3.org/TR/referrer-policy/">Referrer
+	 * Policy</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link ReferrerPolicyHeaderWriter} which support
+	 * the writing of the header as detailed in the W3C Technical Report:
+	 * </p>
+	 * <ul>
+	 * <li>Referrer-Policy</li>
+	 * </ul>
+	 *
+	 * <p>
+	 * Default value is:
+	 * </p>
+	 *
+	 * <pre>
+	 * Referrer-Policy: no-referrer
+	 * </pre>
+	 * @return the {@link ReferrerPolicyConfig} for additional configuration
+	 * @since 4.2
+	 * @see ReferrerPolicyHeaderWriter
+	 */
+	public ReferrerPolicyConfig referrerPolicy() {
+		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
+		return this.referrerPolicy;
+	}
+
+	/**
+	 * <p>
+	 * Allows configuration for <a href="https://www.w3.org/TR/referrer-policy/">Referrer
+	 * Policy</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link ReferrerPolicyHeaderWriter} which support
+	 * the writing of the header as detailed in the W3C Technical Report:
+	 * </p>
+	 * <ul>
+	 * <li>Referrer-Policy</li>
+	 * </ul>
+	 * @return the {@link ReferrerPolicyConfig} for additional configuration
+	 * @throws IllegalArgumentException if policy is null or empty
+	 * @since 4.2
+	 * @see ReferrerPolicyHeaderWriter
+	 */
+	public ReferrerPolicyConfig referrerPolicy(ReferrerPolicy policy) {
+		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter(policy);
+		return this.referrerPolicy;
+	}
+
+	/**
+	 * <p>
+	 * Allows configuration for <a href="https://www.w3.org/TR/referrer-policy/">Referrer
+	 * Policy</a>.
+	 * </p>
+	 *
+	 * <p>
+	 * Configuration is provided to the {@link ReferrerPolicyHeaderWriter} which support
+	 * the writing of the header as detailed in the W3C Technical Report:
+	 * </p>
+	 * <ul>
+	 * <li>Referrer-Policy</li>
+	 * </ul>
+	 * @param referrerPolicyCustomizer the {@link Customizer} to provide more options for
+	 * the {@link ReferrerPolicyConfig}
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @see ReferrerPolicyHeaderWriter
+	 */
+	public HeadersConfigurer<H> referrerPolicy(Customizer<ReferrerPolicyConfig> referrerPolicyCustomizer) {
+		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
+		referrerPolicyCustomizer.customize(this.referrerPolicy);
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * Allows configuration for <a href="https://wicg.github.io/feature-policy/">Feature
+	 * Policy</a>.
+	 * <p>
+	 * Calling this method automatically enables (includes) the {@code Feature-Policy}
+	 * header in the response using the supplied policy directive(s).
+	 * <p>
+	 * Configuration is provided to the {@link FeaturePolicyHeaderWriter} which is
+	 * responsible for writing the header.
+	 * @return the {@link FeaturePolicyConfig} for additional configuration
+	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
+	 * @since 5.1
+	 * @see FeaturePolicyHeaderWriter
+	 */
+	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
+		this.featurePolicy.writer = new FeaturePolicyHeaderWriter(policyDirectives);
+		return this.featurePolicy;
+	}
+
 	public final class ContentTypeOptionsConfig {
 
 		private XContentTypeOptionsHeaderWriter writer;
@@ -181,37 +532,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
-	}
-
-	/**
-	 * <strong>Note this is not comprehensive XSS protection!</strong>
-	 *
-	 * <p>
-	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
-	 * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
-	 * >X-XSS-Protection header</a>
-	 * </p>
-	 * @return the {@link XXssConfig} for additional customizations
-	 */
-	public XXssConfig xssProtection() {
-		return this.xssProtection.enable();
-	}
-
-	/**
-	 * <strong>Note this is not comprehensive XSS protection!</strong>
-	 *
-	 * <p>
-	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
-	 * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
-	 * >X-XSS-Protection header</a>
-	 * </p>
-	 * @param xssCustomizer the {@link Customizer} to provide more options for the
-	 * {@link XXssConfig}
-	 * @return the {@link HeadersConfigurer} for additional customizations
-	 */
-	public HeadersConfigurer<H> xssProtection(Customizer<XXssConfig> xssCustomizer) {
-		xssCustomizer.customize(this.xssProtection.enable());
-		return HeadersConfigurer.this;
 	}
 
 	public final class XXssConfig {
@@ -291,37 +611,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	}
 
-	/**
-	 * Allows customizing the {@link CacheControlHeadersWriter}. Specifically it adds the
-	 * following headers:
-	 * <ul>
-	 * <li>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</li>
-	 * <li>Pragma: no-cache</li>
-	 * <li>Expires: 0</li>
-	 * </ul>
-	 * @return the {@link CacheControlConfig} for additional customizations
-	 */
-	public CacheControlConfig cacheControl() {
-		return this.cacheControl.enable();
-	}
-
-	/**
-	 * Allows customizing the {@link CacheControlHeadersWriter}. Specifically it adds the
-	 * following headers:
-	 * <ul>
-	 * <li>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</li>
-	 * <li>Pragma: no-cache</li>
-	 * <li>Expires: 0</li>
-	 * </ul>
-	 * @param cacheControlCustomizer the {@link Customizer} to provide more options for
-	 * the {@link CacheControlConfig}
-	 * @return the {@link HeadersConfigurer} for additional customizations
-	 */
-	public HeadersConfigurer<H> cacheControl(Customizer<CacheControlConfig> cacheControlCustomizer) {
-		cacheControlCustomizer.customize(this.cacheControl.enable());
-		return HeadersConfigurer.this;
-	}
-
 	public final class CacheControlConfig {
 
 		private CacheControlHeadersWriter writer;
@@ -359,29 +648,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
-	}
-
-	/**
-	 * Allows customizing the {@link HstsHeaderWriter} which provides support for
-	 * <a href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
-	 * (HSTS)</a>.
-	 * @return the {@link HstsConfig} for additional customizations
-	 */
-	public HstsConfig httpStrictTransportSecurity() {
-		return this.hsts.enable();
-	}
-
-	/**
-	 * Allows customizing the {@link HstsHeaderWriter} which provides support for
-	 * <a href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
-	 * (HSTS)</a>.
-	 * @param hstsCustomizer the {@link Customizer} to provide more options for the
-	 * {@link HstsConfig}
-	 * @return the {@link HeadersConfigurer} for additional customizations
-	 */
-	public HeadersConfigurer<H> httpStrictTransportSecurity(Customizer<HstsConfig> hstsCustomizer) {
-		hstsCustomizer.customize(this.hsts.enable());
-		return HeadersConfigurer.this;
 	}
 
 	public final class HstsConfig {
@@ -491,25 +757,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	}
 
-	/**
-	 * Allows customizing the {@link XFrameOptionsHeaderWriter}.
-	 * @return the {@link FrameOptionsConfig} for additional customizations
-	 */
-	public FrameOptionsConfig frameOptions() {
-		return this.frameOptions.enable();
-	}
-
-	/**
-	 * Allows customizing the {@link XFrameOptionsHeaderWriter}.
-	 * @param frameOptionsCustomizer the {@link Customizer} to provide more options for
-	 * the {@link FrameOptionsConfig}
-	 * @return the {@link HeadersConfigurer} for additional customizations
-	 */
-	public HeadersConfigurer<H> frameOptions(Customizer<FrameOptionsConfig> frameOptionsCustomizer) {
-		frameOptionsCustomizer.customize(this.frameOptions.enable());
-		return HeadersConfigurer.this;
-	}
-
 	public final class FrameOptionsConfig {
 
 		private XFrameOptionsHeaderWriter writer;
@@ -569,29 +816,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
-	}
-
-	/**
-	 * Allows customizing the {@link HpkpHeaderWriter} which provides support for
-	 * <a href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
-	 * @return the {@link HpkpConfig} for additional customizations
-	 *
-	 * @since 4.1
-	 */
-	public HpkpConfig httpPublicKeyPinning() {
-		return this.hpkp.enable();
-	}
-
-	/**
-	 * Allows customizing the {@link HpkpHeaderWriter} which provides support for
-	 * <a href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
-	 * @param hpkpCustomizer the {@link Customizer} to provide more options for the
-	 * {@link HpkpConfig}
-	 * @return the {@link HeadersConfigurer} for additional customizations
-	 */
-	public HeadersConfigurer<H> httpPublicKeyPinning(Customizer<HpkpConfig> hpkpCustomizer) {
-		hpkpCustomizer.customize(this.hpkp.enable());
-		return HeadersConfigurer.this;
 	}
 
 	public final class HpkpConfig {
@@ -761,69 +985,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	}
 
-	/**
-	 * <p>
-	 * Allows configuration for <a href="https://www.w3.org/TR/CSP2/">Content Security
-	 * Policy (CSP) Level 2</a>.
-	 * </p>
-	 *
-	 * <p>
-	 * Calling this method automatically enables (includes) the Content-Security-Policy
-	 * header in the response using the supplied security policy directive(s).
-	 * </p>
-	 *
-	 * <p>
-	 * Configuration is provided to the {@link ContentSecurityPolicyHeaderWriter} which
-	 * supports the writing of the two headers as detailed in the W3C Candidate
-	 * Recommendation:
-	 * </p>
-	 * <ul>
-	 * <li>Content-Security-Policy</li>
-	 * <li>Content-Security-Policy-Report-Only</li>
-	 * </ul>
-	 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
-	 * @throws IllegalArgumentException if policyDirectives is null or empty
-	 * @since 4.1
-	 * @see ContentSecurityPolicyHeaderWriter
-	 */
-	public ContentSecurityPolicyConfig contentSecurityPolicy(String policyDirectives) {
-		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter(policyDirectives);
-		return this.contentSecurityPolicy;
-	}
-
-	/**
-	 * <p>
-	 * Allows configuration for <a href="https://www.w3.org/TR/CSP2/">Content Security
-	 * Policy (CSP) Level 2</a>.
-	 * </p>
-	 *
-	 * <p>
-	 * Calling this method automatically enables (includes) the Content-Security-Policy
-	 * header in the response using the supplied security policy directive(s).
-	 * </p>
-	 *
-	 * <p>
-	 * Configuration is provided to the {@link ContentSecurityPolicyHeaderWriter} which
-	 * supports the writing of the two headers as detailed in the W3C Candidate
-	 * Recommendation:
-	 * </p>
-	 * <ul>
-	 * <li>Content-Security-Policy</li>
-	 * <li>Content-Security-Policy-Report-Only</li>
-	 * </ul>
-	 * @param contentSecurityCustomizer the {@link Customizer} to provide more options for
-	 * the {@link ContentSecurityPolicyConfig}
-	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @see ContentSecurityPolicyHeaderWriter
-	 */
-	public HeadersConfigurer<H> contentSecurityPolicy(
-			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
-		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter();
-		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
-
-		return HeadersConfigurer.this;
-	}
-
 	public final class ContentSecurityPolicyConfig {
 
 		private ContentSecurityPolicyHeaderWriter writer;
@@ -863,148 +1024,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	}
 
-	/**
-	 * Clears all of the default headers from the response. After doing so, one can add
-	 * headers back. For example, if you only want to use Spring Security's cache control
-	 * you can use the following:
-	 *
-	 * <pre>
-	 * http.headers().defaultsDisabled().cacheControl();
-	 * </pre>
-	 * @return the {@link HeadersConfigurer} for additional customization
-	 */
-	public HeadersConfigurer<H> defaultsDisabled() {
-		this.contentTypeOptions.disable();
-		this.xssProtection.disable();
-		this.cacheControl.disable();
-		this.hsts.disable();
-		this.frameOptions.disable();
-		return this;
-	}
-
-	@Override
-	public void configure(H http) {
-		HeaderWriterFilter headersFilter = createHeaderWriterFilter();
-		http.addFilter(headersFilter);
-	}
-
-	/**
-	 * Creates the {@link HeaderWriter}
-	 * @return the {@link HeaderWriter}
-	 */
-	private HeaderWriterFilter createHeaderWriterFilter() {
-		List<HeaderWriter> writers = getHeaderWriters();
-		if (writers.isEmpty()) {
-			throw new IllegalStateException(
-					"Headers security is enabled, but no headers will be added. Either add headers or disable headers security");
-		}
-		HeaderWriterFilter headersFilter = new HeaderWriterFilter(writers);
-		headersFilter = postProcess(headersFilter);
-		return headersFilter;
-	}
-
-	/**
-	 * Gets the {@link HeaderWriter} instances and possibly initializes with the defaults.
-	 * @return
-	 */
-	private List<HeaderWriter> getHeaderWriters() {
-		List<HeaderWriter> writers = new ArrayList<>();
-		addIfNotNull(writers, this.contentTypeOptions.writer);
-		addIfNotNull(writers, this.xssProtection.writer);
-		addIfNotNull(writers, this.cacheControl.writer);
-		addIfNotNull(writers, this.hsts.writer);
-		addIfNotNull(writers, this.frameOptions.writer);
-		addIfNotNull(writers, this.hpkp.writer);
-		addIfNotNull(writers, this.contentSecurityPolicy.writer);
-		addIfNotNull(writers, this.referrerPolicy.writer);
-		addIfNotNull(writers, this.featurePolicy.writer);
-		writers.addAll(this.headerWriters);
-		return writers;
-	}
-
-	private <T> void addIfNotNull(List<T> values, T value) {
-		if (value != null) {
-			values.add(value);
-		}
-	}
-
-	/**
-	 * <p>
-	 * Allows configuration for <a href="https://www.w3.org/TR/referrer-policy/">Referrer
-	 * Policy</a>.
-	 * </p>
-	 *
-	 * <p>
-	 * Configuration is provided to the {@link ReferrerPolicyHeaderWriter} which support
-	 * the writing of the header as detailed in the W3C Technical Report:
-	 * </p>
-	 * <ul>
-	 * <li>Referrer-Policy</li>
-	 * </ul>
-	 *
-	 * <p>
-	 * Default value is:
-	 * </p>
-	 *
-	 * <pre>
-	 * Referrer-Policy: no-referrer
-	 * </pre>
-	 * @return the {@link ReferrerPolicyConfig} for additional configuration
-	 * @since 4.2
-	 * @see ReferrerPolicyHeaderWriter
-	 */
-	public ReferrerPolicyConfig referrerPolicy() {
-		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
-		return this.referrerPolicy;
-	}
-
-	/**
-	 * <p>
-	 * Allows configuration for <a href="https://www.w3.org/TR/referrer-policy/">Referrer
-	 * Policy</a>.
-	 * </p>
-	 *
-	 * <p>
-	 * Configuration is provided to the {@link ReferrerPolicyHeaderWriter} which support
-	 * the writing of the header as detailed in the W3C Technical Report:
-	 * </p>
-	 * <ul>
-	 * <li>Referrer-Policy</li>
-	 * </ul>
-	 * @return the {@link ReferrerPolicyConfig} for additional configuration
-	 * @throws IllegalArgumentException if policy is null or empty
-	 * @since 4.2
-	 * @see ReferrerPolicyHeaderWriter
-	 */
-	public ReferrerPolicyConfig referrerPolicy(ReferrerPolicy policy) {
-		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter(policy);
-		return this.referrerPolicy;
-	}
-
-	/**
-	 * <p>
-	 * Allows configuration for <a href="https://www.w3.org/TR/referrer-policy/">Referrer
-	 * Policy</a>.
-	 * </p>
-	 *
-	 * <p>
-	 * Configuration is provided to the {@link ReferrerPolicyHeaderWriter} which support
-	 * the writing of the header as detailed in the W3C Technical Report:
-	 * </p>
-	 * <ul>
-	 * <li>Referrer-Policy</li>
-	 * </ul>
-	 * @param referrerPolicyCustomizer the {@link Customizer} to provide more options for
-	 * the {@link ReferrerPolicyConfig}
-	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @see ReferrerPolicyHeaderWriter
-	 */
-	public HeadersConfigurer<H> referrerPolicy(Customizer<ReferrerPolicyConfig> referrerPolicyCustomizer) {
-		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
-		referrerPolicyCustomizer.customize(this.referrerPolicy);
-		return HeadersConfigurer.this;
-	}
-
 	public final class ReferrerPolicyConfig {
 
 		private ReferrerPolicyHeaderWriter writer;
@@ -1027,25 +1046,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 			return HeadersConfigurer.this;
 		}
 
-	}
-
-	/**
-	 * Allows configuration for <a href="https://wicg.github.io/feature-policy/">Feature
-	 * Policy</a>.
-	 * <p>
-	 * Calling this method automatically enables (includes) the {@code Feature-Policy}
-	 * header in the response using the supplied policy directive(s).
-	 * <p>
-	 * Configuration is provided to the {@link FeaturePolicyHeaderWriter} which is
-	 * responsible for writing the header.
-	 * @return the {@link FeaturePolicyConfig} for additional configuration
-	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
-	 * @since 5.1
-	 * @see FeaturePolicyHeaderWriter
-	 */
-	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
-		this.featurePolicy.writer = new FeaturePolicyHeaderWriter(policyDirectives);
-		return this.featurePolicy;
 	}
 
 	public final class FeaturePolicyConfig {

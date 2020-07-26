@@ -92,24 +92,6 @@ public class NamespaceHttpOpenIDLoginTests {
 		this.mvc.perform(post("/login/openid").with(csrf())).andExpect(redirectedUrl("/login?error"));
 	}
 
-	@Configuration
-	@EnableWebSecurity
-	static class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.openidLogin()
-					.permitAll();
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void openidLoginWhenAttributeExchangeConfiguredThenFetchAttributesMatchAttributeList() throws Exception {
 		OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER = mock(ConsumerManager.class);
@@ -146,6 +128,59 @@ public class NamespaceHttpOpenIDLoginTests {
 					&& "https://axschema.org/contact/email".equals(attribute.getType()) && attribute.isRequired()))
 							.isTrue();
 		}
+	}
+
+	@Test
+	public void openidLoginWhenUsingCustomEndpointsThenMatchesNamespace() throws Exception {
+		this.spring.register(OpenIDLoginCustomConfig.class).autowire();
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/authentication/login"));
+		this.mvc.perform(post("/authentication/login/process").with(csrf()))
+				.andExpect(redirectedUrl("/authentication/login?failed"));
+	}
+
+	@Test
+	public void openidLoginWithCustomHandlersThenBehaviorMatchesNamespace() throws Exception {
+		OpenIDAuthenticationToken token = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS,
+				"identityUrl", "message", Arrays.asList(new OpenIDAttribute("name", "type")));
+
+		OpenIDLoginCustomRefsConfig.AUDS = mock(AuthenticationUserDetailsService.class);
+		when(OpenIDLoginCustomRefsConfig.AUDS.loadUserDetails(any(Authentication.class)))
+				.thenReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		OpenIDLoginCustomRefsConfig.ADS = spy(new WebAuthenticationDetailsSource());
+		OpenIDLoginCustomRefsConfig.CONSUMER = mock(OpenIDConsumer.class);
+
+		this.spring.register(OpenIDLoginCustomRefsConfig.class, UserDetailsServiceConfig.class).autowire();
+
+		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
+				.thenThrow(new AuthenticationServiceException("boom"));
+		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
+				.andExpect(redirectedUrl("/custom/failure"));
+		reset(OpenIDLoginCustomRefsConfig.CONSUMER);
+
+		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class))).thenReturn(token);
+		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
+				.andExpect(redirectedUrl("/custom/targetUrl"));
+
+		verify(OpenIDLoginCustomRefsConfig.AUDS).loadUserDetails(any(Authentication.class));
+		verify(OpenIDLoginCustomRefsConfig.ADS).buildDetails(any(Object.class));
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.openidLogin()
+					.permitAll();
+			// @formatter:on
+		}
+
 	}
 
 	@Configuration
@@ -194,14 +229,6 @@ public class NamespaceHttpOpenIDLoginTests {
 
 	}
 
-	@Test
-	public void openidLoginWhenUsingCustomEndpointsThenMatchesNamespace() throws Exception {
-		this.spring.register(OpenIDLoginCustomConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/authentication/login"));
-		this.mvc.perform(post("/authentication/login/process").with(csrf()))
-				.andExpect(redirectedUrl("/authentication/login?failed"));
-	}
-
 	@Configuration
 	@EnableWebSecurity
 	static class OpenIDLoginCustomConfig extends WebSecurityConfigurerAdapter {
@@ -223,33 +250,6 @@ public class NamespaceHttpOpenIDLoginTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void openidLoginWithCustomHandlersThenBehaviorMatchesNamespace() throws Exception {
-		OpenIDAuthenticationToken token = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS,
-				"identityUrl", "message", Arrays.asList(new OpenIDAttribute("name", "type")));
-
-		OpenIDLoginCustomRefsConfig.AUDS = mock(AuthenticationUserDetailsService.class);
-		when(OpenIDLoginCustomRefsConfig.AUDS.loadUserDetails(any(Authentication.class)))
-				.thenReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
-		OpenIDLoginCustomRefsConfig.ADS = spy(new WebAuthenticationDetailsSource());
-		OpenIDLoginCustomRefsConfig.CONSUMER = mock(OpenIDConsumer.class);
-
-		this.spring.register(OpenIDLoginCustomRefsConfig.class, UserDetailsServiceConfig.class).autowire();
-
-		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
-				.thenThrow(new AuthenticationServiceException("boom"));
-		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
-				.andExpect(redirectedUrl("/custom/failure"));
-		reset(OpenIDLoginCustomRefsConfig.CONSUMER);
-
-		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class))).thenReturn(token);
-		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
-				.andExpect(redirectedUrl("/custom/targetUrl"));
-
-		verify(OpenIDLoginCustomRefsConfig.AUDS).loadUserDetails(any(Authentication.class));
-		verify(OpenIDLoginCustomRefsConfig.ADS).buildDetails(any(Object.class));
 	}
 
 	@Configuration

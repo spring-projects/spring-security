@@ -245,6 +245,19 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		return new JwkSourceReactiveJwtDecoderBuilder(source);
 	}
 
+	private static <C extends SecurityContext> JWTClaimsSet createClaimsSet(JWTProcessor<C> jwtProcessor,
+			JWT parsedToken, C context) {
+		try {
+			return jwtProcessor.process(parsedToken, context);
+		}
+		catch (BadJOSEException e) {
+			throw new BadJwtException("Failed to validate the token", e);
+		}
+		catch (JOSEException e) {
+			throw new JwtException("Failed to validate the token", e);
+		}
+	}
+
 	/**
 	 * A builder for creating {@link NimbusReactiveJwtDecoder} instances based on a
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>
@@ -624,19 +637,6 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			};
 		}
 
-	}
-
-	private static <C extends SecurityContext> JWTClaimsSet createClaimsSet(JWTProcessor<C> jwtProcessor,
-			JWT parsedToken, C context) {
-		try {
-			return jwtProcessor.process(parsedToken, context);
-		}
-		catch (BadJOSEException e) {
-			throw new BadJwtException("Failed to validate the token", e);
-		}
-		catch (JOSEException e) {
-			throw new JwtException("Failed to validate the token", e);
-		}
 	}
 
 }

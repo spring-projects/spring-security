@@ -1327,7 +1327,89 @@ public class OAuth2ResourceServerConfigurerTests {
 				.isInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
 
-	// -- support
+	private static <T> void registerMockBean(GenericApplicationContext context, String name, Class<T> clazz) {
+		context.registerBean(name, clazz, () -> mock(clazz));
+	}
+
+	private static BearerTokenRequestPostProcessor bearerToken(String token) {
+		return new BearerTokenRequestPostProcessor(token);
+	}
+
+	private static ResultMatcher invalidRequestHeader(String message) {
+		return header().string(HttpHeaders.WWW_AUTHENTICATE,
+				AllOf.allOf(new StringStartsWith("Bearer " + "error=\"invalid_request\", " + "error_description=\""),
+						new StringContains(message),
+						new StringEndsWith(", " + "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"")));
+	}
+
+	private static ResultMatcher invalidTokenHeader(String message) {
+		return header().string(HttpHeaders.WWW_AUTHENTICATE,
+				AllOf.allOf(new StringStartsWith("Bearer " + "error=\"invalid_token\", " + "error_description=\""),
+						new StringContains(message),
+						new StringEndsWith(", " + "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"")));
+	}
+
+	private static ResultMatcher insufficientScopeHeader() {
+		return header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer " + "error=\"insufficient_scope\""
+				+ ", error_description=\"The request requires higher privileges than provided by the access token.\""
+				+ ", error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+	}
+
+	private String jwkSet() {
+		return new JWKSet(new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).keyID("1").build()).toString();
+	}
+
+	private String jwtFromIssuer(String issuer) throws Exception {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(ISS, issuer);
+		claims.put(SUB, "test-subject");
+		claims.put("scope", "message:read");
+		JWSObject jws = new JWSObject(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("1").build(),
+				new Payload(new JSONObject(claims)));
+		jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+		return jws.serialize();
+	}
+
+	private void mockWebServer(String response) {
+		this.web.enqueue(new MockResponse().setResponseCode(200)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(response));
+	}
+
+	private void mockRestOperations(String response) {
+		RestOperations rest = this.spring.getContext().getBean(RestOperations.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		ResponseEntity<String> entity = new ResponseEntity<>(response, headers, HttpStatus.OK);
+		when(rest.exchange(any(RequestEntity.class), eq(String.class))).thenReturn(entity);
+	}
+
+	private <T> T bean(Class<T> beanClass) {
+		return this.spring.getContext().getBean(beanClass);
+	}
+
+	private <T> T verifyBean(Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanClass));
+	}
+
+	private String json(String name) throws IOException {
+		return resource(name + ".json");
+	}
+
+	private String jwks(String name) throws IOException {
+		return resource(name + ".jwks");
+	}
+
+	private String token(String name) throws IOException {
+		return resource(name + ".token");
+	}
+
+	private String resource(String suffix) throws IOException {
+		String name = this.getClass().getSimpleName() + "-" + suffix;
+		ClassPathResource resource = new ClassPathResource(name, this.getClass());
+		try (BufferedReader reader = new BufferedReader(new FileReader(resource.getFile()))) {
+			return reader.lines().collect(Collectors.joining());
+		}
+	}
 
 	@EnableWebSecurity
 	static class DefaultConfig extends WebSecurityConfigurerAdapter {
@@ -2293,10 +2375,6 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
-	private static <T> void registerMockBean(GenericApplicationContext context, String name, Class<T> clazz) {
-		context.registerBean(name, clazz, () -> mock(clazz));
-	}
-
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
 
 		private boolean asRequestParameter;
@@ -2324,86 +2402,6 @@ public class OAuth2ResourceServerConfigurerTests {
 			return request;
 		}
 
-	}
-
-	private static BearerTokenRequestPostProcessor bearerToken(String token) {
-		return new BearerTokenRequestPostProcessor(token);
-	}
-
-	private static ResultMatcher invalidRequestHeader(String message) {
-		return header().string(HttpHeaders.WWW_AUTHENTICATE,
-				AllOf.allOf(new StringStartsWith("Bearer " + "error=\"invalid_request\", " + "error_description=\""),
-						new StringContains(message),
-						new StringEndsWith(", " + "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"")));
-	}
-
-	private static ResultMatcher invalidTokenHeader(String message) {
-		return header().string(HttpHeaders.WWW_AUTHENTICATE,
-				AllOf.allOf(new StringStartsWith("Bearer " + "error=\"invalid_token\", " + "error_description=\""),
-						new StringContains(message),
-						new StringEndsWith(", " + "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"")));
-	}
-
-	private static ResultMatcher insufficientScopeHeader() {
-		return header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer " + "error=\"insufficient_scope\""
-				+ ", error_description=\"The request requires higher privileges than provided by the access token.\""
-				+ ", error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
-	}
-
-	private String jwkSet() {
-		return new JWKSet(new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).keyID("1").build()).toString();
-	}
-
-	private String jwtFromIssuer(String issuer) throws Exception {
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(ISS, issuer);
-		claims.put(SUB, "test-subject");
-		claims.put("scope", "message:read");
-		JWSObject jws = new JWSObject(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("1").build(),
-				new Payload(new JSONObject(claims)));
-		jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-		return jws.serialize();
-	}
-
-	private void mockWebServer(String response) {
-		this.web.enqueue(new MockResponse().setResponseCode(200)
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(response));
-	}
-
-	private void mockRestOperations(String response) {
-		RestOperations rest = this.spring.getContext().getBean(RestOperations.class);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		ResponseEntity<String> entity = new ResponseEntity<>(response, headers, HttpStatus.OK);
-		when(rest.exchange(any(RequestEntity.class), eq(String.class))).thenReturn(entity);
-	}
-
-	private <T> T bean(Class<T> beanClass) {
-		return this.spring.getContext().getBean(beanClass);
-	}
-
-	private <T> T verifyBean(Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanClass));
-	}
-
-	private String json(String name) throws IOException {
-		return resource(name + ".json");
-	}
-
-	private String jwks(String name) throws IOException {
-		return resource(name + ".jwks");
-	}
-
-	private String token(String name) throws IOException {
-		return resource(name + ".token");
-	}
-
-	private String resource(String suffix) throws IOException {
-		String name = this.getClass().getSimpleName() + "-" + suffix;
-		ClassPathResource resource = new ClassPathResource(name, this.getClass());
-		try (BufferedReader reader = new BufferedReader(new FileReader(resource.getFile()))) {
-			return reader.lines().collect(Collectors.joining());
-		}
 	}
 
 }

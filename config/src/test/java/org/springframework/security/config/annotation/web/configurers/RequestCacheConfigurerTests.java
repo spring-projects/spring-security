@@ -72,35 +72,6 @@ public class RequestCacheConfigurerTests {
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(RequestCacheAwareFilter.class));
 	}
 
-	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
-
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.requestCache();
-			// @formatter:on
-		}
-
-		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
-		}
-
-	}
-
-	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
-
-		@Override
-		public <O> O postProcess(O object) {
-			return object;
-		}
-
-	}
-
 	@Test
 	public void getWhenInvokingExceptionHandlingTwiceThenOriginalEntryPointUsed() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverrideConfig.class).autowire();
@@ -109,24 +80,6 @@ public class RequestCacheConfigurerTests {
 
 		verify(InvokeTwiceDoesNotOverrideConfig.requestCache).getMatchingRequest(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
-	}
-
-	@EnableWebSecurity
-	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
-
-		static RequestCache requestCache = mock(RequestCache.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.requestCache()
-					.requestCache(requestCache)
-					.and()
-				.requestCache();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -242,22 +195,6 @@ public class RequestCacheConfigurerTests {
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
 	}
 
-	@EnableWebSecurity
-	static class RequestCacheDefaultsConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin();
-			// @formatter:on
-		}
-
-	}
-
 	// gh-6102
 	@Test
 	public void getWhenRequestCacheIsDisabledThenExceptionTranslationFilterDoesNotStoreRequest() throws Exception {
@@ -282,6 +219,101 @@ public class RequestCacheConfigurerTests {
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
+	@Test
+	public void getWhenRequestCacheIsDisabledInLambdaThenExceptionTranslationFilterDoesNotStoreRequest()
+			throws Exception {
+		this.spring.register(RequestCacheDisabledInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getWhenRequestCacheInLambdaThenRedirectedToCachedPage() throws Exception {
+		this.spring.register(RequestCacheInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/bob"));
+	}
+
+	@Test
+	public void getWhenCustomRequestCacheInLambdaThenCustomRequestCacheUsed() throws Exception {
+		this.spring.register(CustomRequestCacheInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	private static RequestBuilder formLogin(MockHttpSession session) {
+		return post("/login").param("username", "user").param("password", "password").session(session).with(csrf());
+	}
+
+	@EnableWebSecurity
+	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
+		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requestCache();
+			// @formatter:on
+		}
+
+		@Bean
+		static ObjectPostProcessor<Object> objectPostProcessor() {
+			return objectPostProcessor;
+		}
+
+	}
+
+	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
+		@Override
+		public <O> O postProcess(O object) {
+			return object;
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
+		static RequestCache requestCache = mock(RequestCache.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requestCache()
+					.requestCache(requestCache)
+					.and()
+				.requestCache();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RequestCacheDefaultsConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin();
+			// @formatter:on
+		}
+
+	}
+
 	@EnableWebSecurity
 	static class RequestCacheDisabledConfig extends WebSecurityConfigurerAdapter {
 
@@ -291,16 +323,6 @@ public class RequestCacheConfigurerTests {
 			http.requestCache().disable();
 		}
 
-	}
-
-	@Test
-	public void getWhenRequestCacheIsDisabledInLambdaThenExceptionTranslationFilterDoesNotStoreRequest()
-			throws Exception {
-		this.spring.register(RequestCacheDisabledInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
-
-		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
-
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	@EnableWebSecurity
@@ -321,15 +343,6 @@ public class RequestCacheConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenRequestCacheInLambdaThenRedirectedToCachedPage() throws Exception {
-		this.spring.register(RequestCacheInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
-
-		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
-
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/bob"));
-	}
-
 	@EnableWebSecurity
 	static class RequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -346,15 +359,6 @@ public class RequestCacheConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void getWhenCustomRequestCacheInLambdaThenCustomRequestCacheUsed() throws Exception {
-		this.spring.register(CustomRequestCacheInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
-
-		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob")).andReturn().getRequest().getSession();
-
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	@EnableWebSecurity
@@ -393,10 +397,6 @@ public class RequestCacheConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	private static RequestBuilder formLogin(MockHttpSession session) {
-		return post("/login").param("username", "user").param("password", "password").session(session).with(csrf());
 	}
 
 }

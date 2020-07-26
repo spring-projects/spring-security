@@ -76,6 +76,10 @@ public class WithUserDetailsTests {
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
 	}
 
+	private Object getPrincipal() {
+		return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	}
+
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
@@ -93,10 +97,6 @@ public class WithUserDetailsTests {
 			return new CustomUserDetailsService();
 		}
 
-	}
-
-	private Object getPrincipal() {
-		return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	}
 
 	static class CustomUserDetailsService implements UserDetailsService {

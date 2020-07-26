@@ -164,12 +164,6 @@ public class EnableWebFluxSecurityTests {
 		assertThat(rdvp).isNotNull();
 	}
 
-	@EnableWebFluxSecurity
-	@Import(ReactiveAuthenticationTestConfiguration.class)
-	static class Config {
-
-	}
-
 	@Test
 	public void passwordEncoderBeanIsUsed() {
 		this.spring.register(CustomPasswordEncoderConfig.class).autowire();
@@ -186,22 +180,6 @@ public class EnableWebFluxSecurityTests {
 				.consumeWith(result -> assertThat(result.getResponseBody()).isEqualTo("user"));
 	}
 
-	@EnableWebFluxSecurity
-	static class CustomPasswordEncoderConfig {
-
-		@Bean
-		public ReactiveUserDetailsService userDetailsService(PasswordEncoder encoder) {
-			return new MapReactiveUserDetailsService(
-					User.withUsername("user").password(encoder.encode("password")).roles("USER").build());
-		}
-
-		@Bean
-		public static PasswordEncoder passwordEncoder() {
-			return new BCryptPasswordEncoder();
-		}
-
-	}
-
 	@Test
 	public void passwordUpdateManagerUsed() {
 		this.spring.register(MapReactiveUserDetailsServiceConfig.class).autowire();
@@ -211,22 +189,6 @@ public class EnableWebFluxSecurityTests {
 
 		ReactiveUserDetailsService users = this.spring.getContext().getBean(ReactiveUserDetailsService.class);
 		assertThat(users.findByUsername("user").block().getPassword()).startsWith("{bcrypt}");
-	}
-
-	@EnableWebFluxSecurity
-	static class MapReactiveUserDetailsServiceConfig {
-
-		@Bean
-		public MapReactiveUserDetailsService userDetailsService() {
-			// @formatter:off
-			return new MapReactiveUserDetailsService(User.withUsername("user")
-					.password("{noop}password")
-					.roles("USER")
-					.build()
-			// @formatter:on
-			);
-		}
-
 	}
 
 	@Test
@@ -254,6 +216,87 @@ public class EnableWebFluxSecurityTests {
 		client.get().uri("/test").exchange().expectStatus().isOk();
 	}
 
+	@Test
+	@WithMockUser
+	public void authenticationPrincipalArgumentResolverWhenSpelThenWorks() {
+		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
+
+		WebTestClient client = WebTestClient.bindToApplicationContext(this.spring.getContext()).build();
+
+		client.get().uri("/spel").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("user");
+	}
+
+	private static DataBuffer toDataBuffer(String body) {
+		DataBuffer buffer = new DefaultDataBufferFactory().allocateBuffer();
+		buffer.write(body.getBytes(StandardCharsets.UTF_8));
+		return buffer;
+	}
+
+	@Test
+	public void enableWebFluxSecurityWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
+		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
+
+		Child childBean = this.spring.getContext().getBean(Child.class);
+		Parent parentBean = this.spring.getContext().getBean(Parent.class);
+
+		assertThat(parentBean.getChild()).isSameAs(childBean);
+	}
+
+	@Test
+	public void enableWebFluxSecurityWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
+		this.spring.register(BeanProxyDisabledConfig.class).autowire();
+
+		Child childBean = this.spring.getContext().getBean(Child.class);
+		Parent parentBean = this.spring.getContext().getBean(Parent.class);
+
+		assertThat(parentBean.getChild()).isNotSameAs(childBean);
+	}
+
+	@Test
+	// gh-8596
+	public void resolveAuthenticationPrincipalArgumentResolverFirstDoesNotCauseBeanCurrentlyInCreationException() {
+		this.spring.register(EnableWebFluxSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+				DelegatingWebFluxConfiguration.class).autowire();
+	}
+
+	@EnableWebFluxSecurity
+	@Import(ReactiveAuthenticationTestConfiguration.class)
+	static class Config {
+
+	}
+
+	@EnableWebFluxSecurity
+	static class CustomPasswordEncoderConfig {
+
+		@Bean
+		public ReactiveUserDetailsService userDetailsService(PasswordEncoder encoder) {
+			return new MapReactiveUserDetailsService(
+					User.withUsername("user").password(encoder.encode("password")).roles("USER").build());
+		}
+
+		@Bean
+		public static PasswordEncoder passwordEncoder() {
+			return new BCryptPasswordEncoder();
+		}
+
+	}
+
+	@EnableWebFluxSecurity
+	static class MapReactiveUserDetailsServiceConfig {
+
+		@Bean
+		public MapReactiveUserDetailsService userDetailsService() {
+			// @formatter:off
+			return new MapReactiveUserDetailsService(User.withUsername("user")
+					.password("{noop}password")
+					.roles("USER")
+					.build()
+			// @formatter:on
+			);
+		}
+
+	}
+
 	@EnableWebFluxSecurity
 	@Import(ReactiveAuthenticationTestConfiguration.class)
 	static class MultiSecurityHttpConfig {
@@ -271,16 +314,6 @@ public class EnableWebFluxSecurityTests {
 			return http.build();
 		}
 
-	}
-
-	@Test
-	@WithMockUser
-	public void authenticationPrincipalArgumentResolverWhenSpelThenWorks() {
-		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
-
-		WebTestClient client = WebTestClient.bindToApplicationContext(this.spring.getContext()).build();
-
-		client.get().uri("/spel").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("user");
 	}
 
 	@EnableWebFluxSecurity
@@ -313,22 +346,6 @@ public class EnableWebFluxSecurityTests {
 
 	}
 
-	private static DataBuffer toDataBuffer(String body) {
-		DataBuffer buffer = new DefaultDataBufferFactory().allocateBuffer();
-		buffer.write(body.getBytes(StandardCharsets.UTF_8));
-		return buffer;
-	}
-
-	@Test
-	public void enableWebFluxSecurityWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
-		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
-
-		Child childBean = this.spring.getContext().getBean(Child.class);
-		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
-		assertThat(parentBean.getChild()).isSameAs(childBean);
-	}
-
 	@EnableWebFluxSecurity
 	@Import(ReactiveAuthenticationTestConfiguration.class)
 	static class BeanProxyEnabledByDefaultConfig {
@@ -343,16 +360,6 @@ public class EnableWebFluxSecurityTests {
 			return new Parent(child());
 		}
 
-	}
-
-	@Test
-	public void enableWebFluxSecurityWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
-		this.spring.register(BeanProxyDisabledConfig.class).autowire();
-
-		Child childBean = this.spring.getContext().getBean(Child.class);
-		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
-		assertThat(parentBean.getChild()).isNotSameAs(childBean);
 	}
 
 	@Configuration(proxyBeanMethods = false)
@@ -391,13 +398,6 @@ public class EnableWebFluxSecurityTests {
 		Child() {
 		}
 
-	}
-
-	@Test
-	// gh-8596
-	public void resolveAuthenticationPrincipalArgumentResolverFirstDoesNotCauseBeanCurrentlyInCreationException() {
-		this.spring.register(EnableWebFluxSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
-				DelegatingWebFluxConfiguration.class).autowire();
 	}
 
 	@EnableWebFluxSecurity

@@ -172,6 +172,10 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		return new CsrfParamResultMatcher();
 	}
 
+	public static ResultMatcher csrfAsHeader() {
+		return new CsrfHeaderResultMatcher();
+	}
+
 	static class CsrfParamResultMatcher implements ResultMatcher {
 
 		@Override
@@ -181,10 +185,6 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNull();
 		}
 
-	}
-
-	public static ResultMatcher csrfAsHeader() {
-		return new CsrfHeaderResultMatcher();
 	}
 
 	static class CsrfHeaderResultMatcher implements ResultMatcher {

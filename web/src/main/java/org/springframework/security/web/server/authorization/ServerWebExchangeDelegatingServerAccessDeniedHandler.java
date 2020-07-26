@@ -84,6 +84,11 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandler implements Ser
 		this.defaultHandler = accessDeniedHandler;
 	}
 
+	private Mono<Boolean> isMatch(ServerWebExchange exchange, DelegateEntry entry) {
+		ServerWebExchangeMatcher matcher = entry.getMatcher();
+		return matcher.matches(exchange).map(ServerWebExchangeMatcher.MatchResult::isMatch);
+	}
+
 	public static class DelegateEntry {
 
 		private final ServerWebExchangeMatcher matcher;
@@ -103,11 +108,6 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandler implements Ser
 			return this.accessDeniedHandler;
 		}
 
-	}
-
-	private Mono<Boolean> isMatch(ServerWebExchange exchange, DelegateEntry entry) {
-		ServerWebExchangeMatcher matcher = entry.getMatcher();
-		return matcher.matches(exchange).map(ServerWebExchangeMatcher.MatchResult::isMatch);
 	}
 
 }

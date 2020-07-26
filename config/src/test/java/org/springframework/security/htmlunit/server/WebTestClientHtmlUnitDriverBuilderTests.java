@@ -52,22 +52,6 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 		assertThat(driver.getPageSource()).contains("Hello World");
 	}
 
-	/**
-	 * @author Rob Winch
-	 * @since 5.0
-	 */
-	@Controller
-	class HelloWorldController {
-
-		@ResponseBody
-		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
-		public String index() {
-			return "<html>\n" + "<head>\n" + "<title>Hello World</title>\n" + "</head>\n" + "<body>\n"
-					+ "<h1>Hello World</h1>\n" + "</body>\n" + "</html>";
-		}
-
-	}
-
 	@Test
 	public void cookies() {
 		WebTestClient webTestClient = WebTestClient.bindToController(new CookieController()).build();
@@ -80,6 +64,18 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 		driver.get("http://localhost/cookie/delete");
 
 		assertThat(driver.getPageSource()).contains("null");
+	}
+
+	@Controller
+	class HelloWorldController {
+
+		@ResponseBody
+		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
+		public String index() {
+			return "<html>\n" + "<head>\n" + "<title>Hello World</title>\n" + "</head>\n" + "<body>\n"
+					+ "<h1>Hello World</h1>\n" + "</body>\n" + "</html>";
+		}
+
 	}
 
 	@Controller

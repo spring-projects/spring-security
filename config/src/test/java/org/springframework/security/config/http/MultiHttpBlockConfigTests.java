@@ -88,6 +88,10 @@ public class MultiHttpBlockConfigTests {
 				.andExpect(redirectedUrl("/"));
 	}
 
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	@Controller
 	static class BasicController {
 
@@ -96,10 +100,6 @@ public class MultiHttpBlockConfigTests {
 			return "ok";
 		}
 
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

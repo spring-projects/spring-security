@@ -512,6 +512,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.mvc.perform(get("/authorized-client")).andExpect(status().isOk()).andExpect(content().string("resolved"));
 	}
 
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	@RestController
 	static class AuthorizedClientController {
 
@@ -521,10 +525,6 @@ public class OAuth2LoginBeanDefinitionParserTests {
 			return authorizedClient != null ? "resolved" : "not-resolved";
 		}
 
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

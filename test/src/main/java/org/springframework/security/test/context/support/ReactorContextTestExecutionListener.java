@@ -57,6 +57,14 @@ public class ReactorContextTestExecutionListener extends DelegatingTestExecution
 				};
 	}
 
+	/**
+	 * Returns {@code 11000}.
+	 */
+	@Override
+	public int getOrder() {
+		return 11000;
+	}
+
 	private static class DelegateTestExecutionListener extends AbstractTestExecutionListener {
 
 		@Override
@@ -122,14 +130,6 @@ public class ReactorContextTestExecutionListener extends DelegatingTestExecution
 
 		}
 
-	}
-
-	/**
-	 * Returns {@code 11000}.
-	 */
-	@Override
-	public int getOrder() {
-		return 11000;
 	}
 
 }

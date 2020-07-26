@@ -32,6 +32,39 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  */
 public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
+	@Test(expected = BeanCreationException.class)
+	public void antMatchersCanNotWorkAfterAnyRequest() {
+		loadConfig(AntMatchersAfterAnyRequestConfig.class);
+	}
+
+	@Test(expected = BeanCreationException.class)
+	public void mvcMatchersCanNotWorkAfterAnyRequest() {
+		loadConfig(MvcMatchersAfterAnyRequestConfig.class);
+	}
+
+	@Test(expected = BeanCreationException.class)
+	public void regexMatchersCanNotWorkAfterAnyRequest() {
+		loadConfig(RegexMatchersAfterAnyRequestConfig.class);
+	}
+
+	@Test(expected = BeanCreationException.class)
+	public void anyRequestCanNotWorkAfterItself() {
+		loadConfig(AnyRequestAfterItselfConfig.class);
+	}
+
+	@Test(expected = BeanCreationException.class)
+	public void requestMatchersCanNotWorkAfterAnyRequest() {
+		loadConfig(RequestMatchersAfterAnyRequestConfig.class);
+	}
+
+	private void loadConfig(Class<?>... configs) {
+		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+		context.setAllowCircularReferences(false);
+		context.register(configs);
+		context.setServletContext(new MockServletContext());
+		context.refresh();
+	}
+
 	@EnableWebSecurity
 	static class AntMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
@@ -46,11 +79,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 		}
 
-	}
-
-	@Test(expected = BeanCreationException.class)
-	public void antMatchersCanNotWorkAfterAnyRequest() {
-		loadConfig(AntMatchersAfterAnyRequestConfig.class);
 	}
 
 	@EnableWebSecurity
@@ -69,11 +97,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 	}
 
-	@Test(expected = BeanCreationException.class)
-	public void mvcMatchersCanNotWorkAfterAnyRequest() {
-		loadConfig(MvcMatchersAfterAnyRequestConfig.class);
-	}
-
 	@EnableWebSecurity
 	static class RegexMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
@@ -88,11 +111,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 		}
 
-	}
-
-	@Test(expected = BeanCreationException.class)
-	public void regexMatchersCanNotWorkAfterAnyRequest() {
-		loadConfig(RegexMatchersAfterAnyRequestConfig.class);
 	}
 
 	@EnableWebSecurity
@@ -111,11 +129,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 	}
 
-	@Test(expected = BeanCreationException.class)
-	public void anyRequestCanNotWorkAfterItself() {
-		loadConfig(AnyRequestAfterItselfConfig.class);
-	}
-
 	@EnableWebSecurity
 	static class RequestMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
@@ -130,19 +143,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 		}
 
-	}
-
-	@Test(expected = BeanCreationException.class)
-	public void requestMatchersCanNotWorkAfterAnyRequest() {
-		loadConfig(RequestMatchersAfterAnyRequestConfig.class);
-	}
-
-	private void loadConfig(Class<?>... configs) {
-		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-		context.setAllowCircularReferences(false);
-		context.register(configs);
-		context.setServletContext(new MockServletContext());
-		context.refresh();
 	}
 
 }

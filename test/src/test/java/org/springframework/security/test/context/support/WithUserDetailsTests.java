@@ -35,11 +35,6 @@ public class WithUserDetailsTests {
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
-	@WithUserDetails
-	private static class Annotated {
-
-	}
-
 	@Test
 	public void findMergedAnnotationWhenSetupExplicitThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupExplicit.class,
@@ -48,17 +43,22 @@ public class WithUserDetailsTests {
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
-	@WithUserDetails(setupBefore = TestExecutionEvent.TEST_METHOD)
-	private class SetupExplicit {
-
-	}
-
 	@Test
 	public void findMergedAnnotationWhenSetupOverriddenThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupOverridden.class,
 				WithSecurityContext.class);
 
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_EXECUTION);
+	}
+
+	@WithUserDetails
+	private static class Annotated {
+
+	}
+
+	@WithUserDetails(setupBefore = TestExecutionEvent.TEST_METHOD)
+	private class SetupExplicit {
+
 	}
 
 	@WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION)

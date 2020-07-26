@@ -90,25 +90,6 @@ public class SessionManagementConfigurerTests {
 				any(HttpServletResponse.class));
 	}
 
-	@EnableWebSecurity
-	static class SessionManagementRequestCacheConfig extends WebSecurityConfigurerAdapter {
-
-		static RequestCache REQUEST_CACHE;
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.requestCache()
-					.requestCache(REQUEST_CACHE)
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void sessionManagementWhenConfiguredThenDoesNotOverrideSecurityContextRepository() throws Exception {
 		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
@@ -122,25 +103,6 @@ public class SessionManagementConfigurerTests {
 				.saveContext(any(SecurityContext.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
-	@EnableWebSecurity
-	static class SessionManagementSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
-
-		static SecurityContextRepository SECURITY_CONTEXT_REPO;
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.securityContext()
-					.securityContextRepository(SECURITY_CONTEXT_REPO)
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void sessionManagementWhenInvokedTwiceThenUsesOriginalSessionCreationPolicy() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
@@ -149,22 +111,6 @@ public class SessionManagementConfigurerTests {
 		HttpSession session = mvcResult.getRequest().getSession(false);
 
 		assertThat(session).isNull();
-	}
-
-	@EnableWebSecurity
-	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-					.and()
-				.sessionManagement();
-			// @formatter:on
-		}
-
 	}
 
 	// SEC-2137
@@ -181,32 +127,6 @@ public class SessionManagementConfigurerTests {
 		assertThat(mvcResult.getRequest().getSession().getId()).isEqualTo(sessionId);
 	}
 
-	@EnableWebSecurity
-	static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		public void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic()
-					.and()
-				.sessionManagement()
-					.sessionFixation().none()
-					.maximumSessions(1);
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void authenticateWhenNewSessionFixationProtectionInLambdaThenCreatesNewSession() throws Exception {
 		this.spring.register(SFPNewSessionInLambdaConfig.class).autowire();
@@ -221,34 +141,6 @@ public class SessionManagementConfigurerTests {
 
 		assertThat(givenSessionId).isNotEqualTo(resultingSession.getId());
 		assertThat(resultingSession.getAttribute("name")).isNull();
-	}
-
-	@EnableWebSecurity
-	static class SFPNewSessionInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.sessionManagement(sessionManagement ->
-					sessionManagement
-						.sessionFixation(sessionFixation ->
-							sessionFixation.newSession()
-						)
-				)
-				.httpBasic(withDefaults());
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -275,32 +167,6 @@ public class SessionManagementConfigurerTests {
 				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
 	}
 
-	@EnableWebSecurity
-	static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		public void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.formLogin()
-					.and()
-				.sessionManagement()
-					.maximumSessions(1)
-					.maxSessionsPreventsLogin(true);
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsOneInLambdaThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlInLambdaConfig.class).autowire();
@@ -311,36 +177,6 @@ public class SessionManagementConfigurerTests {
 				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?error"));
 	}
 
-	@EnableWebSecurity
-	static class ConcurrencyControlInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		public void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.formLogin(withDefaults())
-				.sessionManagement(sessionManagement ->
-					sessionManagement
-						.sessionConcurrency(sessionConcurrency ->
-							sessionConcurrency
-								.maximumSessions(1)
-								.maxSessionsPreventsLogin(true)
-						)
-				);
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void requestWhenSessionCreationPolicyStateLessInLambdaThenNoSessionCreated() throws Exception {
 		this.spring.register(SessionCreationPolicyStateLessInLambdaConfig.class).autowire();
@@ -349,22 +185,6 @@ public class SessionManagementConfigurerTests {
 		HttpSession session = mvcResult.getRequest().getSession(false);
 
 		assertThat(session).isNull();
-	}
-
-	@EnableWebSecurity
-	static class SessionCreationPolicyStateLessInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.sessionManagement(sessionManagement ->
-					sessionManagement
-						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-				);
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -419,6 +239,222 @@ public class SessionManagementConfigurerTests {
 				.postProcess(any(ChangeSessionIdAuthenticationStrategy.class));
 	}
 
+	@Test
+	public void getWhenAnonymousRequestAndTrustResolverSharedObjectReturnsAnonymousFalseThenSessionIsSaved()
+			throws Exception {
+		SharedTrustResolverConfig.TR = mock(AuthenticationTrustResolver.class);
+		when(SharedTrustResolverConfig.TR.isAnonymous(any())).thenReturn(false);
+		this.spring.register(SharedTrustResolverConfig.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
+
+		assertThat(mvcResult.getRequest().getSession(false)).isNotNull();
+	}
+
+	@Test
+	public void whenOneSessionRegistryBeanThenUseIt() throws Exception {
+		SessionRegistryOneBeanConfig.SESSION_REGISTRY = mock(SessionRegistry.class);
+		this.spring.register(SessionRegistryOneBeanConfig.class).autowire();
+
+		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
+		this.mvc.perform(get("/").session(session));
+
+		verify(SessionRegistryOneBeanConfig.SESSION_REGISTRY).getSessionInformation(session.getId());
+	}
+
+	@Test
+	public void whenTwoSessionRegistryBeansThenUseNeither() throws Exception {
+		SessionRegistryTwoBeansConfig.SESSION_REGISTRY_ONE = mock(SessionRegistry.class);
+		SessionRegistryTwoBeansConfig.SESSION_REGISTRY_TWO = mock(SessionRegistry.class);
+		this.spring.register(SessionRegistryTwoBeansConfig.class).autowire();
+
+		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
+		this.mvc.perform(get("/").session(session));
+
+		verifyNoInteractions(SessionRegistryTwoBeansConfig.SESSION_REGISTRY_ONE);
+		verifyNoInteractions(SessionRegistryTwoBeansConfig.SESSION_REGISTRY_TWO);
+	}
+
+	@EnableWebSecurity
+	static class SessionManagementRequestCacheConfig extends WebSecurityConfigurerAdapter {
+
+		static RequestCache REQUEST_CACHE;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requestCache()
+					.requestCache(REQUEST_CACHE)
+					.and()
+				.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class SessionManagementSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
+
+		static SecurityContextRepository SECURITY_CONTEXT_REPO;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.securityContext()
+					.securityContextRepository(SECURITY_CONTEXT_REPO)
+					.and()
+				.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+					.and()
+				.sessionManagement();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic()
+					.and()
+				.sessionManagement()
+					.sessionFixation().none()
+					.maximumSessions(1);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class SFPNewSessionInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement(sessionManagement ->
+					sessionManagement
+						.sessionFixation(sessionFixation ->
+							sessionFixation.newSession()
+						)
+				)
+				.httpBasic(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin()
+					.and()
+				.sessionManagement()
+					.maximumSessions(1)
+					.maxSessionsPreventsLogin(true);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class ConcurrencyControlInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(withDefaults())
+				.sessionManagement(sessionManagement ->
+					sessionManagement
+						.sessionConcurrency(sessionConcurrency ->
+							sessionConcurrency
+								.maximumSessions(1)
+								.maxSessionsPreventsLogin(true)
+						)
+				);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class SessionCreationPolicyStateLessInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement(sessionManagement ->
+					sessionManagement
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				);
+			// @formatter:on
+		}
+
+	}
+
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -449,18 +485,6 @@ public class SessionManagementConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenAnonymousRequestAndTrustResolverSharedObjectReturnsAnonymousFalseThenSessionIsSaved()
-			throws Exception {
-		SharedTrustResolverConfig.TR = mock(AuthenticationTrustResolver.class);
-		when(SharedTrustResolverConfig.TR.isAnonymous(any())).thenReturn(false);
-		this.spring.register(SharedTrustResolverConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
-
-		assertThat(mvcResult.getRequest().getSession(false)).isNotNull();
-	}
-
 	@EnableWebSecurity
 	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
 
@@ -474,30 +498,6 @@ public class SessionManagementConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void whenOneSessionRegistryBeanThenUseIt() throws Exception {
-		SessionRegistryOneBeanConfig.SESSION_REGISTRY = mock(SessionRegistry.class);
-		this.spring.register(SessionRegistryOneBeanConfig.class).autowire();
-
-		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
-		this.mvc.perform(get("/").session(session));
-
-		verify(SessionRegistryOneBeanConfig.SESSION_REGISTRY).getSessionInformation(session.getId());
-	}
-
-	@Test
-	public void whenTwoSessionRegistryBeansThenUseNeither() throws Exception {
-		SessionRegistryTwoBeansConfig.SESSION_REGISTRY_ONE = mock(SessionRegistry.class);
-		SessionRegistryTwoBeansConfig.SESSION_REGISTRY_TWO = mock(SessionRegistry.class);
-		this.spring.register(SessionRegistryTwoBeansConfig.class).autowire();
-
-		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
-		this.mvc.perform(get("/").session(session));
-
-		verifyNoInteractions(SessionRegistryTwoBeansConfig.SESSION_REGISTRY_ONE);
-		verifyNoInteractions(SessionRegistryTwoBeansConfig.SESSION_REGISTRY_TWO);
 	}
 
 	@EnableWebSecurity

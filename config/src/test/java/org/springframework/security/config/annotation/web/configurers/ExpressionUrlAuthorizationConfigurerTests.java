@@ -90,46 +90,11 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 						"role should not start with 'ROLE_' since it is automatically inserted. Got 'ROLE_USER'");
 	}
 
-	@EnableWebSecurity
-	static class HasRoleStartingWithRoleConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("ROLE_USER");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void configureWhenNoCustomAccessDecisionManagerThenUsesAffirmativeBased() {
 		this.spring.register(NoSpecificAccessDecisionManagerConfig.class).autowire();
 
 		verify(NoSpecificAccessDecisionManagerConfig.objectPostProcessor).postProcess(any(AffirmativeBased.class));
-	}
-
-	@EnableWebSecurity
-	static class NoSpecificAccessDecisionManagerConfig extends WebSecurityConfigurerAdapter {
-
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER");
-			// @formatter:on
-		}
-
-		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
-		}
-
 	}
 
 	@Test
@@ -139,38 +104,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 						"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
 	}
 
-	@EnableWebSecurity
-	static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests();
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void configureWhenAnyRequestIncompleteMappingThenException() {
 		assertThatThrownBy(() -> this.spring.register(IncompleteMappingConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class).hasMessageContaining("An incomplete mapping was found for ");
-	}
-
-	@EnableWebSecurity
-	static class IncompleteMappingConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.antMatchers("/a").authenticated()
-					.anyRequest();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -197,22 +134,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 	}
 
-	@EnableWebSecurity
-	static class RoleUserAnyAuthorityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic()
-					.and()
-				.authorizeRequests()
-					.anyRequest().hasAnyAuthority("ROLE_USER");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void getWhenHasAuthorityRoleUserConfiguredAndAuthorityIsRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserAuthorityConfig.class, BasicController.class).autowire();
@@ -235,22 +156,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.spring.register(RoleUserAuthorityConfig.class, BasicController.class).autowire();
 
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
-	}
-
-	@EnableWebSecurity
-	static class RoleUserAuthorityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic()
-					.and()
-				.authorizeRequests()
-					.anyRequest().hasAuthority("ROLE_USER");
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -285,22 +190,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 	}
 
-	@EnableWebSecurity
-	static class RoleUserOrRoleAdminAuthorityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic()
-					.and()
-				.authorizeRequests()
-					.anyRequest().hasAnyAuthority("ROLE_USER", "ROLE_ADMIN");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void getWhenHasAnyRoleUserConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserConfig.class, BasicController.class).autowire();
@@ -313,20 +202,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.spring.register(RoleUserConfig.class, BasicController.class).autowire();
 
 		this.mvc.perform(get("/").with(user("user").roles("ADMIN"))).andExpect(status().isForbidden());
-	}
-
-	@EnableWebSecurity
-	static class RoleUserConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasAnyRole("USER");
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -350,20 +225,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.mvc.perform(get("/").with(user("user").roles("OTHER"))).andExpect(status().isForbidden());
 	}
 
-	@EnableWebSecurity
-	static class RoleUserOrAdminConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasAnyRole("USER", "ADMIN");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void getWhenHasIpAddressConfiguredAndIpAddressMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(HasIpAddressConfig.class, BasicController.class).autowire();
@@ -384,22 +245,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		})).andExpect(status().isUnauthorized());
 	}
 
-	@EnableWebSecurity
-	static class HasIpAddressConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic()
-					.and()
-				.authorizeRequests()
-					.anyRequest().hasIpAddress("192.168.1.0");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void getWhenAnonymousConfiguredAndAnonymousUserThenRespondsWithOk() throws Exception {
 		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
@@ -412,22 +257,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
 
 		this.mvc.perform(get("/").with(user("user"))).andExpect(status().isForbidden());
-	}
-
-	@EnableWebSecurity
-	static class AnonymousConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic()
-					.and()
-				.authorizeRequests()
-					.anyRequest().anonymous();
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -444,6 +273,377 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.mvc.perform(get("/").with(authentication(
 				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
 				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenDenyAllConfiguredAndNoUserThenRespondsWithUnauthorized() throws Exception {
+		this.spring.register(DenyAllConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void getWheDenyAllConfiguredAndUserLoggedInThenRespondsWithForbidden() throws Exception {
+		this.spring.register(DenyAllConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenNotDenyAllConfiguredAndNoUserThenRespondsWithOk() throws Exception {
+		this.spring.register(NotDenyAllConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenNotDenyAllConfiguredAndRememberMeTokenThenRespondsWithOk() throws Exception {
+		this.spring.register(NotDenyAllConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/").with(authentication(
+				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenFullyAuthenticatedConfiguredAndRememberMeTokenThenRespondsWithUnauthorized() throws Exception {
+		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/").with(authentication(
+				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void getWhenFullyAuthenticatedConfiguredAndUserThenRespondsWithOk() throws Exception {
+		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenAccessRoleUserOrGetRequestConfiguredThenRespondsWithOk() throws Exception {
+		this.spring.register(AccessConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+	}
+
+	@Test
+	public void postWhenAccessRoleUserOrGetRequestConfiguredAndRoleUserThenRespondsWithOk() throws Exception {
+		this.spring.register(AccessConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(post("/").with(csrf()).with(user("user").roles("USER"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void postWhenAccessRoleUserOrGetRequestConfiguredThenRespondsWithUnauthorized() throws Exception {
+		this.spring.register(AccessConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void authorizeRequestsWhenInvokedTwiceThenUsesOriginalConfiguration() throws Exception {
+		this.spring.register(InvokeTwiceDoesNotResetConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void configureWhenUsingAllAuthorizeRequestPropertiesThenCompiles() {
+		this.spring.register(AllPropertiesWorkConfig.class).autowire();
+	}
+
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenApplicationListenerInvokedOnAuthorizedEvent()
+			throws Exception {
+		this.spring.register(AuthorizedRequestsWithPostProcessorConfig.class).autowire();
+
+		this.mvc.perform(get("/"));
+
+		verify(AuthorizedRequestsWithPostProcessorConfig.AL).onApplicationEvent(any(AuthorizedEvent.class));
+	}
+
+	@Test
+	public void getWhenPermissionCheckAndRoleDoesNotMatchThenRespondsWithForbidden() throws Exception {
+		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/admin").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenPermissionCheckAndRoleMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/user").with(user("user").roles("USER"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenPermissionCheckAndAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenPermissionCheckAndAuthenticationNameDoesNotMatchThenRespondsWithForbidden() throws Exception {
+		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenCustomExpressionHandlerAndRoleDoesNotMatchThenRespondsWithForbidden() throws Exception {
+		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/admin").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenCustomExpressionHandlerAndRoleMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/user").with(user("user").roles("USER"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenCustomExpressionHandlerAndAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenCustomExpressionHandlerAndAuthenticationNameDoesNotMatchThenRespondsWithForbidden()
+			throws Exception {
+		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+	}
+
+	// SEC-3011
+	@Test
+	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnAccessDecisionManager() {
+		this.spring.register(Sec3011Config.class).autowire();
+
+		verify(Sec3011Config.objectPostProcessor).postProcess(any(AccessDecisionManager.class));
+	}
+
+	@Test
+	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithIdAndTypeMatchesThenRespondsWithOk()
+			throws Exception {
+		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/allow")).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithIdAndTypeDoesNotMatchThenRespondsWithForbidden()
+			throws Exception {
+		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/deny")).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithObjectMatchesThenRespondsWithOk()
+			throws Exception {
+		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/allowObject")).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithObjectDoesNotMatchThenRespondsWithForbidden()
+			throws Exception {
+		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/denyObject")).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenRegisteringRoleHierarchyAndRelatedRoleAllowedThenRespondsWithOk() throws Exception {
+		this.spring.register(RoleHierarchyConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenRegisteringRoleHierarchyAndNoRelatedRolesAllowedThenRespondsWithForbidden() throws Exception {
+		this.spring.register(RoleHierarchyConfig.class, WildcardController.class).autowire();
+
+		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
+	}
+
+	@EnableWebSecurity
+	static class HasRoleStartingWithRoleConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("ROLE_USER");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NoSpecificAccessDecisionManagerConfig extends WebSecurityConfigurerAdapter {
+
+		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER");
+			// @formatter:on
+		}
+
+		@Bean
+		static ObjectPostProcessor<Object> objectPostProcessor() {
+			return objectPostProcessor;
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class IncompleteMappingConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.antMatchers("/a").authenticated()
+					.anyRequest();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleUserAnyAuthorityConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().hasAnyAuthority("ROLE_USER");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleUserAuthorityConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().hasAuthority("ROLE_USER");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleUserOrRoleAdminAuthorityConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().hasAnyAuthority("ROLE_USER", "ROLE_ADMIN");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleUserConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasAnyRole("USER");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RoleUserOrAdminConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasAnyRole("USER", "ADMIN");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class HasIpAddressConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().hasIpAddress("192.168.1.0");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class AnonymousConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic()
+					.and()
+				.authorizeRequests()
+					.anyRequest().anonymous();
+			// @formatter:on
+		}
+
 	}
 
 	@EnableWebSecurity
@@ -473,20 +673,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenDenyAllConfiguredAndNoUserThenRespondsWithUnauthorized() throws Exception {
-		this.spring.register(DenyAllConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	public void getWheDenyAllConfiguredAndUserLoggedInThenRespondsWithForbidden() throws Exception {
-		this.spring.register(DenyAllConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isForbidden());
-	}
-
 	@EnableWebSecurity
 	static class DenyAllConfig extends WebSecurityConfigurerAdapter {
 
@@ -503,22 +689,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenNotDenyAllConfiguredAndNoUserThenRespondsWithOk() throws Exception {
-		this.spring.register(NotDenyAllConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/")).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenNotDenyAllConfiguredAndRememberMeTokenThenRespondsWithOk() throws Exception {
-		this.spring.register(NotDenyAllConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/").with(authentication(
-				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
-				.andExpect(status().isOk());
-	}
-
 	@EnableWebSecurity
 	static class NotDenyAllConfig extends WebSecurityConfigurerAdapter {
 
@@ -533,22 +703,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void getWhenFullyAuthenticatedConfiguredAndRememberMeTokenThenRespondsWithUnauthorized() throws Exception {
-		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/").with(authentication(
-				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
-				.andExpect(status().isUnauthorized());
-	}
-
-	@Test
-	public void getWhenFullyAuthenticatedConfiguredAndUserThenRespondsWithOk() throws Exception {
-		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
@@ -569,27 +723,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenAccessRoleUserOrGetRequestConfiguredThenRespondsWithOk() throws Exception {
-		this.spring.register(AccessConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/")).andExpect(status().isOk());
-	}
-
-	@Test
-	public void postWhenAccessRoleUserOrGetRequestConfiguredAndRoleUserThenRespondsWithOk() throws Exception {
-		this.spring.register(AccessConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(post("/").with(csrf()).with(user("user").roles("USER"))).andExpect(status().isOk());
-	}
-
-	@Test
-	public void postWhenAccessRoleUserOrGetRequestConfiguredThenRespondsWithUnauthorized() throws Exception {
-		this.spring.register(AccessConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
-	}
-
 	@EnableWebSecurity
 	static class AccessConfig extends WebSecurityConfigurerAdapter {
 
@@ -608,13 +741,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
-	@Test
-	public void authorizeRequestsWhenInvokedTwiceThenUsesOriginalConfiguration() throws Exception {
-		this.spring.register(InvokeTwiceDoesNotResetConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
-	}
-
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotResetConfig extends WebSecurityConfigurerAdapter {
 
@@ -631,11 +757,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void configureWhenUsingAllAuthorizeRequestPropertiesThenCompiles() {
-		this.spring.register(AllPropertiesWorkConfig.class).autowire();
 	}
 
 	@EnableWebSecurity
@@ -659,16 +780,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenApplicationListenerInvokedOnAuthorizedEvent()
-			throws Exception {
-		this.spring.register(AuthorizedRequestsWithPostProcessorConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
-
-		verify(AuthorizedRequestsWithPostProcessorConfig.AL).onApplicationEvent(any(AuthorizedEvent.class));
 	}
 
 	@EnableWebSecurity
@@ -700,34 +811,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenPermissionCheckAndRoleDoesNotMatchThenRespondsWithForbidden() throws Exception {
-		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/admin").with(user("user").roles("USER"))).andExpect(status().isForbidden());
-	}
-
-	@Test
-	public void getWhenPermissionCheckAndRoleMatchesThenRespondsWithOk() throws Exception {
-		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/user").with(user("user").roles("USER"))).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenPermissionCheckAndAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
-		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenPermissionCheckAndAuthenticationNameDoesNotMatchThenRespondsWithForbidden() throws Exception {
-		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
-	}
-
 	@EnableWebSecurity
 	static class UseBeansInExpressions extends WebSecurityConfigurerAdapter {
 
@@ -756,35 +839,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 		}
 
-	}
-
-	@Test
-	public void getWhenCustomExpressionHandlerAndRoleDoesNotMatchThenRespondsWithForbidden() throws Exception {
-		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/admin").with(user("user").roles("USER"))).andExpect(status().isForbidden());
-	}
-
-	@Test
-	public void getWhenCustomExpressionHandlerAndRoleMatchesThenRespondsWithOk() throws Exception {
-		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/user").with(user("user").roles("USER"))).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenCustomExpressionHandlerAndAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
-		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenCustomExpressionHandlerAndAuthenticationNameDoesNotMatchThenRespondsWithForbidden()
-			throws Exception {
-		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
@@ -837,14 +891,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
-	// SEC-3011
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnAccessDecisionManager() {
-		this.spring.register(Sec3011Config.class).autowire();
-
-		verify(Sec3011Config.objectPostProcessor).postProcess(any(AccessDecisionManager.class));
-	}
-
 	@EnableWebSecurity
 	static class Sec3011Config extends WebSecurityConfigurerAdapter {
 
@@ -872,38 +918,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			return objectPostProcessor;
 		}
 
-	}
-
-	@Test
-	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithIdAndTypeMatchesThenRespondsWithOk()
-			throws Exception {
-		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/allow")).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithIdAndTypeDoesNotMatchThenRespondsWithForbidden()
-			throws Exception {
-		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/deny")).andExpect(status().isForbidden());
-	}
-
-	@Test
-	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithObjectMatchesThenRespondsWithOk()
-			throws Exception {
-		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/allowObject")).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithObjectDoesNotMatchThenRespondsWithForbidden()
-			throws Exception {
-		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/denyObject")).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
@@ -939,20 +953,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			};
 		}
 
-	}
-
-	@Test
-	public void getWhenRegisteringRoleHierarchyAndRelatedRoleAllowedThenRespondsWithOk() throws Exception {
-		this.spring.register(RoleHierarchyConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
-	}
-
-	@Test
-	public void getWhenRegisteringRoleHierarchyAndNoRelatedRolesAllowedThenRespondsWithForbidden() throws Exception {
-		this.spring.register(RoleHierarchyConfig.class, WildcardController.class).autowire();
-
-		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity

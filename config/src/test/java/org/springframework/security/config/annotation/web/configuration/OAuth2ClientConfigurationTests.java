@@ -133,6 +133,68 @@ public class OAuth2ClientConfigurationTests {
 		verify(accessTokenResponseClient, times(1)).getTokenResponse(any(OAuth2ClientCredentialsGrantRequest.class));
 	}
 
+	// gh-5321
+	@Test
+	public void loadContextWhenOAuth2AuthorizedClientRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
+		assertThatThrownBy(
+				() -> this.spring.register(OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig.class).autowire())
+						.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
+						.hasMessageContaining("Expected single matching bean of type '"
+								+ OAuth2AuthorizedClientRepository.class.getName()
+								+ "' but found 2: authorizedClientRepository1,authorizedClientRepository2");
+	}
+
+	@Test
+	public void loadContextWhenClientRegistrationRepositoryNotRegisteredThenThrowNoSuchBeanDefinitionException() {
+		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryNotRegisteredConfig.class).autowire())
+				.hasRootCauseInstanceOf(NoSuchBeanDefinitionException.class).hasMessageContaining(
+						"No qualifying bean of type '" + ClientRegistrationRepository.class.getName() + "' available");
+	}
+
+	@Test
+	public void loadContextWhenClientRegistrationRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
+		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryRegisteredTwiceConfig.class)
+				.autowire()).hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).hasMessageContaining(
+						"expected single matching bean but found 2: clientRegistrationRepository1,clientRegistrationRepository2");
+	}
+
+	@Test
+	public void loadContextWhenAccessTokenResponseClientRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
+		assertThatThrownBy(() -> this.spring.register(AccessTokenResponseClientRegisteredTwiceConfig.class).autowire())
+				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).hasMessageContaining(
+						"expected single matching bean but found 2: accessTokenResponseClient1,accessTokenResponseClient2");
+	}
+
+	// gh-8700
+	@Test
+	public void requestWhenAuthorizedClientManagerConfiguredThenUsed() throws Exception {
+		String clientRegistrationId = "client1";
+		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
+
+		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
+		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
+		OAuth2AuthorizedClientManager authorizedClientManager = mock(OAuth2AuthorizedClientManager.class);
+
+		ClientRegistration clientRegistration = clientRegistration().registrationId(clientRegistrationId).build();
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principalName,
+				TestOAuth2AccessTokens.noScopes());
+
+		when(authorizedClientManager.authorize(any())).thenReturn(authorizedClient);
+
+		OAuth2AuthorizedClientManagerRegisteredConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
+		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;
+		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_MANAGER = authorizedClientManager;
+		this.spring.register(OAuth2AuthorizedClientManagerRegisteredConfig.class).autowire();
+
+		this.mockMvc.perform(get("/authorized-client").with(authentication(authentication))).andExpect(status().isOk())
+				.andExpect(content().string("resolved"));
+
+		verify(authorizedClientManager).authorize(any());
+		verifyNoInteractions(clientRegistrationRepository);
+		verifyNoInteractions(authorizedClientRepository);
+	}
+
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientArgumentResolverConfig extends WebSecurityConfigurerAdapter {
@@ -143,17 +205,6 @@ public class OAuth2ClientConfigurationTests {
 
 		@Override
 		protected void configure(HttpSecurity http) {
-		}
-
-		@RestController
-		public class Controller {
-
-			@GetMapping("/authorized-client")
-			public String authorizedClient(
-					@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
-				return authorizedClient != null ? "resolved" : "not-resolved";
-			}
-
 		}
 
 		@Bean
@@ -171,17 +222,17 @@ public class OAuth2ClientConfigurationTests {
 			return ACCESS_TOKEN_RESPONSE_CLIENT;
 		}
 
-	}
+		@RestController
+		public class Controller {
 
-	// gh-5321
-	@Test
-	public void loadContextWhenOAuth2AuthorizedClientRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
-		assertThatThrownBy(
-				() -> this.spring.register(OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig.class).autowire())
-						.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
-						.hasMessageContaining("Expected single matching bean of type '"
-								+ OAuth2AuthorizedClientRepository.class.getName()
-								+ "' but found 2: authorizedClientRepository1,authorizedClientRepository2");
+			@GetMapping("/authorized-client")
+			public String authorizedClient(
+					@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
+				return authorizedClient != null ? "resolved" : "not-resolved";
+			}
+
+		}
+
 	}
 
 	@EnableWebMvc
@@ -221,13 +272,6 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
-	@Test
-	public void loadContextWhenClientRegistrationRepositoryNotRegisteredThenThrowNoSuchBeanDefinitionException() {
-		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryNotRegisteredConfig.class).autowire())
-				.hasRootCauseInstanceOf(NoSuchBeanDefinitionException.class).hasMessageContaining(
-						"No qualifying bean of type '" + ClientRegistrationRepository.class.getName() + "' available");
-	}
-
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class ClientRegistrationRepositoryNotRegisteredConfig extends WebSecurityConfigurerAdapter {
@@ -243,13 +287,6 @@ public class OAuth2ClientConfigurationTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void loadContextWhenClientRegistrationRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
-		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryRegisteredTwiceConfig.class)
-				.autowire()).hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).hasMessageContaining(
-						"expected single matching bean but found 2: clientRegistrationRepository1,clientRegistrationRepository2");
 	}
 
 	@EnableWebMvc
@@ -289,13 +326,6 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
-	@Test
-	public void loadContextWhenAccessTokenResponseClientRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
-		assertThatThrownBy(() -> this.spring.register(AccessTokenResponseClientRegisteredTwiceConfig.class).autowire())
-				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).hasMessageContaining(
-						"expected single matching bean but found 2: accessTokenResponseClient1,accessTokenResponseClient2");
-	}
-
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class AccessTokenResponseClientRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
@@ -333,36 +363,6 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
-	// gh-8700
-	@Test
-	public void requestWhenAuthorizedClientManagerConfiguredThenUsed() throws Exception {
-		String clientRegistrationId = "client1";
-		String principalName = "user1";
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
-
-		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
-		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
-		OAuth2AuthorizedClientManager authorizedClientManager = mock(OAuth2AuthorizedClientManager.class);
-
-		ClientRegistration clientRegistration = clientRegistration().registrationId(clientRegistrationId).build();
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principalName,
-				TestOAuth2AccessTokens.noScopes());
-
-		when(authorizedClientManager.authorize(any())).thenReturn(authorizedClient);
-
-		OAuth2AuthorizedClientManagerRegisteredConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
-		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;
-		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_MANAGER = authorizedClientManager;
-		this.spring.register(OAuth2AuthorizedClientManagerRegisteredConfig.class).autowire();
-
-		this.mockMvc.perform(get("/authorized-client").with(authentication(authentication))).andExpect(status().isOk())
-				.andExpect(content().string("resolved"));
-
-		verify(authorizedClientManager).authorize(any());
-		verifyNoInteractions(clientRegistrationRepository);
-		verifyNoInteractions(authorizedClientRepository);
-	}
-
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientManagerRegisteredConfig extends WebSecurityConfigurerAdapter {
@@ -373,17 +373,6 @@ public class OAuth2ClientConfigurationTests {
 
 		@Override
 		protected void configure(HttpSecurity http) {
-		}
-
-		@RestController
-		public class Controller {
-
-			@GetMapping("/authorized-client")
-			public String authorizedClient(
-					@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
-				return authorizedClient != null ? "resolved" : "not-resolved";
-			}
-
 		}
 
 		@Bean
@@ -399,6 +388,17 @@ public class OAuth2ClientConfigurationTests {
 		@Bean
 		public OAuth2AuthorizedClientManager authorizedClientManager() {
 			return AUTHORIZED_CLIENT_MANAGER;
+		}
+
+		@RestController
+		public class Controller {
+
+			@GetMapping("/authorized-client")
+			public String authorizedClient(
+					@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
+				return authorizedClient != null ? "resolved" : "not-resolved";
+			}
+
 		}
 
 	}

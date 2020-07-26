@@ -77,17 +77,6 @@ public class ReactiveMethodSecurityConfigurationTests {
 		assertThat(root.hasRole("ABC")).isTrue();
 	}
 
-	@Configuration
-	@EnableReactiveMethodSecurity // this imports ReactiveMethodSecurityConfiguration
-	static class WithRolePrefixConfiguration {
-
-		@Bean
-		GrantedAuthorityDefaults grantedAuthorityDefaults() {
-			return new GrantedAuthorityDefaults("CUSTOM_");
-		}
-
-	}
-
 	@Test
 	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingEnabled() throws NoSuchMethodException {
 		this.spring.register(SubclassConfig.class).autowire();
@@ -102,6 +91,17 @@ public class ReactiveMethodSecurityConfigurationTests {
 
 		assertThat(root.hasRole("ROLE_ABC")).isTrue();
 		assertThat(root.hasRole("ABC")).isTrue();
+	}
+
+	@Configuration
+	@EnableReactiveMethodSecurity // this imports ReactiveMethodSecurityConfiguration
+	static class WithRolePrefixConfiguration {
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("CUSTOM_");
+		}
+
 	}
 
 	@Configuration

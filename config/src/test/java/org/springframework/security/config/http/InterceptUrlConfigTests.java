@@ -209,6 +209,20 @@ public class InterceptUrlConfigTests {
 				.isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
+	private MockServletContext mockServletContext(String servletPath) {
+		MockServletContext servletContext = spy(new MockServletContext());
+		final ServletRegistration registration = mock(ServletRegistration.class);
+		when(registration.getMappings()).thenReturn(Collections.singleton(servletPath));
+		Answer<Map<String, ? extends ServletRegistration>> answer = invocation -> Collections.singletonMap("spring",
+				registration);
+		when(servletContext.getServletRegistrations()).thenAnswer(answer);
+		return servletContext;
+	}
+
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	@RestController
 	static class PathController {
 
@@ -230,20 +244,6 @@ public class InterceptUrlConfigTests {
 			return i == 1;
 		}
 
-	}
-
-	private MockServletContext mockServletContext(String servletPath) {
-		MockServletContext servletContext = spy(new MockServletContext());
-		final ServletRegistration registration = mock(ServletRegistration.class);
-		when(registration.getMappings()).thenReturn(Collections.singleton(servletPath));
-		Answer<Map<String, ? extends ServletRegistration>> answer = invocation -> Collections.singletonMap("spring",
-				registration);
-		when(servletContext.getServletRegistrations()).thenAnswer(answer);
-		return servletContext;
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

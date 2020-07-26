@@ -45,31 +45,9 @@ public class Sec2515Tests {
 		this.spring.register(StackOverflowSecurityConfig.class).autowire();
 	}
 
-	@EnableWebSecurity
-	static class StackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@Bean
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			return super.authenticationManagerBean();
-		}
-
-	}
-
 	@Test(expected = FatalBeanException.class)
 	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanCustomNameThenThrowFatalBeanException() {
 		this.spring.register(CustomBeanNameStackOverflowSecurityConfig.class).autowire();
-	}
-
-	@EnableWebSecurity
-	static class CustomBeanNameStackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		@Bean(name = "custom")
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			return super.authenticationManagerBean();
-		}
-
 	}
 
 	// SEC-2549
@@ -83,6 +61,33 @@ public class Sec2515Tests {
 		this.spring.autowire();
 
 		assertThat(this.spring.getContext().getBean(AuthenticationManager.class)).isNotNull();
+	} // SEC-2515
+
+	@Test
+	public void loadConfigWhenAuthenticationManagerConfiguredAndRegisterBeanThenContextLoads() {
+		this.spring.register(SecurityConfig.class).autowire();
+	}
+
+	@EnableWebSecurity
+	static class StackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
+
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean() throws Exception {
+			return super.authenticationManagerBean();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CustomBeanNameStackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		@Bean(name = "custom")
+		public AuthenticationManager authenticationManagerBean() throws Exception {
+			return super.authenticationManagerBean();
+		}
+
 	}
 
 	@EnableWebSecurity
@@ -96,12 +101,6 @@ public class Sec2515Tests {
 			return AUTHENTICATION_MANAGER;
 		}
 
-	}
-
-	// SEC-2515
-	@Test
-	public void loadConfigWhenAuthenticationManagerConfiguredAndRegisterBeanThenContextLoads() {
-		this.spring.register(SecurityConfig.class).autowire();
 	}
 
 	@EnableWebSecurity

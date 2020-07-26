@@ -55,6 +55,13 @@ public class PermitAllSupportTests {
 		this.mvc.perform(get("/app/abc").with(csrf()).contextPath("/app")).andExpect(status().isFound());
 	}
 
+	@Test
+	public void configureWhenNotAuthorizeRequestsThenException() {
+		assertThatCode(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasMessageContaining("permitAll only works with HttpSecurity.authorizeRequests");
+	}
+
 	@EnableWebSecurity
 	static class PermitAllConfig extends WebSecurityConfigurerAdapter {
 
@@ -71,13 +78,6 @@ public class PermitAllSupportTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void configureWhenNotAuthorizeRequestsThenException() {
-		assertThatCode(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("permitAll only works with HttpSecurity.authorizeRequests");
 	}
 
 	@EnableWebSecurity

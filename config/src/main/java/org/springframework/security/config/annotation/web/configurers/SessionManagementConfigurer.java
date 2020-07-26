@@ -311,144 +311,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		this.sessionFixationAuthenticationStrategy = postProcess(sessionFixationAuthenticationStrategy);
 	}
 
-	/**
-	 * Allows configuring SessionFixation protection
-	 *
-	 * @author Rob Winch
-	 */
-	public final class SessionFixationConfigurer {
-
-		/**
-		 * Specifies that a new session should be created, but the session attributes from
-		 * the original {@link HttpSession} should not be retained.
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> newSession() {
-			SessionFixationProtectionStrategy sessionFixationProtectionStrategy = new SessionFixationProtectionStrategy();
-			sessionFixationProtectionStrategy.setMigrateSessionAttributes(false);
-			setSessionFixationAuthenticationStrategy(sessionFixationProtectionStrategy);
-			return SessionManagementConfigurer.this;
-		}
-
-		/**
-		 * Specifies that a new session should be created and the session attributes from
-		 * the original {@link HttpSession} should be retained.
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> migrateSession() {
-			setSessionFixationAuthenticationStrategy(new SessionFixationProtectionStrategy());
-			return SessionManagementConfigurer.this;
-		}
-
-		/**
-		 * Specifies that the Servlet container-provided session fixation protection
-		 * should be used. When a session authenticates, the Servlet method
-		 * {@code HttpServletRequest#changeSessionId()} is called to change the session ID
-		 * and retain all session attributes.
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> changeSessionId() {
-			setSessionFixationAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
-			return SessionManagementConfigurer.this;
-		}
-
-		/**
-		 * Specifies that no session fixation protection should be enabled. This may be
-		 * useful when utilizing other mechanisms for protecting against session fixation.
-		 * For example, if application container session fixation protection is already in
-		 * use. Otherwise, this option is not recommended.
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> none() {
-			setSessionFixationAuthenticationStrategy(new NullAuthenticatedSessionStrategy());
-			return SessionManagementConfigurer.this;
-		}
-
-	}
-
-	/**
-	 * Allows configuring controlling of multiple sessions.
-	 *
-	 * @author Rob Winch
-	 */
-	public final class ConcurrencyControlConfigurer {
-
-		/**
-		 * Controls the maximum number of sessions for a user. The default is to allow any
-		 * number of users.
-		 * @param maximumSessions the maximum number of sessions for a user
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
-			SessionManagementConfigurer.this.maximumSessions = maximumSessions;
-			return this;
-		}
-
-		/**
-		 * The URL to redirect to if a user tries to access a resource and their session
-		 * has been expired due to too many sessions for the current user. The default is
-		 * to write a simple error message to the response.
-		 * @param expiredUrl the URL to redirect to
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer expiredUrl(String expiredUrl) {
-			SessionManagementConfigurer.this.expiredUrl = expiredUrl;
-			return this;
-		}
-
-		/**
-		 * Determines the behaviour when an expired session is detected.
-		 * @param expiredSessionStrategy the {@link SessionInformationExpiredStrategy} to
-		 * use when an expired session is detected.
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer expiredSessionStrategy(
-				SessionInformationExpiredStrategy expiredSessionStrategy) {
-			SessionManagementConfigurer.this.expiredSessionStrategy = expiredSessionStrategy;
-			return this;
-		}
-
-		/**
-		 * If true, prevents a user from authenticating when the
-		 * {@link #maximumSessions(int)} has been reached. Otherwise (default), the user
-		 * who authenticates is allowed access and an existing user's session is expired.
-		 * The user's who's session is forcibly expired is sent to
-		 * {@link #expiredUrl(String)}. The advantage of this approach is if a user
-		 * accidentally does not log out, there is no need for an administrator to
-		 * intervene or wait till their session expires.
-		 * @param maxSessionsPreventsLogin true to have an error at time of
-		 * authentication, else false (default)
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer maxSessionsPreventsLogin(boolean maxSessionsPreventsLogin) {
-			SessionManagementConfigurer.this.maxSessionsPreventsLogin = maxSessionsPreventsLogin;
-			return this;
-		}
-
-		/**
-		 * Controls the {@link SessionRegistry} implementation used. The default is
-		 * {@link SessionRegistryImpl} which is an in memory implementation.
-		 * @param sessionRegistry the {@link SessionRegistry} to use
-		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
-		 */
-		public ConcurrencyControlConfigurer sessionRegistry(SessionRegistry sessionRegistry) {
-			SessionManagementConfigurer.this.sessionRegistry = sessionRegistry;
-			return this;
-		}
-
-		/**
-		 * Used to chain back to the {@link SessionManagementConfigurer}
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 */
-		public SessionManagementConfigurer<H> and() {
-			return SessionManagementConfigurer.this;
-		}
-
-		private ConcurrencyControlConfigurer() {
-		}
-
-	}
-
 	@Override
 	public void init(H http) {
 		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
@@ -701,6 +563,144 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		catch (NoSuchBeanDefinitionException e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Allows configuring SessionFixation protection
+	 *
+	 * @author Rob Winch
+	 */
+	public final class SessionFixationConfigurer {
+
+		/**
+		 * Specifies that a new session should be created, but the session attributes from
+		 * the original {@link HttpSession} should not be retained.
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> newSession() {
+			SessionFixationProtectionStrategy sessionFixationProtectionStrategy = new SessionFixationProtectionStrategy();
+			sessionFixationProtectionStrategy.setMigrateSessionAttributes(false);
+			setSessionFixationAuthenticationStrategy(sessionFixationProtectionStrategy);
+			return SessionManagementConfigurer.this;
+		}
+
+		/**
+		 * Specifies that a new session should be created and the session attributes from
+		 * the original {@link HttpSession} should be retained.
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> migrateSession() {
+			setSessionFixationAuthenticationStrategy(new SessionFixationProtectionStrategy());
+			return SessionManagementConfigurer.this;
+		}
+
+		/**
+		 * Specifies that the Servlet container-provided session fixation protection
+		 * should be used. When a session authenticates, the Servlet method
+		 * {@code HttpServletRequest#changeSessionId()} is called to change the session ID
+		 * and retain all session attributes.
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> changeSessionId() {
+			setSessionFixationAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
+			return SessionManagementConfigurer.this;
+		}
+
+		/**
+		 * Specifies that no session fixation protection should be enabled. This may be
+		 * useful when utilizing other mechanisms for protecting against session fixation.
+		 * For example, if application container session fixation protection is already in
+		 * use. Otherwise, this option is not recommended.
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> none() {
+			setSessionFixationAuthenticationStrategy(new NullAuthenticatedSessionStrategy());
+			return SessionManagementConfigurer.this;
+		}
+
+	}
+
+	/**
+	 * Allows configuring controlling of multiple sessions.
+	 *
+	 * @author Rob Winch
+	 */
+	public final class ConcurrencyControlConfigurer {
+
+		/**
+		 * Controls the maximum number of sessions for a user. The default is to allow any
+		 * number of users.
+		 * @param maximumSessions the maximum number of sessions for a user
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
+			SessionManagementConfigurer.this.maximumSessions = maximumSessions;
+			return this;
+		}
+
+		/**
+		 * The URL to redirect to if a user tries to access a resource and their session
+		 * has been expired due to too many sessions for the current user. The default is
+		 * to write a simple error message to the response.
+		 * @param expiredUrl the URL to redirect to
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer expiredUrl(String expiredUrl) {
+			SessionManagementConfigurer.this.expiredUrl = expiredUrl;
+			return this;
+		}
+
+		/**
+		 * Determines the behaviour when an expired session is detected.
+		 * @param expiredSessionStrategy the {@link SessionInformationExpiredStrategy} to
+		 * use when an expired session is detected.
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer expiredSessionStrategy(
+				SessionInformationExpiredStrategy expiredSessionStrategy) {
+			SessionManagementConfigurer.this.expiredSessionStrategy = expiredSessionStrategy;
+			return this;
+		}
+
+		/**
+		 * If true, prevents a user from authenticating when the
+		 * {@link #maximumSessions(int)} has been reached. Otherwise (default), the user
+		 * who authenticates is allowed access and an existing user's session is expired.
+		 * The user's who's session is forcibly expired is sent to
+		 * {@link #expiredUrl(String)}. The advantage of this approach is if a user
+		 * accidentally does not log out, there is no need for an administrator to
+		 * intervene or wait till their session expires.
+		 * @param maxSessionsPreventsLogin true to have an error at time of
+		 * authentication, else false (default)
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer maxSessionsPreventsLogin(boolean maxSessionsPreventsLogin) {
+			SessionManagementConfigurer.this.maxSessionsPreventsLogin = maxSessionsPreventsLogin;
+			return this;
+		}
+
+		/**
+		 * Controls the {@link SessionRegistry} implementation used. The default is
+		 * {@link SessionRegistryImpl} which is an in memory implementation.
+		 * @param sessionRegistry the {@link SessionRegistry} to use
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer sessionRegistry(SessionRegistry sessionRegistry) {
+			SessionManagementConfigurer.this.sessionRegistry = sessionRegistry;
+			return this;
+		}
+
+		/**
+		 * Used to chain back to the {@link SessionManagementConfigurer}
+		 * @return the {@link SessionManagementConfigurer} for further customizations
+		 */
+		public SessionManagementConfigurer<H> and() {
+			return SessionManagementConfigurer.this;
+		}
+
+		private ConcurrencyControlConfigurer() {
+		}
+
 	}
 
 }

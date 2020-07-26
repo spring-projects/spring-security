@@ -61,11 +61,6 @@ public class NamespaceDebugTests {
 		verify(appender, atLeastOnce()).doAppend(any(ILoggingEvent.class));
 	}
 
-	@EnableWebSecurity(debug = true)
-	static class DebugWebSecurity extends WebSecurityConfigurerAdapter {
-
-	}
-
 	@Test
 	public void requestWhenDebugSetToFalseThenDoesNotLogDebugInformation() throws Exception {
 		Appender<ILoggingEvent> appender = mockAppenderFor("Spring Security Debugger");
@@ -73,11 +68,6 @@ public class NamespaceDebugTests {
 		this.mvc.perform(get("/"));
 		assertThat(filterChainClass()).isNotEqualTo(DebugFilter.class);
 		verify(appender, never()).doAppend(any(ILoggingEvent.class));
-	}
-
-	@EnableWebSecurity
-	static class NoDebugWebSecurity extends WebSecurityConfigurerAdapter {
-
 	}
 
 	private Appender<ILoggingEvent> mockAppenderFor(String name) {
@@ -90,6 +80,16 @@ public class NamespaceDebugTests {
 
 	private Class<?> filterChainClass() {
 		return this.spring.getContext().getBean("springSecurityFilterChain").getClass();
+	}
+
+	@EnableWebSecurity(debug = true)
+	static class DebugWebSecurity extends WebSecurityConfigurerAdapter {
+
+	}
+
+	@EnableWebSecurity
+	static class NoDebugWebSecurity extends WebSecurityConfigurerAdapter {
+
 	}
 
 }

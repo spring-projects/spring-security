@@ -68,6 +68,9 @@ public class AuthenticationManagerBuilderTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
+	@Autowired(required = false)
+	MockMvc mockMvc;
+
 	@Test
 	public void buildWhenAddAuthenticationProviderThenDoesNotPerformRegistration() throws Exception {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);
@@ -110,25 +113,6 @@ public class AuthenticationManagerBuilderTests {
 		assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("ROLE_USER");
 	}
 
-	@EnableWebSecurity
-	static class PasswordEncoderGlobalConfig extends WebSecurityConfigurerAdapter {
-
-		@Autowired
-		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-				.withUser("user").password("password").roles("USER");
-			// @formatter:on
-		}
-
-		@Bean
-		PasswordEncoder passwordEncoder() {
-			return NoOpPasswordEncoder.getInstance();
-		}
-
-	}
-
 	@Test
 	public void getAuthenticationManagerWhenProtectedPasswordEncoderBeanThenUsed() throws Exception {
 		this.spring.register(PasswordEncoderGlobalConfig.class).autowire();
@@ -141,28 +125,6 @@ public class AuthenticationManagerBuilderTests {
 		assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("ROLE_USER");
 	}
 
-	@EnableWebSecurity
-	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-				.withUser("user").password("password").roles("USER");
-			// @formatter:on
-		}
-
-		@Bean
-		PasswordEncoder passwordEncoder() {
-			return NoOpPasswordEncoder.getInstance();
-		}
-
-	}
-
-	@Autowired(required = false)
-	MockMvc mockMvc;
-
 	@Test
 	public void authenticationManagerWhenMultipleProvidersThenWorks() throws Exception {
 		this.spring.register(MultiAuthenticationProvidersConfig.class).autowire();
@@ -171,17 +133,6 @@ public class AuthenticationManagerBuilderTests {
 
 		this.mockMvc.perform(formLogin().user("admin"))
 				.andExpect(authenticated().withUsername("admin").withRoles("USER", "ADMIN"));
-	}
-
-	@EnableWebSecurity
-	static class MultiAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user()).and().inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.admin());
-		}
-
 	}
 
 	@Test
@@ -223,6 +174,55 @@ public class AuthenticationManagerBuilderTests {
 
 		this.mockMvc.perform(formLogin().user("joe", "joespassword"))
 				.andExpect(authenticated().withUsername("joe").withRoles("USER"));
+	}
+
+	@EnableWebSecurity
+	static class MultiAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user()).and().inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.admin());
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PasswordEncoderGlobalConfig extends WebSecurityConfigurerAdapter {
+
+		@Autowired
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER");
+			// @formatter:on
+		}
+
+		@Bean
+		PasswordEncoder passwordEncoder() {
+			return NoOpPasswordEncoder.getInstance();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER");
+			// @formatter:on
+		}
+
+		@Bean
+		PasswordEncoder passwordEncoder() {
+			return NoOpPasswordEncoder.getInstance();
+		}
+
 	}
 
 	@Configuration

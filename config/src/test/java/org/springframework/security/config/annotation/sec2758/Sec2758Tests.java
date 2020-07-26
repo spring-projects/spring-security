@@ -88,22 +88,12 @@ public class Sec2758Tests {
 	@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-		@RestController
-		static class RootController {
-
-			@GetMapping("/")
-			public String ok() {
-				return "ok";
-			}
-
-		}
-
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().access("hasAnyRole('CUSTOM')");
+			.authorizeRequests()
+			.anyRequest().access("hasAnyRole('CUSTOM')");
 			// @formatter:on
 		}
 
@@ -115,6 +105,16 @@ public class Sec2758Tests {
 		@Bean
 		static DefaultRolesPrefixPostProcessor defaultRolesPrefixPostProcessor() {
 			return new DefaultRolesPrefixPostProcessor();
+		}
+
+		@RestController
+		static class RootController {
+
+			@GetMapping("/")
+			public String ok() {
+				return "ok";
+			}
+
 		}
 
 	}

@@ -75,6 +75,63 @@ public class JeeConfigurerTests {
 				.postProcess(any(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class));
 	}
 
+	@Test
+	public void jeeWhenInvokedTwiceThenUsesOriginalMappableRoles() throws Exception {
+		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
+		Principal user = mock(Principal.class);
+		when(user.getName()).thenReturn("user");
+
+		this.mvc.perform(get("/").principal(user).with(request -> {
+			request.addUserRole("ROLE_ADMIN");
+			request.addUserRole("ROLE_USER");
+			return request;
+		})).andExpect(authenticated().withRoles("USER"));
+	}
+
+	@Test
+	public void requestWhenJeeMappableRolesInLambdaThenAuthenticatedWithMappableRoles() throws Exception {
+		this.spring.register(JeeMappableRolesConfig.class).autowire();
+		Principal user = mock(Principal.class);
+		when(user.getName()).thenReturn("user");
+
+		this.mvc.perform(get("/").principal(user).with(request -> {
+			request.addUserRole("ROLE_ADMIN");
+			request.addUserRole("ROLE_USER");
+			return request;
+		})).andExpect(authenticated().withRoles("USER"));
+	}
+
+	@Test
+	public void requestWhenJeeMappableAuthoritiesInLambdaThenAuthenticatedWithMappableAuthorities() throws Exception {
+		this.spring.register(JeeMappableAuthoritiesConfig.class).autowire();
+		Principal user = mock(Principal.class);
+		when(user.getName()).thenReturn("user");
+
+		this.mvc.perform(get("/").principal(user).with(request -> {
+			request.addUserRole("ROLE_ADMIN");
+			request.addUserRole("ROLE_USER");
+			return request;
+		})).andExpect(authenticated().withAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER")));
+	}
+
+	@Test
+	public void requestWhenCustomAuthenticatedUserDetailsServiceInLambdaThenCustomAuthenticatedUserDetailsServiceUsed()
+			throws Exception {
+		this.spring.register(JeeCustomAuthenticatedUserDetailsServiceConfig.class).autowire();
+		Principal user = mock(Principal.class);
+		User userDetails = new User("user", "N/A", true, true, true, true,
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		when(user.getName()).thenReturn("user");
+		when(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
+				.thenReturn(userDetails);
+
+		this.mvc.perform(get("/").principal(user).with(request -> {
+			request.addUserRole("ROLE_ADMIN");
+			request.addUserRole("ROLE_USER");
+			return request;
+		})).andExpect(authenticated().withRoles("USER"));
+	}
+
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -104,19 +161,6 @@ public class JeeConfigurerTests {
 
 	}
 
-	@Test
-	public void jeeWhenInvokedTwiceThenUsesOriginalMappableRoles() throws Exception {
-		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
-		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("user");
-
-		this.mvc.perform(get("/").principal(user).with(request -> {
-			request.addUserRole("ROLE_ADMIN");
-			request.addUserRole("ROLE_USER");
-			return request;
-		})).andExpect(authenticated().withRoles("USER"));
-	}
-
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
 
@@ -131,19 +175,6 @@ public class JeeConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void requestWhenJeeMappableRolesInLambdaThenAuthenticatedWithMappableRoles() throws Exception {
-		this.spring.register(JeeMappableRolesConfig.class).autowire();
-		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("user");
-
-		this.mvc.perform(get("/").principal(user).with(request -> {
-			request.addUserRole("ROLE_ADMIN");
-			request.addUserRole("ROLE_USER");
-			return request;
-		})).andExpect(authenticated().withRoles("USER"));
 	}
 
 	@EnableWebSecurity
@@ -166,19 +197,6 @@ public class JeeConfigurerTests {
 
 	}
 
-	@Test
-	public void requestWhenJeeMappableAuthoritiesInLambdaThenAuthenticatedWithMappableAuthorities() throws Exception {
-		this.spring.register(JeeMappableAuthoritiesConfig.class).autowire();
-		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("user");
-
-		this.mvc.perform(get("/").principal(user).with(request -> {
-			request.addUserRole("ROLE_ADMIN");
-			request.addUserRole("ROLE_USER");
-			return request;
-		})).andExpect(authenticated().withAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER")));
-	}
-
 	@EnableWebSecurity
 	public static class JeeMappableAuthoritiesConfig extends WebSecurityConfigurerAdapter {
 
@@ -197,24 +215,6 @@ public class JeeConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void requestWhenCustomAuthenticatedUserDetailsServiceInLambdaThenCustomAuthenticatedUserDetailsServiceUsed()
-			throws Exception {
-		this.spring.register(JeeCustomAuthenticatedUserDetailsServiceConfig.class).autowire();
-		Principal user = mock(Principal.class);
-		User userDetails = new User("user", "N/A", true, true, true, true,
-				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(user.getName()).thenReturn("user");
-		when(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
-				.thenReturn(userDetails);
-
-		this.mvc.perform(get("/").principal(user).with(request -> {
-			request.addUserRole("ROLE_ADMIN");
-			request.addUserRole("ROLE_USER");
-			return request;
-		})).andExpect(authenticated().withRoles("USER"));
 	}
 
 	@EnableWebSecurity

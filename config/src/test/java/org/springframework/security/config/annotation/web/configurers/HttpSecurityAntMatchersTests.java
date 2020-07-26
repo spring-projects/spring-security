@@ -78,6 +78,25 @@ public class HttpSecurityAntMatchersTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
+	// SEC-3135
+	@Test
+	public void antMatchersMethodAndEmptyPatterns() throws Exception {
+		loadConfig(AntMatchersEmptyPatternsConfig.class);
+		this.request.setMethod("POST");
+
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+	}
+
+	public void loadConfig(Class<?>... configs) {
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.refresh();
+
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	static class AntMatchersNoPatternsConfig extends WebSecurityConfigurerAdapter {
@@ -102,17 +121,6 @@ public class HttpSecurityAntMatchersTests {
 			// @formatter:on
 		}
 
-	}
-
-	// SEC-3135
-	@Test
-	public void antMatchersMethodAndEmptyPatterns() throws Exception {
-		loadConfig(AntMatchersEmptyPatternsConfig.class);
-		this.request.setMethod("POST");
-
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@EnableWebSecurity
@@ -140,14 +148,6 @@ public class HttpSecurityAntMatchersTests {
 			// @formatter:on
 		}
 
-	}
-
-	public void loadConfig(Class<?>... configs) {
-		this.context = new AnnotationConfigWebApplicationContext();
-		this.context.register(configs);
-		this.context.refresh();
-
-		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 }

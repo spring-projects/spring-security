@@ -188,6 +188,35 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		return new AutowiredWebSecurityConfigurersIgnoreParents(beanFactory);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.springframework.context.annotation.ImportAware#setImportMetadata(org.
+	 * springframework.core.type.AnnotationMetadata)
+	 */
+	@Override
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		Map<String, Object> enableWebSecurityAttrMap = importMetadata
+				.getAnnotationAttributes(EnableWebSecurity.class.getName());
+		AnnotationAttributes enableWebSecurityAttrs = AnnotationAttributes.fromMap(enableWebSecurityAttrMap);
+		this.debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
+		if (this.webSecurity != null) {
+			this.webSecurity.debug(this.debugEnabled);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.
+	 * lang.ClassLoader)
+	 */
+	@Override
+	public void setBeanClassLoader(ClassLoader classLoader) {
+		this.beanClassLoader = classLoader;
+	}
+
 	/**
 	 * A custom verision of the Spring provided AnnotationAwareOrderComparator that uses
 	 * {@link AnnotationUtils#findAnnotation(Class, Class)} to look on super class
@@ -219,35 +248,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 			return Ordered.LOWEST_PRECEDENCE;
 		}
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.context.annotation.ImportAware#setImportMetadata(org.
-	 * springframework.core.type.AnnotationMetadata)
-	 */
-	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> enableWebSecurityAttrMap = importMetadata
-				.getAnnotationAttributes(EnableWebSecurity.class.getName());
-		AnnotationAttributes enableWebSecurityAttrs = AnnotationAttributes.fromMap(enableWebSecurityAttrMap);
-		this.debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
-		if (this.webSecurity != null) {
-			this.webSecurity.debug(this.debugEnabled);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.
-	 * lang.ClassLoader)
-	 */
-	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.beanClassLoader = classLoader;
 	}
 
 }

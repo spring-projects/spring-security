@@ -73,23 +73,6 @@ public class NamespaceHttpJeeTests {
 		})).andExpect(status().isOk()).andExpect(content().string("ROLE_admin,ROLE_user"));
 	}
 
-	@EnableWebSecurity
-	public static class JeeMappableRolesConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().hasRole("user")
-					.and()
-				.jee()
-					.mappableRoles("user", "admin");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void requestWhenCustomAuthenticatedUserDetailsServiceThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(JeeUserServiceRefConfig.class, BaseController.class).autowire();
@@ -106,6 +89,31 @@ public class NamespaceHttpJeeTests {
 				.andExpect(content().string("ROLE_user"));
 
 		verifyBean(AuthenticationUserDetailsService.class).loadUserDetails(any());
+	}
+
+	private <T> T bean(Class<T> beanClass) {
+		return this.spring.getContext().getBean(beanClass);
+	}
+
+	private <T> T verifyBean(Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanClass));
+	}
+
+	@EnableWebSecurity
+	public static class JeeMappableRolesConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("user")
+					.and()
+				.jee()
+					.mappableRoles("user", "admin");
+			// @formatter:on
+		}
+
 	}
 
 	@EnableWebSecurity
@@ -147,14 +155,6 @@ public class NamespaceHttpJeeTests {
 			return authentication.getAuthorities().stream().map(Object::toString).collect(Collectors.joining(","));
 		}
 
-	}
-
-	private <T> T bean(Class<T> beanClass) {
-		return this.spring.getContext().getBean(beanClass);
-	}
-
-	private <T> T verifyBean(Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
 }

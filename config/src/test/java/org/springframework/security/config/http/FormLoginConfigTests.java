@@ -175,6 +175,24 @@ public class FormLoginConfigTests {
 				.andExpect(redirectedUrl("/login?error"));
 	}
 
+	private Filter getFilter(ApplicationContext context, Class<? extends Filter> filterClass) {
+		FilterChainProxy filterChain = context.getBean(BeanIds.FILTER_CHAIN_PROXY, FilterChainProxy.class);
+
+		List<Filter> filters = filterChain.getFilters("/any");
+
+		for (Filter filter : filters) {
+			if (filter.getClass() == filterClass) {
+				return filter;
+			}
+		}
+
+		return null;
+	}
+
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	@RestController
 	public static class LoginController {
 
@@ -202,24 +220,6 @@ public class FormLoginConfigTests {
 			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 		}
 
-	}
-
-	private Filter getFilter(ApplicationContext context, Class<? extends Filter> filterClass) {
-		FilterChainProxy filterChain = context.getBean(BeanIds.FILTER_CHAIN_PROXY, FilterChainProxy.class);
-
-		List<Filter> filters = filterChain.getFilters("/any");
-
-		for (Filter filter : filters) {
-			if (filter.getClass() == filterClass) {
-				return filter;
-			}
-		}
-
-		return null;
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

@@ -102,44 +102,6 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 	 */
 	abstract List<AccessDecisionVoter<?>> getDecisionVoters(H http);
 
-	abstract class AbstractInterceptUrlRegistry<R extends AbstractInterceptUrlRegistry<R, T>, T>
-			extends AbstractConfigAttributeRequestMatcherRegistry<T> {
-
-		/**
-		 * Allows setting the {@link AccessDecisionManager}. If none is provided, a
-		 * default {@link AccessDecisionManager} is created.
-		 * @param accessDecisionManager the {@link AccessDecisionManager} to use
-		 * @return the {@link AbstractInterceptUrlConfigurer} for further customization
-		 */
-		public R accessDecisionManager(AccessDecisionManager accessDecisionManager) {
-			AbstractInterceptUrlConfigurer.this.accessDecisionManager = accessDecisionManager;
-			return getSelf();
-		}
-
-		/**
-		 * Allows setting if the {@link FilterSecurityInterceptor} should be only applied
-		 * once per request (i.e. if the filter intercepts on a forward, should it be
-		 * applied again).
-		 * @param filterSecurityInterceptorOncePerRequest if the
-		 * {@link FilterSecurityInterceptor} should be only applied once per request
-		 * @return the {@link AbstractInterceptUrlConfigurer} for further customization
-		 */
-		public R filterSecurityInterceptorOncePerRequest(boolean filterSecurityInterceptorOncePerRequest) {
-			AbstractInterceptUrlConfigurer.this.filterSecurityInterceptorOncePerRequest = filterSecurityInterceptorOncePerRequest;
-			return getSelf();
-		}
-
-		/**
-		 * Returns a reference to the current object with a single suppression of the type
-		 * @return a reference to the current object
-		 */
-		@SuppressWarnings("unchecked")
-		private R getSelf() {
-			return (R) this;
-		}
-
-	}
-
 	/**
 	 * Creates the default {@code AccessDecisionManager}
 	 * @return the default {@code AccessDecisionManager}
@@ -180,6 +142,44 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 		securityInterceptor.setAuthenticationManager(authenticationManager);
 		securityInterceptor.afterPropertiesSet();
 		return securityInterceptor;
+	}
+
+	abstract class AbstractInterceptUrlRegistry<R extends AbstractInterceptUrlRegistry<R, T>, T>
+			extends AbstractConfigAttributeRequestMatcherRegistry<T> {
+
+		/**
+		 * Allows setting the {@link AccessDecisionManager}. If none is provided, a
+		 * default {@link AccessDecisionManager} is created.
+		 * @param accessDecisionManager the {@link AccessDecisionManager} to use
+		 * @return the {@link AbstractInterceptUrlConfigurer} for further customization
+		 */
+		public R accessDecisionManager(AccessDecisionManager accessDecisionManager) {
+			AbstractInterceptUrlConfigurer.this.accessDecisionManager = accessDecisionManager;
+			return getSelf();
+		}
+
+		/**
+		 * Allows setting if the {@link FilterSecurityInterceptor} should be only applied
+		 * once per request (i.e. if the filter intercepts on a forward, should it be
+		 * applied again).
+		 * @param filterSecurityInterceptorOncePerRequest if the
+		 * {@link FilterSecurityInterceptor} should be only applied once per request
+		 * @return the {@link AbstractInterceptUrlConfigurer} for further customization
+		 */
+		public R filterSecurityInterceptorOncePerRequest(boolean filterSecurityInterceptorOncePerRequest) {
+			AbstractInterceptUrlConfigurer.this.filterSecurityInterceptorOncePerRequest = filterSecurityInterceptorOncePerRequest;
+			return getSelf();
+		}
+
+		/**
+		 * Returns a reference to the current object with a single suppression of the type
+		 * @return a reference to the current object
+		 */
+		@SuppressWarnings("unchecked")
+		private R getSelf() {
+			return (R) this;
+		}
+
 	}
 
 }

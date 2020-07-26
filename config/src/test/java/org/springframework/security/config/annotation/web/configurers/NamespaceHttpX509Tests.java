@@ -77,6 +77,58 @@ public class NamespaceHttpX509Tests {
 		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("rod"));
 	}
 
+	@Test
+	public void x509AuthenticationWhenHasCustomAuthenticationDetailsSourceThenMatchesNamespace() throws Exception {
+		this.spring.register(AuthenticationDetailsSourceRefConfig.class, X509Controller.class).autowire();
+
+		X509Certificate certificate = loadCert("rod.cer");
+		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("rod"));
+
+		verifyBean(AuthenticationDetailsSource.class).buildDetails(any());
+	}
+
+	@Test
+	public void x509AuthenticationWhenHasSubjectPrincipalRegexThenMatchesNamespace() throws Exception {
+		this.spring.register(SubjectPrincipalRegexConfig.class, X509Controller.class).autowire();
+		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
+		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("rod"));
+	}
+
+	@Test
+	public void x509AuthenticationWhenHasCustomPrincipalExtractorThenMatchesNamespace() throws Exception {
+		this.spring.register(CustomPrincipalExtractorConfig.class, X509Controller.class).autowire();
+		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
+		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("rod@example.com"));
+	}
+
+	@Test
+	public void x509AuthenticationWhenHasCustomUserDetailsServiceThenMatchesNamespace() throws Exception {
+		this.spring.register(UserDetailsServiceRefConfig.class, X509Controller.class).autowire();
+		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
+		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("customuser"));
+	}
+
+	@Test
+	public void x509AuthenticationWhenHasCustomAuthenticationUserDetailsServiceThenMatchesNamespace() throws Exception {
+		this.spring.register(AuthenticationUserDetailsServiceConfig.class, X509Controller.class).autowire();
+		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
+		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("customuser"));
+	}
+
+	<T extends Certificate> T loadCert(String location) {
+		try (InputStream is = new ClassPathResource(location).getInputStream()) {
+			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+			return (T) certFactory.generateCertificate(is);
+		}
+		catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	<T> T verifyBean(Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanClass));
+	}
+
 	@EnableWebSecurity
 	@EnableWebMvc
 	public static class X509Config extends WebSecurityConfigurerAdapter {
@@ -101,16 +153,6 @@ public class NamespaceHttpX509Tests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void x509AuthenticationWhenHasCustomAuthenticationDetailsSourceThenMatchesNamespace() throws Exception {
-		this.spring.register(AuthenticationDetailsSourceRefConfig.class, X509Controller.class).autowire();
-
-		X509Certificate certificate = loadCert("rod.cer");
-		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("rod"));
-
-		verifyBean(AuthenticationDetailsSource.class).buildDetails(any());
 	}
 
 	@EnableWebSecurity
@@ -146,13 +188,6 @@ public class NamespaceHttpX509Tests {
 
 	}
 
-	@Test
-	public void x509AuthenticationWhenHasSubjectPrincipalRegexThenMatchesNamespace() throws Exception {
-		this.spring.register(SubjectPrincipalRegexConfig.class, X509Controller.class).autowire();
-		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
-		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("rod"));
-	}
-
 	@EnableWebMvc
 	@EnableWebSecurity
 	public static class SubjectPrincipalRegexConfig extends WebSecurityConfigurerAdapter {
@@ -178,13 +213,6 @@ public class NamespaceHttpX509Tests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void x509AuthenticationWhenHasCustomPrincipalExtractorThenMatchesNamespace() throws Exception {
-		this.spring.register(CustomPrincipalExtractorConfig.class, X509Controller.class).autowire();
-		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
-		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("rod@example.com"));
 	}
 
 	@EnableWebMvc
@@ -223,13 +251,6 @@ public class NamespaceHttpX509Tests {
 
 	}
 
-	@Test
-	public void x509AuthenticationWhenHasCustomUserDetailsServiceThenMatchesNamespace() throws Exception {
-		this.spring.register(UserDetailsServiceRefConfig.class, X509Controller.class).autowire();
-		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
-		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("customuser"));
-	}
-
 	@EnableWebMvc
 	@EnableWebSecurity
 	public static class UserDetailsServiceRefConfig extends WebSecurityConfigurerAdapter {
@@ -255,13 +276,6 @@ public class NamespaceHttpX509Tests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void x509AuthenticationWhenHasCustomAuthenticationUserDetailsServiceThenMatchesNamespace() throws Exception {
-		this.spring.register(AuthenticationUserDetailsServiceConfig.class, X509Controller.class).autowire();
-		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
-		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("customuser"));
 	}
 
 	@EnableWebMvc
@@ -295,20 +309,6 @@ public class NamespaceHttpX509Tests {
 			return name;
 		}
 
-	}
-
-	<T extends Certificate> T loadCert(String location) {
-		try (InputStream is = new ClassPathResource(location).getInputStream()) {
-			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-			return (T) certFactory.generateCertificate(is);
-		}
-		catch (Exception e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
-
-	<T> T verifyBean(Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
 }

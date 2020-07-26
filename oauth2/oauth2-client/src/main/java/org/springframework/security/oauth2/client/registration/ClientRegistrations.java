@@ -64,6 +64,9 @@ public final class ClientRegistrations {
 	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
+	private ClientRegistrations() {
+	}
+
 	/**
 	 * Creates a {@link ClientRegistration.Builder} using the provided <a href=
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
@@ -227,12 +230,6 @@ public final class ClientRegistrations {
 		}
 	}
 
-	private interface ThrowingFunction<S, T, E extends Throwable> {
-
-		T apply(S src) throws E;
-
-	}
-
 	private static ClientRegistration.Builder withProviderConfiguration(AuthorizationServerMetadata metadata,
 			String issuer) {
 		String metadataIssuer = metadata.getIssuer().getValue();
@@ -292,7 +289,10 @@ public final class ClientRegistrations {
 		}
 	}
 
-	private ClientRegistrations() {
+	private interface ThrowingFunction<S, T, E extends Throwable> {
+
+		T apply(S src) throws E;
+
 	}
 
 }

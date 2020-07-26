@@ -68,6 +68,13 @@ public class CsrfConfigurerNoWebMvcTests {
 				.isNotEqualTo(CsrfRequestDataValueProcessor.class);
 	}
 
+	private void loadContext(Class<?> configs) {
+		AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext();
+		annotationConfigApplicationContext.register(configs);
+		annotationConfigApplicationContext.refresh();
+		this.context = annotationConfigApplicationContext;
+	}
+
 	@EnableWebSecurity
 	static class EnableWebConfig extends WebSecurityConfigurerAdapter {
 
@@ -95,13 +102,6 @@ public class CsrfConfigurerNoWebMvcTests {
 		protected void configure(HttpSecurity http) {
 		}
 
-	}
-
-	private void loadContext(Class<?> configs) {
-		AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext();
-		annotationConfigApplicationContext.register(configs);
-		annotationConfigApplicationContext.refresh();
-		this.context = annotationConfigApplicationContext;
 	}
 
 }

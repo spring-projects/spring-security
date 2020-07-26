@@ -71,6 +71,51 @@ public class SecurityContextConfigurerTests {
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SecurityContextPersistenceFilter.class));
 	}
 
+	@Test
+	public void securityContextWhenInvokedTwiceThenUsesOriginalSecurityContextRepository() throws Exception {
+		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
+		when(DuplicateDoesNotOverrideConfig.SCR.loadContext(any())).thenReturn(mock(SecurityContext.class));
+
+		this.mvc.perform(get("/"));
+
+		verify(DuplicateDoesNotOverrideConfig.SCR).loadContext(any(HttpRequestResponseHolder.class));
+	}
+
+	// SEC-2932
+	@Test
+	public void securityContextWhenSecurityContextRepositoryNotConfiguredThenDoesNotThrowException() throws Exception {
+		this.spring.register(SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig.class).autowire();
+
+		this.mvc.perform(get("/"));
+	}
+
+	@Test
+	public void requestWhenSecurityContextWithDefaultsInLambdaThenSessionIsCreated() throws Exception {
+		this.spring.register(SecurityContextWithDefaultsInLambdaConfig.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
+		HttpSession session = mvcResult.getRequest().getSession(false);
+		assertThat(session).isNotNull();
+	}
+
+	@Test
+	public void requestWhenSecurityContextDisabledInLambdaThenContextNotSavedInSession() throws Exception {
+		this.spring.register(SecurityContextDisabledInLambdaConfig.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
+		HttpSession session = mvcResult.getRequest().getSession(false);
+		assertThat(session).isNull();
+	}
+
+	@Test
+	public void requestWhenNullSecurityContextRepositoryInLambdaThenContextNotSavedInSession() throws Exception {
+		this.spring.register(NullSecurityContextRepositoryInLambdaConfig.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
+		HttpSession session = mvcResult.getRequest().getSession(false);
+		assertThat(session).isNull();
+	}
+
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -100,16 +145,6 @@ public class SecurityContextConfigurerTests {
 
 	}
 
-	@Test
-	public void securityContextWhenInvokedTwiceThenUsesOriginalSecurityContextRepository() throws Exception {
-		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-		when(DuplicateDoesNotOverrideConfig.SCR.loadContext(any())).thenReturn(mock(SecurityContext.class));
-
-		this.mvc.perform(get("/"));
-
-		verify(DuplicateDoesNotOverrideConfig.SCR).loadContext(any(HttpRequestResponseHolder.class));
-	}
-
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -126,14 +161,6 @@ public class SecurityContextConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	// SEC-2932
-	@Test
-	public void securityContextWhenSecurityContextRepositoryNotConfiguredThenDoesNotThrowException() throws Exception {
-		this.spring.register(SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig.class).autowire();
-
-		this.mvc.perform(get("/"));
 	}
 
 	@Configuration
@@ -171,15 +198,6 @@ public class SecurityContextConfigurerTests {
 
 	}
 
-	@Test
-	public void requestWhenSecurityContextWithDefaultsInLambdaThenSessionIsCreated() throws Exception {
-		this.spring.register(SecurityContextWithDefaultsInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
-		HttpSession session = mvcResult.getRequest().getSession(false);
-		assertThat(session).isNotNull();
-	}
-
 	@EnableWebSecurity
 	static class SecurityContextWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -203,15 +221,6 @@ public class SecurityContextConfigurerTests {
 
 	}
 
-	@Test
-	public void requestWhenSecurityContextDisabledInLambdaThenContextNotSavedInSession() throws Exception {
-		this.spring.register(SecurityContextDisabledInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
-		HttpSession session = mvcResult.getRequest().getSession(false);
-		assertThat(session).isNull();
-	}
-
 	@EnableWebSecurity
 	static class SecurityContextDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -233,15 +242,6 @@ public class SecurityContextConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void requestWhenNullSecurityContextRepositoryInLambdaThenContextNotSavedInSession() throws Exception {
-		this.spring.register(NullSecurityContextRepositoryInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
-		HttpSession session = mvcResult.getRequest().getSession(false);
-		assertThat(session).isNull();
 	}
 
 	@EnableWebSecurity

@@ -70,6 +70,10 @@ public class NamespaceHttpExpressionHandlerTests {
 		verifyBean("expressionParser", ExpressionParser.class).parseExpression("hasRole('USER')");
 	}
 
+	private <T> T verifyBean(String beanName, Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanName, beanClass));
+	}
+
 	@EnableWebMvc
 	@EnableWebSecurity
 	private static class ExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
@@ -113,10 +117,6 @@ public class NamespaceHttpExpressionHandlerTests {
 			return user.getName();
 		}
 
-	}
-
-	private <T> T verifyBean(String beanName, Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanName, beanClass));
 	}
 
 }

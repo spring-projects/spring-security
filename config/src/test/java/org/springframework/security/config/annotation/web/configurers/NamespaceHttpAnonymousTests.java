@@ -60,6 +60,30 @@ public class NamespaceHttpAnonymousTests {
 		this.mvc.perform(get("/type")).andExpect(content().string(AnonymousAuthenticationToken.class.getSimpleName()));
 	}
 
+	@Test
+	public void anonymousRequestWhenDisablingAnonymousThenDenies() throws Exception {
+		this.spring.register(AnonymousDisabledConfig.class, AnonymousController.class).autowire();
+		this.mvc.perform(get("/type")).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void requestWhenAnonymousThenSendsAnonymousConfiguredAuthorities() throws Exception {
+		this.spring.register(AnonymousGrantedAuthorityConfig.class, AnonymousController.class).autowire();
+		this.mvc.perform(get("/type")).andExpect(content().string(AnonymousAuthenticationToken.class.getSimpleName()));
+	}
+
+	@Test
+	public void anonymousRequestWhenAnonymousKeyConfiguredThenKeyIsUsed() throws Exception {
+		this.spring.register(AnonymousKeyConfig.class, AnonymousController.class).autowire();
+		this.mvc.perform(get("/key")).andExpect(content().string(String.valueOf("AnonymousKeyConfig".hashCode())));
+	}
+
+	@Test
+	public void anonymousRequestWhenAnonymousUsernameConfiguredThenUsernameIsUsed() throws Exception {
+		this.spring.register(AnonymousUsernameConfig.class, AnonymousController.class).autowire();
+		this.mvc.perform(get("/principal")).andExpect(content().string("AnonymousUsernameConfig"));
+	}
+
 	@EnableWebSecurity
 	static class AnonymousConfig extends WebSecurityConfigurerAdapter {
 
@@ -73,12 +97,6 @@ public class NamespaceHttpAnonymousTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void anonymousRequestWhenDisablingAnonymousThenDenies() throws Exception {
-		this.spring.register(AnonymousDisabledConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/type")).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
@@ -107,12 +125,6 @@ public class NamespaceHttpAnonymousTests {
 
 	}
 
-	@Test
-	public void requestWhenAnonymousThenSendsAnonymousConfiguredAuthorities() throws Exception {
-		this.spring.register(AnonymousGrantedAuthorityConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/type")).andExpect(content().string(AnonymousAuthenticationToken.class.getSimpleName()));
-	}
-
 	@EnableWebSecurity
 	static class AnonymousGrantedAuthorityConfig extends WebSecurityConfigurerAdapter {
 
@@ -131,12 +143,6 @@ public class NamespaceHttpAnonymousTests {
 
 	}
 
-	@Test
-	public void anonymousRequestWhenAnonymousKeyConfiguredThenKeyIsUsed() throws Exception {
-		this.spring.register(AnonymousKeyConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/key")).andExpect(content().string(String.valueOf("AnonymousKeyConfig".hashCode())));
-	}
-
 	@EnableWebSecurity
 	static class AnonymousKeyConfig extends WebSecurityConfigurerAdapter {
 
@@ -152,12 +158,6 @@ public class NamespaceHttpAnonymousTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void anonymousRequestWhenAnonymousUsernameConfiguredThenUsernameIsUsed() throws Exception {
-		this.spring.register(AnonymousUsernameConfig.class, AnonymousController.class).autowire();
-		this.mvc.perform(get("/principal")).andExpect(content().string("AnonymousUsernameConfig"));
 	}
 
 	@EnableWebSecurity

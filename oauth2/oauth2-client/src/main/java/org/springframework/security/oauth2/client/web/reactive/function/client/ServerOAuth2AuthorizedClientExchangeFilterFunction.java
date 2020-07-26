@@ -154,13 +154,6 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 	private ClientResponseHandler clientResponseHandler;
 
-	@FunctionalInterface
-	private interface ClientResponseHandler {
-
-		Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> response);
-
-	}
-
 	/**
 	 * Constructs a {@code ServerOAuth2AuthorizedClientExchangeFilterFunction} using the
 	 * provided parameters.
@@ -532,6 +525,13 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	public void setAuthorizationFailureHandler(ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 		Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");
 		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
+	}
+
+	@FunctionalInterface
+	private interface ClientResponseHandler {
+
+		Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> response);
+
 	}
 
 	private static final class UnAuthenticatedReactiveOAuth2AuthorizedClientManager

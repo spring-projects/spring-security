@@ -77,20 +77,6 @@ public class DefaultFiltersTests {
 		assertThat(this.spring.getContext().getBean(FilterChainProxy.class)).isNotNull();
 	}
 
-	@EnableWebSecurity
-	static class FilterChainProxyBuilderMissingConfig {
-
-		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void nullWebInvocationPrivilegeEvaluator() {
 		this.spring.register(NullWebInvocationPrivilegeEvaluatorConfig.class, UserDetailsServiceConfig.class);
@@ -103,30 +89,6 @@ public class DefaultFiltersTests {
 		long filter = filterChain.getFilters().stream().filter(it -> it instanceof UsernamePasswordAuthenticationFilter)
 				.count();
 		assertThat(filter).isEqualTo(1);
-	}
-
-	@Configuration
-	static class UserDetailsServiceConfig {
-
-		@Bean
-		public UserDetailsService userDetailsService() {
-			return new InMemoryUserDetailsManager(PasswordEncodedUser.user(), PasswordEncodedUser.admin());
-		}
-
-	}
-
-	@EnableWebSecurity
-	static class NullWebInvocationPrivilegeEvaluatorConfig extends WebSecurityConfigurerAdapter {
-
-		NullWebInvocationPrivilegeEvaluatorConfig() {
-			super(true);
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http.formLogin();
-		}
-
 	}
 
 	@Test
@@ -156,6 +118,60 @@ public class DefaultFiltersTests {
 		assertThat(classes.contains(FilterSecurityInterceptor.class)).isTrue();
 	}
 
+	@Test
+	public void defaultFiltersPermitAll() throws IOException, ServletException {
+		this.spring.register(DefaultFiltersConfigPermitAll.class, UserDetailsServiceConfig.class);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "");
+		request.setServletPath("/logout");
+
+		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
+		new HttpSessionCsrfTokenRepository().saveToken(csrfToken, request, response);
+		request.setParameter(csrfToken.getParameterName(), csrfToken.getToken());
+
+		this.spring.getContext().getBean("springSecurityFilterChain", Filter.class).doFilter(request, response,
+				new MockFilterChain());
+		assertThat(response.getRedirectedUrl()).isEqualTo("/login?logout");
+	}
+
+	@EnableWebSecurity
+	static class FilterChainProxyBuilderMissingConfig {
+
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	static class UserDetailsServiceConfig {
+
+		@Bean
+		public UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user(), PasswordEncodedUser.admin());
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class NullWebInvocationPrivilegeEvaluatorConfig extends WebSecurityConfigurerAdapter {
+
+		NullWebInvocationPrivilegeEvaluatorConfig() {
+			super(true);
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.formLogin();
+		}
+
+	}
+
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderIgnoringConfig extends WebSecurityConfigurerAdapter {
 
@@ -177,22 +193,6 @@ public class DefaultFiltersTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void defaultFiltersPermitAll() throws IOException, ServletException {
-		this.spring.register(DefaultFiltersConfigPermitAll.class, UserDetailsServiceConfig.class);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "");
-		request.setServletPath("/logout");
-
-		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
-		new HttpSessionCsrfTokenRepository().saveToken(csrfToken, request, response);
-		request.setParameter(csrfToken.getParameterName(), csrfToken.getToken());
-
-		this.spring.getContext().getBean("springSecurityFilterChain", Filter.class).doFilter(request, response,
-				new MockFilterChain());
-		assertThat(response.getRedirectedUrl()).isEqualTo("/login?logout");
 	}
 
 	@EnableWebSecurity

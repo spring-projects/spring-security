@@ -60,6 +60,26 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		this.mvc.perform(get("/goodbye")).andExpect(status().isForbidden());
 	}
 
+	@Test
+	@WithMockUser(roles = "ANYTHING")
+	public void getWhenAccessDeniedOverriddenInLambdaThenCustomizesResponseByRequest() throws Exception {
+		this.spring.register(RequestMatcherBasedAccessDeniedHandlerInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
+
+		this.mvc.perform(get("/goodbye")).andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(roles = "ANYTHING")
+	public void getWhenAccessDeniedOverriddenByOnlyOneHandlerThenAllRequestsUseThatHandler() throws Exception {
+		this.spring.register(SingleRequestMatcherAccessDeniedHandlerConfig.class).autowire();
+
+		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
+
+		this.mvc.perform(get("/goodbye")).andExpect(status().isIAmATeapot());
+	}
+
 	@EnableWebSecurity
 	static class RequestMatcherBasedAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -83,16 +103,6 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	@WithMockUser(roles = "ANYTHING")
-	public void getWhenAccessDeniedOverriddenInLambdaThenCustomizesResponseByRequest() throws Exception {
-		this.spring.register(RequestMatcherBasedAccessDeniedHandlerInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
-
-		this.mvc.perform(get("/goodbye")).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
@@ -123,16 +133,6 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	@WithMockUser(roles = "ANYTHING")
-	public void getWhenAccessDeniedOverriddenByOnlyOneHandlerThenAllRequestsUseThatHandler() throws Exception {
-		this.spring.register(SingleRequestMatcherAccessDeniedHandlerConfig.class).autowire();
-
-		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
-
-		this.mvc.perform(get("/goodbye")).andExpect(status().isIAmATeapot());
 	}
 
 	@EnableWebSecurity

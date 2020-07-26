@@ -79,6 +79,9 @@ public class WebSecurityConfigurationTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
+	@Rule
+	public SpringTestRule child = new SpringTestRule();
+
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -111,6 +114,177 @@ public class WebSecurityConfigurationTests {
 
 		request.setServletPath("/**");
 		assertThat(filterChains.get(5).matches(request)).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenSecurityFilterChainsHaveOrderThenFilterChainsOrdered() {
+		this.spring.register(SortedSecurityFilterChainConfig.class).autowire();
+
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(4);
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+
+		request.setServletPath("/role1/**");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+
+		request.setServletPath("/role2/**");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
+
+		request.setServletPath("/role3/**");
+		assertThat(filterChains.get(2).matches(request)).isTrue();
+
+		request.setServletPath("/**");
+		assertThat(filterChains.get(3).matches(request)).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() {
+		Throwable thrown = catchThrowable(() -> this.spring.register(DuplicateOrderConfig.class).autowire());
+
+		assertThat(thrown).isInstanceOf(BeanCreationException.class)
+				.hasMessageContaining("@Order on WebSecurityConfigurers must be unique")
+				.hasMessageContaining(DuplicateOrderConfig.WebConfigurer1.class.getName())
+				.hasMessageContaining(DuplicateOrderConfig.WebConfigurer2.class.getName());
+	}
+
+	@Test
+	public void loadConfigWhenWebInvocationPrivilegeEvaluatorSetThenIsRegistered() {
+		PrivilegeEvaluatorConfigurerAdapterConfig.PRIVILEGE_EVALUATOR = mock(WebInvocationPrivilegeEvaluator.class);
+
+		this.spring.register(PrivilegeEvaluatorConfigurerAdapterConfig.class).autowire();
+
+		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
+				.isSameAs(PrivilegeEvaluatorConfigurerAdapterConfig.PRIVILEGE_EVALUATOR);
+	}
+
+	@Test
+	public void loadConfigWhenSecurityExpressionHandlerSetThenIsRegistered() {
+		WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER = mock(SecurityExpressionHandler.class);
+		when(WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER.getExpressionParser())
+				.thenReturn(mock(ExpressionParser.class));
+
+		this.spring.register(WebSecurityExpressionHandlerConfig.class).autowire();
+
+		assertThat(this.spring.getContext().getBean(SecurityExpressionHandler.class))
+				.isSameAs(WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER);
+	}
+
+	@Test
+	public void loadConfigWhenSecurityExpressionHandlerIsNullThenException() {
+		Throwable thrown = catchThrowable(
+				() -> this.spring.register(NullWebSecurityExpressionHandlerConfig.class).autowire());
+
+		assertThat(thrown).isInstanceOf(BeanCreationException.class);
+		assertThat(thrown).hasRootCauseExactlyInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void loadConfigWhenDefaultSecurityExpressionHandlerThenDefaultIsRegistered() {
+		this.spring.register(WebSecurityExpressionHandlerDefaultsConfig.class).autowire();
+
+		assertThat(this.spring.getContext().getBean(SecurityExpressionHandler.class))
+				.isInstanceOf(DefaultWebSecurityExpressionHandler.class);
+	}
+
+	@Test
+	public void securityExpressionHandlerWhenRoleHierarchyBeanThenRoleHierarchyUsed() {
+		this.spring.register(WebSecurityExpressionHandlerRoleHierarchyBeanConfig.class).autowire();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused", "ROLE_ADMIN");
+		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest("GET", ""),
+				new MockHttpServletResponse(), new MockFilterChain());
+
+		AbstractSecurityExpressionHandler handler = this.spring.getContext()
+				.getBean(AbstractSecurityExpressionHandler.class);
+		EvaluationContext evaluationContext = handler.createEvaluationContext(authentication, invocation);
+		Expression expression = handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");
+		boolean granted = expression.getValue(evaluationContext, Boolean.class);
+		assertThat(granted).isTrue();
+	}
+
+	@Test
+	public void securityExpressionHandlerWhenPermissionEvaluatorBeanThenPermissionEvaluatorUsed() {
+		this.spring.register(WebSecurityExpressionHandlerPermissionEvaluatorBeanConfig.class).autowire();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused");
+		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest("GET", ""),
+				new MockHttpServletResponse(), new MockFilterChain());
+
+		AbstractSecurityExpressionHandler handler = this.spring.getContext()
+				.getBean(AbstractSecurityExpressionHandler.class);
+		EvaluationContext evaluationContext = handler.createEvaluationContext(authentication, invocation);
+		Expression expression = handler.getExpressionParser().parseExpression("hasPermission(#study,'DELETE')");
+		boolean granted = expression.getValue(evaluationContext, Boolean.class);
+		assertThat(granted).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenDefaultWebInvocationPrivilegeEvaluatorThenDefaultIsRegistered() {
+		this.spring.register(WebInvocationPrivilegeEvaluatorDefaultsConfig.class).autowire();
+
+		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
+				.isInstanceOf(DefaultWebInvocationPrivilegeEvaluator.class);
+	}
+
+	@Test
+	public void loadConfigWhenSecurityFilterChainBeanThenDefaultWebInvocationPrivilegeEvaluatorIsRegistered() {
+		this.spring.register(AuthorizeRequestsFilterChainConfig.class).autowire();
+
+		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
+				.isInstanceOf(DefaultWebInvocationPrivilegeEvaluator.class);
+	}
+
+	// SEC-2303
+	@Test
+	public void loadConfigWhenDefaultSecurityExpressionHandlerThenBeanResolverSet() throws Exception {
+		this.spring.register(DefaultExpressionHandlerSetsBeanResolverConfig.class).autowire();
+
+		this.mockMvc.perform(get("/")).andExpect(status().isOk());
+		this.mockMvc.perform(post("/")).andExpect(status().isForbidden());
+	}
+
+	// SEC-2461
+	@Test
+	public void loadConfigWhenMultipleWebSecurityConfigurationThenContextLoads() {
+		this.spring.register(ParentConfig.class).autowire();
+
+		this.child.register(ChildConfig.class);
+		this.child.getContext().setParent(this.spring.getContext());
+		this.child.autowire();
+
+		assertThat(this.spring.getContext().getBean("springSecurityFilterChain")).isNotNull();
+		assertThat(this.child.getContext().getBean("springSecurityFilterChain")).isNotNull();
+
+		assertThat(this.spring.getContext().containsBean("springSecurityFilterChain")).isTrue();
+		assertThat(this.child.getContext().containsBean("springSecurityFilterChain")).isTrue();
+	}
+
+	// SEC-2773
+	@Test
+	public void getMethodDelegatingApplicationListenerWhenWebSecurityConfigurationThenIsStatic() {
+		Method method = ClassUtils.getMethod(WebSecurityConfiguration.class, "delegatingApplicationListener", null);
+		assertThat(Modifier.isStatic(method.getModifiers())).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenBeanProxyingEnabledAndSubclassThenFilterChainsCreated() {
+		this.spring.register(GlobalAuthenticationWebSecurityConfigurerAdaptersConfig.class, SubclassConfig.class)
+				.autowire();
+
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+
+		assertThat(filterChains).hasSize(4);
+	}
+
+	@Test
+	public void loadConfigWhenBothAdapterAndFilterChainConfiguredThenException() {
+		Throwable thrown = catchThrowable(() -> this.spring.register(AdapterAndFilterChainConfig.class).autowire());
+
+		assertThat(thrown).isInstanceOf(BeanCreationException.class)
+				.hasRootCauseExactlyInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("Found WebSecurityConfigurerAdapter as well as SecurityFilterChain.");
+
 	}
 
 	@EnableWebSecurity
@@ -186,29 +360,6 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenSecurityFilterChainsHaveOrderThenFilterChainsOrdered() {
-		this.spring.register(SortedSecurityFilterChainConfig.class).autowire();
-
-		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
-		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
-		assertThat(filterChains).hasSize(4);
-
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-
-		request.setServletPath("/role1/**");
-		assertThat(filterChains.get(0).matches(request)).isTrue();
-
-		request.setServletPath("/role2/**");
-		assertThat(filterChains.get(1).matches(request)).isTrue();
-
-		request.setServletPath("/role3/**");
-		assertThat(filterChains.get(2).matches(request)).isTrue();
-
-		request.setServletPath("/**");
-		assertThat(filterChains.get(3).matches(request)).isTrue();
-	}
-
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class SortedSecurityFilterChainConfig {
@@ -239,16 +390,6 @@ public class WebSecurityConfigurationTests {
 			return http.authorizeRequests(authorize -> authorize.anyRequest().hasRole("4")).build();
 		}
 
-	}
-
-	@Test
-	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() {
-		Throwable thrown = catchThrowable(() -> this.spring.register(DuplicateOrderConfig.class).autowire());
-
-		assertThat(thrown).isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("@Order on WebSecurityConfigurers must be unique")
-				.hasMessageContaining(DuplicateOrderConfig.WebConfigurer1.class.getName())
-				.hasMessageContaining(DuplicateOrderConfig.WebConfigurer2.class.getName());
 	}
 
 	@EnableWebSecurity
@@ -287,16 +428,6 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenWebInvocationPrivilegeEvaluatorSetThenIsRegistered() {
-		PrivilegeEvaluatorConfigurerAdapterConfig.PRIVILEGE_EVALUATOR = mock(WebInvocationPrivilegeEvaluator.class);
-
-		this.spring.register(PrivilegeEvaluatorConfigurerAdapterConfig.class).autowire();
-
-		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
-				.isSameAs(PrivilegeEvaluatorConfigurerAdapterConfig.PRIVILEGE_EVALUATOR);
-	}
-
 	@EnableWebSecurity
 	static class PrivilegeEvaluatorConfigurerAdapterConfig extends WebSecurityConfigurerAdapter {
 
@@ -307,18 +438,6 @@ public class WebSecurityConfigurationTests {
 			web.privilegeEvaluator(PRIVILEGE_EVALUATOR);
 		}
 
-	}
-
-	@Test
-	public void loadConfigWhenSecurityExpressionHandlerSetThenIsRegistered() {
-		WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER = mock(SecurityExpressionHandler.class);
-		when(WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER.getExpressionParser())
-				.thenReturn(mock(ExpressionParser.class));
-
-		this.spring.register(WebSecurityExpressionHandlerConfig.class).autowire();
-
-		assertThat(this.spring.getContext().getBean(SecurityExpressionHandler.class))
-				.isSameAs(WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER);
 	}
 
 	@EnableWebSecurity
@@ -343,15 +462,6 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenSecurityExpressionHandlerIsNullThenException() {
-		Throwable thrown = catchThrowable(
-				() -> this.spring.register(NullWebSecurityExpressionHandlerConfig.class).autowire());
-
-		assertThat(thrown).isInstanceOf(BeanCreationException.class);
-		assertThat(thrown).hasRootCauseExactlyInstanceOf(IllegalArgumentException.class);
-	}
-
 	@EnableWebSecurity
 	static class NullWebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -360,14 +470,6 @@ public class WebSecurityConfigurationTests {
 			web.expressionHandler(null);
 		}
 
-	}
-
-	@Test
-	public void loadConfigWhenDefaultSecurityExpressionHandlerThenDefaultIsRegistered() {
-		this.spring.register(WebSecurityExpressionHandlerDefaultsConfig.class).autowire();
-
-		assertThat(this.spring.getContext().getBean(SecurityExpressionHandler.class))
-				.isInstanceOf(DefaultWebSecurityExpressionHandler.class);
 	}
 
 	@EnableWebSecurity
@@ -384,21 +486,6 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	@Test
-	public void securityExpressionHandlerWhenRoleHierarchyBeanThenRoleHierarchyUsed() {
-		this.spring.register(WebSecurityExpressionHandlerRoleHierarchyBeanConfig.class).autowire();
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused", "ROLE_ADMIN");
-		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest("GET", ""),
-				new MockHttpServletResponse(), new MockFilterChain());
-
-		AbstractSecurityExpressionHandler handler = this.spring.getContext()
-				.getBean(AbstractSecurityExpressionHandler.class);
-		EvaluationContext evaluationContext = handler.createEvaluationContext(authentication, invocation);
-		Expression expression = handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");
-		boolean granted = expression.getValue(evaluationContext, Boolean.class);
-		assertThat(granted).isTrue();
-	}
-
 	@EnableWebSecurity
 	static class WebSecurityExpressionHandlerRoleHierarchyBeanConfig extends WebSecurityConfigurerAdapter {
 
@@ -409,21 +496,6 @@ public class WebSecurityConfigurationTests {
 			return roleHierarchy;
 		}
 
-	}
-
-	@Test
-	public void securityExpressionHandlerWhenPermissionEvaluatorBeanThenPermissionEvaluatorUsed() {
-		this.spring.register(WebSecurityExpressionHandlerPermissionEvaluatorBeanConfig.class).autowire();
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused");
-		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest("GET", ""),
-				new MockHttpServletResponse(), new MockFilterChain());
-
-		AbstractSecurityExpressionHandler handler = this.spring.getContext()
-				.getBean(AbstractSecurityExpressionHandler.class);
-		EvaluationContext evaluationContext = handler.createEvaluationContext(authentication, invocation);
-		Expression expression = handler.getExpressionParser().parseExpression("hasPermission(#study,'DELETE')");
-		boolean granted = expression.getValue(evaluationContext, Boolean.class);
-		assertThat(granted).isTrue();
 	}
 
 	@EnableWebSecurity
@@ -449,14 +521,6 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenDefaultWebInvocationPrivilegeEvaluatorThenDefaultIsRegistered() {
-		this.spring.register(WebInvocationPrivilegeEvaluatorDefaultsConfig.class).autowire();
-
-		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
-				.isInstanceOf(DefaultWebInvocationPrivilegeEvaluator.class);
-	}
-
 	@EnableWebSecurity
 	static class WebInvocationPrivilegeEvaluatorDefaultsConfig extends WebSecurityConfigurerAdapter {
 
@@ -471,14 +535,6 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenSecurityFilterChainBeanThenDefaultWebInvocationPrivilegeEvaluatorIsRegistered() {
-		this.spring.register(AuthorizeRequestsFilterChainConfig.class).autowire();
-
-		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
-				.isInstanceOf(DefaultWebInvocationPrivilegeEvaluator.class);
-	}
-
 	@EnableWebSecurity
 	static class AuthorizeRequestsFilterChainConfig {
 
@@ -487,15 +543,6 @@ public class WebSecurityConfigurationTests {
 			return http.authorizeRequests(authorize -> authorize.anyRequest().authenticated()).build();
 		}
 
-	}
-
-	// SEC-2303
-	@Test
-	public void loadConfigWhenDefaultSecurityExpressionHandlerThenBeanResolverSet() throws Exception {
-		this.spring.register(DefaultExpressionHandlerSetsBeanResolverConfig.class).autowire();
-
-		this.mockMvc.perform(get("/")).andExpect(status().isOk());
-		this.mockMvc.perform(post("/")).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
@@ -510,6 +557,11 @@ public class WebSecurityConfigurationTests {
 			// @formatter:on
 		}
 
+		@Bean
+		public MyBean b() {
+			return new MyBean();
+		}
+
 		@RestController
 		public class HomeController {
 
@@ -518,11 +570,6 @@ public class WebSecurityConfigurationTests {
 				return "home";
 			}
 
-		}
-
-		@Bean
-		public MyBean b() {
-			return new MyBean();
 		}
 
 		static class MyBean {
@@ -539,25 +586,6 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	@Rule
-	public SpringTestRule child = new SpringTestRule();
-
-	// SEC-2461
-	@Test
-	public void loadConfigWhenMultipleWebSecurityConfigurationThenContextLoads() {
-		this.spring.register(ParentConfig.class).autowire();
-
-		this.child.register(ChildConfig.class);
-		this.child.getContext().setParent(this.spring.getContext());
-		this.child.autowire();
-
-		assertThat(this.spring.getContext().getBean("springSecurityFilterChain")).isNotNull();
-		assertThat(this.child.getContext().getBean("springSecurityFilterChain")).isNotNull();
-
-		assertThat(this.spring.getContext().containsBean("springSecurityFilterChain")).isTrue();
-		assertThat(this.child.getContext().containsBean("springSecurityFilterChain")).isTrue();
-	}
-
 	@EnableWebSecurity
 	static class ParentConfig extends WebSecurityConfigurerAdapter {
 
@@ -571,24 +599,6 @@ public class WebSecurityConfigurationTests {
 	@EnableWebSecurity
 	static class ChildConfig extends WebSecurityConfigurerAdapter {
 
-	}
-
-	// SEC-2773
-	@Test
-	public void getMethodDelegatingApplicationListenerWhenWebSecurityConfigurationThenIsStatic() {
-		Method method = ClassUtils.getMethod(WebSecurityConfiguration.class, "delegatingApplicationListener", null);
-		assertThat(Modifier.isStatic(method.getModifiers())).isTrue();
-	}
-
-	@Test
-	public void loadConfigWhenBeanProxyingEnabledAndSubclassThenFilterChainsCreated() {
-		this.spring.register(GlobalAuthenticationWebSecurityConfigurerAdaptersConfig.class, SubclassConfig.class)
-				.autowire();
-
-		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
-		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
-
-		assertThat(filterChains).hasSize(4);
 	}
 
 	@Configuration
@@ -637,19 +647,16 @@ public class WebSecurityConfigurationTests {
 
 	}
 
-	@Test
-	public void loadConfigWhenBothAdapterAndFilterChainConfiguredThenException() {
-		Throwable thrown = catchThrowable(() -> this.spring.register(AdapterAndFilterChainConfig.class).autowire());
-
-		assertThat(thrown).isInstanceOf(BeanCreationException.class)
-				.hasRootCauseExactlyInstanceOf(IllegalStateException.class)
-				.hasMessageContaining("Found WebSecurityConfigurerAdapter as well as SecurityFilterChain.");
-
-	}
-
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class AdapterAndFilterChainConfig {
+
+		@Order(2)
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.antMatcher("/filter/**").authorizeRequests(authorize -> authorize.anyRequest().authenticated())
+					.build();
+		}
 
 		@Order(1)
 		@Configuration
@@ -660,13 +667,6 @@ public class WebSecurityConfigurationTests {
 				http.antMatcher("/config/**").authorizeRequests(authorize -> authorize.anyRequest().permitAll());
 			}
 
-		}
-
-		@Order(2)
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.antMatcher("/filter/**").authorizeRequests(authorize -> authorize.anyRequest().authenticated())
-					.build();
 		}
 
 	}

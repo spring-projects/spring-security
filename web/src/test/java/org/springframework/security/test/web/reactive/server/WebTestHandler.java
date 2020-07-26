@@ -50,6 +50,10 @@ public final class WebTestHandler {
 		return new WebHandlerResult(this.webHandler.exchange);
 	}
 
+	public static WebTestHandler bindToWebFilters(WebFilter... filters) {
+		return new WebTestHandler(filters);
+	}
+
 	public static final class WebHandlerResult {
 
 		private final ServerWebExchange exchange;
@@ -62,10 +66,6 @@ public final class WebTestHandler {
 			return this.exchange;
 		}
 
-	}
-
-	public static WebTestHandler bindToWebFilters(WebFilter... filters) {
-		return new WebTestHandler(filters);
 	}
 
 	static class MockWebHandler implements WebHandler {

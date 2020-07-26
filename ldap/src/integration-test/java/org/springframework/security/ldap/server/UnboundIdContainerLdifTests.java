@@ -58,6 +58,46 @@ public class UnboundIdContainerLdifTests {
 		assertThat(template.compare("uid=bob,ou=people", "uid", "bob")).isTrue();
 	}
 
+	@Test
+	public void unboundIdContainerWhenWildcardLdifNameThenLdifLoaded() {
+		this.appCtx = new AnnotationConfigApplicationContext(WildcardLdifConfig.class);
+
+		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) this.appCtx
+				.getBean(ContextSource.class);
+
+		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(contextSource);
+		assertThat(template.compare("uid=bob,ou=people", "uid", "bob")).isTrue();
+	}
+
+	@Test
+	public void unboundIdContainerWhenMalformedLdifThenException() {
+		try {
+			this.appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class);
+			failBecauseExceptionWasNotThrown(IllegalStateException.class);
+		}
+		catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+		}
+	}
+
+	@Test
+	public void unboundIdContainerWhenMissingLdifThenException() {
+		try {
+			this.appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class);
+			failBecauseExceptionWasNotThrown(IllegalStateException.class);
+		}
+		catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:does-not-exist.ldif");
+		}
+	}
+
+	@Test
+	public void unboundIdContainerWhenWildcardLdifNotFoundThenProceeds() {
+		new AnnotationConfigApplicationContext(WildcardNoLdifConfig.class);
+	}
+
 	@Configuration
 	static class CustomLdifConfig {
 
@@ -81,17 +121,6 @@ public class UnboundIdContainerLdifTests {
 			this.container.stop();
 		}
 
-	}
-
-	@Test
-	public void unboundIdContainerWhenWildcardLdifNameThenLdifLoaded() {
-		this.appCtx = new AnnotationConfigApplicationContext(WildcardLdifConfig.class);
-
-		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) this.appCtx
-				.getBean(ContextSource.class);
-
-		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(contextSource);
-		assertThat(template.compare("uid=bob,ou=people", "uid", "bob")).isTrue();
 	}
 
 	@Configuration
@@ -119,18 +148,6 @@ public class UnboundIdContainerLdifTests {
 
 	}
 
-	@Test
-	public void unboundIdContainerWhenMalformedLdifThenException() {
-		try {
-			this.appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class);
-			failBecauseExceptionWasNotThrown(IllegalStateException.class);
-		}
-		catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
-		}
-	}
-
 	@Configuration
 	static class MalformedLdifConfig {
 
@@ -150,18 +167,6 @@ public class UnboundIdContainerLdifTests {
 
 	}
 
-	@Test
-	public void unboundIdContainerWhenMissingLdifThenException() {
-		try {
-			this.appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class);
-			failBecauseExceptionWasNotThrown(IllegalStateException.class);
-		}
-		catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:does-not-exist.ldif");
-		}
-	}
-
 	@Configuration
 	static class MissingLdifConfig {
 
@@ -179,11 +184,6 @@ public class UnboundIdContainerLdifTests {
 			this.container.stop();
 		}
 
-	}
-
-	@Test
-	public void unboundIdContainerWhenWildcardLdifNotFoundThenProceeds() {
-		new AnnotationConfigApplicationContext(WildcardNoLdifConfig.class);
 	}
 
 	@Configuration

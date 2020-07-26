@@ -114,48 +114,6 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
-	public final class StandardInterceptUrlRegistry extends
-			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
-
-		/**
-		 * @param context
-		 */
-		private StandardInterceptUrlRegistry(ApplicationContext context) {
-			setApplicationContext(context);
-		}
-
-		@Override
-		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
-		}
-
-		@Override
-		public MvcMatchersAuthorizedUrl mvcMatchers(String... patterns) {
-			return mvcMatchers(null, patterns);
-		}
-
-		@Override
-		protected AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
-			return new AuthorizedUrl(requestMatchers);
-		}
-
-		/**
-		 * Adds an {@link ObjectPostProcessor} for this class.
-		 * @param objectPostProcessor
-		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
-		 * customizations
-		 */
-		public StandardInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-			addObjectPostProcessor(objectPostProcessor);
-			return this;
-		}
-
-		public H and() {
-			return UrlAuthorizationConfigurer.this.and();
-		}
-
-	}
-
 	/**
 	 * Creates the default {@link AccessDecisionVoter} instances used if an
 	 * {@link AccessDecisionManager} was not specified.
@@ -232,6 +190,48 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private static String[] hasAnyAuthority(String... authorities) {
 		return authorities;
+	}
+
+	public final class StandardInterceptUrlRegistry extends
+			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
+
+		/**
+		 * @param context
+		 */
+		private StandardInterceptUrlRegistry(ApplicationContext context) {
+			setApplicationContext(context);
+		}
+
+		@Override
+		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
+			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
+		}
+
+		@Override
+		public MvcMatchersAuthorizedUrl mvcMatchers(String... patterns) {
+			return mvcMatchers(null, patterns);
+		}
+
+		@Override
+		protected AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
+			return new AuthorizedUrl(requestMatchers);
+		}
+
+		/**
+		 * Adds an {@link ObjectPostProcessor} for this class.
+		 * @param objectPostProcessor
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customizations
+		 */
+		public StandardInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
+
+		public H and() {
+			return UrlAuthorizationConfigurer.this.and();
+		}
+
 	}
 
 	/**

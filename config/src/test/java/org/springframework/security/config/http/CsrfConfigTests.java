@@ -417,6 +417,27 @@ public class CsrfConfigTests {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
+	ResultMatcher csrfChanged(MvcResult first) {
+		return (second) -> {
+			assertThat(first).isNotNull();
+			assertThat(second).isNotNull();
+			assertThat(first.getResponse().getContentAsString())
+					.isNotEqualTo(second.getResponse().getContentAsString());
+		};
+	}
+
+	ResultMatcher csrfCreated() {
+		return new CsrfCreatedResultMatcher();
+	}
+
+	ResultMatcher csrfInHeader() {
+		return new CsrfReturnedResultMatcher(result -> result.getResponse().getHeader("X-CSRF-TOKEN"));
+	}
+
+	ResultMatcher csrfInBody() {
+		return new CsrfReturnedResultMatcher(result -> result.getResponse().getContentAsString());
+	}
+
 	@Controller
 	public static class RootController {
 
@@ -456,27 +477,6 @@ public class CsrfConfigTests {
 			response.setStatus(HttpStatus.IM_A_TEAPOT_418);
 		}
 
-	}
-
-	ResultMatcher csrfChanged(MvcResult first) {
-		return (second) -> {
-			assertThat(first).isNotNull();
-			assertThat(second).isNotNull();
-			assertThat(first.getResponse().getContentAsString())
-					.isNotEqualTo(second.getResponse().getContentAsString());
-		};
-	}
-
-	ResultMatcher csrfCreated() {
-		return new CsrfCreatedResultMatcher();
-	}
-
-	ResultMatcher csrfInHeader() {
-		return new CsrfReturnedResultMatcher(result -> result.getResponse().getHeader("X-CSRF-TOKEN"));
-	}
-
-	ResultMatcher csrfInBody() {
-		return new CsrfReturnedResultMatcher(result -> result.getResponse().getContentAsString());
 	}
 
 	@FunctionalInterface

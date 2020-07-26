@@ -256,6 +256,12 @@ public class FormLoginTests {
 		verify(formLoginSecContextRepository).save(any(), any());
 	}
 
+	Mono<SecurityContext> authentication(Authentication authentication) {
+		SecurityContext context = new SecurityContextImpl();
+		context.setAuthentication(authentication);
+		return Mono.just(context);
+	}
+
 	public static class CustomLoginPage {
 
 		private WebDriver driver;
@@ -489,12 +495,6 @@ public class FormLoginTests {
 					+ "    </div>\n" + "  </body>\n" + "</html>");
 		}
 
-	}
-
-	Mono<SecurityContext> authentication(Authentication authentication) {
-		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(authentication);
-		return Mono.just(context);
 	}
 
 }

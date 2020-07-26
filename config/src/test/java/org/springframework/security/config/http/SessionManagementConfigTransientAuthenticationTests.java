@@ -60,6 +60,10 @@ public class SessionManagementConfigTransientAuthenticationTests {
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
+	private String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
+	}
+
 	static class TransientAuthenticationProvider implements AuthenticationProvider {
 
 		@Override
@@ -91,10 +95,6 @@ public class SessionManagementConfigTransientAuthenticationTests {
 			return null;
 		}
 
-	}
-
-	private String xml(String configName) {
-		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
 }

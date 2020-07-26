@@ -179,27 +179,6 @@ public class CsrfConfigurerTests {
 		assertThat(this.spring.getContext().getBean(RequestDataValueProcessor.class)).isNotNull();
 	}
 
-	@Configuration
-	static class AllowHttpMethodsFirewallConfig {
-
-		@Bean
-		StrictHttpFirewall strictHttpFirewall() {
-			StrictHttpFirewall result = new StrictHttpFirewall();
-			result.setUnsafeAllowAnyHttpMethod(true);
-			return result;
-		}
-
-	}
-
-	@EnableWebSecurity
-	static class CsrfAppliedDefaultConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) {
-		}
-
-	}
-
 	@Test
 	public void postWhenCsrfDisabledThenRespondsWithOk() throws Exception {
 		this.spring.register(DisableCsrfConfig.class, BasicController.class).autowire();
@@ -207,38 +186,11 @@ public class CsrfConfigurerTests {
 		this.mvc.perform(post("/")).andExpect(status().isOk());
 	}
 
-	@EnableWebSecurity
-	static class DisableCsrfConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.csrf()
-					.disable();
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void postWhenCsrfDisabledInLambdaThenRespondsWithOk() throws Exception {
 		this.spring.register(DisableCsrfInLambdaConfig.class, BasicController.class).autowire();
 
 		this.mvc.perform(post("/")).andExpect(status().isOk());
-	}
-
-	@EnableWebSecurity
-	static class DisableCsrfInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.csrf(AbstractHttpConfigurer::disable);
-			// @formatter:on
-		}
-
 	}
 
 	// SEC-2498
@@ -251,34 +203,6 @@ public class CsrfConfigurerTests {
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password")
 				.session((MockHttpSession) mvcResult.getRequest().getSession())).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/to-save"));
-	}
-
-	@EnableWebSecurity
-	static class DisableCsrfEnablesRequestCacheConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.csrf()
-					.disable();
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-				.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -315,36 +239,6 @@ public class CsrfConfigurerTests {
 				.loadToken(any(HttpServletRequest.class));
 	}
 
-	@EnableWebSecurity
-	static class CsrfDisablesPostRequestFromRequestCacheConfig extends WebSecurityConfigurerAdapter {
-
-		static CsrfTokenRepository REPO;
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.csrf()
-					.csrfTokenRepository(REPO);
-			// @formatter:on
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
-	}
-
 	// SEC-2422
 	@Test
 	public void postWhenCsrfEnabledAndSessionIsExpiredThenRespondsWithForbidden() throws Exception {
@@ -355,22 +249,6 @@ public class CsrfConfigurerTests {
 
 		this.mvc.perform(post("/").session((MockHttpSession) mvcResult.getRequest().getSession()))
 				.andExpect(status().isForbidden());
-	}
-
-	@EnableWebSecurity
-	static class InvalidSessionUrlConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.csrf()
-					.and()
-				.sessionManagement()
-					.invalidSessionUrl("/error/sessionError");
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -390,22 +268,6 @@ public class CsrfConfigurerTests {
 		this.mvc.perform(get("/")).andExpect(status().isForbidden());
 	}
 
-	@EnableWebSecurity
-	static class RequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
-
-		static RequestMatcher MATCHER;
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.csrf()
-					.requireCsrfProtectionMatcher(MATCHER);
-			// @formatter:on
-		}
-
-	}
-
 	@Test
 	public void requireCsrfProtectionMatcherInLambdaWhenRequestDoesNotMatchThenRespondsWithOk() throws Exception {
 		RequireCsrfProtectionMatcherInLambdaConfig.MATCHER = mock(RequestMatcher.class);
@@ -422,21 +284,6 @@ public class CsrfConfigurerTests {
 		this.spring.register(RequireCsrfProtectionMatcherInLambdaConfig.class, BasicController.class).autowire();
 
 		this.mvc.perform(get("/")).andExpect(status().isForbidden());
-	}
-
-	@EnableWebSecurity
-	static class RequireCsrfProtectionMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
-
-		static RequestMatcher MATCHER;
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.csrf(csrf -> csrf.requireCsrfProtectionMatcher(MATCHER));
-			// @formatter:on
-		}
-
 	}
 
 	@Test
@@ -476,6 +323,247 @@ public class CsrfConfigurerTests {
 				any(HttpServletResponse.class));
 	}
 
+	@Test
+	public void getWhenCustomCsrfTokenRepositoryInLambdaThenRepositoryIsUsed() throws Exception {
+		CsrfTokenRepositoryInLambdaConfig.REPO = mock(CsrfTokenRepository.class);
+		when(CsrfTokenRepositoryInLambdaConfig.REPO.loadToken(any()))
+				.thenReturn(new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token"));
+		this.spring.register(CsrfTokenRepositoryInLambdaConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+		verify(CsrfTokenRepositoryInLambdaConfig.REPO).loadToken(any(HttpServletRequest.class));
+	}
+
+	@Test
+	public void getWhenCustomAccessDeniedHandlerThenHandlerIsUsed() throws Exception {
+		AccessDeniedHandlerConfig.DENIED_HANDLER = mock(AccessDeniedHandler.class);
+		this.spring.register(AccessDeniedHandlerConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(post("/")).andExpect(status().isOk());
+
+		verify(AccessDeniedHandlerConfig.DENIED_HANDLER).handle(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any());
+	}
+
+	@Test
+	public void loginWhenNoCsrfTokenThenRespondsWithForbidden() throws Exception {
+		this.spring.register(FormLoginConfig.class).autowire();
+
+		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
+				.andExpect(status().isForbidden()).andExpect(unauthenticated());
+	}
+
+	@Test
+	public void logoutWhenNoCsrfTokenThenRespondsWithForbidden() throws Exception {
+		this.spring.register(FormLoginConfig.class).autowire();
+
+		this.mvc.perform(post("/logout").with(user("username"))).andExpect(status().isForbidden())
+				.andExpect(authenticated());
+	}
+
+	// SEC-2543
+	@Test
+	public void logoutWhenCsrfEnabledAndGetRequestThenDoesNotLogout() throws Exception {
+		this.spring.register(FormLoginConfig.class).autowire();
+
+		this.mvc.perform(get("/logout").with(user("username"))).andExpect(authenticated());
+	}
+
+	@Test
+	public void logoutWhenGetRequestAndGetEnabledForLogoutThenLogsOut() throws Exception {
+		this.spring.register(LogoutAllowsGetConfig.class).autowire();
+
+		this.mvc.perform(get("/logout").with(user("username"))).andExpect(unauthenticated());
+	}
+
+	// SEC-2749
+	@Test
+	public void configureWhenRequireCsrfProtectionMatcherNullThenException() {
+		assertThatThrownBy(() -> this.spring.register(NullRequireCsrfProtectionMatcherConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void getWhenDefaultCsrfTokenRepositoryThenDoesNotCreateSession() throws Exception {
+		this.spring.register(DefaultDoesNotCreateSession.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
+
+		assertThat(mvcResult.getRequest().getSession(false)).isNull();
+	}
+
+	@Test
+	public void getWhenNullAuthenticationStrategyThenException() {
+		assertThatThrownBy(() -> this.spring.register(NullAuthenticationStrategy.class).autowire())
+				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void csrfAuthenticationStrategyConfiguredThenStrategyUsed() throws Exception {
+		CsrfAuthenticationStrategyConfig.STRATEGY = mock(SessionAuthenticationStrategy.class);
+
+		this.spring.register(CsrfAuthenticationStrategyConfig.class).autowire();
+
+		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
+				.andExpect(redirectedUrl("/"));
+
+		verify(CsrfAuthenticationStrategyConfig.STRATEGY, atLeastOnce()).onAuthentication(any(Authentication.class),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Configuration
+	static class AllowHttpMethodsFirewallConfig {
+
+		@Bean
+		StrictHttpFirewall strictHttpFirewall() {
+			StrictHttpFirewall result = new StrictHttpFirewall();
+			result.setUnsafeAllowAnyHttpMethod(true);
+			return result;
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CsrfAppliedDefaultConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) {
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DisableCsrfConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf()
+					.disable();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DisableCsrfInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf(AbstractHttpConfigurer::disable);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class DisableCsrfEnablesRequestCacheConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin()
+					.and()
+				.csrf()
+					.disable();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+				.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CsrfDisablesPostRequestFromRequestCacheConfig extends WebSecurityConfigurerAdapter {
+
+		static CsrfTokenRepository REPO;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin()
+					.and()
+				.csrf()
+					.csrfTokenRepository(REPO);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class InvalidSessionUrlConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf()
+					.and()
+				.sessionManagement()
+					.invalidSessionUrl("/error/sessionError");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
+
+		static RequestMatcher MATCHER;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf()
+					.requireCsrfProtectionMatcher(MATCHER);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RequireCsrfProtectionMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		static RequestMatcher MATCHER;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf(csrf -> csrf.requireCsrfProtectionMatcher(MATCHER));
+			// @formatter:on
+		}
+
+	}
+
 	@EnableWebSecurity
 	static class CsrfTokenRepositoryConfig extends WebSecurityConfigurerAdapter {
 
@@ -503,17 +591,6 @@ public class CsrfConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenCustomCsrfTokenRepositoryInLambdaThenRepositoryIsUsed() throws Exception {
-		CsrfTokenRepositoryInLambdaConfig.REPO = mock(CsrfTokenRepository.class);
-		when(CsrfTokenRepositoryInLambdaConfig.REPO.loadToken(any()))
-				.thenReturn(new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token"));
-		this.spring.register(CsrfTokenRepositoryInLambdaConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CsrfTokenRepositoryInLambdaConfig.REPO).loadToken(any(HttpServletRequest.class));
-	}
-
 	@EnableWebSecurity
 	static class CsrfTokenRepositoryInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -528,17 +605,6 @@ public class CsrfConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void getWhenCustomAccessDeniedHandlerThenHandlerIsUsed() throws Exception {
-		AccessDeniedHandlerConfig.DENIED_HANDLER = mock(AccessDeniedHandler.class);
-		this.spring.register(AccessDeniedHandlerConfig.class, BasicController.class).autowire();
-
-		this.mvc.perform(post("/")).andExpect(status().isOk());
-
-		verify(AccessDeniedHandlerConfig.DENIED_HANDLER).handle(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any());
 	}
 
 	@EnableWebSecurity
@@ -557,30 +623,6 @@ public class CsrfConfigurerTests {
 
 	}
 
-	@Test
-	public void loginWhenNoCsrfTokenThenRespondsWithForbidden() throws Exception {
-		this.spring.register(FormLoginConfig.class).autowire();
-
-		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
-				.andExpect(status().isForbidden()).andExpect(unauthenticated());
-	}
-
-	@Test
-	public void logoutWhenNoCsrfTokenThenRespondsWithForbidden() throws Exception {
-		this.spring.register(FormLoginConfig.class).autowire();
-
-		this.mvc.perform(post("/logout").with(user("username"))).andExpect(status().isForbidden())
-				.andExpect(authenticated());
-	}
-
-	// SEC-2543
-	@Test
-	public void logoutWhenCsrfEnabledAndGetRequestThenDoesNotLogout() throws Exception {
-		this.spring.register(FormLoginConfig.class).autowire();
-
-		this.mvc.perform(get("/logout").with(user("username"))).andExpect(authenticated());
-	}
-
 	@EnableWebSecurity
 	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
 
@@ -592,13 +634,6 @@ public class CsrfConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void logoutWhenGetRequestAndGetEnabledForLogoutThenLogsOut() throws Exception {
-		this.spring.register(LogoutAllowsGetConfig.class).autowire();
-
-		this.mvc.perform(get("/logout").with(user("username"))).andExpect(unauthenticated());
 	}
 
 	@EnableWebSecurity
@@ -617,13 +652,6 @@ public class CsrfConfigurerTests {
 
 	}
 
-	// SEC-2749
-	@Test
-	public void configureWhenRequireCsrfProtectionMatcherNullThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullRequireCsrfProtectionMatcherConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
-	}
-
 	@EnableWebSecurity
 	static class NullRequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
 
@@ -636,15 +664,6 @@ public class CsrfConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void getWhenDefaultCsrfTokenRepositoryThenDoesNotCreateSession() throws Exception {
-		this.spring.register(DefaultDoesNotCreateSession.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
-
-		assertThat(mvcResult.getRequest().getSession(false)).isNull();
 	}
 
 	@EnableWebSecurity
@@ -688,12 +707,6 @@ public class CsrfConfigurerTests {
 
 	}
 
-	@Test
-	public void getWhenNullAuthenticationStrategyThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullAuthenticationStrategy.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
-	}
-
 	@EnableWebSecurity
 	static class CsrfAuthenticationStrategyConfig extends WebSecurityConfigurerAdapter {
 
@@ -719,19 +732,6 @@ public class CsrfConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void csrfAuthenticationStrategyConfiguredThenStrategyUsed() throws Exception {
-		CsrfAuthenticationStrategyConfig.STRATEGY = mock(SessionAuthenticationStrategy.class);
-
-		this.spring.register(CsrfAuthenticationStrategyConfig.class).autowire();
-
-		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
-				.andExpect(redirectedUrl("/"));
-
-		verify(CsrfAuthenticationStrategyConfig.STRATEGY, atLeastOnce()).onAuthentication(any(Authentication.class),
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@RestController

@@ -82,29 +82,6 @@ public class RemoveAuthorizedClientOAuth2AuthorizationFailureHandler implements 
 	private final OAuth2AuthorizedClientRemover delegate;
 
 	/**
-	 * Removes an {@link OAuth2AuthorizedClient} from an
-	 * {@link OAuth2AuthorizedClientRepository} or {@link OAuth2AuthorizedClientService}.
-	 */
-	@FunctionalInterface
-	public interface OAuth2AuthorizedClientRemover {
-
-		/**
-		 * Removes the {@link OAuth2AuthorizedClient} associated to the provided client
-		 * registration identifier and End-User {@link Authentication} (Resource Owner).
-		 * @param clientRegistrationId the identifier for the client's registration
-		 * @param principal the End-User {@link Authentication} (Resource Owner)
-		 * @param attributes an immutable {@code Map} of (optional) attributes present
-		 * under certain conditions. For example, this might contain a
-		 * {@code javax.servlet.http.HttpServletRequest} and
-		 * {@code javax.servlet.http.HttpServletResponse} if the authorization was
-		 * performed within the context of a {@code javax.servlet.ServletContext}.
-		 */
-		void removeAuthorizedClient(String clientRegistrationId, Authentication principal,
-				Map<String, Object> attributes);
-
-	}
-
-	/**
 	 * Constructs a {@code RemoveAuthorizedClientOAuth2AuthorizationFailureHandler} using
 	 * the provided parameters.
 	 * @param authorizedClientRemover the {@link OAuth2AuthorizedClientRemover} used for
@@ -157,6 +134,29 @@ public class RemoveAuthorizedClientOAuth2AuthorizationFailureHandler implements 
 	 */
 	private boolean hasRemovalErrorCode(OAuth2AuthorizationException authorizationException) {
 		return this.removeAuthorizedClientErrorCodes.contains(authorizationException.getError().getErrorCode());
+	}
+
+	/**
+	 * Removes an {@link OAuth2AuthorizedClient} from an
+	 * {@link OAuth2AuthorizedClientRepository} or {@link OAuth2AuthorizedClientService}.
+	 */
+	@FunctionalInterface
+	public interface OAuth2AuthorizedClientRemover {
+
+		/**
+		 * Removes the {@link OAuth2AuthorizedClient} associated to the provided client
+		 * registration identifier and End-User {@link Authentication} (Resource Owner).
+		 * @param clientRegistrationId the identifier for the client's registration
+		 * @param principal the End-User {@link Authentication} (Resource Owner)
+		 * @param attributes an immutable {@code Map} of (optional) attributes present
+		 * under certain conditions. For example, this might contain a
+		 * {@code javax.servlet.http.HttpServletRequest} and
+		 * {@code javax.servlet.http.HttpServletResponse} if the authorization was
+		 * performed within the context of a {@code javax.servlet.ServletContext}.
+		 */
+		void removeAuthorizedClient(String clientRegistrationId, Authentication principal,
+				Map<String, Object> attributes);
+
 	}
 
 }

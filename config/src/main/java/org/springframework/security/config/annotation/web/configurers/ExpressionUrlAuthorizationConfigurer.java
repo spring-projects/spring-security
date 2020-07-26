@@ -109,61 +109,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		return this.REGISTRY;
 	}
 
-	public final class ExpressionInterceptUrlRegistry extends
-			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry, AuthorizedUrl> {
-
-		/**
-		 * @param context
-		 */
-		private ExpressionInterceptUrlRegistry(ApplicationContext context) {
-			setApplicationContext(context);
-		}
-
-		@Override
-		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
-		}
-
-		@Override
-		public MvcMatchersAuthorizedUrl mvcMatchers(String... patterns) {
-			return mvcMatchers(null, patterns);
-		}
-
-		@Override
-		protected AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
-			return new AuthorizedUrl(requestMatchers);
-		}
-
-		/**
-		 * Allows customization of the {@link SecurityExpressionHandler} to be used. The
-		 * default is {@link DefaultWebSecurityExpressionHandler}
-		 * @param expressionHandler the {@link SecurityExpressionHandler} to be used
-		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
-		 * customization.
-		 */
-		public ExpressionInterceptUrlRegistry expressionHandler(
-				SecurityExpressionHandler<FilterInvocation> expressionHandler) {
-			ExpressionUrlAuthorizationConfigurer.this.expressionHandler = expressionHandler;
-			return this;
-		}
-
-		/**
-		 * Adds an {@link ObjectPostProcessor} for this class.
-		 * @param objectPostProcessor
-		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
-		 * customizations
-		 */
-		public ExpressionInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-			addObjectPostProcessor(objectPostProcessor);
-			return this;
-		}
-
-		public H and() {
-			return ExpressionUrlAuthorizationConfigurer.this.and();
-		}
-
-	}
-
 	/**
 	 * Allows registering multiple {@link RequestMatcher} instances to a collection of
 	 * {@link ConfigAttribute} instances
@@ -259,6 +204,61 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	private static String hasIpAddress(String ipAddressExpression) {
 		return "hasIpAddress('" + ipAddressExpression + "')";
+	}
+
+	public final class ExpressionInterceptUrlRegistry extends
+			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry, AuthorizedUrl> {
+
+		/**
+		 * @param context
+		 */
+		private ExpressionInterceptUrlRegistry(ApplicationContext context) {
+			setApplicationContext(context);
+		}
+
+		@Override
+		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
+			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
+		}
+
+		@Override
+		public MvcMatchersAuthorizedUrl mvcMatchers(String... patterns) {
+			return mvcMatchers(null, patterns);
+		}
+
+		@Override
+		protected AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
+			return new AuthorizedUrl(requestMatchers);
+		}
+
+		/**
+		 * Allows customization of the {@link SecurityExpressionHandler} to be used. The
+		 * default is {@link DefaultWebSecurityExpressionHandler}
+		 * @param expressionHandler the {@link SecurityExpressionHandler} to be used
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization.
+		 */
+		public ExpressionInterceptUrlRegistry expressionHandler(
+				SecurityExpressionHandler<FilterInvocation> expressionHandler) {
+			ExpressionUrlAuthorizationConfigurer.this.expressionHandler = expressionHandler;
+			return this;
+		}
+
+		/**
+		 * Adds an {@link ObjectPostProcessor} for this class.
+		 * @param objectPostProcessor
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customizations
+		 */
+		public ExpressionInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
+
+		public H and() {
+			return ExpressionUrlAuthorizationConfigurer.this.and();
+		}
+
 	}
 
 	/**

@@ -162,38 +162,6 @@ public class RSocketSecurity {
 	}
 
 	/**
-	 * @since 5.3
-	 */
-	public final class SimpleAuthenticationSpec {
-
-		private ReactiveAuthenticationManager authenticationManager;
-
-		public SimpleAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
-			this.authenticationManager = authenticationManager;
-			return this;
-		}
-
-		private ReactiveAuthenticationManager getAuthenticationManager() {
-			if (this.authenticationManager == null) {
-				return RSocketSecurity.this.authenticationManager;
-			}
-			return this.authenticationManager;
-		}
-
-		protected AuthenticationPayloadInterceptor build() {
-			ReactiveAuthenticationManager manager = getAuthenticationManager();
-			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
-			result.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
-			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-			return result;
-		}
-
-		private SimpleAuthenticationSpec() {
-		}
-
-	}
-
-	/**
 	 * Adds authentication with BasicAuthenticationPayloadExchangeConverter.
 	 * @param basic
 	 * @return this instance
@@ -208,79 +176,12 @@ public class RSocketSecurity {
 		return this;
 	}
 
-	public final class BasicAuthenticationSpec {
-
-		private ReactiveAuthenticationManager authenticationManager;
-
-		public BasicAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
-			this.authenticationManager = authenticationManager;
-			return this;
-		}
-
-		private ReactiveAuthenticationManager getAuthenticationManager() {
-			if (this.authenticationManager == null) {
-				return RSocketSecurity.this.authenticationManager;
-			}
-			return this.authenticationManager;
-		}
-
-		protected AuthenticationPayloadInterceptor build() {
-			ReactiveAuthenticationManager manager = getAuthenticationManager();
-			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
-			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-			return result;
-		}
-
-		private BasicAuthenticationSpec() {
-		}
-
-	}
-
 	public RSocketSecurity jwt(Customizer<JwtSpec> jwt) {
 		if (this.jwtSpec == null) {
 			this.jwtSpec = new JwtSpec();
 		}
 		jwt.customize(this.jwtSpec);
 		return this;
-	}
-
-	public final class JwtSpec {
-
-		private ReactiveAuthenticationManager authenticationManager;
-
-		public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
-			this.authenticationManager = authenticationManager;
-			return this;
-		}
-
-		private ReactiveAuthenticationManager getAuthenticationManager() {
-			if (this.authenticationManager != null) {
-				return this.authenticationManager;
-			}
-			ReactiveJwtDecoder jwtDecoder = getBeanOrNull(ReactiveJwtDecoder.class);
-			if (jwtDecoder != null) {
-				this.authenticationManager = new JwtReactiveAuthenticationManager(jwtDecoder);
-				return this.authenticationManager;
-			}
-			return RSocketSecurity.this.authenticationManager;
-		}
-
-		protected List<AuthenticationPayloadInterceptor> build() {
-			ReactiveAuthenticationManager manager = getAuthenticationManager();
-			AuthenticationPayloadInterceptor legacy = new AuthenticationPayloadInterceptor(manager);
-			legacy.setAuthenticationConverter(new BearerPayloadExchangeConverter());
-			legacy.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-
-			AuthenticationPayloadInterceptor standard = new AuthenticationPayloadInterceptor(manager);
-			standard.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
-			standard.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-
-			return Arrays.asList(standard, legacy);
-		}
-
-		private JwtSpec() {
-		}
-
 	}
 
 	public RSocketSecurity authorizePayload(Customizer<AuthorizePayloadsSpec> authorize) {
@@ -324,6 +225,131 @@ public class RSocketSecurity {
 		AnonymousPayloadInterceptor result = new AnonymousPayloadInterceptor("anonymousUser");
 		result.setOrder(PayloadInterceptorOrder.ANONYMOUS.getOrder());
 		return result;
+	}
+
+	private <T> T getBean(Class<T> beanClass) {
+		if (this.context == null) {
+			return null;
+		}
+		return this.context.getBean(beanClass);
+	}
+
+	private <T> T getBeanOrNull(Class<T> beanClass) {
+		return getBeanOrNull(ResolvableType.forClass(beanClass));
+	}
+
+	private <T> T getBeanOrNull(ResolvableType type) {
+		if (this.context == null) {
+			return null;
+		}
+		String[] names = this.context.getBeanNamesForType(type);
+		if (names.length == 1) {
+			return (T) this.context.getBean(names[0]);
+		}
+		return null;
+	}
+
+	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.context = applicationContext;
+	}
+
+	/**
+	 * @since 5.3
+	 */
+	public final class SimpleAuthenticationSpec {
+
+		private ReactiveAuthenticationManager authenticationManager;
+
+		public SimpleAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager == null) {
+				return RSocketSecurity.this.authenticationManager;
+			}
+			return this.authenticationManager;
+		}
+
+		protected AuthenticationPayloadInterceptor build() {
+			ReactiveAuthenticationManager manager = getAuthenticationManager();
+			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
+			result.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
+			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+			return result;
+		}
+
+		private SimpleAuthenticationSpec() {
+		}
+
+	}
+
+	public final class BasicAuthenticationSpec {
+
+		private ReactiveAuthenticationManager authenticationManager;
+
+		public BasicAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager == null) {
+				return RSocketSecurity.this.authenticationManager;
+			}
+			return this.authenticationManager;
+		}
+
+		protected AuthenticationPayloadInterceptor build() {
+			ReactiveAuthenticationManager manager = getAuthenticationManager();
+			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
+			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+			return result;
+		}
+
+		private BasicAuthenticationSpec() {
+		}
+
+	}
+
+	public final class JwtSpec {
+
+		private ReactiveAuthenticationManager authenticationManager;
+
+		public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager != null) {
+				return this.authenticationManager;
+			}
+			ReactiveJwtDecoder jwtDecoder = getBeanOrNull(ReactiveJwtDecoder.class);
+			if (jwtDecoder != null) {
+				this.authenticationManager = new JwtReactiveAuthenticationManager(jwtDecoder);
+				return this.authenticationManager;
+			}
+			return RSocketSecurity.this.authenticationManager;
+		}
+
+		protected List<AuthenticationPayloadInterceptor> build() {
+			ReactiveAuthenticationManager manager = getAuthenticationManager();
+			AuthenticationPayloadInterceptor legacy = new AuthenticationPayloadInterceptor(manager);
+			legacy.setAuthenticationConverter(new BearerPayloadExchangeConverter());
+			legacy.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+
+			AuthenticationPayloadInterceptor standard = new AuthenticationPayloadInterceptor(manager);
+			standard.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
+			standard.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+
+			return Arrays.asList(standard, legacy);
+		}
+
+		private JwtSpec() {
+		}
+
 	}
 
 	public class AuthorizePayloadsSpec {
@@ -415,32 +441,6 @@ public class RSocketSecurity {
 
 		}
 
-	}
-
-	private <T> T getBean(Class<T> beanClass) {
-		if (this.context == null) {
-			return null;
-		}
-		return this.context.getBean(beanClass);
-	}
-
-	private <T> T getBeanOrNull(Class<T> beanClass) {
-		return getBeanOrNull(ResolvableType.forClass(beanClass));
-	}
-
-	private <T> T getBeanOrNull(ResolvableType type) {
-		if (this.context == null) {
-			return null;
-		}
-		String[] names = this.context.getBeanNamesForType(type);
-		if (names.length == 1) {
-			return (T) this.context.getBean(names[0]);
-		}
-		return null;
-	}
-
-	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.context = applicationContext;
 	}
 
 }

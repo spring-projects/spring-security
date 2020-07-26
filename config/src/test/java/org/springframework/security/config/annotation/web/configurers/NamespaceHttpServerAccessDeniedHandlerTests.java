@@ -65,6 +65,40 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
 	}
 
+	@Test
+	public void requestWhenCustomAccessDeniedPageInLambdaThenForwardedToCustomPage() throws Exception {
+		this.spring.register(AccessDeniedPageInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/").with(authentication(user()))).andExpect(status().isForbidden())
+				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
+	}
+
+	@Test
+	public void requestWhenCustomAccessDeniedHandlerThenBehaviorMatchesNamespace() throws Exception {
+		this.spring.register(AccessDeniedHandlerRefConfig.class).autowire();
+		this.mvc.perform(get("/").with(authentication(user())));
+		verifyBean(AccessDeniedHandler.class).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(AccessDeniedException.class));
+	}
+
+	@Test
+	public void requestWhenCustomAccessDeniedHandlerInLambdaThenBehaviorMatchesNamespace() throws Exception {
+		this.spring.register(AccessDeniedHandlerRefInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/").with(authentication(user())));
+
+		verify(AccessDeniedHandlerRefInLambdaConfig.accessDeniedHandler).handle(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AccessDeniedException.class));
+	}
+
+	private static Authentication user() {
+		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.NO_AUTHORITIES);
+	}
+
+	private <T> T verifyBean(Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanClass));
+	}
+
 	@EnableWebSecurity
 	static class AccessDeniedPageConfig extends WebSecurityConfigurerAdapter {
 
@@ -80,18 +114,6 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 			// @formatter:on
 		}
 
-	}
-
-	private static Authentication user() {
-		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.NO_AUTHORITIES);
-	}
-
-	@Test
-	public void requestWhenCustomAccessDeniedPageInLambdaThenForwardedToCustomPage() throws Exception {
-		this.spring.register(AccessDeniedPageInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/").with(authentication(user()))).andExpect(status().isForbidden())
-				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
 	}
 
 	@EnableWebSecurity
@@ -111,14 +133,6 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void requestWhenCustomAccessDeniedHandlerThenBehaviorMatchesNamespace() throws Exception {
-		this.spring.register(AccessDeniedHandlerRefConfig.class).autowire();
-		this.mvc.perform(get("/").with(authentication(user())));
-		verifyBean(AccessDeniedHandler.class).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
-				any(AccessDeniedException.class));
 	}
 
 	@EnableWebSecurity
@@ -141,16 +155,6 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 			return mock(AccessDeniedHandler.class);
 		}
 
-	}
-
-	@Test
-	public void requestWhenCustomAccessDeniedHandlerInLambdaThenBehaviorMatchesNamespace() throws Exception {
-		this.spring.register(AccessDeniedHandlerRefInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/").with(authentication(user())));
-
-		verify(AccessDeniedHandlerRefInLambdaConfig.accessDeniedHandler).handle(any(HttpServletRequest.class),
-				any(HttpServletResponse.class), any(AccessDeniedException.class));
 	}
 
 	@EnableWebSecurity
@@ -177,10 +181,6 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 			return accessDeniedHandler;
 		}
 
-	}
-
-	private <T> T verifyBean(Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
 }

@@ -39,11 +39,6 @@ public class WithMockUserTests {
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
-	@WithMockUser
-	private class Annotated {
-
-	}
-
 	@Test
 	public void findMergedAnnotationWhenSetupExplicitThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupExplicit.class,
@@ -52,17 +47,22 @@ public class WithMockUserTests {
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
-	@WithMockUser(setupBefore = TestExecutionEvent.TEST_METHOD)
-	private class SetupExplicit {
-
-	}
-
 	@Test
 	public void findMergedAnnotationWhenSetupOverriddenThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupOverridden.class,
 				WithSecurityContext.class);
 
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_EXECUTION);
+	}
+
+	@WithMockUser
+	private class Annotated {
+
+	}
+
+	@WithMockUser(setupBefore = TestExecutionEvent.TEST_METHOD)
+	private class SetupExplicit {
+
 	}
 
 	@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)

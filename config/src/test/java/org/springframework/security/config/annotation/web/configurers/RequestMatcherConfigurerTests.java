@@ -52,6 +52,14 @@ public class RequestMatcherConfigurerTests {
 		this.mvc.perform(get("/api/abc")).andExpect(status().isForbidden());
 	}
 
+	@Test
+	public void authorizeRequestsWhenInvokedMultipleTimesInLambdaThenChainsPaths() throws Exception {
+		this.spring.register(AuthorizeRequestInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/oauth/abc")).andExpect(status().isForbidden());
+		this.mvc.perform(get("/api/abc")).andExpect(status().isForbidden());
+	}
+
 	@EnableWebSecurity
 	static class Sec2908Config extends WebSecurityConfigurerAdapter {
 
@@ -70,14 +78,6 @@ public class RequestMatcherConfigurerTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void authorizeRequestsWhenInvokedMultipleTimesInLambdaThenChainsPaths() throws Exception {
-		this.spring.register(AuthorizeRequestInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/oauth/abc")).andExpect(status().isForbidden());
-		this.mvc.perform(get("/api/abc")).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity

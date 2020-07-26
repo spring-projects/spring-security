@@ -56,6 +56,20 @@ public class NamespacePasswordEncoderTests {
 		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
+	@Test
+	public void passwordEncoderRefWithJdbc() throws Exception {
+		this.spring.register(PasswordEncoderWithJdbcConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin()).andExpect(authenticated());
+	}
+
+	@Test
+	public void passwordEncoderRefWithUserDetailsService() throws Exception {
+		this.spring.register(PasswordEncoderWithUserDetailsServiceConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin()).andExpect(authenticated());
+	}
+
 	@EnableWebSecurity
 	static class PasswordEncoderWithInMemoryConfig extends WebSecurityConfigurerAdapter {
 
@@ -70,13 +84,6 @@ public class NamespacePasswordEncoderTests {
 			// @formatter:on
 		}
 
-	}
-
-	@Test
-	public void passwordEncoderRefWithJdbc() throws Exception {
-		this.spring.register(PasswordEncoderWithJdbcConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
 	@EnableWebSecurity
@@ -102,13 +109,6 @@ public class NamespacePasswordEncoderTests {
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
 
-	}
-
-	@Test
-	public void passwordEncoderRefWithUserDetailsService() throws Exception {
-		this.spring.register(PasswordEncoderWithUserDetailsServiceConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
 	@EnableWebSecurity
