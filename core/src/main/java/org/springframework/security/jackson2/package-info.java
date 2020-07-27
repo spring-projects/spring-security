@@ -20,7 +20,3 @@
  * @since 4.2
  */
 package org.springframework.security.jackson2;
-
-/**
- * Package contains Jackson mixin classes.
- */
