@@ -427,7 +427,7 @@ public final class RelyingPartyRegistration {
 	 *
 	 * @since 5.4
 	 */
-	public final static class AssertingPartyDetails {
+	public static final class AssertingPartyDetails {
 
 		private final String entityId;
 
@@ -546,7 +546,7 @@ public final class RelyingPartyRegistration {
 			return this.singleSignOnServiceBinding;
 		}
 
-		public final static class Builder {
+		public static final class Builder {
 
 			private String entityId;
 
@@ -665,7 +665,7 @@ public final class RelyingPartyRegistration {
 	 * @deprecated Use {@link AssertingPartyDetails} instead
 	 */
 	@Deprecated
-	public final static class ProviderDetails {
+	public static final class ProviderDetails {
 
 		private final AssertingPartyDetails assertingPartyDetails;
 
@@ -714,7 +714,7 @@ public final class RelyingPartyRegistration {
 		 * @deprecated Use {@link AssertingPartyDetails.Builder} instead
 		 */
 		@Deprecated
-		public final static class Builder {
+		public static final class Builder {
 
 			private final AssertingPartyDetails.Builder assertingPartyDetailsBuilder = new AssertingPartyDetails.Builder();
 
@@ -778,7 +778,7 @@ public final class RelyingPartyRegistration {
 
 	}
 
-	public final static class Builder {
+	public static final class Builder {
 
 		private String registrationId;
 

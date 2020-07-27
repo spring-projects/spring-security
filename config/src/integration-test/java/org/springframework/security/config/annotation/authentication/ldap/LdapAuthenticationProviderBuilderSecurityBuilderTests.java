@@ -268,7 +268,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	}
 
 	@EnableWebSecurity
-	static abstract class BaseLdapServerConfig extends BaseLdapProviderConfig {
+	abstract static class BaseLdapServerConfig extends BaseLdapProviderConfig {
 
 		@Bean
 		public ApacheDSContainer ldapServer() throws Exception {
@@ -283,7 +283,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	@EnableWebSecurity
 	@EnableGlobalAuthentication
 	@Import(ObjectPostProcessorConfiguration.class)
-	static abstract class BaseLdapProviderConfig extends WebSecurityConfigurerAdapter {
+	abstract static class BaseLdapProviderConfig extends WebSecurityConfigurerAdapter {
 
 		@Bean
 		public BaseLdapPathContextSource contextSource() throws Exception {
@@ -302,7 +302,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		}
 
 		@Override
-		abstract protected void configure(AuthenticationManagerBuilder auth) throws Exception;
+		protected abstract void configure(AuthenticationManagerBuilder auth) throws Exception;
 
 	}
 

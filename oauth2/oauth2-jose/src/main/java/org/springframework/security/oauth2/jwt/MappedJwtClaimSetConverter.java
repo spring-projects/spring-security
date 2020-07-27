@@ -40,15 +40,15 @@ import org.springframework.util.Assert;
  */
 public final class MappedJwtClaimSetConverter implements Converter<Map<String, Object>, Map<String, Object>> {
 
-	private final static ConversionService CONVERSION_SERVICE = ClaimConversionService.getSharedInstance();
+	private static final ConversionService CONVERSION_SERVICE = ClaimConversionService.getSharedInstance();
 
-	private final static TypeDescriptor OBJECT_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Object.class);
+	private static final TypeDescriptor OBJECT_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Object.class);
 
-	private final static TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
+	private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
-	private final static TypeDescriptor INSTANT_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Instant.class);
+	private static final TypeDescriptor INSTANT_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Instant.class);
 
-	private final static TypeDescriptor URL_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(URL.class);
+	private static final TypeDescriptor URL_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(URL.class);
 
 	private final Map<String, Converter<Object, ?>> claimTypeConverters;
 

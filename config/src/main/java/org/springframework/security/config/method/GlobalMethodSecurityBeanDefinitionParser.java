@@ -537,7 +537,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 	}
 
-	static abstract class AbstractGrantedAuthorityDefaultsBeanFactory implements ApplicationContextAware {
+	abstract static class AbstractGrantedAuthorityDefaultsBeanFactory implements ApplicationContextAware {
 
 		protected String rolePrefix = "ROLE_";
 

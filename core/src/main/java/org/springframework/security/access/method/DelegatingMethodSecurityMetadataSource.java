@@ -38,7 +38,7 @@ import org.springframework.util.ObjectUtils;
  */
 public final class DelegatingMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
-	private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();
+	private static final List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();
 
 	private final List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
 

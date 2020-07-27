@@ -904,7 +904,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
-	private static abstract class CommonWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+	private abstract static class CommonWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -938,7 +938,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
-	private static abstract class CommonLambdaWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+	private abstract static class CommonLambdaWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {

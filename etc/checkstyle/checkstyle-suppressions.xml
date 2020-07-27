@@ -8,7 +8,6 @@
 	<suppress files=".*" checks="JavadocTagContinuationIndentation" />
 	<suppress files=".*" checks="JavadocType" />
 	<suppress files=".*" checks="JavadocVariable" />
-	<suppress files=".*" checks="ModifierOrder" />
 	<suppress files=".*" checks="MultipleVariableDeclarations" />
 	<suppress files=".*" checks="MutableException" />
 	<suppress files=".*" checks="NeedBraces" />

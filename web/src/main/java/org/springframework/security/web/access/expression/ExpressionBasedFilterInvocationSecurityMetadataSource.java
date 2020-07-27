@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
 public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		extends DefaultFilterInvocationSecurityMetadataSource {
 
-	private final static Log logger = LogFactory.getLog(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
+	private static final Log logger = LogFactory.getLog(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
 
 	public ExpressionBasedFilterInvocationSecurityMetadataSource(
 			LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap,

@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class AnonymousAuthenticationTokenTests {
 
-	private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+	private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
 	@Test
 	public void testConstructorRejectsNulls() {

@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
  */
 public final class RegexRequestMatcher implements RequestMatcher {
 
-	private final static Log logger = LogFactory.getLog(RegexRequestMatcher.class);
+	private static final Log logger = LogFactory.getLog(RegexRequestMatcher.class);
 
 	private final Pattern pattern;
 
