@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
  */
 public class Saml2AuthenticationException extends AuthenticationException {
 
-	private Saml2Error error;
+	private final Saml2Error error;
 
 	/**
 	 * Constructs a {@code Saml2AuthenticationException} using the provided parameters.
@@ -65,8 +65,7 @@ public class Saml2AuthenticationException extends AuthenticationException {
 	 * @param message the detail message
 	 */
 	public Saml2AuthenticationException(Saml2Error error, String message) {
-		super(message);
-		this.setError(error);
+		this(error, message, null);
 	}
 
 	/**
@@ -77,7 +76,8 @@ public class Saml2AuthenticationException extends AuthenticationException {
 	 */
 	public Saml2AuthenticationException(Saml2Error error, String message, Throwable cause) {
 		super(message, cause);
-		this.setError(error);
+		Assert.notNull(error, "error cannot be null");
+		this.error = error;
 	}
 
 	/**
@@ -120,8 +120,7 @@ public class Saml2AuthenticationException extends AuthenticationException {
 	@Deprecated
 	public Saml2AuthenticationException(
 			org.springframework.security.saml2.provider.service.authentication.Saml2Error error, String message) {
-		super(message);
-		this.setError(error);
+		this(error, message, null);
 	}
 
 	/**
@@ -140,7 +139,8 @@ public class Saml2AuthenticationException extends AuthenticationException {
 			org.springframework.security.saml2.provider.service.authentication.Saml2Error error, String message,
 			Throwable cause) {
 		super(message, cause);
-		this.setError(error);
+		Assert.notNull(error, "error cannot be null");
+		this.error = new Saml2Error(error.getErrorCode(), error.getDescription());
 	}
 
 	/**
@@ -160,15 +160,6 @@ public class Saml2AuthenticationException extends AuthenticationException {
 	public org.springframework.security.saml2.provider.service.authentication.Saml2Error getError() {
 		return new org.springframework.security.saml2.provider.service.authentication.Saml2Error(
 				this.error.getErrorCode(), this.error.getDescription());
-	}
-
-	private void setError(Saml2Error error) {
-		Assert.notNull(error, "error cannot be null");
-		this.error = error;
-	}
-
-	private void setError(org.springframework.security.saml2.provider.service.authentication.Saml2Error error) {
-		setError(new Saml2Error(error.getErrorCode(), error.getDescription()));
 	}
 
 	@Override

@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  */
 public class OAuth2AuthorizationException extends RuntimeException {
 
-	private OAuth2Error error;
+	private final OAuth2Error error;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationException} using the provided parameters.
