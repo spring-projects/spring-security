@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
  */
 public class SecurityExpressionRootTests {
 
-	final static Authentication JOE = new TestingAuthenticationToken("joe", "pass", "ROLE_A", "ROLE_B");
+	static final Authentication JOE = new TestingAuthenticationToken("joe", "pass", "ROLE_A", "ROLE_B");
 
 	SecurityExpressionRoot root;
 

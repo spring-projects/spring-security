@@ -552,7 +552,7 @@ public class SecurityMockServerConfigurers {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	public final static class OpaqueTokenMutator implements WebTestClientConfigurer, MockServerConfigurer {
+	public static final class OpaqueTokenMutator implements WebTestClientConfigurer, MockServerConfigurer {
 
 		private Supplier<Map<String, Object>> attributes = this::defaultAttributes;
 
@@ -698,7 +698,7 @@ public class SecurityMockServerConfigurers {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	public final static class OAuth2LoginMutator implements WebTestClientConfigurer, MockServerConfigurer {
+	public static final class OAuth2LoginMutator implements WebTestClientConfigurer, MockServerConfigurer {
 
 		private final String nameAttributeKey = "sub";
 
@@ -849,7 +849,7 @@ public class SecurityMockServerConfigurers {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	public final static class OidcLoginMutator implements WebTestClientConfigurer, MockServerConfigurer {
+	public static final class OidcLoginMutator implements WebTestClientConfigurer, MockServerConfigurer {
 
 		private ClientRegistration clientRegistration;
 
@@ -1027,7 +1027,7 @@ public class SecurityMockServerConfigurers {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	public final static class OAuth2ClientMutator implements WebTestClientConfigurer, MockServerConfigurer {
+	public static final class OAuth2ClientMutator implements WebTestClientConfigurer, MockServerConfigurer {
 
 		private String registrationId = "test";
 
@@ -1153,10 +1153,10 @@ public class SecurityMockServerConfigurers {
 		private static final class TestReactiveOAuth2AuthorizedClientManager
 				implements ReactiveOAuth2AuthorizedClientManager {
 
-			final static String TOKEN_ATTR_NAME = TestReactiveOAuth2AuthorizedClientManager.class.getName()
+			static final String TOKEN_ATTR_NAME = TestReactiveOAuth2AuthorizedClientManager.class.getName()
 					.concat(".TOKEN");
 
-			final static String ENABLED_ATTR_NAME = TestReactiveOAuth2AuthorizedClientManager.class.getName()
+			static final String ENABLED_ATTR_NAME = TestReactiveOAuth2AuthorizedClientManager.class.getName()
 					.concat(".ENABLED");
 
 			private final ReactiveOAuth2AuthorizedClientManager delegate;

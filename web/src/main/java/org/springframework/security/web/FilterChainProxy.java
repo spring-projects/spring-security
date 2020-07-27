@@ -143,7 +143,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
 
-	private final static String FILTER_APPLIED = FilterChainProxy.class.getName().concat(".APPLIED");
+	private static final String FILTER_APPLIED = FilterChainProxy.class.getName().concat(".APPLIED");
 
 	private List<SecurityFilterChain> filterChains;
 

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 @PrepareOnlyThisForTest(ParserContext.class)
 public class WebConfigUtilsTests {
 
-	public final static String URL = "/url";
+	public static final String URL = "/url";
 
 	@Mock
 	private ParserContext parserContext;

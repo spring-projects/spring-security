@@ -398,7 +398,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 		return new OAuth2AuthorizedClient(clientRegistration, principal.getName(), accessToken, refreshToken);
 	}
 
-	private final static class CustomTableDefinitionJdbcOAuth2AuthorizedClientService
+	private static final class CustomTableDefinitionJdbcOAuth2AuthorizedClientService
 			extends JdbcOAuth2AuthorizedClientService {
 
 		private static final String COLUMN_NAMES = "clientRegistrationId, " + "principalName, " + "accessTokenType, "
@@ -453,7 +453,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 			this.jdbcOperations.update(REMOVE_AUTHORIZED_CLIENT_SQL, pss);
 		}
 
-		private final static class OAuth2AuthorizedClientRowMapper implements RowMapper<OAuth2AuthorizedClient> {
+		private static final class OAuth2AuthorizedClientRowMapper implements RowMapper<OAuth2AuthorizedClient> {
 
 			private final ClientRegistrationRepository clientRegistrationRepository;
 

@@ -409,7 +409,7 @@ public class MessageSecurityMetadataSourceRegistry {
 
 	}
 
-	private final static class PreBuiltMatcherBuilder implements MatcherBuilder {
+	private static final class PreBuiltMatcherBuilder implements MatcherBuilder {
 
 		private MessageMatcher<?> matcher;
 

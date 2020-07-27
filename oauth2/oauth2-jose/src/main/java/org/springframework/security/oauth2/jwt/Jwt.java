@@ -110,7 +110,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	 * @author Josh Cummings
 	 * @since 5.2
 	 */
-	public final static class Builder {
+	public static final class Builder {
 
 		private String tokenValue;
 

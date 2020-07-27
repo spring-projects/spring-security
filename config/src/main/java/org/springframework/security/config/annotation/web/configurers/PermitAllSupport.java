@@ -56,7 +56,7 @@ final class PermitAllSupport {
 		}
 	}
 
-	private final static class ExactUrlRequestMatcher implements RequestMatcher {
+	private static final class ExactUrlRequestMatcher implements RequestMatcher {
 
 		private String processUrl;
 

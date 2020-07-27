@@ -187,7 +187,7 @@ final class LdapEncoder {
 	 * @return The decoded value as a string.
 	 * @throws BadLdapGrammarException
 	 */
-	static public String nameDecode(String value) throws BadLdapGrammarException {
+	public static String nameDecode(String value) throws BadLdapGrammarException {
 
 		if (value == null) {
 			return null;

@@ -60,7 +60,7 @@ public final class SecurityMockMvcResultMatchers {
 		return new UnAuthenticatedMatcher();
 	}
 
-	private static abstract class AuthenticationMatcher<T extends AuthenticationMatcher<T>> implements ResultMatcher {
+	private abstract static class AuthenticationMatcher<T extends AuthenticationMatcher<T>> implements ResultMatcher {
 
 		protected SecurityContext load(MvcResult result) {
 			HttpRequestResponseHolder holder = new HttpRequestResponseHolder(result.getRequest(), result.getResponse());

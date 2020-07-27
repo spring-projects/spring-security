@@ -534,9 +534,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		static class TestCsrfTokenRepository implements CsrfTokenRepository {
 
-			final static String TOKEN_ATTR_NAME = TestCsrfTokenRepository.class.getName().concat(".TOKEN");
+			static final String TOKEN_ATTR_NAME = TestCsrfTokenRepository.class.getName().concat(".TOKEN");
 
-			final static String ENABLED_ATTR_NAME = TestCsrfTokenRepository.class.getName().concat(".ENABLED");
+			static final String ENABLED_ATTR_NAME = TestCsrfTokenRepository.class.getName().concat(".ENABLED");
 
 			private final CsrfTokenRepository delegate;
 
@@ -711,7 +711,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * Support class for {@link RequestPostProcessor}'s that establish a Spring Security
 	 * context
 	 */
-	private static abstract class SecurityContextRequestPostProcessorSupport {
+	private abstract static class SecurityContextRequestPostProcessorSupport {
 
 		/**
 		 * Saves the specified {@link Authentication} into an empty
@@ -755,7 +755,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		static final class TestSecurityContextRepository implements SecurityContextRepository {
 
-			private final static String ATTR_NAME = TestSecurityContextRepository.class.getName().concat(".REPO");
+			private static final String ATTR_NAME = TestSecurityContextRepository.class.getName().concat(".REPO");
 
 			private final SecurityContextRepository delegate;
 
@@ -801,7 +801,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private final static class TestSecurityContextHolderPostProcessor extends SecurityContextRequestPostProcessorSupport
+	private static final class TestSecurityContextHolderPostProcessor extends SecurityContextRequestPostProcessorSupport
 			implements RequestPostProcessor {
 
 		private SecurityContext EMPTY = SecurityContextHolder.createEmptyContext();
@@ -831,7 +831,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private final static class SecurityContextRequestPostProcessor extends SecurityContextRequestPostProcessorSupport
+	private static final class SecurityContextRequestPostProcessor extends SecurityContextRequestPostProcessorSupport
 			implements RequestPostProcessor {
 
 		private final SecurityContext securityContext;
@@ -856,7 +856,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @since 4.0
 	 *
 	 */
-	private final static class AuthenticationRequestPostProcessor extends SecurityContextRequestPostProcessorSupport
+	private static final class AuthenticationRequestPostProcessor extends SecurityContextRequestPostProcessorSupport
 			implements RequestPostProcessor {
 
 		private final Authentication authentication;
@@ -883,7 +883,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private final static class UserDetailsRequestPostProcessor implements RequestPostProcessor {
+	private static final class UserDetailsRequestPostProcessor implements RequestPostProcessor {
 
 		private final RequestPostProcessor delegate;
 
@@ -908,7 +908,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public final static class UserRequestPostProcessor extends SecurityContextRequestPostProcessorSupport
+	public static final class UserRequestPostProcessor extends SecurityContextRequestPostProcessorSupport
 			implements RequestPostProcessor {
 
 		private String username;
@@ -1046,7 +1046,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Josh Cummings
 	 * @since 5.2
 	 */
-	public final static class JwtRequestPostProcessor implements RequestPostProcessor {
+	public static final class JwtRequestPostProcessor implements RequestPostProcessor {
 
 		private Jwt jwt;
 
@@ -1137,7 +1137,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	public final static class OpaqueTokenRequestPostProcessor implements RequestPostProcessor {
+	public static final class OpaqueTokenRequestPostProcessor implements RequestPostProcessor {
 
 		private Supplier<Map<String, Object>> attributes = this::defaultAttributes;
 
@@ -1265,7 +1265,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	public final static class OAuth2LoginRequestPostProcessor implements RequestPostProcessor {
+	public static final class OAuth2LoginRequestPostProcessor implements RequestPostProcessor {
 
 		private final String nameAttributeKey = "sub";
 
@@ -1393,7 +1393,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	public final static class OidcLoginRequestPostProcessor implements RequestPostProcessor {
+	public static final class OidcLoginRequestPostProcessor implements RequestPostProcessor {
 
 		private ClientRegistration clientRegistration;
 
@@ -1541,7 +1541,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	public final static class OAuth2ClientRequestPostProcessor implements RequestPostProcessor {
+	public static final class OAuth2ClientRequestPostProcessor implements RequestPostProcessor {
 
 		private String registrationId = "test";
 
@@ -1638,9 +1638,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		private static final class TestOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
 
-			final static String TOKEN_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName().concat(".TOKEN");
+			static final String TOKEN_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName().concat(".TOKEN");
 
-			final static String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName()
+			static final String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName()
 					.concat(".ENABLED");
 
 			private final OAuth2AuthorizedClientManager delegate;

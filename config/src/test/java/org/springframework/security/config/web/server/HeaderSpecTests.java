@@ -52,9 +52,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
  */
 public class HeaderSpecTests {
 
-	private final static String CUSTOM_HEADER = "CUSTOM-HEADER";
+	private static final String CUSTOM_HEADER = "CUSTOM-HEADER";
 
-	private final static String CUSTOM_VALUE = "CUSTOM-VALUE";
+	private static final String CUSTOM_VALUE = "CUSTOM-VALUE";
 
 	private ServerHttpSecurity http = ServerHttpSecurity.http();
 
