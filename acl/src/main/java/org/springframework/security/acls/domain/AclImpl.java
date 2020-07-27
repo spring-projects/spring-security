@@ -31,6 +31,7 @@ import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.UnloadedSidException;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Base implementation of <code>Acl</code>.
@@ -285,36 +286,22 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof AclImpl) {
-			AclImpl rhs = (AclImpl) obj;
-			if (this.aces.equals(rhs.aces)) {
-				if ((this.parentAcl == null && rhs.parentAcl == null)
-						|| (this.parentAcl != null && this.parentAcl.equals(rhs.parentAcl))) {
-					if ((this.objectIdentity == null && rhs.objectIdentity == null)
-							|| (this.objectIdentity != null && this.objectIdentity.equals(rhs.objectIdentity))) {
-						if ((this.id == null && rhs.id == null) || (this.id != null && this.id.equals(rhs.id))) {
-							if ((this.owner == null && rhs.owner == null)
-									|| (this.owner != null && this.owner.equals(rhs.owner))) {
-								if (this.entriesInheriting == rhs.entriesInheriting) {
-									if ((this.loadedSids == null && rhs.loadedSids == null)) {
-										return true;
-									}
-									if (this.loadedSids != null && (this.loadedSids.size() == rhs.loadedSids.size())) {
-										for (int i = 0; i < this.loadedSids.size(); i++) {
-											if (!this.loadedSids.get(i).equals(rhs.loadedSids.get(i))) {
-												return false;
-											}
-										}
-										return true;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+		if (obj == this) {
+			return true;
 		}
-		return false;
+		if (obj == null || !(obj instanceof AclImpl)) {
+			return false;
+		}
+		AclImpl other = (AclImpl) obj;
+		boolean result = true;
+		result = result && this.aces.equals(other.aces);
+		result = result && ObjectUtils.nullSafeEquals(this.parentAcl, other.parentAcl);
+		result = result && ObjectUtils.nullSafeEquals(this.objectIdentity, other.objectIdentity);
+		result = result && ObjectUtils.nullSafeEquals(this.id, other.id);
+		result = result && ObjectUtils.nullSafeEquals(this.owner, other.owner);
+		result = result && this.entriesInheriting == other.entriesInheriting;
+		result = result && ObjectUtils.nullSafeEquals(this.loadedSids, other.loadedSids);
+		return result;
 	}
 
 	@Override

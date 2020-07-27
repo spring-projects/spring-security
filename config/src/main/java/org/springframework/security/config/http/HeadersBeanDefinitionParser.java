@@ -426,78 +426,81 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	private void parseFrameOptionsElement(boolean addIfNotPresent, Element element, ParserContext parserContext) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XFrameOptionsHeaderWriter.class);
-
-		Element frameElt = element == null ? null : DomUtils.getChildElementByTagName(element, FRAME_OPTIONS_ELEMENT);
-		if (frameElt != null) {
-			String header = getAttribute(frameElt, ATT_POLICY, null);
-			boolean disabled = "true".equals(getAttribute(frameElt, ATT_DISABLED, "false"));
-
-			if (disabled && header != null) {
-				this.attrNotAllowed(parserContext, ATT_DISABLED, ATT_POLICY, frameElt);
+		Element frameElement = (element != null) ? DomUtils.getChildElementByTagName(element, FRAME_OPTIONS_ELEMENT)
+				: null;
+		if (frameElement == null) {
+			if (addIfNotPresent) {
+				this.headerWriters.add(builder.getBeanDefinition());
 			}
-			if (!StringUtils.hasText(header)) {
-				header = "DENY";
-			}
-
-			if (ALLOW_FROM.equals(header)) {
-				String strategyRef = getAttribute(frameElt, ATT_REF, null);
-				String strategy = getAttribute(frameElt, ATT_STRATEGY, null);
-
-				if (StringUtils.hasText(strategy) && StringUtils.hasText(strategyRef)) {
-					parserContext.getReaderContext().error("Only one of 'strategy' or 'strategy-ref' can be set.",
-							frameElt);
-				}
-				else if (strategyRef != null) {
-					builder.addConstructorArgReference(strategyRef);
-				}
-				else if (strategy != null) {
-					String value = getAttribute(frameElt, ATT_VALUE, null);
-					if (!StringUtils.hasText(value)) {
-						parserContext.getReaderContext().error("Strategy requires a 'value' to be set.", frameElt);
-					}
-					// static, whitelist, regexp
-					if ("static".equals(strategy)) {
-						try {
-							builder.addConstructorArgValue(new StaticAllowFromStrategy(new URI(value)));
-						}
-						catch (URISyntaxException e) {
-							parserContext.getReaderContext().error("'value' attribute doesn't represent a valid URI.",
-									frameElt, e);
-						}
-					}
-					else {
-						BeanDefinitionBuilder allowFromStrategy;
-						if ("whitelist".equals(strategy)) {
-							allowFromStrategy = BeanDefinitionBuilder
-									.rootBeanDefinition(WhiteListedAllowFromStrategy.class);
-							allowFromStrategy.addConstructorArgValue(StringUtils.commaDelimitedListToSet(value));
-						}
-						else {
-							allowFromStrategy = BeanDefinitionBuilder.rootBeanDefinition(RegExpAllowFromStrategy.class);
-							allowFromStrategy.addConstructorArgValue(value);
-						}
-						String fromParameter = getAttribute(frameElt, ATT_FROM_PARAMETER, "from");
-						allowFromStrategy.addPropertyValue("allowFromParameterName", fromParameter);
-						builder.addConstructorArgValue(allowFromStrategy.getBeanDefinition());
-					}
-				}
-				else {
-					parserContext.getReaderContext().error("One of 'strategy' and 'strategy-ref' must be set.",
-							frameElt);
-				}
-			}
-			else {
-				builder.addConstructorArgValue(header);
-			}
-
-			if (disabled) {
-				return;
-			}
+			return;
 		}
-
-		if (addIfNotPresent || frameElt != null) {
+		String header = getAttribute(frameElement, ATT_POLICY, null);
+		boolean disabled = "true".equals(getAttribute(frameElement, ATT_DISABLED, "false"));
+		if (disabled && header != null) {
+			this.attrNotAllowed(parserContext, ATT_DISABLED, ATT_POLICY, frameElement);
+		}
+		header = StringUtils.hasText(header) ? header : "DENY";
+		if (ALLOW_FROM.equals(header)) {
+			parseAllowFromFrameOptionsElement(parserContext, builder, frameElement);
+		}
+		else {
+			builder.addConstructorArgValue(header);
+		}
+		if (!disabled) {
 			this.headerWriters.add(builder.getBeanDefinition());
 		}
+	}
+
+	private void parseAllowFromFrameOptionsElement(ParserContext parserContext, BeanDefinitionBuilder builder,
+			Element frameElement) {
+		String strategyRef = getAttribute(frameElement, ATT_REF, null);
+		String strategy = getAttribute(frameElement, ATT_STRATEGY, null);
+		if (StringUtils.hasText(strategy) && StringUtils.hasText(strategyRef)) {
+			parserContext.getReaderContext().error("Only one of 'strategy' or 'strategy-ref' can be set.",
+					frameElement);
+			return;
+		}
+		if (strategyRef != null) {
+			builder.addConstructorArgReference(strategyRef);
+			return;
+		}
+		if (strategy == null) {
+			parserContext.getReaderContext().error("One of 'strategy' and 'strategy-ref' must be set.", frameElement);
+			return;
+		}
+		String value = getAttribute(frameElement, ATT_VALUE, null);
+		if (!StringUtils.hasText(value)) {
+			parserContext.getReaderContext().error("Strategy requires a 'value' to be set.", frameElement);
+			return;
+		}
+		// static, whitelist, regexp
+		if ("static".equals(strategy)) {
+			try {
+				builder.addConstructorArgValue(new StaticAllowFromStrategy(new URI(value)));
+			}
+			catch (URISyntaxException e) {
+				parserContext.getReaderContext().error("'value' attribute doesn't represent a valid URI.", frameElement,
+						e);
+			}
+			return;
+		}
+		BeanDefinitionBuilder allowFromStrategy = getAllowFromStrategy(strategy, value);
+		String fromParameter = getAttribute(frameElement, ATT_FROM_PARAMETER, "from");
+		allowFromStrategy.addPropertyValue("allowFromParameterName", fromParameter);
+		builder.addConstructorArgValue(allowFromStrategy.getBeanDefinition());
+	}
+
+	private BeanDefinitionBuilder getAllowFromStrategy(String strategy, String value) {
+		if ("whitelist".equals(strategy)) {
+			BeanDefinitionBuilder allowFromStrategy = BeanDefinitionBuilder
+					.rootBeanDefinition(WhiteListedAllowFromStrategy.class);
+			allowFromStrategy.addConstructorArgValue(StringUtils.commaDelimitedListToSet(value));
+			return allowFromStrategy;
+		}
+		BeanDefinitionBuilder allowFromStrategy;
+		allowFromStrategy = BeanDefinitionBuilder.rootBeanDefinition(RegExpAllowFromStrategy.class);
+		allowFromStrategy.addConstructorArgValue(value);
+		return allowFromStrategy;
 	}
 
 	private void parseXssElement(boolean addIfNotPresent, Element element, ParserContext parserContext) {
