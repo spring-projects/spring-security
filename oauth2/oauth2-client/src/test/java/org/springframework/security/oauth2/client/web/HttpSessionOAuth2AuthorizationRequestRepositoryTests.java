@@ -197,20 +197,12 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 	public void saveAuthorizationRequestWhenNullThenRemoved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest().build();
-
-		this.authorizationRequestRepository.saveAuthorizationRequest( // Save
-				authorizationRequest, request, response);
-
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 		request.addParameter(OAuth2ParameterNames.STATE, authorizationRequest.getState());
-		this.authorizationRequestRepository.saveAuthorizationRequest( // Null value
-																		// removes
-				null, request, response);
-
+		this.authorizationRequestRepository.saveAuthorizationRequest(null, request, response);
 		OAuth2AuthorizationRequest loadedAuthorizationRequest = this.authorizationRequestRepository
 				.loadAuthorizationRequest(request);
-
 		assertThat(loadedAuthorizationRequest).isNull();
 	}
 
