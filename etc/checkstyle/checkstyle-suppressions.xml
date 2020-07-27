@@ -3,8 +3,6 @@
 		"-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
 		"https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-	<suppress files=".*" checks="NonEmptyAtclauseDescription" />
-	<suppress files=".*" checks="NoWhitespaceBefore" />
 	<suppress files=".*" checks="OneTopLevelClass" />
 	<suppress files=".*" checks="ParenPad" />
 	<suppress files=".*" checks="RedundantImport" />
@@ -27,6 +25,7 @@
 	<suppress files=".*" checks="JavadocTagContinuationIndentation" />
 	<suppress files=".*" checks="JavadocType" />
 	<suppress files=".*" checks="JavadocVariable" />
+	<suppress files=".*" checks="NonEmptyAtclauseDescription" />
 
 	<!-- Ignore third-party code -->
 	<suppress files="BCrypt\.java|BCryptTests\.java" checks=".*"/>
