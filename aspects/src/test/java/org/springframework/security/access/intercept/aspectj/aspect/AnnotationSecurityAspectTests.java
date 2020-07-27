@@ -161,65 +161,65 @@ public class AnnotationSecurityAspectTests {
 		this.interceptor.setAfterInvocationManager(aim);
 	}
 
-}
+	interface SecuredInterface {
 
-interface SecuredInterface {
+		@Secured("ROLE_X")
+		void securedMethod();
 
-	@Secured("ROLE_X")
-	void securedMethod();
-
-}
-
-class SecuredImpl implements SecuredInterface {
-
-	// Not really secured because AspectJ doesn't inherit annotations from interfaces
-	@Override
-	public void securedMethod() {
 	}
 
-	@Secured("ROLE_A")
-	public void securedClassMethod() {
+	static class SecuredImpl implements SecuredInterface {
+
+		// Not really secured because AspectJ doesn't inherit annotations from interfaces
+		@Override
+		public void securedMethod() {
+		}
+
+		@Secured("ROLE_A")
+		public void securedClassMethod() {
+		}
+
+		@Secured("ROLE_X")
+		private void privateMethod() {
+		}
+
+		@Secured("ROLE_X")
+		protected void protectedMethod() {
+		}
+
+		@Secured("ROLE_X")
+		public void publicCallsPrivate() {
+			privateMethod();
+		}
+
 	}
 
-	@Secured("ROLE_X")
-	private void privateMethod() {
+	static class SecuredImplSubclass extends SecuredImpl {
+
+		@Override
+		protected void protectedMethod() {
+		}
+
+		@Override
+		public void publicCallsPrivate() {
+			super.publicCallsPrivate();
+		}
+
 	}
 
-	@Secured("ROLE_X")
-	protected void protectedMethod() {
-	}
+	static class PrePostSecured {
 
-	@Secured("ROLE_X")
-	public void publicCallsPrivate() {
-		privateMethod();
-	}
+		@PreAuthorize("denyAll")
+		public void denyAllMethod() {
+		}
 
-}
+		@PostFilter("filterObject.startsWith('a')")
+		public List<String> postFilterMethod() {
+			ArrayList<String> objects = new ArrayList<>();
+			objects.addAll(Arrays.asList(new String[] { "apple", "banana", "aubergine", "orange" }));
+			return objects;
+		}
 
-class SecuredImplSubclass extends SecuredImpl {
-
-	@Override
-	protected void protectedMethod() {
-	}
-
-	@Override
-	public void publicCallsPrivate() {
-		super.publicCallsPrivate();
-	}
-
-}
-
-class PrePostSecured {
-
-	@PreAuthorize("denyAll")
-	public void denyAllMethod() {
-	}
-
-	@PostFilter("filterObject.startsWith('a')")
-	public List<String> postFilterMethod() {
-		ArrayList<String> objects = new ArrayList<>();
-		objects.addAll(Arrays.asList(new String[] { "apple", "banana", "aubergine", "orange" }));
-		return objects;
 	}
 
 }

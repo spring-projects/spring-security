@@ -42,7 +42,6 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.OrderComparator;
-import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
@@ -399,97 +398,70 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		registry.registerBeanDefinition(requestRejectedPostProcessorName, requestRejectedBean);
 	}
 
-}
+	static class RequestRejectedHandlerPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
-class RequestRejectedHandlerPostProcessor implements BeanDefinitionRegistryPostProcessor {
+		private final String beanName;
 
-	private final String beanName;
+		private final String targetBeanName;
 
-	private final String targetBeanName;
+		private final String targetPropertyName;
 
-	private final String targetPropertyName;
-
-	RequestRejectedHandlerPostProcessor(String beanName, String targetBeanName, String targetPropertyName) {
-		this.beanName = beanName;
-		this.targetBeanName = targetBeanName;
-		this.targetPropertyName = targetPropertyName;
-	}
-
-	@Override
-	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-		if (registry.containsBeanDefinition(this.beanName)) {
-			BeanDefinition beanDefinition = registry.getBeanDefinition(this.targetBeanName);
-			beanDefinition.getPropertyValues().add(this.targetPropertyName, new RuntimeBeanReference(this.beanName));
+		RequestRejectedHandlerPostProcessor(String beanName, String targetBeanName, String targetPropertyName) {
+			this.beanName = beanName;
+			this.targetBeanName = targetBeanName;
+			this.targetPropertyName = targetPropertyName;
 		}
-	}
 
-	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
-	}
-
-}
-
-class OrderDecorator implements Ordered {
-
-	final BeanMetadataElement bean;
-
-	final int order;
-
-	OrderDecorator(BeanMetadataElement bean, SecurityFilters filterOrder) {
-		this.bean = bean;
-		this.order = filterOrder.getOrder();
-	}
-
-	OrderDecorator(BeanMetadataElement bean, int order) {
-		this.bean = bean;
-		this.order = order;
-	}
-
-	@Override
-	public int getOrder() {
-		return this.order;
-	}
-
-	@Override
-	public String toString() {
-		return this.bean + ", order = " + this.order;
-	}
-
-}
-
-/**
- * Custom {@link MethodInvokingFactoryBean} that is specifically used for looking up the
- * child {@link ProviderManager} value for
- * {@link ProviderManager#setEraseCredentialsAfterAuthentication(boolean)} given the
- * parent {@link AuthenticationManager}. This is necessary because the parent
- * {@link AuthenticationManager} might not be a {@link ProviderManager}.
- *
- * @author Rob Winch
- */
-final class ClearCredentialsMethodInvokingFactoryBean extends MethodInvokingFactoryBean {
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		boolean isTargetProviderManager = getTargetObject() instanceof ProviderManager;
-		if (!isTargetProviderManager) {
-			setTargetObject(this);
+		@Override
+		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+			if (registry.containsBeanDefinition(this.beanName)) {
+				BeanDefinition beanDefinition = registry.getBeanDefinition(this.targetBeanName);
+				beanDefinition.getPropertyValues().add(this.targetPropertyName,
+						new RuntimeBeanReference(this.beanName));
+			}
 		}
-		super.afterPropertiesSet();
+
+		@Override
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+
+		}
+
 	}
 
 	/**
-	 * The default value if the target object is not a ProviderManager is false. We use
-	 * false because this feature is associated with {@link ProviderManager} not
-	 * {@link AuthenticationManager}. If the user wants to leverage
-	 * {@link ProviderManager#setEraseCredentialsAfterAuthentication(boolean)} their
-	 * original {@link AuthenticationManager} must be a {@link ProviderManager} (we should
-	 * not magically add this functionality to their implementation since we cannot
-	 * determine if it should be on or off).
-	 * @return
+	 * Custom {@link MethodInvokingFactoryBean} that is specifically used for looking up
+	 * the child {@link ProviderManager} value for
+	 * {@link ProviderManager#setEraseCredentialsAfterAuthentication(boolean)} given the
+	 * parent {@link AuthenticationManager}. This is necessary because the parent
+	 * {@link AuthenticationManager} might not be a {@link ProviderManager}.
+	 *
+	 * @author Rob Winch
 	 */
-	public boolean isEraseCredentialsAfterAuthentication() {
-		return false;
+	static final class ClearCredentialsMethodInvokingFactoryBean extends MethodInvokingFactoryBean {
+
+		@Override
+		public void afterPropertiesSet() throws Exception {
+			boolean isTargetProviderManager = getTargetObject() instanceof ProviderManager;
+			if (!isTargetProviderManager) {
+				setTargetObject(this);
+			}
+			super.afterPropertiesSet();
+		}
+
+		/**
+		 * The default value if the target object is not a ProviderManager is false. We
+		 * use false because this feature is associated with {@link ProviderManager} not
+		 * {@link AuthenticationManager}. If the user wants to leverage
+		 * {@link ProviderManager#setEraseCredentialsAfterAuthentication(boolean)} their
+		 * original {@link AuthenticationManager} must be a {@link ProviderManager} (we
+		 * should not magically add this functionality to their implementation since we
+		 * cannot determine if it should be on or off).
+		 * @return
+		 */
+		public boolean isEraseCredentialsAfterAuthentication() {
+			return false;
+		}
+
 	}
 
 }

@@ -55,66 +55,69 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 		return this.delegate.decorate(node, definition, parserContext);
 	}
 
-}
+	/**
+	 * This is the real class which does the work. We need access to the ParserContext in
+	 * order to do bean registration.
+	 */
+	static class InternalInterceptMethodsBeanDefinitionDecorator
+			extends AbstractInterceptorDrivenBeanDefinitionDecorator {
 
-/**
- * This is the real class which does the work. We need access to the ParserContext in
- * order to do bean registration.
- */
-class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractInterceptorDrivenBeanDefinitionDecorator {
+		static final String ATT_METHOD = "method";
+		static final String ATT_ACCESS = "access";
 
-	static final String ATT_METHOD = "method";
-	static final String ATT_ACCESS = "access";
+		private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
-	private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
+		@Override
+		protected BeanDefinition createInterceptorDefinition(Node node) {
+			Element interceptMethodsElt = (Element) node;
+			BeanDefinitionBuilder interceptor = BeanDefinitionBuilder
+					.rootBeanDefinition(MethodSecurityInterceptor.class);
 
-	@Override
-	protected BeanDefinition createInterceptorDefinition(Node node) {
-		Element interceptMethodsElt = (Element) node;
-		BeanDefinitionBuilder interceptor = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
+			// Default to autowiring to pick up after invocation mgr
+			interceptor.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
-		// Default to autowiring to pick up after invocation mgr
-		interceptor.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
+			String accessManagerId = interceptMethodsElt.getAttribute(ATT_ACCESS_MGR);
 
-		String accessManagerId = interceptMethodsElt.getAttribute(ATT_ACCESS_MGR);
-
-		if (!StringUtils.hasText(accessManagerId)) {
-			accessManagerId = BeanIds.METHOD_ACCESS_MANAGER;
-		}
-
-		interceptor.addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
-		interceptor.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
-
-		// Lookup parent bean information
-
-		String parentBeanClass = ((Element) node.getParentNode()).getAttribute("class");
-
-		// Parse the included methods
-		List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
-		Map<String, BeanDefinition> mappings = new ManagedMap<>();
-
-		for (Element protectmethodElt : methods) {
-			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
-			attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
-			attributeBuilder.addConstructorArgValue(protectmethodElt.getAttribute(ATT_ACCESS));
-
-			// Support inference of class names
-			String methodName = protectmethodElt.getAttribute(ATT_METHOD);
-
-			if (methodName.lastIndexOf(".") == -1) {
-				if (parentBeanClass != null && !"".equals(parentBeanClass)) {
-					methodName = parentBeanClass + "." + methodName;
-				}
+			if (!StringUtils.hasText(accessManagerId)) {
+				accessManagerId = BeanIds.METHOD_ACCESS_MANAGER;
 			}
 
-			mappings.put(methodName, attributeBuilder.getBeanDefinition());
+			interceptor.addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
+			interceptor.addPropertyValue("authenticationManager",
+					new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
+
+			// Lookup parent bean information
+
+			String parentBeanClass = ((Element) node.getParentNode()).getAttribute("class");
+
+			// Parse the included methods
+			List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
+			Map<String, BeanDefinition> mappings = new ManagedMap<>();
+
+			for (Element protectmethodElt : methods) {
+				BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
+				attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
+				attributeBuilder.addConstructorArgValue(protectmethodElt.getAttribute(ATT_ACCESS));
+
+				// Support inference of class names
+				String methodName = protectmethodElt.getAttribute(ATT_METHOD);
+
+				if (methodName.lastIndexOf(".") == -1) {
+					if (parentBeanClass != null && !"".equals(parentBeanClass)) {
+						methodName = parentBeanClass + "." + methodName;
+					}
+				}
+
+				mappings.put(methodName, attributeBuilder.getBeanDefinition());
+			}
+
+			BeanDefinition metadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
+			metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
+			interceptor.addPropertyValue("securityMetadataSource", metadataSource);
+
+			return interceptor.getBeanDefinition();
 		}
 
-		BeanDefinition metadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
-		metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
-		interceptor.addPropertyValue("securityMetadataSource", metadataSource);
-
-		return interceptor.getBeanDefinition();
 	}
 
 }

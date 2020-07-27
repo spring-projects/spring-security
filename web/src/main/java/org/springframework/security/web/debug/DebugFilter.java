@@ -150,34 +150,34 @@ public final class DebugFilter implements Filter {
 	public void destroy() {
 	}
 
-}
+	static class DebugRequestWrapper extends HttpServletRequestWrapper {
 
-class DebugRequestWrapper extends HttpServletRequestWrapper {
+		private static final Logger logger = new Logger();
 
-	private static final Logger logger = new Logger();
-
-	DebugRequestWrapper(HttpServletRequest request) {
-		super(request);
-	}
-
-	@Override
-	public HttpSession getSession() {
-		boolean sessionExists = super.getSession(false) != null;
-		HttpSession session = super.getSession();
-
-		if (!sessionExists) {
-			logger.info("New HTTP session created: " + session.getId(), true);
+		DebugRequestWrapper(HttpServletRequest request) {
+			super(request);
 		}
 
-		return session;
-	}
+		@Override
+		public HttpSession getSession() {
+			boolean sessionExists = super.getSession(false) != null;
+			HttpSession session = super.getSession();
 
-	@Override
-	public HttpSession getSession(boolean create) {
-		if (!create) {
-			return super.getSession(create);
+			if (!sessionExists) {
+				DebugRequestWrapper.logger.info("New HTTP session created: " + session.getId(), true);
+			}
+
+			return session;
 		}
-		return getSession();
+
+		@Override
+		public HttpSession getSession(boolean create) {
+			if (!create) {
+				return super.getSession(create);
+			}
+			return getSession();
+		}
+
 	}
 
 }
