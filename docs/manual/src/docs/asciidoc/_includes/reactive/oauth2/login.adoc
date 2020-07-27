@@ -122,7 +122,10 @@ The `client-id` and `client-secret` are linked to the provider because `keycloak
 
 A minimal OAuth2 Login configuration is shown below:
 
-[source,java]
+.Minimal OAuth2 Login
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 ReactiveClientRegistrationRepository clientRegistrations() {
@@ -143,9 +146,34 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun clientRegistrations(): ReactiveClientRegistrationRepository {
+    val clientRegistration: ClientRegistration = ClientRegistrations
+            .fromIssuerLocation("https://idp.example.com/auth/realms/demo")
+            .clientId("spring-security")
+            .clientSecret("6cea952f-10d0-4d00-ac79-cc865820dc2c")
+            .build()
+    return InMemoryReactiveClientRegistrationRepository(clientRegistration)
+}
+
+@Bean
+fun webFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        oauth2Login { }
+    }
+}
+----
+====
+
 Additional configuration options can be seen below:
 
-[source,java]
+.Advanced OAuth2 Login
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -161,9 +189,29 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun webFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        oauth2Login {
+            authenticationConverter = converter
+            authenticationManager = manager
+            authorizedClientRepository = authorizedClients
+            clientRegistrationRepository = clientRegistration
+        }
+    }
+}
+----
+====
+
 You may register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied to the default configuration, as shown in the following example:
 
-[source,java]
+.GrantedAuthoritiesMapper Bean
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public GrantedAuthoritiesMapper userAuthoritiesMapper() {
@@ -178,3 +226,20 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	return http.build();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun userAuthoritiesMapper(): GrantedAuthoritiesMapper {
+   // ...
+}
+
+@Bean
+fun webFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        oauth2Login { }
+    }
+}
+----
+====
