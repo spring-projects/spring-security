@@ -47,11 +47,11 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class DefaultJaasAuthenticationProviderTests {
 
@@ -76,7 +76,7 @@ public class DefaultJaasAuthenticationProviderTests {
 		AppConfigurationEntry[] aces = new AppConfigurationEntry[] {
 				new AppConfigurationEntry(TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
 						Collections.<String, Object>emptyMap()) };
-		when(configuration.getAppConfigurationEntry(this.provider.getLoginContextName())).thenReturn(aces);
+		given(configuration.getAppConfigurationEntry(this.provider.getLoginContextName())).willReturn(aces);
 		this.token = new UsernamePasswordAuthenticationToken("user", "password");
 		ReflectionTestUtils.setField(this.provider, "log", this.log);
 
@@ -141,9 +141,9 @@ public class DefaultJaasAuthenticationProviderTests {
 		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
 		LoginContext context = mock(LoginContext.class);
 
-		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
-		when(securityContext.getAuthentication()).thenReturn(token);
-		when(token.getLoginContext()).thenReturn(context);
+		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
+		given(securityContext.getAuthentication()).willReturn(token);
+		given(token.getLoginContext()).willReturn(context);
 
 		this.provider.onApplicationEvent(event);
 
@@ -170,7 +170,7 @@ public class DefaultJaasAuthenticationProviderTests {
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
 		SecurityContext securityContext = mock(SecurityContext.class);
 
-		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
+		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
 
 		this.provider.handleLogout(event);
 
@@ -185,8 +185,8 @@ public class DefaultJaasAuthenticationProviderTests {
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
 		SecurityContext securityContext = mock(SecurityContext.class);
 
-		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
-		when(securityContext.getAuthentication()).thenReturn(this.token);
+		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
+		given(securityContext.getAuthentication()).willReturn(this.token);
 
 		this.provider.handleLogout(event);
 
@@ -202,8 +202,8 @@ public class DefaultJaasAuthenticationProviderTests {
 		SecurityContext securityContext = mock(SecurityContext.class);
 		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
 
-		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
-		when(securityContext.getAuthentication()).thenReturn(token);
+		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
+		given(securityContext.getAuthentication()).willReturn(token);
 
 		this.provider.onApplicationEvent(event);
 		verify(event).getSecurityContexts();
@@ -221,10 +221,10 @@ public class DefaultJaasAuthenticationProviderTests {
 		LoginContext context = mock(LoginContext.class);
 		LoginException loginException = new LoginException("Failed Login");
 
-		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
-		when(securityContext.getAuthentication()).thenReturn(token);
-		when(token.getLoginContext()).thenReturn(context);
-		doThrow(loginException).when(context).logout();
+		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
+		given(securityContext.getAuthentication()).willReturn(token);
+		given(token.getLoginContext()).willReturn(context);
+		willThrow(loginException).given(context).logout();
 
 		this.provider.onApplicationEvent(event);
 

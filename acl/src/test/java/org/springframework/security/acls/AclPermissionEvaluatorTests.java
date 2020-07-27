@@ -30,8 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -45,13 +45,13 @@ public class AclPermissionEvaluatorTests {
 		AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
 		ObjectIdentity oid = mock(ObjectIdentity.class);
 		ObjectIdentityRetrievalStrategy oidStrategy = mock(ObjectIdentityRetrievalStrategy.class);
-		when(oidStrategy.getObjectIdentity(any(Object.class))).thenReturn(oid);
+		given(oidStrategy.getObjectIdentity(any(Object.class))).willReturn(oid);
 		pe.setObjectIdentityRetrievalStrategy(oidStrategy);
 		pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 		Acl acl = mock(Acl.class);
 
-		when(service.readAclById(any(ObjectIdentity.class), anyList())).thenReturn(acl);
-		when(acl.isGranted(anyList(), anyList(), eq(false))).thenReturn(true);
+		given(service.readAclById(any(ObjectIdentity.class), anyList())).willReturn(acl);
+		given(acl.isGranted(anyList(), anyList(), eq(false))).willReturn(true);
 
 		assertThat(pe.hasPermission(mock(Authentication.class), new Object(), "READ")).isTrue();
 	}
@@ -65,13 +65,13 @@ public class AclPermissionEvaluatorTests {
 		AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
 		ObjectIdentity oid = mock(ObjectIdentity.class);
 		ObjectIdentityRetrievalStrategy oidStrategy = mock(ObjectIdentityRetrievalStrategy.class);
-		when(oidStrategy.getObjectIdentity(any(Object.class))).thenReturn(oid);
+		given(oidStrategy.getObjectIdentity(any(Object.class))).willReturn(oid);
 		pe.setObjectIdentityRetrievalStrategy(oidStrategy);
 		pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 		Acl acl = mock(Acl.class);
 
-		when(service.readAclById(any(ObjectIdentity.class), anyList())).thenReturn(acl);
-		when(acl.isGranted(anyList(), anyList(), eq(false))).thenReturn(true);
+		given(service.readAclById(any(ObjectIdentity.class), anyList())).willReturn(acl);
+		given(acl.isGranted(anyList(), anyList(), eq(false))).willReturn(true);
 
 		assertThat(pe.hasPermission(mock(Authentication.class), new Object(), "write")).isTrue();
 

@@ -36,8 +36,8 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenRe
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider}.
@@ -105,7 +105,7 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenClientCredentialsAndNotAuthorizedThenAuthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(this.clientRegistration).principal(this.principal).build();
@@ -126,7 +126,7 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 				this.principal.getName(), accessToken);
 
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withAuthorizedClient(authorizedClient).principal(this.principal).build();
@@ -163,7 +163,7 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
 
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withAuthorizedClient(authorizedClient).principal(this.principal).build();

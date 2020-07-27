@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Abstract class for testing {@link DelegatingSecurityContextExecutorService} which
@@ -97,7 +97,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 
 	@Test
 	public void submitCallable() {
-		when(this.delegate.submit(this.wrappedCallable)).thenReturn(this.expectedFutureObject);
+		given(this.delegate.submit(this.wrappedCallable)).willReturn(this.expectedFutureObject);
 		Future<Object> result = this.executor.submit(this.callable);
 		verify(this.delegate).submit(this.wrappedCallable);
 		assertThat(result).isEqualTo(this.expectedFutureObject);
@@ -105,7 +105,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 
 	@Test
 	public void submitRunnableWithResult() {
-		when(this.delegate.submit(this.wrappedRunnable, this.resultArg)).thenReturn(this.expectedFutureObject);
+		given(this.delegate.submit(this.wrappedRunnable, this.resultArg)).willReturn(this.expectedFutureObject);
 		Future<Object> result = this.executor.submit(this.runnable, this.resultArg);
 		verify(this.delegate).submit(this.wrappedRunnable, this.resultArg);
 		assertThat(result).isEqualTo(this.expectedFutureObject);
@@ -114,7 +114,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 	@Test
 	@SuppressWarnings("unchecked")
 	public void submitRunnable() {
-		when((Future<Object>) this.delegate.submit(this.wrappedRunnable)).thenReturn(this.expectedFutureObject);
+		given((Future<Object>) this.delegate.submit(this.wrappedRunnable)).willReturn(this.expectedFutureObject);
 		Future<?> result = this.executor.submit(this.runnable);
 		verify(this.delegate).submit(this.wrappedRunnable);
 		assertThat(result).isEqualTo(this.expectedFutureObject);
@@ -125,7 +125,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 	public void invokeAll() throws Exception {
 		List<Future<Object>> exectedResult = Arrays.asList(this.expectedFutureObject);
 		List<Callable<Object>> wrappedCallables = Arrays.asList(this.wrappedCallable);
-		when(this.delegate.invokeAll(wrappedCallables)).thenReturn(exectedResult);
+		given(this.delegate.invokeAll(wrappedCallables)).willReturn(exectedResult);
 		List<Future<Object>> result = this.executor.invokeAll(Arrays.asList(this.callable));
 		verify(this.delegate).invokeAll(wrappedCallables);
 		assertThat(result).isEqualTo(exectedResult);
@@ -136,7 +136,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 	public void invokeAllTimeout() throws Exception {
 		List<Future<Object>> exectedResult = Arrays.asList(this.expectedFutureObject);
 		List<Callable<Object>> wrappedCallables = Arrays.asList(this.wrappedCallable);
-		when(this.delegate.invokeAll(wrappedCallables, 1, TimeUnit.SECONDS)).thenReturn(exectedResult);
+		given(this.delegate.invokeAll(wrappedCallables, 1, TimeUnit.SECONDS)).willReturn(exectedResult);
 		List<Future<Object>> result = this.executor.invokeAll(Arrays.asList(this.callable), 1, TimeUnit.SECONDS);
 		verify(this.delegate).invokeAll(wrappedCallables, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(exectedResult);
@@ -147,7 +147,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 	public void invokeAny() throws Exception {
 		List<Future<Object>> exectedResult = Arrays.asList(this.expectedFutureObject);
 		List<Callable<Object>> wrappedCallables = Arrays.asList(this.wrappedCallable);
-		when(this.delegate.invokeAny(wrappedCallables)).thenReturn(exectedResult);
+		given(this.delegate.invokeAny(wrappedCallables)).willReturn(exectedResult);
 		Object result = this.executor.invokeAny(Arrays.asList(this.callable));
 		verify(this.delegate).invokeAny(wrappedCallables);
 		assertThat(result).isEqualTo(exectedResult);
@@ -158,7 +158,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests
 	public void invokeAnyTimeout() throws Exception {
 		List<Future<Object>> exectedResult = Arrays.asList(this.expectedFutureObject);
 		List<Callable<Object>> wrappedCallables = Arrays.asList(this.wrappedCallable);
-		when(this.delegate.invokeAny(wrappedCallables, 1, TimeUnit.SECONDS)).thenReturn(exectedResult);
+		given(this.delegate.invokeAny(wrappedCallables, 1, TimeUnit.SECONDS)).willReturn(exectedResult);
 		Object result = this.executor.invokeAny(Arrays.asList(this.callable), 1, TimeUnit.SECONDS);
 		verify(this.delegate).invokeAny(wrappedCallables, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(exectedResult);

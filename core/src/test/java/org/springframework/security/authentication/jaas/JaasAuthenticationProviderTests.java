@@ -47,8 +47,8 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for the JaasAuthenticationProvider
@@ -258,7 +258,7 @@ public class JaasAuthenticationProviderTests {
 		context.setAuthentication(token);
 
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
-		when(event.getSecurityContexts()).thenReturn(Arrays.asList(context));
+		given(event.getSecurityContexts()).willReturn(Arrays.asList(context));
 
 		this.jaasProvider.handleLogout(event);
 

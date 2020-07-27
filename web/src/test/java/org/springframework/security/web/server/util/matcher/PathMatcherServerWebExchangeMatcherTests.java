@@ -32,8 +32,8 @@ import org.springframework.web.util.pattern.PathPattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -77,16 +77,16 @@ public class PathMatcherServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenPathMatcherTrueThenReturnTrue() {
-		when(this.pattern.matches(any())).thenReturn(true);
-		when(this.pattern.matchAndExtract(any())).thenReturn(this.pathMatchInfo);
-		when(this.pathMatchInfo.getUriVariables()).thenReturn(new HashMap<>());
+		given(this.pattern.matches(any())).willReturn(true);
+		given(this.pattern.matchAndExtract(any())).willReturn(this.pathMatchInfo);
+		given(this.pathMatchInfo.getUriVariables()).willReturn(new HashMap<>());
 
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void matchesWhenPathMatcherFalseThenReturnFalse() {
-		when(this.pattern.matches(any())).thenReturn(false);
+		given(this.pattern.matches(any())).willReturn(false);
 
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 	}
@@ -95,9 +95,9 @@ public class PathMatcherServerWebExchangeMatcherTests {
 	public void matchesWhenPathMatcherTrueAndMethodTrueThenReturnTrue() {
 		this.matcher = new PathPatternParserServerWebExchangeMatcher(this.pattern,
 				this.exchange.getRequest().getMethod());
-		when(this.pattern.matches(any())).thenReturn(true);
-		when(this.pattern.matchAndExtract(any())).thenReturn(this.pathMatchInfo);
-		when(this.pathMatchInfo.getUriVariables()).thenReturn(new HashMap<>());
+		given(this.pattern.matches(any())).willReturn(true);
+		given(this.pattern.matchAndExtract(any())).willReturn(this.pathMatchInfo);
+		given(this.pathMatchInfo.getUriVariables()).willReturn(new HashMap<>());
 
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
 	}

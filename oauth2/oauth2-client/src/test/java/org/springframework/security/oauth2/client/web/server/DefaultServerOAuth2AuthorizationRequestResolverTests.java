@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -76,7 +76,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void resolveWhenClientRegistrationNotFoundMatchThenBadRequest() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.empty());
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
 
 		ResponseStatusException expected = catchThrowableOfType(() -> resolve("/oauth2/authorization/not-found-id"),
 				ResponseStatusException.class);
@@ -86,7 +86,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void resolveWhenClientRegistrationFoundThenWorks() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(this.registration));
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(this.registration));
 
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/not-found-id");
 
@@ -97,7 +97,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void resolveWhenForwardedHeadersClientRegistrationFoundThenWorks() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(this.registration));
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(this.registration));
 		ServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("/oauth2/authorization/id").header("X-Forwarded-Host", "evil.com"));
 
@@ -110,8 +110,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void resolveWhenAuthorizationRequestWithValidPkceClientThenResolves() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any()))
-				.thenReturn(Mono.just(TestClientRegistrations.clientRegistration()
+		given(this.clientRegistrationRepository.findByRegistrationId(any()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration()
 						.clientAuthenticationMethod(ClientAuthenticationMethod.NONE).clientSecret(null).build()));
 
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/registration-id");
@@ -127,8 +127,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void resolveWhenAuthenticationRequestWithValidOidcClientThenResolves() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any()))
-				.thenReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
+		given(this.clientRegistrationRepository.findByRegistrationId(any()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
 
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/registration-id");
 
@@ -142,8 +142,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	// gh-7696
 	@Test
 	public void resolveWhenAuthorizationRequestCustomizerRemovesNonceThenQueryExcludesNonce() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any()))
-				.thenReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
+		given(this.clientRegistrationRepository.findByRegistrationId(any()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
 
 		this.resolver.setAuthorizationRequestCustomizer(
 				customizer -> customizer.additionalParameters(params -> params.remove(OidcParameterNames.NONCE))
@@ -161,8 +161,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void resolveWhenAuthorizationRequestCustomizerAddsParameterThenQueryIncludesParameter() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any()))
-				.thenReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
+		given(this.clientRegistrationRepository.findByRegistrationId(any()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
 
 		this.resolver.setAuthorizationRequestCustomizer(customizer -> customizer.authorizationRequestUri(uriBuilder -> {
 			uriBuilder.queryParam("param1", "value1");
@@ -179,8 +179,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void resolveWhenAuthorizationRequestCustomizerOverridesParameterThenQueryIncludesParameter() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any()))
-				.thenReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
+		given(this.clientRegistrationRepository.findByRegistrationId(any()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
 
 		this.resolver.setAuthorizationRequestCustomizer(customizer -> customizer.parameters(params -> {
 			params.put("appid", params.get("client_id"));

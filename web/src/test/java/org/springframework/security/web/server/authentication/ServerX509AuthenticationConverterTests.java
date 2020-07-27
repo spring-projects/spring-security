@@ -34,7 +34,7 @@ import org.springframework.security.web.authentication.preauth.x509.X509TestUtil
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServerX509AuthenticationConverterTests {
@@ -54,7 +54,7 @@ public class ServerX509AuthenticationConverterTests {
 		this.request = MockServerHttpRequest.get("/");
 
 		this.certificate = X509TestUtils.buildTestCertificate();
-		when(this.principalExtractor.extractPrincipal(any())).thenReturn("Luke Taylor");
+		given(this.principalExtractor.extractPrincipal(any())).willReturn("Luke Taylor");
 	}
 
 	@Test

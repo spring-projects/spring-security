@@ -40,13 +40,13 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -103,8 +103,8 @@ public class CsrfFilterTests {
 	@Test
 	public void doFilterDoesNotSaveCsrfTokenUntilAccessed() throws ServletException, IOException {
 		this.filter = createCsrfFilter(new LazyCsrfTokenRepository(this.tokenRepository));
-		when(this.requestMatcher.matches(this.request)).thenReturn(false);
-		when(this.tokenRepository.generateToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(false);
+		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 		CsrfToken attrToken = (CsrfToken) this.request.getAttribute(this.token.getParameterName());
@@ -124,8 +124,8 @@ public class CsrfFilterTests {
 
 	@Test
 	public void doFilterAccessDeniedNoTokenPresent() throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 
@@ -138,8 +138,8 @@ public class CsrfFilterTests {
 
 	@Test
 	public void doFilterAccessDeniedIncorrectTokenPresent() throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken() + " INVALID");
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -153,8 +153,8 @@ public class CsrfFilterTests {
 
 	@Test
 	public void doFilterAccessDeniedIncorrectTokenPresentHeader() throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken() + " INVALID");
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -169,8 +169,8 @@ public class CsrfFilterTests {
 	@Test
 	public void doFilterAccessDeniedIncorrectTokenPresentHeaderPreferredOverParameter()
 			throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken() + " INVALID");
 
@@ -185,8 +185,8 @@ public class CsrfFilterTests {
 
 	@Test
 	public void doFilterNotCsrfRequestExistingToken() throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(false);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(false);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 
@@ -199,8 +199,8 @@ public class CsrfFilterTests {
 
 	@Test
 	public void doFilterNotCsrfRequestGenerateToken() throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(false);
-		when(this.tokenRepository.generateToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(false);
+		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 
@@ -213,8 +213,8 @@ public class CsrfFilterTests {
 
 	@Test
 	public void doFilterIsCsrfRequestExistingTokenHeader() throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken());
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -229,8 +229,8 @@ public class CsrfFilterTests {
 	@Test
 	public void doFilterIsCsrfRequestExistingTokenHeaderPreferredOverInvalidParam()
 			throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken() + " INVALID");
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken());
 
@@ -245,8 +245,8 @@ public class CsrfFilterTests {
 
 	@Test
 	public void doFilterIsCsrfRequestExistingToken() throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -262,8 +262,8 @@ public class CsrfFilterTests {
 
 	@Test
 	public void doFilterIsCsrfRequestGenerateToken() throws ServletException, IOException {
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.generateToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -286,7 +286,7 @@ public class CsrfFilterTests {
 
 		for (String method : Arrays.asList("GET", "TRACE", "OPTIONS", "HEAD")) {
 			resetRequestResponse();
-			when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+			given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 			this.request.setMethod(method);
 
 			this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -309,7 +309,7 @@ public class CsrfFilterTests {
 
 		for (String method : Arrays.asList("get", "TrAcE", "oPTIOnS", "hEaD")) {
 			resetRequestResponse();
-			when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+			given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 			this.request.setMethod(method);
 
 			this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -327,7 +327,7 @@ public class CsrfFilterTests {
 
 		for (String method : Arrays.asList("POST", "PUT", "PATCH", "DELETE", "INVALID")) {
 			resetRequestResponse();
-			when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+			given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 			this.request.setMethod(method);
 
 			this.filter.doFilter(this.request, this.response, this.filterChain);
@@ -342,8 +342,8 @@ public class CsrfFilterTests {
 	public void doFilterDefaultAccessDenied() throws ServletException, IOException {
 		this.filter = new CsrfFilter(this.tokenRepository);
 		this.filter.setRequireCsrfProtectionMatcher(this.requestMatcher);
-		when(this.requestMatcher.matches(this.request)).thenReturn(true);
-		when(this.tokenRepository.loadToken(this.request)).thenReturn(this.token);
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 

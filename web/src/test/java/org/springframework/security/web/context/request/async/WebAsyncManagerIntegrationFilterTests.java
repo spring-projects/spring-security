@@ -39,7 +39,7 @@ import org.springframework.web.context.request.async.WebAsyncManager;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -79,7 +79,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 		this.asyncManager = WebAsyncUtils.getAsyncManager(this.request);
 		this.asyncManager.setAsyncWebRequest(this.asyncWebRequest);
 		this.asyncManager.setTaskExecutor(executor);
-		when(this.request.getAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE)).thenReturn(this.asyncManager);
+		given(this.request.getAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE)).willReturn(this.asyncManager);
 
 		this.filter = new WebAsyncManagerIntegrationFilter();
 	}

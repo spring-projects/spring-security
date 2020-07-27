@@ -35,8 +35,8 @@ import org.springframework.security.web.FilterInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -70,15 +70,15 @@ public class WebExpressionVoterTests {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		Expression ex = mock(Expression.class);
 		EvaluationContextPostProcessor postProcessor = mock(EvaluationContextPostProcessor.class);
-		when(postProcessor.postProcess(any(EvaluationContext.class), any(FilterInvocation.class)))
-				.thenAnswer(invocation -> invocation.getArgument(0));
+		given(postProcessor.postProcess(any(EvaluationContext.class), any(FilterInvocation.class)))
+				.willAnswer(invocation -> invocation.getArgument(0));
 		WebExpressionConfigAttribute weca = new WebExpressionConfigAttribute(ex, postProcessor);
 		EvaluationContext ctx = mock(EvaluationContext.class);
 		SecurityExpressionHandler eh = mock(SecurityExpressionHandler.class);
 		FilterInvocation fi = new FilterInvocation("/path", "GET");
 		voter.setExpressionHandler(eh);
-		when(eh.createEvaluationContext(this.user, fi)).thenReturn(ctx);
-		when(ex.getValue(ctx, Boolean.class)).thenReturn(Boolean.TRUE).thenReturn(Boolean.FALSE);
+		given(eh.createEvaluationContext(this.user, fi)).willReturn(ctx);
+		given(ex.getValue(ctx, Boolean.class)).willReturn(Boolean.TRUE, Boolean.FALSE);
 		ArrayList attributes = new ArrayList();
 		attributes.addAll(SecurityConfig.createList("A", "B", "C"));
 		attributes.add(weca);

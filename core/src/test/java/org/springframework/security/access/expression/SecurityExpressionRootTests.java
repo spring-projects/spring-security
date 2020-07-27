@@ -24,8 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -55,7 +55,7 @@ public class SecurityExpressionRootTests {
 	public void rememberMeIsCorrectlyDetected() {
 		AuthenticationTrustResolver atr = mock(AuthenticationTrustResolver.class);
 		this.root.setTrustResolver(atr);
-		when(atr.isRememberMe(JOE)).thenReturn(true);
+		given(atr.isRememberMe(JOE)).willReturn(true);
 		assertThat(this.root.isRememberMe()).isTrue();
 		assertThat(this.root.isFullyAuthenticated()).isFalse();
 	}

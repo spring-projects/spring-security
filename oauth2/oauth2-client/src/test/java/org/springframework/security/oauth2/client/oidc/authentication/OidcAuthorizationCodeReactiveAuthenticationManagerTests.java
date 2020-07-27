@@ -69,8 +69,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager.createHash;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
@@ -172,9 +172,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(
 						Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
-		when(this.jwtDecoder.decode(any())).thenThrow(new JwtException("ID Token Validation Error"));
+		given(this.jwtDecoder.decode(any())).willThrow(new JwtException("ID Token Validation Error"));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
@@ -198,8 +198,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.NONCE, "invalid-nonce-hash");
 		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		assertThatThrownBy(() -> this.manager.authenticate(authorizationCodeAuthentication).block())
@@ -223,9 +223,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
 		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
-		when(this.userService.loadUser(any())).thenReturn(Mono.empty());
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		given(this.userService.loadUser(any())).willReturn(Mono.empty());
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 		assertThat(this.manager.authenticate(authorizationCodeAuthentication).block()).isNull();
 	}
@@ -246,10 +246,10 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
 		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
-		when(this.userService.loadUser(any())).thenReturn(Mono.just(user));
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		given(this.userService.loadUser(any())).willReturn(Mono.just(user));
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager
@@ -277,10 +277,10 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
 		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
-		when(this.userService.loadUser(any())).thenReturn(Mono.just(user));
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		given(this.userService.loadUser(any())).willReturn(Mono.just(user));
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager
@@ -312,11 +312,11 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
 		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
 		ArgumentCaptor<OidcUserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OidcUserRequest.class);
-		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(Mono.just(user));
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		given(this.userService.loadUser(userRequestArgCaptor.capture())).willReturn(Mono.just(user));
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		this.manager.authenticate(authorizationCodeAuthentication).block();
@@ -342,16 +342,16 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
 		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
 		ArgumentCaptor<OidcUserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OidcUserRequest.class);
-		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(Mono.just(user));
+		given(this.userService.loadUser(userRequestArgCaptor.capture())).willReturn(Mono.just(user));
 
 		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OIDC_USER");
 		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
-		when(authoritiesMapper.mapAuthorities(anyCollection()))
-				.thenAnswer((Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		given(authoritiesMapper.mapAuthorities(anyCollection()))
+				.willAnswer((Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 		this.manager.setAuthoritiesMapper(authoritiesMapper);
 

@@ -36,7 +36,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -114,8 +114,8 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdNotFoundThenEmpty() {
-		when(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
-				.thenReturn(Mono.empty());
+		given(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
+				.willReturn(Mono.empty());
 		StepVerifier.create(
 				this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
 				.verifyComplete();
@@ -123,8 +123,8 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationFoundAndNotAuthorizedClientThenEmpty() {
-		when(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
-				.thenReturn(Mono.just(this.clientRegistration));
+		given(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
+				.willReturn(Mono.just(this.clientRegistration));
 		StepVerifier.create(
 				this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
 				.verifyComplete();
@@ -132,8 +132,8 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationFoundThenFound() {
-		when(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
-				.thenReturn(Mono.just(this.clientRegistration));
+		given(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
+				.willReturn(Mono.just(this.clientRegistration));
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
 		Mono<OAuth2AuthorizedClient> saveAndLoad = this.authorizedClientService
@@ -191,8 +191,8 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void removeAuthorizedClientWhenClientIdThenNoException() {
-		when(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
-				.thenReturn(Mono.empty());
+		given(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
+				.willReturn(Mono.empty());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
 		Mono<Void> saveAndDeleteAndLoad = this.authorizedClientService
@@ -204,8 +204,8 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationFoundRemovedThenNotFound() {
-		when(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
-				.thenReturn(Mono.just(this.clientRegistration));
+		given(this.clientRegistrationRepository.findByRegistrationId(this.clientRegistrationId))
+				.willReturn(Mono.just(this.clientRegistration));
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
 		Mono<OAuth2AuthorizedClient> saveAndDeleteAndLoad = this.authorizedClientService

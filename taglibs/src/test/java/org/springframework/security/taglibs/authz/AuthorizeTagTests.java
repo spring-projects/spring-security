@@ -43,7 +43,7 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Francois Beausoleil
@@ -91,7 +91,7 @@ public class AuthorizeTagTests {
 		Object domain = new Object();
 		this.request.setAttribute("domain", domain);
 		this.authorizeTag.setAccess("hasPermission(#domain,'read') or hasPermission(#domain,'write')");
-		when(this.permissionEvaluator.hasPermission(eq(this.currentUser), eq(domain), anyString())).thenReturn(true);
+		given(this.permissionEvaluator.hasPermission(eq(this.currentUser), eq(domain), anyString())).willReturn(true);
 
 		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}

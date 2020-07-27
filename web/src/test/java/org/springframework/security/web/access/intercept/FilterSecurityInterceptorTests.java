@@ -46,12 +46,12 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link FilterSecurityInterceptor}.
@@ -97,13 +97,13 @@ public class FilterSecurityInterceptorTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() throws Exception {
-		when(this.adm.supports(FilterInvocation.class)).thenReturn(true);
+		given(this.adm.supports(FilterInvocation.class)).willReturn(true);
 		this.interceptor.afterPropertiesSet();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testEnsuresRunAsManagerSupportsFilterInvocationClass() throws Exception {
-		when(this.adm.supports(FilterInvocation.class)).thenReturn(false);
+		given(this.adm.supports(FilterInvocation.class)).willReturn(false);
 		this.interceptor.afterPropertiesSet();
 	}
 
@@ -120,7 +120,7 @@ public class FilterSecurityInterceptorTests {
 
 		FilterInvocation fi = createinvocation();
 
-		when(this.ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		given(this.ods.getAttributes(fi)).willReturn(SecurityConfig.createList("MOCK_OK"));
 
 		this.interceptor.invoke(fi);
 
@@ -136,9 +136,9 @@ public class FilterSecurityInterceptorTests {
 		FilterInvocation fi = createinvocation();
 		FilterChain chain = fi.getChain();
 
-		doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class),
+		willThrow(new RuntimeException()).given(chain).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
-		when(this.ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		given(this.ods.getAttributes(fi)).willReturn(SecurityConfig.createList("MOCK_OK"));
 
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		this.interceptor.setAfterInvocationManager(aim);
@@ -163,16 +163,16 @@ public class FilterSecurityInterceptorTests {
 		ctx.setAuthentication(token);
 
 		RunAsManager runAsManager = mock(RunAsManager.class);
-		when(runAsManager.buildRunAs(eq(token), any(), anyCollection()))
-				.thenReturn(new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), token.getClass()));
+		given(runAsManager.buildRunAs(eq(token), any(), anyCollection()))
+				.willReturn(new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), token.getClass()));
 		this.interceptor.setRunAsManager(runAsManager);
 
 		FilterInvocation fi = createinvocation();
 		FilterChain chain = fi.getChain();
 
-		doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class),
+		willThrow(new RuntimeException()).given(chain).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
-		when(this.ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		given(this.ods.getAttributes(fi)).willReturn(SecurityConfig.createList("MOCK_OK"));
 
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		this.interceptor.setAfterInvocationManager(aim);

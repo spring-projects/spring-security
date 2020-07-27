@@ -37,7 +37,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
@@ -77,7 +77,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenEmptyJwtThenEmpty() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(Mono.empty());
+		given(this.jwtDecoder.decode(token.getToken())).willReturn(Mono.empty());
 
 		assertThat(this.manager.authenticate(token).block()).isNull();
 	}
@@ -85,7 +85,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenJwtExceptionThenOAuth2AuthenticationException() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.error(new BadJwtException("Oops")));
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.error(new BadJwtException("Oops")));
 
 		assertThatCode(() -> this.manager.authenticate(token).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
@@ -95,7 +95,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new BadJwtException("with \"invalid\" chars"));
+		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
 
 		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasFieldOrPropertyWithValue("error.description", "Invalid token");
@@ -105,7 +105,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("no jwk set"));
+		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
 
 		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(AuthenticationException.class)
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
@@ -114,7 +114,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenNotJwtExceptionThenPropagates() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.error(new RuntimeException("Oops")));
+		given(this.jwtDecoder.decode(any())).willReturn(Mono.error(new RuntimeException("Oops")));
 
 		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(RuntimeException.class);
 	}
@@ -122,7 +122,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenJwtThenSuccess() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(Mono.just(this.jwt));
+		given(this.jwtDecoder.decode(token.getToken())).willReturn(Mono.just(this.jwt));
 
 		Authentication authentication = this.manager.authenticate(token).block();
 

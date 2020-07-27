@@ -35,10 +35,10 @@ import org.springframework.security.core.Authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -50,8 +50,8 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 	public void objectsAreRemovedIfPermissionDenied() {
 		AclService service = mock(AclService.class);
 		Acl acl = mock(Acl.class);
-		when(acl.isGranted(any(), any(), anyBoolean())).thenReturn(false);
-		when(service.readAclById(any(), any())).thenReturn(acl);
+		given(acl.isGranted(any(), any(), anyBoolean())).willReturn(false);
+		given(service.readAclById(any(), any())).willReturn(acl);
 		AclEntryAfterInvocationCollectionFilteringProvider provider = new AclEntryAfterInvocationCollectionFilteringProvider(
 				service, Arrays.asList(mock(Permission.class)));
 		provider.setObjectIdentityRetrievalStrategy(mock(ObjectIdentityRetrievalStrategy.class));

@@ -34,8 +34,8 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -61,7 +61,7 @@ public class CompositeServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenErrorNoErrorThenError() {
-		when(this.writer1.writeHttpHeaders(this.exchange)).thenReturn(Mono.error(new RuntimeException()));
+		given(this.writer1.writeHttpHeaders(this.exchange)).willReturn(Mono.error(new RuntimeException()));
 
 		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
 
@@ -72,7 +72,7 @@ public class CompositeServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenErrorErrorThenError() {
-		when(this.writer1.writeHttpHeaders(this.exchange)).thenReturn(Mono.error(new RuntimeException()));
+		given(this.writer1.writeHttpHeaders(this.exchange)).willReturn(Mono.error(new RuntimeException()));
 
 		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
 
@@ -83,8 +83,8 @@ public class CompositeServerHttpHeadersWriterTests {
 
 	@Test
 	public void writeHttpHeadersWhenNoErrorThenNoError() {
-		when(this.writer1.writeHttpHeaders(this.exchange)).thenReturn(Mono.empty());
-		when(this.writer2.writeHttpHeaders(this.exchange)).thenReturn(Mono.empty());
+		given(this.writer1.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
+		given(this.writer2.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
 
 		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
 

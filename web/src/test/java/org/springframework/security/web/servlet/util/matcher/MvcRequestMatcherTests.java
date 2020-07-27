@@ -35,8 +35,8 @@ import org.springframework.web.servlet.handler.RequestMatchResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -72,7 +72,7 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void extractUriTemplateVariablesSuccess() throws Exception {
 		this.matcher = new MvcRequestMatcher(this.introspector, "/{p}");
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(null);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(null);
 
 		assertThat(this.matcher.extractUriTemplateVariables(this.request)).containsEntry("p", "path");
 		assertThat(this.matcher.matcher(this.request).getVariables()).containsEntry("p", "path");
@@ -80,9 +80,9 @@ public class MvcRequestMatcherTests {
 
 	@Test
 	public void extractUriTemplateVariablesFail() throws Exception {
-		when(this.result.extractUriTemplateVariables()).thenReturn(Collections.<String, String>emptyMap());
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(this.mapping);
-		when(this.mapping.match(eq(this.request), this.pattern.capture())).thenReturn(this.result);
+		given(this.result.extractUriTemplateVariables()).willReturn(Collections.<String, String>emptyMap());
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(this.mapping);
+		given(this.mapping.match(eq(this.request), this.pattern.capture())).willReturn(this.result);
 
 		assertThat(this.matcher.extractUriTemplateVariables(this.request)).isEmpty();
 		assertThat(this.matcher.matcher(this.request).getVariables()).isEmpty();
@@ -91,7 +91,7 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void extractUriTemplateVariablesDefaultSuccess() throws Exception {
 		this.matcher = new MvcRequestMatcher(this.introspector, "/{p}");
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(null);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(null);
 
 		assertThat(this.matcher.extractUriTemplateVariables(this.request)).containsEntry("p", "path");
 		assertThat(this.matcher.matcher(this.request).getVariables()).containsEntry("p", "path");
@@ -100,7 +100,7 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void extractUriTemplateVariablesDefaultFail() throws Exception {
 		this.matcher = new MvcRequestMatcher(this.introspector, "/nomatch/{p}");
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(null);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(null);
 
 		assertThat(this.matcher.extractUriTemplateVariables(this.request)).isEmpty();
 		assertThat(this.matcher.matcher(this.request).getVariables()).isEmpty();
@@ -108,8 +108,8 @@ public class MvcRequestMatcherTests {
 
 	@Test
 	public void matchesServletPathTrue() throws Exception {
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(this.mapping);
-		when(this.mapping.match(eq(this.request), this.pattern.capture())).thenReturn(this.result);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(this.mapping);
+		given(this.mapping.match(eq(this.request), this.pattern.capture())).willReturn(this.result);
 		this.matcher.setServletPath("/spring");
 		this.request.setServletPath("/spring");
 
@@ -127,8 +127,8 @@ public class MvcRequestMatcherTests {
 
 	@Test
 	public void matchesPathOnlyTrue() throws Exception {
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(this.mapping);
-		when(this.mapping.match(eq(this.request), this.pattern.capture())).thenReturn(this.result);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(this.mapping);
+		given(this.mapping.match(eq(this.request), this.pattern.capture())).willReturn(this.result);
 
 		assertThat(this.matcher.matches(this.request)).isTrue();
 		assertThat(this.pattern.getValue()).isEqualTo("/path");
@@ -136,7 +136,7 @@ public class MvcRequestMatcherTests {
 
 	@Test
 	public void matchesDefaultMatches() throws Exception {
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(null);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(null);
 
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
@@ -144,14 +144,14 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void matchesDefaultDoesNotMatch() throws Exception {
 		this.request.setServletPath("/other");
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(null);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(null);
 
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
 	@Test
 	public void matchesPathOnlyFalse() throws Exception {
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(this.mapping);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(this.mapping);
 
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
@@ -159,8 +159,8 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void matchesMethodAndPathTrue() throws Exception {
 		this.matcher.setMethod(HttpMethod.GET);
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(this.mapping);
-		when(this.mapping.match(eq(this.request), this.pattern.capture())).thenReturn(this.result);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(this.mapping);
+		given(this.mapping.match(eq(this.request), this.pattern.capture())).willReturn(this.result);
 
 		assertThat(this.matcher.matches(this.request)).isTrue();
 		assertThat(this.pattern.getValue()).isEqualTo("/path");
@@ -193,7 +193,7 @@ public class MvcRequestMatcherTests {
 	@Test
 	public void matchesMethodAndPathFalsePath() throws Exception {
 		this.matcher.setMethod(HttpMethod.GET);
-		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(this.mapping);
+		given(this.introspector.getMatchableHandlerMapping(this.request)).willReturn(this.mapping);
 
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
@@ -205,8 +205,8 @@ public class MvcRequestMatcherTests {
 
 	@Test
 	public void matchesGetMatchableHandlerMappingThrows() throws Exception {
-		when(this.introspector.getMatchableHandlerMapping(this.request))
-				.thenThrow(new HttpRequestMethodNotSupportedException(this.request.getMethod()));
+		given(this.introspector.getMatchableHandlerMapping(this.request))
+				.willThrow(new HttpRequestMethodNotSupportedException(this.request.getMethod()));
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 

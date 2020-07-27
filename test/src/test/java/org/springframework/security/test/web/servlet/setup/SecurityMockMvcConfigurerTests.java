@@ -32,8 +32,8 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMockMvcConfigurerTests {
@@ -55,7 +55,7 @@ public class SecurityMockMvcConfigurerTests {
 
 	@Before
 	public void setup() {
-		when(this.context.getServletContext()).thenReturn(this.servletContext);
+		given(this.context.getServletContext()).willReturn(this.servletContext);
 	}
 
 	@Test
@@ -107,8 +107,8 @@ public class SecurityMockMvcConfigurerTests {
 	}
 
 	private void returnFilterBean() {
-		when(this.context.containsBean(anyString())).thenReturn(true);
-		when(this.context.getBean(anyString(), eq(Filter.class))).thenReturn(this.beanFilter);
+		given(this.context.containsBean(anyString())).willReturn(true);
+		given(this.context.getBean(anyString(), eq(Filter.class))).willReturn(this.beanFilter);
 	}
 
 }

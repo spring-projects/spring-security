@@ -26,10 +26,10 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Test class for {@link DelegatingAuthenticationEntryPoint}
@@ -60,7 +60,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	public void testDefaultEntryPoint() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
-		when(firstRM.matches(this.request)).thenReturn(false);
+		given(firstRM.matches(this.request)).willReturn(false);
 		this.entryPoints.put(firstRM, firstAEP);
 
 		this.daep.commence(this.request, null, null);
@@ -75,7 +75,7 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher secondRM = mock(RequestMatcher.class);
-		when(firstRM.matches(this.request)).thenReturn(true);
+		given(firstRM.matches(this.request)).willReturn(true);
 		this.entryPoints.put(firstRM, firstAEP);
 		this.entryPoints.put(secondRM, secondAEP);
 
@@ -93,8 +93,8 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher secondRM = mock(RequestMatcher.class);
-		when(firstRM.matches(this.request)).thenReturn(false);
-		when(secondRM.matches(this.request)).thenReturn(true);
+		given(firstRM.matches(this.request)).willReturn(false);
+		given(secondRM.matches(this.request)).willReturn(true);
 		this.entryPoints.put(firstRM, firstAEP);
 		this.entryPoints.put(secondRM, secondAEP);
 

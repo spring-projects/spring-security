@@ -25,8 +25,8 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link MethodSecurityMetadataSourceAdvisor}.
@@ -41,7 +41,7 @@ public class MethodSecurityMetadataSourceAdvisorTests {
 		Method method = clazz.getMethod("makeLowerCase", new Class[] { String.class });
 
 		MethodSecurityMetadataSource mds = mock(MethodSecurityMetadataSource.class);
-		when(mds.getAttributes(method, clazz)).thenReturn(null);
+		given(mds.getAttributes(method, clazz)).willReturn(null);
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor("", mds, "");
 		assertThat(advisor.getPointcut().getMethodMatcher().matches(method, clazz)).isFalse();
 	}
@@ -52,7 +52,7 @@ public class MethodSecurityMetadataSourceAdvisorTests {
 		Method method = clazz.getMethod("countLength", new Class[] { String.class });
 
 		MethodSecurityMetadataSource mds = mock(MethodSecurityMetadataSource.class);
-		when(mds.getAttributes(method, clazz)).thenReturn(SecurityConfig.createList("ROLE_A"));
+		given(mds.getAttributes(method, clazz)).willReturn(SecurityConfig.createList("ROLE_A"));
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor("", mds, "");
 		assertThat(advisor.getPointcut().getMethodMatcher().matches(method, clazz)).isTrue();
 	}

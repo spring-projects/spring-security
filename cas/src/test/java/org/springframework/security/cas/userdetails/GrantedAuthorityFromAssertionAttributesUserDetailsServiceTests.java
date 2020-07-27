@@ -29,8 +29,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -50,9 +50,9 @@ public class GrantedAuthorityFromAssertionAttributesUserDetailsServiceTests {
 		attributes.put("c", "role_c");
 		attributes.put("d", null);
 		attributes.put("someother", "unused");
-		when(assertion.getPrincipal()).thenReturn(principal);
-		when(principal.getAttributes()).thenReturn(attributes);
-		when(principal.getName()).thenReturn("somebody");
+		given(assertion.getPrincipal()).willReturn(principal);
+		given(principal.getAttributes()).willReturn(attributes);
+		given(principal.getName()).willReturn("somebody");
 		CasAssertionAuthenticationToken token = new CasAssertionAuthenticationToken(assertion, "ticket");
 		UserDetails user = uds.loadUserDetails(token);
 		Set<String> roles = AuthorityUtils.authorityListToSet(user.getAuthorities());

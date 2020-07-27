@@ -30,9 +30,9 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageExpressionConfigAttributeTests {
@@ -72,7 +72,7 @@ public class MessageExpressionConfigAttributeTests {
 
 	@Test
 	public void toStringUsesExpressionString() {
-		when(this.expression.getExpressionString()).thenReturn("toString");
+		given(this.expression.getExpressionString()).willReturn("toString");
 
 		assertThat(this.attribute.toString()).isEqualTo(this.expression.getExpressionString());
 	}

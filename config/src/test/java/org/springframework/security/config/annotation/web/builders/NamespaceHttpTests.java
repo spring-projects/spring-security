@@ -58,10 +58,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -89,9 +89,9 @@ public class NamespaceHttpTests {
 	@Test // http@access-decision-manager-ref
 	public void configureWhenAccessDecisionManagerSetThenVerifyUse() throws Exception {
 		AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER = mock(AccessDecisionManager.class);
-		when(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER.supports(FilterInvocation.class)).thenReturn(true);
-		when(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER.supports(any(ConfigAttribute.class)))
-				.thenReturn(true);
+		given(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER.supports(FilterInvocation.class)).willReturn(true);
+		given(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER.supports(any(ConfigAttribute.class)))
+				.willReturn(true);
 
 		this.spring.register(AccessDecisionManagerRefConfig.class).autowire();
 
@@ -178,11 +178,11 @@ public class NamespaceHttpTests {
 	@Test // http@jaas-api-provision
 	public void configureWhenJaasApiIntegrationFilterAddedThenJaasSubjectObtained() throws Exception {
 		LoginContext loginContext = mock(LoginContext.class);
-		when(loginContext.getSubject()).thenReturn(new Subject());
+		given(loginContext.getSubject()).willReturn(new Subject());
 
 		JaasAuthenticationToken authenticationToken = mock(JaasAuthenticationToken.class);
-		when(authenticationToken.isAuthenticated()).thenReturn(true);
-		when(authenticationToken.getLoginContext()).thenReturn(loginContext);
+		given(authenticationToken.isAuthenticated()).willReturn(true);
+		given(authenticationToken.getLoginContext()).willReturn(loginContext);
 
 		this.spring.register(JaasApiProvisionConfig.class).autowire();
 

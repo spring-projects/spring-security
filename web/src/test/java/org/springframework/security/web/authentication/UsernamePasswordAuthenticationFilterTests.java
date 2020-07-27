@@ -29,8 +29,8 @@ import org.springframework.security.core.AuthenticationException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link UsernamePasswordAuthenticationFilter}.
@@ -122,7 +122,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		filter.setAuthenticationManager(am);
 
 		try {
@@ -152,8 +152,8 @@ public class UsernamePasswordAuthenticationFilterTests {
 
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class)))
-				.thenAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
+		given(am.authenticate(any(Authentication.class)))
+				.willAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		return am;
 	}

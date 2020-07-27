@@ -60,9 +60,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -93,9 +93,9 @@ public class OAuth2ClientSpecTests {
 				.getBean(ReactiveClientRegistrationRepository.class);
 		ServerOAuth2AuthorizedClientRepository authorizedClientRepository = this.spring.getContext()
 				.getBean(ServerOAuth2AuthorizedClientRepository.class);
-		when(repository.findByRegistrationId(any()))
-				.thenReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
-		when(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
+		given(repository.findByRegistrationId(any()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
+		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 
 		this.client.get().uri("/").exchange().expectStatus().is3xxRedirection();
 	}
@@ -107,9 +107,9 @@ public class OAuth2ClientSpecTests {
 				.getBean(ReactiveClientRegistrationRepository.class);
 		ServerOAuth2AuthorizedClientRepository authorizedClientRepository = this.spring.getContext()
 				.getBean(ServerOAuth2AuthorizedClientRepository.class);
-		when(repository.findByRegistrationId(any()))
-				.thenReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
-		when(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
+		given(repository.findByRegistrationId(any()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
+		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 
 		this.client.get().uri("/").exchange().expectStatus().is3xxRedirection();
 	}
@@ -137,11 +137,11 @@ public class OAuth2ClientSpecTests {
 		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(
 				this.registration, authorizationExchange, accessToken);
 
-		when(authorizationRequestRepository.loadAuthorizationRequest(any()))
-				.thenReturn(Mono.just(authorizationRequest));
-		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
-		when(manager.authenticate(any())).thenReturn(Mono.just(result));
-		when(requestCache.getRedirectUri(any())).thenReturn(Mono.just(URI.create("/saved-request")));
+		given(authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.willReturn(Mono.just(authorizationRequest));
+		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
+		given(manager.authenticate(any())).willReturn(Mono.just(result));
+		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
 
 		this.client.get()
 				.uri(uriBuilder -> uriBuilder.path("/authorize/oauth2/code/registration-id")
@@ -178,11 +178,11 @@ public class OAuth2ClientSpecTests {
 		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(
 				this.registration, authorizationExchange, accessToken);
 
-		when(authorizationRequestRepository.loadAuthorizationRequest(any()))
-				.thenReturn(Mono.just(authorizationRequest));
-		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
-		when(manager.authenticate(any())).thenReturn(Mono.just(result));
-		when(requestCache.getRedirectUri(any())).thenReturn(Mono.just(URI.create("/saved-request")));
+		given(authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.willReturn(Mono.just(authorizationRequest));
+		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
+		given(manager.authenticate(any())).willReturn(Mono.just(result));
+		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
 
 		this.client.get()
 				.uri(uriBuilder -> uriBuilder.path("/authorize/oauth2/code/registration-id")

@@ -29,8 +29,8 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Eric Deandrea
@@ -56,7 +56,7 @@ public class CsrfServerLogoutHandlerTests {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.filterExchange = new WebFilterExchange(this.exchange, this.filterChain);
 		this.handler = new CsrfServerLogoutHandler(this.csrfTokenRepository);
-		when(this.csrfTokenRepository.saveToken(this.exchange, null)).thenReturn(Mono.empty());
+		given(this.csrfTokenRepository.saveToken(this.exchange, null)).willReturn(Mono.empty());
 	}
 
 	@Test

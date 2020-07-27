@@ -52,9 +52,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link EhCacheBasedAclCache}
@@ -220,14 +220,14 @@ public class EhCacheBasedAclCacheTests {
 
 	@Test
 	public void getFromCacheSerializable() {
-		when(this.cache.get(this.acl.getId())).thenReturn(new Element(this.acl.getId(), this.acl));
+		given(this.cache.get(this.acl.getId())).willReturn(new Element(this.acl.getId(), this.acl));
 
 		assertThat(this.myCache.getFromCache(this.acl.getId())).isEqualTo(this.acl);
 	}
 
 	@Test
 	public void getFromCacheSerializablePopulatesTransient() {
-		when(this.cache.get(this.acl.getId())).thenReturn(new Element(this.acl.getId(), this.acl));
+		given(this.cache.get(this.acl.getId())).willReturn(new Element(this.acl.getId(), this.acl));
 
 		this.myCache.putInCache(this.acl);
 
@@ -242,14 +242,14 @@ public class EhCacheBasedAclCacheTests {
 
 	@Test
 	public void getFromCacheObjectIdentity() {
-		when(this.cache.get(this.acl.getId())).thenReturn(new Element(this.acl.getId(), this.acl));
+		given(this.cache.get(this.acl.getId())).willReturn(new Element(this.acl.getId(), this.acl));
 
 		assertThat(this.myCache.getFromCache(this.acl.getId())).isEqualTo(this.acl);
 	}
 
 	@Test
 	public void getFromCacheObjectIdentityPopulatesTransient() {
-		when(this.cache.get(this.acl.getObjectIdentity())).thenReturn(new Element(this.acl.getId(), this.acl));
+		given(this.cache.get(this.acl.getObjectIdentity())).willReturn(new Element(this.acl.getId(), this.acl));
 
 		this.myCache.putInCache(this.acl);
 
@@ -264,7 +264,7 @@ public class EhCacheBasedAclCacheTests {
 
 	@Test
 	public void evictCacheSerializable() {
-		when(this.cache.get(this.acl.getObjectIdentity())).thenReturn(new Element(this.acl.getId(), this.acl));
+		given(this.cache.get(this.acl.getObjectIdentity())).willReturn(new Element(this.acl.getId(), this.acl));
 
 		this.myCache.evictFromCache(this.acl.getObjectIdentity());
 
@@ -274,7 +274,7 @@ public class EhCacheBasedAclCacheTests {
 
 	@Test
 	public void evictCacheObjectIdentity() {
-		when(this.cache.get(this.acl.getId())).thenReturn(new Element(this.acl.getId(), this.acl));
+		given(this.cache.get(this.acl.getId())).willReturn(new Element(this.acl.getId(), this.acl));
 
 		this.myCache.evictFromCache(this.acl.getId());
 

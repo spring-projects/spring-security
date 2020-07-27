@@ -27,7 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.util.UrlPathHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Luke Taylor
@@ -206,7 +206,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {
-		when(this.request.getServletPath()).thenReturn(path);
+		given(this.request.getServletPath()).willReturn(path);
 		return this.request;
 	}
 

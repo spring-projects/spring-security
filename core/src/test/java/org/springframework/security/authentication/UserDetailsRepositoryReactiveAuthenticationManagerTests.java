@@ -38,10 +38,10 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -78,7 +78,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	@Before
 	public void setup() {
 		this.manager = new UserDetailsRepositoryReactiveAuthenticationManager(this.userDetailsService);
-		when(this.scheduler.schedule(any())).thenAnswer(a -> {
+		given(this.scheduler.schedule(any())).willAnswer(a -> {
 			Runnable r = a.getArgument(0);
 			return Schedulers.immediate().schedule(r);
 		});
@@ -91,8 +91,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authentiateWhenCustomSchedulerThenUsed() {
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
-		when(this.encoder.matches(any(), any())).thenReturn(true);
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
+		given(this.encoder.matches(any(), any())).willReturn(true);
 		this.manager.setScheduler(this.scheduler);
 		this.manager.setPasswordEncoder(this.encoder);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
@@ -106,11 +106,11 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenPasswordServiceThenUpdated() {
 		String encodedPassword = "encoded";
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
-		when(this.encoder.matches(any(), any())).thenReturn(true);
-		when(this.encoder.upgradeEncoding(any())).thenReturn(true);
-		when(this.encoder.encode(any())).thenReturn(encodedPassword);
-		when(this.userDetailsPasswordService.updatePassword(any(), any())).thenReturn(Mono.just(this.user));
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
+		given(this.encoder.matches(any(), any())).willReturn(true);
+		given(this.encoder.upgradeEncoding(any())).willReturn(true);
+		given(this.encoder.encode(any())).willReturn(encodedPassword);
+		given(this.userDetailsPasswordService.updatePassword(any(), any())).willReturn(Mono.just(this.user));
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
@@ -124,8 +124,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenPasswordServiceAndBadCredentialsThenNotUpdated() {
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
-		when(this.encoder.matches(any(), any())).thenReturn(false);
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
+		given(this.encoder.matches(any(), any())).willReturn(false);
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
@@ -138,9 +138,9 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenPasswordServiceAndUpgradeFalseThenNotUpdated() {
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
-		when(this.encoder.matches(any(), any())).thenReturn(true);
-		when(this.encoder.upgradeEncoding(any())).thenReturn(false);
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
+		given(this.encoder.matches(any(), any())).willReturn(true);
+		given(this.encoder.upgradeEncoding(any())).willReturn(false);
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
@@ -153,9 +153,9 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenPostAuthenticationChecksFail() {
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
-		doThrow(new LockedException("account is locked")).when(this.postAuthenticationChecks).check(any());
-		when(this.encoder.matches(any(), any())).thenReturn(true);
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
+		willThrow(new LockedException("account is locked")).given(this.postAuthenticationChecks).check(any());
+		given(this.encoder.matches(any(), any())).willReturn(true);
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setPostAuthenticationChecks(this.postAuthenticationChecks);
 
@@ -168,8 +168,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenPostAuthenticationChecksNotSet() {
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
-		when(this.encoder.matches(any(), any())).thenReturn(true);
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
+		given(this.encoder.matches(any(), any())).willReturn(true);
 		this.manager.setPasswordEncoder(this.encoder);
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
@@ -190,7 +190,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				.accountExpired(true)
 				.build();
 		// @formatter:on
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(expiredUser));
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(expiredUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(expiredUser,
 				expiredUser.getPassword());
@@ -208,7 +208,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				.accountLocked(true)
 				.build();
 		// @formatter:on
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(lockedUser));
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(lockedUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(lockedUser,
 				lockedUser.getPassword());
@@ -227,7 +227,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				.disabled(true)
 				.build();
 		// @formatter:on
-		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(disabledUser));
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(disabledUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(disabledUser,
 				disabledUser.getPassword());

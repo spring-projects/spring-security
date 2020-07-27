@@ -43,10 +43,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link CasAuthenticationProvider}.
@@ -160,9 +160,9 @@ public class CasAuthenticationProviderTests {
 	public void authenticateAllNullService() throws Exception {
 		String serviceUrl = "https://service/context";
 		ServiceAuthenticationDetails details = mock(ServiceAuthenticationDetails.class);
-		when(details.getServiceUrl()).thenReturn(serviceUrl);
+		given(details.getServiceUrl()).willReturn(serviceUrl);
 		TicketValidator validator = mock(TicketValidator.class);
-		when(validator.validate(any(String.class), any(String.class))).thenReturn(new AssertionImpl("rod"));
+		given(validator.validate(any(String.class), any(String.class))).willReturn(new AssertionImpl("rod"));
 
 		ServiceProperties serviceProperties = makeServiceProperties();
 		serviceProperties.setAuthenticateAllArtifacts(true);
@@ -186,9 +186,9 @@ public class CasAuthenticationProviderTests {
 	public void authenticateAllAuthenticationIsSuccessful() throws Exception {
 		String serviceUrl = "https://service/context";
 		ServiceAuthenticationDetails details = mock(ServiceAuthenticationDetails.class);
-		when(details.getServiceUrl()).thenReturn(serviceUrl);
+		given(details.getServiceUrl()).willReturn(serviceUrl);
 		TicketValidator validator = mock(TicketValidator.class);
-		when(validator.validate(any(String.class), any(String.class))).thenReturn(new AssertionImpl("rod"));
+		given(validator.validate(any(String.class), any(String.class))).willReturn(new AssertionImpl("rod"));
 
 		ServiceProperties serviceProperties = makeServiceProperties();
 		serviceProperties.setAuthenticateAllArtifacts(true);

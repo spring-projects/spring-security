@@ -55,8 +55,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * Integration tests the ACL system using an in-memory database.
@@ -537,7 +537,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 		CustomJdbcMutableAclService customJdbcMutableAclService = spy(
 				new CustomJdbcMutableAclService(this.dataSource, this.lookupStrategy, this.aclCache));
 		CustomSid customSid = new CustomSid("Custom sid");
-		when(customJdbcMutableAclService.createOrRetrieveSidPrimaryKey("Custom sid", false, false)).thenReturn(1L);
+		given(customJdbcMutableAclService.createOrRetrieveSidPrimaryKey("Custom sid", false, false)).willReturn(1L);
 
 		Long result = customJdbcMutableAclService.createOrRetrieveSidPrimaryKey(customSid, false);
 

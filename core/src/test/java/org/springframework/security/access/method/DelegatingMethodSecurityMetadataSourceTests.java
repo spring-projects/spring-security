@@ -29,8 +29,8 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -44,8 +44,8 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 	public void returnsEmptyListIfDelegateReturnsNull() throws Exception {
 		List sources = new ArrayList();
 		MethodSecurityMetadataSource delegate = mock(MethodSecurityMetadataSource.class);
-		when(delegate.getAttributes(ArgumentMatchers.<Method>any(), ArgumentMatchers.any(Class.class)))
-				.thenReturn(null);
+		given(delegate.getAttributes(ArgumentMatchers.<Method>any(), ArgumentMatchers.any(Class.class)))
+				.willReturn(null);
 		sources.add(delegate);
 		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
 		assertThat(this.mds.getMethodSecurityMetadataSources()).isSameAs(sources);
@@ -63,7 +63,7 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		ConfigAttribute ca = mock(ConfigAttribute.class);
 		List attributes = Arrays.asList(ca);
 		Method toString = String.class.getMethod("toString");
-		when(delegate.getAttributes(toString, String.class)).thenReturn(attributes);
+		given(delegate.getAttributes(toString, String.class)).willReturn(attributes);
 		sources.add(delegate);
 		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
 		assertThat(this.mds.getMethodSecurityMetadataSources()).isSameAs(sources);

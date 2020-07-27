@@ -31,7 +31,7 @@ import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -91,7 +91,7 @@ public class CompositeLogoutHandlerTests {
 		LogoutHandler firstLogoutHandler = mock(LogoutHandler.class);
 		LogoutHandler secondLogoutHandler = mock(LogoutHandler.class);
 
-		doThrow(new IllegalArgumentException()).when(firstLogoutHandler).logout(any(HttpServletRequest.class),
+		willThrow(new IllegalArgumentException()).given(firstLogoutHandler).logout(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(Authentication.class));
 
 		List<LogoutHandler> logoutHandlers = Arrays.asList(firstLogoutHandler, secondLogoutHandler);

@@ -55,9 +55,9 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
@@ -114,7 +114,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenOAuth2UserEmptyThenNullUserInfo() {
-		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.empty());
+		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.empty());
 
 		OidcUser user = this.userService.loadUser(userRequest()).block();
 
@@ -125,7 +125,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	public void loadUserWhenOAuth2UserSubjectNullThenOAuth2AuthenticationException() {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
-		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
+		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
 
 		assertThatCode(() -> this.userService.loadUser(userRequest()).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
@@ -138,7 +138,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 		attributes.put("user", "rob");
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
-		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
+		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
 
 		assertThatCode(() -> this.userService.loadUser(userRequest()).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
@@ -151,7 +151,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 		attributes.put("user", "rob");
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
-		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
+		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
 
 		assertThat(this.userService.loadUser(userRequest()).block().getUserInfo()).isNotNull();
 	}
@@ -164,7 +164,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 		attributes.put("user", "rob");
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
-		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
+		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
 
 		assertThat(this.userService.loadUser(userRequest()).block().getName()).isEqualTo("rob");
 	}
@@ -176,7 +176,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 		attributes.put("user", "rob");
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
-		when(this.oauth2UserService.loadUser(any())).thenReturn(Mono.just(oauth2User));
+		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
 
 		OidcUserRequest userRequest = userRequest();
 
@@ -184,8 +184,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 				Function.class);
 		this.userService.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
 
-		when(customClaimTypeConverterFactory.apply(same(userRequest.getClientRegistration())))
-				.thenReturn(new ClaimTypeConverter(OidcReactiveOAuth2UserService.createDefaultClaimTypeConverters()));
+		given(customClaimTypeConverterFactory.apply(same(userRequest.getClientRegistration())))
+				.willReturn(new ClaimTypeConverter(OidcReactiveOAuth2UserService.createDefaultClaimTypeConverters()));
 
 		this.userService.loadUser(userRequest).block().getUserInfo();
 

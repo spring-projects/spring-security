@@ -30,10 +30,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.saml2.core.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
 import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.noCredentials;
 
@@ -94,7 +94,7 @@ public class Saml2MetadataFilterTests {
 	public void doFilterWhenNoRelyingPartyRegistrationThenUnauthorized() throws Exception {
 		// given
 		this.request.setPathInfo("/saml2/service-provider-metadata/invalidRegistration");
-		when(this.repository.findByRegistrationId("invalidRegistration")).thenReturn(null);
+		given(this.repository.findByRegistrationId("invalidRegistration")).willReturn(null);
 
 		// when
 		this.filter.doFilter(this.request, this.response, this.chain);
@@ -114,7 +114,7 @@ public class Saml2MetadataFilterTests {
 				.build();
 
 		String generatedMetadata = "<xml>test</xml>";
-		when(this.resolver.resolve(validRegistration)).thenReturn(generatedMetadata);
+		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
 
 		this.filter = new Saml2MetadataFilter(request -> validRegistration, this.resolver);
 

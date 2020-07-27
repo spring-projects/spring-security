@@ -44,9 +44,9 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -78,8 +78,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 	@Test
 	public void beforeTestMethodWhenWithMockUserTestExecutionDefaultThenSecurityContextSet() throws Exception {
 		Method testMethod = TheTest.class.getMethod("withMockUserDefault");
-		when(this.testContext.getApplicationContext()).thenReturn(this.applicationContext);
-		when(this.testContext.getTestMethod()).thenReturn(testMethod);
+		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
+		given(this.testContext.getTestMethod()).willReturn(testMethod);
 
 		this.listener.beforeTestMethod(this.testContext);
 
@@ -91,8 +91,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 	@Test
 	public void beforeTestMethodWhenWithMockUserTestMethodThenSecurityContextSet() throws Exception {
 		Method testMethod = TheTest.class.getMethod("withMockUserTestMethod");
-		when(this.testContext.getApplicationContext()).thenReturn(this.applicationContext);
-		when(this.testContext.getTestMethod()).thenReturn(testMethod);
+		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
+		given(this.testContext.getTestMethod()).willReturn(testMethod);
 
 		this.listener.beforeTestMethod(this.testContext);
 
@@ -104,8 +104,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 	@Test
 	public void beforeTestMethodWhenWithMockUserTestExecutionThenTestContextSet() throws Exception {
 		Method testMethod = TheTest.class.getMethod("withMockUserTestExecution");
-		when(this.testContext.getApplicationContext()).thenReturn(this.applicationContext);
-		when(this.testContext.getTestMethod()).thenReturn(testMethod);
+		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
+		given(this.testContext.getTestMethod()).willReturn(testMethod);
 
 		this.listener.beforeTestMethod(this.testContext);
 
@@ -118,8 +118,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 	@SuppressWarnings("unchecked")
 	public void beforeTestMethodWhenWithMockUserTestExecutionThenTestContextSupplierOk() throws Exception {
 		Method testMethod = TheTest.class.getMethod("withMockUserTestExecution");
-		when(this.testContext.getApplicationContext()).thenReturn(this.applicationContext);
-		when(this.testContext.getTestMethod()).thenReturn(testMethod);
+		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
+		given(this.testContext.getTestMethod()).willReturn(testMethod);
 
 		this.listener.beforeTestMethod(this.testContext);
 
@@ -133,9 +133,9 @@ public class WithSecurityContextTestExecutionListenerTests {
 	// gh-6591
 	public void beforeTestMethodWhenTestExecutionThenDelayFactoryCreate() throws Exception {
 		Method testMethod = TheTest.class.getMethod("withUserDetails");
-		when(this.testContext.getApplicationContext()).thenReturn(this.applicationContext);
+		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
 		// do not set a UserDetailsService Bean so it would fail if looked up
-		when(this.testContext.getTestMethod()).thenReturn(testMethod);
+		given(this.testContext.getTestMethod()).willReturn(testMethod);
 
 		this.listener.beforeTestMethod(this.testContext);
 		// bean lookup of UserDetailsService would fail if it has already been looked up
@@ -153,8 +153,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(new TestingAuthenticationToken("user", "passsword", "ROLE_USER"));
 		Supplier<SecurityContext> supplier = () -> securityContext;
-		when(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME))
-				.thenReturn(supplier);
+		given(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME))
+				.willReturn(supplier);
 
 		this.listener.beforeTestExecution(this.testContext);
 

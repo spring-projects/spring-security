@@ -30,7 +30,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -83,8 +83,8 @@ public class CompositeSessionAuthenticationStrategyTests {
 
 	@Test
 	public void delegateShortCircuits() {
-		doThrow(new SessionAuthenticationException("oops")).when(this.strategy1).onAuthentication(this.authentication,
-				this.request, this.response);
+		willThrow(new SessionAuthenticationException("oops")).given(this.strategy1)
+				.onAuthentication(this.authentication, this.request, this.response);
 
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
 				Arrays.asList(this.strategy1, this.strategy2));

@@ -56,9 +56,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -100,12 +100,12 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		String customSearchFilter = "(&(objectClass=user)(sAMAccountName={0}))";
 
 		DirContext ctx = mock(DirContext.class);
-		when(ctx.getNameInNamespace()).thenReturn("");
+		given(ctx.getNameInNamespace()).willReturn("");
 
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
-		when(ctx.search(any(Name.class), eq(customSearchFilter), any(Object[].class), any(SearchControls.class)))
-				.thenReturn(new MockNamingEnumeration(sr));
+		given(ctx.search(any(Name.class), eq(customSearchFilter), any(Object[].class), any(SearchControls.class)))
+				.willReturn(new MockNamingEnumeration(sr));
 
 		ActiveDirectoryLdapAuthenticationProvider customProvider = new ActiveDirectoryLdapAuthenticationProvider(
 				"mydomain.eu", "ldap://192.168.1.200/");
@@ -125,12 +125,12 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		final String defaultSearchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
 
 		DirContext ctx = mock(DirContext.class);
-		when(ctx.getNameInNamespace()).thenReturn("");
+		given(ctx.getNameInNamespace()).willReturn("");
 
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
-		when(ctx.search(any(Name.class), eq(defaultSearchFilter), any(Object[].class), any(SearchControls.class)))
-				.thenReturn(new MockNamingEnumeration(sr));
+		given(ctx.search(any(Name.class), eq(defaultSearchFilter), any(Object[].class), any(SearchControls.class)))
+				.willReturn(new MockNamingEnumeration(sr));
 
 		ActiveDirectoryLdapAuthenticationProvider customProvider = new ActiveDirectoryLdapAuthenticationProvider(
 				"mydomain.eu", "ldap://192.168.1.200/");
@@ -153,12 +153,12 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
 
 		DirContext ctx = mock(DirContext.class);
-		when(ctx.getNameInNamespace()).thenReturn("");
+		given(ctx.getNameInNamespace()).willReturn("");
 
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
-		when(ctx.search(any(Name.class), eq(defaultSearchFilter), captor.capture(), any(SearchControls.class)))
-				.thenReturn(new MockNamingEnumeration(sr));
+		given(ctx.search(any(Name.class), eq(defaultSearchFilter), captor.capture(), any(SearchControls.class)))
+				.willReturn(new MockNamingEnumeration(sr));
 
 		ActiveDirectoryLdapAuthenticationProvider customProvider = new ActiveDirectoryLdapAuthenticationProvider(
 				"mydomain.eu", "ldap://192.168.1.200/");
@@ -186,12 +186,12 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	public void nullDomainIsSupportedIfAuthenticatingWithFullUserPrincipal() throws Exception {
 		this.provider = new ActiveDirectoryLdapAuthenticationProvider(null, "ldap://192.168.1.200/");
 		DirContext ctx = mock(DirContext.class);
-		when(ctx.getNameInNamespace()).thenReturn("");
+		given(ctx.getNameInNamespace()).willReturn("");
 
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
-		when(ctx.search(eq(new DistinguishedName("DC=mydomain,DC=eu")), any(String.class), any(Object[].class),
-				any(SearchControls.class))).thenReturn(new MockNamingEnumeration(sr));
+		given(ctx.search(eq(new DistinguishedName("DC=mydomain,DC=eu")), any(String.class), any(Object[].class),
+				any(SearchControls.class))).willReturn(new MockNamingEnumeration(sr));
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 
 		try {
@@ -207,9 +207,9 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test(expected = BadCredentialsException.class)
 	public void failedUserSearchCausesBadCredentials() throws Exception {
 		DirContext ctx = mock(DirContext.class);
-		when(ctx.getNameInNamespace()).thenReturn("");
-		when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
-				.thenThrow(new NameNotFoundException());
+		given(ctx.getNameInNamespace()).willReturn("");
+		given(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
+				.willThrow(new NameNotFoundException());
 
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 
@@ -220,9 +220,9 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test(expected = BadCredentialsException.class)
 	public void noUserSearchCausesUsernameNotFound() throws Exception {
 		DirContext ctx = mock(DirContext.class);
-		when(ctx.getNameInNamespace()).thenReturn("");
-		when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
-				.thenReturn(new EmptyEnumeration<>());
+		given(ctx.getNameInNamespace()).willReturn("");
+		given(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
+				.willReturn(new EmptyEnumeration<>());
 
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 
@@ -239,14 +239,14 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test(expected = IncorrectResultSizeDataAccessException.class)
 	public void duplicateUserSearchCausesError() throws Exception {
 		DirContext ctx = mock(DirContext.class);
-		when(ctx.getNameInNamespace()).thenReturn("");
+		given(ctx.getNameInNamespace()).willReturn("");
 		NamingEnumeration<SearchResult> searchResults = mock(NamingEnumeration.class);
-		when(searchResults.hasMore()).thenReturn(true, true, false);
+		given(searchResults.hasMore()).willReturn(true, true, false);
 		SearchResult searchResult = mock(SearchResult.class);
-		when(searchResult.getObject()).thenReturn(new DirContextAdapter("ou=1"), new DirContextAdapter("ou=2"));
-		when(searchResults.next()).thenReturn(searchResult);
-		when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
-				.thenReturn(searchResults);
+		given(searchResult.getObject()).willReturn(new DirContextAdapter("ou=1"), new DirContextAdapter("ou=2"));
+		given(searchResults.next()).willReturn(searchResult);
+		given(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
+				.willReturn(searchResults);
 
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 
@@ -440,14 +440,14 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	private void checkAuthentication(String rootDn, ActiveDirectoryLdapAuthenticationProvider provider)
 			throws NamingException {
 		DirContext ctx = mock(DirContext.class);
-		when(ctx.getNameInNamespace()).thenReturn("");
+		given(ctx.getNameInNamespace()).willReturn("");
 
 		DirContextAdapter dca = new DirContextAdapter();
 		SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
 		@SuppressWarnings("deprecation")
 		DistinguishedName searchBaseDn = new DistinguishedName(rootDn);
-		when(ctx.search(eq(searchBaseDn), any(String.class), any(Object[].class), any(SearchControls.class)))
-				.thenReturn(new MockNamingEnumeration(sr)).thenReturn(new MockNamingEnumeration(sr));
+		given(ctx.search(eq(searchBaseDn), any(String.class), any(Object[].class), any(SearchControls.class)))
+				.willReturn(new MockNamingEnumeration(sr)).willReturn(new MockNamingEnumeration(sr));
 
 		provider.contextFactory = createContextFactoryReturning(ctx);
 

@@ -38,9 +38,9 @@ import org.springframework.security.rsocket.api.PayloadInterceptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -75,7 +75,7 @@ public class PayloadSocketAcceptorInterceptorTests {
 
 	@Test
 	public void applyWhenDefaultMetadataMimeTypeThenDefaulted() {
-		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
 
 		PayloadExchange exchange = captureExchange();
 
@@ -87,7 +87,7 @@ public class PayloadSocketAcceptorInterceptorTests {
 	@Test
 	public void acceptWhenDefaultMetadataMimeTypeOverrideThenDefaulted() {
 		this.acceptorInterceptor.setDefaultMetadataMimeType(MediaType.APPLICATION_JSON);
-		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
 
 		PayloadExchange exchange = captureExchange();
 
@@ -107,15 +107,15 @@ public class PayloadSocketAcceptorInterceptorTests {
 	}
 
 	private PayloadExchange captureExchange() {
-		when(this.socketAcceptor.accept(any(), any())).thenReturn(Mono.just(this.rSocket));
-		when(this.interceptor.intercept(any(), any())).thenReturn(Mono.empty());
+		given(this.socketAcceptor.accept(any(), any())).willReturn(Mono.just(this.rSocket));
+		given(this.interceptor.intercept(any(), any())).willReturn(Mono.empty());
 
 		SocketAcceptor wrappedAcceptor = this.acceptorInterceptor.apply(this.socketAcceptor);
 		RSocket result = wrappedAcceptor.accept(this.setupPayload, this.rSocket).block();
 
 		assertThat(result).isInstanceOf(PayloadInterceptorRSocket.class);
 
-		when(this.rSocket.fireAndForget(any())).thenReturn(Mono.empty());
+		given(this.rSocket.fireAndForget(any())).willReturn(Mono.empty());
 
 		result.fireAndForget(this.payload).block();
 

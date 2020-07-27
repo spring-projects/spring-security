@@ -27,8 +27,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -45,7 +45,7 @@ public class AuthenticatedReactiveAuthorizationManagerTests {
 
 	@Test
 	public void checkWhenAuthenticatedThenReturnTrue() {
-		when(this.authentication.isAuthenticated()).thenReturn(true);
+		given(this.authentication.isAuthenticated()).willReturn(true);
 
 		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
 

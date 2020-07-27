@@ -40,8 +40,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelSecurityInterceptorTests {
@@ -108,7 +108,7 @@ public class ChannelSecurityInterceptorTests {
 
 	@Test
 	public void preSendGrant() {
-		when(this.source.getAttributes(this.message)).thenReturn(this.attrs);
+		given(this.source.getAttributes(this.message)).willReturn(this.attrs);
 
 		Message<?> result = this.interceptor.preSend(this.message, this.channel);
 
@@ -117,8 +117,8 @@ public class ChannelSecurityInterceptorTests {
 
 	@Test(expected = AccessDeniedException.class)
 	public void preSendDeny() {
-		when(this.source.getAttributes(this.message)).thenReturn(this.attrs);
-		doThrow(new AccessDeniedException("")).when(this.accessDecisionManager).decide(any(Authentication.class),
+		given(this.source.getAttributes(this.message)).willReturn(this.attrs);
+		willThrow(new AccessDeniedException("")).given(this.accessDecisionManager).decide(any(Authentication.class),
 				eq(this.message), eq(this.attrs));
 
 		this.interceptor.preSend(this.message, this.channel);
@@ -127,9 +127,9 @@ public class ChannelSecurityInterceptorTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void preSendPostSendRunAs() {
-		when(this.source.getAttributes(this.message)).thenReturn(this.attrs);
-		when(this.runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class)))
-				.thenReturn(this.runAs);
+		given(this.source.getAttributes(this.message)).willReturn(this.attrs);
+		given(this.runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class)))
+				.willReturn(this.runAs);
 
 		Message<?> preSend = this.interceptor.preSend(this.message, this.channel);
 
@@ -148,9 +148,9 @@ public class ChannelSecurityInterceptorTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void preSendFinallySendRunAs() {
-		when(this.source.getAttributes(this.message)).thenReturn(this.attrs);
-		when(this.runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class)))
-				.thenReturn(this.runAs);
+		given(this.source.getAttributes(this.message)).willReturn(this.attrs);
+		given(this.runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class)))
+				.willReturn(this.runAs);
 
 		Message<?> preSend = this.interceptor.preSend(this.message, this.channel);
 

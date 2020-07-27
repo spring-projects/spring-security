@@ -58,11 +58,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.openid4java.discovery.yadis.YadisResolver.YADIS_XRDS_LOCATION;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -97,10 +97,11 @@ public class NamespaceHttpOpenIDLoginTests {
 		OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER = mock(ConsumerManager.class);
 		AuthRequest mockAuthRequest = mock(AuthRequest.class);
 		DiscoveryInformation mockDiscoveryInformation = mock(DiscoveryInformation.class);
-		when(mockAuthRequest.getDestinationUrl(anyBoolean())).thenReturn("mockUrl");
-		when(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.associate(any())).thenReturn(mockDiscoveryInformation);
-		when(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
-				any())).thenReturn(mockAuthRequest);
+		given(mockAuthRequest.getDestinationUrl(anyBoolean())).willReturn("mockUrl");
+		given(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.associate(any()))
+				.willReturn(mockDiscoveryInformation);
+		given(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
+				any())).willReturn(mockAuthRequest);
 		this.spring.register(OpenIDLoginAttributeExchangeConfig.class).autowire();
 
 		try (MockWebServer server = new MockWebServer()) {
@@ -144,20 +145,20 @@ public class NamespaceHttpOpenIDLoginTests {
 				"identityUrl", "message", Arrays.asList(new OpenIDAttribute("name", "type")));
 
 		OpenIDLoginCustomRefsConfig.AUDS = mock(AuthenticationUserDetailsService.class);
-		when(OpenIDLoginCustomRefsConfig.AUDS.loadUserDetails(any(Authentication.class)))
-				.thenReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		given(OpenIDLoginCustomRefsConfig.AUDS.loadUserDetails(any(Authentication.class)))
+				.willReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
 		OpenIDLoginCustomRefsConfig.ADS = spy(new WebAuthenticationDetailsSource());
 		OpenIDLoginCustomRefsConfig.CONSUMER = mock(OpenIDConsumer.class);
 
 		this.spring.register(OpenIDLoginCustomRefsConfig.class, UserDetailsServiceConfig.class).autowire();
 
-		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
-				.thenThrow(new AuthenticationServiceException("boom"));
+		given(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
+				.willThrow(new AuthenticationServiceException("boom"));
 		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
 				.andExpect(redirectedUrl("/custom/failure"));
 		reset(OpenIDLoginCustomRefsConfig.CONSUMER);
 
-		when(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class))).thenReturn(token);
+		given(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class))).willReturn(token);
 		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
 				.andExpect(redirectedUrl("/custom/targetUrl"));
 

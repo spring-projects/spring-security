@@ -31,12 +31,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link ProviderManager}.
@@ -121,7 +121,7 @@ public class ProviderManagerTests {
 	public void constructorWhenUsingListOfThenNoException() {
 		List<AuthenticationProvider> providers = spy(ArrayList.class);
 		// List.of(null) in JDK 9 throws a NullPointerException
-		when(providers.contains(eq(null))).thenThrow(NullPointerException.class);
+		given(providers.contains(eq(null))).willThrow(NullPointerException.class);
 		providers.add(mock(AuthenticationProvider.class));
 		new ProviderManager(providers);
 	}
@@ -211,7 +211,7 @@ public class ProviderManagerTests {
 	public void parentAuthenticationIsUsedIfProvidersDontAuthenticate() {
 		AuthenticationManager parent = mock(AuthenticationManager.class);
 		Authentication authReq = mock(Authentication.class);
-		when(parent.authenticate(authReq)).thenReturn(authReq);
+		given(parent.authenticate(authReq)).willReturn(authReq);
 		ProviderManager mgr = new ProviderManager(Collections.singletonList(mock(AuthenticationProvider.class)),
 				parent);
 		assertThat(mgr.authenticate(authReq)).isSameAs(authReq);
@@ -238,7 +238,7 @@ public class ProviderManagerTests {
 		final Authentication authReq = mock(Authentication.class);
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		AuthenticationManager parent = mock(AuthenticationManager.class);
-		when(parent.authenticate(authReq)).thenThrow(new ProviderNotFoundException(""));
+		given(parent.authenticate(authReq)).willThrow(new ProviderNotFoundException(""));
 
 		// Set a provider that throws an exception - this is the exception we expect to be
 		// propagated
@@ -266,7 +266,7 @@ public class ProviderManagerTests {
 		// Set a provider that throws an exception - this is the exception we expect to be
 		// propagated
 		final BadCredentialsException expected = new BadCredentialsException("I'm the one from the parent");
-		when(parent.authenticate(authReq)).thenThrow(expected);
+		given(parent.authenticate(authReq)).willThrow(expected);
 		try {
 			mgr.authenticate(authReq);
 			fail("Expected exception");
@@ -339,16 +339,16 @@ public class ProviderManagerTests {
 
 	private AuthenticationProvider createProviderWhichThrows(final AuthenticationException e) {
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
-		when(provider.supports(any(Class.class))).thenReturn(true);
-		when(provider.authenticate(any(Authentication.class))).thenThrow(e);
+		given(provider.supports(any(Class.class))).willReturn(true);
+		given(provider.authenticate(any(Authentication.class))).willThrow(e);
 
 		return provider;
 	}
 
 	private AuthenticationProvider createProviderWhichReturns(final Authentication a) {
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
-		when(provider.supports(any(Class.class))).thenReturn(true);
-		when(provider.authenticate(any(Authentication.class))).thenReturn(a);
+		given(provider.supports(any(Class.class))).willReturn(true);
+		given(provider.authenticate(any(Authentication.class))).willReturn(a);
 
 		return provider;
 	}

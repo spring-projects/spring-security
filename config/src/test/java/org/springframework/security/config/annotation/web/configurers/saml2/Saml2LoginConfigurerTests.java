@@ -85,9 +85,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.saml2.core.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
 import static org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationRequestContexts.authenticationRequestContext;
@@ -173,7 +173,7 @@ public class Saml2LoginConfigurerTests {
 
 		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
 		Saml2AuthenticationRequestContextResolver resolver = CustomAuthenticationRequestContextResolver.resolver;
-		when(resolver.resolve(any(HttpServletRequest.class))).thenReturn(context);
+		given(resolver.resolve(any(HttpServletRequest.class))).willReturn(context);
 		this.mvc.perform(get("/saml2/authenticate/registration-id")).andExpect(status().isFound());
 		verify(resolver).resolve(any(HttpServletRequest.class));
 	}
@@ -198,8 +198,8 @@ public class Saml2LoginConfigurerTests {
 						party -> party.verificationX509Credentials(c -> c.add(relyingPartyVerifyingCredential())))
 				.build();
 		String response = new String(samlDecode(SIGNED_RESPONSE));
-		when(CustomAuthenticationConverter.authenticationConverter.convert(any(HttpServletRequest.class)))
-				.thenReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
+		given(CustomAuthenticationConverter.authenticationConverter.convert(any(HttpServletRequest.class)))
+				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
 		this.mvc.perform(post("/login/saml2/sso/" + relyingPartyRegistration.getRegistrationId()).param("SAMLResponse",
 				SIGNED_RESPONSE)).andExpect(redirectedUrl("/"));
 		verify(CustomAuthenticationConverter.authenticationConverter).convert(any(HttpServletRequest.class));
@@ -387,7 +387,7 @@ public class Saml2LoginConfigurerTests {
 		@Bean
 		RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
 			RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
-			when(repository.findByRegistrationId(anyString())).thenReturn(relyingPartyRegistration().build());
+			given(repository.findByRegistrationId(anyString())).willReturn(relyingPartyRegistration().build());
 			return repository;
 		}
 

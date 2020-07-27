@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -81,7 +81,7 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenValidThenSuccess() {
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(this.tokenResponse.build()));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(this.tokenResponse.build()));
 
 		OAuth2AuthorizationCodeAuthenticationToken result = authenticate();
 
@@ -90,7 +90,7 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenEmptyThenEmpty() {
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.empty());
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.empty());
 
 		OAuth2AuthorizationCodeAuthenticationToken result = authenticate();
 
@@ -99,8 +99,8 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenOAuth2AuthorizationExceptionThenOAuth2AuthorizationException() {
-		when(this.accessTokenResponseClient.getTokenResponse(any()))
-				.thenReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
+		given(this.accessTokenResponseClient.getTokenResponse(any()))
+				.willReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
 
 		assertThatCode(() -> authenticate()).isInstanceOf(OAuth2AuthorizationException.class);
 	}

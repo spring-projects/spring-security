@@ -41,10 +41,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -133,7 +133,7 @@ public class JdbcTokenRepositoryImplTests {
 	// SEC-1964
 	@Test
 	public void retrievingTokenWithNoSeriesReturnsNull() {
-		when(this.logger.isDebugEnabled()).thenReturn(true);
+		given(this.logger.isDebugEnabled()).willReturn(true);
 
 		assertThat(this.repo.getTokenForSeries("missingSeries")).isNull();
 

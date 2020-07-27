@@ -33,7 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -69,7 +69,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenUserNotFoundThenBadCredentials() {
-		when(this.repository.findByUsername(this.username)).thenReturn(Mono.empty());
+		given(this.repository.findByUsername(this.username)).willReturn(Mono.empty());
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password);
@@ -86,7 +86,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 			.roles("USER")
 			.build();
 		// @formatter:on
-		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
+		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password + "INVALID");
@@ -103,7 +103,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 			.roles("USER")
 			.build();
 		// @formatter:on
-		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
+		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password);
@@ -115,9 +115,9 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenPasswordEncoderAndSuccessThenSuccess() {
 		this.manager.setPasswordEncoder(this.passwordEncoder);
-		when(this.passwordEncoder.matches(any(), any())).thenReturn(true);
+		given(this.passwordEncoder.matches(any(), any())).willReturn(true);
 		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
+		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password);
@@ -129,9 +129,9 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenPasswordEncoderAndFailThenFail() {
 		this.manager.setPasswordEncoder(this.passwordEncoder);
-		when(this.passwordEncoder.matches(any(), any())).thenReturn(false);
+		given(this.passwordEncoder.matches(any(), any())).willReturn(false);
 		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(this.repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
+		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
 				this.password);

@@ -34,9 +34,9 @@ import org.springframework.web.server.WebFilterChain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link HttpsRedirectWebFilter}
@@ -54,7 +54,7 @@ public class HttpsRedirectWebFilterTests {
 	@Before
 	public void configureFilter() {
 		this.filter = new HttpsRedirectWebFilter();
-		when(this.chain.filter(any(ServerWebExchange.class))).thenReturn(Mono.empty());
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 	}
 
 	@Test
@@ -75,7 +75,8 @@ public class HttpsRedirectWebFilterTests {
 	@Test
 	public void filterWhenExchangeMismatchesThenNoRedirect() {
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
-		when(matcher.matches(any(ServerWebExchange.class))).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(matcher.matches(any(ServerWebExchange.class)))
+				.willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
 
 		ServerWebExchange exchange = get("http://localhost:8080");
@@ -86,7 +87,7 @@ public class HttpsRedirectWebFilterTests {
 	@Test
 	public void filterWhenExchangeMatchesAndRequestIsInsecureThenRedirects() {
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
-		when(matcher.matches(any(ServerWebExchange.class))).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(matcher.matches(any(ServerWebExchange.class))).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
 
 		ServerWebExchange exchange = get("http://localhost:8080");
@@ -100,7 +101,7 @@ public class HttpsRedirectWebFilterTests {
 	@Test
 	public void filterWhenRequestIsInsecureThenPortMapperRemapsPort() {
 		PortMapper portMapper = mock(PortMapper.class);
-		when(portMapper.lookupHttpsPort(314)).thenReturn(159);
+		given(portMapper.lookupHttpsPort(314)).willReturn(159);
 		this.filter.setPortMapper(portMapper);
 
 		ServerWebExchange exchange = get("http://localhost:314");

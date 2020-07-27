@@ -38,10 +38,10 @@ import org.springframework.web.server.ServerWebExchange;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -110,8 +110,8 @@ public class AuthenticationWebFilterTests {
 
 	@Test
 	public void filterWhenDefaultsAndAuthenticationSuccessThenContinues() {
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.just(new TestingAuthenticationToken("test", "this", "ROLE")));
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.just(new TestingAuthenticationToken("test", "this", "ROLE")));
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
@@ -126,9 +126,9 @@ public class AuthenticationWebFilterTests {
 
 	@Test
 	public void filterWhenAuthenticationManagerResolverDefaultsAndAuthenticationSuccessThenContinues() {
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.just(new TestingAuthenticationToken("test", "this", "ROLE")));
-		when(this.authenticationManagerResolver.resolve(any())).thenReturn(Mono.just(this.authenticationManager));
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.just(new TestingAuthenticationToken("test", "this", "ROLE")));
+		given(this.authenticationManagerResolver.resolve(any())).willReturn(Mono.just(this.authenticationManager));
 
 		this.filter = new AuthenticationWebFilter(this.authenticationManagerResolver);
 
@@ -144,8 +144,8 @@ public class AuthenticationWebFilterTests {
 
 	@Test
 	public void filterWhenDefaultsAndAuthenticationFailThenUnauthorized() {
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.error(new BadCredentialsException("failed")));
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.error(new BadCredentialsException("failed")));
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
@@ -159,9 +159,9 @@ public class AuthenticationWebFilterTests {
 
 	@Test
 	public void filterWhenAuthenticationManagerResolverDefaultsAndAuthenticationFailThenUnauthorized() {
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.error(new BadCredentialsException("failed")));
-		when(this.authenticationManagerResolver.resolve(any())).thenReturn(Mono.just(this.authenticationManager));
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.error(new BadCredentialsException("failed")));
+		given(this.authenticationManagerResolver.resolve(any())).willReturn(Mono.just(this.authenticationManager));
 
 		this.filter = new AuthenticationWebFilter(this.authenticationManagerResolver);
 
@@ -176,7 +176,7 @@ public class AuthenticationWebFilterTests {
 
 	@Test
 	public void filterWhenConvertEmptyThenOk() {
-		when(this.authenticationConverter.convert(any())).thenReturn(Mono.empty());
+		given(this.authenticationConverter.convert(any())).willReturn(Mono.empty());
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 
@@ -189,7 +189,7 @@ public class AuthenticationWebFilterTests {
 
 	@Test
 	public void filterWhenConvertErrorThenServerError() {
-		when(this.authenticationConverter.convert(any())).thenReturn(Mono.error(new RuntimeException("Unexpected")));
+		given(this.authenticationConverter.convert(any())).willReturn(Mono.error(new RuntimeException("Unexpected")));
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 
@@ -202,10 +202,10 @@ public class AuthenticationWebFilterTests {
 	@Test
 	public void filterWhenConvertAndAuthenticationSuccessThenSuccess() {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
-		when(this.successHandler.onAuthenticationSuccess(any(), any())).thenReturn(Mono.empty());
-		when(this.securityContextRepository.save(any(), any())).thenAnswer(a -> Mono.just(a.getArguments()[0]));
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
+		given(this.successHandler.onAuthenticationSuccess(any(), any())).willReturn(Mono.empty());
+		given(this.securityContextRepository.save(any(), any())).willAnswer(a -> Mono.just(a.getArguments()[0]));
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 
@@ -219,8 +219,8 @@ public class AuthenticationWebFilterTests {
 	@Test
 	public void filterWhenConvertAndAuthenticationEmptyThenServerError() {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.empty());
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willReturn(Mono.empty());
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 
@@ -248,10 +248,10 @@ public class AuthenticationWebFilterTests {
 	@Test
 	public void filterWhenConvertAndAuthenticationFailThenEntryPoint() {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.error(new BadCredentialsException("Failed")));
-		when(this.failureHandler.onAuthenticationFailure(any(), any())).thenReturn(Mono.empty());
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.error(new BadCredentialsException("Failed")));
+		given(this.failureHandler.onAuthenticationFailure(any(), any())).willReturn(Mono.empty());
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 
@@ -265,8 +265,8 @@ public class AuthenticationWebFilterTests {
 	@Test
 	public void filterWhenConvertAndAuthenticationExceptionThenServerError() {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.error(new RuntimeException("Failed")));
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willReturn(Mono.error(new RuntimeException("Failed")));
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 

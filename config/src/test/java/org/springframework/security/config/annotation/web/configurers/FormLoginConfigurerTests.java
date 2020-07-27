@@ -39,10 +39,10 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
@@ -260,7 +260,7 @@ public class FormLoginConfigurerTests {
 	@Test
 	public void requestWhenCustomPortMapperThenPortMapperUsed() throws Exception {
 		FormLoginUsesPortMapperConfig.PORT_MAPPER = mock(PortMapper.class);
-		when(FormLoginUsesPortMapperConfig.PORT_MAPPER.lookupHttpsPort(any())).thenReturn(9443);
+		given(FormLoginUsesPortMapperConfig.PORT_MAPPER.lookupHttpsPort(any())).willReturn(9443);
 		this.spring.register(FormLoginUsesPortMapperConfig.class).autowire();
 
 		this.mockMvc.perform(get("http://localhost:9090")).andExpect(status().isFound())

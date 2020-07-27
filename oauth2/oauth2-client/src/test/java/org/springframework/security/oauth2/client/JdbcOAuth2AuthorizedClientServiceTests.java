@@ -57,10 +57,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JdbcOAuth2AuthorizedClientService}.
@@ -88,7 +88,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 	public void setUp() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.clientRegistrationRepository = mock(ClientRegistrationRepository.class);
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(this.clientRegistration);
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(this.clientRegistration);
 		this.db = createDb();
 		this.jdbcOperations = new JdbcTemplate(this.db);
 		this.authorizedClientService = new JdbcOAuth2AuthorizedClientService(this.jdbcOperations,
@@ -175,7 +175,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void loadAuthorizedClientWhenExistsButNotFoundInClientRegistrationRepositoryThenThrowDataRetrievalFailureException() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(null);
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(null);
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
 

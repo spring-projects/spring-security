@@ -28,11 +28,11 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -93,9 +93,9 @@ public class RequestWrapperTests {
 		HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 		HttpServletResponse mockResponse = mock(HttpServletResponse.class);
 		RequestDispatcher mockDispatcher = mock(RequestDispatcher.class);
-		when(mockRequest.getServletPath()).thenReturn("");
-		when(mockRequest.getPathInfo()).thenReturn(denormalizedPath);
-		when(mockRequest.getRequestDispatcher(forwardPath)).thenReturn(mockDispatcher);
+		given(mockRequest.getServletPath()).willReturn("");
+		given(mockRequest.getPathInfo()).willReturn(denormalizedPath);
+		given(mockRequest.getRequestDispatcher(forwardPath)).willReturn(mockDispatcher);
 
 		RequestWrapper wrapper = new RequestWrapper(mockRequest);
 		RequestDispatcher dispatcher = wrapper.getRequestDispatcher(forwardPath);
@@ -116,7 +116,7 @@ public class RequestWrapperTests {
 		String path = "/forward/path";
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		RequestDispatcher dispatcher = mock(RequestDispatcher.class);
-		when(request.getRequestDispatcher(path)).thenReturn(dispatcher);
+		given(request.getRequestDispatcher(path)).willReturn(dispatcher);
 		RequestWrapper wrapper = new RequestWrapper(request);
 		wrapper.reset();
 		assertThat(wrapper.getRequestDispatcher(path)).isSameAs(dispatcher);

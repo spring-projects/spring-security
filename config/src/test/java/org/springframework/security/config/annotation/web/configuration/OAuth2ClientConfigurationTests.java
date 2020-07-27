@@ -46,12 +46,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientCredentials;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -80,17 +80,17 @@ public class OAuth2ClientConfigurationTests {
 
 		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		ClientRegistration clientRegistration = clientRegistration().registrationId(clientRegistrationId).build();
-		when(clientRegistrationRepository.findByRegistrationId(eq(clientRegistrationId)))
-				.thenReturn(clientRegistration);
+		given(clientRegistrationRepository.findByRegistrationId(eq(clientRegistrationId)))
+				.willReturn(clientRegistration);
 
 		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
-		when(authorizedClient.getClientRegistration()).thenReturn(clientRegistration);
-		when(authorizedClientRepository.loadAuthorizedClient(eq(clientRegistrationId), eq(authentication),
-				any(HttpServletRequest.class))).thenReturn(authorizedClient);
+		given(authorizedClient.getClientRegistration()).willReturn(clientRegistration);
+		given(authorizedClientRepository.loadAuthorizedClient(eq(clientRegistrationId), eq(authentication),
+				any(HttpServletRequest.class))).willReturn(authorizedClient);
 
 		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
-		when(authorizedClient.getAccessToken()).thenReturn(accessToken);
+		given(authorizedClient.getAccessToken()).willReturn(accessToken);
 
 		OAuth2AccessTokenResponseClient accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 
@@ -116,12 +116,12 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AccessTokenResponseClient accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 
 		ClientRegistration clientRegistration = clientCredentials().registrationId(clientRegistrationId).build();
-		when(clientRegistrationRepository.findByRegistrationId(clientRegistrationId)).thenReturn(clientRegistration);
+		given(clientRegistrationRepository.findByRegistrationId(clientRegistrationId)).willReturn(clientRegistration);
 
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(300).build();
-		when(accessTokenResponseClient.getTokenResponse(any(OAuth2ClientCredentialsGrantRequest.class)))
-				.thenReturn(accessTokenResponse);
+		given(accessTokenResponseClient.getTokenResponse(any(OAuth2ClientCredentialsGrantRequest.class)))
+				.willReturn(accessTokenResponse);
 
 		OAuth2AuthorizedClientArgumentResolverConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
 		OAuth2AuthorizedClientArgumentResolverConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;
@@ -180,7 +180,7 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principalName,
 				TestOAuth2AccessTokens.noScopes());
 
-		when(authorizedClientManager.authorize(any())).thenReturn(authorizedClient);
+		given(authorizedClientManager.authorize(any())).willReturn(authorizedClient);
 
 		OAuth2AuthorizedClientManagerRegisteredConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
 		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;

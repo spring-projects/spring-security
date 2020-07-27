@@ -25,9 +25,9 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingApplicationListenerTests {
@@ -56,8 +56,8 @@ public class DelegatingApplicationListenerTests {
 
 	@Test
 	public void processEventSuccess() {
-		when(this.delegate.supportsEventType(this.event.getClass())).thenReturn(true);
-		when(this.delegate.supportsSourceType(this.event.getSource().getClass())).thenReturn(true);
+		given(this.delegate.supportsEventType(this.event.getClass())).willReturn(true);
+		given(this.delegate.supportsSourceType(this.event.getSource().getClass())).willReturn(true);
 		this.listener.onApplicationEvent(this.event);
 
 		verify(this.delegate).onApplicationEvent(this.event);
@@ -72,7 +72,7 @@ public class DelegatingApplicationListenerTests {
 
 	@Test
 	public void processEventSourceTypeNotSupported() {
-		when(this.delegate.supportsEventType(this.event.getClass())).thenReturn(true);
+		given(this.delegate.supportsEventType(this.event.getClass())).willReturn(true);
 		this.listener.onApplicationEvent(this.event);
 
 		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));

@@ -35,7 +35,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMessageSecurityExpressionHandlerTests {
@@ -80,7 +80,7 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		this.handler.setTrustResolver(this.trustResolver);
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
 		Expression expression = this.handler.getExpressionParser().parseExpression("authenticated");
-		when(this.trustResolver.isAnonymous(this.authentication)).thenReturn(false);
+		given(this.trustResolver.isAnonymous(this.authentication)).willReturn(false);
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}
@@ -102,7 +102,7 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		this.handler.setPermissionEvaluator(this.permissionEvaluator);
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
 		Expression expression = this.handler.getExpressionParser().parseExpression("hasPermission(message, 'read')");
-		when(this.permissionEvaluator.hasPermission(this.authentication, this.message, "read")).thenReturn(true);
+		given(this.permissionEvaluator.hasPermission(this.authentication, this.message, "read")).willReturn(true);
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}

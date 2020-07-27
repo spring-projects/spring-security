@@ -52,9 +52,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
@@ -255,10 +255,10 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		WebClient.RequestHeadersUriSpec spec = spy(real.post());
 		WebClient rest = spy(WebClient.class);
 		WebClient.ResponseSpec clientResponse = mock(WebClient.ResponseSpec.class);
-		when(rest.get()).thenReturn(spec);
-		when(spec.retrieve()).thenReturn(clientResponse);
-		when(clientResponse.onStatus(any(Predicate.class), any(Function.class))).thenReturn(clientResponse);
-		when(clientResponse.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(body));
+		given(rest.get()).willReturn(spec);
+		given(spec.retrieve()).willReturn(clientResponse);
+		given(clientResponse.onStatus(any(Predicate.class), any(Function.class))).willReturn(clientResponse);
+		given(clientResponse.bodyToMono(any(ParameterizedTypeReference.class))).willReturn(Mono.just(body));
 
 		DefaultReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
 		userService.setWebClient(rest);

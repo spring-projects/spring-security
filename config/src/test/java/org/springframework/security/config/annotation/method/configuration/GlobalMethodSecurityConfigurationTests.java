@@ -63,10 +63,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -126,7 +126,7 @@ public class GlobalMethodSecurityConfigurationTests {
 		this.spring.register(CustomTrustResolverConfig.class).autowire();
 
 		AuthenticationTrustResolver trustResolver = this.spring.getContext().getBean(AuthenticationTrustResolver.class);
-		when(trustResolver.isAnonymous(any())).thenReturn(true, false);
+		given(trustResolver.isAnonymous(any())).willReturn(true, false);
 
 		assertThatThrownBy(() -> this.service.preAuthorizeNotAnonymous()).isInstanceOf(AccessDeniedException.class);
 
@@ -163,7 +163,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	public void globalMethodSecurityConfigurationAutowiresPermissionEvaluator() {
 		this.spring.register(AutowirePermissionEvaluatorConfig.class).autowire();
 		PermissionEvaluator permission = this.spring.getContext().getBean(PermissionEvaluator.class);
-		when(permission.hasPermission(any(), eq("something"), eq("read"))).thenReturn(true, false);
+		given(permission.hasPermission(any(), eq("something"), eq("read"))).willReturn(true, false);
 
 		this.service.hasPermission("something");
 		// no exception

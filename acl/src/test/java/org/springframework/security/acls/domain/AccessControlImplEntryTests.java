@@ -25,8 +25,8 @@ import org.springframework.security.acls.model.Sid;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link AccessControlEntryImpl}.
@@ -87,7 +87,7 @@ public class AccessControlImplEntryTests {
 		final Acl mockAcl = mock(Acl.class);
 		final ObjectIdentity oid = mock(ObjectIdentity.class);
 
-		when(mockAcl.getObjectIdentity()).thenReturn(oid);
+		given(mockAcl.getObjectIdentity()).willReturn(oid);
 		Sid sid = new PrincipalSid("johndoe");
 
 		AccessControlEntry ace = new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true,

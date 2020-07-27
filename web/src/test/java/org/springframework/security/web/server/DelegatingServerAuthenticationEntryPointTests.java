@@ -32,9 +32,9 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -64,9 +64,9 @@ public class DelegatingServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenNotMatchThenMatchThenOnlySecondDelegateInvoked() {
 		Mono<Void> expectedResult = Mono.empty();
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(this.matcher2.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(this.delegate2.commence(this.exchange, this.e)).thenReturn(expectedResult);
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(this.delegate2.commence(this.exchange, this.e)).willReturn(expectedResult);
 		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(new DelegateEntry(this.matcher1, this.delegate1),
 				new DelegateEntry(this.matcher2, this.delegate2));
 
@@ -79,7 +79,7 @@ public class DelegatingServerAuthenticationEntryPointTests {
 
 	@Test
 	public void commenceWhenNotMatchThenDefault() {
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(
 				new DelegateEntry(this.matcher1, this.delegate1));
 

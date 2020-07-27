@@ -56,10 +56,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -110,7 +110,7 @@ public class NamespaceSessionManagementTests {
 		SessionInformation sessionInformation = new SessionInformation(new Object(), session.getId(), new Date(0));
 		sessionInformation.expireNow();
 		SessionRegistry sessionRegistry = this.spring.getContext().getBean(SessionRegistry.class);
-		when(sessionRegistry.getSessionInformation(session.getId())).thenReturn(sessionInformation);
+		given(sessionRegistry.getSessionInformation(session.getId())).willReturn(sessionInformation);
 
 		this.mvc.perform(get("/auth").session(session)).andExpect(redirectedUrl("/expired-session"));
 	}
@@ -133,7 +133,7 @@ public class NamespaceSessionManagementTests {
 
 		MockHttpServletRequest mock = spy(MockHttpServletRequest.class);
 		mock.setSession(new MockHttpSession());
-		when(mock.changeSessionId()).thenThrow(SessionAuthenticationException.class);
+		given(mock.changeSessionId()).willThrow(SessionAuthenticationException.class);
 		mock.setMethod("GET");
 
 		this.mvc.perform(get("/auth").with(request -> mock).with(httpBasic("user", "password")))

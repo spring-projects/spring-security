@@ -33,7 +33,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -61,10 +61,10 @@ public class DelegatingSecurityContextRunnableTests {
 	@Before
 	public void setUp() {
 		this.originalSecurityContext = SecurityContextHolder.createEmptyContext();
-		doAnswer((Answer<Object>) invocation -> {
+		willAnswer((Answer<Object>) invocation -> {
 			assertThat(SecurityContextHolder.getContext()).isEqualTo(this.securityContext);
 			return null;
-		}).when(this.delegate).run();
+		}).given(this.delegate).run();
 
 		this.executor = Executors.newFixedThreadPool(1);
 	}

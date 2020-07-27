@@ -66,9 +66,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -123,8 +123,8 @@ public class OAuth2ClientConfigurerTests {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(300).build();
 		accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
-		when(accessTokenResponseClient.getTokenResponse(any(OAuth2AuthorizationCodeGrantRequest.class)))
-				.thenReturn(accessTokenResponse);
+		given(accessTokenResponseClient.getTokenResponse(any(OAuth2AuthorizationCodeGrantRequest.class)))
+				.willReturn(accessTokenResponse);
 		requestCache = mock(RequestCache.class);
 	}
 
@@ -231,8 +231,8 @@ public class OAuth2ClientConfigurerTests {
 		// Override default resolver
 		OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver = authorizationRequestResolver;
 		authorizationRequestResolver = mock(OAuth2AuthorizationRequestResolver.class);
-		when(authorizationRequestResolver.resolve(any()))
-				.thenAnswer(invocation -> defaultAuthorizationRequestResolver.resolve(invocation.getArgument(0)));
+		given(authorizationRequestResolver.resolve(any()))
+				.willAnswer(invocation -> defaultAuthorizationRequestResolver.resolve(invocation.getArgument(0)));
 
 		this.spring.register(OAuth2ClientConfig.class).autowire();
 

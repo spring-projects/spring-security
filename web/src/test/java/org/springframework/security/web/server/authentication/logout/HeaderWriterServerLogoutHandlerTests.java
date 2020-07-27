@@ -23,9 +23,9 @@ import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author MD Sayem Ahmed
@@ -45,7 +45,7 @@ public class HeaderWriterServerLogoutHandlerTests {
 		HeaderWriterServerLogoutHandler handler = new HeaderWriterServerLogoutHandler(headersWriter);
 		ServerWebExchange serverWebExchange = mock(ServerWebExchange.class);
 		WebFilterExchange filterExchange = mock(WebFilterExchange.class);
-		when(filterExchange.getExchange()).thenReturn(serverWebExchange);
+		given(filterExchange.getExchange()).willReturn(serverWebExchange);
 		Authentication authentication = mock(Authentication.class);
 
 		handler.logout(filterExchange, authentication);

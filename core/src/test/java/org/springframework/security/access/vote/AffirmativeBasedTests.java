@@ -31,8 +31,8 @@ import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link AffirmativeBased}.
@@ -61,12 +61,12 @@ public class AffirmativeBasedTests {
 		this.abstain = mock(AccessDecisionVoter.class);
 		this.deny = mock(AccessDecisionVoter.class);
 
-		when(this.grant.vote(any(Authentication.class), any(Object.class), any(List.class)))
-				.thenReturn(AccessDecisionVoter.ACCESS_GRANTED);
-		when(this.abstain.vote(any(Authentication.class), any(Object.class), any(List.class)))
-				.thenReturn(AccessDecisionVoter.ACCESS_ABSTAIN);
-		when(this.deny.vote(any(Authentication.class), any(Object.class), any(List.class)))
-				.thenReturn(AccessDecisionVoter.ACCESS_DENIED);
+		given(this.grant.vote(any(Authentication.class), any(Object.class), any(List.class)))
+				.willReturn(AccessDecisionVoter.ACCESS_GRANTED);
+		given(this.abstain.vote(any(Authentication.class), any(Object.class), any(List.class)))
+				.willReturn(AccessDecisionVoter.ACCESS_ABSTAIN);
+		given(this.deny.vote(any(Authentication.class), any(Object.class), any(List.class)))
+				.willReturn(AccessDecisionVoter.ACCESS_DENIED);
 	}
 
 	@Test

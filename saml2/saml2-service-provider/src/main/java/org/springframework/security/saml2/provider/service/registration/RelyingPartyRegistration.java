@@ -28,6 +28,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.ProviderDetails;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.util.Assert;
 

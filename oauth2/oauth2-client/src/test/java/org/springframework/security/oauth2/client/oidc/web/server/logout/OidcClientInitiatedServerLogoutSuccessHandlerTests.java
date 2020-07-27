@@ -43,8 +43,8 @@ import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link OidcClientInitiatedServerLogoutSuccessHandler}
@@ -67,8 +67,8 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	@Before
 	public void setup() {
 		this.exchange = mock(ServerWebExchange.class);
-		when(this.exchange.getResponse()).thenReturn(new MockServerHttpResponse());
-		when(this.exchange.getRequest()).thenReturn(MockServerHttpRequest.get("/").build());
+		given(this.exchange.getResponse()).willReturn(new MockServerHttpResponse());
+		given(this.exchange.getRequest()).willReturn(MockServerHttpRequest.get("/").build());
 		this.chain = mock(WebFilterChain.class);
 		this.handler = new OidcClientInitiatedServerLogoutSuccessHandler(this.repository);
 	}
@@ -78,7 +78,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
-		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 		this.handler.onLogoutSuccess(f, token).block();
 
@@ -89,7 +89,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	public void logoutWhenNotOAuth2AuthenticationThenDefaults() {
 		Authentication token = mock(Authentication.class);
 
-		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		this.handler.setLogoutSuccessUrl(URI.create("https://default"));
@@ -103,7 +103,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOAuth2Users.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
-		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		this.handler.setLogoutSuccessUrl(URI.create("https://default"));
@@ -124,7 +124,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, registration.getRegistrationId());
 
-		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		handler.setLogoutSuccessUrl(URI.create("https://default"));
@@ -139,7 +139,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
-		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
@@ -155,9 +155,9 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		MockServerHttpRequest request = MockServerHttpRequest.get("https://rp.example.org/").build();
-		when(this.exchange.getRequest()).thenReturn(request);
+		given(this.exchange.getRequest()).willReturn(request);
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 
 		this.handler.setPostLogoutRedirectUri("{baseUrl}");

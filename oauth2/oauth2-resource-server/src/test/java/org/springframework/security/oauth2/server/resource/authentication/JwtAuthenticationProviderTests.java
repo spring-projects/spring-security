@@ -35,8 +35,8 @@ import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
@@ -67,8 +67,8 @@ public class JwtAuthenticationProviderTests {
 
 		Jwt jwt = jwt().claim("name", "value").build();
 
-		when(this.jwtDecoder.decode("token")).thenReturn(jwt);
-		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(new JwtAuthenticationToken(jwt));
+		given(this.jwtDecoder.decode("token")).willReturn(jwt);
+		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(new JwtAuthenticationToken(jwt));
 
 		JwtAuthenticationToken authentication = (JwtAuthenticationToken) this.provider.authenticate(token);
 
@@ -79,7 +79,7 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenJwtDecodeFailsThenRespondsWithInvalidToken() {
 		BearerTokenAuthenticationToken token = this.authentication();
 
-		when(this.jwtDecoder.decode("token")).thenThrow(BadJwtException.class);
+		given(this.jwtDecoder.decode("token")).willThrow(BadJwtException.class);
 
 		assertThatCode(() -> this.provider.authenticate(token))
 				.matches(failed -> failed instanceof OAuth2AuthenticationException)
@@ -90,7 +90,7 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = this.authentication();
 
-		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new BadJwtException("with \"invalid\" chars"));
+		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
 
 		assertThatCode(() -> this.provider.authenticate(token)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasFieldOrPropertyWithValue("error.description", "Invalid token");
@@ -101,7 +101,7 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
 		BearerTokenAuthenticationToken token = this.authentication();
 
-		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("no jwk set"));
+		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
 
 		assertThatCode(() -> this.provider.authenticate(token)).isInstanceOf(AuthenticationException.class)
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
@@ -116,8 +116,8 @@ public class JwtAuthenticationProviderTests {
 		Jwt jwt = jwt().build();
 		JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
 
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
-		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(authentication);
+		given(this.jwtDecoder.decode(token.getToken())).willReturn(jwt);
+		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(authentication);
 
 		assertThat(this.provider.authenticate(token)).isEqualTo(authentication).hasFieldOrPropertyWithValue("details",
 				details);

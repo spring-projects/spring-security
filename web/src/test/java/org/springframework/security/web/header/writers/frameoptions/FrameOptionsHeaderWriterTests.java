@@ -26,7 +26,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -77,7 +77,7 @@ public class FrameOptionsHeaderWriterTests {
 	@Test
 	public void writeHeadersAllowFrom() {
 		String allowFromValue = "https://example.com/";
-		when(this.strategy.getAllowFromValue(this.request)).thenReturn(allowFromValue);
+		given(this.strategy.getAllowFromValue(this.request)).willReturn(allowFromValue);
 		this.writer = new XFrameOptionsHeaderWriter(this.strategy);
 
 		this.writer.writeHeaders(this.request, this.response);

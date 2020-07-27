@@ -29,8 +29,8 @@ import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link DelegatingReactiveOAuth2AuthorizedClientProvider}.
@@ -64,13 +64,13 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider1 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
-		when(authorizedClientProvider1.authorize(any())).thenReturn(Mono.empty());
+		given(authorizedClientProvider1.authorize(any())).willReturn(Mono.empty());
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider2 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
-		when(authorizedClientProvider2.authorize(any())).thenReturn(Mono.empty());
+		given(authorizedClientProvider2.authorize(any())).willReturn(Mono.empty());
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider3 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
-		when(authorizedClientProvider3.authorize(any())).thenReturn(Mono.just(authorizedClient));
+		given(authorizedClientProvider3.authorize(any())).willReturn(Mono.just(authorizedClient));
 
 		DelegatingReactiveOAuth2AuthorizedClientProvider delegate = new DelegatingReactiveOAuth2AuthorizedClientProvider(
 				authorizedClientProvider1, authorizedClientProvider2, authorizedClientProvider3);
@@ -88,10 +88,10 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider1 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
-		when(authorizedClientProvider1.authorize(any())).thenReturn(Mono.empty());
+		given(authorizedClientProvider1.authorize(any())).willReturn(Mono.empty());
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider2 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
-		when(authorizedClientProvider2.authorize(any())).thenReturn(Mono.empty());
+		given(authorizedClientProvider2.authorize(any())).willReturn(Mono.empty());
 
 		DelegatingReactiveOAuth2AuthorizedClientProvider delegate = new DelegatingReactiveOAuth2AuthorizedClientProvider(
 				authorizedClientProvider1, authorizedClientProvider2);

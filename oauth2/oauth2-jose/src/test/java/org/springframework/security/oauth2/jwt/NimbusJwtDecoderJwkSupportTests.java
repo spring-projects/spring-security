@@ -41,10 +41,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link NimbusJwtDecoderJwkSupport}.
@@ -180,7 +180,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 			OAuth2Error failure = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 
 			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
-			when(jwtValidator.validate(any(Jwt.class))).thenReturn(OAuth2TokenValidatorResult.failure(failure));
+			given(jwtValidator.validate(any(Jwt.class))).willReturn(OAuth2TokenValidatorResult.failure(failure));
 			decoder.setJwtValidator(jwtValidator);
 
 			assertThatCode(() -> decoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
@@ -201,7 +201,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 			OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(firstFailure, secondFailure);
 
 			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
-			when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+			given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 			decoder.setJwtValidator(jwtValidator);
 
 			assertThatCode(() -> decoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
@@ -219,7 +219,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 			NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
 
 			Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
-			when(claimSetConverter.convert(any(Map.class))).thenReturn(Collections.singletonMap("custom", "value"));
+			given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
 			decoder.setClaimSetConverter(claimSetConverter);
 
 			Jwt jwt = decoder.decode(SIGNED_JWT);
@@ -235,8 +235,8 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 	private static RestOperations mockJwkSetResponse(String response) {
 		RestOperations restOperations = mock(RestOperations.class);
-		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.willReturn(new ResponseEntity<>(response, HttpStatus.OK));
 		return restOperations;
 	}
 

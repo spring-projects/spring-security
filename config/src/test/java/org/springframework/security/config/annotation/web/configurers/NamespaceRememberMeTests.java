@@ -51,10 +51,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -230,8 +230,8 @@ public class NamespaceRememberMeTests {
 		UserServiceRefConfig.USERDETAILS_SERVICE = mock(UserDetailsService.class);
 		this.spring.register(UserServiceRefConfig.class).autowire();
 
-		when(UserServiceRefConfig.USERDETAILS_SERVICE.loadUserByUsername("user"))
-				.thenReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		given(UserServiceRefConfig.USERDETAILS_SERVICE.loadUserByUsername("user"))
+				.willReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
 
 		this.mvc.perform(post("/login").with(rememberMeLogin()));
 

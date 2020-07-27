@@ -39,9 +39,9 @@ import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link ReactiveOAuth2AuthorizedClientProviderBuilder}.
@@ -229,7 +229,7 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 	@Test
 	public void buildWhenCustomProviderThenProviderCalled() {
 		ReactiveOAuth2AuthorizedClientProvider customProvider = mock(ReactiveOAuth2AuthorizedClientProvider.class);
-		when(customProvider.authorize(any())).thenReturn(Mono.empty());
+		given(customProvider.authorize(any())).willReturn(Mono.empty());
 
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
 				.builder().provider(customProvider).build();

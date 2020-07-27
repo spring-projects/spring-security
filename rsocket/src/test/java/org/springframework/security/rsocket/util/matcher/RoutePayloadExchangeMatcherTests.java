@@ -38,7 +38,7 @@ import org.springframework.util.RouteMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -77,7 +77,7 @@ public class RoutePayloadExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenNoRouteThenNotMatch() {
-		when(this.metadataExtractor.extract(any(), any())).thenReturn(Collections.emptyMap());
+		given(this.metadataExtractor.extract(any(), any())).willReturn(Collections.emptyMap());
 		PayloadExchangeMatcher.MatchResult result = this.matcher.matches(this.exchange).block();
 		assertThat(result.isMatch()).isFalse();
 	}
@@ -85,8 +85,8 @@ public class RoutePayloadExchangeMatcherTests {
 	@Test
 	public void matchesWhenNotMatchThenNotMatch() {
 		String route = "route";
-		when(this.metadataExtractor.extract(any(), any()))
-				.thenReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
+		given(this.metadataExtractor.extract(any(), any()))
+				.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
 		PayloadExchangeMatcher.MatchResult result = this.matcher.matches(this.exchange).block();
 		assertThat(result.isMatch()).isFalse();
 	}
@@ -94,10 +94,10 @@ public class RoutePayloadExchangeMatcherTests {
 	@Test
 	public void matchesWhenMatchAndNoVariablesThenMatch() {
 		String route = "route";
-		when(this.metadataExtractor.extract(any(), any()))
-				.thenReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
-		when(this.routeMatcher.parseRoute(any())).thenReturn(this.route);
-		when(this.routeMatcher.matchAndExtract(any(), any())).thenReturn(Collections.emptyMap());
+		given(this.metadataExtractor.extract(any(), any()))
+				.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
+		given(this.routeMatcher.parseRoute(any())).willReturn(this.route);
+		given(this.routeMatcher.matchAndExtract(any(), any())).willReturn(Collections.emptyMap());
 		PayloadExchangeMatcher.MatchResult result = this.matcher.matches(this.exchange).block();
 		assertThat(result.isMatch()).isTrue();
 	}
@@ -106,10 +106,10 @@ public class RoutePayloadExchangeMatcherTests {
 	public void matchesWhenMatchAndVariablesThenMatchAndVariables() {
 		String route = "route";
 		Map<String, String> variables = Collections.singletonMap("a", "b");
-		when(this.metadataExtractor.extract(any(), any()))
-				.thenReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
-		when(this.routeMatcher.parseRoute(any())).thenReturn(this.route);
-		when(this.routeMatcher.matchAndExtract(any(), any())).thenReturn(variables);
+		given(this.metadataExtractor.extract(any(), any()))
+				.willReturn(Collections.singletonMap(MetadataExtractor.ROUTE_KEY, route));
+		given(this.routeMatcher.parseRoute(any())).willReturn(this.route);
+		given(this.routeMatcher.matchAndExtract(any(), any())).willReturn(variables);
 		PayloadExchangeMatcher.MatchResult result = this.matcher.matches(this.exchange).block();
 		assertThat(result.isMatch()).isTrue();
 		assertThat(result.getVariables()).containsAllEntriesOf(variables);

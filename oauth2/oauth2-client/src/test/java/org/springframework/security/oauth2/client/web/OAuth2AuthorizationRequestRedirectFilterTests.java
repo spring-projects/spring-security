@@ -46,12 +46,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequestRedirectFilter}.
@@ -253,7 +253,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 
-		doThrow(new ClientAuthorizationRequiredException(this.registration1.getRegistrationId())).when(filterChain)
+		willThrow(new ClientAuthorizationRequiredException(this.registration1.getRegistrationId())).given(filterChain)
 				.doFilter(any(ServletRequest.class), any(ServletResponse.class));
 
 		this.filter.doFilter(request, response, filterChain);
@@ -275,7 +275,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 
-		doThrow(new ClientAuthorizationRequiredException(this.registration1.getRegistrationId())).when(filterChain)
+		willThrow(new ClientAuthorizationRequiredException(this.registration1.getRegistrationId())).given(filterChain)
 				.doFilter(any(ServletRequest.class), any(ServletResponse.class));
 
 		OAuth2AuthorizationRequestResolver resolver = mock(OAuth2AuthorizationRequestResolver.class);
@@ -311,7 +311,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		OAuth2AuthorizationRequest result = OAuth2AuthorizationRequest
 				.from(defaultAuthorizationRequestResolver.resolve(request))
 				.additionalParameters(Collections.singletonMap("idp", request.getParameter("idp"))).build();
-		when(resolver.resolve(any())).thenReturn(result);
+		given(resolver.resolve(any())).willReturn(result);
 		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
 
 		filter.doFilter(request, response, filterChain);
@@ -353,7 +353,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 				.from(defaultAuthorizationRequestResolver.resolve(request))
 				.additionalParameters(Collections.singletonMap("idp", request.getParameter("idp")))
 				.authorizationRequestUri(customAuthorizationRequestUri).build();
-		when(resolver.resolve(any())).thenReturn(result);
+		given(resolver.resolve(any())).willReturn(result);
 
 		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
 

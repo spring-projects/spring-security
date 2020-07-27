@@ -34,9 +34,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyObject;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests
@@ -71,14 +71,14 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		when(this.ods.getAttributes(anyObject())).thenReturn(null);
+		given(this.ods.getAttributes(anyObject())).willReturn(null);
 		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class))).isTrue();
 	}
 
 	@Test
 	public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		when(this.ods.getAttributes(anyObject())).thenReturn(null);
+		given(this.ods.getAttributes(anyObject())).willReturn(null);
 		this.interceptor.setRejectPublicInvocations(true);
 		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class))).isFalse();
 	}
@@ -102,7 +102,8 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
 
-		doThrow(new AccessDeniedException("")).when(this.adm).decide(any(Authentication.class), anyObject(), anyList());
+		willThrow(new AccessDeniedException("")).given(this.adm).decide(any(Authentication.class), anyObject(),
+				anyList());
 
 		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isFalse();
 	}

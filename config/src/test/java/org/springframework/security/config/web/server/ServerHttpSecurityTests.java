@@ -77,7 +77,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
 
@@ -108,7 +107,7 @@ public class ServerHttpSecurityTests {
 	@Test
 	public void defaults() {
 		TestPublisher<SecurityContext> securityContext = TestPublisher.create();
-		when(this.contextRepository.load(any())).thenReturn(securityContext.mono());
+		given(this.contextRepository.load(any())).willReturn(securityContext.mono());
 		this.http.securityContextRepository(this.contextRepository);
 
 		WebTestClient client = buildClient();
@@ -411,7 +410,7 @@ public class ServerHttpSecurityTests {
 	@Test
 	public void postWhenCustomCsrfTokenRepositoryThenUsed() {
 		ServerCsrfTokenRepository customServerCsrfTokenRepository = mock(ServerCsrfTokenRepository.class);
-		when(customServerCsrfTokenRepository.loadToken(any(ServerWebExchange.class))).thenReturn(Mono.empty());
+		given(customServerCsrfTokenRepository.loadToken(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		SecurityWebFilterChain securityFilterChain = this.http
 				.csrf(csrf -> csrf.csrfTokenRepository(customServerCsrfTokenRepository)).build();
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
@@ -453,8 +452,8 @@ public class ServerHttpSecurityTests {
 
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request().build();
 
-		when(authorizationRequestRepository.removeAuthorizationRequest(any()))
-				.thenReturn(Mono.just(authorizationRequest));
+		given(authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.willReturn(Mono.just(authorizationRequest));
 
 		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
 				.clientRegistrationRepository(clientRegistrationRepository)

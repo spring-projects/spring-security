@@ -33,7 +33,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -93,8 +93,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void negotiationStrategyThrowsHMTNAE() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenThrow(new HttpMediaTypeNotAcceptableException("oops"));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willThrow(new HttpMediaTypeNotAcceptableException("oops"));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.ALL);
 		assertThat(this.matcher.matches(this.request)).isFalse();
@@ -103,8 +103,8 @@ public class MediaTypeRequestMatcherTests {
 	@Test
 	public void mediaAllMatches() throws Exception {
 
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(MediaType.ALL));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(MediaType.ALL));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_HTML);
 		assertThat(this.matcher.matches(this.request)).isTrue();
@@ -187,8 +187,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void multipleMediaType() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(MediaType.TEXT_PLAIN, MediaType.APPLICATION_XHTML_XML, MediaType.TEXT_HTML));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(MediaType.TEXT_PLAIN, MediaType.APPLICATION_XHTML_XML, MediaType.TEXT_HTML));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.APPLICATION_ATOM_XML,
 				MediaType.TEXT_HTML);
@@ -205,8 +205,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void resolveTextPlainMatchesTextAll() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(MediaType.TEXT_PLAIN));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(MediaType.TEXT_PLAIN));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, new MediaType("text", "*"));
 		assertThat(this.matcher.matches(this.request)).isTrue();
@@ -222,8 +222,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void resolveTextAllMatchesTextPlain() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(new MediaType("text", "*")));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(new MediaType("text", "*")));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_PLAIN);
 		assertThat(this.matcher.matches(this.request)).isTrue();
@@ -241,8 +241,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void useEqualsResolveTextAllMatchesTextPlain() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(new MediaType("text", "*")));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(new MediaType("text", "*")));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_PLAIN);
 		this.matcher.setUseEquals(true);
@@ -260,8 +260,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void useEqualsResolveTextPlainMatchesTextAll() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(MediaType.TEXT_PLAIN));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(MediaType.TEXT_PLAIN));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, new MediaType("text", "*"));
 		this.matcher.setUseEquals(true);
@@ -279,8 +279,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void useEqualsSame() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(MediaType.TEXT_PLAIN));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(MediaType.TEXT_PLAIN));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_PLAIN);
 		this.matcher.setUseEquals(true);
@@ -298,8 +298,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void useEqualsWithCustomMediaType() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(new MediaType("text", "unique")));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(new MediaType("text", "unique")));
 
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, new MediaType("text", "unique"));
 		this.matcher.setUseEquals(true);
@@ -319,8 +319,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void mediaAllIgnoreMediaTypeAll() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(MediaType.ALL));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(MediaType.ALL));
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_HTML);
 		this.matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 
@@ -338,8 +338,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void mediaAllAndTextHtmlIgnoreMediaTypeAll() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(MediaType.ALL, MediaType.TEXT_HTML));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(MediaType.ALL, MediaType.TEXT_HTML));
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_HTML);
 		this.matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 
@@ -357,8 +357,8 @@ public class MediaTypeRequestMatcherTests {
 
 	@Test
 	public void mediaAllQ08AndTextPlainIgnoreMediaTypeAll() throws HttpMediaTypeNotAcceptableException {
-		when(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
-				.thenReturn(Arrays.asList(MediaType.TEXT_PLAIN, MediaType.parseMediaType("*/*;q=0.8")));
+		given(this.negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class)))
+				.willReturn(Arrays.asList(MediaType.TEXT_PLAIN, MediaType.parseMediaType("*/*;q=0.8")));
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_HTML);
 		this.matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 

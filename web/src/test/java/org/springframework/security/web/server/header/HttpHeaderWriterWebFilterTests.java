@@ -29,9 +29,9 @@ import org.springframework.security.test.web.reactive.server.WebTestHandler.WebH
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -47,7 +47,7 @@ public class HttpHeaderWriterWebFilterTests {
 
 	@Before
 	public void setup() {
-		when(this.writer.writeHttpHeaders(any())).thenReturn(Mono.empty());
+		given(this.writer.writeHttpHeaders(any())).willReturn(Mono.empty());
 		this.filter = new HttpHeaderWriterWebFilter(this.writer);
 	}
 

@@ -28,8 +28,8 @@ import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link DelegatingOAuth2AuthorizedClientProvider}.
@@ -62,7 +62,7 @@ public class DelegatingOAuth2AuthorizedClientProviderTests {
 				TestOAuth2AccessTokens.noScopes());
 
 		OAuth2AuthorizedClientProvider authorizedClientProvider = mock(OAuth2AuthorizedClientProvider.class);
-		when(authorizedClientProvider.authorize(any())).thenReturn(authorizedClient);
+		given(authorizedClientProvider.authorize(any())).willReturn(authorizedClient);
 
 		DelegatingOAuth2AuthorizedClientProvider delegate = new DelegatingOAuth2AuthorizedClientProvider(
 				mock(OAuth2AuthorizedClientProvider.class), mock(OAuth2AuthorizedClientProvider.class),

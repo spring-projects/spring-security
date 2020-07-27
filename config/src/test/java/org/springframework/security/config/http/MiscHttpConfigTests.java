@@ -112,11 +112,11 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
@@ -451,7 +451,7 @@ public class MiscHttpConfigTests {
 
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
-		when(repository.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(context);
+		given(repository.loadContext(any(HttpRequestResponseHolder.class))).willReturn(context);
 
 		MvcResult result = this.mvc.perform(get("/protected").with(httpBasic("user", "password")))
 				.andExpect(status().isOk()).andReturn();
@@ -479,8 +479,8 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("ExpressionHandler")).autowire();
 
 		PermissionEvaluator permissionEvaluator = this.spring.getContext().getBean(PermissionEvaluator.class);
-		when(permissionEvaluator.hasPermission(any(Authentication.class), any(Object.class), any(Object.class)))
-				.thenReturn(false);
+		given(permissionEvaluator.hasPermission(any(Authentication.class), any(Object.class), any(Object.class)))
+				.willReturn(false);
 
 		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
 
@@ -585,7 +585,7 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("JeeFilter")).autowire();
 
 		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("joe");
+		given(user.getName()).willReturn("joe");
 
 		this.mvc.perform(get("/roles").principal(user).with(request -> {
 			request.addUserRole("admin");
@@ -603,7 +603,7 @@ public class MiscHttpConfigTests {
 
 		Object details = mock(Object.class);
 		AuthenticationDetailsSource source = this.spring.getContext().getBean(AuthenticationDetailsSource.class);
-		when(source.buildDetails(any(Object.class))).thenReturn(details);
+		given(source.buildDetails(any(Object.class))).willReturn(details);
 
 		this.mvc.perform(get("/details").with(httpBasic("user", "password")))
 				.andExpect(content().string(details.getClass().getName()));
@@ -627,7 +627,7 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("Jaas")).autowire();
 
 		AuthorityGranter granter = this.spring.getContext().getBean(AuthorityGranter.class);
-		when(granter.grant(any(Principal.class))).thenReturn(new HashSet<>(Arrays.asList("USER")));
+		given(granter.grant(any(Principal.class))).willReturn(new HashSet<>(Arrays.asList("USER")));
 
 		this.mvc.perform(get("/username").with(httpBasic("user", "password"))).andExpect(content().string("user"));
 	}
@@ -644,8 +644,8 @@ public class MiscHttpConfigTests {
 		HttpServletResponse response = new MockHttpServletResponse();
 
 		HttpFirewall firewall = this.spring.getContext().getBean(HttpFirewall.class);
-		when(firewall.getFirewalledRequest(any(HttpServletRequest.class))).thenReturn(request);
-		when(firewall.getFirewalledResponse(any(HttpServletResponse.class))).thenReturn(response);
+		given(firewall.getFirewalledRequest(any(HttpServletRequest.class))).willReturn(request);
+		given(firewall.getFirewalledResponse(any(HttpServletResponse.class))).willReturn(response);
 		this.mvc.perform(get("/unprotected"));
 
 		verify(firewall).getFirewalledRequest(any(HttpServletRequest.class));
@@ -661,7 +661,7 @@ public class MiscHttpConfigTests {
 		RequestRejectedException rejected = new RequestRejectedException("failed");
 		HttpFirewall firewall = this.spring.getContext().getBean(HttpFirewall.class);
 		RequestRejectedHandler requestRejectedHandler = this.spring.getContext().getBean(RequestRejectedHandler.class);
-		when(firewall.getFirewalledRequest(any(HttpServletRequest.class))).thenThrow(rejected);
+		given(firewall.getFirewalledRequest(any(HttpServletRequest.class))).willThrow(rejected);
 		this.mvc.perform(get("/unprotected"));
 
 		verify(requestRejectedHandler).handle(any(), any(), any());
@@ -697,8 +697,8 @@ public class MiscHttpConfigTests {
 	private void redirectLogsTo(OutputStream os, Class<?> clazz) {
 		Logger logger = (Logger) LoggerFactory.getLogger(clazz);
 		Appender<ILoggingEvent> appender = mock(Appender.class);
-		when(appender.isStarted()).thenReturn(true);
-		doAnswer(writeTo(os)).when(appender).doAppend(any(ILoggingEvent.class));
+		given(appender.isStarted()).willReturn(true);
+		willAnswer(writeTo(os)).given(appender).doAppend(any(ILoggingEvent.class));
 		logger.addAppender(appender);
 	}
 

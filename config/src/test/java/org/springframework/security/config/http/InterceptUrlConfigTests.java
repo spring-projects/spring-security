@@ -35,9 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -212,10 +212,10 @@ public class InterceptUrlConfigTests {
 	private MockServletContext mockServletContext(String servletPath) {
 		MockServletContext servletContext = spy(new MockServletContext());
 		final ServletRegistration registration = mock(ServletRegistration.class);
-		when(registration.getMappings()).thenReturn(Collections.singleton(servletPath));
+		given(registration.getMappings()).willReturn(Collections.singleton(servletPath));
 		Answer<Map<String, ? extends ServletRegistration>> answer = invocation -> Collections.singletonMap("spring",
 				registration);
-		when(servletContext.getServletRegistrations()).thenAnswer(answer);
+		given(servletContext.getServletRegistrations()).willAnswer(answer);
 		return servletContext;
 	}
 

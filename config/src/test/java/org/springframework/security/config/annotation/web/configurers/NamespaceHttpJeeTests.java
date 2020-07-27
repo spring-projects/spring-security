@@ -36,9 +36,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,7 +63,7 @@ public class NamespaceHttpJeeTests {
 		this.spring.register(JeeMappableRolesConfig.class, BaseController.class).autowire();
 
 		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("joe");
+		given(user.getName()).willReturn("joe");
 
 		this.mvc.perform(get("/roles").principal(user).with(request -> {
 			request.addUserRole("ROLE_admin");
@@ -78,12 +78,12 @@ public class NamespaceHttpJeeTests {
 		this.spring.register(JeeUserServiceRefConfig.class, BaseController.class).autowire();
 
 		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("joe");
+		given(user.getName()).willReturn("joe");
 
 		User result = new User(user.getName(), "N/A", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_user"));
 
-		when(bean(AuthenticationUserDetailsService.class).loadUserDetails(any())).thenReturn(result);
+		given(bean(AuthenticationUserDetailsService.class).loadUserDetails(any())).willReturn(result);
 
 		this.mvc.perform(get("/roles").principal(user)).andExpect(status().isOk())
 				.andExpect(content().string("ROLE_user"));

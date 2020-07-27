@@ -61,8 +61,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -162,8 +162,8 @@ public class WebSecurityConfigurationTests {
 	@Test
 	public void loadConfigWhenSecurityExpressionHandlerSetThenIsRegistered() {
 		WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER = mock(SecurityExpressionHandler.class);
-		when(WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER.getExpressionParser())
-				.thenReturn(mock(ExpressionParser.class));
+		given(WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER.getExpressionParser())
+				.willReturn(mock(ExpressionParser.class));
 
 		this.spring.register(WebSecurityExpressionHandlerConfig.class).autowire();
 

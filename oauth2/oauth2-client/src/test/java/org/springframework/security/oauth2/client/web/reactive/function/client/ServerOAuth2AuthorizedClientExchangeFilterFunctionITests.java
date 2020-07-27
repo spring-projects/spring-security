@@ -56,13 +56,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 /**
@@ -138,8 +138,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().tokenUri(this.serverUrl)
 				.build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
-				.thenReturn(Mono.just(clientRegistration));
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
+				.willReturn(Mono.just(clientRegistration));
 
 		this.webClient.get().uri(this.serverUrl)
 				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
@@ -166,8 +166,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().tokenUri(this.serverUrl)
 				.build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
-				.thenReturn(Mono.just(clientRegistration));
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
+				.willReturn(Mono.just(clientRegistration));
 
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant expiresAt = issuedAt.plus(Duration.ofHours(1));
@@ -208,8 +208,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 		ClientRegistration clientRegistration1 = TestClientRegistrations.clientCredentials().registrationId("client-1")
 				.tokenUri(this.serverUrl).build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration1.getRegistrationId())))
-				.thenReturn(Mono.just(clientRegistration1));
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration1.getRegistrationId())))
+				.willReturn(Mono.just(clientRegistration1));
 
 		// Client 2
 		this.server.enqueue(jsonResponse(accessTokenResponse));
@@ -217,8 +217,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 		ClientRegistration clientRegistration2 = TestClientRegistrations.clientCredentials().registrationId("client-2")
 				.tokenUri(this.serverUrl).build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration2.getRegistrationId())))
-				.thenReturn(Mono.just(clientRegistration2));
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration2.getRegistrationId())))
+				.willReturn(Mono.just(clientRegistration2));
 
 		this.webClient.get().uri(this.serverUrl)
 				.attributes(clientRegistrationId(clientRegistration1.getRegistrationId())).retrieve()
@@ -255,8 +255,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().tokenUri(this.serverUrl)
 				.build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
-				.thenReturn(Mono.just(clientRegistration));
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
+				.willReturn(Mono.just(clientRegistration));
 
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.scopes("read", "write");
 		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();

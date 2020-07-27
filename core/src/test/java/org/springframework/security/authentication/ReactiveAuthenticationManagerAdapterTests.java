@@ -28,7 +28,7 @@ import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -62,8 +62,8 @@ public class ReactiveAuthenticationManagerAdapterTests {
 
 	@Test
 	public void authenticateWhenSuccessThenSuccess() {
-		when(this.delegate.authenticate(any())).thenReturn(this.authentication);
-		when(this.authentication.isAuthenticated()).thenReturn(true);
+		given(this.delegate.authenticate(any())).willReturn(this.authentication);
+		given(this.authentication.isAuthenticated()).willReturn(true);
 
 		Authentication result = this.manager.authenticate(this.authentication).block();
 
@@ -72,7 +72,7 @@ public class ReactiveAuthenticationManagerAdapterTests {
 
 	@Test
 	public void authenticateWhenReturnNotAuthenticatedThenError() {
-		when(this.delegate.authenticate(any())).thenReturn(this.authentication);
+		given(this.delegate.authenticate(any())).willReturn(this.authentication);
 
 		Authentication result = this.manager.authenticate(this.authentication).block();
 
@@ -81,7 +81,7 @@ public class ReactiveAuthenticationManagerAdapterTests {
 
 	@Test
 	public void authenticateWhenBadCredentialsThenError() {
-		when(this.delegate.authenticate(any())).thenThrow(new BadCredentialsException("Failed"));
+		given(this.delegate.authenticate(any())).willThrow(new BadCredentialsException("Failed"));
 
 		Mono<Authentication> result = this.manager.authenticate(this.authentication);
 

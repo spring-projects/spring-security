@@ -44,10 +44,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link ConcurrentSessionFilter}.
@@ -179,7 +179,7 @@ public class ConcurrentSessionFilterTests {
 		SessionInformation information = new SessionInformation("user", "sessionId",
 				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
-		when(registry.getSessionInformation(anyString())).thenReturn(information);
+		given(registry.getSessionInformation(anyString())).willReturn(information);
 
 		String expiredUrl = "/expired";
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredUrl);
@@ -224,7 +224,7 @@ public class ConcurrentSessionFilterTests {
 		SessionInformation information = new SessionInformation("user", "sessionId",
 				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
-		when(registry.getSessionInformation(anyString())).thenReturn(information);
+		given(registry.getSessionInformation(anyString())).willReturn(information);
 
 		String expiredUrl = "/expired";
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredUrl);
@@ -247,7 +247,7 @@ public class ConcurrentSessionFilterTests {
 		SessionInformation information = new SessionInformation("user", "sessionId",
 				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
-		when(registry.getSessionInformation(anyString())).thenReturn(information);
+		given(registry.getSessionInformation(anyString())).willReturn(information);
 
 		final String expiredUrl = "/expired";
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredUrl + "will-be-overrridden") {
@@ -276,7 +276,7 @@ public class ConcurrentSessionFilterTests {
 		SessionInformation information = new SessionInformation("user", "sessionId",
 				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
-		when(registry.getSessionInformation(anyString())).thenReturn(information);
+		given(registry.getSessionInformation(anyString())).willReturn(information);
 
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
 
@@ -298,7 +298,7 @@ public class ConcurrentSessionFilterTests {
 		SessionInformation information = new SessionInformation("user", "sessionId",
 				new Date(System.currentTimeMillis() - 1000));
 		information.expireNow();
-		when(registry.getSessionInformation(anyString())).thenReturn(information);
+		given(registry.getSessionInformation(anyString())).willReturn(information);
 
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
 		filter.setLogoutHandlers(new LogoutHandler[] { handler });

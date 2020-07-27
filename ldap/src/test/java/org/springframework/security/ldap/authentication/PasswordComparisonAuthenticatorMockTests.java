@@ -29,8 +29,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -49,15 +49,15 @@ public class PasswordComparisonAuthenticatorMockTests {
 		authenticator.setUserDnPatterns(new String[] { "cn={0},ou=people" });
 
 		// Get the mock to return an empty attribute set
-		when(source.getReadOnlyContext()).thenReturn(dirCtx);
-		when(dirCtx.getAttributes(eq("cn=Bob,ou=people"), any(String[].class))).thenReturn(attrs);
-		when(dirCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
+		given(source.getReadOnlyContext()).willReturn(dirCtx);
+		given(dirCtx.getAttributes(eq("cn=Bob,ou=people"), any(String[].class))).willReturn(attrs);
+		given(dirCtx.getNameInNamespace()).willReturn("dc=springframework,dc=org");
 
 		// Setup a single return value (i.e. success)
 		final NamingEnumeration searchResults = new BasicAttributes("", null).getAll();
 
-		when(dirCtx.search(eq("cn=Bob,ou=people"), eq("(userPassword={0})"), any(Object[].class),
-				any(SearchControls.class))).thenReturn(searchResults);
+		given(dirCtx.search(eq("cn=Bob,ou=people"), eq("(userPassword={0})"), any(Object[].class),
+				any(SearchControls.class))).willReturn(searchResults);
 
 		authenticator.authenticate(new UsernamePasswordAuthenticationToken("Bob", "bobspassword"));
 	}

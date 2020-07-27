@@ -28,9 +28,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -59,8 +59,8 @@ public class AndServerWebExchangeMatcherTests {
 	public void matchesWhenTrueTrueThenTrue() {
 		Map<String, Object> params1 = Collections.singletonMap("foo", "bar");
 		Map<String, Object> params2 = Collections.singletonMap("x", "y");
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params1));
-		when(this.matcher2.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params2));
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params1));
+		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params2));
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
@@ -75,7 +75,7 @@ public class AndServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenFalseFalseThenFalseAndMatcher2NotInvoked() {
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
@@ -89,8 +89,8 @@ public class AndServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenTrueFalseThenFalse() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
-		when(this.matcher2.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
+		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
@@ -103,7 +103,7 @@ public class AndServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenFalseTrueThenFalse() {
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 

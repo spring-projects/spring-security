@@ -29,9 +29,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * DelegatingLogoutSuccessHandlerTests Tests
@@ -79,7 +79,7 @@ public class DelegatingLogoutSuccessHandlerTests {
 	@Test
 	public void onLogoutSuccessFirstMatches() throws Exception {
 		this.delegatingHandler.setDefaultLogoutSuccessHandler(this.defaultHandler);
-		when(this.matcher.matches(this.request)).thenReturn(true);
+		given(this.matcher.matches(this.request)).willReturn(true);
 
 		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
 
@@ -90,7 +90,7 @@ public class DelegatingLogoutSuccessHandlerTests {
 	@Test
 	public void onLogoutSuccessSecondMatches() throws Exception {
 		this.delegatingHandler.setDefaultLogoutSuccessHandler(this.defaultHandler);
-		when(this.matcher2.matches(this.request)).thenReturn(true);
+		given(this.matcher2.matches(this.request)).willReturn(true);
 
 		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
 

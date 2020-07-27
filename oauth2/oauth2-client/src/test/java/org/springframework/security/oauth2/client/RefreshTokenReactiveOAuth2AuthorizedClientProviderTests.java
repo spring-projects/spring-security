@@ -40,9 +40,9 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenRe
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link RefreshTokenReactiveOAuth2AuthorizedClientProvider}.
@@ -138,7 +138,7 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizedAndAccessTokenNotExpiredButClockSkewForcesExpiryThenReauthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.refreshToken("new-refresh-token").build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
 		Instant now = Instant.now();
 		Instant issuedAt = now.minus(Duration.ofMinutes(60));
@@ -168,7 +168,7 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizedAndAccessTokenExpiredThenReauthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.refreshToken("new-refresh-token").build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withAuthorizedClient(this.authorizedClient).principal(this.principal).build();
@@ -186,7 +186,7 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizedAndRequestScopeProvidedThenScopeRequested() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.refreshToken("new-refresh-token").build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
 		String[] requestScope = new String[] { "read", "write" };
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext

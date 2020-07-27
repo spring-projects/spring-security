@@ -34,7 +34,7 @@ import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -83,7 +83,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	@Test
 	public void commenceWhenCustomServerRedirectStrategyThenCustomServerRedirectStrategyUsed() {
 		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
-		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
+		given(this.redirectStrategy.sendRedirect(any(), any())).willReturn(redirectResult.mono());
 		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = createExchange();
 

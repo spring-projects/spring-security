@@ -36,10 +36,10 @@ import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthe
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -79,7 +79,7 @@ public class JeeConfigurerTests {
 	public void jeeWhenInvokedTwiceThenUsesOriginalMappableRoles() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
 		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("user");
+		given(user.getName()).willReturn("user");
 
 		this.mvc.perform(get("/").principal(user).with(request -> {
 			request.addUserRole("ROLE_ADMIN");
@@ -92,7 +92,7 @@ public class JeeConfigurerTests {
 	public void requestWhenJeeMappableRolesInLambdaThenAuthenticatedWithMappableRoles() throws Exception {
 		this.spring.register(JeeMappableRolesConfig.class).autowire();
 		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("user");
+		given(user.getName()).willReturn("user");
 
 		this.mvc.perform(get("/").principal(user).with(request -> {
 			request.addUserRole("ROLE_ADMIN");
@@ -105,7 +105,7 @@ public class JeeConfigurerTests {
 	public void requestWhenJeeMappableAuthoritiesInLambdaThenAuthenticatedWithMappableAuthorities() throws Exception {
 		this.spring.register(JeeMappableAuthoritiesConfig.class).autowire();
 		Principal user = mock(Principal.class);
-		when(user.getName()).thenReturn("user");
+		given(user.getName()).willReturn("user");
 
 		this.mvc.perform(get("/").principal(user).with(request -> {
 			request.addUserRole("ROLE_ADMIN");
@@ -121,9 +121,9 @@ public class JeeConfigurerTests {
 		Principal user = mock(Principal.class);
 		User userDetails = new User("user", "N/A", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(user.getName()).thenReturn("user");
-		when(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
-				.thenReturn(userDetails);
+		given(user.getName()).willReturn("user");
+		given(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
+				.willReturn(userDetails);
 
 		this.mvc.perform(get("/").principal(user).with(request -> {
 			request.addUserRole("ROLE_ADMIN");

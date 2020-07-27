@@ -28,9 +28,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -57,8 +57,8 @@ public class OrServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenFalseFalseThenFalse() {
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(this.matcher2.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
@@ -72,7 +72,7 @@ public class OrServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenTrueFalseThenTrueAndMatcher2NotInvoked() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
@@ -86,8 +86,8 @@ public class OrServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenFalseTrueThenTrue() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(this.matcher2.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 

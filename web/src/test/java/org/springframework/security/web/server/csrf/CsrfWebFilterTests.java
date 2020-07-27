@@ -40,9 +40,9 @@ import org.springframework.web.server.WebSession;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.mock.web.server.MockServerWebExchange.from;
 import static org.springframework.web.reactive.function.BodyInserters.fromMultipartData;
 
@@ -71,7 +71,7 @@ public class CsrfWebFilterTests {
 	@Test
 	public void filterWhenGetThenSessionNotCreatedAndChainContinues() {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
-		when(this.chain.filter(this.get)).thenReturn(chainResult.mono());
+		given(this.chain.filter(this.get)).willReturn(chainResult.mono());
 
 		Mono<Void> result = this.csrfFilter.filter(this.get, this.chain);
 
@@ -95,7 +95,7 @@ public class CsrfWebFilterTests {
 	@Test
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestMissingTokenThenCsrfException() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 
@@ -107,7 +107,7 @@ public class CsrfWebFilterTests {
 	@Test
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestParamInvalidTokenThenCsrfException() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		this.post = from(MockServerHttpRequest.post("/")
 				.body(this.token.getParameterName() + "=" + this.token.getToken() + "INVALID"));
 
@@ -121,11 +121,11 @@ public class CsrfWebFilterTests {
 	@Test
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestParamValidTokenThenContinues() {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
-		when(this.chain.filter(any())).thenReturn(chainResult.mono());
+		given(this.chain.filter(any())).willReturn(chainResult.mono());
 
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
-		when(this.repository.generateToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
+		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		this.post = from(MockServerHttpRequest.post("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.body(this.token.getParameterName() + "=" + this.token.getToken()));
 
@@ -139,7 +139,7 @@ public class CsrfWebFilterTests {
 	@Test
 	public void filterWhenPostAndEstablishedCsrfTokenAndHeaderInvalidTokenThenCsrfException() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		this.post = from(
 				MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken() + "INVALID"));
 
@@ -153,11 +153,11 @@ public class CsrfWebFilterTests {
 	@Test
 	public void filterWhenPostAndEstablishedCsrfTokenAndHeaderValidTokenThenContinues() {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
-		when(this.chain.filter(any())).thenReturn(chainResult.mono());
+		given(this.chain.filter(any())).willReturn(chainResult.mono());
 
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
-		when(this.repository.generateToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
+		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		this.post = from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -181,7 +181,7 @@ public class CsrfWebFilterTests {
 	@Test
 	public void doFilterWhenSkipExchangeInvokedThenSkips() {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
-		when(this.chain.filter(any())).thenReturn(chainResult.mono());
+		given(this.chain.filter(any())).willReturn(chainResult.mono());
 
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
 		this.csrfFilter.setRequireCsrfProtectionMatcher(matcher);
@@ -196,7 +196,7 @@ public class CsrfWebFilterTests {
 	@Test
 	public void filterWhenMultipartFormDataAndNotEnabledThenDenied() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
 
@@ -209,8 +209,8 @@ public class CsrfWebFilterTests {
 	public void filterWhenMultipartFormDataAndEnabledThenGranted() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		this.csrfFilter.setTokenFromMultipartDataEnabled(true);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
-		when(this.repository.generateToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
+		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
 
@@ -223,8 +223,8 @@ public class CsrfWebFilterTests {
 	public void filterWhenFormDataAndEnabledThenGranted() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		this.csrfFilter.setTokenFromMultipartDataEnabled(true);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
-		when(this.repository.generateToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
+		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
 
@@ -237,7 +237,7 @@ public class CsrfWebFilterTests {
 	public void filterWhenMultipartMixedAndEnabledThenNotRead() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		this.csrfFilter.setTokenFromMultipartDataEnabled(true);
-		when(this.repository.loadToken(any())).thenReturn(Mono.just(this.token));
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
 

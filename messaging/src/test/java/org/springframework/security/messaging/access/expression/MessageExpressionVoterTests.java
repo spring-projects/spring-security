@@ -36,9 +36,9 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
 import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
 import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
@@ -78,13 +78,13 @@ public class MessageExpressionVoterTests {
 
 	@Test
 	public void voteGranted() {
-		when(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).thenReturn(true);
+		given(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).willReturn(true);
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes)).isEqualTo(ACCESS_GRANTED);
 	}
 
 	@Test
 	public void voteDenied() {
-		when(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).thenReturn(false);
+		given(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).willReturn(false);
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes)).isEqualTo(ACCESS_DENIED);
 	}
 
@@ -122,9 +122,9 @@ public class MessageExpressionVoterTests {
 	@Test
 	public void customExpressionHandler() {
 		this.voter.setExpressionHandler(this.expressionHandler);
-		when(this.expressionHandler.createEvaluationContext(this.authentication, this.message))
-				.thenReturn(this.evaluationContext);
-		when(this.expression.getValue(this.evaluationContext, Boolean.class)).thenReturn(true);
+		given(this.expressionHandler.createEvaluationContext(this.authentication, this.message))
+				.willReturn(this.evaluationContext);
+		given(this.expression.getValue(this.evaluationContext, Boolean.class)).willReturn(true);
 
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes)).isEqualTo(ACCESS_GRANTED);
 
@@ -135,12 +135,12 @@ public class MessageExpressionVoterTests {
 	public void postProcessEvaluationContext() {
 		final MessageExpressionConfigAttribute configAttribute = mock(MessageExpressionConfigAttribute.class);
 		this.voter.setExpressionHandler(this.expressionHandler);
-		when(this.expressionHandler.createEvaluationContext(this.authentication, this.message))
-				.thenReturn(this.evaluationContext);
-		when(configAttribute.getAuthorizeExpression()).thenReturn(this.expression);
+		given(this.expressionHandler.createEvaluationContext(this.authentication, this.message))
+				.willReturn(this.evaluationContext);
+		given(configAttribute.getAuthorizeExpression()).willReturn(this.expression);
 		this.attributes = Arrays.<ConfigAttribute>asList(configAttribute);
-		when(configAttribute.postProcess(this.evaluationContext, this.message)).thenReturn(this.evaluationContext);
-		when(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).thenReturn(true);
+		given(configAttribute.postProcess(this.evaluationContext, this.message)).willReturn(this.evaluationContext);
+		given(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).willReturn(true);
 
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes)).isEqualTo(ACCESS_GRANTED);
 		verify(configAttribute).postProcess(this.evaluationContext, this.message);

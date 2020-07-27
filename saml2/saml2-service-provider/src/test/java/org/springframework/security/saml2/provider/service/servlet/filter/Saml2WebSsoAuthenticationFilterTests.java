@@ -31,8 +31,8 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class Saml2WebSsoAuthenticationFilterTests {
 
@@ -81,7 +81,7 @@ public class Saml2WebSsoAuthenticationFilterTests {
 
 	@Test
 	public void attemptAuthenticationWhenRegistrationIdDoesNotExistThenThrowsException() {
-		when(this.repository.findByRegistrationId("non-existent-id")).thenReturn(null);
+		given(this.repository.findByRegistrationId("non-existent-id")).willReturn(null);
 
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
 

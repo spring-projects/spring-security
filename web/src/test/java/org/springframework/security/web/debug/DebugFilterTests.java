@@ -39,9 +39,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -78,8 +78,8 @@ public class DebugFilterTests {
 
 	@Before
 	public void setUp() {
-		when(this.request.getHeaderNames()).thenReturn(Collections.enumeration(Collections.<String>emptyList()));
-		when(this.request.getServletPath()).thenReturn("/login");
+		given(this.request.getHeaderNames()).willReturn(Collections.enumeration(Collections.<String>emptyList()));
+		given(this.request.getServletPath()).willReturn("/login");
 		this.filter = new DebugFilter(this.fcp);
 		ReflectionTestUtils.setField(this.filter, "logger", this.logger);
 		this.requestAttr = DebugFilter.ALREADY_FILTERED_ATTR_NAME;
@@ -99,7 +99,7 @@ public class DebugFilterTests {
 	// SEC-1901
 	@Test
 	public void doFilterProcessesForwardedRequests() throws Exception {
-		when(this.request.getAttribute(this.requestAttr)).thenReturn(Boolean.TRUE);
+		given(this.request.getAttribute(this.requestAttr)).willReturn(Boolean.TRUE);
 		HttpServletRequest request = new DebugRequestWrapper(this.request);
 
 		this.filter.doFilter(request, this.response, this.filterChain);
@@ -111,7 +111,7 @@ public class DebugFilterTests {
 
 	@Test
 	public void doFilterDoesNotWrapWithDebugRequestWrapperAgain() throws Exception {
-		when(this.request.getAttribute(this.requestAttr)).thenReturn(Boolean.TRUE);
+		given(this.request.getAttribute(this.requestAttr)).willReturn(Boolean.TRUE);
 		HttpServletRequest fireWalledRequest = new HttpServletRequestWrapper(new DebugRequestWrapper(this.request));
 
 		this.filter.doFilter(fireWalledRequest, this.response, this.filterChain);

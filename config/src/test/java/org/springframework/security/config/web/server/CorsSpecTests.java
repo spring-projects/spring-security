@@ -39,7 +39,7 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -65,7 +65,7 @@ public class CorsSpecTests {
 		this.http = new TestingServerHttpSecurity().applicationContext(this.context);
 		CorsConfiguration value = new CorsConfiguration();
 		value.setAllowedOrigins(Arrays.asList("*"));
-		when(this.source.getCorsConfiguration(any())).thenReturn(value);
+		given(this.source.getCorsConfiguration(any())).willReturn(value);
 	}
 
 	@Test
@@ -86,9 +86,9 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenCorsConfigurationSourceBeanThenAccessControlAllowOriginAndSecurityHeaders() {
-		when(this.context.getBeanNamesForType(any(ResolvableType.class))).thenReturn(new String[] { "source" },
+		given(this.context.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[] { "source" },
 				new String[0]);
-		when(this.context.getBean("source")).thenReturn(this.source);
+		given(this.context.getBean("source")).willReturn(this.source);
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
 		assertHeaders();
@@ -96,7 +96,7 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenNoConfigurationSourceThenNoCorsHeaders() {
-		when(this.context.getBeanNamesForType(any(ResolvableType.class))).thenReturn(new String[0]);
+		given(this.context.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[0]);
 		this.headerNamesNotPresent.add("Access-Control-Allow-Origin");
 		assertHeaders();
 	}

@@ -51,8 +51,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
@@ -361,8 +361,8 @@ public class DefaultOAuth2UserServiceTests {
 		ResponseEntity<Map<String, Object>> responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
 		Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = mock(Converter.class);
 		RestOperations rest = mock(RestOperations.class);
-		when(rest.exchange(nullable(RequestEntity.class), any(ParameterizedTypeReference.class)))
-				.thenReturn(responseEntity);
+		given(rest.exchange(nullable(RequestEntity.class), any(ParameterizedTypeReference.class)))
+				.willReturn(responseEntity);
 		DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
 		userService.setRequestEntityConverter(requestEntityConverter);
 		userService.setRestOperations(rest);

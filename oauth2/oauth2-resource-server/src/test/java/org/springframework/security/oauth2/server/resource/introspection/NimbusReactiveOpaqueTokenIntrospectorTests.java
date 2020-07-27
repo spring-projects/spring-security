@@ -42,9 +42,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.AUDIENCE;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUER;
@@ -216,15 +216,15 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		WebClient real = WebClient.builder().build();
 		WebClient.RequestBodyUriSpec spec = spy(real.post());
 		WebClient webClient = spy(WebClient.class);
-		when(webClient.post()).thenReturn(spec);
+		given(webClient.post()).willReturn(spec);
 		ClientResponse clientResponse = mock(ClientResponse.class);
-		when(clientResponse.rawStatusCode()).thenReturn(200);
-		when(clientResponse.statusCode()).thenReturn(HttpStatus.OK);
-		when(clientResponse.bodyToMono(String.class)).thenReturn(Mono.just(response));
+		given(clientResponse.rawStatusCode()).willReturn(200);
+		given(clientResponse.statusCode()).willReturn(HttpStatus.OK);
+		given(clientResponse.bodyToMono(String.class)).willReturn(Mono.just(response));
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
-		when(headers.contentType()).thenReturn(Optional.of(MediaType.APPLICATION_JSON_UTF8));
-		when(clientResponse.headers()).thenReturn(headers);
-		when(spec.exchange()).thenReturn(Mono.just(clientResponse));
+		given(headers.contentType()).willReturn(Optional.of(MediaType.APPLICATION_JSON_UTF8));
+		given(clientResponse.headers()).willReturn(headers);
+		given(spec.exchange()).willReturn(Mono.just(clientResponse));
 		return webClient;
 	}
 
@@ -232,8 +232,8 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		WebClient real = WebClient.builder().build();
 		WebClient.RequestBodyUriSpec spec = spy(real.post());
 		WebClient webClient = spy(WebClient.class);
-		when(webClient.post()).thenReturn(spec);
-		when(spec.exchange()).thenThrow(t);
+		given(webClient.post()).willReturn(spec);
+		given(spec.exchange()).willThrow(t);
 		return webClient;
 	}
 

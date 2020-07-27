@@ -42,10 +42,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -271,7 +271,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	@Test
 	public void setCustomWebClientThenCustomWebClientIsUsed() {
 		WebClient customClient = mock(WebClient.class);
-		when(customClient.post()).thenReturn(WebClient.builder().build().post());
+		given(customClient.post()).willReturn(WebClient.builder().build().post());
 
 		this.tokenResponseClient.setWebClient(customClient);
 
