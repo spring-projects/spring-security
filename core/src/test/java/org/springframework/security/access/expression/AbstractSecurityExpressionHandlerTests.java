@@ -69,19 +69,19 @@ public class AbstractSecurityExpressionHandlerTests {
 		assertThat(parser == this.handler.getExpressionParser()).isTrue();
 	}
 
-}
+	@Configuration
+	static class TestConfiguration {
 
-@Configuration
-class TestConfiguration {
+		@Bean
+		Integer number10() {
+			return 10;
+		}
 
-	@Bean
-	Integer number10() {
-		return 10;
-	}
+		@Bean
+		Integer number20() {
+			return 20;
+		}
 
-	@Bean
-	Integer number20() {
-		return 20;
 	}
 
 }

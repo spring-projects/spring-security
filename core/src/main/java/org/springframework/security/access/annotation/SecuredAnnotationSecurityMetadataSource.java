@@ -82,20 +82,20 @@ public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMet
 		return this.annotationExtractor.extractAttributes(a);
 	}
 
-}
+	static class SecuredAnnotationMetadataExtractor implements AnnotationMetadataExtractor<Secured> {
 
-class SecuredAnnotationMetadataExtractor implements AnnotationMetadataExtractor<Secured> {
+		@Override
+		public Collection<ConfigAttribute> extractAttributes(Secured secured) {
+			String[] attributeTokens = secured.value();
+			List<ConfigAttribute> attributes = new ArrayList<>(attributeTokens.length);
 
-	@Override
-	public Collection<ConfigAttribute> extractAttributes(Secured secured) {
-		String[] attributeTokens = secured.value();
-		List<ConfigAttribute> attributes = new ArrayList<>(attributeTokens.length);
+			for (String token : attributeTokens) {
+				attributes.add(new SecurityConfig(token));
+			}
 
-		for (String token : attributeTokens) {
-			attributes.add(new SecurityConfig(token));
+			return attributes;
 		}
 
-		return attributes;
 	}
 
 }

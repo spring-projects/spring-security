@@ -33,6 +33,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.debug.DebugFilter.DebugRequestWrapper;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

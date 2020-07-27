@@ -42,20 +42,20 @@ public class FieldUtilsTests {
 		}
 	}
 
-}
+	@SuppressWarnings("unused")
+	static class TestClass {
 
-@SuppressWarnings("unused")
-class TestClass {
+		private String protectedField = "x";
 
-	private String protectedField = "x";
+		private Nested nested = new Nested();
 
-	private Nested nested = new Nested();
+	}
 
-}
+	@SuppressWarnings("unused")
+	static class Nested {
 
-@SuppressWarnings("unused")
-class Nested {
+		private String protectedField = "z";
 
-	private String protectedField = "z";
+	}
 
 }
