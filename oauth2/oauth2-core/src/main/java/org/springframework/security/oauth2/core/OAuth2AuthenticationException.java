@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
  */
 public class OAuth2AuthenticationException extends AuthenticationException {
 
-	private OAuth2Error error;
+	private final OAuth2Error error;
 
 	/**
 	 * Constructs an {@code OAuth2AuthenticationException} using the provided parameters.
@@ -65,8 +65,7 @@ public class OAuth2AuthenticationException extends AuthenticationException {
 	 * @param message the detail message
 	 */
 	public OAuth2AuthenticationException(OAuth2Error error, String message) {
-		super(message);
-		this.setError(error);
+		this(error, message, null);
 	}
 
 	/**
@@ -77,7 +76,8 @@ public class OAuth2AuthenticationException extends AuthenticationException {
 	 */
 	public OAuth2AuthenticationException(OAuth2Error error, String message, Throwable cause) {
 		super(message, cause);
-		this.setError(error);
+		Assert.notNull(error, "error cannot be null");
+		this.error = error;
 	}
 
 	/**
@@ -86,11 +86,6 @@ public class OAuth2AuthenticationException extends AuthenticationException {
 	 */
 	public OAuth2Error getError() {
 		return this.error;
-	}
-
-	private void setError(OAuth2Error error) {
-		Assert.notNull(error, "error cannot be null");
-		this.error = error;
 	}
 
 }

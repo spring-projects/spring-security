@@ -250,12 +250,12 @@ public class ThrowableAnalyzerTests {
 	}
 
 	/**
-	 * Exception for testing purposes. The cause is not retrievable by {@link #getCause()}
-	 * .
+	 * Exception for testing purposes. The cause is not retrievable by
+	 * {@link #getCause()}.
 	 */
 	public static final class NonStandardException extends Exception {
 
-		private Throwable cause;
+		private final Throwable cause;
 
 		public NonStandardException(String message, Throwable cause) {
 			super(message);
