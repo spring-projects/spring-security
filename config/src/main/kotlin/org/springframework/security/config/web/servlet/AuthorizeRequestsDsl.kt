@@ -154,6 +154,18 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
     fun hasAuthority(authority: String) = "hasAuthority('$authority')"
 
     /**
+     * Specify that URLs requires any of a number authorities.
+     *
+     * @param authorities the authorities to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
+     * @return the SpEL expression "hasAnyAuthority" with the given authorities as a
+     * parameter
+     */
+    fun hasAnyAuthority(vararg authorities: String): String {
+        val anyAuthorities = authorities.joinToString("','")
+        return "hasAnyAuthority('$anyAuthorities')"
+    }
+
+    /**
      * Specify that URLs require a particular role.
      *
      * @param role the role to require (i.e. USER, ADMIN, etc).
@@ -161,6 +173,18 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * parameter
      */
     fun hasRole(role: String) = "hasRole('$role')"
+
+    /**
+     * Specify that URLs requires any of a number roles.
+     *
+     * @param roles the roles to require (i.e. USER, ADMIN, etc).
+     * @return the SpEL expression "hasAnyRole" with the given roles as a
+     * parameter
+     */
+    fun hasAnyRole(vararg roles: String): String {
+        val anyRoles = roles.joinToString("','")
+        return "hasAnyRole('$anyRoles')"
+    }
 
     /**
      * Specify that URLs are allowed by anyone.
