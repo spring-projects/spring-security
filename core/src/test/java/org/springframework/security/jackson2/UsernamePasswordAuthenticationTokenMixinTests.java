@@ -43,44 +43,32 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixinTests {
 
-	// @formatter:off
 	private static final String AUTHENTICATED_JSON = "{"
-		+ "\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\","
-		+ "\"principal\": "+ UserDeserializerTests.USER_JSON + ", "
-		+ "\"credentials\": \"1234\", "
-		+ "\"authenticated\": true, "
-		+ "\"details\": null, "
-		+ "\"authorities\": "+ SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
-	+ "}";
-	// @formatter:on
+			+ "\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\","
+			+ "\"principal\": " + UserDeserializerTests.USER_JSON + ", " + "\"credentials\": \"1234\", "
+			+ "\"authenticated\": true, " + "\"details\": null, " + "\"authorities\": "
+			+ SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON + "}";
 
-	// @formatter:off
-	public static final String AUTHENTICATED_STRINGPRINCIPAL_JSON = AUTHENTICATED_JSON.replace( UserDeserializerTests.USER_JSON, "\"admin\"");
-	// @formatter:on
+	public static final String AUTHENTICATED_STRINGPRINCIPAL_JSON = AUTHENTICATED_JSON
+			.replace(UserDeserializerTests.USER_JSON, "\"admin\"");
 
-	// @formatter:off
 	private static final String NON_USER_PRINCIPAL_JSON = "{"
-		+ "\"@class\": \"org.springframework.security.jackson2.UsernamePasswordAuthenticationTokenMixinTests$NonUserPrincipal\", "
-		+ "\"username\": \"admin\""
-		+ "}";
-	// @formatter:on
+			+ "\"@class\": \"org.springframework.security.jackson2.UsernamePasswordAuthenticationTokenMixinTests$NonUserPrincipal\", "
+			+ "\"username\": \"admin\"" + "}";
 
-	// @formatter:off
-	private static final String AUTHENTICATED_STRINGDETAILS_JSON = AUTHENTICATED_JSON.replace("\"details\": null, ", "\"details\": \"details\", ");
-	// @formatter:on
+	private static final String AUTHENTICATED_STRINGDETAILS_JSON = AUTHENTICATED_JSON.replace("\"details\": null, ",
+			"\"details\": \"details\", ");
 
-	// @formatter:off
 	private static final String AUTHENTICATED_NON_USER_PRINCIPAL_JSON = AUTHENTICATED_JSON
-		.replace(UserDeserializerTests.USER_JSON, NON_USER_PRINCIPAL_JSON)
-		.replaceAll(UserDeserializerTests.USER_PASSWORD, "null")
-		.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON, SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_ARRAYLIST_JSON);
-	// @formatter:on
+			.replace(UserDeserializerTests.USER_JSON, NON_USER_PRINCIPAL_JSON)
+			.replaceAll(UserDeserializerTests.USER_PASSWORD, "null")
+			.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON,
+					SimpleGrantedAuthorityMixinTests.NO_AUTHORITIES_ARRAYLIST_JSON);
 
-	// @formatter:off
 	private static final String UNAUTHENTICATED_STRINGPRINCIPAL_JSON = AUTHENTICATED_STRINGPRINCIPAL_JSON
-		.replace("\"authenticated\": true, ", "\"authenticated\": false, ")
-		.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON, SimpleGrantedAuthorityMixinTests.EMPTY_AUTHORITIES_ARRAYLIST_JSON);
-	// @formatter:on
+			.replace("\"authenticated\": true, ", "\"authenticated\": false, ")
+			.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON,
+					SimpleGrantedAuthorityMixinTests.EMPTY_AUTHORITIES_ARRAYLIST_JSON);
 
 	@Test
 	public void serializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest()
@@ -184,30 +172,20 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 
 	@Test
 	public void serializingThenDeserializingWithNoCredentialsOrDetailsShouldWork() throws IOException {
-		// given
 		UsernamePasswordAuthenticationToken original = new UsernamePasswordAuthenticationToken("Frodo", null);
-
-		// when
 		String serialized = this.mapper.writeValueAsString(original);
 		UsernamePasswordAuthenticationToken deserialized = this.mapper.readValue(serialized,
 				UsernamePasswordAuthenticationToken.class);
-
-		// then
 		assertThat(deserialized).isEqualTo(original);
 	}
 
 	@Test
 	public void serializingThenDeserializingWithConfiguredObjectMapperShouldWork() throws IOException {
-		// given
 		this.mapper.setDefaultPropertyInclusion(construct(ALWAYS, NON_NULL)).setSerializationInclusion(NON_ABSENT);
 		UsernamePasswordAuthenticationToken original = new UsernamePasswordAuthenticationToken("Frodo", null);
-
-		// when
 		String serialized = this.mapper.writeValueAsString(original);
 		UsernamePasswordAuthenticationToken deserialized = this.mapper.readValue(serialized,
 				UsernamePasswordAuthenticationToken.class);
-
-		// then
 		assertThat(deserialized).isEqualTo(original);
 	}
 
