@@ -46,8 +46,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.openid4java.discovery.yadis.YadisResolver.YADIS_XRDS_LOCATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -116,8 +116,8 @@ public class OpenIDConfigTests {
 		openIDFilter.setReturnToUrlParameters(returnToUrlParameters);
 
 		OpenIDConsumer consumer = mock(OpenIDConsumer.class);
-		when(consumer.beginConsumption(any(HttpServletRequest.class), anyString(), anyString(), anyString()))
-				.then(invocation -> openIdEndpointUrl + invocation.getArgument(2));
+		given(consumer.beginConsumption(any(HttpServletRequest.class), anyString(), anyString(), anyString()))
+				.will(invocation -> openIdEndpointUrl + invocation.getArgument(2));
 		openIDFilter.setConsumer(consumer);
 
 		String expectedReturnTo = new StringBuilder("http://localhost/login/openid").append("?")

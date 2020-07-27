@@ -35,7 +35,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -62,8 +62,8 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 
 	@Before
 	public void setup() {
-		when(this.delegate1.onAuthenticationSuccess(any(), any())).thenReturn(this.delegate1Result.mono());
-		when(this.delegate2.onAuthenticationSuccess(any(), any())).thenReturn(this.delegate2Result.mono());
+		given(this.delegate1.onAuthenticationSuccess(any(), any())).willReturn(this.delegate1Result.mono());
+		given(this.delegate2.onAuthenticationSuccess(any(), any())).willReturn(this.delegate2Result.mono());
 	}
 
 	@Test

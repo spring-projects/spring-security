@@ -38,10 +38,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -64,8 +64,8 @@ public class AclEntryAfterInvocationProviderTests {
 	public void accessIsAllowedIfPermissionIsGranted() {
 		AclService service = mock(AclService.class);
 		Acl acl = mock(Acl.class);
-		when(acl.isGranted(any(List.class), any(List.class), anyBoolean())).thenReturn(true);
-		when(service.readAclById(any(), any())).thenReturn(acl);
+		given(acl.isGranted(any(List.class), any(List.class), anyBoolean())).willReturn(true);
+		given(service.readAclById(any(), any())).willReturn(acl);
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(service,
 				Arrays.asList(mock(Permission.class)));
 		provider.setMessageSource(new SpringSecurityMessageSource());
@@ -104,10 +104,10 @@ public class AclEntryAfterInvocationProviderTests {
 	public void accessIsDeniedIfPermissionIsNotGranted() {
 		AclService service = mock(AclService.class);
 		Acl acl = mock(Acl.class);
-		when(acl.isGranted(any(List.class), any(List.class), anyBoolean())).thenReturn(false);
+		given(acl.isGranted(any(List.class), any(List.class), anyBoolean())).willReturn(false);
 		// Try a second time with no permissions found
-		when(acl.isGranted(any(), any(List.class), anyBoolean())).thenThrow(new NotFoundException(""));
-		when(service.readAclById(any(), any())).thenReturn(acl);
+		given(acl.isGranted(any(), any(List.class), anyBoolean())).willThrow(new NotFoundException(""));
+		given(service.readAclById(any(), any())).willReturn(acl);
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(service,
 				Arrays.asList(mock(Permission.class)));
 		provider.setProcessConfigAttribute("MY_ATTRIBUTE");

@@ -36,8 +36,8 @@ import org.springframework.web.server.WebFilterChain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -91,7 +91,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	@Test
 	public void successWhenCustomLocationThenCustomLocationUsed() {
 		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
-		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
+		given(this.redirectStrategy.sendRedirect(any(), any())).willReturn(redirectResult.mono());
 		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 

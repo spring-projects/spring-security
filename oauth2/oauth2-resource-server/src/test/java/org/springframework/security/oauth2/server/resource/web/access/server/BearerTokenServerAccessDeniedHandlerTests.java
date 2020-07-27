@@ -34,8 +34,8 @@ import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class BearerTokenServerAccessDeniedHandlerTests {
 
@@ -51,8 +51,8 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 
 		Authentication token = new TestingAuthenticationToken("user", "pass");
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
-		when(exchange.getPrincipal()).thenReturn(Mono.just(token));
-		when(exchange.getResponse()).thenReturn(new MockServerHttpResponse());
+		given(exchange.getPrincipal()).willReturn(Mono.just(token));
+		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
 
 		this.accessDeniedHandler.handle(exchange, null).block();
 
@@ -65,8 +65,8 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 
 		Authentication token = new TestingAuthenticationToken("user", "pass");
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
-		when(exchange.getPrincipal()).thenReturn(Mono.just(token));
-		when(exchange.getResponse()).thenReturn(new MockServerHttpResponse());
+		given(exchange.getPrincipal()).willReturn(Mono.just(token));
+		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
 
 		this.accessDeniedHandler.setRealmName("test");
 		this.accessDeniedHandler.handle(exchange, null).block();
@@ -81,8 +81,8 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 
 		Authentication token = new TestingOAuth2TokenAuthenticationToken(Collections.emptyMap());
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
-		when(exchange.getPrincipal()).thenReturn(Mono.just(token));
-		when(exchange.getResponse()).thenReturn(new MockServerHttpResponse());
+		given(exchange.getPrincipal()).willReturn(Mono.just(token));
+		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
 
 		this.accessDeniedHandler.handle(exchange, null).block();
 

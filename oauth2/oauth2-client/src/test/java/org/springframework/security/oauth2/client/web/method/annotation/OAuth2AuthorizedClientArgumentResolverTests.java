@@ -66,9 +66,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link OAuth2AuthorizedClientArgumentResolver}.
@@ -131,12 +131,12 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager);
 		this.authorizedClient1 = new OAuth2AuthorizedClient(this.registration1, this.principalName,
 				mock(OAuth2AccessToken.class));
-		when(this.authorizedClientRepository.loadAuthorizedClient(eq(this.registration1.getRegistrationId()),
-				any(Authentication.class), any(HttpServletRequest.class))).thenReturn(this.authorizedClient1);
+		given(this.authorizedClientRepository.loadAuthorizedClient(eq(this.registration1.getRegistrationId()),
+				any(Authentication.class), any(HttpServletRequest.class))).willReturn(this.authorizedClient1);
 		this.authorizedClient2 = new OAuth2AuthorizedClient(this.registration2, this.principalName,
 				mock(OAuth2AccessToken.class));
-		when(this.authorizedClientRepository.loadAuthorizedClient(eq(this.registration2.getRegistrationId()),
-				any(Authentication.class), any(HttpServletRequest.class))).thenReturn(this.authorizedClient2);
+		given(this.authorizedClientRepository.loadAuthorizedClient(eq(this.registration2.getRegistrationId()),
+				any(Authentication.class), any(HttpServletRequest.class))).willReturn(this.authorizedClient2);
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 	}
@@ -218,7 +218,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenRegistrationIdEmptyAndOAuth2AuthenticationThenResolves() throws Exception {
 		OAuth2AuthenticationToken authentication = mock(OAuth2AuthenticationToken.class);
-		when(authentication.getAuthorizedClientRegistrationId()).thenReturn("client1");
+		given(authentication.getAuthorizedClientRegistrationId()).willReturn("client1");
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(authentication);
 		SecurityContextHolder.setContext(securityContext);
@@ -246,8 +246,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenAuthorizedClientNotFoundForAuthorizationCodeClientThenThrowClientAuthorizationRequiredException() {
-		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
-				.thenReturn(null);
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
+				.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
 		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null,
@@ -270,10 +270,10 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).build();
-		when(clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(clientCredentialsTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
-		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
-				.thenReturn(null);
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
+				.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("clientCredentialsClient",
 				OAuth2AuthorizedClient.class);
 
@@ -318,10 +318,10 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).build();
-		when(passwordTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(passwordTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
-		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
-				.thenReturn(null);
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
+				.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("passwordClient", OAuth2AuthorizedClient.class);
 
 		this.request.setParameter(OAuth2ParameterNames.USERNAME, "username");

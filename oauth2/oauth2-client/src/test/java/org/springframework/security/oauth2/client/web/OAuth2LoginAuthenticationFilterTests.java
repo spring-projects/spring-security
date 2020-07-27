@@ -59,12 +59,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
 
 /**
@@ -446,7 +446,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		request.addParameter(OAuth2ParameterNames.STATE, state);
 
 		WebAuthenticationDetails webAuthenticationDetails = mock(WebAuthenticationDetails.class);
-		when(this.authenticationDetailsSource.buildDetails(any())).thenReturn(webAuthenticationDetails);
+		given(this.authenticationDetailsSource.buildDetails(any())).willReturn(webAuthenticationDetails);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -484,17 +484,17 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	private void setUpAuthenticationResult(ClientRegistration registration) {
 		OAuth2User user = mock(OAuth2User.class);
-		when(user.getName()).thenReturn(this.principalName1);
+		given(user.getName()).willReturn(this.principalName1);
 		this.loginAuthentication = mock(OAuth2LoginAuthenticationToken.class);
-		when(this.loginAuthentication.getPrincipal()).thenReturn(user);
-		when(this.loginAuthentication.getName()).thenReturn(this.principalName1);
-		when(this.loginAuthentication.getAuthorities()).thenReturn(AuthorityUtils.createAuthorityList("ROLE_USER"));
-		when(this.loginAuthentication.getClientRegistration()).thenReturn(registration);
-		when(this.loginAuthentication.getAuthorizationExchange()).thenReturn(success());
-		when(this.loginAuthentication.getAccessToken()).thenReturn(mock(OAuth2AccessToken.class));
-		when(this.loginAuthentication.getRefreshToken()).thenReturn(mock(OAuth2RefreshToken.class));
-		when(this.loginAuthentication.isAuthenticated()).thenReturn(true);
-		when(this.authenticationManager.authenticate(any(Authentication.class))).thenReturn(this.loginAuthentication);
+		given(this.loginAuthentication.getPrincipal()).willReturn(user);
+		given(this.loginAuthentication.getName()).willReturn(this.principalName1);
+		given(this.loginAuthentication.getAuthorities()).willReturn(AuthorityUtils.createAuthorityList("ROLE_USER"));
+		given(this.loginAuthentication.getClientRegistration()).willReturn(registration);
+		given(this.loginAuthentication.getAuthorizationExchange()).willReturn(success());
+		given(this.loginAuthentication.getAccessToken()).willReturn(mock(OAuth2AccessToken.class));
+		given(this.loginAuthentication.getRefreshToken()).willReturn(mock(OAuth2RefreshToken.class));
+		given(this.loginAuthentication.isAuthenticated()).willReturn(true);
+		given(this.authenticationManager.authenticate(any(Authentication.class))).willReturn(this.loginAuthentication);
 	}
 
 }

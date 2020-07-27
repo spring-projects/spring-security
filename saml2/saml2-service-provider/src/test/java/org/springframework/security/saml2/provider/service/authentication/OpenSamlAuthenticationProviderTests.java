@@ -69,10 +69,10 @@ import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getMarshallerFactory;
 import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS;
@@ -260,7 +260,7 @@ public class OpenSamlAuthenticationProviderTests {
 
 		Element attributeElement = element("<element>value</element>");
 		Marshaller marshaller = mock(Marshaller.class);
-		when(marshaller.marshall(any(XMLObject.class))).thenReturn(attributeElement);
+		given(marshaller.marshall(any(XMLObject.class))).willReturn(attributeElement);
 
 		try {
 			XMLObjectProviderRegistrySupport.getMarshallerFactory()
@@ -375,9 +375,9 @@ public class OpenSamlAuthenticationProviderTests {
 		response.getAssertions().add(assertion);
 		signed(response, assertingPartySigningCredential(), ASSERTING_PARTY_ENTITY_ID);
 		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
-		when(validator.getServicedCondition()).thenReturn(OneTimeUse.DEFAULT_ELEMENT_NAME);
-		when(validator.validate(any(Condition.class), any(Assertion.class), any(ValidationContext.class)))
-				.thenReturn(ValidationResult.VALID);
+		given(validator.getServicedCondition()).willReturn(OneTimeUse.DEFAULT_ELEMENT_NAME);
+		given(validator.validate(any(Condition.class), any(Assertion.class), any(ValidationContext.class)))
+				.willReturn(ValidationResult.VALID);
 		provider.authenticate(token);
 		verify(validator).validate(any(Condition.class), any(Assertion.class), any(ValidationContext.class));
 	}
@@ -388,7 +388,7 @@ public class OpenSamlAuthenticationProviderTests {
 		parameters.put(SC_VALID_RECIPIENTS, singleton(DESTINATION));
 		parameters.put(SIGNATURE_REQUIRED, false);
 		ValidationContext context = mock(ValidationContext.class);
-		when(context.getStaticParameters()).thenReturn(parameters);
+		given(context.getStaticParameters()).willReturn(parameters);
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
 		provider.setValidationContextConverter(tuple -> context);
 		Response response = response();

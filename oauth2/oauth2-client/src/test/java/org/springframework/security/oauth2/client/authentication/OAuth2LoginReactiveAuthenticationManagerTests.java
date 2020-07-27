@@ -56,8 +56,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -144,8 +144,8 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	public void authenticationWhenOAuth2UserNotFoundThenEmpty() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
-		when(this.userService.loadUser(any())).thenReturn(Mono.empty());
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		given(this.userService.loadUser(any())).willReturn(Mono.empty());
 		assertThat(this.manager.authenticate(loginToken()).block()).isNull();
 	}
 
@@ -153,10 +153,10 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	public void authenticationWhenOAuth2UserFoundThenSuccess() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
-		when(this.userService.loadUser(any())).thenReturn(Mono.just(user));
+		given(this.userService.loadUser(any())).willReturn(Mono.just(user));
 
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken())
 				.block();
@@ -174,11 +174,11 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		additionalParameters.put("param2", "value2");
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).additionalParameters(additionalParameters).build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
 		ArgumentCaptor<OAuth2UserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OAuth2UserRequest.class);
-		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(Mono.just(user));
+		given(this.userService.loadUser(userRequestArgCaptor.capture())).willReturn(Mono.just(user));
 
 		this.manager.authenticate(loginToken()).block();
 
@@ -190,14 +190,14 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
-		when(this.userService.loadUser(any())).thenReturn(Mono.just(user));
+		given(this.userService.loadUser(any())).willReturn(Mono.just(user));
 		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OAUTH_USER");
 		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
-		when(authoritiesMapper.mapAuthorities(anyCollection()))
-				.thenAnswer((Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
+		given(authoritiesMapper.mapAuthorities(anyCollection()))
+				.willAnswer((Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
 		this.manager.setAuthoritiesMapper(authoritiesMapper);
 
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken())

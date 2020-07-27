@@ -66,9 +66,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class AuthenticationConfigurationTests {
 
@@ -150,7 +150,7 @@ public class AuthenticationConfigurationTests {
 
 		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-		when(authentication.authenticate(token)).thenReturn(TestAuthentication.authenticatedUser());
+		given(authentication.authenticate(token)).willReturn(TestAuthentication.authenticatedUser());
 
 		assertThat(authentication.authenticate(token).getName()).isEqualTo(token.getName());
 	}
@@ -196,7 +196,7 @@ public class AuthenticationConfigurationTests {
 	public void getAuthenticationManagerWhenPostProcessThenUsesBeanClassLoaderOnProxyFactoryBean() throws Exception {
 		this.spring.register(Sec2531Config.class).autowire();
 		ObjectPostProcessor<Object> opp = this.spring.getContext().getBean(ObjectPostProcessor.class);
-		when(opp.postProcess(any())).thenAnswer(a -> a.getArgument(0));
+		given(opp.postProcess(any())).willAnswer(a -> a.getArgument(0));
 
 		AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
 		config.getAuthenticationManager();
@@ -220,7 +220,7 @@ public class AuthenticationConfigurationTests {
 		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
 		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-		when(uds.loadUserByUsername("user")).thenReturn(PasswordEncodedUser.user(), PasswordEncodedUser.user());
+		given(uds.loadUserByUsername("user")).willReturn(PasswordEncodedUser.user(), PasswordEncodedUser.user());
 
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 
@@ -236,7 +236,7 @@ public class AuthenticationConfigurationTests {
 		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
 		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-		when(uds.loadUserByUsername("user")).thenReturn(User.withUserDetails(user).build(),
+		given(uds.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
 
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
@@ -253,9 +253,9 @@ public class AuthenticationConfigurationTests {
 				.getBean(UserDetailsPasswordManagerBeanConfig.Manager.class);
 		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-		when(manager.loadUserByUsername("user")).thenReturn(User.withUserDetails(user).build(),
+		given(manager.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
-		when(manager.updatePassword(any(), any())).thenReturn(user);
+		given(manager.updatePassword(any(), any())).willReturn(user);
 
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 
@@ -269,8 +269,8 @@ public class AuthenticationConfigurationTests {
 		AuthenticationProvider ap = this.spring.getContext().getBean(AuthenticationProvider.class);
 		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-		when(ap.supports(any())).thenReturn(true);
-		when(ap.authenticate(any())).thenReturn(TestAuthentication.authenticatedUser());
+		given(ap.supports(any())).willReturn(true);
+		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
 
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 	}
@@ -282,8 +282,8 @@ public class AuthenticationConfigurationTests {
 		AuthenticationProvider ap = this.spring.getContext().getBean(AuthenticationProvider.class);
 		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-		when(ap.supports(any())).thenReturn(true);
-		when(ap.authenticate(any())).thenReturn(TestAuthentication.authenticatedUser());
+		given(ap.supports(any())).willReturn(true);
+		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
 
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 	}

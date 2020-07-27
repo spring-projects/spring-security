@@ -29,7 +29,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -66,8 +66,8 @@ public class AuthorityReactiveAuthorizationManagerTests {
 
 	@Test
 	public void checkWhenHasAuthorityAndAuthenticatedAndNoAuthoritiesThenReturnFalse() {
-		when(this.authentication.isAuthenticated()).thenReturn(true);
-		when(this.authentication.getAuthorities()).thenReturn(Collections.emptyList());
+		given(this.authentication.isAuthenticated()).willReturn(true);
+		given(this.authentication.getAuthorities()).willReturn(Collections.emptyList());
 
 		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
 

@@ -80,11 +80,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withSecretKey;
@@ -179,7 +179,7 @@ public class NimbusJwtDecoderTests {
 		OAuth2Error failure = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 
 		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
-		when(jwtValidator.validate(any(Jwt.class))).thenReturn(OAuth2TokenValidatorResult.failure(failure));
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(OAuth2TokenValidatorResult.failure(failure));
 		this.jwtDecoder.setJwtValidator(jwtValidator);
 
 		assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
@@ -193,7 +193,7 @@ public class NimbusJwtDecoderTests {
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(firstFailure, secondFailure);
 
 		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
-		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 		this.jwtDecoder.setJwtValidator(jwtValidator);
 
 		assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
@@ -210,7 +210,7 @@ public class NimbusJwtDecoderTests {
 		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
-		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 
 		Assertions.assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("mock-description");
@@ -219,7 +219,7 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenUsingSignedJwtThenReturnsClaimsGivenByClaimSetConverter() {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
-		when(claimSetConverter.convert(any(Map.class))).thenReturn(Collections.singletonMap("custom", "value"));
+		given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
 		this.jwtDecoder.setClaimSetConverter(claimSetConverter);
 
 		Jwt jwt = this.jwtDecoder.decode(SIGNED_JWT);
@@ -233,7 +233,7 @@ public class NimbusJwtDecoderTests {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		this.jwtDecoder.setClaimSetConverter(claimSetConverter);
 
-		when(claimSetConverter.convert(any(Map.class))).thenThrow(new IllegalArgumentException("bad conversion"));
+		given(claimSetConverter.convert(any(Map.class))).willThrow(new IllegalArgumentException("bad conversion"));
 
 		assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(BadJwtException.class);
 	}
@@ -472,8 +472,8 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenJwkSetRequestedThenAcceptHeaderJsonAndJwkSetJson() {
 		RestOperations restOperations = mock(RestOperations.class);
-		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.thenReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		JWTProcessor<SecurityContext> processor = withJwkSetUri(JWK_SET_URI).restOperations(restOperations).processor();
 		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(processor);
 		jwtDecoder.decode(SIGNED_JWT);
@@ -488,8 +488,8 @@ public class NimbusJwtDecoderTests {
 		// given
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
-		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.thenReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		NimbusJwtDecoder jwtDecoder = withJwkSetUri(JWK_SET_URI).restOperations(restOperations).cache(cache).build();
 		// when
 		jwtDecoder.decode(SIGNED_JWT);
@@ -507,7 +507,7 @@ public class NimbusJwtDecoderTests {
 		// given
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = mock(Cache.class);
-		when(cache.get(eq(JWK_SET_URI), any(Callable.class))).thenReturn(JWK_SET);
+		given(cache.get(eq(JWK_SET_URI), any(Callable.class))).willReturn(JWK_SET);
 		NimbusJwtDecoder jwtDecoder = withJwkSetUri(JWK_SET_URI).cache(cache).restOperations(restOperations).build();
 		// when
 		jwtDecoder.decode(SIGNED_JWT);
@@ -522,8 +522,8 @@ public class NimbusJwtDecoderTests {
 		// given
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
-		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.thenThrow(new RestClientException("Cannot retrieve JWK Set"));
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.willThrow(new RestClientException("Cannot retrieve JWK Set"));
 		NimbusJwtDecoder jwtDecoder = withJwkSetUri(JWK_SET_URI).restOperations(restOperations).cache(cache).build();
 		// then
 		assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtException.class)
@@ -535,8 +535,8 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void withJwkSetUriWhenUsingCustomTypeHeaderThenRefuseOmittedType() throws Exception {
 		RestOperations restOperations = mock(RestOperations.class);
-		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.thenReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		NimbusJwtDecoder jwtDecoder = withJwkSetUri(JWK_SET_URI).restOperations(restOperations)
 				.jwtProcessorCustomizer(
 						p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
@@ -580,8 +580,8 @@ public class NimbusJwtDecoderTests {
 
 	private static JWTProcessor<SecurityContext> withSigning(String jwkResponse) {
 		RestOperations restOperations = mock(RestOperations.class);
-		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
-				.thenReturn(new ResponseEntity<>(jwkResponse, HttpStatus.OK));
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.willReturn(new ResponseEntity<>(jwkResponse, HttpStatus.OK));
 		return withJwkSetUri(JWK_SET_URI).restOperations(restOperations).processor();
 	}
 

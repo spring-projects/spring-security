@@ -33,8 +33,8 @@ import org.springframework.ldap.core.DistinguishedName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SpringSecurityLdapTemplateTests {
@@ -60,11 +60,11 @@ public class SpringSecurityLdapTemplateTests {
 		Object[] params = new Object[] {};
 		DirContextAdapter searchResultObject = mock(DirContextAdapter.class);
 
-		when(this.ctx.search(any(DistinguishedName.class), eq(filter), eq(params), this.searchControls.capture()))
-				.thenReturn(this.resultsEnum);
-		when(this.resultsEnum.hasMore()).thenReturn(true, false);
-		when(this.resultsEnum.next()).thenReturn(this.searchResult);
-		when(this.searchResult.getObject()).thenReturn(searchResultObject);
+		given(this.ctx.search(any(DistinguishedName.class), eq(filter), eq(params), this.searchControls.capture()))
+				.willReturn(this.resultsEnum);
+		given(this.resultsEnum.hasMore()).willReturn(true, false);
+		given(this.resultsEnum.next()).willReturn(this.searchResult);
+		given(this.searchResult.getObject()).willReturn(searchResultObject);
 
 		SpringSecurityLdapTemplate.searchForSingleEntryInternal(this.ctx, mock(SearchControls.class), base, filter,
 				params);

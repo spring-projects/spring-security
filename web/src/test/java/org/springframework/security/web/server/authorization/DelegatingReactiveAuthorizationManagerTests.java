@@ -33,8 +33,8 @@ import org.springframework.web.server.ServerWebExchange;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -75,9 +75,9 @@ public class DelegatingReactiveAuthorizationManagerTests {
 
 	@Test
 	public void checkWhenFirstMatchesThenNoMoreMatchersAndNoMoreDelegatesInvoked() {
-		when(this.match1.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(this.delegate1.check(eq(this.authentication), any(AuthorizationContext.class)))
-				.thenReturn(Mono.just(this.decision));
+		given(this.match1.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(this.delegate1.check(eq(this.authentication), any(AuthorizationContext.class)))
+				.willReturn(Mono.just(this.decision));
 
 		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 
@@ -86,10 +86,10 @@ public class DelegatingReactiveAuthorizationManagerTests {
 
 	@Test
 	public void checkWhenSecondMatchesThenNoMoreMatchersAndNoMoreDelegatesInvoked() {
-		when(this.match1.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(this.match2.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(this.delegate2.check(eq(this.authentication), any(AuthorizationContext.class)))
-				.thenReturn(Mono.just(this.decision));
+		given(this.match1.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.match2.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(this.delegate2.check(eq(this.authentication), any(AuthorizationContext.class)))
+				.willReturn(Mono.just(this.decision));
 
 		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 

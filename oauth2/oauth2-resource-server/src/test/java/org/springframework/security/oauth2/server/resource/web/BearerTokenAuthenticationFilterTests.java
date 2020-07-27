@@ -43,9 +43,9 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link BearerTokenAuthenticationFilterTests}
@@ -85,7 +85,7 @@ public class BearerTokenAuthenticationFilterTests {
 
 	@Test
 	public void doFilterWhenBearerTokenPresentThenAuthenticates() throws ServletException, IOException {
-		when(this.bearerTokenResolver.resolve(this.request)).thenReturn("token");
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
 
 		BearerTokenAuthenticationFilter filter = addMocks(
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
@@ -104,8 +104,8 @@ public class BearerTokenAuthenticationFilterTests {
 		BearerTokenAuthenticationFilter filter = addMocks(
 				new BearerTokenAuthenticationFilter(this.authenticationManagerResolver));
 
-		when(this.bearerTokenResolver.resolve(this.request)).thenReturn("token");
-		when(this.authenticationManagerResolver.resolve(any())).thenReturn(this.authenticationManager);
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		given(this.authenticationManagerResolver.resolve(any())).willReturn(this.authenticationManager);
 
 		filter.doFilter(this.request, this.response, this.filterChain);
 
@@ -120,7 +120,7 @@ public class BearerTokenAuthenticationFilterTests {
 	@Test
 	public void doFilterWhenNoBearerTokenPresentThenDoesNotAuthenticate() throws ServletException, IOException {
 
-		when(this.bearerTokenResolver.resolve(this.request)).thenReturn(null);
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn(null);
 
 		dontAuthenticate();
 	}
@@ -132,7 +132,7 @@ public class BearerTokenAuthenticationFilterTests {
 
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(error);
 
-		when(this.bearerTokenResolver.resolve(this.request)).thenThrow(exception);
+		given(this.bearerTokenResolver.resolve(this.request)).willThrow(exception);
 
 		dontAuthenticate();
 
@@ -147,8 +147,8 @@ public class BearerTokenAuthenticationFilterTests {
 
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(error);
 
-		when(this.bearerTokenResolver.resolve(this.request)).thenReturn("token");
-		when(this.authenticationManager.authenticate(any(BearerTokenAuthenticationToken.class))).thenThrow(exception);
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		given(this.authenticationManager.authenticate(any(BearerTokenAuthenticationToken.class))).willThrow(exception);
 
 		BearerTokenAuthenticationFilter filter = addMocks(
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
@@ -165,8 +165,8 @@ public class BearerTokenAuthenticationFilterTests {
 
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(error);
 
-		when(this.bearerTokenResolver.resolve(this.request)).thenReturn("token");
-		when(this.authenticationManager.authenticate(any(BearerTokenAuthenticationToken.class))).thenThrow(exception);
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		given(this.authenticationManager.authenticate(any(BearerTokenAuthenticationToken.class))).willThrow(exception);
 
 		BearerTokenAuthenticationFilter filter = addMocks(
 				new BearerTokenAuthenticationFilter(this.authenticationManager));

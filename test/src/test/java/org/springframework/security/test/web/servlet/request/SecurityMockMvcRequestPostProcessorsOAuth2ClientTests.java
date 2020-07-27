@@ -49,9 +49,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Client;
@@ -143,8 +143,8 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 		OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(clientRegistration().build(), "sub", noScopes());
 		OAuth2AuthorizedClientRepository repository = this.context.getBean(OAuth2AuthorizedClientRepository.class);
-		when(repository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
-				any(HttpServletRequest.class))).thenReturn(client);
+		given(repository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
+				any(HttpServletRequest.class))).willReturn(client);
 		this.mvc.perform(get("/client-id")).andExpect(content().string("client-id"));
 		verify(repository).loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
 				any(HttpServletRequest.class));

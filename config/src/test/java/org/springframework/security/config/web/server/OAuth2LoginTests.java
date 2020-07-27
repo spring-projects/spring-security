@@ -104,10 +104,10 @@ import org.springframework.web.server.WebHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
@@ -186,10 +186,10 @@ public class OAuth2LoginTests {
 		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
 		ServerRequestCache requestCache = config.requestCache;
 
-		when(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
-		when(authorizationRequestRepository.saveAuthorizationRequest(any(), any())).thenReturn(Mono.empty());
-		when(requestCache.removeMatchingRequest(any())).thenReturn(Mono.empty());
-		when(requestCache.saveRequest(any())).thenReturn(Mono.empty());
+		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
+		given(authorizationRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
+		given(requestCache.removeMatchingRequest(any())).willReturn(Mono.empty());
+		given(requestCache.saveRequest(any())).willReturn(Mono.empty());
 
 		this.client.get().uri("/").exchange().expectStatus().is3xxRedirection();
 
@@ -222,11 +222,11 @@ public class OAuth2LoginTests {
 		OAuth2LoginAuthenticationToken result = new OAuth2LoginAuthenticationToken(github, exchange, user,
 				user.getAuthorities(), accessToken);
 
-		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
-		when(manager.authenticate(any())).thenReturn(Mono.just(result));
-		when(matcher.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(resolver.resolve(any())).thenReturn(Mono.empty());
-		when(successHandler.onAuthenticationSuccess(any(), any())).thenAnswer((Answer<Mono<Void>>) invocation -> {
+		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
+		given(manager.authenticate(any())).willReturn(Mono.just(result));
+		given(matcher.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(resolver.resolve(any())).willReturn(Mono.empty());
+		given(successHandler.onAuthenticationSuccess(any(), any())).willAnswer((Answer<Mono<Void>>) invocation -> {
 			WebFilterExchange webFilterExchange = invocation.getArgument(0);
 			Authentication authentication = invocation.getArgument(1);
 
@@ -263,19 +263,19 @@ public class OAuth2LoginTests {
 		ServerAuthenticationSuccessHandler successHandler = config.successHandler;
 		ServerAuthenticationFailureHandler failureHandler = config.failureHandler;
 
-		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
-		when(manager.authenticate(any()))
-				.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("error"), "message")));
-		when(matcher.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(resolver.resolve(any())).thenReturn(Mono.empty());
-		when(successHandler.onAuthenticationSuccess(any(), any())).thenAnswer((Answer<Mono<Void>>) invocation -> {
+		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
+		given(manager.authenticate(any()))
+				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("error"), "message")));
+		given(matcher.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(resolver.resolve(any())).willReturn(Mono.empty());
+		given(successHandler.onAuthenticationSuccess(any(), any())).willAnswer((Answer<Mono<Void>>) invocation -> {
 			WebFilterExchange webFilterExchange = invocation.getArgument(0);
 			Authentication authentication = invocation.getArgument(1);
 
 			return new RedirectServerAuthenticationSuccessHandler(redirectLocation)
 					.onAuthenticationSuccess(webFilterExchange, authentication);
 		});
-		when(failureHandler.onAuthenticationFailure(any(), any())).thenAnswer((Answer<Mono<Void>>) invocation -> {
+		given(failureHandler.onAuthenticationFailure(any(), any())).willAnswer((Answer<Mono<Void>>) invocation -> {
 			WebFilterExchange webFilterExchange = invocation.getArgument(0);
 			AuthenticationException authenticationException = invocation.getArgument(1);
 
@@ -317,11 +317,11 @@ public class OAuth2LoginTests {
 		OAuth2LoginAuthenticationToken result = new OAuth2LoginAuthenticationToken(github, exchange, user,
 				user.getAuthorities(), accessToken);
 
-		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
-		when(manager.authenticate(any())).thenReturn(Mono.just(result));
-		when(matcher.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
-		when(resolver.resolve(any())).thenReturn(Mono.empty());
-		when(successHandler.onAuthenticationSuccess(any(), any())).thenAnswer((Answer<Mono<Void>>) invocation -> {
+		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
+		given(manager.authenticate(any())).willReturn(Mono.just(result));
+		given(matcher.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(resolver.resolve(any())).willReturn(Mono.empty());
+		given(successHandler.onAuthenticationSuccess(any(), any())).willAnswer((Answer<Mono<Void>>) invocation -> {
 			WebFilterExchange webFilterExchange = invocation.getArgument(0);
 			Authentication authentication = invocation.getArgument(1);
 
@@ -357,11 +357,11 @@ public class OAuth2LoginTests {
 				exchange, accessToken);
 
 		ServerAuthenticationConverter converter = config.authenticationConverter;
-		when(converter.convert(any())).thenReturn(Mono.just(token));
+		given(converter.convert(any())).willReturn(Mono.just(token));
 
 		ServerSecurityContextRepository securityContextRepository = config.securityContextRepository;
-		when(securityContextRepository.save(any(), any())).thenReturn(Mono.empty());
-		when(securityContextRepository.load(any())).thenReturn(authentication(token));
+		given(securityContextRepository.save(any(), any())).willReturn(Mono.empty());
+		given(securityContextRepository.load(any())).willReturn(authentication(token));
 
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
@@ -369,11 +369,11 @@ public class OAuth2LoginTests {
 				.tokenType(accessToken.getTokenType()).scopes(accessToken.getScopes())
 				.additionalParameters(additionalParameters).build();
 		ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> tokenResponseClient = config.tokenResponseClient;
-		when(tokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(tokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
 		OidcUser user = TestOidcUsers.create();
 		ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService = config.userService;
-		when(userService.loadUser(any())).thenReturn(Mono.just(user));
+		given(userService.loadUser(any())).willReturn(Mono.just(user));
 
 		webTestClient.get().uri("/login/oauth2/code/google").exchange().expectStatus().is3xxRedirection();
 
@@ -401,11 +401,11 @@ public class OAuth2LoginTests {
 				.getBean(OAuth2LoginWithCustomBeansConfig.class);
 
 		ServerAuthenticationConverter converter = config.authenticationConverter;
-		when(converter.convert(any())).thenReturn(Mono.just(authenticationToken));
+		given(converter.convert(any())).willReturn(Mono.just(authenticationToken));
 
 		ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> tokenResponseClient = config.tokenResponseClient;
 		OAuth2Error oauth2Error = new OAuth2Error("invalid_request", "Invalid request", null);
-		when(tokenResponseClient.getTokenResponse(any())).thenThrow(new OAuth2AuthenticationException(oauth2Error));
+		given(tokenResponseClient.getTokenResponse(any())).willThrow(new OAuth2AuthenticationException(oauth2Error));
 
 		webTestClient.get().uri("/login/oauth2/code/google").exchange().expectStatus().is3xxRedirection().expectHeader()
 				.valueEquals("Location", "/login?error");
@@ -430,7 +430,7 @@ public class OAuth2LoginTests {
 				google, exchange, accessToken);
 
 		ServerAuthenticationConverter converter = config.authenticationConverter;
-		when(converter.convert(any())).thenReturn(Mono.just(authenticationToken));
+		given(converter.convert(any())).willReturn(Mono.just(authenticationToken));
 
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
@@ -438,11 +438,11 @@ public class OAuth2LoginTests {
 				.tokenType(accessToken.getTokenType()).scopes(accessToken.getScopes())
 				.additionalParameters(additionalParameters).build();
 		ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> tokenResponseClient = config.tokenResponseClient;
-		when(tokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		given(tokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 
 		ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = config.jwtDecoderFactory;
 		OAuth2Error oauth2Error = new OAuth2Error("invalid_id_token", "Invalid ID Token", null);
-		when(jwtDecoderFactory.createDecoder(any())).thenReturn(token -> Mono
+		given(jwtDecoderFactory.createDecoder(any())).willReturn(token -> Mono
 				.error(new JwtValidationException("ID Token validation failed", Collections.singleton(oauth2Error))));
 
 		webTestClient.get().uri("/login/oauth2/code/google").exchange().expectStatus().is3xxRedirection().expectHeader()
@@ -457,7 +457,7 @@ public class OAuth2LoginTests {
 				AuthorityUtils.NO_AUTHORITIES, getBean(ClientRegistration.class).getRegistrationId());
 
 		ServerSecurityContextRepository repository = getBean(ServerSecurityContextRepository.class);
-		when(repository.load(any())).thenReturn(authentication(token));
+		given(repository.load(any())).willReturn(authentication(token));
 
 		this.client.post().uri("/logout").exchange().expectHeader().valueEquals("Location",
 				"https://logout?id_token_hint=id-token");

@@ -53,8 +53,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.accessTokenResponse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -114,7 +114,7 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		ClientRegistration clientRegistration = CommonOAuth2Provider.GOOGLE.getBuilder("google")
 				.clientId("google-client-id").clientSecret("google-client-secret")
 				.redirectUri("http://localhost/callback/google").scope("scope1", "scope2").build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(clientRegistration);
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
 
 		MvcResult result = this.mvc.perform(get("/oauth2/authorization/google")).andExpect(status().is3xxRedirection())
 				.andReturn();
@@ -132,7 +132,7 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
 
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest(clientRegistration);
-		when(this.authorizationRequestResolver.resolve(any())).thenReturn(authorizationRequest);
+		given(this.authorizationRequestResolver.resolve(any())).willReturn(authorizationRequest);
 
 		this.mvc.perform(get("/oauth2/authorization/google")).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("https://accounts.google.com/o/oauth2/v2/auth?"
@@ -149,12 +149,12 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
 
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest(clientRegistration);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any())).thenReturn(authorizationRequest);
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any())).willReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -179,12 +179,12 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
 
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest(clientRegistration);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any())).thenReturn(authorizationRequest);
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any())).willReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -204,7 +204,7 @@ public class OAuth2ClientBeanDefinitionParserTests {
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, "user",
 				TestOAuth2AccessTokens.noScopes());
-		when(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(authorizedClient);
+		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(authorizedClient);
 
 		this.mvc.perform(get("/authorized-client")).andExpect(status().isOk()).andExpect(content().string("resolved"));
 	}

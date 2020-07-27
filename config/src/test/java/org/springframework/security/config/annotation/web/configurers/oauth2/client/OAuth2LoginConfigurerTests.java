@@ -90,8 +90,8 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -325,7 +325,7 @@ public class OAuth2LoginConfigurerTests {
 				.authorizationRequestUri(
 						"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
 				.build();
-		when(resolver.resolve(any())).thenReturn(result);
+		given(resolver.resolve(any())).willReturn(result);
 
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
@@ -348,7 +348,7 @@ public class OAuth2LoginConfigurerTests {
 				.authorizationRequestUri(
 						"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
 				.build();
-		when(resolver.resolve(any())).thenReturn(result);
+		given(resolver.resolve(any())).willReturn(result);
 
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
@@ -995,7 +995,7 @@ public class OAuth2LoginConfigurerTests {
 			claims.put(IdTokenClaimNames.AZP, "clientId");
 			Jwt jwt = jwt().claims(c -> c.putAll(claims)).build();
 			JwtDecoder jwtDecoder = mock(JwtDecoder.class);
-			when(jwtDecoder.decode(any())).thenReturn(jwt);
+			given(jwtDecoder.decode(any())).willReturn(jwt);
 			return jwtDecoder;
 		}
 

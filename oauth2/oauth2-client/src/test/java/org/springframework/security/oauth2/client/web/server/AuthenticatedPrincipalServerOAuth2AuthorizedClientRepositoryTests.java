@@ -31,9 +31,9 @@ import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAut
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -76,7 +76,7 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void loadAuthorizedClientWhenAuthenticatedPrincipalThenLoadFromService() {
-		when(this.authorizedClientService.loadAuthorizedClient(any(), any())).thenReturn(Mono.empty());
+		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
 		Authentication authentication = this.createAuthenticatedPrincipal();
 		this.authorizedClientRepository.loadAuthorizedClient(this.registrationId, authentication, this.exchange)
 				.block();
@@ -85,8 +85,8 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void loadAuthorizedClientWhenAnonymousPrincipalThenLoadFromAnonymousRepository() {
-		when(this.anonymousAuthorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
-				.thenReturn(Mono.empty());
+		given(this.anonymousAuthorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
+				.willReturn(Mono.empty());
 		Authentication authentication = this.createAnonymousPrincipal();
 		this.authorizedClientRepository.loadAuthorizedClient(this.registrationId, authentication, this.exchange)
 				.block();
@@ -96,7 +96,7 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void saveAuthorizedClientWhenAuthenticatedPrincipalThenSaveToService() {
-		when(this.authorizedClientService.saveAuthorizedClient(any(), any())).thenReturn(Mono.empty());
+		given(this.authorizedClientService.saveAuthorizedClient(any(), any())).willReturn(Mono.empty());
 		Authentication authentication = this.createAuthenticatedPrincipal();
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, authentication, this.exchange).block();
@@ -105,8 +105,8 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void saveAuthorizedClientWhenAnonymousPrincipalThenSaveToAnonymousRepository() {
-		when(this.anonymousAuthorizedClientRepository.saveAuthorizedClient(any(), any(), any()))
-				.thenReturn(Mono.empty());
+		given(this.anonymousAuthorizedClientRepository.saveAuthorizedClient(any(), any(), any()))
+				.willReturn(Mono.empty());
 		Authentication authentication = this.createAnonymousPrincipal();
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, authentication, this.exchange).block();
@@ -116,7 +116,7 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void removeAuthorizedClientWhenAuthenticatedPrincipalThenRemoveFromService() {
-		when(this.authorizedClientService.removeAuthorizedClient(any(), any())).thenReturn(Mono.empty());
+		given(this.authorizedClientService.removeAuthorizedClient(any(), any())).willReturn(Mono.empty());
 		Authentication authentication = this.createAuthenticatedPrincipal();
 		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId, authentication, this.exchange)
 				.block();
@@ -125,8 +125,8 @@ public class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepositoryTests {
 
 	@Test
 	public void removeAuthorizedClientWhenAnonymousPrincipalThenRemoveFromAnonymousRepository() {
-		when(this.anonymousAuthorizedClientRepository.removeAuthorizedClient(any(), any(), any()))
-				.thenReturn(Mono.empty());
+		given(this.anonymousAuthorizedClientRepository.removeAuthorizedClient(any(), any(), any()))
+				.willReturn(Mono.empty());
 		Authentication authentication = this.createAnonymousPrincipal();
 		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId, authentication, this.exchange)
 				.block();

@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -79,7 +79,7 @@ public class AndRequestMatcherTests {
 
 	@Test
 	public void matchesSingleTrue() {
-		when(this.delegate.matches(this.request)).thenReturn(true);
+		given(this.delegate.matches(this.request)).willReturn(true);
 		this.matcher = new AndRequestMatcher(this.delegate);
 
 		assertThat(this.matcher.matches(this.request)).isTrue();
@@ -87,8 +87,8 @@ public class AndRequestMatcherTests {
 
 	@Test
 	public void matchesMultiTrue() {
-		when(this.delegate.matches(this.request)).thenReturn(true);
-		when(this.delegate2.matches(this.request)).thenReturn(true);
+		given(this.delegate.matches(this.request)).willReturn(true);
+		given(this.delegate2.matches(this.request)).willReturn(true);
 		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
 
 		assertThat(this.matcher.matches(this.request)).isTrue();
@@ -96,7 +96,7 @@ public class AndRequestMatcherTests {
 
 	@Test
 	public void matchesSingleFalse() {
-		when(this.delegate.matches(this.request)).thenReturn(false);
+		given(this.delegate.matches(this.request)).willReturn(false);
 		this.matcher = new AndRequestMatcher(this.delegate);
 
 		assertThat(this.matcher.matches(this.request)).isFalse();
@@ -104,7 +104,7 @@ public class AndRequestMatcherTests {
 
 	@Test
 	public void matchesMultiBothFalse() {
-		when(this.delegate.matches(this.request)).thenReturn(false);
+		given(this.delegate.matches(this.request)).willReturn(false);
 		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
 
 		assertThat(this.matcher.matches(this.request)).isFalse();
@@ -112,8 +112,8 @@ public class AndRequestMatcherTests {
 
 	@Test
 	public void matchesMultiSingleFalse() {
-		when(this.delegate.matches(this.request)).thenReturn(true);
-		when(this.delegate2.matches(this.request)).thenReturn(false);
+		given(this.delegate.matches(this.request)).willReturn(true);
+		given(this.delegate2.matches(this.request)).willReturn(false);
 		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
 
 		assertThat(this.matcher.matches(this.request)).isFalse();

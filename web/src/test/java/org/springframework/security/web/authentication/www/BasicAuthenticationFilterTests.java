@@ -44,10 +44,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link BasicAuthenticationFilter}.
@@ -69,8 +69,8 @@ public class BasicAuthenticationFilterTests {
 				AuthorityUtils.createAuthorityList("ROLE_1"));
 
 		this.manager = mock(AuthenticationManager.class);
-		when(this.manager.authenticate(rodRequest)).thenReturn(rod);
-		when(this.manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
+		given(this.manager.authenticate(rodRequest)).willReturn(rod);
+		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
 
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
 	}
@@ -312,8 +312,8 @@ public class BasicAuthenticationFilterTests {
 				AuthorityUtils.createAuthorityList("ROLE_1"));
 
 		this.manager = mock(AuthenticationManager.class);
-		when(this.manager.authenticate(rodRequest)).thenReturn(rod);
-		when(this.manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
+		given(this.manager.authenticate(rodRequest)).willReturn(rod);
+		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
 
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
 
@@ -347,8 +347,8 @@ public class BasicAuthenticationFilterTests {
 				AuthorityUtils.createAuthorityList("ROLE_1"));
 
 		this.manager = mock(AuthenticationManager.class);
-		when(this.manager.authenticate(rodRequest)).thenReturn(rod);
-		when(this.manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
+		given(this.manager.authenticate(rodRequest)).willReturn(rod);
+		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
 
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
 		this.filter.setCredentialsCharset("ISO-8859-1");
@@ -383,8 +383,8 @@ public class BasicAuthenticationFilterTests {
 				AuthorityUtils.createAuthorityList("ROLE_1"));
 
 		this.manager = mock(AuthenticationManager.class);
-		when(this.manager.authenticate(rodRequest)).thenReturn(rod);
-		when(this.manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
+		given(this.manager.authenticate(rodRequest)).willReturn(rod);
+		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
 
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
 		this.filter.setCredentialsCharset("ISO-8859-1");

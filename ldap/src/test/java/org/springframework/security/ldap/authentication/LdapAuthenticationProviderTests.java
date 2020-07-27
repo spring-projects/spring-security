@@ -37,8 +37,8 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link LdapAuthenticationProvider}.
@@ -89,7 +89,7 @@ public class LdapAuthenticationProviderTests {
 	public void usernameNotFoundExceptionIsHiddenByDefault() {
 		final LdapAuthenticator authenticator = mock(LdapAuthenticator.class);
 		final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
-		when(authenticator.authenticate(joe)).thenThrow(new UsernameNotFoundException("nobody"));
+		given(authenticator.authenticate(joe)).willThrow(new UsernameNotFoundException("nobody"));
 
 		LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
 		provider.authenticate(joe);
@@ -99,7 +99,7 @@ public class LdapAuthenticationProviderTests {
 	public void usernameNotFoundExceptionIsNotHiddenIfConfigured() {
 		final LdapAuthenticator authenticator = mock(LdapAuthenticator.class);
 		final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
-		when(authenticator.authenticate(joe)).thenThrow(new UsernameNotFoundException("nobody"));
+		given(authenticator.authenticate(joe)).willThrow(new UsernameNotFoundException("nobody"));
 
 		LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
 		provider.setHideUserNotFoundExceptions(false);
@@ -165,7 +165,7 @@ public class LdapAuthenticationProviderTests {
 				"benspassword");
 		LdapAuthenticator mockAuthenticator = mock(LdapAuthenticator.class);
 		CommunicationException expectedCause = new CommunicationException(new javax.naming.CommunicationException());
-		when(mockAuthenticator.authenticate(authRequest)).thenThrow(expectedCause);
+		given(mockAuthenticator.authenticate(authRequest)).willThrow(expectedCause);
 
 		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(mockAuthenticator);
 		try {

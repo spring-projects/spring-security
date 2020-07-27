@@ -27,10 +27,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -55,8 +55,8 @@ public class LazyCsrfTokenRepositoryTests {
 	@Before
 	public void setup() {
 		this.token = new DefaultCsrfToken("header", "param", "token");
-		when(this.delegate.generateToken(this.request)).thenReturn(this.token);
-		when(this.request.getAttribute(HttpServletResponse.class.getName())).thenReturn(this.response);
+		given(this.delegate.generateToken(this.request)).willReturn(this.token);
+		given(this.request.getAttribute(HttpServletResponse.class.getName())).willReturn(this.response);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -94,7 +94,7 @@ public class LazyCsrfTokenRepositoryTests {
 
 	@Test
 	public void loadTokenDelegates() {
-		when(this.delegate.loadToken(this.request)).thenReturn(this.token);
+		given(this.delegate.loadToken(this.request)).willReturn(this.token);
 
 		CsrfToken loadToken = this.repository.loadToken(this.request);
 		assertThat(loadToken).isSameAs(this.token);

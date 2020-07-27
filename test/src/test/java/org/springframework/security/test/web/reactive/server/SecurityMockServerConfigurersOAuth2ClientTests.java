@@ -45,8 +45,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOAuth2Client;
@@ -154,8 +154,8 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 		assertThat(client.getClientRegistration().getClientId()).isEqualTo("test-client");
 
 		client = new OAuth2AuthorizedClient(clientRegistration().build(), "sub", noScopes());
-		when(this.authorizedClientRepository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
-				any(ServerWebExchange.class))).thenReturn(Mono.just(client));
+		given(this.authorizedClientRepository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
+				any(ServerWebExchange.class))).willReturn(Mono.just(client));
 		this.client.get().uri("/client").exchange().expectStatus().isOk();
 		client = this.controller.authorizedClient;
 		assertThat(client).isNotNull();

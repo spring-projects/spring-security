@@ -22,9 +22,9 @@ import javax.naming.directory.DirContext;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link LdapUtils}
@@ -36,7 +36,7 @@ public class LdapUtilsTests {
 	@Test
 	public void testCloseContextSwallowsNamingException() throws Exception {
 		final DirContext dirCtx = mock(DirContext.class);
-		doThrow(new NamingException()).when(dirCtx).close();
+		willThrow(new NamingException()).given(dirCtx).close();
 
 		LdapUtils.closeContext(dirCtx);
 	}
@@ -45,7 +45,7 @@ public class LdapUtilsTests {
 	public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName() throws Exception {
 		final DirContext mockCtx = mock(DirContext.class);
 
-		when(mockCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
+		given(mockCtx.getNameInNamespace()).willReturn("dc=springframework,dc=org");
 
 		assertThat(LdapUtils.getRelativeName("dc=springframework,dc=org", mockCtx)).isEqualTo("");
 	}
@@ -53,7 +53,7 @@ public class LdapUtilsTests {
 	@Test
 	public void testGetRelativeNameReturnsFullDnWithEmptyBaseName() throws Exception {
 		final DirContext mockCtx = mock(DirContext.class);
-		when(mockCtx.getNameInNamespace()).thenReturn("");
+		given(mockCtx.getNameInNamespace()).willReturn("");
 
 		assertThat(LdapUtils.getRelativeName("cn=jane,dc=springframework,dc=org", mockCtx))
 				.isEqualTo("cn=jane,dc=springframework,dc=org");
@@ -62,7 +62,7 @@ public class LdapUtilsTests {
 	@Test
 	public void testGetRelativeNameWorksWithArbitrarySpaces() throws Exception {
 		final DirContext mockCtx = mock(DirContext.class);
-		when(mockCtx.getNameInNamespace()).thenReturn("dc=springsecurity,dc = org");
+		given(mockCtx.getNameInNamespace()).willReturn("dc=springsecurity,dc = org");
 
 		assertThat(LdapUtils.getRelativeName("cn=jane smith, dc = springsecurity , dc=org", mockCtx))
 				.isEqualTo("cn=jane smith");

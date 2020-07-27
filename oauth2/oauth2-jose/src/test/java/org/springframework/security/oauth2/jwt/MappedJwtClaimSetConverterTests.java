@@ -33,8 +33,8 @@ import org.springframework.core.convert.converter.Converter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link MappedJwtClaimSetConverter}
@@ -47,7 +47,7 @@ public class MappedJwtClaimSetConverterTests {
 	public void convertWhenUsingCustomExpiresAtConverterThenIssuedAtConverterStillConsultsIt() {
 		Instant at = Instant.ofEpochMilli(1000000000000L);
 		Converter<Object, Instant> expiresAtConverter = mock(Converter.class);
-		when(expiresAtConverter.convert(any())).thenReturn(at);
+		given(expiresAtConverter.convert(any())).willReturn(at);
 
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
 				.withDefaults(Collections.singletonMap(JwtClaimNames.EXP, expiresAtConverter));
@@ -115,7 +115,7 @@ public class MappedJwtClaimSetConverterTests {
 		Converter<Object, String> claimConverter = mock(Converter.class);
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
 				.withDefaults(Collections.singletonMap(JwtClaimNames.SUB, claimConverter));
-		when(claimConverter.convert(any(Object.class))).thenReturn("1234");
+		given(claimConverter.convert(any(Object.class))).willReturn("1234");
 
 		Map<String, Object> source = new HashMap<>();
 		source.put(JwtClaimNames.JTI, 1);
@@ -152,7 +152,7 @@ public class MappedJwtClaimSetConverterTests {
 		Converter<Object, String> claimConverter = mock(Converter.class);
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
 				.withDefaults(Collections.singletonMap("custom-claim", claimConverter));
-		when(claimConverter.convert(any())).thenReturn("custom-value");
+		given(claimConverter.convert(any())).willReturn("custom-value");
 
 		Map<String, Object> source = new HashMap<>();
 		Map<String, Object> target = converter.convert(source);
@@ -165,7 +165,7 @@ public class MappedJwtClaimSetConverterTests {
 		Converter<Object, String> claimConverter = mock(Converter.class);
 		MappedJwtClaimSetConverter converter = new MappedJwtClaimSetConverter(
 				Collections.singletonMap(JwtClaimNames.SUB, claimConverter));
-		when(claimConverter.convert(any(Object.class))).thenReturn("1234");
+		given(claimConverter.convert(any(Object.class))).willReturn("1234");
 
 		Map<String, Object> source = new HashMap<>();
 		source.put(JwtClaimNames.JTI, new Object());

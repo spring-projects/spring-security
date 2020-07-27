@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WithMockUserSecurityContextFactoryTests {
@@ -44,10 +44,10 @@ public class WithMockUserSecurityContextFactoryTests {
 
 	@Test
 	public void valueDefaultsUsername() {
-		when(this.withUser.value()).thenReturn("valueUser");
-		when(this.withUser.password()).thenReturn("password");
-		when(this.withUser.roles()).thenReturn(new String[] { "USER" });
-		when(this.withUser.authorities()).thenReturn(new String[] {});
+		given(this.withUser.value()).willReturn("valueUser");
+		given(this.withUser.password()).willReturn("password");
+		given(this.withUser.roles()).willReturn(new String[] { "USER" });
+		given(this.withUser.authorities()).willReturn(new String[] {});
 
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getName())
 				.isEqualTo(this.withUser.value());
@@ -55,10 +55,10 @@ public class WithMockUserSecurityContextFactoryTests {
 
 	@Test
 	public void usernamePrioritizedOverValue() {
-		when(this.withUser.username()).thenReturn("customUser");
-		when(this.withUser.password()).thenReturn("password");
-		when(this.withUser.roles()).thenReturn(new String[] { "USER" });
-		when(this.withUser.authorities()).thenReturn(new String[] {});
+		given(this.withUser.username()).willReturn("customUser");
+		given(this.withUser.password()).willReturn("password");
+		given(this.withUser.roles()).willReturn(new String[] { "USER" });
+		given(this.withUser.authorities()).willReturn(new String[] {});
 
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getName())
 				.isEqualTo(this.withUser.username());
@@ -66,10 +66,10 @@ public class WithMockUserSecurityContextFactoryTests {
 
 	@Test
 	public void rolesWorks() {
-		when(this.withUser.value()).thenReturn("valueUser");
-		when(this.withUser.password()).thenReturn("password");
-		when(this.withUser.roles()).thenReturn(new String[] { "USER", "CUSTOM" });
-		when(this.withUser.authorities()).thenReturn(new String[] {});
+		given(this.withUser.value()).willReturn("valueUser");
+		given(this.withUser.password()).willReturn("password");
+		given(this.withUser.roles()).willReturn(new String[] { "USER", "CUSTOM" });
+		given(this.withUser.authorities()).willReturn(new String[] {});
 
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getAuthorities())
 				.extracting("authority").containsOnly("ROLE_USER", "ROLE_CUSTOM");
@@ -77,10 +77,10 @@ public class WithMockUserSecurityContextFactoryTests {
 
 	@Test
 	public void authoritiesWorks() {
-		when(this.withUser.value()).thenReturn("valueUser");
-		when(this.withUser.password()).thenReturn("password");
-		when(this.withUser.roles()).thenReturn(new String[] { "USER" });
-		when(this.withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
+		given(this.withUser.value()).willReturn("valueUser");
+		given(this.withUser.password()).willReturn("password");
+		given(this.withUser.roles()).willReturn(new String[] { "USER" });
+		given(this.withUser.authorities()).willReturn(new String[] { "USER", "CUSTOM" });
 
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getAuthorities())
 				.extracting("authority").containsOnly("USER", "CUSTOM");
@@ -88,18 +88,18 @@ public class WithMockUserSecurityContextFactoryTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void authoritiesAndRolesInvalid() {
-		when(this.withUser.value()).thenReturn("valueUser");
-		when(this.withUser.roles()).thenReturn(new String[] { "CUSTOM" });
-		when(this.withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
+		given(this.withUser.value()).willReturn("valueUser");
+		given(this.withUser.roles()).willReturn(new String[] { "CUSTOM" });
+		given(this.withUser.authorities()).willReturn(new String[] { "USER", "CUSTOM" });
 
 		this.factory.createSecurityContext(this.withUser);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void rolesWithRolePrefixFails() {
-		when(this.withUser.value()).thenReturn("valueUser");
-		when(this.withUser.roles()).thenReturn(new String[] { "ROLE_FAIL" });
-		when(this.withUser.authorities()).thenReturn(new String[] {});
+		given(this.withUser.value()).willReturn("valueUser");
+		given(this.withUser.roles()).willReturn(new String[] { "ROLE_FAIL" });
+		given(this.withUser.authorities()).willReturn(new String[] {});
 
 		this.factory.createSecurityContext(this.withUser);
 	}

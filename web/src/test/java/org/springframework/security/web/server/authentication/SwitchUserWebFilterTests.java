@@ -57,10 +57,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.core.context.ReactiveSecurityContextHolder.withSecurityContext;
 import static org.springframework.security.web.server.authentication.SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR;
 
@@ -100,7 +100,7 @@ public class SwitchUserWebFilterTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/not/existing"));
 
 		WebFilterChain chain = mock(WebFilterChain.class);
-		when(chain.filter(exchange)).thenReturn(Mono.empty());
+		given(chain.filter(exchange)).willReturn(Mono.empty());
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain).block();
@@ -128,11 +128,11 @@ public class SwitchUserWebFilterTests {
 				"credentials");
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
 
-		when(this.userDetailsService.findByUsername(targetUsername)).thenReturn(Mono.just(switchUserDetails));
-		when(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
-				.thenReturn(Mono.empty());
-		when(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
-				.thenReturn(Mono.empty());
+		given(this.userDetailsService.findByUsername(targetUsername)).willReturn(Mono.just(switchUserDetails));
+		given(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
+				.willReturn(Mono.empty());
+		given(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
+				.willReturn(Mono.empty());
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)
@@ -182,12 +182,12 @@ public class SwitchUserWebFilterTests {
 
 		final WebFilterChain chain = mock(WebFilterChain.class);
 
-		when(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
-				.thenReturn(Mono.empty());
-		when(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
-				.thenReturn(Mono.empty());
-		when(this.userDetailsService.findByUsername(targetUsername))
-				.thenReturn(Mono.just(switchUserDetails(targetUsername, true)));
+		given(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
+				.willReturn(Mono.empty());
+		given(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
+				.willReturn(Mono.empty());
+		given(this.userDetailsService.findByUsername(targetUsername))
+				.willReturn(Mono.just(switchUserDetails(targetUsername, true)));
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)
@@ -235,9 +235,9 @@ public class SwitchUserWebFilterTests {
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
 
 		final UserDetails switchUserDetails = switchUserDetails(targetUsername, false);
-		when(this.userDetailsService.findByUsername(any(String.class))).thenReturn(Mono.just(switchUserDetails));
-		when(this.failureHandler.onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class)))
-				.thenReturn(Mono.empty());
+		given(this.userDetailsService.findByUsername(any(String.class))).willReturn(Mono.just(switchUserDetails));
+		given(this.failureHandler.onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class)))
+				.willReturn(Mono.empty());
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)
@@ -260,7 +260,7 @@ public class SwitchUserWebFilterTests {
 		final SecurityContextImpl securityContext = new SecurityContextImpl(mock(Authentication.class));
 
 		final UserDetails switchUserDetails = switchUserDetails(targetUsername, false);
-		when(this.userDetailsService.findByUsername(any(String.class))).thenReturn(Mono.just(switchUserDetails));
+		given(this.userDetailsService.findByUsername(any(String.class))).willReturn(Mono.just(switchUserDetails));
 
 		this.exceptionRule.expect(DisabledException.class);
 
@@ -287,10 +287,10 @@ public class SwitchUserWebFilterTests {
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(switchUserAuthentication);
 
-		when(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
-				.thenReturn(Mono.empty());
-		when(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
-				.thenReturn(Mono.empty());
+		given(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
+				.willReturn(Mono.empty());
+		given(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
+				.willReturn(Mono.empty());
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)

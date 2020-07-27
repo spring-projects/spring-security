@@ -29,8 +29,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Milan Sevcik
@@ -149,8 +149,8 @@ public class RequestAttributeAuthenticationFilterTests {
 	 */
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class)))
-				.thenAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
+		given(am.authenticate(any(Authentication.class)))
+				.willAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		return am;
 	}

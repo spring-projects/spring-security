@@ -36,10 +36,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -68,7 +68,7 @@ public class AccessControlListTagTests {
 
 		Map beanMap = new HashMap();
 		beanMap.put("pe", this.pe);
-		when(ctx.getBeansOfType(PermissionEvaluator.class)).thenReturn(beanMap);
+		given(ctx.getBeansOfType(PermissionEvaluator.class)).willReturn(beanMap);
 
 		MockServletContext servletCtx = new MockServletContext();
 		servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
@@ -84,7 +84,7 @@ public class AccessControlListTagTests {
 	@Test
 	public void bodyIsEvaluatedIfAclGrantsAccess() throws Exception {
 		Object domainObject = new Object();
-		when(this.pe.hasPermission(this.bob, domainObject, "READ")).thenReturn(true);
+		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(true);
 
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("READ");
@@ -105,7 +105,7 @@ public class AccessControlListTagTests {
 		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 
 		Object domainObject = new Object();
-		when(this.pe.hasPermission(this.bob, domainObject, "READ")).thenReturn(true);
+		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(true);
 
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("READ");
@@ -121,8 +121,8 @@ public class AccessControlListTagTests {
 	@Test
 	public void multiHasPermissionsAreSplit() throws Exception {
 		Object domainObject = new Object();
-		when(this.pe.hasPermission(this.bob, domainObject, "READ")).thenReturn(true);
-		when(this.pe.hasPermission(this.bob, domainObject, "WRITE")).thenReturn(true);
+		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(true);
+		given(this.pe.hasPermission(this.bob, domainObject, "WRITE")).willReturn(true);
 
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("READ,WRITE");
@@ -141,8 +141,8 @@ public class AccessControlListTagTests {
 	@Test
 	public void hasPermissionsBitMaskSupported() throws Exception {
 		Object domainObject = new Object();
-		when(this.pe.hasPermission(this.bob, domainObject, 1)).thenReturn(true);
-		when(this.pe.hasPermission(this.bob, domainObject, 2)).thenReturn(true);
+		given(this.pe.hasPermission(this.bob, domainObject, 1)).willReturn(true);
+		given(this.pe.hasPermission(this.bob, domainObject, 2)).willReturn(true);
 
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("1,2");
@@ -160,8 +160,8 @@ public class AccessControlListTagTests {
 	@Test
 	public void hasPermissionsMixedBitMaskSupported() throws Exception {
 		Object domainObject = new Object();
-		when(this.pe.hasPermission(this.bob, domainObject, 1)).thenReturn(true);
-		when(this.pe.hasPermission(this.bob, domainObject, "WRITE")).thenReturn(true);
+		given(this.pe.hasPermission(this.bob, domainObject, 1)).willReturn(true);
+		given(this.pe.hasPermission(this.bob, domainObject, "WRITE")).willReturn(true);
 
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("1,WRITE");
@@ -179,7 +179,7 @@ public class AccessControlListTagTests {
 	@Test
 	public void bodyIsSkippedIfAclDeniesAccess() throws Exception {
 		Object domainObject = new Object();
-		when(this.pe.hasPermission(this.bob, domainObject, "READ")).thenReturn(false);
+		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(false);
 
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("READ");

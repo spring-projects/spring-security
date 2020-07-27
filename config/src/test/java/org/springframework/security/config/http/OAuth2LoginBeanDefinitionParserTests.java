@@ -75,9 +75,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.accessTokenResponse;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.oidcAccessTokenResponse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -211,14 +211,14 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "github-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
-		when(this.oauth2UserService.loadUser(any())).thenReturn(oauth2User);
+		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -240,14 +240,14 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "github-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
-		when(this.oauth2UserService.loadUser(any())).thenReturn(oauth2User);
+		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -266,14 +266,14 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "google-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.oidcRequest()
 				.attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = oidcAccessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		Jwt jwt = TestJwts.user();
-		when(this.jwtDecoderFactory.createDecoder(any())).thenReturn(token -> jwt);
+		given(this.jwtDecoderFactory.createDecoder(any())).willReturn(token -> jwt);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -294,17 +294,17 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "github-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
-		when(this.oauth2UserService.loadUser(any())).thenReturn(oauth2User);
+		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
 
-		when(this.userAuthoritiesMapper.mapAuthorities(any()))
-				.thenReturn((Collection) AuthorityUtils.createAuthorityList("ROLE_OAUTH2_USER"));
+		given(this.userAuthoritiesMapper.mapAuthorities(any()))
+				.willReturn((Collection) AuthorityUtils.createAuthorityList("ROLE_OAUTH2_USER"));
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -323,17 +323,17 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "google-login");
 		authorizationRequest = TestOAuth2AuthorizationRequests.oidcRequest().attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		accessTokenResponse = oidcAccessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		Jwt jwt = TestJwts.user();
-		when(this.jwtDecoderFactory.createDecoder(any())).thenReturn(token -> jwt);
+		given(this.jwtDecoderFactory.createDecoder(any())).willReturn(token -> jwt);
 
-		when(this.userAuthoritiesMapper.mapAuthorities(any()))
-				.thenReturn((Collection) AuthorityUtils.createAuthorityList("ROLE_OIDC_USER"));
+		given(this.userAuthoritiesMapper.mapAuthorities(any()))
+				.willReturn((Collection) AuthorityUtils.createAuthorityList("ROLE_OIDC_USER"));
 
 		this.mvc.perform(get("/login/oauth2/code/google-login").params(params)).andExpect(status().is2xxSuccessful());
 
@@ -356,14 +356,14 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "github-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
-		when(this.oauth2UserService.loadUser(any())).thenReturn(oauth2User);
+		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -419,20 +419,20 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.spring.configLocations(this.xml("WithCustomClientRegistrationRepository")).autowire();
 
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(clientRegistration);
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
-		when(this.oauth2UserService.loadUser(any())).thenReturn(oauth2User);
+		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -447,20 +447,20 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.spring.configLocations(this.xml("WithCustomAuthorizedClientRepository")).autowire();
 
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(clientRegistration);
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
-		when(this.oauth2UserService.loadUser(any())).thenReturn(oauth2User);
+		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -475,20 +475,20 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.spring.configLocations(this.xml("WithCustomAuthorizedClientService")).autowire();
 
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(clientRegistration);
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
-				.thenReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+				.willReturn(authorizationRequest);
 
 		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
-		when(this.oauth2UserService.loadUser(any())).thenReturn(oauth2User);
+		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
@@ -507,7 +507,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, "user",
 				TestOAuth2AccessTokens.noScopes());
-		when(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(authorizedClient);
+		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(authorizedClient);
 
 		this.mvc.perform(get("/authorized-client")).andExpect(status().isOk()).andExpect(content().string("resolved"));
 	}

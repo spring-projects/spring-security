@@ -30,7 +30,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -64,7 +64,7 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 	public void onAuthenticationFailureWhenInvokedThenDelegatesToEntryPoint() {
 		Mono<Void> result = Mono.empty();
 		BadCredentialsException e = new BadCredentialsException("Failed");
-		when(this.authenticationEntryPoint.commence(this.exchange, e)).thenReturn(result);
+		given(this.authenticationEntryPoint.commence(this.exchange, e)).willReturn(result);
 
 		assertThat(this.handler.onAuthenticationFailure(this.filterExchange, e)).isEqualTo(result);
 	}

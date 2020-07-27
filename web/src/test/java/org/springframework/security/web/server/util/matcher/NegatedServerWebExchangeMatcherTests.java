@@ -25,8 +25,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Tao Qian
@@ -50,7 +50,7 @@ public class NegatedServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenFalseThenTrue() {
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 
@@ -62,7 +62,7 @@ public class NegatedServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenTrueThenFalse() {
-		when(this.matcher1.matches(this.exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 

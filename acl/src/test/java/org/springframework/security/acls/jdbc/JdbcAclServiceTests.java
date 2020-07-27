@@ -47,7 +47,7 @@ import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * Unit and Integration tests the ACL JdbcAclService using an in-memory database.
@@ -93,7 +93,7 @@ public class JdbcAclServiceTests {
 	@Test(expected = NotFoundException.class)
 	public void readAclByIdMissingAcl() {
 		Map<ObjectIdentity, Acl> result = new HashMap<>();
-		when(this.lookupStrategy.readAclsById(anyList(), anyList())).thenReturn(result);
+		given(this.lookupStrategy.readAclsById(anyList(), anyList())).willReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 1);
 		List<Sid> sids = Arrays.<Sid>asList(new PrincipalSid("user"));
 
@@ -105,7 +105,7 @@ public class JdbcAclServiceTests {
 		List<ObjectIdentity> result = new ArrayList<>();
 		result.add(new ObjectIdentityImpl(Object.class, "5577"));
 		Object[] args = { "1", "org.springframework.security.acls.jdbc.JdbcAclServiceTests$MockLongIdDomainObject" };
-		when(this.jdbcOperations.query(anyString(), aryEq(args), any(RowMapper.class))).thenReturn(result);
+		given(this.jdbcOperations.query(anyString(), aryEq(args), any(RowMapper.class))).willReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 1L);
 
 		List<ObjectIdentity> objectIdentities = this.aclService.findChildren(objectIdentity);

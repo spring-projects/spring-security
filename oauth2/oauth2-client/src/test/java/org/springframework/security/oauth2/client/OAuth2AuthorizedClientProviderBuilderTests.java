@@ -41,10 +41,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link OAuth2AuthorizedClientProviderBuilder}.
@@ -68,8 +68,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	public void setup() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		this.accessTokenClient = mock(RestOperations.class);
-		when(this.accessTokenClient.exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class)))
-				.thenReturn(new ResponseEntity(accessTokenResponse, HttpStatus.OK));
+		given(this.accessTokenClient.exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class)))
+				.willReturn(new ResponseEntity(accessTokenResponse, HttpStatus.OK));
 		this.refreshTokenTokenResponseClient = new DefaultRefreshTokenTokenResponseClient();
 		this.refreshTokenTokenResponseClient.setRestOperations(this.accessTokenClient);
 		this.clientCredentialsTokenResponseClient = new DefaultClientCredentialsTokenResponseClient();

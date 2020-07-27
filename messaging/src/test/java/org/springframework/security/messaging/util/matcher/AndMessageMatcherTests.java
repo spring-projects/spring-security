@@ -27,7 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AndMessageMatcherTests {
@@ -76,7 +76,7 @@ public class AndMessageMatcherTests {
 
 	@Test
 	public void matchesSingleTrue() {
-		when(this.delegate.matches(this.message)).thenReturn(true);
+		given(this.delegate.matches(this.message)).willReturn(true);
 		this.matcher = new AndMessageMatcher<>(this.delegate);
 
 		assertThat(this.matcher.matches(this.message)).isTrue();
@@ -84,8 +84,8 @@ public class AndMessageMatcherTests {
 
 	@Test
 	public void matchesMultiTrue() {
-		when(this.delegate.matches(this.message)).thenReturn(true);
-		when(this.delegate2.matches(this.message)).thenReturn(true);
+		given(this.delegate.matches(this.message)).willReturn(true);
+		given(this.delegate2.matches(this.message)).willReturn(true);
 		this.matcher = new AndMessageMatcher<>(this.delegate, this.delegate2);
 
 		assertThat(this.matcher.matches(this.message)).isTrue();
@@ -93,7 +93,7 @@ public class AndMessageMatcherTests {
 
 	@Test
 	public void matchesSingleFalse() {
-		when(this.delegate.matches(this.message)).thenReturn(false);
+		given(this.delegate.matches(this.message)).willReturn(false);
 		this.matcher = new AndMessageMatcher<>(this.delegate);
 
 		assertThat(this.matcher.matches(this.message)).isFalse();
@@ -101,7 +101,7 @@ public class AndMessageMatcherTests {
 
 	@Test
 	public void matchesMultiBothFalse() {
-		when(this.delegate.matches(this.message)).thenReturn(false);
+		given(this.delegate.matches(this.message)).willReturn(false);
 		this.matcher = new AndMessageMatcher<>(this.delegate, this.delegate2);
 
 		assertThat(this.matcher.matches(this.message)).isFalse();
@@ -109,8 +109,8 @@ public class AndMessageMatcherTests {
 
 	@Test
 	public void matchesMultiSingleFalse() {
-		when(this.delegate.matches(this.message)).thenReturn(true);
-		when(this.delegate2.matches(this.message)).thenReturn(false);
+		given(this.delegate.matches(this.message)).willReturn(true);
+		given(this.delegate2.matches(this.message)).willReturn(false);
 		this.matcher = new AndMessageMatcher<>(this.delegate, this.delegate2);
 
 		assertThat(this.matcher.matches(this.message)).isFalse();

@@ -40,9 +40,9 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -89,8 +89,8 @@ public class AbstractAuthorizeTagTests {
 		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
 		this.tag.setUrl(uri);
 		WebApplicationContext wac = mock(WebApplicationContext.class);
-		when(wac.getBeansOfType(WebInvocationPrivilegeEvaluator.class))
-				.thenReturn(Collections.singletonMap("wipe", expected));
+		given(wac.getBeansOfType(WebInvocationPrivilegeEvaluator.class))
+				.willReturn(Collections.singletonMap("wipe", expected));
 		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 
 		this.tag.authorizeUsingUrlCheck();
@@ -105,8 +105,8 @@ public class AbstractAuthorizeTagTests {
 		DefaultWebSecurityExpressionHandler expected = new DefaultWebSecurityExpressionHandler();
 		this.tag.setAccess("permitAll");
 		WebApplicationContext wac = mock(WebApplicationContext.class);
-		when(wac.getBeansOfType(SecurityExpressionHandler.class))
-				.thenReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
+		given(wac.getBeansOfType(SecurityExpressionHandler.class))
+				.willReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
 		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 
 		assertThat(this.tag.authorize()).isTrue();

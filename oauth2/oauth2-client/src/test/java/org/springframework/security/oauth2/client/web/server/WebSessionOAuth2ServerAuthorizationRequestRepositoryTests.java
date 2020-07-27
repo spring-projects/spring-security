@@ -37,11 +37,11 @@ import org.springframework.web.server.session.WebSessionManager;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -225,7 +225,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 
 		Map<String, Object> sessionAttrs = spy(new HashMap<>());
 		WebSession session = mock(WebSession.class);
-		when(session.getAttributes()).thenReturn(sessionAttrs);
+		given(session.getAttributes()).willReturn(sessionAttrs);
 		WebSessionManager sessionManager = e -> Mono.just(session);
 
 		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(),

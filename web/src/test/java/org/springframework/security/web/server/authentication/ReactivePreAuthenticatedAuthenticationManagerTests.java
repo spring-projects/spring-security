@@ -33,8 +33,8 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Alexey Nesterov
@@ -62,7 +62,7 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 
 	@Test
 	public void returnsAuthenticatedTokenForValidAccount() {
-		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(this.validAccount));
+		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.validAccount));
 
 		Authentication authentication = this.manager.authenticate(tokenForUser(this.validAccount.getUsername()))
 				.block();
@@ -71,36 +71,36 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 
 	@Test(expected = UsernameNotFoundException.class)
 	public void returnsNullForNonExistingAccount() {
-		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.empty());
+		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.empty());
 
 		this.manager.authenticate(tokenForUser(this.nonExistingAccount.getUsername())).block();
 	}
 
 	@Test(expected = LockedException.class)
 	public void throwsExceptionForLockedAccount() {
-		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(this.lockedAccount));
+		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.lockedAccount));
 
 		this.manager.authenticate(tokenForUser(this.lockedAccount.getUsername())).block();
 	}
 
 	@Test(expected = DisabledException.class)
 	public void throwsExceptionForDisabledAccount() {
-		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(this.disabledAccount));
+		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.disabledAccount));
 
 		this.manager.authenticate(tokenForUser(this.disabledAccount.getUsername())).block();
 	}
 
 	@Test(expected = AccountExpiredException.class)
 	public void throwsExceptionForExpiredAccount() {
-		when(this.mockUserDetailsService.findByUsername(anyString())).thenReturn(Mono.just(this.expiredAccount));
+		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.expiredAccount));
 
 		this.manager.authenticate(tokenForUser(this.expiredAccount.getUsername())).block();
 	}
 
 	@Test(expected = CredentialsExpiredException.class)
 	public void throwsExceptionForAccountWithExpiredCredentials() {
-		when(this.mockUserDetailsService.findByUsername(anyString()))
-				.thenReturn(Mono.just(this.accountWithExpiredCredentials));
+		given(this.mockUserDetailsService.findByUsername(anyString()))
+				.willReturn(Mono.just(this.accountWithExpiredCredentials));
 
 		this.manager.authenticate(tokenForUser(this.accountWithExpiredCredentials.getUsername())).block();
 	}

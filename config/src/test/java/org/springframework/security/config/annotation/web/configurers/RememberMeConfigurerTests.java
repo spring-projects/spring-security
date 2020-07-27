@@ -50,10 +50,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -95,8 +95,8 @@ public class RememberMeConfigurerTests {
 
 	@Test
 	public void rememberMeWhenInvokedTwiceThenUsesOriginalUserDetailsService() throws Exception {
-		when(DuplicateDoesNotOverrideConfig.userDetailsService.loadUserByUsername(anyString()))
-				.thenReturn(new User("user", "password", Collections.emptyList()));
+		given(DuplicateDoesNotOverrideConfig.userDetailsService.loadUserByUsername(anyString()))
+				.willReturn(new User("user", "password", Collections.emptyList()));
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
 
 		this.mvc.perform(get("/").with(httpBasic("user", "password")).param("remember-me", "true"));

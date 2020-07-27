@@ -29,8 +29,8 @@ import org.springframework.security.core.Authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link MethodSecurityExpressionRoot}
@@ -69,13 +69,13 @@ public class MethodSecurityExpressionRootTests {
 
 	@Test
 	public void isAnonymousReturnsTrueIfTrustResolverReportsAnonymous() {
-		when(this.trustResolver.isAnonymous(this.user)).thenReturn(true);
+		given(this.trustResolver.isAnonymous(this.user)).willReturn(true);
 		assertThat(this.root.isAnonymous()).isTrue();
 	}
 
 	@Test
 	public void isAnonymousReturnsFalseIfTrustResolverReportsNonAnonymous() {
-		when(this.trustResolver.isAnonymous(this.user)).thenReturn(false);
+		given(this.trustResolver.isAnonymous(this.user)).willReturn(false);
 		assertThat(this.root.isAnonymous()).isFalse();
 	}
 
@@ -85,7 +85,7 @@ public class MethodSecurityExpressionRootTests {
 		final PermissionEvaluator pe = mock(PermissionEvaluator.class);
 		this.ctx.setVariable("domainObject", dummyDomainObject);
 		this.root.setPermissionEvaluator(pe);
-		when(pe.hasPermission(this.user, dummyDomainObject, "ignored")).thenReturn(false);
+		given(pe.hasPermission(this.user, dummyDomainObject, "ignored")).willReturn(false);
 
 		assertThat(this.root.hasPermission(dummyDomainObject, "ignored")).isFalse();
 
@@ -97,7 +97,7 @@ public class MethodSecurityExpressionRootTests {
 		final PermissionEvaluator pe = mock(PermissionEvaluator.class);
 		this.ctx.setVariable("domainObject", dummyDomainObject);
 		this.root.setPermissionEvaluator(pe);
-		when(pe.hasPermission(this.user, dummyDomainObject, "ignored")).thenReturn(true);
+		given(pe.hasPermission(this.user, dummyDomainObject, "ignored")).willReturn(true);
 
 		assertThat(this.root.hasPermission(dummyDomainObject, "ignored")).isTrue();
 	}
@@ -108,8 +108,7 @@ public class MethodSecurityExpressionRootTests {
 		this.ctx.setVariable("domainObject", dummyDomainObject);
 		final PermissionEvaluator pe = mock(PermissionEvaluator.class);
 		this.root.setPermissionEvaluator(pe);
-		when(pe.hasPermission(eq(this.user), eq(dummyDomainObject), any(Integer.class))).thenReturn(true)
-				.thenReturn(true).thenReturn(false);
+		given(pe.hasPermission(eq(this.user), eq(dummyDomainObject), any(Integer.class))).willReturn(true, true, false);
 
 		Expression e = this.parser.parseExpression("hasPermission(#domainObject, 0xA)");
 		// evaluator returns true
@@ -133,8 +132,8 @@ public class MethodSecurityExpressionRootTests {
 		Integer i = 2;
 		PermissionEvaluator pe = mock(PermissionEvaluator.class);
 		this.root.setPermissionEvaluator(pe);
-		when(pe.hasPermission(this.user, targetObject, i)).thenReturn(true).thenReturn(false);
-		when(pe.hasPermission(this.user, "x", i)).thenReturn(true);
+		given(pe.hasPermission(this.user, targetObject, i)).willReturn(true, false);
+		given(pe.hasPermission(this.user, "x", i)).willReturn(true);
 
 		Expression e = this.parser.parseExpression("hasPermission(this, 2)");
 		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();

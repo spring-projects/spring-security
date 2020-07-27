@@ -45,8 +45,8 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WithSecurityContextTestExcecutionListenerTests {
@@ -76,8 +76,8 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void beforeTestMethodNullSecurityContextNoError() throws Exception {
 		Class testClass = FakeTest.class;
-		when(this.testContext.getTestClass()).thenReturn(testClass);
-		when(this.testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
+		given(this.testContext.getTestClass()).willReturn(testClass);
+		given(this.testContext.getTestMethod()).willReturn(ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
 
 		this.listener.beforeTestMethod(this.testContext);
 	}
@@ -86,8 +86,8 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void beforeTestMethodNoApplicationContext() throws Exception {
 		Class testClass = FakeTest.class;
-		when(this.testContext.getApplicationContext()).thenThrow(new IllegalStateException());
-		when(this.testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testWithMockUser"));
+		given(this.testContext.getApplicationContext()).willThrow(new IllegalStateException());
+		given(this.testContext.getTestMethod()).willReturn(ReflectionUtils.findMethod(testClass, "testWithMockUser"));
 
 		this.listener.beforeTestMethod(this.testContext);
 
@@ -128,8 +128,8 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		Method method = ReflectionUtils.findMethod(WithSecurityContextTestExcecutionListenerTests.class,
 				"handlesGenericAnnotationTestMethod");
 		TestContext testContext = mock(TestContext.class);
-		when(testContext.getTestMethod()).thenReturn(method);
-		when(testContext.getApplicationContext()).thenThrow(new IllegalStateException(""));
+		given(testContext.getTestMethod()).willReturn(method);
+		given(testContext.getApplicationContext()).willThrow(new IllegalStateException(""));
 
 		this.listener.beforeTestMethod(testContext);
 

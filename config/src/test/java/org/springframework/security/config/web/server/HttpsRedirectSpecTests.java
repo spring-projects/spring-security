@@ -31,8 +31,8 @@ import org.springframework.security.web.server.util.matcher.PathPatternParserSer
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -100,7 +100,7 @@ public class HttpsRedirectSpecTests {
 		this.spring.register(RedirectToHttpsViaCustomPortsConfig.class).autowire();
 
 		PortMapper portMapper = this.spring.getContext().getBean(PortMapper.class);
-		when(portMapper.lookupHttpsPort(4080)).thenReturn(4443);
+		given(portMapper.lookupHttpsPort(4080)).willReturn(4443);
 
 		this.client.get().uri("http://localhost:4080").exchange().expectStatus().isFound().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "https://localhost:4443");
@@ -111,7 +111,7 @@ public class HttpsRedirectSpecTests {
 		this.spring.register(RedirectToHttpsViaCustomPortsInLambdaConfig.class).autowire();
 
 		PortMapper portMapper = this.spring.getContext().getBean(PortMapper.class);
-		when(portMapper.lookupHttpsPort(4080)).thenReturn(4443);
+		given(portMapper.lookupHttpsPort(4080)).willReturn(4443);
 
 		this.client.get().uri("http://localhost:4080").exchange().expectStatus().isFound().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "https://localhost:4443");

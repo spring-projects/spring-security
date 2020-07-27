@@ -43,10 +43,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -81,7 +81,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	@Test
 	public void filterChainProceedsOnFailedAuthenticationByDefault() throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		this.filter.setAuthenticationManager(am);
 		this.filter.afterPropertiesSet();
 		this.filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class));
@@ -93,7 +93,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 	public void exceptionIsThrownOnFailedAuthenticationIfContinueFilterChainOnUnsuccessfulAuthenticationSetToFalse()
 			throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		this.filter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
 		this.filter.setAuthenticationManager(am);
 		this.filter.afterPropertiesSet();
@@ -238,8 +238,8 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.setAuthenticationFailureHandler(new ForwardAuthenticationFailureHandler("/forwardUrl"));
 		filter.setCheckForPrincipalChanges(true);
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(PreAuthenticatedAuthenticationToken.class)))
-				.thenThrow(new PreAuthenticatedCredentialsNotFoundException("invalid"));
+		given(am.authenticate(any(PreAuthenticatedAuthenticationToken.class)))
+				.willThrow(new PreAuthenticatedCredentialsNotFoundException("invalid"));
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
 
@@ -418,11 +418,11 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 
 		if (!grantAccess) {
-			when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+			given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		}
 		else {
-			when(am.authenticate(any(Authentication.class)))
-					.thenAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
+			given(am.authenticate(any(Authentication.class)))
+					.willAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 		}
 
 		filter.setAuthenticationManager(am);

@@ -29,9 +29,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -101,14 +101,14 @@ public class DelegatingPasswordEncoderTests {
 
 	@Test
 	public void encodeWhenValidThenUsesIdForEncode() {
-		when(this.bcrypt.encode(this.rawPassword)).thenReturn(this.encodedPassword);
+		given(this.bcrypt.encode(this.rawPassword)).willReturn(this.encodedPassword);
 
 		assertThat(this.passwordEncoder.encode(this.rawPassword)).isEqualTo(this.bcryptEncodedPassword);
 	}
 
 	@Test
 	public void matchesWhenBCryptThenDelegatesToBCrypt() {
-		when(this.bcrypt.matches(this.rawPassword, this.encodedPassword)).thenReturn(true);
+		given(this.bcrypt.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
 
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.bcryptEncodedPassword)).isTrue();
 
@@ -118,7 +118,7 @@ public class DelegatingPasswordEncoderTests {
 
 	@Test
 	public void matchesWhenNoopThenDelegatesToNoop() {
-		when(this.noop.matches(this.rawPassword, this.encodedPassword)).thenReturn(true);
+		given(this.noop.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
 
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.noopEncodedPassword)).isTrue();
 
@@ -188,7 +188,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenNullIdThenDelegatesToInvalidId() {
 		this.delegates.put(null, this.invalidId);
 		this.passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
-		when(this.invalidId.matches(this.rawPassword, this.encodedPassword)).thenReturn(true);
+		given(this.invalidId.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
 
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.encodedPassword)).isTrue();
 
@@ -225,7 +225,7 @@ public class DelegatingPasswordEncoderTests {
 
 	@Test
 	public void upgradeEncodingWhenSameIdAndEncoderTrueThenEncoderDecidesTrue() {
-		when(this.bcrypt.upgradeEncoding(any())).thenReturn(true);
+		given(this.bcrypt.upgradeEncoding(any())).willReturn(true);
 
 		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isTrue();
 

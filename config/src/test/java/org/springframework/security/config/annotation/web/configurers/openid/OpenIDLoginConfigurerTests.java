@@ -43,10 +43,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.openid4java.discovery.yadis.YadisResolver.YADIS_XRDS_LOCATION;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -104,10 +104,10 @@ public class OpenIDLoginConfigurerTests {
 		OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER = mock(ConsumerManager.class);
 		AuthRequest mockAuthRequest = mock(AuthRequest.class);
 		DiscoveryInformation mockDiscoveryInformation = mock(DiscoveryInformation.class);
-		when(mockAuthRequest.getDestinationUrl(anyBoolean())).thenReturn("mockUrl");
-		when(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.associate(any())).thenReturn(mockDiscoveryInformation);
-		when(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
-				any())).thenReturn(mockAuthRequest);
+		given(mockAuthRequest.getDestinationUrl(anyBoolean())).willReturn("mockUrl");
+		given(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.associate(any())).willReturn(mockDiscoveryInformation);
+		given(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
+				any())).willReturn(mockAuthRequest);
 		this.spring.register(OpenIdAttributesInLambdaConfig.class).autowire();
 
 		try (MockWebServer server = new MockWebServer()) {
@@ -142,10 +142,10 @@ public class OpenIDLoginConfigurerTests {
 		OpenIdAttributesNullNameConfig.CONSUMER_MANAGER = mock(ConsumerManager.class);
 		AuthRequest mockAuthRequest = mock(AuthRequest.class);
 		DiscoveryInformation mockDiscoveryInformation = mock(DiscoveryInformation.class);
-		when(mockAuthRequest.getDestinationUrl(anyBoolean())).thenReturn("mockUrl");
-		when(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.associate(any())).thenReturn(mockDiscoveryInformation);
-		when(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
-				any())).thenReturn(mockAuthRequest);
+		given(mockAuthRequest.getDestinationUrl(anyBoolean())).willReturn("mockUrl");
+		given(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.associate(any())).willReturn(mockDiscoveryInformation);
+		given(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
+				any())).willReturn(mockAuthRequest);
 		this.spring.register(OpenIdAttributesNullNameConfig.class).autowire();
 
 		try (MockWebServer server = new MockWebServer()) {

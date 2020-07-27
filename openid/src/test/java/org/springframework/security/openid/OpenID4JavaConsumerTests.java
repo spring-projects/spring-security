@@ -39,8 +39,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -62,8 +62,8 @@ public class OpenID4JavaConsumerTests {
 		AuthRequest authReq = mock(AuthRequest.class);
 		DiscoveryInformation di = mock(DiscoveryInformation.class);
 
-		when(mgr.authenticate(any(DiscoveryInformation.class), any(), any())).thenReturn(authReq);
-		when(mgr.associate(any())).thenReturn(di);
+		given(mgr.authenticate(any(DiscoveryInformation.class), any(), any())).willReturn(authReq);
+		given(mgr.associate(any())).willReturn(di);
 
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new MockAttributesFactory());
 
@@ -85,7 +85,7 @@ public class OpenID4JavaConsumerTests {
 	public void discoveryExceptionRaisesOpenIDException() throws Exception {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
-		when(mgr.discover(any())).thenThrow(new DiscoveryException("msg"));
+		given(mgr.discover(any())).willThrow(new DiscoveryException("msg"));
 		consumer.beginConsumption(new MockHttpServletRequest(), "", "", "");
 	}
 
@@ -94,8 +94,8 @@ public class OpenID4JavaConsumerTests {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
 
-		when(mgr.authenticate(ArgumentMatchers.<DiscoveryInformation>any(), any(), any()))
-				.thenThrow(new MessageException("msg"), new ConsumerException("msg"));
+		given(mgr.authenticate(ArgumentMatchers.<DiscoveryInformation>any(), any(), any()))
+				.willThrow(new MessageException("msg"), new ConsumerException("msg"));
 		try {
 			consumer.beginConsumption(new MockHttpServletRequest(), "", "", "");
 			fail("OpenIDConsumerException was not thrown");
@@ -118,7 +118,7 @@ public class OpenID4JavaConsumerTests {
 		VerificationResult vr = mock(VerificationResult.class);
 		DiscoveryInformation di = mock(DiscoveryInformation.class);
 
-		when(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class))).thenReturn(vr);
+		given(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class))).willReturn(vr);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -134,9 +134,8 @@ public class OpenID4JavaConsumerTests {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
 
-		when(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class)))
-				.thenThrow(new MessageException("")).thenThrow(new AssociationException(""))
-				.thenThrow(new DiscoveryException(""));
+		given(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class)))
+				.willThrow(new MessageException(""), new AssociationException(""), new DiscoveryException(""));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("x=5");
@@ -174,9 +173,9 @@ public class OpenID4JavaConsumerTests {
 		Identifier id = (Identifier) () -> "id";
 		Message msg = mock(Message.class);
 
-		when(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class))).thenReturn(vr);
-		when(vr.getVerifiedId()).thenReturn(id);
-		when(vr.getAuthResponse()).thenReturn(msg);
+		given(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class))).willReturn(vr);
+		given(vr.getVerifiedId()).willReturn(id);
+		given(vr.getAuthResponse()).willReturn(msg);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -193,9 +192,9 @@ public class OpenID4JavaConsumerTests {
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(new NullAxFetchListFactory());
 		Message msg = mock(Message.class);
 		FetchResponse fr = mock(FetchResponse.class);
-		when(msg.hasExtension(AxMessage.OPENID_NS_AX)).thenReturn(true);
-		when(msg.getExtension(AxMessage.OPENID_NS_AX)).thenReturn(fr);
-		when(fr.getAttributeValues("a")).thenReturn(Arrays.asList("x", "y"));
+		given(msg.hasExtension(AxMessage.OPENID_NS_AX)).willReturn(true);
+		given(msg.getExtension(AxMessage.OPENID_NS_AX)).willReturn(fr);
+		given(fr.getAttributeValues("a")).willReturn(Arrays.asList("x", "y"));
 
 		List<OpenIDAttribute> fetched = consumer.fetchAxAttributes(msg, this.attributes);
 
@@ -208,9 +207,9 @@ public class OpenID4JavaConsumerTests {
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(new NullAxFetchListFactory());
 		Message msg = mock(Message.class);
 		FetchResponse fr = mock(FetchResponse.class);
-		when(msg.hasExtension(AxMessage.OPENID_NS_AX)).thenReturn(true);
-		when(msg.getExtension(AxMessage.OPENID_NS_AX)).thenThrow(new MessageException(""));
-		when(fr.getAttributeValues("a")).thenReturn(Arrays.asList("x", "y"));
+		given(msg.hasExtension(AxMessage.OPENID_NS_AX)).willReturn(true);
+		given(msg.getExtension(AxMessage.OPENID_NS_AX)).willThrow(new MessageException(""));
+		given(fr.getAttributeValues("a")).willReturn(Arrays.asList("x", "y"));
 
 		consumer.fetchAxAttributes(msg, this.attributes);
 	}

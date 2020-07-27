@@ -53,10 +53,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 
@@ -88,7 +88,7 @@ public class AuthenticationManagerBuilderTests {
 	public void customAuthenticationEventPublisherWithWeb() throws Exception {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);
 		AuthenticationEventPublisher aep = mock(AuthenticationEventPublisher.class);
-		when(opp.postProcess(any())).thenAnswer(a -> a.getArgument(0));
+		given(opp.postProcess(any())).willAnswer(a -> a.getArgument(0));
 		AuthenticationManager am = new AuthenticationManagerBuilder(opp).authenticationEventPublisher(aep)
 				.inMemoryAuthentication().and().build();
 

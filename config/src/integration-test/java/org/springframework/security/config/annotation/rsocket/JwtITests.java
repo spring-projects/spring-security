@@ -54,8 +54,8 @@ import org.springframework.util.MimeTypeUtils;
 import static io.rsocket.metadata.WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -97,7 +97,7 @@ public class JwtITests {
 	@Test
 	public void routeWhenBearerThenAuthorized() {
 		BearerTokenMetadata credentials = new BearerTokenMetadata("token");
-		when(this.decoder.decode(any())).thenReturn(Mono.just(jwt()));
+		given(this.decoder.decode(any())).willReturn(Mono.just(jwt()));
 		this.requester = requester()
 				.setupMetadata(credentials.getToken(), BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
@@ -112,7 +112,7 @@ public class JwtITests {
 		MimeType authenticationMimeType = MimeTypeUtils.parseMimeType(MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
 		BearerTokenMetadata credentials = new BearerTokenMetadata("token");
-		when(this.decoder.decode(any())).thenReturn(Mono.just(jwt()));
+		given(this.decoder.decode(any())).willReturn(Mono.just(jwt()));
 		this.requester = requester().setupMetadata(credentials, authenticationMimeType)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
 

@@ -55,9 +55,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
@@ -423,8 +423,8 @@ public class OidcUserServiceTests {
 				Function.class);
 		this.userService.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
 
-		when(customClaimTypeConverterFactory.apply(same(clientRegistration)))
-				.thenReturn(new ClaimTypeConverter(OidcUserService.createDefaultClaimTypeConverters()));
+		given(customClaimTypeConverterFactory.apply(same(clientRegistration)))
+				.willReturn(new ClaimTypeConverter(OidcUserService.createDefaultClaimTypeConverters()));
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 

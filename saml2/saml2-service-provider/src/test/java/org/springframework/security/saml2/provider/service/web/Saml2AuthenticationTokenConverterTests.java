@@ -39,7 +39,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,8 +54,8 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenSamlResponseThenToken() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
-				.thenReturn(this.relyingPartyRegistration);
+		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("SAMLResponse", Saml2Utils.samlEncode("response".getBytes(UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
@@ -68,8 +68,8 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenNoSamlResponseThenNull() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
-				.thenReturn(this.relyingPartyRegistration);
+		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		assertThat(converter.convert(request)).isNull();
 	}
@@ -78,7 +78,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenNoRelyingPartyRegistrationThenNull() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class))).thenReturn(null);
+		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class))).willReturn(null);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		assertThat(converter.convert(request)).isNull();
 	}
@@ -87,8 +87,8 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenGetRequestThenInflates() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
-				.thenReturn(this.relyingPartyRegistration);
+		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("GET");
 		byte[] deflated = Saml2Utils.samlDeflate("response");
@@ -109,8 +109,8 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
-				.thenReturn(this.relyingPartyRegistration);
+		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("SAMLResponse", getSsoCircleEncodedXml());
 		Saml2AuthenticationToken token = converter.convert(request);

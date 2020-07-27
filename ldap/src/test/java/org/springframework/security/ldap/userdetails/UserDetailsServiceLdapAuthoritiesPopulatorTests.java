@@ -28,8 +28,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.authentication.UserDetailsServiceLdapAuthoritiesPopulator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -40,9 +40,9 @@ public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
 	public void delegationToUserDetailsServiceReturnsCorrectRoles() {
 		UserDetailsService uds = mock(UserDetailsService.class);
 		UserDetails user = mock(UserDetails.class);
-		when(uds.loadUserByUsername("joe")).thenReturn(user);
+		given(uds.loadUserByUsername("joe")).willReturn(user);
 		List authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-		when(user.getAuthorities()).thenReturn(authorities);
+		given(user.getAuthorities()).willReturn(authorities);
 
 		UserDetailsServiceLdapAuthoritiesPopulator populator = new UserDetailsServiceLdapAuthoritiesPopulator(uds);
 		Collection<? extends GrantedAuthority> auths = populator.getGrantedAuthorities(new DirContextAdapter(), "joe");

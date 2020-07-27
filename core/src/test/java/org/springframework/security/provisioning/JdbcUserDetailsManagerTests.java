@@ -45,8 +45,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -225,7 +225,7 @@ public class JdbcUserDetailsManagerTests {
 		insertJoe();
 		Authentication currentAuth = authenticateJoe();
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(currentAuth)).thenReturn(currentAuth);
+		given(am.authenticate(currentAuth)).willReturn(currentAuth);
 
 		this.manager.setAuthenticationManager(am);
 		this.manager.changePassword("password", "newPassword");
@@ -245,7 +245,7 @@ public class JdbcUserDetailsManagerTests {
 		insertJoe();
 		authenticateJoe();
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 
 		this.manager.setAuthenticationManager(am);
 

@@ -51,8 +51,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -88,8 +88,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, this.authentication.getName(),
 				TestOAuth2AccessTokens.noScopes());
-		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any()))
-				.thenReturn(Mono.just(this.authorizedClient));
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any()))
+				.willReturn(Mono.just(this.authorizedClient));
 	}
 
 	@Test
@@ -141,8 +141,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenRegistrationIdEmptyAndOAuth2AuthenticationThenResolves() {
 		this.authentication = mock(OAuth2AuthenticationToken.class);
-		when(((OAuth2AuthenticationToken) this.authentication).getAuthorizedClientRegistrationId())
-				.thenReturn("client1");
+		given(((OAuth2AuthenticationToken) this.authentication).getAuthorizedClientRegistrationId())
+				.willReturn("client1");
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdEmpty", OAuth2AuthorizedClient.class);
 		resolveArgument(methodParameter);
 	}
@@ -164,9 +164,9 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Test
 	public void resolveArgumentWhenOAuth2AuthorizedClientNotFoundThenThrowClientAuthorizationRequiredException() {
-		when(this.clientRegistrationRepository.findByRegistrationId(any()))
-				.thenReturn(Mono.just(this.clientRegistration));
-		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any())).thenReturn(Mono.empty());
+		given(this.clientRegistrationRepository.findByRegistrationId(any()))
+				.willReturn(Mono.just(this.clientRegistration));
+		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any())).willReturn(Mono.empty());
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
 		assertThatThrownBy(() -> resolveArgument(methodParameter))

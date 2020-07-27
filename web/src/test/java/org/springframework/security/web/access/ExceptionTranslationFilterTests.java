@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -92,7 +92,7 @@ public class ExceptionTranslationFilterTests {
 
 		// Setup the FilterChain to thrown an access denied exception
 		FilterChain fc = mock(FilterChain.class);
-		doThrow(new AccessDeniedException("")).when(fc).doFilter(any(HttpServletRequest.class),
+		willThrow(new AccessDeniedException("")).given(fc).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 
 		// Setup SecurityContextHolder, as filter needs to check if user is
@@ -124,7 +124,7 @@ public class ExceptionTranslationFilterTests {
 
 		// Setup the FilterChain to thrown an access denied exception
 		FilterChain fc = mock(FilterChain.class);
-		doThrow(new AccessDeniedException("")).when(fc).doFilter(any(HttpServletRequest.class),
+		willThrow(new AccessDeniedException("")).given(fc).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 
 		// Setup SecurityContextHolder, as filter needs to check if user is remembered
@@ -149,7 +149,7 @@ public class ExceptionTranslationFilterTests {
 
 		// Setup the FilterChain to thrown an access denied exception
 		FilterChain fc = mock(FilterChain.class);
-		doThrow(new AccessDeniedException("")).when(fc).doFilter(any(HttpServletRequest.class),
+		willThrow(new AccessDeniedException("")).given(fc).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 
 		// Setup SecurityContextHolder, as filter needs to check if user is
@@ -179,7 +179,7 @@ public class ExceptionTranslationFilterTests {
 
 		// Setup the FilterChain to thrown an access denied exception
 		FilterChain fc = mock(FilterChain.class);
-		doThrow(new AccessDeniedException("")).when(fc).doFilter(any(HttpServletRequest.class),
+		willThrow(new AccessDeniedException("")).given(fc).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 
 		// Setup SecurityContextHolder, as filter needs to check if user is
@@ -213,7 +213,7 @@ public class ExceptionTranslationFilterTests {
 
 		// Setup the FilterChain to thrown an authentication failure exception
 		FilterChain fc = mock(FilterChain.class);
-		doThrow(new BadCredentialsException("")).when(fc).doFilter(any(HttpServletRequest.class),
+		willThrow(new BadCredentialsException("")).given(fc).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 
 		// Test
@@ -239,7 +239,7 @@ public class ExceptionTranslationFilterTests {
 
 		// Setup the FilterChain to thrown an authentication failure exception
 		FilterChain fc = mock(FilterChain.class);
-		doThrow(new BadCredentialsException("")).when(fc).doFilter(any(HttpServletRequest.class),
+		willThrow(new BadCredentialsException("")).given(fc).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 
 		// Test
@@ -286,7 +286,7 @@ public class ExceptionTranslationFilterTests {
 		for (Exception e : exceptions) {
 			FilterChain fc = mock(FilterChain.class);
 
-			doThrow(e).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+			willThrow(e).given(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 			try {
 				filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc);
 				fail("Should have thrown Exception");

@@ -55,11 +55,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link DaoAuthenticationProvider}.
@@ -398,11 +398,11 @@ public class DaoAuthenticationProviderTests {
 		provider.setUserDetailsPasswordService(passwordManager);
 
 		UserDetails user = PasswordEncodedUser.user();
-		when(encoder.matches(any(), any())).thenReturn(true);
-		when(encoder.upgradeEncoding(any())).thenReturn(true);
-		when(encoder.encode(any())).thenReturn(encodedPassword);
-		when(userDetailsService.loadUserByUsername(any())).thenReturn(user);
-		when(passwordManager.updatePassword(any(), any())).thenReturn(user);
+		given(encoder.matches(any(), any())).willReturn(true);
+		given(encoder.upgradeEncoding(any())).willReturn(true);
+		given(encoder.encode(any())).willReturn(encodedPassword);
+		given(userDetailsService.loadUserByUsername(any())).willReturn(user);
+		given(passwordManager.updatePassword(any(), any())).willReturn(user);
 
 		Authentication result = provider.authenticate(token);
 
@@ -423,8 +423,8 @@ public class DaoAuthenticationProviderTests {
 		provider.setUserDetailsPasswordService(passwordManager);
 
 		UserDetails user = PasswordEncodedUser.user();
-		when(encoder.matches(any(), any())).thenReturn(false);
-		when(userDetailsService.loadUserByUsername(any())).thenReturn(user);
+		given(encoder.matches(any(), any())).willReturn(false);
+		given(userDetailsService.loadUserByUsername(any())).willReturn(user);
 
 		assertThatThrownBy(() -> provider.authenticate(token)).isInstanceOf(BadCredentialsException.class);
 
@@ -444,9 +444,9 @@ public class DaoAuthenticationProviderTests {
 		provider.setUserDetailsPasswordService(passwordManager);
 
 		UserDetails user = PasswordEncodedUser.user();
-		when(encoder.matches(any(), any())).thenReturn(true);
-		when(encoder.upgradeEncoding(any())).thenReturn(false);
-		when(userDetailsService.loadUserByUsername(any())).thenReturn(user);
+		given(encoder.matches(any(), any())).willReturn(true);
+		given(encoder.upgradeEncoding(any())).willReturn(false);
+		given(userDetailsService.loadUserByUsername(any())).willReturn(user);
 
 		Authentication result = provider.authenticate(token);
 
@@ -564,7 +564,7 @@ public class DaoAuthenticationProviderTests {
 	public void testUserNotFoundEncodesPassword() throws Exception {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", "koala");
 		PasswordEncoder encoder = mock(PasswordEncoder.class);
-		when(encoder.encode(anyString())).thenReturn("koala");
+		given(encoder.encode(anyString())).willReturn("koala");
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setHideUserNotFoundExceptions(false);
 		provider.setPasswordEncoder(encoder);

@@ -44,8 +44,8 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -75,7 +75,7 @@ public class OAuth2LoginAuthenticationWebFilterTests {
 				this.authorizedClientRepository);
 		this.webFilterExchange = new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/")),
 				new DefaultWebFilterChain(exchange -> exchange.getResponse().setComplete()));
-		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
+		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 	}
 
 	@Test

@@ -26,9 +26,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -68,7 +68,7 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 
 	@Test
 	public void writeHeadersOnMatch() {
-		when(this.matcher.matches(this.request)).thenReturn(true);
+		given(this.matcher.matches(this.request)).willReturn(true);
 
 		this.headerWriter.writeHeaders(this.request, this.response);
 
@@ -77,7 +77,7 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 
 	@Test
 	public void writeHeadersOnNoMatch() {
-		when(this.matcher.matches(this.request)).thenReturn(false);
+		given(this.matcher.matches(this.request)).willReturn(false);
 
 		this.headerWriter.writeHeaders(this.request, this.response);
 

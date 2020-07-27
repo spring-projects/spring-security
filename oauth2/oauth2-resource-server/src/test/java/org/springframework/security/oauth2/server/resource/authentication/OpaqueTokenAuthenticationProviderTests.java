@@ -35,8 +35,8 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals.active;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ACTIVE;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.AUDIENCE;
@@ -59,7 +59,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 		OAuth2AuthenticatedPrincipal principal = active(
 				attributes -> attributes.put("extension_field", "twenty-seven"));
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
-		when(introspector.introspect(any())).thenReturn(principal);
+		given(introspector.introspect(any())).willReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));
@@ -86,7 +86,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 		OAuth2AuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(
 				Collections.singletonMap("claim", "value"), null);
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
-		when(introspector.introspect(any())).thenReturn(principal);
+		given(introspector.introspect(any())).willReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));
@@ -101,7 +101,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenIntrospectionEndpointThrowsExceptionThenInvalidToken() {
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
-		when(introspector.introspect(any())).thenThrow(new OAuth2IntrospectionException("with \"invalid\" chars"));
+		given(introspector.introspect(any())).willThrow(new OAuth2IntrospectionException("with \"invalid\" chars"));
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 
 		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")))

@@ -39,9 +39,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getParserPool;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getUnmarshallerFactory;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
@@ -170,7 +170,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	public void createPostAuthenticationRequestWhenAuthnRequestConsumerThenUses() {
 		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = mock(
 				Function.class);
-		when(authnRequestConsumerResolver.apply(this.context)).thenReturn(authnRequest -> {
+		given(authnRequestConsumerResolver.apply(this.context)).willReturn(authnRequest -> {
 		});
 		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
 
@@ -182,7 +182,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	public void createRedirectAuthenticationRequestWhenAuthnRequestConsumerThenUses() {
 		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = mock(
 				Function.class);
-		when(authnRequestConsumerResolver.apply(this.context)).thenReturn(authnRequest -> {
+		given(authnRequestConsumerResolver.apply(this.context)).willReturn(authnRequest -> {
 		});
 		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
 

@@ -26,7 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Luke Taylor
@@ -115,8 +115,8 @@ public class RegexRequestMatcherTests {
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {
-		when(this.request.getQueryString()).thenReturn("doesntMatter");
-		when(this.request.getServletPath()).thenReturn(path);
+		given(this.request.getQueryString()).willReturn("doesntMatter");
+		given(this.request.getServletPath()).willReturn(path);
 		return this.request;
 	}
 

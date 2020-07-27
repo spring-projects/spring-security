@@ -38,8 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link OAuth2AccessTokenResponseHttpMessageConverter}.
@@ -146,7 +146,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 	@Test
 	public void readInternalWhenConversionFailsThenThrowHttpMessageNotReadableException() {
 		Converter tokenResponseConverter = mock(Converter.class);
-		when(tokenResponseConverter.convert(any())).thenThrow(RuntimeException.class);
+		given(tokenResponseConverter.convert(any())).willThrow(RuntimeException.class);
 		this.messageConverter.setTokenResponseConverter(tokenResponseConverter);
 
 		String tokenResponse = "{}";
@@ -186,7 +186,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 	@Test
 	public void writeInternalWhenConversionFailsThenThrowHttpMessageNotWritableException() {
 		Converter tokenResponseParametersConverter = mock(Converter.class);
-		when(tokenResponseParametersConverter.convert(any())).thenThrow(RuntimeException.class);
+		given(tokenResponseParametersConverter.convert(any())).willThrow(RuntimeException.class);
 		this.messageConverter.setTokenResponseParametersConverter(tokenResponseParametersConverter);
 
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")

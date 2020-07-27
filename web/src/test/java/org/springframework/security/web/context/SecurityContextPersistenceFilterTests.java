@@ -34,10 +34,10 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class SecurityContextPersistenceFilterTests {
 
@@ -68,7 +68,7 @@ public class SecurityContextPersistenceFilterTests {
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
 		SecurityContextHolder.getContext().setAuthentication(this.testToken);
-		doThrow(new IOException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		willThrow(new IOException()).given(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		try {
 			filter.doFilter(request, response, chain);
 			fail("IOException should have been thrown");
@@ -91,7 +91,7 @@ public class SecurityContextPersistenceFilterTests {
 		final SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(repo);
 
-		when(repo.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(scBefore);
+		given(repo.loadContext(any(HttpRequestResponseHolder.class))).willReturn(scBefore);
 
 		final FilterChain chain = (request1, response1) -> {
 			assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(beforeAuth);

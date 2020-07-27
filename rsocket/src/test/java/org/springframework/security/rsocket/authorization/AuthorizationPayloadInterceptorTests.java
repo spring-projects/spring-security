@@ -34,7 +34,7 @@ import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager.authenticated;
 import static org.springframework.security.authorization.AuthorityReactiveAuthorizationManager.hasRole;
 
@@ -59,7 +59,7 @@ public class AuthorizationPayloadInterceptorTests {
 
 	@Test
 	public void interceptWhenAuthenticationEmptyAndSubscribedThenException() {
-		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
+		given(this.chain.next(any())).willReturn(this.chainResult.mono());
 
 		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(authenticated());
 
@@ -70,8 +70,8 @@ public class AuthorizationPayloadInterceptorTests {
 
 	@Test
 	public void interceptWhenAuthenticationNotSubscribedAndEmptyThenCompletes() {
-		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
-		when(this.authorizationManager.verify(any(), any())).thenReturn(this.managerResult.mono());
+		given(this.chain.next(any())).willReturn(this.chainResult.mono());
+		given(this.authorizationManager.verify(any(), any())).willReturn(this.managerResult.mono());
 
 		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(this.authorizationManager);
 
@@ -81,7 +81,7 @@ public class AuthorizationPayloadInterceptorTests {
 
 	@Test
 	public void interceptWhenNotAuthorizedThenException() {
-		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
+		given(this.chain.next(any())).willReturn(this.chainResult.mono());
 
 		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(hasRole("USER"));
 		Context userContext = ReactiveSecurityContextHolder
@@ -95,7 +95,7 @@ public class AuthorizationPayloadInterceptorTests {
 
 	@Test
 	public void interceptWhenAuthorizedThenContinues() {
-		when(this.chain.next(any())).thenReturn(this.chainResult.mono());
+		given(this.chain.next(any())).willReturn(this.chainResult.mono());
 
 		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(authenticated());
 		Context userContext = ReactiveSecurityContextHolder

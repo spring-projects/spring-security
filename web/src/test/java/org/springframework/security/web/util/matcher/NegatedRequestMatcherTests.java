@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -47,7 +47,7 @@ public class NegatedRequestMatcherTests {
 
 	@Test
 	public void matchesDelegateFalse() {
-		when(this.delegate.matches(this.request)).thenReturn(false);
+		given(this.delegate.matches(this.request)).willReturn(false);
 		this.matcher = new NegatedRequestMatcher(this.delegate);
 
 		assertThat(this.matcher.matches(this.request)).isTrue();
@@ -55,7 +55,7 @@ public class NegatedRequestMatcherTests {
 
 	@Test
 	public void matchesDelegateTrue() {
-		when(this.delegate.matches(this.request)).thenReturn(true);
+		given(this.delegate.matches(this.request)).willReturn(true);
 		this.matcher = new NegatedRequestMatcher(this.delegate);
 
 		assertThat(this.matcher.matches(this.request)).isFalse();

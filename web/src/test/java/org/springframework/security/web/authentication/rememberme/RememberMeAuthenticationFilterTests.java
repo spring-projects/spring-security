@@ -39,10 +39,10 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link RememberMeAuthenticationFilter}.
@@ -98,7 +98,7 @@ public class RememberMeAuthenticationFilterTests {
 	@Test
 	public void testOperationWhenNoAuthenticationInContextHolder() throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(this.remembered)).thenReturn(this.remembered);
+		given(am.authenticate(this.remembered)).willReturn(this.remembered);
 
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
 				new MockRememberMeServices(this.remembered));
@@ -118,7 +118,7 @@ public class RememberMeAuthenticationFilterTests {
 	public void onUnsuccessfulLoginIsCalledWhenProviderRejectsAuth() throws Exception {
 		final Authentication failedAuth = new TestingAuthenticationToken("failed", "");
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
 				new MockRememberMeServices(this.remembered)) {
@@ -144,7 +144,7 @@ public class RememberMeAuthenticationFilterTests {
 	@Test
 	public void authenticationSuccessHandlerIsInvokedOnSuccessfulAuthenticationIfSet() throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(this.remembered)).thenReturn(this.remembered);
+		given(am.authenticate(this.remembered)).willReturn(this.remembered);
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
 				new MockRememberMeServices(this.remembered));
 		filter.setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/target"));

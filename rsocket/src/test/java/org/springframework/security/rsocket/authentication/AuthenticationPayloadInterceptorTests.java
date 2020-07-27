@@ -55,9 +55,9 @@ import org.springframework.util.MimeTypeUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -84,7 +84,7 @@ public class AuthenticationPayloadInterceptorTests {
 		AuthenticationPayloadInterceptor interceptor = new AuthenticationPayloadInterceptor(this.authenticationManager);
 		PayloadExchange exchange = createExchange();
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password");
-		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.just(expectedAuthentication));
+		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(expectedAuthentication));
 
 		AuthenticationPayloadInterceptorChain authenticationPayloadChain = new AuthenticationPayloadInterceptorChain();
 		interceptor.intercept(exchange, authenticationPayloadChain).block();
@@ -103,11 +103,11 @@ public class AuthenticationPayloadInterceptorTests {
 
 		PayloadExchange exchange = createExchange();
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password");
-		when(this.authenticationManager.authenticate(any())).thenReturn(Mono.just(expectedAuthentication));
+		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(expectedAuthentication));
 
 		PublisherProbe<Void> voidResult = PublisherProbe.empty();
 		PayloadInterceptorChain chain = mock(PayloadInterceptorChain.class);
-		when(chain.next(any())).thenReturn(voidResult.mono());
+		given(chain.next(any())).willReturn(voidResult.mono());
 
 		StepVerifier.create(interceptor.intercept(exchange, chain))
 				.then(() -> assertThat(voidResult.subscribeCount()).isEqualTo(1)).verifyComplete();

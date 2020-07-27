@@ -25,9 +25,9 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 
@@ -55,8 +55,8 @@ public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 		SavedRequest savedRequest = mock(SavedRequest.class);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		when(savedRequest.getRedirectUrl()).thenReturn(redirectUrl);
-		when(requestCache.getRequest(request, response)).thenReturn(savedRequest);
+		given(savedRequest.getRedirectUrl()).willReturn(redirectUrl);
+		given(requestCache.getRequest(request, response)).willReturn(savedRequest);
 
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
 		handler.setRequestCache(requestCache);

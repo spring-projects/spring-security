@@ -38,9 +38,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -68,7 +68,7 @@ public class AuthenticationConfigurationGh3935Tests {
 	public void delegateUsesExisitingAuthentication() {
 		String username = "user";
 		String password = "password";
-		when(this.uds.loadUserByUsername(username)).thenReturn(PasswordEncodedUser.user());
+		given(this.uds.loadUserByUsername(username)).willReturn(PasswordEncodedUser.user());
 
 		AuthenticationManager authenticationManager = this.adapter.authenticationManager;
 		assertThat(authenticationManager).isNotNull();

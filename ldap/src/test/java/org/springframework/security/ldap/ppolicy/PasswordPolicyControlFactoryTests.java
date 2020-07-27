@@ -20,8 +20,8 @@ import javax.naming.ldap.Control;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -33,7 +33,7 @@ public class PasswordPolicyControlFactoryTests {
 		PasswordPolicyControlFactory ctrlFactory = new PasswordPolicyControlFactory();
 		Control wrongCtrl = mock(Control.class);
 
-		when(wrongCtrl.getID()).thenReturn("wrongId");
+		given(wrongCtrl.getID()).willReturn("wrongId");
 		assertThat(ctrlFactory.getControlInstance(wrongCtrl)).isNull();
 	}
 
@@ -42,8 +42,8 @@ public class PasswordPolicyControlFactoryTests {
 		PasswordPolicyControlFactory ctrlFactory = new PasswordPolicyControlFactory();
 		Control control = mock(Control.class);
 
-		when(control.getID()).thenReturn(PasswordPolicyControl.OID);
-		when(control.getEncodedValue()).thenReturn(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL);
+		given(control.getID()).willReturn(PasswordPolicyControl.OID);
+		given(control.getEncodedValue()).willReturn(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL);
 		Control result = ctrlFactory.getControlInstance(control);
 		assertThat(result).isNotNull();
 		assertThat(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL).isEqualTo(result.getEncodedValue());

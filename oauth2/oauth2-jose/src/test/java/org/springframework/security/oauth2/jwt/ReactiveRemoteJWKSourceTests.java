@@ -34,7 +34,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -81,7 +81,7 @@ public class ReactiveRemoteJWKSourceTests {
 
 	@Test
 	public void getWhenMultipleRequestThenCached() {
-		when(this.matcher.matches(any())).thenReturn(true);
+		given(this.matcher.matches(any())).willReturn(true);
 
 		this.source.get(this.selector).block();
 		this.source.get(this.selector).block();
@@ -91,7 +91,7 @@ public class ReactiveRemoteJWKSourceTests {
 
 	@Test
 	public void getWhenMatchThenCreatesKeys() {
-		when(this.matcher.matches(any())).thenReturn(true);
+		given(this.matcher.matches(any())).willReturn(true);
 
 		List<JWK> keys = this.source.get(this.selector).block();
 		assertThat(keys).hasSize(2);
@@ -110,8 +110,8 @@ public class ReactiveRemoteJWKSourceTests {
 
 	@Test
 	public void getWhenNoMatchAndNoKeyIdThenEmpty() {
-		when(this.matcher.matches(any())).thenReturn(false);
-		when(this.matcher.getKeyIDs()).thenReturn(Collections.emptySet());
+		given(this.matcher.matches(any())).willReturn(false);
+		given(this.matcher.getKeyIDs()).willReturn(Collections.emptySet());
 
 		assertThat(this.source.get(this.selector).block()).isEmpty();
 	}
@@ -119,8 +119,8 @@ public class ReactiveRemoteJWKSourceTests {
 	@Test
 	public void getWhenNoMatchAndKeyIdNotMatchThenRefreshAndFoundThenFound() {
 		this.server.enqueue(new MockResponse().setBody(this.keys2));
-		when(this.matcher.matches(any())).thenReturn(false, false, true);
-		when(this.matcher.getKeyIDs()).thenReturn(Collections.singleton("rotated"));
+		given(this.matcher.matches(any())).willReturn(false, false, true);
+		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("rotated"));
 
 		List<JWK> keys = this.source.get(this.selector).block();
 
@@ -131,8 +131,8 @@ public class ReactiveRemoteJWKSourceTests {
 	@Test
 	public void getWhenNoMatchAndKeyIdNotMatchThenRefreshAndNotFoundThenEmpty() {
 		this.server.enqueue(new MockResponse().setBody(this.keys2));
-		when(this.matcher.matches(any())).thenReturn(false, false, false);
-		when(this.matcher.getKeyIDs()).thenReturn(Collections.singleton("rotated"));
+		given(this.matcher.matches(any())).willReturn(false, false, false);
+		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("rotated"));
 
 		List<JWK> keys = this.source.get(this.selector).block();
 
@@ -141,8 +141,8 @@ public class ReactiveRemoteJWKSourceTests {
 
 	@Test
 	public void getWhenNoMatchAndKeyIdMatchThenEmpty() {
-		when(this.matcher.matches(any())).thenReturn(false);
-		when(this.matcher.getKeyIDs()).thenReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
+		given(this.matcher.matches(any())).willReturn(false);
+		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
 
 		assertThat(this.source.get(this.selector).block()).isEmpty();
 	}

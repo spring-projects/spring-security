@@ -33,7 +33,7 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.util.AntPathMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageSecurityMetadataSourceRegistryTests {
@@ -100,7 +100,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
 
 	@Test
 	public void matchersTrue() {
-		when(this.matcher.matches(this.message)).thenReturn(true);
+		given(this.matcher.matches(this.message)).willReturn(true);
 		this.messages.matchers(this.matcher).permitAll();
 
 		assertThat(getAttribute()).isEqualTo("permitAll");

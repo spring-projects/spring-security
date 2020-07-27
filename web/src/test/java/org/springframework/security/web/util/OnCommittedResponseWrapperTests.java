@@ -29,8 +29,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OnCommittedResponseWrapperTests {
@@ -58,8 +58,8 @@ public class OnCommittedResponseWrapperTests {
 				OnCommittedResponseWrapperTests.this.committed = true;
 			}
 		};
-		when(this.delegate.getWriter()).thenReturn(this.writer);
-		when(this.delegate.getOutputStream()).thenReturn(this.out);
+		given(this.delegate.getWriter()).willReturn(this.writer);
+		given(this.delegate.getOutputStream()).willReturn(this.out);
 	}
 
 	// --- printwriter
@@ -74,7 +74,7 @@ public class OnCommittedResponseWrapperTests {
 	@Test
 	public void printWriterCheckError() throws Exception {
 		boolean expected = true;
-		when(this.writer.checkError()).thenReturn(expected);
+		given(this.writer.checkError()).willReturn(expected);
 
 		assertThat(this.response.getWriter().checkError()).isEqualTo(expected);
 	}
@@ -1118,7 +1118,7 @@ public class OnCommittedResponseWrapperTests {
 	@Test
 	public void bufferSizePrintWriterWriteCommits() throws Exception {
 		String expected = "1234567890";
-		when(this.response.getBufferSize()).thenReturn(expected.length());
+		given(this.response.getBufferSize()).willReturn(expected.length());
 
 		this.response.getWriter().write(expected);
 
@@ -1128,7 +1128,7 @@ public class OnCommittedResponseWrapperTests {
 	@Test
 	public void bufferSizeCommitsOnce() throws Exception {
 		String expected = "1234567890";
-		when(this.response.getBufferSize()).thenReturn(expected.length());
+		given(this.response.getBufferSize()).willReturn(expected.length());
 
 		this.response.getWriter().write(expected);
 

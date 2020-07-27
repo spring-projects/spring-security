@@ -52,11 +52,11 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -93,8 +93,8 @@ public class SessionManagementConfigurerTests {
 	@Test
 	public void sessionManagementWhenConfiguredThenDoesNotOverrideSecurityContextRepository() throws Exception {
 		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
-		when(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
-				.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(mock(SecurityContext.class));
+		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
+				.loadContext(any(HttpRequestResponseHolder.class))).willReturn(mock(SecurityContext.class));
 		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
 
 		this.mvc.perform(get("/"));
@@ -243,7 +243,7 @@ public class SessionManagementConfigurerTests {
 	public void getWhenAnonymousRequestAndTrustResolverSharedObjectReturnsAnonymousFalseThenSessionIsSaved()
 			throws Exception {
 		SharedTrustResolverConfig.TR = mock(AuthenticationTrustResolver.class);
-		when(SharedTrustResolverConfig.TR.isAnonymous(any())).thenReturn(false);
+		given(SharedTrustResolverConfig.TR.isAnonymous(any())).willReturn(false);
 		this.spring.register(SharedTrustResolverConfig.class).autowire();
 
 		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();

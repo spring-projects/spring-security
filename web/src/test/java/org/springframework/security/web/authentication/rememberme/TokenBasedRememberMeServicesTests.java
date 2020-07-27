@@ -38,8 +38,8 @@ import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices.DEFAULT_PARAMETER;
 import static org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
 import static org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices.TWO_WEEKS_S;
@@ -67,15 +67,15 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	void udsWillReturnUser() {
-		when(this.uds.loadUserByUsername(any(String.class))).thenReturn(this.user);
+		given(this.uds.loadUserByUsername(any(String.class))).willReturn(this.user);
 	}
 
 	void udsWillThrowNotFound() {
-		when(this.uds.loadUserByUsername(any(String.class))).thenThrow(new UsernameNotFoundException(""));
+		given(this.uds.loadUserByUsername(any(String.class))).willThrow(new UsernameNotFoundException(""));
 	}
 
 	void udsWillReturnNull() {
-		when(this.uds.loadUserByUsername(any(String.class))).thenReturn(null);
+		given(this.uds.loadUserByUsername(any(String.class))).willReturn(null);
 	}
 
 	private long determineExpiryTimeFromBased64EncodedToken(String validToken) {

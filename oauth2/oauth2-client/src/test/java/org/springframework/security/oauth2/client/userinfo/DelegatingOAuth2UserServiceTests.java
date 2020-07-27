@@ -24,8 +24,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link DelegatingOAuth2UserService}.
@@ -60,7 +60,7 @@ public class DelegatingOAuth2UserServiceTests {
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService2 = mock(OAuth2UserService.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService3 = mock(OAuth2UserService.class);
 		OAuth2User mockUser = mock(OAuth2User.class);
-		when(userService3.loadUser(any(OAuth2UserRequest.class))).thenReturn(mockUser);
+		given(userService3.loadUser(any(OAuth2UserRequest.class))).willReturn(mockUser);
 
 		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
 				Arrays.asList(userService1, userService2, userService3));

@@ -36,12 +36,12 @@ import org.springframework.security.web.context.SecurityContextRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -71,7 +71,7 @@ public class SessionManagementFilterTests {
 		SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
 		// mock that repo contains a security context
-		when(repo.containsContext(any(HttpServletRequest.class))).thenReturn(true);
+		given(repo.containsContext(any(HttpServletRequest.class))).willReturn(true);
 		SessionManagementFilter filter = new SessionManagementFilter(repo, strategy);
 		HttpServletRequest request = new MockHttpServletRequest();
 		authenticateUser();
@@ -125,7 +125,7 @@ public class SessionManagementFilterTests {
 		FilterChain fc = mock(FilterChain.class);
 		authenticateUser();
 		SessionAuthenticationException exception = new SessionAuthenticationException("Failure");
-		doThrow(exception).when(strategy).onAuthentication(SecurityContextHolder.getContext().getAuthentication(),
+		willThrow(exception).given(strategy).onAuthentication(SecurityContextHolder.getContext().getAuthentication(),
 				request, response);
 
 		filter.doFilter(request, response, fc);

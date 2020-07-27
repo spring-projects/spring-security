@@ -39,7 +39,7 @@ import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
@@ -66,7 +66,7 @@ public class ReactorContextWebFilterTests {
 	public void setup() {
 		this.filter = new ReactorContextWebFilter(this.repository);
 		this.handler = WebTestHandler.bindToWebFilters(this.filter);
-		when(this.repository.load(any())).thenReturn(this.securityContext.mono());
+		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -97,7 +97,7 @@ public class ReactorContextWebFilterTests {
 	@Test
 	public void filterWhenPrincipalAndGetPrincipalThenInteractAndUseOriginalPrincipal() {
 		SecurityContextImpl context = new SecurityContextImpl(this.principal);
-		when(this.repository.load(any())).thenReturn(Mono.just(context));
+		given(this.repository.load(any())).willReturn(Mono.just(context));
 		this.handler = WebTestHandler.bindToWebFilters(this.filter,
 				(e, c) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
 						.doOnSuccess(p -> assertThat(p).isSameAs(this.principal)).flatMap(p -> c.filter(e)));

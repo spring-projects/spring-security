@@ -30,10 +30,10 @@ import org.springframework.security.core.Authentication;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor
@@ -51,8 +51,8 @@ public class AclPermissionCacheOptimizerTests {
 		pco.setSidRetrievalStrategy(sidStrat);
 		Object[] dos = { new Object(), null, new Object() };
 		ObjectIdentity[] oids = { new ObjectIdentityImpl("A", "1"), new ObjectIdentityImpl("A", "2") };
-		when(oidStrat.getObjectIdentity(dos[0])).thenReturn(oids[0]);
-		when(oidStrat.getObjectIdentity(dos[2])).thenReturn(oids[1]);
+		given(oidStrat.getObjectIdentity(dos[0])).willReturn(oids[0]);
+		given(oidStrat.getObjectIdentity(dos[2])).willReturn(oids[1]);
 
 		pco.cachePermissionsFor(mock(Authentication.class), Arrays.asList(dos));
 

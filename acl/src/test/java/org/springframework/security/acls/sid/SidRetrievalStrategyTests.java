@@ -31,8 +31,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link SidRetrievalStrategyImpl}
@@ -69,7 +69,7 @@ public class SidRetrievalStrategyTests {
 	public void roleHierarchyIsUsedWhenSet() {
 		RoleHierarchy rh = mock(RoleHierarchy.class);
 		List rhAuthorities = AuthorityUtils.createAuthorityList("D");
-		when(rh.getReachableGrantedAuthorities(anyCollection())).thenReturn(rhAuthorities);
+		given(rh.getReachableGrantedAuthorities(anyCollection())).willReturn(rhAuthorities);
 		SidRetrievalStrategy strat = new SidRetrievalStrategyImpl(rh);
 
 		List<Sid> sids = strat.getSids(this.authentication);

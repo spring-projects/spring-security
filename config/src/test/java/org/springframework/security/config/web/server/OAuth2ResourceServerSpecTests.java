@@ -83,9 +83,9 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
@@ -196,7 +196,7 @@ public class OAuth2ResourceServerSpecTests {
 		this.spring.register(CustomDecoderConfig.class, RootController.class).autowire();
 
 		ReactiveJwtDecoder jwtDecoder = this.spring.getContext().getBean(ReactiveJwtDecoder.class);
-		when(jwtDecoder.decode(anyString())).thenReturn(Mono.just(this.jwt));
+		given(jwtDecoder.decode(anyString())).willReturn(Mono.just(this.jwt));
 
 		this.client.get().headers(headers -> headers.setBearerAuth("token")).exchange().expectStatus().isOk();
 
@@ -231,8 +231,8 @@ public class OAuth2ResourceServerSpecTests {
 
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 				.getBean(ReactiveAuthenticationManager.class);
-		when(authenticationManager.authenticate(any(Authentication.class)))
-				.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+		given(authenticationManager.authenticate(any(Authentication.class)))
+				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 
 		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
@@ -245,8 +245,8 @@ public class OAuth2ResourceServerSpecTests {
 
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 				.getBean(ReactiveAuthenticationManager.class);
-		when(authenticationManager.authenticate(any(Authentication.class)))
-				.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+		given(authenticationManager.authenticate(any(Authentication.class)))
+				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 
 		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
@@ -263,10 +263,10 @@ public class OAuth2ResourceServerSpecTests {
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 				.getBean(ReactiveAuthenticationManager.class);
 
-		when(authenticationManagerResolver.resolve(any(ServerWebExchange.class)))
-				.thenReturn(Mono.just(authenticationManager));
-		when(authenticationManager.authenticate(any(Authentication.class)))
-				.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+		given(authenticationManagerResolver.resolve(any(ServerWebExchange.class)))
+				.willReturn(Mono.just(authenticationManager));
+		given(authenticationManager.authenticate(any(Authentication.class)))
+				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 
 		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()

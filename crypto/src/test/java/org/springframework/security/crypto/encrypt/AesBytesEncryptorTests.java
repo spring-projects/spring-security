@@ -26,8 +26,8 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm.GCM;
 import static org.springframework.security.crypto.encrypt.CipherUtils.newSecretKey;
 import static org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1;
@@ -48,8 +48,8 @@ public class AesBytesEncryptorTests {
 	@Before
 	public void setUp() {
 		this.generator = mock(BytesKeyGenerator.class);
-		when(this.generator.generateKey()).thenReturn(Hex.decode("4b0febebd439db7ca77153cb254520c3"));
-		when(this.generator.getKeyLength()).thenReturn(16);
+		given(this.generator.generateKey()).willReturn(Hex.decode("4b0febebd439db7ca77153cb254520c3"));
+		given(this.generator.getKeyLength()).willReturn(16);
 	}
 
 	@Test

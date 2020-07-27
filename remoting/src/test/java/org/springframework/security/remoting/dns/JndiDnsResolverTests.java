@@ -28,8 +28,8 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Mike Wiesner
@@ -49,14 +49,14 @@ public class JndiDnsResolverTests {
 		this.context = mock(DirContext.class);
 		this.dnsResolver = new JndiDnsResolver();
 		this.dnsResolver.setCtxFactory(this.contextFactory);
-		when(this.contextFactory.getCtx()).thenReturn(this.context);
+		given(this.contextFactory.getCtx()).willReturn(this.context);
 	}
 
 	@Test
 	public void testResolveIpAddress() throws Exception {
 		Attributes records = new BasicAttributes("A", "63.246.7.80");
 
-		when(this.context.getAttributes("www.springsource.com", new String[] { "A" })).thenReturn(records);
+		given(this.context.getAttributes("www.springsource.com", new String[] { "A" })).willReturn(records);
 
 		String ipAddress = this.dnsResolver.resolveIpAddress("www.springsource.com");
 		assertThat(ipAddress).isEqualTo("63.246.7.80");
@@ -64,8 +64,8 @@ public class JndiDnsResolverTests {
 
 	@Test(expected = DnsEntryNotFoundException.class)
 	public void testResolveIpAddressNotExisting() throws Exception {
-		when(this.context.getAttributes(any(String.class), any(String[].class)))
-				.thenThrow(new NameNotFoundException("not found"));
+		given(this.context.getAttributes(any(String.class), any(String[].class)))
+				.willThrow(new NameNotFoundException("not found"));
 
 		this.dnsResolver.resolveIpAddress("notexisting.ansdansdugiuzgguzgioansdiandwq.foo");
 	}
@@ -74,7 +74,7 @@ public class JndiDnsResolverTests {
 	public void testResolveServiceEntry() throws Exception {
 		BasicAttributes records = createSrvRecords();
 
-		when(this.context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" })).thenReturn(records);
+		given(this.context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" })).willReturn(records);
 
 		String hostname = this.dnsResolver.resolveServiceEntry("ldap", "springsource.com");
 		assertThat(hostname).isEqualTo("kdc.springsource.com");
@@ -82,8 +82,8 @@ public class JndiDnsResolverTests {
 
 	@Test(expected = DnsEntryNotFoundException.class)
 	public void testResolveServiceEntryNotExisting() throws Exception {
-		when(this.context.getAttributes(any(String.class), any(String[].class)))
-				.thenThrow(new NameNotFoundException("not found"));
+		given(this.context.getAttributes(any(String.class), any(String[].class)))
+				.willThrow(new NameNotFoundException("not found"));
 
 		this.dnsResolver.resolveServiceEntry("wrong", "secpod.de");
 	}
@@ -92,8 +92,8 @@ public class JndiDnsResolverTests {
 	public void testResolveServiceIpAddress() throws Exception {
 		BasicAttributes srvRecords = createSrvRecords();
 		BasicAttributes aRecords = new BasicAttributes("A", "63.246.7.80");
-		when(this.context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" })).thenReturn(srvRecords);
-		when(this.context.getAttributes("kdc.springsource.com", new String[] { "A" })).thenReturn(aRecords);
+		given(this.context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" })).willReturn(srvRecords);
+		given(this.context.getAttributes("kdc.springsource.com", new String[] { "A" })).willReturn(aRecords);
 
 		String ipAddress = this.dnsResolver.resolveServiceIpAddress("ldap", "springsource.com");
 		assertThat(ipAddress).isEqualTo("63.246.7.80");
@@ -101,8 +101,8 @@ public class JndiDnsResolverTests {
 
 	@Test(expected = DnsLookupException.class)
 	public void testUnknowError() throws Exception {
-		when(this.context.getAttributes(any(String.class), any(String[].class)))
-				.thenThrow(new NamingException("error"));
+		given(this.context.getAttributes(any(String.class), any(String[].class)))
+				.willThrow(new NamingException("error"));
 		this.dnsResolver.resolveIpAddress("");
 	}
 

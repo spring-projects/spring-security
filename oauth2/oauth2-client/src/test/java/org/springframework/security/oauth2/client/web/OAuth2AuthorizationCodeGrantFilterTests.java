@@ -59,12 +59,12 @@ import org.springframework.util.CollectionUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.oauth2.core.TestOAuth2RefreshTokens.refreshToken;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
@@ -281,8 +281,8 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 
 		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT);
-		when(this.authenticationManager.authenticate(any(Authentication.class)))
-				.thenThrow(new OAuth2AuthorizationException(error));
+		given(this.authenticationManager.authenticate(any(Authentication.class)))
+				.willThrow(new OAuth2AuthorizationException(error));
 
 		this.filter.doFilter(authorizationResponse, response, filterChain);
 
@@ -481,7 +481,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 	private void setUpAuthenticationResult(ClientRegistration registration) {
 		OAuth2AuthorizationCodeAuthenticationToken authentication = new OAuth2AuthorizationCodeAuthenticationToken(
 				registration, success(), noScopes(), refreshToken());
-		when(this.authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
+		given(this.authenticationManager.authenticate(any(Authentication.class))).willReturn(authentication);
 	}
 
 }

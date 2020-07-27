@@ -68,10 +68,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSetUri;
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSource;
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withPublicKey;
@@ -214,7 +214,7 @@ public class NimbusReactiveJwtDecoderTests {
 
 		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error);
-		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
 				.isInstanceOf(JwtValidationException.class).hasMessageContaining("mock-description");
@@ -229,7 +229,7 @@ public class NimbusReactiveJwtDecoderTests {
 		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
-		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
 				.isInstanceOf(JwtValidationException.class).hasMessageContaining("mock-description");
@@ -240,7 +240,7 @@ public class NimbusReactiveJwtDecoderTests {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		this.decoder.setClaimSetConverter(claimSetConverter);
 
-		when(claimSetConverter.convert(any(Map.class))).thenReturn(Collections.singletonMap("custom", "value"));
+		given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
 
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
 		assertThat(jwt.getClaims().size()).isEqualTo(1);
@@ -254,7 +254,7 @@ public class NimbusReactiveJwtDecoderTests {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		this.decoder.setClaimSetConverter(claimSetConverter);
 
-		when(claimSetConverter.convert(any(Map.class))).thenThrow(new IllegalArgumentException("bad conversion"));
+		given(claimSetConverter.convert(any(Map.class))).willThrow(new IllegalArgumentException("bad conversion"));
 
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block()).isInstanceOf(BadJwtException.class);
 	}
@@ -508,10 +508,10 @@ public class NimbusReactiveJwtDecoderTests {
 		WebClient real = WebClient.builder().build();
 		WebClient.RequestHeadersUriSpec spec = spy(real.get());
 		WebClient webClient = spy(WebClient.class);
-		when(webClient.get()).thenReturn(spec);
+		given(webClient.get()).willReturn(spec);
 		WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
-		when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just(response));
-		when(spec.retrieve()).thenReturn(responseSpec);
+		given(responseSpec.bodyToMono(String.class)).willReturn(Mono.just(response));
+		given(spec.retrieve()).willReturn(responseSpec);
 		return webClient;
 	}
 

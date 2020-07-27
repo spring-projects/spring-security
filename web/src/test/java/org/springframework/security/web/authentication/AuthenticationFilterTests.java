@@ -44,10 +44,10 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Sergey Bespalov
@@ -76,7 +76,7 @@ public class AuthenticationFilterTests {
 
 	@Before
 	public void setup() {
-		when(this.authenticationManagerResolver.resolve(any())).thenReturn(this.authenticationManager);
+		given(this.authenticationManagerResolver.resolve(any())).willReturn(this.authenticationManager);
 	}
 
 	@After
@@ -117,8 +117,8 @@ public class AuthenticationFilterTests {
 	@Test
 	public void filterWhenDefaultsAndAuthenticationSuccessThenContinues() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE");
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
 				this.authenticationConverter);
 
@@ -136,8 +136,8 @@ public class AuthenticationFilterTests {
 	public void filterWhenAuthenticationManagerResolverDefaultsAndAuthenticationSuccessThenContinues()
 			throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE");
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
 
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManagerResolver,
 				this.authenticationConverter);
@@ -155,8 +155,8 @@ public class AuthenticationFilterTests {
 	@Test
 	public void filterWhenDefaultsAndAuthenticationFailThenUnauthorized() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE");
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("failed"));
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willThrow(new BadCredentialsException("failed"));
 
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
 				this.authenticationConverter);
@@ -174,8 +174,8 @@ public class AuthenticationFilterTests {
 	public void filterWhenAuthenticationManagerResolverDefaultsAndAuthenticationFailThenUnauthorized()
 			throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE");
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("failed"));
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willThrow(new BadCredentialsException("failed"));
 
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManagerResolver,
 				this.authenticationConverter);
@@ -191,7 +191,7 @@ public class AuthenticationFilterTests {
 
 	@Test
 	public void filterWhenConvertEmptyThenOk() throws Exception {
-		when(this.authenticationConverter.convert(any())).thenReturn(null);
+		given(this.authenticationConverter.convert(any())).willReturn(null);
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManagerResolver,
 				this.authenticationConverter);
 
@@ -207,8 +207,8 @@ public class AuthenticationFilterTests {
 	@Test
 	public void filterWhenConvertAndAuthenticationSuccessThenSuccess() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
 
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManagerResolver,
 				this.authenticationConverter);
@@ -227,8 +227,8 @@ public class AuthenticationFilterTests {
 	@Test(expected = ServletException.class)
 	public void filterWhenConvertAndAuthenticationEmptyThenServerError() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenReturn(null);
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willReturn(null);
 
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManagerResolver,
 				this.authenticationConverter);
@@ -250,7 +250,7 @@ public class AuthenticationFilterTests {
 
 	@Test
 	public void filterWhenNotMatchAndConvertAndAuthenticationSuccessThenContinues() throws Exception {
-		when(this.requestMatcher.matches(any())).thenReturn(false);
+		given(this.requestMatcher.matches(any())).willReturn(false);
 
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManagerResolver,
 				this.authenticationConverter);
@@ -269,8 +269,8 @@ public class AuthenticationFilterTests {
 	@Test
 	public void filterWhenSuccessfulAuthenticationThenSessionIdChanges() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
-		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
-		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
+		given(this.authenticationConverter.convert(any())).willReturn(authentication);
+		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
 
 		MockHttpSession session = new MockHttpSession();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");

@@ -31,9 +31,9 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -72,8 +72,8 @@ public class CsrfAuthenticationStrategyTests {
 
 	@Test
 	public void logoutRemovesCsrfTokenAndSavesNew() {
-		when(this.csrfTokenRepository.loadToken(this.request)).thenReturn(this.existingToken);
-		when(this.csrfTokenRepository.generateToken(this.request)).thenReturn(this.generatedToken);
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
+		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
 
@@ -93,8 +93,8 @@ public class CsrfAuthenticationStrategyTests {
 	public void delaySavingCsrf() {
 		this.strategy = new CsrfAuthenticationStrategy(new LazyCsrfTokenRepository(this.csrfTokenRepository));
 
-		when(this.csrfTokenRepository.loadToken(this.request)).thenReturn(this.existingToken);
-		when(this.csrfTokenRepository.generateToken(this.request)).thenReturn(this.generatedToken);
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
+		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
 

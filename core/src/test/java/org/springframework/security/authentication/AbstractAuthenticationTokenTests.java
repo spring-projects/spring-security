@@ -27,10 +27,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link AbstractAuthenticationToken}.
@@ -128,7 +128,7 @@ public class AbstractAuthenticationTokenTests {
 		String principalName = "test";
 
 		AuthenticatedPrincipal principal = mock(AuthenticatedPrincipal.class);
-		when(principal.getName()).thenReturn(principalName);
+		given(principal.getName()).willReturn(principalName);
 
 		MockAuthenticationImpl token = new MockAuthenticationImpl(principal, "Password", this.authorities);
 		assertThat(token.getName()).isEqualTo(principalName);

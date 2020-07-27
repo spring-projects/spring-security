@@ -26,8 +26,8 @@ import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Test class for {@link ConsoleAuditLogger}.
@@ -67,14 +67,14 @@ public class AuditLoggerTests {
 
 	@Test
 	public void successIsNotLoggedIfAceDoesntRequireSuccessAudit() {
-		when(this.ace.isAuditSuccess()).thenReturn(false);
+		given(this.ace.isAuditSuccess()).willReturn(false);
 		this.logger.logIfNeeded(true, this.ace);
 		assertThat(this.bytes.size()).isZero();
 	}
 
 	@Test
 	public void successIsLoggedIfAceRequiresSuccessAudit() {
-		when(this.ace.isAuditSuccess()).thenReturn(true);
+		given(this.ace.isAuditSuccess()).willReturn(true);
 
 		this.logger.logIfNeeded(true, this.ace);
 		assertThat(this.bytes.toString()).startsWith("GRANTED due to ACE");
@@ -82,14 +82,14 @@ public class AuditLoggerTests {
 
 	@Test
 	public void failureIsntLoggedIfAceDoesntRequireFailureAudit() {
-		when(this.ace.isAuditFailure()).thenReturn(false);
+		given(this.ace.isAuditFailure()).willReturn(false);
 		this.logger.logIfNeeded(false, this.ace);
 		assertThat(this.bytes.size()).isZero();
 	}
 
 	@Test
 	public void failureIsLoggedIfAceRequiresFailureAudit() {
-		when(this.ace.isAuditFailure()).thenReturn(true);
+		given(this.ace.isAuditFailure()).willReturn(true);
 		this.logger.logIfNeeded(false, this.ace);
 		assertThat(this.bytes.toString()).startsWith("DENIED due to ACE");
 	}

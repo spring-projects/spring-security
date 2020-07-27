@@ -45,9 +45,9 @@ import org.springframework.security.rsocket.api.PayloadInterceptor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -106,7 +106,7 @@ public class PayloadSocketAcceptorTests {
 
 	@Test
 	public void acceptWhenDefaultMetadataMimeTypeThenDefaulted() {
-		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
 
 		PayloadExchange exchange = captureExchange();
 
@@ -118,7 +118,7 @@ public class PayloadSocketAcceptorTests {
 	@Test
 	public void acceptWhenDefaultMetadataMimeTypeOverrideThenDefaulted() {
 		this.acceptor.setDefaultMetadataMimeType(MediaType.APPLICATION_JSON);
-		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
 
 		PayloadExchange exchange = captureExchange();
 
@@ -139,8 +139,8 @@ public class PayloadSocketAcceptorTests {
 
 	@Test
 	public void acceptWhenExplicitMimeTypeThenThenOverrideDefault() {
-		when(this.setupPayload.metadataMimeType()).thenReturn(MediaType.TEXT_PLAIN_VALUE);
-		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+		given(this.setupPayload.metadataMimeType()).willReturn(MediaType.TEXT_PLAIN_VALUE);
+		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
 
 		PayloadExchange exchange = captureExchange();
 
@@ -151,8 +151,8 @@ public class PayloadSocketAcceptorTests {
 	@Test
 	// gh-8654
 	public void acceptWhenDelegateAcceptRequiresReactiveSecurityContext() {
-		when(this.setupPayload.metadataMimeType()).thenReturn(MediaType.TEXT_PLAIN_VALUE);
-		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+		given(this.setupPayload.metadataMimeType()).willReturn(MediaType.TEXT_PLAIN_VALUE);
+		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
 		SecurityContext expectedSecurityContext = new SecurityContextImpl(
 				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		CaptureSecurityContextSocketAcceptor captureSecurityContext = new CaptureSecurityContextSocketAcceptor(
@@ -171,14 +171,14 @@ public class PayloadSocketAcceptorTests {
 	}
 
 	private PayloadExchange captureExchange() {
-		when(this.delegate.accept(any(), any())).thenReturn(Mono.just(this.rSocket));
-		when(this.interceptor.intercept(any(), any())).thenReturn(Mono.empty());
+		given(this.delegate.accept(any(), any())).willReturn(Mono.just(this.rSocket));
+		given(this.interceptor.intercept(any(), any())).willReturn(Mono.empty());
 
 		RSocket result = this.acceptor.accept(this.setupPayload, this.rSocket).block();
 
 		assertThat(result).isInstanceOf(PayloadInterceptorRSocket.class);
 
-		when(this.rSocket.fireAndForget(any())).thenReturn(Mono.empty());
+		given(this.rSocket.fireAndForget(any())).willReturn(Mono.empty());
 
 		result.fireAndForget(this.payload).block();
 

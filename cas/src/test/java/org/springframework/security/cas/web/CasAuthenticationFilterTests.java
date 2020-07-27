@@ -37,11 +37,11 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link CasAuthenticationFilter}.
@@ -163,7 +163,7 @@ public class CasAuthenticationFilterTests {
 		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
 		AuthenticationManager manager = mock(AuthenticationManager.class);
 		Authentication authentication = new TestingAuthenticationToken("un", "pwd", "ROLE_USER");
-		when(manager.authenticate(any(Authentication.class))).thenReturn(authentication);
+		given(manager.authenticate(any(Authentication.class))).willReturn(authentication);
 		ServiceProperties serviceProperties = new ServiceProperties();
 		serviceProperties.setAuthenticateAllArtifacts(true);
 		MockHttpServletRequest request = new MockHttpServletRequest();

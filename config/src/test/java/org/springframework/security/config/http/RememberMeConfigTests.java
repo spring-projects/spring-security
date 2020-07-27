@@ -39,9 +39,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices.DEFAULT_PARAMETER;
 import static org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
@@ -228,8 +228,8 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(this.xml("WithUserDetailsService")).autowire();
 
 		UserDetailsService userDetailsService = this.spring.getContext().getBean(UserDetailsService.class);
-		when(userDetailsService.loadUserByUsername("user"))
-				.thenAnswer((invocation) -> new User("user", "{noop}password", Collections.emptyList()));
+		given(userDetailsService.loadUserByUsername("user"))
+				.willAnswer((invocation) -> new User("user", "{noop}password", Collections.emptyList()));
 
 		MvcResult result = this.rememberAuthentication("user", "password").andReturn();
 

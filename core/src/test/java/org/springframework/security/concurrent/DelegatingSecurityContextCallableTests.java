@@ -33,8 +33,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -62,7 +62,7 @@ public class DelegatingSecurityContextCallableTests {
 	@SuppressWarnings("serial")
 	public void setUp() throws Exception {
 		this.originalSecurityContext = SecurityContextHolder.createEmptyContext();
-		when(this.delegate.call()).thenAnswer(new Returns(this.callableResult) {
+		given(this.delegate.call()).willAnswer(new Returns(this.callableResult) {
 			@Override
 			public Object answer(InvocationOnMock invocation) throws Throwable {
 				assertThat(SecurityContextHolder.getContext())

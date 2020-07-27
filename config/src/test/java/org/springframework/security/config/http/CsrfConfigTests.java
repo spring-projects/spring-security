@@ -55,7 +55,7 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -318,11 +318,11 @@ public class CsrfConfigTests {
 		context.autowire();
 
 		RequestMatcher matcher = context.getContext().getBean(RequestMatcher.class);
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
+		given(matcher.matches(any(HttpServletRequest.class))).willReturn(false);
 
 		this.mvc.perform(post("/ok")).andExpect(status().isOk());
 
-		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+		given(matcher.matches(any(HttpServletRequest.class))).willReturn(true);
 
 		this.mvc.perform(get("/ok")).andExpect(status().isForbidden());
 	}

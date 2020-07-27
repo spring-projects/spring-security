@@ -39,9 +39,9 @@ import org.springframework.web.server.handler.FilteringWebHandler;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -73,9 +73,9 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 				Arrays.asList(this.filter));
 
 		this.client = WebTestClient.bindToWebHandler(webHandler).build();
-		when(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
-				.thenReturn(Mono.just(this.registration));
-		when(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).thenReturn(Mono.empty());
+		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
+				.willReturn(Mono.just(this.registration));
+		given(this.authzRequestRepository.saveAuthorizationRequest(any(), any())).willReturn(Mono.empty());
 	}
 
 	@Test
@@ -135,7 +135,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenExceptionThenSaveRequestSessionAttribute() {
 		this.filter.setRequestCache(this.requestCache);
-		when(this.requestCache.saveRequest(any())).thenReturn(Mono.empty());
+		given(this.requestCache.saveRequest(any())).willReturn(Mono.empty());
 		FilteringWebHandler webHandler = new FilteringWebHandler(
 				e -> Mono.error(new ClientAuthorizationRequiredException(this.registration.getRegistrationId())),
 				Arrays.asList(this.filter));

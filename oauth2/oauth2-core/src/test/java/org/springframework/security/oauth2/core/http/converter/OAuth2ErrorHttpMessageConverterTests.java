@@ -29,8 +29,8 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link OAuth2ErrorHttpMessageConverter}.
@@ -95,7 +95,7 @@ public class OAuth2ErrorHttpMessageConverterTests {
 	@Test
 	public void readInternalWhenConversionFailsThenThrowHttpMessageNotReadableException() {
 		Converter errorConverter = mock(Converter.class);
-		when(errorConverter.convert(any())).thenThrow(RuntimeException.class);
+		given(errorConverter.convert(any())).willThrow(RuntimeException.class);
 		this.messageConverter.setErrorConverter(errorConverter);
 
 		String errorResponse = "{}";
@@ -124,7 +124,7 @@ public class OAuth2ErrorHttpMessageConverterTests {
 	@Test
 	public void writeInternalWhenConversionFailsThenThrowHttpMessageNotWritableException() {
 		Converter errorParametersConverter = mock(Converter.class);
-		when(errorParametersConverter.convert(any())).thenThrow(RuntimeException.class);
+		given(errorParametersConverter.convert(any())).willThrow(RuntimeException.class);
 		this.messageConverter.setErrorParametersConverter(errorParametersConverter);
 
 		OAuth2Error oauth2Error = new OAuth2Error("unauthorized_client", "The client is not authorized",

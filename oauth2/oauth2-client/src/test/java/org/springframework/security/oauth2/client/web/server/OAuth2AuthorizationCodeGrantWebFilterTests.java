@@ -51,11 +51,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
 
 /**
@@ -130,19 +130,19 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	@Test
 	public void filterWhenMatchThenAuthorizedClientSaved() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(clientRegistration));
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(clientRegistration));
 
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
 
-		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
+		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
@@ -159,10 +159,10 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	@Test
 	public void filterWhenAuthorizationRequestRedirectUriParametersMatchThenProcessed() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(clientRegistration));
-		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(clientRegistration));
+		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
 
 		// 1) redirect_uri with query parameters
 		Map<String, String> parameters = new LinkedHashMap<>();
@@ -171,10 +171,10 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback", parameters);
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
@@ -207,8 +207,8 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
 
 		// 1) Parameter value
 		Map<String, String> parametersNotMatch = new LinkedHashMap<>(parameters);
@@ -245,18 +245,18 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	@Test
 	public void filterWhenAuthorizationSucceedsAndRequestCacheConfiguredThenRequestCacheUsed() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(clientRegistration));
-		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(clientRegistration));
+		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
 
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
@@ -264,8 +264,8 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 				Collections.emptyList());
 
 		ServerRequestCache requestCache = mock(ServerRequestCache.class);
-		when(requestCache.getRedirectUri(any(ServerWebExchange.class)))
-				.thenReturn(Mono.just(URI.create("/saved-request")));
+		given(requestCache.getRedirectUri(any(ServerWebExchange.class)))
+				.willReturn(Mono.just(URI.create("/saved-request")));
 
 		this.filter.setRequestCache(requestCache);
 
@@ -279,15 +279,15 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	@Test
 	public void filterWhenAuthenticationConverterThrowsOAuth2AuthorizationExceptionThenMappedToOAuth2AuthenticationException() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.empty());
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
 
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
@@ -305,18 +305,18 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	@Test
 	public void filterWhenAuthenticationManagerThrowsOAuth2AuthorizationExceptionThenMappedToOAuth2AuthenticationException() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.just(clientRegistration));
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(clientRegistration));
 
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
-		when(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
-				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.willReturn(Mono.just(oauth2AuthorizationRequest));
 
-		when(this.authenticationManager.authenticate(any()))
-				.thenReturn(Mono.error(new OAuth2AuthorizationException(new OAuth2Error("authorization_error"))));
+		given(this.authenticationManager.authenticate(any()))
+				.willReturn(Mono.error(new OAuth2AuthorizationException(new OAuth2Error("authorization_error"))));
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);

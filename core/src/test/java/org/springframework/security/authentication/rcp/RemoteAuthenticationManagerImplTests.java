@@ -25,8 +25,8 @@ import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link RemoteAuthenticationManagerImpl}.
@@ -39,7 +39,7 @@ public class RemoteAuthenticationManagerImplTests {
 	public void testFailedAuthenticationReturnsRemoteAuthenticationException() {
 		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		manager.setAuthenticationManager(am);
 
 		manager.attemptAuthentication("rod", "password");
@@ -65,7 +65,7 @@ public class RemoteAuthenticationManagerImplTests {
 	public void testSuccessfulAuthentication() {
 		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenReturn(new TestingAuthenticationToken("u", "p", "A"));
+		given(am.authenticate(any(Authentication.class))).willReturn(new TestingAuthenticationToken("u", "p", "A"));
 		manager.setAuthenticationManager(am);
 
 		manager.attemptAuthentication("rod", "password");

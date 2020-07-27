@@ -37,9 +37,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Joe Grandja
@@ -148,8 +148,8 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 		ClientRegistration clientRegistration = this.registration.build();
 
-		when(customJwtValidatorFactory.apply(same(clientRegistration)))
-				.thenReturn(new OidcIdTokenValidator(clientRegistration));
+		given(customJwtValidatorFactory.apply(same(clientRegistration)))
+				.willReturn(new OidcIdTokenValidator(clientRegistration));
 
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 
@@ -163,7 +163,7 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 		ClientRegistration clientRegistration = this.registration.build();
 
-		when(customJwsAlgorithmResolver.apply(same(clientRegistration))).thenReturn(MacAlgorithm.HS256);
+		given(customJwsAlgorithmResolver.apply(same(clientRegistration))).willReturn(MacAlgorithm.HS256);
 
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 
@@ -178,8 +178,8 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 		ClientRegistration clientRegistration = this.registration.build();
 
-		when(customClaimTypeConverterFactory.apply(same(clientRegistration)))
-				.thenReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
+		given(customClaimTypeConverterFactory.apply(same(clientRegistration)))
+				.willReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
 
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 
