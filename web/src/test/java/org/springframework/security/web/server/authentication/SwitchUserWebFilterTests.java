@@ -54,10 +54,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -155,18 +152,15 @@ public class SwitchUserWebFilterTests {
 
 		final Authentication switchUserAuthentication = authenticationCaptor.getValue();
 
-		assertSame(savedSecurityContext.getAuthentication(), switchUserAuthentication);
-
-		assertEquals("username should point to the switched user", targetUsername, switchUserAuthentication.getName());
-		assertTrue("switchAuthentication should contain SwitchUserGrantedAuthority", switchUserAuthentication
-				.getAuthorities().stream().anyMatch(a -> a instanceof SwitchUserGrantedAuthority));
-		assertTrue("new authentication should get new role ", switchUserAuthentication.getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority).anyMatch(a -> a.equals(ROLE_PREVIOUS_ADMINISTRATOR)));
-		assertEquals("SwitchUserGrantedAuthority should contain the original authentication",
-				originalAuthentication.getName(),
+		assertThat(switchUserAuthentication).isSameAs(savedSecurityContext.getAuthentication());
+		assertThat(switchUserAuthentication.getName()).isEqualTo(targetUsername);
+		assertThat(switchUserAuthentication.getAuthorities()).anyMatch(SwitchUserGrantedAuthority.class::isInstance);
+		assertThat(switchUserAuthentication.getAuthorities())
+				.anyMatch((a) -> a.getAuthority().contains(ROLE_PREVIOUS_ADMINISTRATOR));
+		assertThat(
 				switchUserAuthentication.getAuthorities().stream().filter(a -> a instanceof SwitchUserGrantedAuthority)
-						.map(a -> ((SwitchUserGrantedAuthority) a).getSource()).map(Principal::getName).findFirst()
-						.orElse(null));
+						.map(a -> ((SwitchUserGrantedAuthority) a).getSource()).map(Principal::getName))
+								.contains(originalAuthentication.getName());
 	}
 
 	@Test
@@ -206,14 +200,11 @@ public class SwitchUserWebFilterTests {
 
 		final Authentication secondSwitchUserAuthentication = authenticationCaptor.getValue();
 
-		assertEquals("username should point to the switched user", targetUsername,
-				secondSwitchUserAuthentication.getName());
-		assertEquals("SwitchUserGrantedAuthority should contain the original authentication",
-				originalAuthentication.getName(),
-				secondSwitchUserAuthentication.getAuthorities().stream()
-						.filter(a -> a instanceof SwitchUserGrantedAuthority)
-						.map(a -> ((SwitchUserGrantedAuthority) a).getSource()).map(Principal::getName).findFirst()
-						.orElse(null));
+		assertThat(secondSwitchUserAuthentication.getName()).isEqualTo(targetUsername);
+		assertThat(secondSwitchUserAuthentication.getAuthorities().stream()
+				.filter(a -> a instanceof SwitchUserGrantedAuthority)
+				.map(a -> ((SwitchUserGrantedAuthority) a).getSource()).map(Principal::getName).findFirst()
+				.orElse(null)).isEqualTo(originalAuthentication.getName());
 	}
 
 	@Test
@@ -316,8 +307,8 @@ public class SwitchUserWebFilterTests {
 
 		final Authentication originalAuthenticationValue = authenticationCaptor.getValue();
 
-		assertSame(originalAuthentication, savedSecurityContext.getAuthentication());
-		assertSame(originalAuthentication, originalAuthenticationValue);
+		assertThat(savedSecurityContext.getAuthentication()).isSameAs(originalAuthentication);
+		assertThat(originalAuthenticationValue).isSameAs(originalAuthentication);
 		verifyNoInteractions(chain);
 	}
 
@@ -399,10 +390,10 @@ public class SwitchUserWebFilterTests {
 		// then
 		final Object securityContextRepository = ReflectionTestUtils.getField(this.switchUserWebFilter,
 				"securityContextRepository");
-		assertTrue(securityContextRepository instanceof WebSessionServerSecurityContextRepository);
+		assertThat(securityContextRepository).isInstanceOf(WebSessionServerSecurityContextRepository.class);
 
 		final Object userDetailsChecker = ReflectionTestUtils.getField(this.switchUserWebFilter, "userDetailsChecker");
-		assertTrue(userDetailsChecker instanceof AccountStatusUserDetailsChecker);
+		assertThat(userDetailsChecker).isInstanceOf(AccountStatusUserDetailsChecker.class);
 	}
 
 	@Test
@@ -413,17 +404,17 @@ public class SwitchUserWebFilterTests {
 
 		// then
 		final Object successHandler = ReflectionTestUtils.getField(this.switchUserWebFilter, "successHandler");
-		assertTrue(successHandler instanceof RedirectServerAuthenticationSuccessHandler);
+		assertThat(successHandler).isInstanceOf(RedirectServerAuthenticationSuccessHandler.class);
 
 		final Object failureHandler = ReflectionTestUtils.getField(this.switchUserWebFilter, "failureHandler");
-		assertTrue(failureHandler instanceof RedirectServerAuthenticationFailureHandler);
+		assertThat(failureHandler).isInstanceOf(RedirectServerAuthenticationFailureHandler.class);
 
 		final Object securityContextRepository = ReflectionTestUtils.getField(this.switchUserWebFilter,
 				"securityContextRepository");
-		assertTrue(securityContextRepository instanceof WebSessionServerSecurityContextRepository);
+		assertThat(securityContextRepository).isInstanceOf(WebSessionServerSecurityContextRepository.class);
 
 		final Object userDetailsChecker = ReflectionTestUtils.getField(this.switchUserWebFilter, "userDetailsChecker");
-		assertTrue(userDetailsChecker instanceof AccountStatusUserDetailsChecker);
+		assertThat(userDetailsChecker instanceof AccountStatusUserDetailsChecker).isTrue();
 	}
 
 	@Test
@@ -442,7 +433,7 @@ public class SwitchUserWebFilterTests {
 		// given
 		final Object oldSecurityContextRepository = ReflectionTestUtils.getField(this.switchUserWebFilter,
 				"securityContextRepository");
-		assertSame(this.serverSecurityContextRepository, oldSecurityContextRepository);
+		assertThat(oldSecurityContextRepository).isSameAs(this.serverSecurityContextRepository);
 
 		final ServerSecurityContextRepository newSecurityContextRepository = mock(
 				ServerSecurityContextRepository.class);
@@ -451,7 +442,7 @@ public class SwitchUserWebFilterTests {
 		// then
 		final Object currentSecurityContextRepository = ReflectionTestUtils.getField(this.switchUserWebFilter,
 				"securityContextRepository");
-		assertSame(newSecurityContextRepository, currentSecurityContextRepository);
+		assertThat(currentSecurityContextRepository).isSameAs(newSecurityContextRepository);
 	}
 
 	@Test
@@ -532,7 +523,7 @@ public class SwitchUserWebFilterTests {
 		final ServerWebExchangeMatcher currentExitUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
 				.getField(this.switchUserWebFilter, "exitUserMatcher");
 
-		assertSame(newExitUserMatcher, currentExitUserMatcher);
+		assertThat(currentExitUserMatcher).isSameAs(newExitUserMatcher);
 	}
 
 	@Test
@@ -613,7 +604,7 @@ public class SwitchUserWebFilterTests {
 		final ServerWebExchangeMatcher currentExitUserMatcher = (ServerWebExchangeMatcher) ReflectionTestUtils
 				.getField(this.switchUserWebFilter, "switchUserMatcher");
 
-		assertSame(newSwitchUserMatcher, currentExitUserMatcher);
+		assertThat(currentExitUserMatcher).isSameAs(newSwitchUserMatcher);
 	}
 
 	private UserDetails switchUserDetails(String username, boolean enabled) {
