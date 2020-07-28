@@ -36,8 +36,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
-import static java.lang.Boolean.TRUE;
-
 /**
  * <p>
  * Applies
@@ -114,7 +112,7 @@ public class CsrfWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		if (TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER))) {
+		if (Boolean.TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER))) {
 			return chain.filter(exchange).then(Mono.empty());
 		}
 
@@ -126,7 +124,7 @@ public class CsrfWebFilter implements WebFilter {
 	}
 
 	public static void skipExchange(ServerWebExchange exchange) {
-		exchange.getAttributes().put(SHOULD_NOT_FILTER, TRUE);
+		exchange.getAttributes().put(SHOULD_NOT_FILTER, Boolean.TRUE);
 	}
 
 	private Mono<Void> validateToken(ServerWebExchange exchange) {

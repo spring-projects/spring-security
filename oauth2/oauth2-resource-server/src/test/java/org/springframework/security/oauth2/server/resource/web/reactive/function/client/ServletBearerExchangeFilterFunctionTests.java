@@ -29,6 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import reactor.util.context.Context;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -37,8 +38,6 @@ import org.springframework.security.oauth2.server.resource.web.MockExchangeFunct
 import org.springframework.web.reactive.function.client.ClientRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServletBearerExchangeFilterFunction.SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY;
 
 /**
  * Tests for {@link ServletBearerExchangeFilterFunction}
@@ -65,7 +64,7 @@ public class ServletBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenUnauthenticatedThenAuthorizationHeaderNull() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -76,7 +75,7 @@ public class ServletBearerExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenAuthenticatedWithOtherTokenThenAuthorizationHeaderNull() {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).subscriberContext(context(token)).block();
 
@@ -85,7 +84,7 @@ public class ServletBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenAuthenticatedThenAuthorizationHeader() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).subscriberContext(context(this.authentication)).block();
 
@@ -95,7 +94,7 @@ public class ServletBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
 				.header(HttpHeaders.AUTHORIZATION, "Existing").build();
 
 		this.function.filter(request, this.exchange).subscriberContext(context(this.authentication)).block();
@@ -107,7 +106,8 @@ public class ServletBearerExchangeFilterFunctionTests {
 	private Context context(Authentication authentication) {
 		Map<Class<?>, Object> contextAttributes = new HashMap<>();
 		contextAttributes.put(Authentication.class, authentication);
-		return Context.of(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY, contextAttributes);
+		return Context.of(ServletBearerExchangeFilterFunction.SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY,
+				contextAttributes);
 	}
 
 }

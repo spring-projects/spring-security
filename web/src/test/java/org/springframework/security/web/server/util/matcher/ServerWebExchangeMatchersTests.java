@@ -26,8 +26,6 @@ import org.springframework.web.server.ServerWebExchange;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.anyExchange;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers;
 
 /**
  * @author Rob Winch
@@ -39,7 +37,7 @@ public class ServerWebExchangeMatchersTests {
 
 	@Test
 	public void pathMatchersWhenSingleAndSamePatternThenMatches() {
-		assertThat(pathMatchers("/").matches(this.exchange).block().isMatch()).isTrue();
+		assertThat(ServerWebExchangeMatchers.pathMatchers("/").matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
@@ -57,19 +55,21 @@ public class ServerWebExchangeMatchersTests {
 
 	@Test
 	public void pathMatchersWhenSingleAndDifferentPatternThenDoesNotMatch() {
-		assertThat(pathMatchers("/foobar").matches(this.exchange).block().isMatch()).isFalse();
+		assertThat(ServerWebExchangeMatchers.pathMatchers("/foobar").matches(this.exchange).block().isMatch())
+				.isFalse();
 	}
 
 	@Test
 	public void pathMatchersWhenMultiThenMatches() {
-		assertThat(pathMatchers("/foobar", "/").matches(this.exchange).block().isMatch()).isTrue();
+		assertThat(ServerWebExchangeMatchers.pathMatchers("/foobar", "/").matches(this.exchange).block().isMatch())
+				.isTrue();
 	}
 
 	@Test
 	public void anyExchangeWhenMockThenMatches() {
 		ServerWebExchange mockExchange = mock(ServerWebExchange.class);
 
-		assertThat(anyExchange().matches(mockExchange).block().isMatch()).isTrue();
+		assertThat(ServerWebExchangeMatchers.anyExchange().matches(mockExchange).block().isMatch()).isTrue();
 
 		verifyZeroInteractions(mockExchange);
 	}
@@ -83,7 +83,7 @@ public class ServerWebExchangeMatchersTests {
 	 */
 	@Test
 	public void anyExchangeWhenTwoCreatedThenDifferentToPreventIssuesInMap() {
-		assertThat(anyExchange()).isNotEqualTo(anyExchange());
+		assertThat(ServerWebExchangeMatchers.anyExchange()).isNotEqualTo(ServerWebExchangeMatchers.anyExchange());
 	}
 
 }

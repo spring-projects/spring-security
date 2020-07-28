@@ -68,22 +68,6 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
-import static org.springframework.security.config.http.SecurityFilters.ANONYMOUS_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.BASIC_AUTH_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.BEARER_TOKEN_AUTH_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.EXCEPTION_TRANSLATION_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.FORM_LOGIN_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.LOGIN_PAGE_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.LOGOUT_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.LOGOUT_PAGE_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.OAUTH2_AUTHORIZATION_REQUEST_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.OAUTH2_LOGIN_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.OPENID_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.PRE_AUTH_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.REMEMBER_ME_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.X509_FILTER;
-
 /**
  * Handles creation of authentication mechanism filters and related beans for &lt;http&gt;
  * parsing.
@@ -993,59 +977,64 @@ final class AuthenticationConfigBuilder {
 		List<OrderDecorator> filters = new ArrayList<>();
 
 		if (this.anonymousFilter != null) {
-			filters.add(new OrderDecorator(this.anonymousFilter, ANONYMOUS_FILTER));
+			filters.add(new OrderDecorator(this.anonymousFilter, SecurityFilters.ANONYMOUS_FILTER));
 		}
 
 		if (this.rememberMeFilter != null) {
-			filters.add(new OrderDecorator(this.rememberMeFilter, REMEMBER_ME_FILTER));
+			filters.add(new OrderDecorator(this.rememberMeFilter, SecurityFilters.REMEMBER_ME_FILTER));
 		}
 
 		if (this.logoutFilter != null) {
-			filters.add(new OrderDecorator(this.logoutFilter, LOGOUT_FILTER));
+			filters.add(new OrderDecorator(this.logoutFilter, SecurityFilters.LOGOUT_FILTER));
 		}
 
 		if (this.x509Filter != null) {
-			filters.add(new OrderDecorator(this.x509Filter, X509_FILTER));
+			filters.add(new OrderDecorator(this.x509Filter, SecurityFilters.X509_FILTER));
 		}
 
 		if (this.jeeFilter != null) {
-			filters.add(new OrderDecorator(this.jeeFilter, PRE_AUTH_FILTER));
+			filters.add(new OrderDecorator(this.jeeFilter, SecurityFilters.PRE_AUTH_FILTER));
 		}
 
 		if (this.formFilterId != null) {
-			filters.add(new OrderDecorator(new RuntimeBeanReference(this.formFilterId), FORM_LOGIN_FILTER));
+			filters.add(
+					new OrderDecorator(new RuntimeBeanReference(this.formFilterId), SecurityFilters.FORM_LOGIN_FILTER));
 		}
 
 		if (this.oauth2LoginFilterId != null) {
-			filters.add(new OrderDecorator(new RuntimeBeanReference(this.oauth2LoginFilterId), OAUTH2_LOGIN_FILTER));
+			filters.add(new OrderDecorator(new RuntimeBeanReference(this.oauth2LoginFilterId),
+					SecurityFilters.OAUTH2_LOGIN_FILTER));
 			filters.add(new OrderDecorator(this.oauth2AuthorizationRequestRedirectFilter,
-					OAUTH2_AUTHORIZATION_REQUEST_FILTER));
+					SecurityFilters.OAUTH2_AUTHORIZATION_REQUEST_FILTER));
 		}
 
 		if (this.openIDFilterId != null) {
-			filters.add(new OrderDecorator(new RuntimeBeanReference(this.openIDFilterId), OPENID_FILTER));
+			filters.add(
+					new OrderDecorator(new RuntimeBeanReference(this.openIDFilterId), SecurityFilters.OPENID_FILTER));
 		}
 
 		if (this.loginPageGenerationFilter != null) {
-			filters.add(new OrderDecorator(this.loginPageGenerationFilter, LOGIN_PAGE_FILTER));
-			filters.add(new OrderDecorator(this.logoutPageGenerationFilter, LOGOUT_PAGE_FILTER));
+			filters.add(new OrderDecorator(this.loginPageGenerationFilter, SecurityFilters.LOGIN_PAGE_FILTER));
+			filters.add(new OrderDecorator(this.logoutPageGenerationFilter, SecurityFilters.LOGOUT_PAGE_FILTER));
 		}
 
 		if (this.basicFilter != null) {
-			filters.add(new OrderDecorator(this.basicFilter, BASIC_AUTH_FILTER));
+			filters.add(new OrderDecorator(this.basicFilter, SecurityFilters.BASIC_AUTH_FILTER));
 		}
 
 		if (this.bearerTokenAuthenticationFilter != null) {
-			filters.add(new OrderDecorator(this.bearerTokenAuthenticationFilter, BEARER_TOKEN_AUTH_FILTER));
+			filters.add(
+					new OrderDecorator(this.bearerTokenAuthenticationFilter, SecurityFilters.BEARER_TOKEN_AUTH_FILTER));
 		}
 
 		if (this.authorizationCodeGrantFilter != null) {
 			filters.add(new OrderDecorator(this.authorizationRequestRedirectFilter,
-					OAUTH2_AUTHORIZATION_REQUEST_FILTER.getOrder() + 1));
-			filters.add(new OrderDecorator(this.authorizationCodeGrantFilter, OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER));
+					SecurityFilters.OAUTH2_AUTHORIZATION_REQUEST_FILTER.getOrder() + 1));
+			filters.add(new OrderDecorator(this.authorizationCodeGrantFilter,
+					SecurityFilters.OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER));
 		}
 
-		filters.add(new OrderDecorator(this.etf, EXCEPTION_TRANSLATION_FILTER));
+		filters.add(new OrderDecorator(this.etf, SecurityFilters.EXCEPTION_TRANSLATION_FILTER));
 
 		return filters;
 	}

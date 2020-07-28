@@ -36,6 +36,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
@@ -44,10 +45,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOAuth2Login;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOidcLogin;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockServerConfigurersTests {
@@ -67,13 +64,15 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 		this.client = WebTestClient.bindToController(this.controller)
 				.argumentResolvers(c -> c.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(
 						this.clientRegistrationRepository, this.authorizedClientRepository)))
-				.webFilter(new SecurityContextServerWebExchangeWebFilter()).apply(springSecurity()).configureClient()
+				.webFilter(new SecurityContextServerWebExchangeWebFilter())
+				.apply(SecurityMockServerConfigurers.springSecurity()).configureClient()
 				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 	}
 
 	@Test
 	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthentication() {
-		this.client.mutateWith(mockOidcLogin()).get().uri("/token").exchange().expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockOidcLogin()).get().uri("/token").exchange()
+				.expectStatus().isOk();
 
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token).isNotNull();
@@ -87,7 +86,8 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 
 	@Test
 	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient() {
-		this.client.mutateWith(mockOidcLogin()).get().uri("/client").exchange().expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockOidcLogin()).get().uri("/client").exchange()
+				.expectStatus().isOk();
 
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client).isNotNull();
@@ -98,8 +98,10 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 
 	@Test
 	public void oidcLoginWhenAuthoritiesSpecifiedThenGrantsAccess() {
-		this.client.mutateWith(mockOidcLogin().authorities(new SimpleGrantedAuthority("SCOPE_admin"))).get()
-				.uri("/token").exchange().expectStatus().isOk();
+		this.client
+				.mutateWith(SecurityMockServerConfigurers.mockOidcLogin()
+						.authorities(new SimpleGrantedAuthority("SCOPE_admin")))
+				.get().uri("/token").exchange().expectStatus().isOk();
 
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat((Collection<GrantedAuthority>) token.getPrincipal().getAuthorities())
@@ -108,8 +110,10 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 
 	@Test
 	public void oidcLoginWhenIdTokenSpecifiedThenUserHasClaims() {
-		this.client.mutateWith(mockOidcLogin().idToken(i -> i.issuer("https://idp.example.org"))).get().uri("/token")
-				.exchange().expectStatus().isOk();
+		this.client
+				.mutateWith(
+						SecurityMockServerConfigurers.mockOidcLogin().idToken(i -> i.issuer("https://idp.example.org")))
+				.get().uri("/token").exchange().expectStatus().isOk();
 
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("iss", "https://idp.example.org");
@@ -117,8 +121,8 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 
 	@Test
 	public void oidcLoginWhenUserInfoSpecifiedThenUserHasClaims() throws Exception {
-		this.client.mutateWith(mockOidcLogin().userInfoToken(u -> u.email("email@email"))).get().uri("/token")
-				.exchange().expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockOidcLogin().userInfoToken(u -> u.email("email@email")))
+				.get().uri("/token").exchange().expectStatus().isOk();
 
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("email", "email@email");
@@ -130,14 +134,14 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 				OidcIdToken.withTokenValue("id-token").claim("custom-attribute", "test-subject").build(),
 				"custom-attribute");
 
-		this.client.mutateWith(mockOAuth2Login().oauth2User(oidcUser)).get().uri("/token").exchange().expectStatus()
-				.isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login().oauth2User(oidcUser)).get().uri("/token")
+				.exchange().expectStatus().isOk();
 
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getName()).isEqualTo("test-subject");
 
-		this.client.mutateWith(mockOAuth2Login().oauth2User(oidcUser)).get().uri("/client").exchange().expectStatus()
-				.isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login().oauth2User(oidcUser)).get()
+				.uri("/client").exchange().expectStatus().isOk();
 
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client.getPrincipalName()).isEqualTo("test-subject");
@@ -146,16 +150,21 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 	// gh-7794
 	@Test
 	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
-		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("SCOPE_read"), idToken().build());
+		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("SCOPE_read"),
+				TestOidcIdTokens.idToken().build());
 
-		this.client.mutateWith(mockOidcLogin().idToken(i -> i.subject("foo")).oidcUser(oidcUser)).get().uri("/token")
-				.exchange().expectStatus().isOk();
+		this.client
+				.mutateWith(
+						SecurityMockServerConfigurers.mockOidcLogin().idToken(i -> i.subject("foo")).oidcUser(oidcUser))
+				.get().uri("/token").exchange().expectStatus().isOk();
 
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("sub", "subject");
 
-		this.client.mutateWith(mockOidcLogin().oidcUser(oidcUser).idToken(i -> i.subject("bar"))).get().uri("/token")
-				.exchange().expectStatus().isOk();
+		this.client
+				.mutateWith(
+						SecurityMockServerConfigurers.mockOidcLogin().oidcUser(oidcUser).idToken(i -> i.subject("bar")))
+				.get().uri("/token").exchange().expectStatus().isOk();
 
 		token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("sub", "bar");

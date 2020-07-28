@@ -40,9 +40,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.web.client.RestOperations;
@@ -53,9 +55,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
 
 /**
  * Tests for {@link DefaultOAuth2UserService}.
@@ -80,8 +79,9 @@ public class DefaultOAuth2UserServiceTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-		this.clientRegistrationBuilder = clientRegistration().userInfoUri(null).userNameAttributeName(null);
-		this.accessToken = noScopes();
+		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration().userInfoUri(null)
+				.userNameAttributeName(null);
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
 	}
 
 	@After
@@ -312,8 +312,8 @@ public class DefaultOAuth2UserServiceTests {
 		Map<String, Object> body = new HashMap<>();
 		body.put("id", "id");
 		DefaultOAuth2UserService userService = withMockResponse(body);
-		OAuth2UserRequest request = new OAuth2UserRequest(clientRegistration().build(),
-				scopes("message:read", "message:write"));
+		OAuth2UserRequest request = new OAuth2UserRequest(TestClientRegistrations.clientRegistration().build(),
+				TestOAuth2AccessTokens.scopes("message:read", "message:write"));
 		OAuth2User user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(3);
@@ -328,7 +328,8 @@ public class DefaultOAuth2UserServiceTests {
 		Map<String, Object> body = new HashMap<>();
 		body.put("id", "id");
 		DefaultOAuth2UserService userService = withMockResponse(body);
-		OAuth2UserRequest request = new OAuth2UserRequest(clientRegistration().build(), noScopes());
+		OAuth2UserRequest request = new OAuth2UserRequest(TestClientRegistrations.clientRegistration().build(),
+				TestOAuth2AccessTokens.noScopes());
 		OAuth2User user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(1);

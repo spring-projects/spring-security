@@ -37,8 +37,6 @@ import org.springframework.security.web.server.context.SecurityContextServerWebE
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 /**
  * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
@@ -58,12 +56,12 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 			.webFilter(new SecurityContextServerWebExchangeWebFilter())
 			.argumentResolvers(resolvers -> resolvers
 					.addCustomResolver(new CurrentSecurityContextArgumentResolver(new ReactiveAdapterRegistry())))
-			.apply(springSecurity()).configureClient()
+			.apply(SecurityMockServerConfigurers.springSecurity()).configureClient()
 			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 
 	@Test
 	public void mockJwtWhenUsingDefaultsTheCreatesJwtAuthentication() {
-		this.client.mutateWith(mockJwt()).get().exchange().expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockJwt()).get().exchange().expectStatus().isOk();
 
 		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(JwtAuthenticationToken.class);
@@ -77,7 +75,8 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 	@Test
 	public void mockJwtWhenProvidingBuilderConsumerThenProducesJwtAuthentication() {
 		String name = new String("user");
-		this.client.mutateWith(mockJwt().jwt(jwt -> jwt.subject(name))).get().exchange().expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockJwt().jwt(jwt -> jwt.subject(name))).get().exchange()
+				.expectStatus().isOk();
 
 		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(JwtAuthenticationToken.class);
@@ -87,8 +86,9 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 
 	@Test
 	public void mockJwtWhenProvidingCustomAuthoritiesThenProducesJwtAuthentication() {
-		this.client.mutateWith(mockJwt().jwt(jwt -> jwt.claim("scope", "ignored authorities"))
-				.authorities(this.authority1, this.authority2)).get().exchange().expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockJwt()
+				.jwt(jwt -> jwt.claim("scope", "ignored authorities")).authorities(this.authority1, this.authority2))
+				.get().exchange().expectStatus().isOk();
 
 		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1,
@@ -97,8 +97,10 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 
 	@Test
 	public void mockJwtWhenProvidingScopedAuthoritiesThenProducesJwtAuthentication() {
-		this.client.mutateWith(mockJwt().jwt(jwt -> jwt.claim("scope", "scoped authorities"))).get().exchange()
-				.expectStatus().isOk();
+		this.client
+				.mutateWith(
+						SecurityMockServerConfigurers.mockJwt().jwt(jwt -> jwt.claim("scope", "scoped authorities")))
+				.get().exchange().expectStatus().isOk();
 
 		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(
@@ -107,8 +109,11 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 
 	@Test
 	public void mockJwtWhenProvidingGrantedAuthoritiesThenProducesJwtAuthentication() {
-		this.client.mutateWith(mockJwt().jwt(jwt -> jwt.claim("scope", "ignored authorities"))
-				.authorities(jwt -> Arrays.asList(this.authority1))).get().exchange().expectStatus().isOk();
+		this.client
+				.mutateWith(
+						SecurityMockServerConfigurers.mockJwt().jwt(jwt -> jwt.claim("scope", "ignored authorities"))
+								.authorities(jwt -> Arrays.asList(this.authority1)))
+				.get().exchange().expectStatus().isOk();
 
 		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1);
@@ -117,7 +122,8 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 	@Test
 	public void mockJwtWhenProvidingPreparedJwtThenProducesJwtAuthentication() {
 		Jwt originalToken = TestJwts.jwt().header("header1", "value1").subject("some_user").build();
-		this.client.mutateWith(mockJwt().jwt(originalToken)).get().exchange().expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockJwt().jwt(originalToken)).get().exchange()
+				.expectStatus().isOk();
 
 		SecurityContext context = this.securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(JwtAuthenticationToken.class);

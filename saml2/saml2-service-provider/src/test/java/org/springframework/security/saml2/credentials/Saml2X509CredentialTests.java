@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.credentials;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -27,12 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.security.converter.RsaKeyConverters;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION;
+import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
 
 public class Saml2X509CredentialTests {
 
@@ -62,7 +58,7 @@ public class Saml2X509CredentialTests {
 				+ "YX/sDTE2AdVBVGaMj1Cb51bPHnNC6Q5kXKQnj/YrLqRQND09Q7ParX0CQQC5NxZr\n"
 				+ "9jKqhHj8yQD6PlXTsY4Occ7DH6/IoDenfdEVD5qlet0zmd50HatN2Jiqm5ubN7CM\n" + "INrtuLp4YHbgk1mi\n"
 				+ "-----END PRIVATE KEY-----";
-		this.key = RsaKeyConverters.pkcs8().convert(new ByteArrayInputStream(keyData.getBytes(UTF_8)));
+		this.key = RsaKeyConverters.pkcs8().convert(new ByteArrayInputStream(keyData.getBytes(StandardCharsets.UTF_8)));
 		final CertificateFactory factory = CertificateFactory.getInstance("X.509");
 		String certificateData = "-----BEGIN CERTIFICATE-----\n"
 				+ "MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMC\n"
@@ -80,69 +76,71 @@ public class Saml2X509CredentialTests {
 				+ "qK7UFgP1bRl5qksrYX5S0z2iGJh0GvonLUt3e20Ssfl5tTEDDnAEUMLfBkyaxEHD\n"
 				+ "RZ/nbTJ7VTeZOSyRoVn5XHhpuJ0B\n" + "-----END CERTIFICATE-----";
 		this.certificate = (X509Certificate) factory
-				.generateCertificate(new ByteArrayInputStream(certificateData.getBytes(UTF_8)));
+				.generateCertificate(new ByteArrayInputStream(certificateData.getBytes(StandardCharsets.UTF_8)));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithCredentialsThenItSucceeds() {
-		new Saml2X509Credential(this.key, this.certificate, SIGNING);
-		new Saml2X509Credential(this.key, this.certificate, SIGNING, DECRYPTION);
-		new Saml2X509Credential(this.key, this.certificate, DECRYPTION);
+		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.SIGNING);
+		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.SIGNING,
+				Saml2X509CredentialType.DECRYPTION);
+		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.DECRYPTION);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithCredentialsThenItSucceeds() {
-		new Saml2X509Credential(this.certificate, VERIFICATION);
-		new Saml2X509Credential(this.certificate, VERIFICATION, ENCRYPTION);
-		new Saml2X509Credential(this.certificate, ENCRYPTION);
+		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.VERIFICATION);
+		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.VERIFICATION,
+				Saml2X509CredentialType.ENCRYPTION);
+		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.ENCRYPTION);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutCredentialsThenItFails() {
 		this.exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(null, (X509Certificate) null, SIGNING);
+		new Saml2X509Credential(null, (X509Certificate) null, Saml2X509CredentialType.SIGNING);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutPrivateKeyThenItFails() {
 		this.exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(null, this.certificate, SIGNING);
+		new Saml2X509Credential(null, this.certificate, Saml2X509CredentialType.SIGNING);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutCertificateThenItFails() {
 		this.exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(this.key, null, SIGNING);
+		new Saml2X509Credential(this.key, null, Saml2X509CredentialType.SIGNING);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithoutCertificateThenItFails() {
 		this.exception.expect(IllegalArgumentException.class);
-		new Saml2X509Credential(null, SIGNING);
+		new Saml2X509Credential(null, Saml2X509CredentialType.SIGNING);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithEncryptionUsageThenItFails() {
 		this.exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(this.key, this.certificate, ENCRYPTION);
+		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.ENCRYPTION);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithVerificationUsageThenItFails() {
 		this.exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(this.key, this.certificate, VERIFICATION);
+		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.VERIFICATION);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithSigningUsageThenItFails() {
 		this.exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(this.certificate, SIGNING);
+		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.SIGNING);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithDecryptionUsageThenItFails() {
 		this.exception.expect(IllegalStateException.class);
-		new Saml2X509Credential(this.certificate, DECRYPTION);
+		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.DECRYPTION);
 	}
 
 }

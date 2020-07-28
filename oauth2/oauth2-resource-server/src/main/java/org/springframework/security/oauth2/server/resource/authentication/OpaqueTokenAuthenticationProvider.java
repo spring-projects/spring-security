@@ -29,12 +29,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.util.Assert;
-
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUED_AT;
 
 /**
  * An {@link AuthenticationProvider} implementation for opaque
@@ -113,8 +111,8 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 	}
 
 	private AbstractAuthenticationToken convert(OAuth2AuthenticatedPrincipal principal, String token) {
-		Instant iat = principal.getAttribute(ISSUED_AT);
-		Instant exp = principal.getAttribute(EXPIRES_AT);
+		Instant iat = principal.getAttribute(OAuth2IntrospectionClaimNames.ISSUED_AT);
+		Instant exp = principal.getAttribute(OAuth2IntrospectionClaimNames.EXPIRES_AT);
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
 		return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
 	}

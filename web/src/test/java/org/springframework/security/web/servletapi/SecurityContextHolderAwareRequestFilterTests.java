@@ -55,12 +55,12 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.doThrow;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.verifyZeroInteractions;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests {@link SecurityContextHolderAwareRequestFilter}.
@@ -159,7 +159,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 
 	@Test
 	public void authenticateNullEntryPointTrue() throws Exception {
-		when(this.request.authenticate(this.response)).thenReturn(true);
+		given(this.request.authenticate(this.response)).willReturn(true);
 		this.filter.setAuthenticationEntryPoint(null);
 		this.filter.afterPropertiesSet();
 
@@ -171,8 +171,8 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	@Test
 	public void login() throws Exception {
 		TestingAuthenticationToken expectedAuth = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		when(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-				.thenReturn(expectedAuth);
+		given(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+				.willReturn(expectedAuth);
 
 		wrappedRequest().login(expectedAuth.getName(), String.valueOf(expectedAuth.getCredentials()));
 
@@ -185,8 +185,8 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	@Test
 	public void loginWithExistingUser() throws Exception {
 		TestingAuthenticationToken expectedAuth = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		when(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-				.thenReturn(new TestingAuthenticationToken("newuser", "not be found", "ROLE_USER"));
+		given(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+				.willReturn(new TestingAuthenticationToken("newuser", "not be found", "ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(expectedAuth);
 
 		try {
@@ -203,8 +203,8 @@ public class SecurityContextHolderAwareRequestFilterTests {
 	@Test
 	public void loginFail() throws Exception {
 		AuthenticationException authException = new BadCredentialsException("Invalid");
-		when(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-				.thenThrow(authException);
+		given(this.authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+				.willThrow(authException);
 
 		try {
 			wrappedRequest().login("invalid", "credentials");
@@ -241,7 +241,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		String username = "username";
 		String password = "password";
 		ServletException authException = new ServletException("Failed Login");
-		doThrow(authException).when(this.request).login(username, password);
+		willThrow(authException).given(this.request).login(username, password);
 
 		try {
 			wrappedRequest().login(username, password);
@@ -292,7 +292,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		context.setAuthentication(expectedAuth);
 		SecurityContextHolder.setContext(context);
 		AsyncContext asyncContext = mock(AsyncContext.class);
-		when(this.request.getAsyncContext()).thenReturn(asyncContext);
+		given(this.request.getAsyncContext()).willReturn(asyncContext);
 		Runnable runnable = () -> {
 		};
 
@@ -314,7 +314,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		context.setAuthentication(expectedAuth);
 		SecurityContextHolder.setContext(context);
 		AsyncContext asyncContext = mock(AsyncContext.class);
-		when(this.request.startAsync()).thenReturn(asyncContext);
+		given(this.request.startAsync()).willReturn(asyncContext);
 		Runnable runnable = () -> {
 		};
 
@@ -336,7 +336,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		context.setAuthentication(expectedAuth);
 		SecurityContextHolder.setContext(context);
 		AsyncContext asyncContext = mock(AsyncContext.class);
-		when(this.request.startAsync(this.request, this.response)).thenReturn(asyncContext);
+		given(this.request.startAsync(this.request, this.response)).willReturn(asyncContext);
 		Runnable runnable = () -> {
 		};
 

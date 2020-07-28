@@ -25,27 +25,6 @@ import java.util.function.Consumer;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.ADDRESS;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.BIRTHDATE;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL_VERIFIED;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.FAMILY_NAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.GENDER;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.GIVEN_NAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.LOCALE;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.MIDDLE_NAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.NAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.NICKNAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PHONE_NUMBER;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PHONE_NUMBER_VERIFIED;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PICTURE;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PROFILE;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.SUB;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.UPDATED_AT;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.WEBSITE;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.ZONEINFO;
-
 /**
  * A representation of a UserInfo Response that is returned from the OAuth 2.0 Protected
  * Resource UserInfo Endpoint.
@@ -155,7 +134,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder address(String address) {
-			return this.claim(ADDRESS, address);
+			return this.claim(StandardClaimNames.ADDRESS, address);
 		}
 
 		/**
@@ -164,7 +143,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder birthdate(String birthdate) {
-			return this.claim(BIRTHDATE, birthdate);
+			return this.claim(StandardClaimNames.BIRTHDATE, birthdate);
 		}
 
 		/**
@@ -173,7 +152,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder email(String email) {
-			return this.claim(EMAIL, email);
+			return this.claim(StandardClaimNames.EMAIL, email);
 		}
 
 		/**
@@ -182,7 +161,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder emailVerified(Boolean emailVerified) {
-			return this.claim(EMAIL_VERIFIED, emailVerified);
+			return this.claim(StandardClaimNames.EMAIL_VERIFIED, emailVerified);
 		}
 
 		/**
@@ -191,7 +170,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder familyName(String familyName) {
-			return claim(FAMILY_NAME, familyName);
+			return claim(StandardClaimNames.FAMILY_NAME, familyName);
 		}
 
 		/**
@@ -200,7 +179,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder gender(String gender) {
-			return this.claim(GENDER, gender);
+			return this.claim(StandardClaimNames.GENDER, gender);
 		}
 
 		/**
@@ -209,7 +188,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder givenName(String givenName) {
-			return claim(GIVEN_NAME, givenName);
+			return claim(StandardClaimNames.GIVEN_NAME, givenName);
 		}
 
 		/**
@@ -218,7 +197,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder locale(String locale) {
-			return this.claim(LOCALE, locale);
+			return this.claim(StandardClaimNames.LOCALE, locale);
 		}
 
 		/**
@@ -227,7 +206,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder middleName(String middleName) {
-			return claim(MIDDLE_NAME, middleName);
+			return claim(StandardClaimNames.MIDDLE_NAME, middleName);
 		}
 
 		/**
@@ -236,7 +215,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder name(String name) {
-			return claim(NAME, name);
+			return claim(StandardClaimNames.NAME, name);
 		}
 
 		/**
@@ -245,7 +224,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder nickname(String nickname) {
-			return claim(NICKNAME, nickname);
+			return claim(StandardClaimNames.NICKNAME, nickname);
 		}
 
 		/**
@@ -254,7 +233,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder picture(String picture) {
-			return this.claim(PICTURE, picture);
+			return this.claim(StandardClaimNames.PICTURE, picture);
 		}
 
 		/**
@@ -263,7 +242,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder phoneNumber(String phoneNumber) {
-			return this.claim(PHONE_NUMBER, phoneNumber);
+			return this.claim(StandardClaimNames.PHONE_NUMBER, phoneNumber);
 		}
 
 		/**
@@ -272,7 +251,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder phoneNumberVerified(String phoneNumberVerified) {
-			return this.claim(PHONE_NUMBER_VERIFIED, phoneNumberVerified);
+			return this.claim(StandardClaimNames.PHONE_NUMBER_VERIFIED, phoneNumberVerified);
 		}
 
 		/**
@@ -281,7 +260,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder preferredUsername(String preferredUsername) {
-			return claim(PREFERRED_USERNAME, preferredUsername);
+			return claim(StandardClaimNames.PREFERRED_USERNAME, preferredUsername);
 		}
 
 		/**
@@ -290,7 +269,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder profile(String profile) {
-			return claim(PROFILE, profile);
+			return claim(StandardClaimNames.PROFILE, profile);
 		}
 
 		/**
@@ -299,7 +278,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder subject(String subject) {
-			return this.claim(SUB, subject);
+			return this.claim(StandardClaimNames.SUB, subject);
 		}
 
 		/**
@@ -308,7 +287,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder updatedAt(String updatedAt) {
-			return this.claim(UPDATED_AT, updatedAt);
+			return this.claim(StandardClaimNames.UPDATED_AT, updatedAt);
 		}
 
 		/**
@@ -317,7 +296,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder website(String website) {
-			return this.claim(WEBSITE, website);
+			return this.claim(StandardClaimNames.WEBSITE, website);
 		}
 
 		/**
@@ -326,7 +305,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder zoneinfo(String zoneinfo) {
-			return this.claim(ZONEINFO, zoneinfo);
+			return this.claim(StandardClaimNames.ZONEINFO, zoneinfo);
 		}
 
 		/**

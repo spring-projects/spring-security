@@ -17,16 +17,12 @@ package org.springframework.security.saml2.core;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.util.Assert;
-
-import static java.util.Arrays.asList;
-import static org.springframework.util.Assert.notEmpty;
-import static org.springframework.util.Assert.notNull;
-import static org.springframework.util.Assert.state;
 
 /**
  * An object for holding a public certificate, any associated private key, and its
@@ -127,14 +123,14 @@ public final class Saml2X509Credential {
 
 	private Saml2X509Credential(PrivateKey privateKey, boolean keyRequired, X509Certificate certificate,
 			Saml2X509CredentialType... types) {
-		notNull(certificate, "certificate cannot be null");
-		notEmpty(types, "credentials types cannot be empty");
+		Assert.notNull(certificate, "certificate cannot be null");
+		Assert.notEmpty(types, "credentials types cannot be empty");
 		if (keyRequired) {
-			notNull(privateKey, "privateKey cannot be null");
+			Assert.notNull(privateKey, "privateKey cannot be null");
 		}
 		this.privateKey = privateKey;
 		this.certificate = certificate;
-		this.credentialTypes = new LinkedHashSet<>(asList(types));
+		this.credentialTypes = new LinkedHashSet<>(Arrays.asList(types));
 	}
 
 	/**
@@ -224,7 +220,7 @@ public final class Saml2X509Credential {
 					break;
 				}
 			}
-			state(valid, () -> usage + " is not a valid usage for this credential");
+			Assert.state(valid, () -> usage + " is not a valid usage for this credential");
 		}
 	}
 

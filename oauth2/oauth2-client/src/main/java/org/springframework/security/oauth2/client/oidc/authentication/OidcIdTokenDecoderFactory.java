@@ -48,9 +48,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withSecretKey;
-
 /**
  * A {@link JwtDecoderFactory factory} that provides a {@link JwtDecoder} used for
  * {@link OidcIdToken} signature verification. The provided {@link JwtDecoder} is
@@ -162,7 +159,7 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			return withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm).build();
+			return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm).build();
 		}
 		else if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
 			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
@@ -187,7 +184,7 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 			}
 			SecretKeySpec secretKeySpec = new SecretKeySpec(clientSecret.getBytes(StandardCharsets.UTF_8),
 					jcaAlgorithmMappings.get(jwsAlgorithm));
-			return withSecretKey(secretKeySpec).macAlgorithm((MacAlgorithm) jwsAlgorithm).build();
+			return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm((MacAlgorithm) jwsAlgorithm).build();
 		}
 
 		OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,

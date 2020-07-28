@@ -26,10 +26,10 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link ReactiveJwtGrantedAuthoritiesConverterAdapter}
@@ -41,7 +41,7 @@ public class ReactiveJwtGrantedAuthoritiesConverterAdapterTests {
 
 	@Test
 	public void convertWithGrantedAuthoritiesConverter() {
-		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
+		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 
 		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter = token -> Arrays
 				.asList(new SimpleGrantedAuthority("blah"));

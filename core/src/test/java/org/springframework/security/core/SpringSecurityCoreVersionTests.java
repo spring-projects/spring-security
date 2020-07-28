@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
@@ -33,8 +34,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.spy;
 
 /**
  * Checks that the embedded version information is up to date.
@@ -83,10 +82,10 @@ public class SpringSecurityCoreVersionTests {
 	@Test
 	public void noLoggingIfVersionsAreEqual() throws Exception {
 		String version = "1";
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn(version).when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn(version).when(SpringVersion.class, "getVersion");
+		PowerMockito.spy(SpringSecurityCoreVersion.class);
+		PowerMockito.spy(SpringVersion.class);
+		PowerMockito.doReturn(version).when(SpringSecurityCoreVersion.class, "getVersion");
+		PowerMockito.doReturn(version).when(SpringVersion.class, "getVersion");
 
 		performChecks();
 
@@ -95,10 +94,10 @@ public class SpringSecurityCoreVersionTests {
 
 	@Test
 	public void noLoggingIfSpringVersionNull() throws Exception {
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("1").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn(null).when(SpringVersion.class, "getVersion");
+		PowerMockito.spy(SpringSecurityCoreVersion.class);
+		PowerMockito.spy(SpringVersion.class);
+		PowerMockito.doReturn("1").when(SpringSecurityCoreVersion.class, "getVersion");
+		PowerMockito.doReturn(null).when(SpringVersion.class, "getVersion");
 
 		performChecks();
 
@@ -107,10 +106,10 @@ public class SpringSecurityCoreVersionTests {
 
 	@Test
 	public void warnIfSpringVersionTooSmall() throws Exception {
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn("2").when(SpringVersion.class, "getVersion");
+		PowerMockito.spy(SpringSecurityCoreVersion.class);
+		PowerMockito.spy(SpringVersion.class);
+		PowerMockito.doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
+		PowerMockito.doReturn("2").when(SpringVersion.class, "getVersion");
 
 		performChecks();
 
@@ -119,10 +118,10 @@ public class SpringSecurityCoreVersionTests {
 
 	@Test
 	public void noWarnIfSpringVersionLarger() throws Exception {
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("4.0.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn("4.0.0.RELEASE").when(SpringVersion.class, "getVersion");
+		PowerMockito.spy(SpringSecurityCoreVersion.class);
+		PowerMockito.spy(SpringVersion.class);
+		PowerMockito.doReturn("4.0.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
+		PowerMockito.doReturn("4.0.0.RELEASE").when(SpringVersion.class, "getVersion");
 
 		performChecks();
 
@@ -133,10 +132,10 @@ public class SpringSecurityCoreVersionTests {
 	@Test
 	public void noWarnIfSpringPatchVersionDoubleDigits() throws Exception {
 		String minSpringVersion = "3.2.8.RELEASE";
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("3.2.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn("3.2.10.RELEASE").when(SpringVersion.class, "getVersion");
+		PowerMockito.spy(SpringSecurityCoreVersion.class);
+		PowerMockito.spy(SpringVersion.class);
+		PowerMockito.doReturn("3.2.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
+		PowerMockito.doReturn("3.2.10.RELEASE").when(SpringVersion.class, "getVersion");
 
 		performChecks(minSpringVersion);
 
@@ -145,10 +144,10 @@ public class SpringSecurityCoreVersionTests {
 
 	@Test
 	public void noLoggingIfPropertySet() throws Exception {
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn("2").when(SpringVersion.class, "getVersion");
+		PowerMockito.spy(SpringSecurityCoreVersion.class);
+		PowerMockito.spy(SpringVersion.class);
+		PowerMockito.doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
+		PowerMockito.doReturn("2").when(SpringVersion.class, "getVersion");
 		System.setProperty(getDisableChecksProperty(), Boolean.TRUE.toString());
 
 		performChecks();

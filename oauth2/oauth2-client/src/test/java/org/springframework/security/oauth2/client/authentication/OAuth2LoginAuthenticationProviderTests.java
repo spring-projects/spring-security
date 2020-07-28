@@ -36,6 +36,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -45,6 +46,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,10 +56,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.error;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OAuth2LoginAuthenticationProvider}.
@@ -85,9 +84,9 @@ public class OAuth2LoginAuthenticationProviderTests {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() {
-		this.clientRegistration = clientRegistration().build();
-		this.authorizationRequest = request().scope("scope1", "scope2").build();
-		this.authorizationResponse = success().build();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
+		this.authorizationRequest = TestOAuth2AuthorizationRequests.request().scope("scope1", "scope2").build();
+		this.authorizationResponse = TestOAuth2AuthorizationResponses.success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				this.authorizationResponse);
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
@@ -121,7 +120,8 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationRequestContainsOpenidScopeThenReturnNull() {
-		OAuth2AuthorizationRequest authorizationRequest = request().scope("openid").build();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request().scope("openid")
+				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				this.authorizationResponse);
 
@@ -136,7 +136,8 @@ public class OAuth2LoginAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(OAuth2ErrorCodes.INVALID_REQUEST));
 
-		OAuth2AuthorizationResponse authorizationResponse = error().errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.error()
+				.errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 
@@ -149,7 +150,8 @@ public class OAuth2LoginAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_state_parameter"));
 
-		OAuth2AuthorizationResponse authorizationResponse = success().state("67890").build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success().state("67890")
+				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 

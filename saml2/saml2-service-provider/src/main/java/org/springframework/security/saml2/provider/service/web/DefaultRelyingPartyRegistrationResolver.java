@@ -25,16 +25,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRelyingPartyRegistration;
-import static org.springframework.security.web.util.UrlUtils.buildFullRequestUrl;
-import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 /**
  * A {@link Converter} that resolves a {@link RelyingPartyRegistration} by extracting the
@@ -77,8 +74,9 @@ public final class DefaultRelyingPartyRegistrationResolver
 		String relyingPartyEntityId = templateResolver.apply(relyingPartyRegistration.getEntityId());
 		String assertionConsumerServiceLocation = templateResolver
 				.apply(relyingPartyRegistration.getAssertionConsumerServiceLocation());
-		return withRelyingPartyRegistration(relyingPartyRegistration).entityId(relyingPartyEntityId)
-				.assertionConsumerServiceLocation(assertionConsumerServiceLocation).build();
+		return RelyingPartyRegistration.withRelyingPartyRegistration(relyingPartyRegistration)
+				.entityId(relyingPartyEntityId).assertionConsumerServiceLocation(assertionConsumerServiceLocation)
+				.build();
 	}
 
 	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
@@ -111,8 +109,8 @@ public final class DefaultRelyingPartyRegistrationResolver
 	}
 
 	private static String getApplicationUri(HttpServletRequest request) {
-		UriComponents uriComponents = fromHttpUrl(buildFullRequestUrl(request)).replacePath(request.getContextPath())
-				.replaceQuery(null).fragment(null).build();
+		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
 		return uriComponents.toUriString();
 	}
 

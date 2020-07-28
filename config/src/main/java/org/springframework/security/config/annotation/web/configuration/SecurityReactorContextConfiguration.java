@@ -40,8 +40,6 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import static org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES;
-
 /**
  * {@link Configuration} that (potentially) adds a "decorating" {@code Publisher} for the
  * last operator created in every {@code Mono} or {@code Flux}.
@@ -88,7 +86,7 @@ class SecurityReactorContextConfiguration {
 		}
 
 		<T> CoreSubscriber<T> createSubscriberIfNecessary(CoreSubscriber<T> delegate) {
-			if (delegate.currentContext().hasKey(SECURITY_CONTEXT_ATTRIBUTES)) {
+			if (delegate.currentContext().hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES)) {
 				// Already enriched. No need to create Subscriber so return original
 				return delegate;
 			}

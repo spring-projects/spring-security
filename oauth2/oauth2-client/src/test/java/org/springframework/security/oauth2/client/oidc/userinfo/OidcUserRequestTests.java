@@ -25,13 +25,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 
 /**
  * Tests for {@link OidcUserRequest}.
@@ -50,10 +50,10 @@ public class OidcUserRequestTests {
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = clientRegistration().build();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token-1234", Instant.now(),
 				Instant.now().plusSeconds(60), new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
-		this.idToken = idToken().authorizedParty(this.clientRegistration.getClientId()).build();
+		this.idToken = TestOidcIdTokens.idToken().authorizedParty(this.clientRegistration.getClientId()).build();
 		this.additionalParameters = new HashMap<>();
 		this.additionalParameters.put("param1", "value1");
 		this.additionalParameters.put("param2", "value2");

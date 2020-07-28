@@ -27,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -34,12 +35,11 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link NimbusAuthorizationCodeTokenResponseClient}.
@@ -63,10 +63,10 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 
 	@Before
 	public void setUp() {
-		this.clientRegistrationBuilder = clientRegistration()
+		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration()
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC);
-		this.authorizationRequest = request().build();
-		this.authorizationResponse = success().build();
+		this.authorizationRequest = TestOAuth2AuthorizationRequests.request().build();
+		this.authorizationResponse = TestOAuth2AuthorizationResponses.success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				this.authorizationResponse);
 	}
@@ -112,7 +112,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		this.exception.expect(IllegalArgumentException.class);
 
 		String redirectUri = "http:\\example.com";
-		OAuth2AuthorizationRequest authorizationRequest = request().redirectUri(redirectUri).build();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.redirectUri(redirectUri).build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				this.authorizationResponse);
 
@@ -260,8 +261,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		String tokenUri = server.url("/oauth2/token").toString();
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
-		OAuth2AuthorizationRequest authorizationRequest = request().scope("openid", "profile", "email", "address")
-				.build();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.scope("openid", "profile", "email", "address").build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				this.authorizationResponse);
 
@@ -287,8 +288,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		String tokenUri = server.url("/oauth2/token").toString();
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
-		OAuth2AuthorizationRequest authorizationRequest = request().scope("openid", "profile", "email", "address")
-				.build();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.scope("openid", "profile", "email", "address").build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				this.authorizationResponse);
 

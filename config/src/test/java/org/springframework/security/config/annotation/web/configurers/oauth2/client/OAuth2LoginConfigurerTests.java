@@ -69,6 +69,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -80,6 +81,7 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -92,8 +94,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -602,7 +602,7 @@ public class OAuth2LoginConfigurerTests {
 	}
 
 	private static OAuth2UserService<OidcUserRequest, OidcUser> createOidcUserService() {
-		OidcIdToken idToken = idToken().build();
+		OidcIdToken idToken = TestOidcIdTokens.idToken().build();
 		return request -> new DefaultOidcUser(Collections.singleton(new OidcUserAuthority(idToken)), idToken);
 	}
 
@@ -993,7 +993,7 @@ public class OAuth2LoginConfigurerTests {
 			claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
 			claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
 			claims.put(IdTokenClaimNames.AZP, "clientId");
-			Jwt jwt = jwt().claims(c -> c.putAll(claims)).build();
+			Jwt jwt = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 			JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 			given(jwtDecoder.decode(any())).willReturn(jwt);
 			return jwtDecoder;

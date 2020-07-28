@@ -23,9 +23,6 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
-
 /**
  * Matches if the {@link ServerAuthenticationConverter} can convert a
  * {@link ServerWebExchange} to an {@link Authentication}.
@@ -46,8 +43,8 @@ public final class AuthenticationConverterServerWebExchangeMatcher implements Se
 
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return this.serverAuthenticationConverter.convert(exchange).flatMap(a -> match()).onErrorResume(e -> notMatch())
-				.switchIfEmpty(notMatch());
+		return this.serverAuthenticationConverter.convert(exchange).flatMap(a -> MatchResult.match())
+				.onErrorResume(e -> MatchResult.notMatch()).switchIfEmpty(MatchResult.notMatch());
 	}
 
 }

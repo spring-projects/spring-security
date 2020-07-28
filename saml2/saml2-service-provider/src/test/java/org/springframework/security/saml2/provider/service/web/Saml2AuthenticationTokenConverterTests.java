@@ -32,15 +32,14 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.util.UriUtils;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Saml2AuthenticationTokenConverterTests {
@@ -48,7 +47,8 @@ public class Saml2AuthenticationTokenConverterTests {
 	@Mock
 	Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
 
-	RelyingPartyRegistration relyingPartyRegistration = relyingPartyRegistration().build();
+	RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+			.build();
 
 	@Test
 	public void convertWhenSamlResponseThenToken() {
@@ -57,7 +57,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter("SAMLResponse", Saml2Utils.samlEncode("response".getBytes(UTF_8)));
+		request.setParameter("SAMLResponse", Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
@@ -126,7 +126,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	private String getSsoCircleEncodedXml() throws IOException {
 		ClassPathResource resource = new ClassPathResource("saml2-response-sso-circle.encoded");
 		String response = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
-		return UriUtils.decode(response, UTF_8);
+		return UriUtils.decode(response, StandardCharsets.UTF_8);
 	}
 
 }

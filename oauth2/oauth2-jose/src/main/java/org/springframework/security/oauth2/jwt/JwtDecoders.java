@@ -20,8 +20,6 @@ import java.util.Map;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
-
 /**
  * Allows creating a {@link JwtDecoder} from an <a href=
  * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID
@@ -104,7 +102,7 @@ public final class JwtDecoders {
 	private static JwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
 		JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
-		NimbusJwtDecoder jwtDecoder = withJwkSetUri(configuration.get("jwks_uri").toString()).build();
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(configuration.get("jwks_uri").toString()).build();
 		jwtDecoder.setJwtValidator(jwtValidator);
 
 		return jwtDecoder;

@@ -76,9 +76,11 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
@@ -96,23 +98,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParser.AUTHENTICATION_MANAGER_RESOLVER_REF;
-import static org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParser.JwtBeanDefinitionParser.DECODER_REF;
-import static org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParser.JwtBeanDefinitionParser.JWK_SET_URI;
-import static org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParser.OpaqueTokenBeanDefinitionParser.INTROSPECTION_URI;
-import static org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParser.OpaqueTokenBeanDefinitionParser.INTROSPECTOR_REF;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -435,10 +429,10 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				.autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		when(decoder.decode("token")).thenReturn(jwt().build());
+		given(decoder.decode("token")).willReturn(TestJwts.jwt().build());
 
 		BearerTokenResolver bearerTokenResolver = this.spring.getContext().getBean(BearerTokenResolver.class);
-		when(bearerTokenResolver.resolve(any(HttpServletRequest.class))).thenReturn("token");
+		given(bearerTokenResolver.resolve(any(HttpServletRequest.class))).willReturn("token");
 
 		this.mvc.perform(get("/")).andExpect(status().isNotFound());
 
@@ -453,7 +447,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AllowBearerTokenInBody")).autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		when(decoder.decode(anyString())).thenReturn(jwt().build());
+		given(decoder.decode(anyString())).willReturn(TestJwts.jwt().build());
 
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer token"))
 				.andExpect(status().isNotFound());
@@ -468,7 +462,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AllowBearerTokenInQuery")).autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		Mockito.when(decoder.decode(anyString())).thenReturn(jwt().build());
+		given(decoder.decode(anyString())).willReturn(TestJwts.jwt().build());
 
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer token"))
 				.andExpect(status().isNotFound());
@@ -517,7 +511,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
 
-		when(decoder.decode(anyString())).thenReturn(jwt().build());
+		given(decoder.decode(anyString())).willReturn(TestJwts.jwt().build());
 
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer token"))
 				.andExpect(status().isNotFound());
@@ -552,7 +546,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AccessDeniedHandler")).autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		Mockito.when(decoder.decode(anyString())).thenReturn(jwt().build());
+		given(decoder.decode(anyString())).willReturn(TestJwts.jwt().build());
 
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer insufficiently_scoped"))
 				.andExpect(status().isForbidden())
@@ -572,7 +566,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		OAuth2Error error = new OAuth2Error("custom-error", "custom-description", "custom-uri");
 
-		when(jwtValidator.validate(any(Jwt.class))).thenReturn(OAuth2TokenValidatorResult.failure(error));
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(OAuth2TokenValidatorResult.failure(error));
 
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token)).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("custom-description")));
@@ -609,11 +603,11 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter = (Converter<Jwt, JwtAuthenticationToken>) this.spring
 				.getContext().getBean("jwtAuthenticationConverter");
-		when(jwtAuthenticationConverter.convert(any(Jwt.class)))
-				.thenReturn(new JwtAuthenticationToken(jwt().build(), Collections.emptyList()));
+		given(jwtAuthenticationConverter.convert(any(Jwt.class)))
+				.willReturn(new JwtAuthenticationToken(TestJwts.jwt().build(), Collections.emptyList()));
 
 		JwtDecoder jwtDecoder = this.spring.getContext().getBean(JwtDecoder.class);
-		Mockito.when(jwtDecoder.decode(anyString())).thenReturn(jwt().build());
+		given(jwtDecoder.decode(anyString())).willReturn(TestJwts.jwt().build());
 
 		this.mvc.perform(get("/").header("Authorization", "Bearer token")).andExpect(status().isNotFound());
 
@@ -702,8 +696,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver = this.spring.getContext()
 				.getBean(AuthenticationManagerResolver.class);
-		when(authenticationManagerResolver.resolve(any(HttpServletRequest.class)))
-				.thenReturn(authentication -> new JwtAuthenticationToken(jwt().build(), Collections.emptyList()));
+		given(authenticationManagerResolver.resolve(any(HttpServletRequest.class))).willReturn(
+				authentication -> new JwtAuthenticationToken(TestJwts.jwt().build(), Collections.emptyList()));
 
 		this.mvc.perform(get("/").header("Authorization", "Bearer token")).andExpect(status().isNotFound());
 
@@ -754,7 +748,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("BasicAndResourceServer")).autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		when(decoder.decode(anyString())).thenThrow(JwtException.class);
+		given(decoder.decode(anyString())).willThrow(JwtException.class);
 
 		this.mvc.perform(get("/authenticated").with(httpBasic("some", "user"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Basic")));
@@ -775,7 +769,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("FormAndResourceServer")).autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		when(decoder.decode(anyString())).thenThrow(JwtException.class);
+		given(decoder.decode(anyString())).willThrow(JwtException.class);
 
 		MvcResult result = this.mvc.perform(get("/authenticated")).andExpect(status().isUnauthorized()).andReturn();
 
@@ -827,7 +821,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		OAuth2ResourceServerBeanDefinitionParser parser = new OAuth2ResourceServerBeanDefinitionParser(null, null, null,
 				null, null);
 		Element element = mock(Element.class);
-		when(element.hasAttribute(AUTHENTICATION_MANAGER_RESOLVER_REF)).thenReturn(true);
+		given(element.hasAttribute(OAuth2ResourceServerBeanDefinitionParser.AUTHENTICATION_MANAGER_RESOLVER_REF))
+				.willReturn(true);
 		Element child = mock(Element.class);
 		ParserContext pc = new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
 
@@ -844,7 +839,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		OAuth2ResourceServerBeanDefinitionParser parser = new OAuth2ResourceServerBeanDefinitionParser(null, null, null,
 				null, null);
 		Element element = mock(Element.class);
-		when(element.hasAttribute(AUTHENTICATION_MANAGER_RESOLVER_REF)).thenReturn(false);
+		given(element.hasAttribute(OAuth2ResourceServerBeanDefinitionParser.AUTHENTICATION_MANAGER_RESOLVER_REF))
+				.willReturn(false);
 		ParserContext pc = new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
 		parser.validateConfiguration(element, null, null, pc);
 		verify(pc.getReaderContext()).error(anyString(), eq(element));
@@ -854,8 +850,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void validateConfigurationWhenBothJwtAttributesThenError() {
 		JwtBeanDefinitionParser parser = new JwtBeanDefinitionParser();
 		Element element = mock(Element.class);
-		when(element.hasAttribute(JWK_SET_URI)).thenReturn(true);
-		when(element.hasAttribute(DECODER_REF)).thenReturn(true);
+		given(element.hasAttribute(JwtBeanDefinitionParser.JWK_SET_URI)).willReturn(true);
+		given(element.hasAttribute(JwtBeanDefinitionParser.DECODER_REF)).willReturn(true);
 		ParserContext pc = new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
 		parser.validateConfiguration(element, pc);
 		verify(pc.getReaderContext()).error(anyString(), eq(element));
@@ -865,8 +861,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void validateConfigurationWhenNoJwtAttributesThenError() {
 		JwtBeanDefinitionParser parser = new JwtBeanDefinitionParser();
 		Element element = mock(Element.class);
-		when(element.hasAttribute(JWK_SET_URI)).thenReturn(false);
-		when(element.hasAttribute(DECODER_REF)).thenReturn(false);
+		given(element.hasAttribute(JwtBeanDefinitionParser.JWK_SET_URI)).willReturn(false);
+		given(element.hasAttribute(JwtBeanDefinitionParser.DECODER_REF)).willReturn(false);
 		ParserContext pc = new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
 		parser.validateConfiguration(element, pc);
 		verify(pc.getReaderContext()).error(anyString(), eq(element));
@@ -876,8 +872,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void validateConfigurationWhenBothOpaqueTokenModesThenError() {
 		OpaqueTokenBeanDefinitionParser parser = new OpaqueTokenBeanDefinitionParser();
 		Element element = mock(Element.class);
-		when(element.hasAttribute(INTROSPECTION_URI)).thenReturn(true);
-		when(element.hasAttribute(INTROSPECTOR_REF)).thenReturn(true);
+		given(element.hasAttribute(OpaqueTokenBeanDefinitionParser.INTROSPECTION_URI)).willReturn(true);
+		given(element.hasAttribute(OpaqueTokenBeanDefinitionParser.INTROSPECTOR_REF)).willReturn(true);
 		ParserContext pc = new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
 		parser.validateConfiguration(element, pc);
 		verify(pc.getReaderContext()).error(anyString(), eq(element));
@@ -887,8 +883,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void validateConfigurationWhenNoOpaqueTokenModeThenError() {
 		OpaqueTokenBeanDefinitionParser parser = new OpaqueTokenBeanDefinitionParser();
 		Element element = mock(Element.class);
-		when(element.hasAttribute(INTROSPECTION_URI)).thenReturn(false);
-		when(element.hasAttribute(INTROSPECTOR_REF)).thenReturn(false);
+		given(element.hasAttribute(OpaqueTokenBeanDefinitionParser.INTROSPECTION_URI)).willReturn(false);
+		given(element.hasAttribute(OpaqueTokenBeanDefinitionParser.INTROSPECTOR_REF)).willReturn(false);
 		ParserContext pc = new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
 		parser.validateConfiguration(element, pc);
 		verify(pc.getReaderContext()).error(anyString(), eq(element));
@@ -920,8 +916,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	private String jwtFromIssuer(String issuer) throws Exception {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put(ISS, issuer);
-		claims.put(SUB, "test-subject");
+		claims.put(JwtClaimNames.ISS, issuer);
+		claims.put(JwtClaimNames.SUB, "test-subject");
 		claims.put("scope", "message:read");
 		JWSObject jws = new JWSObject(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("1").build(),
 				new Payload(new JSONObject(claims)));
@@ -939,7 +935,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		ResponseEntity<String> entity = new ResponseEntity<>(response, headers, HttpStatus.OK);
-		Mockito.when(rest.exchange(any(RequestEntity.class), eq(String.class))).thenReturn(entity);
+		given(rest.exchange(any(RequestEntity.class), eq(String.class))).willReturn(entity);
 	}
 
 	private String json(String name) throws IOException {

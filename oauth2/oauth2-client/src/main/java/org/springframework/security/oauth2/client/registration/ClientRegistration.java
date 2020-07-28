@@ -33,8 +33,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import static java.util.Collections.EMPTY_MAP;
-
 /**
  * A representation of a client registration with an OAuth 2.0 or OpenID Connect 1.0
  * Provider.
@@ -378,7 +376,7 @@ public final class ClientRegistration implements Serializable {
 			this.jwkSetUri = clientRegistration.providerDetails.jwkSetUri;
 			this.issuerUri = clientRegistration.providerDetails.issuerUri;
 			Map<String, Object> configurationMetadata = clientRegistration.providerDetails.configurationMetadata;
-			if (configurationMetadata != EMPTY_MAP) {
+			if (configurationMetadata != Collections.EMPTY_MAP) {
 				this.configurationMetadata = new HashMap<>(configurationMetadata);
 			}
 			this.clientName = clientRegistration.clientName;

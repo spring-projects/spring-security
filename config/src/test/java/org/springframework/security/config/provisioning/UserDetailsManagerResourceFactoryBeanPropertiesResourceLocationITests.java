@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch

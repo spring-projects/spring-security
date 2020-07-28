@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlWebApplicationContext;
 import org.springframework.test.context.web.GenericXmlWebContextLoader;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,7 +42,6 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import static org.springframework.security.config.BeanIds.SPRING_SECURITY_FILTER_CHAIN;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 /**
@@ -129,7 +129,7 @@ public class SpringTestContext implements Closeable {
 		this.context.setServletConfig(new MockServletConfig());
 		this.context.refresh();
 
-		if (this.context.containsBean(SPRING_SECURITY_FILTER_CHAIN)) {
+		if (this.context.containsBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN)) {
 			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity())
 					.apply(new AddFilter()).build();
 			this.context.getBeanFactory().registerResolvableDependency(MockMvc.class, mockMvc);

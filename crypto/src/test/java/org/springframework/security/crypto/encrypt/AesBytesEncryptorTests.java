@@ -23,14 +23,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm.GCM;
-import static org.springframework.security.crypto.encrypt.CipherUtils.newSecretKey;
-import static org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1;
 
 /**
  * Tests for {@link AesBytesEncryptor}
@@ -76,7 +75,8 @@ public class AesBytesEncryptorTests {
 	@Test
 	public void roundtripWhenUsingGcmThenEncryptsAndDecrypts() {
 		CryptoAssumptions.assumeGCMJCE();
-		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt, this.generator, GCM);
+		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt, this.generator,
+				CipherAlgorithm.GCM);
 
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		assertThat(new String(Hex.encode(encryption)))
@@ -90,8 +90,8 @@ public class AesBytesEncryptorTests {
 	public void roundtripWhenUsingSecretKeyThenEncryptsAndDecrypts() {
 		CryptoAssumptions.assumeGCMJCE();
 		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
-		SecretKey secretKey = newSecretKey(PBKDF2WithHmacSHA1.name(), keySpec);
-		AesBytesEncryptor encryptor = new AesBytesEncryptor(secretKey, this.generator, GCM);
+		SecretKey secretKey = CipherUtils.newSecretKey(SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name(), keySpec);
+		AesBytesEncryptor encryptor = new AesBytesEncryptor(secretKey, this.generator, CipherAlgorithm.GCM);
 
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		assertThat(new String(Hex.encode(encryption)))

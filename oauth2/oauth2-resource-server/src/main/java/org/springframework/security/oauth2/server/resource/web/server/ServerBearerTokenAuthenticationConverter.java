@@ -28,12 +28,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
+import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-
-import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidRequest;
-import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidToken;
 
 /**
  * A strategy for resolving
@@ -70,7 +68,8 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 		String parameterToken = request.getQueryParams().getFirst("access_token");
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
-				BearerTokenError error = invalidRequest("Found multiple bearer tokens in the request");
+				BearerTokenError error = BearerTokenErrors
+						.invalidRequest("Found multiple bearer tokens in the request");
 				throw new OAuth2AuthenticationException(error);
 			}
 			return authorizationHeaderToken;
@@ -122,7 +121,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 	}
 
 	private static BearerTokenError invalidTokenError() {
-		return invalidToken("Bearer token is malformed");
+		return BearerTokenErrors.invalidToken("Bearer token is malformed");
 	}
 
 	private boolean isParameterTokenSupportedForRequest(ServerHttpRequest request) {

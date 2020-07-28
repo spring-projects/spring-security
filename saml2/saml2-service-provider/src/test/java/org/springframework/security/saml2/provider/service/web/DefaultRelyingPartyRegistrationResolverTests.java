@@ -22,17 +22,18 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
 
 /**
  * Tests for {@link DefaultRelyingPartyRegistrationResolver}
  */
 public class DefaultRelyingPartyRegistrationResolverTests {
 
-	private final RelyingPartyRegistration registration = relyingPartyRegistration().build();
+	private final RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+			.build();
 
 	private final RelyingPartyRegistrationRepository repository = new InMemoryRelyingPartyRegistrationRepository(
 			this.registration);

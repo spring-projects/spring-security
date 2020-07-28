@@ -37,7 +37,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.FilterChainProxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.config.http.customconfigurer.CustomConfigurer.customConfigurer;
 
 /**
  * @author Rob Winch
@@ -126,7 +125,7 @@ public class CustomHttpSecurityConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.apply(customConfigurer())
+				.apply(CustomConfigurer.customConfigurer())
 					.loginPage("/custom");
 			// @formatter:on
 		}
@@ -151,7 +150,7 @@ public class CustomHttpSecurityConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.apply(customConfigurer())
+				.apply(CustomConfigurer.customConfigurer())
 					.and()
 				.csrf().disable()
 				.formLogin()

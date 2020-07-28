@@ -33,11 +33,13 @@ import reactor.core.publisher.Operators;
 import reactor.test.StepVerifier;
 import reactor.util.context.Context;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration.SecurityReactorContextSubscriber;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,8 +53,6 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES;
 
 /**
  * Tests for {@link SecurityReactorContextConfiguration}.
@@ -88,7 +88,7 @@ public class SecurityReactorContextConfigurationTests {
 
 	@Test
 	public void createSubscriberIfNecessaryWhenSubscriberContextContainsSecurityContextAttributesThenReturnOriginalSubscriber() {
-		Context context = Context.of(SECURITY_CONTEXT_ATTRIBUTES, new HashMap<>());
+		Context context = Context.of(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, new HashMap<>());
 		BaseSubscriber<Object> originalSubscriber = new BaseSubscriber<Object>() {
 			@Override
 			public Context currentContext() {
@@ -120,7 +120,8 @@ public class SecurityReactorContextConfigurationTests {
 		Context resultContext = subscriber.currentContext();
 
 		assertThat(resultContext.getOrEmpty(testKey)).hasValue(testValue);
-		Map<Object, Object> securityContextAttributes = resultContext.getOrDefault(SECURITY_CONTEXT_ATTRIBUTES, null);
+		Map<Object, Object> securityContextAttributes = resultContext
+				.getOrDefault(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, null);
 		assertThat(securityContextAttributes).hasSize(3);
 		assertThat(securityContextAttributes).contains(entry(HttpServletRequest.class, this.servletRequest),
 				entry(HttpServletResponse.class, this.servletResponse),
@@ -133,7 +134,8 @@ public class SecurityReactorContextConfigurationTests {
 				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 
-		Context parentContext = Context.of(SECURITY_CONTEXT_ATTRIBUTES, new HashMap<>());
+		Context parentContext = Context.of(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES,
+				new HashMap<>());
 		BaseSubscriber<Object> parent = new BaseSubscriber<Object>() {
 			@Override
 			public Context currentContext() {
@@ -206,8 +208,9 @@ public class SecurityReactorContextConfigurationTests {
 		ClientResponse clientResponseOk = ClientResponse.create(HttpStatus.OK).build();
 
 		ExchangeFilterFunction filter = (req, next) -> Mono.subscriberContext()
-				.filter(ctx -> ctx.hasKey(SECURITY_CONTEXT_ATTRIBUTES)).map(ctx -> ctx.get(SECURITY_CONTEXT_ATTRIBUTES))
-				.cast(Map.class).map(attributes -> {
+				.filter(ctx -> ctx.hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
+				.map(ctx -> ctx.get(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES)).cast(Map.class)
+				.map(attributes -> {
 					if (attributes.containsKey(HttpServletRequest.class)
 							&& attributes.containsKey(HttpServletResponse.class)
 							&& attributes.containsKey(Authentication.class)) {
@@ -218,7 +221,7 @@ public class SecurityReactorContextConfigurationTests {
 					}
 				});
 
-		ClientRequest clientRequest = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest clientRequest = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		MockExchangeFunction exchange = new MockExchangeFunction();
 
 		Map<Object, Object> expectedContextAttributes = new HashMap<>();
@@ -230,8 +233,8 @@ public class SecurityReactorContextConfigurationTests {
 				.flatMap(response -> filter.filter(clientRequest, exchange));
 
 		StepVerifier.create(clientResponseMono).expectAccessibleContext()
-				.contains(SECURITY_CONTEXT_ATTRIBUTES, expectedContextAttributes).then().expectNext(clientResponseOk)
-				.verifyComplete();
+				.contains(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, expectedContextAttributes)
+				.then().expectNext(clientResponseOk).verifyComplete();
 	}
 
 	@EnableWebSecurity

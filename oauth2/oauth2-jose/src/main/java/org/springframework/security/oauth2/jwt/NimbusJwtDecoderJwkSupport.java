@@ -25,8 +25,6 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
-
 /**
  * An implementation of a {@link JwtDecoder} that "decodes" a JSON Web Token (JWT) and
  * additionally verifies it's digital signature if the JWT is a JSON Web Signature (JWS).
@@ -81,7 +79,8 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
 		Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
 
-		this.jwtDecoderBuilder = withJwkSetUri(jwkSetUrl).jwsAlgorithm(SignatureAlgorithm.from(jwsAlgorithm));
+		this.jwtDecoderBuilder = NimbusJwtDecoder.withJwkSetUri(jwkSetUrl)
+				.jwsAlgorithm(SignatureAlgorithm.from(jwsAlgorithm));
 		this.delegate = makeDelegate();
 	}
 

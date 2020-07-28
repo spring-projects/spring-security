@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -36,8 +37,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.testSecurityContext;
 
 @RunWith(PowerMockRunner.class)
@@ -84,8 +83,8 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 	}
 
 	private void mockWebTestUtils() {
-		spy(WebTestUtils.class);
-		when(WebTestUtils.getSecurityContextRepository(this.request)).thenReturn(this.repository);
+		PowerMockito.spy(WebTestUtils.class);
+		PowerMockito.when(WebTestUtils.getSecurityContextRepository(this.request)).thenReturn(this.repository);
 	}
 
 }

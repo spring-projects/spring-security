@@ -33,12 +33,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.CLIENT_ID;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SUBJECT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.USERNAME;
 
 /**
  * Tests for {@link BearerTokenAuthentication}
@@ -60,9 +58,9 @@ public class BearerTokenAuthenticationTests {
 
 	@Before
 	public void setUp() {
-		this.attributesMap.put(SUBJECT, this.name);
-		this.attributesMap.put(CLIENT_ID, "client_id");
-		this.attributesMap.put(USERNAME, "username");
+		this.attributesMap.put(OAuth2IntrospectionClaimNames.SUBJECT, this.name);
+		this.attributesMap.put(OAuth2IntrospectionClaimNames.CLIENT_ID, "client_id");
+		this.attributesMap.put(OAuth2IntrospectionClaimNames.USERNAME, "username");
 		this.principal = new DefaultOAuth2AuthenticatedPrincipal(this.attributesMap, null);
 	}
 
@@ -86,7 +84,8 @@ public class BearerTokenAuthenticationTests {
 	@Test
 	public void getNameWhenTokenHasUsernameThenReturnsUsernameAttribute() {
 		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(this.principal, this.token, null);
-		assertThat(authenticated.getName()).isEqualTo(this.principal.getAttribute(SUBJECT));
+		assertThat(authenticated.getName())
+				.isEqualTo(this.principal.getAttribute(OAuth2IntrospectionClaimNames.SUBJECT));
 	}
 
 	@Test

@@ -33,18 +33,16 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.springframework.mock.web.server.MockServerWebExchange.from;
-import static org.springframework.web.reactive.function.BodyInserters.fromMultipartData;
 
 /**
  * @author Rob Winch
@@ -64,9 +62,9 @@ public class CsrfWebFilterTests {
 
 	private CsrfWebFilter csrfFilter = new CsrfWebFilter();
 
-	private MockServerWebExchange get = from(MockServerHttpRequest.get("/"));
+	private MockServerWebExchange get = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
 
-	private ServerWebExchange post = from(MockServerHttpRequest.post("/"));
+	private ServerWebExchange post = MockServerWebExchange.from(MockServerHttpRequest.post("/"));
 
 	@Test
 	public void filterWhenGetThenSessionNotCreatedAndChainContinues() {
@@ -108,7 +106,7 @@ public class CsrfWebFilterTests {
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestParamInvalidTokenThenCsrfException() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
-		this.post = from(MockServerHttpRequest.post("/")
+		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
 				.body(this.token.getParameterName() + "=" + this.token.getToken() + "INVALID"));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -126,8 +124,9 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
-		this.post = from(MockServerHttpRequest.post("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.body(this.token.getParameterName() + "=" + this.token.getToken()));
+		this.post = MockServerWebExchange
+				.from(MockServerHttpRequest.post("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.body(this.token.getParameterName() + "=" + this.token.getToken()));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 
@@ -140,7 +139,7 @@ public class CsrfWebFilterTests {
 	public void filterWhenPostAndEstablishedCsrfTokenAndHeaderInvalidTokenThenCsrfException() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
-		this.post = from(
+		this.post = MockServerWebExchange.from(
 				MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken() + "INVALID"));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -158,7 +157,8 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
-		this.post = from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
+		this.post = MockServerWebExchange
+				.from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 
@@ -170,8 +170,8 @@ public class CsrfWebFilterTests {
 	@Test
 	// gh-8452
 	public void matchesRequireCsrfProtectionWhenNonStandardHTTPMethodIsUsed() {
-		MockServerWebExchange nonStandardHttpExchange = from(
-				MockServerHttpRequest.method("non-standard-http-method", "/"));
+		MockServerWebExchange nonStandardHttpExchange = MockServerWebExchange
+				.from(MockServerHttpRequest.method("non-standard-http-method", "/"));
 
 		ServerWebExchangeMatcher serverWebExchangeMatcher = CsrfWebFilter.DEFAULT_CSRF_MATCHER;
 		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpExchange).map(MatchResult::isMatch).block())
@@ -186,7 +186,7 @@ public class CsrfWebFilterTests {
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
 		this.csrfFilter.setRequireCsrfProtectionMatcher(matcher);
 
-		MockServerWebExchange exchange = from(MockServerHttpRequest.post("/post").build());
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/post").build());
 		CsrfWebFilter.skipExchange(exchange);
 		this.csrfFilter.filter(exchange, this.chain).block();
 
@@ -201,8 +201,8 @@ public class CsrfWebFilterTests {
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
 
 		client.post().uri("/").contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(fromMultipartData(this.token.getParameterName(), this.token.getToken())).exchange().expectStatus()
-				.isForbidden();
+				.body(BodyInserters.fromMultipartData(this.token.getParameterName(), this.token.getToken())).exchange()
+				.expectStatus().isForbidden();
 	}
 
 	@Test
@@ -215,8 +215,8 @@ public class CsrfWebFilterTests {
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
 
 		client.post().uri("/").contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(fromMultipartData(this.token.getParameterName(), this.token.getToken())).exchange().expectStatus()
-				.is2xxSuccessful();
+				.body(BodyInserters.fromMultipartData(this.token.getParameterName(), this.token.getToken())).exchange()
+				.expectStatus().is2xxSuccessful();
 	}
 
 	@Test

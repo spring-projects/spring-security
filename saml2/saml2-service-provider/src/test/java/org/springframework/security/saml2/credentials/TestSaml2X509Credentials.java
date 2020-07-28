@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.credentials;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
@@ -26,37 +27,33 @@ import java.security.cert.X509Certificate;
 import org.opensaml.security.crypto.KeySupport;
 
 import org.springframework.security.saml2.Saml2Exception;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION;
+import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
 
 public final class TestSaml2X509Credentials {
 
 	public static Saml2X509Credential assertingPartySigningCredential() {
-		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(), SIGNING);
+		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(), Saml2X509CredentialType.SIGNING);
 	}
 
 	public static Saml2X509Credential assertingPartyEncryptingCredential() {
-		return new Saml2X509Credential(spCertificate(), ENCRYPTION);
+		return new Saml2X509Credential(spCertificate(), Saml2X509CredentialType.ENCRYPTION);
 	}
 
 	public static Saml2X509Credential assertingPartyPrivateCredential() {
-		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(), SIGNING, DECRYPTION);
+		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(), Saml2X509CredentialType.SIGNING,
+				Saml2X509CredentialType.DECRYPTION);
 	}
 
 	public static Saml2X509Credential relyingPartyVerifyingCredential() {
-		return new Saml2X509Credential(idpCertificate(), VERIFICATION);
+		return new Saml2X509Credential(idpCertificate(), Saml2X509CredentialType.VERIFICATION);
 	}
 
 	public static Saml2X509Credential relyingPartySigningCredential() {
-		return new Saml2X509Credential(spPrivateKey(), spCertificate(), SIGNING);
+		return new Saml2X509Credential(spPrivateKey(), spCertificate(), Saml2X509CredentialType.SIGNING);
 	}
 
 	public static Saml2X509Credential relyingPartyDecryptingCredential() {
-		return new Saml2X509Credential(spPrivateKey(), spCertificate(), DECRYPTION);
+		return new Saml2X509Credential(spPrivateKey(), spCertificate(), Saml2X509CredentialType.DECRYPTION);
 	}
 
 	private static X509Certificate certificate(String cert) {
@@ -71,7 +68,7 @@ public final class TestSaml2X509Credentials {
 
 	private static PrivateKey privateKey(String key) {
 		try {
-			return KeySupport.decodePrivateKey(key.getBytes(UTF_8), new char[0]);
+			return KeySupport.decodePrivateKey(key.getBytes(StandardCharsets.UTF_8), new char[0]);
 		}
 		catch (KeyException e) {
 			throw new Saml2Exception(e);

@@ -18,8 +18,6 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
-import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.REDIRECT;
-
 /**
  * Data holder for information required to send an {@code AuthNRequest} over a REDIRECT
  * binding from the service provider to the identity provider
@@ -63,7 +61,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 */
 	@Override
 	public Saml2MessageBinding getBinding() {
-		return REDIRECT;
+		return Saml2MessageBinding.REDIRECT;
 	}
 
 	/**

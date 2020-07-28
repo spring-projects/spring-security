@@ -27,6 +27,7 @@ import java.util.List;
 import net.shibboleth.utilities.java.support.xml.ParserPool;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
+import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
@@ -46,12 +47,6 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
-
-import static java.lang.Boolean.TRUE;
-import static org.opensaml.saml.common.xml.SAMLConstants.SAML20P_NS;
-import static org.springframework.security.saml2.core.Saml2X509Credential.encryption;
-import static org.springframework.security.saml2.core.Saml2X509Credential.verification;
-import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRegistrationId;
 
 /**
  * An {@link HttpMessageConverter} that takes an {@code IDPSSODescriptor} in an HTTP
@@ -133,7 +128,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 			HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
 		EntityDescriptor descriptor = entityDescriptor(inputMessage.getBody());
-		IDPSSODescriptor idpssoDescriptor = descriptor.getIDPSSODescriptor(SAML20P_NS);
+		IDPSSODescriptor idpssoDescriptor = descriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
 		if (idpssoDescriptor == null) {
 			throw new Saml2Exception("Metadata response is missing the necessary IDPSSODescriptor element");
 		}
@@ -143,20 +138,20 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 			if (keyDescriptor.getUse().equals(UsageType.SIGNING)) {
 				List<X509Certificate> certificates = certificates(keyDescriptor);
 				for (X509Certificate certificate : certificates) {
-					verification.add(verification(certificate));
+					verification.add(Saml2X509Credential.verification(certificate));
 				}
 			}
 			if (keyDescriptor.getUse().equals(UsageType.ENCRYPTION)) {
 				List<X509Certificate> certificates = certificates(keyDescriptor);
 				for (X509Certificate certificate : certificates) {
-					encryption.add(encryption(certificate));
+					encryption.add(Saml2X509Credential.encryption(certificate));
 				}
 			}
 			if (keyDescriptor.getUse().equals(UsageType.UNSPECIFIED)) {
 				List<X509Certificate> certificates = certificates(keyDescriptor);
 				for (X509Certificate certificate : certificates) {
-					verification.add(verification(certificate));
-					encryption.add(encryption(certificate));
+					verification.add(Saml2X509Credential.verification(certificate));
+					encryption.add(Saml2X509Credential.encryption(certificate));
 				}
 			}
 		}
@@ -164,9 +159,9 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 			throw new Saml2Exception(
 					"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
 		}
-		RelyingPartyRegistration.Builder builder = withRegistrationId(descriptor.getEntityID())
+		RelyingPartyRegistration.Builder builder = RelyingPartyRegistration.withRegistrationId(descriptor.getEntityID())
 				.assertingPartyDetails(party -> party.entityId(descriptor.getEntityID())
-						.wantAuthnRequestsSigned(TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
+						.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
 						.verificationX509Credentials(c -> c.addAll(verification))
 						.encryptionX509Credentials(c -> c.addAll(encryption)));
 		for (SingleSignOnService singleSignOnService : idpssoDescriptor.getSingleSignOnServices()) {

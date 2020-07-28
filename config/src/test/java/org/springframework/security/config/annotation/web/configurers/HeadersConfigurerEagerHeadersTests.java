@@ -20,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,9 +29,6 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.http.HttpHeaders.CACHE_CONTROL;
-import static org.springframework.http.HttpHeaders.EXPIRES;
-import static org.springframework.http.HttpHeaders.PRAGMA;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
@@ -54,8 +52,9 @@ public class HeadersConfigurerEagerHeadersTests {
 		this.mvc.perform(get("/").secure(true)).andExpect(header().string("X-Content-Type-Options", "nosniff"))
 				.andExpect(header().string("X-Frame-Options", "DENY"))
 				.andExpect(header().string("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains"))
-				.andExpect(header().string(CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
-				.andExpect(header().string(EXPIRES, "0")).andExpect(header().string(PRAGMA, "no-cache"))
+				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
+				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
+				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
 				.andExpect(header().string("X-XSS-Protection", "1; mode=block"));
 	}
 

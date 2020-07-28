@@ -23,18 +23,6 @@ import java.util.Map;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.COUNTRY;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.COUNTRY_FIELD_NAME;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.FORMATTED;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.FORMATTED_FIELD_NAME;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.LOCALITY;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.LOCALITY_FIELD_NAME;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.POSTAL_CODE;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.POSTAL_CODE_FIELD_NAME;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.REGION;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.REGION_FIELD_NAME;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.STREET_ADDRESS;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.STREET_ADDRESS_FIELD_NAME;
 
 /**
  * Tests for {@link OidcUserInfo}.
@@ -147,12 +135,17 @@ public class OidcUserInfoTests {
 		CLAIMS.put(PHONE_NUMBER_VERIFIED_CLAIM, PHONE_NUMBER_VERIFIED_VALUE);
 
 		ADDRESS_VALUE = new HashMap<>();
-		ADDRESS_VALUE.put(FORMATTED_FIELD_NAME, FORMATTED);
-		ADDRESS_VALUE.put(STREET_ADDRESS_FIELD_NAME, STREET_ADDRESS);
-		ADDRESS_VALUE.put(LOCALITY_FIELD_NAME, LOCALITY);
-		ADDRESS_VALUE.put(REGION_FIELD_NAME, REGION);
-		ADDRESS_VALUE.put(POSTAL_CODE_FIELD_NAME, POSTAL_CODE);
-		ADDRESS_VALUE.put(COUNTRY_FIELD_NAME, COUNTRY);
+		ADDRESS_VALUE.put(DefaultAddressStandardClaimTests.FORMATTED_FIELD_NAME,
+				DefaultAddressStandardClaimTests.FORMATTED);
+		ADDRESS_VALUE.put(DefaultAddressStandardClaimTests.STREET_ADDRESS_FIELD_NAME,
+				DefaultAddressStandardClaimTests.STREET_ADDRESS);
+		ADDRESS_VALUE.put(DefaultAddressStandardClaimTests.LOCALITY_FIELD_NAME,
+				DefaultAddressStandardClaimTests.LOCALITY);
+		ADDRESS_VALUE.put(DefaultAddressStandardClaimTests.REGION_FIELD_NAME, DefaultAddressStandardClaimTests.REGION);
+		ADDRESS_VALUE.put(DefaultAddressStandardClaimTests.POSTAL_CODE_FIELD_NAME,
+				DefaultAddressStandardClaimTests.POSTAL_CODE);
+		ADDRESS_VALUE.put(DefaultAddressStandardClaimTests.COUNTRY_FIELD_NAME,
+				DefaultAddressStandardClaimTests.COUNTRY);
 		CLAIMS.put(ADDRESS_CLAIM, ADDRESS_VALUE);
 
 		CLAIMS.put(UPDATED_AT_CLAIM, UPDATED_AT_VALUE);

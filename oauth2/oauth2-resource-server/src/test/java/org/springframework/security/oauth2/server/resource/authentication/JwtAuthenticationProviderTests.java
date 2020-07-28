@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 
@@ -37,7 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link JwtAuthenticationProvider}
@@ -65,7 +65,7 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenJwtDecodesThenAuthenticationHasAttributesContainedInJwt() {
 		BearerTokenAuthenticationToken token = this.authentication();
 
-		Jwt jwt = jwt().claim("name", "value").build();
+		Jwt jwt = TestJwts.jwt().claim("name", "value").build();
 
 		given(this.jwtDecoder.decode("token")).willReturn(jwt);
 		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(new JwtAuthenticationToken(jwt));
@@ -113,7 +113,7 @@ public class JwtAuthenticationProviderTests {
 		Object details = mock(Object.class);
 		token.setDetails(details);
 
-		Jwt jwt = jwt().build();
+		Jwt jwt = TestJwts.jwt().build();
 		JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
 
 		given(this.jwtDecoder.decode(token.getToken())).willReturn(jwt);

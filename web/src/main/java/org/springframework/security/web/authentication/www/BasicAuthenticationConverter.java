@@ -21,6 +21,7 @@ import java.util.Base64;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,8 +29,6 @@ import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 /**
  * Converts from a HttpServletRequest to {@link UsernamePasswordAuthenticationToken} that
@@ -76,7 +75,7 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 
 	@Override
 	public UsernamePasswordAuthenticationToken convert(HttpServletRequest request) {
-		String header = request.getHeader(AUTHORIZATION);
+		String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (header == null) {
 			return null;
 		}

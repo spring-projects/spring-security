@@ -19,8 +19,6 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
-
 /**
  * Validates the "iss" claim in a {@link Jwt}, that is matches a configured value
  *
@@ -37,7 +35,7 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	 */
 	public JwtIssuerValidator(String issuer) {
 		Assert.notNull(issuer, "issuer cannot be null");
-		this.validator = new JwtClaimValidator(ISS, issuer::equals);
+		this.validator = new JwtClaimValidator(JwtClaimNames.ISS, issuer::equals);
 	}
 
 	/**

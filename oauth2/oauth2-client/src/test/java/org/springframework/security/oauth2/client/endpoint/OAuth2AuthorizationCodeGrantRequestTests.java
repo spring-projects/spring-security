@@ -19,12 +19,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeGrantRequest}.
@@ -39,8 +39,8 @@ public class OAuth2AuthorizationCodeGrantRequestTests {
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = clientRegistration().build();
-		this.authorizationExchange = success();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
+		this.authorizationExchange = TestOAuth2AuthorizationExchanges.success();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

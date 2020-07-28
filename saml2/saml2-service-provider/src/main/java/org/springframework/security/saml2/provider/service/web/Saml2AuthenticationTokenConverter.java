@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.web;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
@@ -32,8 +33,6 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.Assert;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * An {@link AuthenticationConverter} that generates a {@link Saml2AuthenticationToken}
@@ -84,7 +83,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 			return samlInflate(b);
 		}
 		else {
-			return new String(b, UTF_8);
+			return new String(b, StandardCharsets.UTF_8);
 		}
 	}
 
@@ -98,7 +97,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
 			iout.write(b);
 			iout.finish();
-			return new String(out.toByteArray(), UTF_8);
+			return new String(out.toByteArray(), StandardCharsets.UTF_8);
 		}
 		catch (IOException e) {
 			throw new Saml2Exception("Unable to inflate string", e);

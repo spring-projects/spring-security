@@ -23,16 +23,16 @@ import org.junit.Test;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OAuth2LoginAuthenticationToken}.
@@ -55,9 +55,10 @@ public class OAuth2LoginAuthenticationTokenTests {
 	public void setUp() {
 		this.principal = mock(OAuth2User.class);
 		this.authorities = Collections.emptyList();
-		this.clientRegistration = clientRegistration().build();
-		this.authorizationExchange = new OAuth2AuthorizationExchange(request().build(), success().code("code").build());
-		this.accessToken = noScopes();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
+		this.authorizationExchange = new OAuth2AuthorizationExchange(TestOAuth2AuthorizationRequests.request().build(),
+				TestOAuth2AuthorizationResponses.success().code("code").build());
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

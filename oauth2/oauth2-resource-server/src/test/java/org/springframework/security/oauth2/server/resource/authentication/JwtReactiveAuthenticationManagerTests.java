@@ -32,13 +32,13 @@ import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * @author Rob Winch
@@ -57,7 +57,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Before
 	public void setup() {
 		this.manager = new JwtReactiveAuthenticationManager(this.jwtDecoder);
-		this.jwt = jwt().claim("scope", "message:read message:write").build();
+		this.jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 	}
 
 	@Test

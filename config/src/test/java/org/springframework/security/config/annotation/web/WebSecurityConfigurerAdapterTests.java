@@ -55,7 +55,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -153,11 +154,9 @@ public class WebSecurityConfigurerAdapterTests {
 
 		MyFilter myFilter = this.spring.getContext().getBean(MyFilter.class);
 
-		Throwable thrown = catchThrowable(() -> myFilter.userDetailsService.loadUserByUsername("user"));
-		assertThat(thrown).isNull();
-
-		thrown = catchThrowable(() -> myFilter.userDetailsService.loadUserByUsername("admin"));
-		assertThat(thrown).isInstanceOf(UsernameNotFoundException.class);
+		assertThatCode(() -> myFilter.userDetailsService.loadUserByUsername("user")).doesNotThrowAnyException();
+		assertThatExceptionOfType(UsernameNotFoundException.class)
+				.isThrownBy(() -> myFilter.userDetailsService.loadUserByUsername("admin"));
 	}
 
 	// SEC-2274: WebSecurityConfigurer adds ApplicationContext as a shared object

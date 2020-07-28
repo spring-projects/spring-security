@@ -18,10 +18,6 @@ package org.springframework.security.oauth2.server.resource;
 
 import org.springframework.http.HttpStatus;
 
-import static org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes.INSUFFICIENT_SCOPE;
-import static org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes.INVALID_REQUEST;
-import static org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes.INVALID_TOKEN;
-
 /**
  * A factory for creating {@link BearerTokenError} instances that correspond to the
  * registered <a href="https://tools.ietf.org/html/rfc6750#section-3.1">Bearer Token Error
@@ -47,7 +43,8 @@ public final class BearerTokenErrors {
 	 */
 	public static BearerTokenError invalidRequest(String message) {
 		try {
-			return new BearerTokenError(INVALID_REQUEST, HttpStatus.BAD_REQUEST, message, DEFAULT_URI);
+			return new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST, message,
+					DEFAULT_URI);
 		}
 		catch (IllegalArgumentException malformed) {
 			// some third-party library error messages are not suitable for RFC 6750's
@@ -63,7 +60,8 @@ public final class BearerTokenErrors {
 	 */
 	public static BearerTokenError invalidToken(String message) {
 		try {
-			return new BearerTokenError(INVALID_TOKEN, HttpStatus.UNAUTHORIZED, message, DEFAULT_URI);
+			return new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN, HttpStatus.UNAUTHORIZED, message,
+					DEFAULT_URI);
 		}
 		catch (IllegalArgumentException malformed) {
 			// some third-party library error messages are not suitable for RFC 6750's
@@ -79,7 +77,8 @@ public final class BearerTokenErrors {
 	 */
 	public static BearerTokenError insufficientScope(String message, String scope) {
 		try {
-			return new BearerTokenError(INSUFFICIENT_SCOPE, HttpStatus.FORBIDDEN, message, DEFAULT_URI, scope);
+			return new BearerTokenError(BearerTokenErrorCodes.INSUFFICIENT_SCOPE, HttpStatus.FORBIDDEN, message,
+					DEFAULT_URI, scope);
 		}
 		catch (IllegalArgumentException malformed) {
 			// some third-party library error messages are not suitable for RFC 6750's

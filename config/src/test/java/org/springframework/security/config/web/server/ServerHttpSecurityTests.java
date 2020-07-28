@@ -61,6 +61,7 @@ import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -78,7 +79,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 /**
  * @author Rob Winch
@@ -187,8 +187,8 @@ public class ServerHttpSecurityTests {
 		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class)).isNotPresent();
 
 		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)
-				.map(logoutWebFilter -> (ServerLogoutHandler) getField(logoutWebFilter, LogoutWebFilter.class,
-						"logoutHandler"));
+				.map(logoutWebFilter -> (ServerLogoutHandler) ReflectionTestUtils.getField(logoutWebFilter,
+						LogoutWebFilter.class, "logoutHandler"));
 
 		assertThat(logoutHandler).get().isExactlyInstanceOf(SecurityContextServerLogoutHandler.class);
 	}
@@ -199,17 +199,17 @@ public class ServerHttpSecurityTests {
 				.and().build();
 
 		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class)).get()
-				.extracting(csrfWebFilter -> getField(csrfWebFilter, "csrfTokenRepository"))
+				.extracting(csrfWebFilter -> ReflectionTestUtils.getField(csrfWebFilter, "csrfTokenRepository"))
 				.isEqualTo(this.csrfTokenRepository);
 
 		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)
-				.map(logoutWebFilter -> (ServerLogoutHandler) getField(logoutWebFilter, LogoutWebFilter.class,
-						"logoutHandler"));
+				.map(logoutWebFilter -> (ServerLogoutHandler) ReflectionTestUtils.getField(logoutWebFilter,
+						LogoutWebFilter.class, "logoutHandler"));
 
 		assertThat(logoutHandler).get().isExactlyInstanceOf(DelegatingServerLogoutHandler.class)
-				.extracting(delegatingLogoutHandler -> ((List<ServerLogoutHandler>) getField(delegatingLogoutHandler,
-						DelegatingServerLogoutHandler.class, "delegates")).stream().map(ServerLogoutHandler::getClass)
-								.collect(Collectors.toList()))
+				.extracting(delegatingLogoutHandler -> ((List<ServerLogoutHandler>) ReflectionTestUtils
+						.getField(delegatingLogoutHandler, DelegatingServerLogoutHandler.class, "delegates")).stream()
+								.map(ServerLogoutHandler::getClass).collect(Collectors.toList()))
 				.isEqualTo(Arrays.asList(SecurityContextServerLogoutHandler.class, CsrfServerLogoutHandler.class));
 	}
 
@@ -439,8 +439,8 @@ public class ServerHttpSecurityTests {
 
 		OAuth2LoginAuthenticationWebFilter authenticationWebFilter = getWebFilter(securityFilterChain,
 				OAuth2LoginAuthenticationWebFilter.class).get();
-		Object handler = getField(authenticationWebFilter, "authenticationSuccessHandler");
-		assertThat(getField(handler, "requestCache")).isSameAs(requestCache);
+		Object handler = ReflectionTestUtils.getField(authenticationWebFilter, "authenticationSuccessHandler");
+		assertThat(ReflectionTestUtils.getField(handler, "requestCache")).isSameAs(requestCache);
 	}
 
 	@Test
@@ -467,7 +467,7 @@ public class ServerHttpSecurityTests {
 
 	private boolean isX509Filter(WebFilter filter) {
 		try {
-			Object converter = getField(filter, "authenticationConverter");
+			Object converter = ReflectionTestUtils.getField(filter, "authenticationConverter");
 			return converter.getClass().isAssignableFrom(ServerX509AuthenticationConverter.class);
 		}
 		catch (IllegalArgumentException e) {

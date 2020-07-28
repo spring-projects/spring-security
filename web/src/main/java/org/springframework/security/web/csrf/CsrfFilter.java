@@ -35,8 +35,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import static java.lang.Boolean.TRUE;
-
 /**
  * <p>
  * Applies
@@ -91,7 +89,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		return TRUE.equals(request.getAttribute(SHOULD_NOT_FILTER));
+		return Boolean.TRUE.equals(request.getAttribute(SHOULD_NOT_FILTER));
 	}
 
 	@Override
@@ -135,7 +133,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	}
 
 	public static void skipRequest(HttpServletRequest request) {
-		request.setAttribute(SHOULD_NOT_FILTER, TRUE);
+		request.setAttribute(SHOULD_NOT_FILTER, Boolean.TRUE);
 	}
 
 	/**

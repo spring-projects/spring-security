@@ -27,9 +27,7 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
-
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
  * A {@code PasswordEncoder} implementation that uses PBKDF2 with a configurable number of
@@ -147,7 +145,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		byte[] digested = decode(encodedPassword);
-		byte[] salt = subArray(digested, 0, this.saltGenerator.getKeyLength());
+		byte[] salt = EncodingUtils.subArray(digested, 0, this.saltGenerator.getKeyLength());
 		return MessageDigest.isEqual(digested, encode(rawPassword, salt));
 	}
 
@@ -160,10 +158,10 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	private byte[] encode(CharSequence rawPassword, byte[] salt) {
 		try {
-			PBEKeySpec spec = new PBEKeySpec(rawPassword.toString().toCharArray(), concatenate(salt, this.secret),
-					this.iterations, this.hashWidth);
+			PBEKeySpec spec = new PBEKeySpec(rawPassword.toString().toCharArray(),
+					EncodingUtils.concatenate(salt, this.secret), this.iterations, this.hashWidth);
 			SecretKeyFactory skf = SecretKeyFactory.getInstance(this.algorithm);
-			return concatenate(salt, skf.generateSecret(spec).getEncoded());
+			return EncodingUtils.concatenate(salt, skf.generateSecret(spec).getEncoded());
 		}
 		catch (GeneralSecurityException e) {
 			throw new IllegalStateException("Could not create hash", e);

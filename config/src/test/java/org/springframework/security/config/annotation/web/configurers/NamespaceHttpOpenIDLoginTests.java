@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.openid4java.consumer.ConsumerManager;
 import org.openid4java.discovery.DiscoveryInformation;
+import org.openid4java.discovery.yadis.YadisResolver;
 import org.openid4java.message.AuthRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.openid4java.discovery.yadis.YadisResolver.YADIS_XRDS_LOCATION;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -107,7 +107,7 @@ public class NamespaceHttpOpenIDLoginTests {
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
 
-			server.enqueue(new MockResponse().addHeader(YADIS_XRDS_LOCATION, endpoint));
+			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
 

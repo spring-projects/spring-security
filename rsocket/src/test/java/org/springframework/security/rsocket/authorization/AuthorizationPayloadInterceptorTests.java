@@ -28,6 +28,8 @@ import reactor.util.context.Context;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
+import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.rsocket.api.PayloadExchange;
@@ -35,8 +37,6 @@ import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager.authenticated;
-import static org.springframework.security.authorization.AuthorityReactiveAuthorizationManager.hasRole;
 
 /**
  * @author Rob Winch
@@ -61,7 +61,8 @@ public class AuthorizationPayloadInterceptorTests {
 	public void interceptWhenAuthenticationEmptyAndSubscribedThenException() {
 		given(this.chain.next(any())).willReturn(this.chainResult.mono());
 
-		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(authenticated());
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
+				AuthenticatedReactiveAuthorizationManager.authenticated());
 
 		StepVerifier.create(interceptor.intercept(this.exchange, this.chain))
 				.then(() -> this.chainResult.assertWasNotSubscribed())
@@ -83,7 +84,8 @@ public class AuthorizationPayloadInterceptorTests {
 	public void interceptWhenNotAuthorizedThenException() {
 		given(this.chain.next(any())).willReturn(this.chainResult.mono());
 
-		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(hasRole("USER"));
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
+				AuthorityReactiveAuthorizationManager.hasRole("USER"));
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password"));
 
@@ -97,7 +99,8 @@ public class AuthorizationPayloadInterceptorTests {
 	public void interceptWhenAuthorizedThenContinues() {
 		given(this.chain.next(any())).willReturn(this.chainResult.mono());
 
-		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(authenticated());
+		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
+				AuthenticatedReactiveAuthorizationManager.authenticated());
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 

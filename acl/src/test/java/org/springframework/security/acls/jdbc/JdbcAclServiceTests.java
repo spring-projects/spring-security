@@ -43,10 +43,10 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Sid;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -105,7 +105,7 @@ public class JdbcAclServiceTests {
 		List<ObjectIdentity> result = new ArrayList<>();
 		result.add(new ObjectIdentityImpl(Object.class, "5577"));
 		Object[] args = { "1", "org.springframework.security.acls.jdbc.JdbcAclServiceTests$MockLongIdDomainObject" };
-		given(this.jdbcOperations.query(anyString(), aryEq(args), any(RowMapper.class))).willReturn(result);
+		given(this.jdbcOperations.query(anyString(), eq(args), any(RowMapper.class))).willReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 1L);
 
 		List<ObjectIdentity> objectIdentities = this.aclService.findChildren(objectIdentity);

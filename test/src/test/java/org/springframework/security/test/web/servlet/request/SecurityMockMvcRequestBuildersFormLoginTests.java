@@ -34,9 +34,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 
 public class SecurityMockMvcRequestBuildersFormLoginTests {
@@ -100,7 +100,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 	@Test
 	public void postProcessorsAreMergedDuringMockMvcPerform() throws Exception {
 		RequestPostProcessor postProcessor = mock(RequestPostProcessor.class);
-		when(postProcessor.postProcessRequest(any())).thenAnswer(i -> i.getArgument(0));
+		given(postProcessor.postProcessRequest(any())).willAnswer(i -> i.getArgument(0));
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
 				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor)).build();
 

@@ -18,8 +18,6 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
-import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
-
 /**
  * Data holder for information required to send an {@code AuthNRequest} over a POST
  * binding from the service provider to the identity provider
@@ -40,7 +38,7 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	 */
 	@Override
 	public Saml2MessageBinding getBinding() {
-		return POST;
+		return Saml2MessageBinding.POST;
 	}
 
 	/**

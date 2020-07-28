@@ -26,10 +26,10 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link JwtAuthenticationConverter}
@@ -43,7 +43,7 @@ public class JwtAuthenticationConverterTests {
 
 	@Test
 	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
-		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
+		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
@@ -61,7 +61,7 @@ public class JwtAuthenticationConverterTests {
 
 	@Test
 	public void convertWithOverriddenGrantedAuthoritiesConverter() {
-		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
+		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 
 		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter = token -> Arrays
 				.asList(new SimpleGrantedAuthority("blah"));
@@ -98,7 +98,7 @@ public class JwtAuthenticationConverterTests {
 	public void convertWhenPrincipalClaimNameSet() {
 		this.jwtAuthenticationConverter.setPrincipalClaimName("user_id");
 
-		Jwt jwt = jwt().claim("user_id", "100").build();
+		Jwt jwt = TestJwts.jwt().claim("user_id", "100").build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
 
 		assertThat(authentication.getName()).isEqualTo("100");

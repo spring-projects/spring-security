@@ -27,16 +27,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.CACHE;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.EXECUTION_CONTEXTS;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.STORAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -55,7 +52,8 @@ public class LogoutConfigurerClearSiteDataTests {
 
 	private static final String CLEAR_SITE_DATA_HEADER = "Clear-Site-Data";
 
-	private static final ClearSiteDataHeaderWriter.Directive[] SOURCE = { CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS };
+	private static final Directive[] SOURCE = { Directive.CACHE, Directive.COOKIES, Directive.STORAGE,
+			Directive.EXECUTION_CONTEXTS };
 
 	private static final String HEADER_VALUE = "\"cache\", \"cookies\", \"storage\", \"executionContexts\"";
 
@@ -70,7 +68,7 @@ public class LogoutConfigurerClearSiteDataTests {
 	public void logoutWhenRequestTypeGetThenHeaderNotPresentt() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
 
-		this.mvc.perform(get("/logout").secure(true).with(csrf()))
+		this.mvc.perform(get("/logout").secure(true).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
 	}
 
@@ -79,7 +77,8 @@ public class LogoutConfigurerClearSiteDataTests {
 	public void logoutWhenRequestTypePostAndNotSecureThenHeaderNotPresent() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
 
-		this.mvc.perform(post("/logout").with(csrf())).andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
+		this.mvc.perform(post("/logout").with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
 	}
 
 	@Test
@@ -87,7 +86,7 @@ public class LogoutConfigurerClearSiteDataTests {
 	public void logoutWhenRequestTypePostAndSecureThenHeaderIsPresent() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
 
-		this.mvc.perform(post("/logout").secure(true).with(csrf()))
+		this.mvc.perform(post("/logout").secure(true).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(header().stringValues(CLEAR_SITE_DATA_HEADER, HEADER_VALUE));
 	}
 

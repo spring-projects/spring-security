@@ -26,6 +26,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openid4java.consumer.ConsumerManager;
+import org.openid4java.discovery.yadis.YadisResolver;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
@@ -48,7 +49,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.openid4java.discovery.yadis.YadisResolver.YADIS_XRDS_LOCATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -147,7 +147,7 @@ public class OpenIDConfigTests {
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
 
-			server.enqueue(new MockResponse().addHeader(YADIS_XRDS_LOCATION, endpoint));
+			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
 

@@ -24,9 +24,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
-
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
  * An Encryptor equivalent to {@link AesBytesEncryptor} using {@link CipherAlgorithm#CBC}
@@ -55,13 +53,13 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 				new CBCBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine()), new PKCS7Padding());
 		blockCipher.init(true, new ParametersWithIV(this.secretKey, iv));
 		byte[] encrypted = process(blockCipher, bytes);
-		return iv != null ? concatenate(iv, encrypted) : encrypted;
+		return iv != null ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 	}
 
 	@Override
 	public byte[] decrypt(byte[] encryptedBytes) {
-		byte[] iv = subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
-		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
+		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
+		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
 
 		@SuppressWarnings("deprecation")
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(

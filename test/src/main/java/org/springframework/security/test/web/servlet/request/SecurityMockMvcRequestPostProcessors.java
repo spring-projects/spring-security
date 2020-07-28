@@ -79,6 +79,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -104,9 +105,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
-
-import static java.lang.Boolean.TRUE;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
  * Contains {@link MockMvc} {@link RequestPostProcessor} implementations for Spring
@@ -570,11 +568,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 
 			public static void enable(HttpServletRequest request) {
-				request.setAttribute(ENABLED_ATTR_NAME, TRUE);
+				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
 			}
 
 			public boolean isEnabled(HttpServletRequest request) {
-				return TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
+				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
 			}
 
 		}
@@ -1071,8 +1069,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @return the {@link JwtRequestPostProcessor} for additional customization
 		 */
 		public JwtRequestPostProcessor jwt(Consumer<Jwt.Builder> jwtBuilderConsumer) {
-			Jwt.Builder jwtBuilder = Jwt.withTokenValue("token").header("alg", "none").claim(SUB, "user").claim("scope",
-					"read");
+			Jwt.Builder jwtBuilder = Jwt.withTokenValue("token").header("alg", "none").claim(JwtClaimNames.SUB, "user")
+					.claim("scope", "read");
 			jwtBuilderConsumer.accept(jwtBuilder);
 			this.jwt = jwtBuilder.build();
 			return this;
@@ -1661,11 +1659,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 
 			public static void enable(HttpServletRequest request) {
-				request.setAttribute(ENABLED_ATTR_NAME, TRUE);
+				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
 			}
 
 			public boolean isEnabled(HttpServletRequest request) {
-				return TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
+				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
 			}
 
 		}

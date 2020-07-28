@@ -50,13 +50,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.AUDIENCE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUER;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.NOT_BEFORE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SUBJECT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.USERNAME;
 
 /**
  * Tests for {@link NimbusOpaqueTokenIntrospector}
@@ -116,12 +109,14 @@ public class NimbusOpaqueTokenIntrospectorTests {
 
 			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
 			assertThat(authority.getAttributes()).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-					.containsEntry(AUDIENCE, Arrays.asList("https://protected.example.net/resource"))
+					.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
+							Arrays.asList("https://protected.example.net/resource"))
 					.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
-					.containsEntry(EXPIRES_AT, Instant.ofEpochSecond(1419356238))
-					.containsEntry(ISSUER, new URL("https://server.example.com/"))
-					.containsEntry(SCOPE, Arrays.asList("read", "write", "dolphin"))
-					.containsEntry(SUBJECT, "Z5O3upPC88QrAjx00dis").containsEntry(USERNAME, "jdoe")
+					.containsEntry(OAuth2IntrospectionClaimNames.EXPIRES_AT, Instant.ofEpochSecond(1419356238))
+					.containsEntry(OAuth2IntrospectionClaimNames.ISSUER, new URL("https://server.example.com/"))
+					.containsEntry(OAuth2IntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
+					.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
+					.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
 					.containsEntry("extension_field", "twenty-seven");
 		}
 	}
@@ -155,8 +150,8 @@ public class NimbusOpaqueTokenIntrospectorTests {
 	public void introspectWhenActiveTokenThenParsesValuesInResponse() {
 		Map<String, Object> introspectedValues = new HashMap<>();
 		introspectedValues.put(OAuth2IntrospectionClaimNames.ACTIVE, true);
-		introspectedValues.put(AUDIENCE, Arrays.asList("aud"));
-		introspectedValues.put(NOT_BEFORE, 29348723984L);
+		introspectedValues.put(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"));
+		introspectedValues.put(OAuth2IntrospectionClaimNames.NOT_BEFORE, 29348723984L);
 
 		RestOperations restOperations = mock(RestOperations.class);
 		OpaqueTokenIntrospector introspectionClient = new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL,
@@ -166,9 +161,10 @@ public class NimbusOpaqueTokenIntrospectorTests {
 
 		OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
 		assertThat(authority.getAttributes()).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
-				.containsEntry(AUDIENCE, Arrays.asList("aud"))
-				.containsEntry(NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
-				.doesNotContainKey(OAuth2IntrospectionClaimNames.CLIENT_ID).doesNotContainKey(SCOPE);
+				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE, Arrays.asList("aud"))
+				.containsEntry(OAuth2IntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
+				.doesNotContainKey(OAuth2IntrospectionClaimNames.CLIENT_ID)
+				.doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
 	}
 
 	@Test

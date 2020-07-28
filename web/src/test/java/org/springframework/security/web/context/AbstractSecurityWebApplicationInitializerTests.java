@@ -40,11 +40,11 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * @author Rob Winch
@@ -61,7 +61,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
 		}.onStartup(context);
@@ -80,7 +80,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer(MyRootConfiguration.class) {
 		}.onStartup(context);
@@ -99,7 +99,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -122,7 +122,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -146,7 +146,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -184,9 +184,9 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
-		when(context.addFilter(anyString(), eq(filter1))).thenReturn(registration);
-		when(context.addFilter(anyString(), eq(filter2))).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
+		given(context.addFilter(anyString(), eq(filter1))).willReturn(registration);
+		given(context.addFilter(anyString(), eq(filter2))).willReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -212,7 +212,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -235,7 +235,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -256,8 +256,8 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
-		when(context.addFilter(anyString(), eq(filter))).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
+		given(context.addFilter(anyString(), eq(filter))).willReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -279,9 +279,9 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
-		when(context.addFilter(anyString(), eq(filter1))).thenReturn(registration);
-		when(context.addFilter(anyString(), eq(filter2))).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
+		given(context.addFilter(anyString(), eq(filter1))).willReturn(registration);
+		given(context.addFilter(anyString(), eq(filter2))).willReturn(registration);
 
 		new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -305,7 +305,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -328,7 +328,7 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -349,8 +349,8 @@ public class AbstractSecurityWebApplicationInitializerTests {
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
-		when(context.addFilter(anyString(), eq(filter))).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
+		given(context.addFilter(anyString(), eq(filter))).willReturn(registration);
 
 		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
 			@Override
@@ -369,12 +369,12 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		ArgumentCaptor<Set<SessionTrackingMode>> modesCaptor = ArgumentCaptor
 				.forClass(new HashSet<SessionTrackingMode>() {
 				}.getClass());
-		doNothing().when(context).setSessionTrackingModes(modesCaptor.capture());
+		willDoNothing().given(context).setSessionTrackingModes(modesCaptor.capture());
 
 		new AbstractSecurityWebApplicationInitializer() {
 		}.onStartup(context);
@@ -392,12 +392,12 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
-		when(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).thenReturn(registration);
+		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 
 		ArgumentCaptor<Set<SessionTrackingMode>> modesCaptor = ArgumentCaptor
 				.forClass(new HashSet<SessionTrackingMode>() {
 				}.getClass());
-		doNothing().when(context).setSessionTrackingModes(modesCaptor.capture());
+		willDoNothing().given(context).setSessionTrackingModes(modesCaptor.capture());
 
 		new AbstractSecurityWebApplicationInitializer() {
 			@Override

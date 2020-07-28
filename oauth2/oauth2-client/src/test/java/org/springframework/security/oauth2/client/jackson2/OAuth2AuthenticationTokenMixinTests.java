@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.client.authentication.TestOAuth2Authe
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
@@ -47,7 +48,6 @@ import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.NAME;
 
 /**
  * Tests for {@link OAuth2AuthenticationTokenMixin}.
@@ -317,7 +317,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 				"      \"claims\": {\n" +
 				"        \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"        \"sub\": \"" + userInfo.getSubject() + "\",\n" +
-				"        \"name\": \"" + userInfo.getClaim(NAME) + "\"\n" +
+				"        \"name\": \"" + userInfo.getClaim(StandardClaimNames.NAME) + "\"\n" +
 				"      }\n" +
 				"    }";
 		// @formatter:on

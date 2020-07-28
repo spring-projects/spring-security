@@ -39,15 +39,18 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
+import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 
@@ -58,10 +61,6 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
-import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 
 /**
  * Tests for {@link OidcUserService}.
@@ -87,11 +86,11 @@ public class OidcUserServiceTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-		this.clientRegistrationBuilder = clientRegistration().userInfoUri(null)
+		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration().userInfoUri(null)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
 				.userNameAttributeName(StandardClaimNames.SUB);
 
-		this.accessToken = scopes(OidcScopes.OPENID, OidcScopes.PROFILE);
+		this.accessToken = TestOAuth2AccessTokens.scopes(OidcScopes.OPENID, OidcScopes.PROFILE);
 
 		Map<String, Object> idTokenClaims = new HashMap<>();
 		idTokenClaims.put(IdTokenClaimNames.ISS, "https://provider.com");
@@ -154,7 +153,7 @@ public class OidcUserServiceTests {
 	public void loadUserWhenNonStandardScopesAuthorizedThenUserInfoEndpointNotRequested() {
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri("https://provider.com/user")
 				.build();
-		this.accessToken = scopes("scope1", "scope2");
+		this.accessToken = TestOAuth2AccessTokens.scopes("scope1", "scope2");
 
 		OidcUser user = this.userService
 				.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
@@ -173,7 +172,7 @@ public class OidcUserServiceTests {
 
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
-		this.accessToken = scopes("scope1", "scope2");
+		this.accessToken = TestOAuth2AccessTokens.scopes("scope1", "scope2");
 		this.userService.setAccessibleScopes(Collections.singleton("scope2"));
 
 		OidcUser user = this.userService
@@ -193,7 +192,7 @@ public class OidcUserServiceTests {
 
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
-		this.accessToken = scopes("scope1", "scope2");
+		this.accessToken = TestOAuth2AccessTokens.scopes("scope1", "scope2");
 		this.userService.setAccessibleScopes(Collections.emptySet());
 
 		OidcUser user = this.userService
@@ -434,8 +433,8 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
 		OidcUserService userService = new OidcUserService();
-		OidcUserRequest request = new OidcUserRequest(clientRegistration().build(),
-				scopes("message:read", "message:write"), idToken().build());
+		OidcUserRequest request = new OidcUserRequest(TestClientRegistrations.clientRegistration().build(),
+				TestOAuth2AccessTokens.scopes("message:read", "message:write"), TestOidcIdTokens.idToken().build());
 		OidcUser user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(3);
@@ -448,7 +447,8 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
 		OidcUserService userService = new OidcUserService();
-		OidcUserRequest request = new OidcUserRequest(clientRegistration().build(), noScopes(), idToken().build());
+		OidcUserRequest request = new OidcUserRequest(TestClientRegistrations.clientRegistration().build(),
+				TestOAuth2AccessTokens.noScopes(), TestOidcIdTokens.idToken().build());
 		OidcUser user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(1);

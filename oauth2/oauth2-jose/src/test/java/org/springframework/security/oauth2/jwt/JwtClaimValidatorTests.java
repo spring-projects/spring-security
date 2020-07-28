@@ -23,8 +23,6 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link JwtClaimValidator}.
@@ -35,17 +33,17 @@ public class JwtClaimValidatorTests {
 
 	private static final Predicate<String> test = claim -> claim.equals("http://test");
 
-	private final JwtClaimValidator<String> validator = new JwtClaimValidator<>(ISS, test);
+	private final JwtClaimValidator<String> validator = new JwtClaimValidator<>(JwtClaimNames.ISS, test);
 
 	@Test
 	public void validateWhenClaimPassesTheTestThenReturnsSuccess() {
-		Jwt jwt = jwt().claim(ISS, "http://test").build();
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "http://test").build();
 		assertThat(this.validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
 	public void validateWhenClaimFailsTheTestThenReturnsFailure() {
-		Jwt jwt = jwt().claim(ISS, "http://abc").build();
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "http://abc").build();
 		assertThat(this.validator.validate(jwt).getErrors().isEmpty()).isFalse();
 	}
 
@@ -56,7 +54,8 @@ public class JwtClaimValidatorTests {
 
 	@Test
 	public void validateWhenTestIsNullThenThrowsIllegalArgumentException() {
-		assertThatThrownBy(() -> new JwtClaimValidator<>(ISS, null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new JwtClaimValidator<>(JwtClaimNames.ISS, null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

@@ -15,6 +15,7 @@
  */
 package org.springframework.security.access.hierarchicalroles;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,6 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -45,9 +45,9 @@ public class RoleHierarchyUtilsTests {
 		// @formatter:on
 
 		Map<String, List<String>> roleHierarchyMap = new TreeMap<>();
-		roleHierarchyMap.put("ROLE_A", asList("ROLE_B", "ROLE_C"));
-		roleHierarchyMap.put("ROLE_B", asList("ROLE_D"));
-		roleHierarchyMap.put("ROLE_C", asList("ROLE_D"));
+		roleHierarchyMap.put("ROLE_A", Arrays.asList("ROLE_B", "ROLE_C"));
+		roleHierarchyMap.put("ROLE_B", Arrays.asList("ROLE_D"));
+		roleHierarchyMap.put("ROLE_C", Arrays.asList("ROLE_D"));
 
 		String roleHierarchy = RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
 
@@ -67,7 +67,7 @@ public class RoleHierarchyUtilsTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void roleHierarchyFromMapWhenRoleNullThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
-		roleHierarchyMap.put(null, asList("ROLE_B", "ROLE_C"));
+		roleHierarchyMap.put(null, Arrays.asList("ROLE_B", "ROLE_C"));
 
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
 	}
@@ -75,7 +75,7 @@ public class RoleHierarchyUtilsTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void roleHierarchyFromMapWhenRoleEmptyThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
-		roleHierarchyMap.put("", asList("ROLE_B", "ROLE_C"));
+		roleHierarchyMap.put("", Arrays.asList("ROLE_B", "ROLE_C"));
 
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
 	}

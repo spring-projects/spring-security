@@ -36,11 +36,6 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.INET_ORG_PERSON_MAPPER_CLASS;
-import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.LDAP_AUTHORITIES_POPULATOR_CLASS;
-import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS;
-import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.LDAP_USER_MAPPER_CLASS;
-import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.PERSON_MAPPER_CLASS;
 
 /**
  * @author Luke Taylor
@@ -61,11 +56,16 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
 	@Test
 	public void beanClassNamesAreCorrect() {
-		assertThat(FilterBasedLdapUserSearch.class.getName()).isEqualTo(LDAP_SEARCH_CLASS);
-		assertThat(PersonContextMapper.class.getName()).isEqualTo(PERSON_MAPPER_CLASS);
-		assertThat(InetOrgPersonContextMapper.class.getName()).isEqualTo(INET_ORG_PERSON_MAPPER_CLASS);
-		assertThat(LdapUserDetailsMapper.class.getName()).isEqualTo(LDAP_USER_MAPPER_CLASS);
-		assertThat(DefaultLdapAuthoritiesPopulator.class.getName()).isEqualTo(LDAP_AUTHORITIES_POPULATOR_CLASS);
+		assertThat(FilterBasedLdapUserSearch.class.getName())
+				.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_SEARCH_CLASS);
+		assertThat(PersonContextMapper.class.getName())
+				.isEqualTo(LdapUserServiceBeanDefinitionParser.PERSON_MAPPER_CLASS);
+		assertThat(InetOrgPersonContextMapper.class.getName())
+				.isEqualTo(LdapUserServiceBeanDefinitionParser.INET_ORG_PERSON_MAPPER_CLASS);
+		assertThat(LdapUserDetailsMapper.class.getName())
+				.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_USER_MAPPER_CLASS);
+		assertThat(DefaultLdapAuthoritiesPopulator.class.getName())
+				.isEqualTo(LdapUserServiceBeanDefinitionParser.LDAP_AUTHORITIES_POPULATOR_CLASS);
 		assertThat(new LdapUserServiceBeanDefinitionParser().getBeanClassName(mock(Element.class)))
 				.isEqualTo(LdapUserDetailsService.class.getName());
 	}

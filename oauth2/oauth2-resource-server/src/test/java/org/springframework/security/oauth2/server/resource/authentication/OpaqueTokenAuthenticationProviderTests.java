@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
@@ -37,15 +38,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals.active;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ACTIVE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.AUDIENCE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUER;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.NOT_BEFORE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SUBJECT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.USERNAME;
 
 /**
  * Tests for {@link OpaqueTokenAuthenticationProvider}
@@ -56,8 +48,8 @@ public class OpaqueTokenAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
-		OAuth2AuthenticatedPrincipal principal = active(
-				attributes -> attributes.put("extension_field", "twenty-seven"));
+		OAuth2AuthenticatedPrincipal principal = TestOAuth2AuthenticatedPrincipals
+				.active(attributes -> attributes.put("extension_field", "twenty-seven"));
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
@@ -67,14 +59,16 @@ public class OpaqueTokenAuthenticationProviderTests {
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes).isNotNull().containsEntry(ACTIVE, true)
-				.containsEntry(AUDIENCE, Arrays.asList("https://protected.example.net/resource"))
+		assertThat(attributes).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
+				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
+						Arrays.asList("https://protected.example.net/resource"))
 				.containsEntry(OAuth2IntrospectionClaimNames.CLIENT_ID, "l238j323ds-23ij4")
-				.containsEntry(EXPIRES_AT, Instant.ofEpochSecond(1419356238))
-				.containsEntry(ISSUER, new URL("https://server.example.com/"))
-				.containsEntry(NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
-				.containsEntry(SCOPE, Arrays.asList("read", "write", "dolphin"))
-				.containsEntry(SUBJECT, "Z5O3upPC88QrAjx00dis").containsEntry(USERNAME, "jdoe")
+				.containsEntry(OAuth2IntrospectionClaimNames.EXPIRES_AT, Instant.ofEpochSecond(1419356238))
+				.containsEntry(OAuth2IntrospectionClaimNames.ISSUER, new URL("https://server.example.com/"))
+				.containsEntry(OAuth2IntrospectionClaimNames.NOT_BEFORE, Instant.ofEpochSecond(29348723984L))
+				.containsEntry(OAuth2IntrospectionClaimNames.SCOPE, Arrays.asList("read", "write", "dolphin"))
+				.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
+				.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
 
 		assertThat(result.getAuthorities()).extracting("authority").containsExactly("SCOPE_read", "SCOPE_write",
@@ -93,7 +87,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2AuthenticatedPrincipal.class);
 
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
-		assertThat(attributes).isNotNull().doesNotContainKey(SCOPE);
+		assertThat(attributes).isNotNull().doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
 
 		assertThat(result.getAuthorities()).isEmpty();
 	}

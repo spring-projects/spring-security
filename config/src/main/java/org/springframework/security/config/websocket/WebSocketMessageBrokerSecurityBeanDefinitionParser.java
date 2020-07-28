@@ -54,8 +54,6 @@ import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
-import static org.springframework.security.config.Elements.EXPRESSION_HANDLER;
-
 /**
  * Parses Spring Security's websocket namespace support. A simple example is:
  *
@@ -121,7 +119,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		ManagedMap<BeanDefinition, String> matcherToExpression = new ManagedMap<>();
 
 		String id = element.getAttribute(ID_ATTR);
-		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, EXPRESSION_HANDLER);
+		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
 		String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
 		boolean expressionHandlerDefined = StringUtils.hasText(expressionHandlerRef);
 

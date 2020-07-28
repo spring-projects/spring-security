@@ -46,8 +46,6 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.springframework.messaging.simp.SimpMessageType.MESSAGE;
-import static org.springframework.messaging.simp.SimpMessageType.SUBSCRIBE;
 
 public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 
@@ -139,7 +137,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 					.simpDestMatchers("/app/**").hasRole("USER")
 					// <3>
 					.simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
-					.simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll() // <5>
+					.simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE).denyAll() // <5>
 					.anyMessage().denyAll(); // <6>
 
 		}

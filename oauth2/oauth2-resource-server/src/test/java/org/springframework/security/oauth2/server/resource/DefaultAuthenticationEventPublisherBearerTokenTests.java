@@ -22,13 +22,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link DefaultAuthenticationEventPublisher}'s bearer token use cases
@@ -42,7 +42,7 @@ public class DefaultAuthenticationEventPublisherBearerTokenTests {
 	@Test
 	public void publishAuthenticationFailureWhenInvalidBearerTokenExceptionThenMaps() {
 		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
-		Authentication authentication = new JwtAuthenticationToken(jwt().build());
+		Authentication authentication = new JwtAuthenticationToken(TestJwts.jwt().build());
 		Exception cause = new Exception();
 		this.publisher = new DefaultAuthenticationEventPublisher(appPublisher);
 		this.publisher.publishAuthenticationFailure(new InvalidBearerTokenException("invalid"), authentication);
