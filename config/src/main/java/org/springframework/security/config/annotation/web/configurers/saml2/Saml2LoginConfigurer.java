@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,9 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter;
+import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -317,21 +320,32 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 
 	private final class AuthenticationRequestEndpointConfig {
 		private String filterProcessingUrl = "/saml2/authenticate/{registrationId}";
+
 		private AuthenticationRequestEndpointConfig() {
 		}
 
 		private Filter build(B http) {
 			Saml2AuthenticationRequestFactory authenticationRequestResolver = getResolver(http);
+			Saml2AuthenticationRequestContextResolver contextResolver = getContextResolver(http);
 
 			return postProcess(new Saml2WebSsoAuthenticationRequestFilter(
-							Saml2LoginConfigurer.this.relyingPartyRegistrationRepository,
-							authenticationRequestResolver));
+					contextResolver, authenticationRequestResolver));
 		}
 
 		private Saml2AuthenticationRequestFactory getResolver(B http) {
 			Saml2AuthenticationRequestFactory resolver = getSharedOrBean(http, Saml2AuthenticationRequestFactory.class);
 			if (resolver == null ) {
 				resolver = new OpenSamlAuthenticationRequestFactory();
+			}
+			return resolver;
+		}
+
+		private Saml2AuthenticationRequestContextResolver getContextResolver(B http) {
+			Saml2AuthenticationRequestContextResolver resolver = getBeanOrNull(http, Saml2AuthenticationRequestContextResolver.class);
+			if (resolver == null) {
+				return new DefaultSaml2AuthenticationRequestContextResolver(
+						new DefaultRelyingPartyRegistrationResolver(
+								Saml2LoginConfigurer.this.relyingPartyRegistrationRepository));
 			}
 			return resolver;
 		}
