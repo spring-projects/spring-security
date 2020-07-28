@@ -234,7 +234,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 				headersWriter.addPropertyValue("preload", preload);
 			}
 
-			if (disabled == true) {
+			if (disabled) {
 				return;
 			}
 		}
