@@ -220,12 +220,7 @@ public class ChannelDecisionManagerImplTests {
 
 		@Override
 		public boolean supports(ConfigAttribute attribute) {
-			if (attribute.getAttribute().equals(this.configAttribute)) {
-				return true;
-			}
-			else {
-				return false;
-			}
+			return attribute.getAttribute().equals(this.configAttribute);
 		}
 
 	}

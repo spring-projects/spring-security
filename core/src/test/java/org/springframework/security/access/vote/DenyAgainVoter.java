@@ -37,12 +37,7 @@ public class DenyAgainVoter implements AccessDecisionVoter<Object> {
 
 	@Override
 	public boolean supports(ConfigAttribute attribute) {
-		if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return "DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute());
 	}
 
 	@Override

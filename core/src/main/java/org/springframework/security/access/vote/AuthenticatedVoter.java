@@ -68,14 +68,9 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 
 	@Override
 	public boolean supports(ConfigAttribute attribute) {
-		if ((attribute.getAttribute() != null) && (IS_AUTHENTICATED_FULLY.equals(attribute.getAttribute())
+		return (attribute.getAttribute() != null) && (IS_AUTHENTICATED_FULLY.equals(attribute.getAttribute())
 				|| IS_AUTHENTICATED_REMEMBERED.equals(attribute.getAttribute())
-				|| IS_AUTHENTICATED_ANONYMOUSLY.equals(attribute.getAttribute()))) {
-			return true;
-		}
-		else {
-			return false;
-		}
+				|| IS_AUTHENTICATED_ANONYMOUSLY.equals(attribute.getAttribute()));
 	}
 
 	/**

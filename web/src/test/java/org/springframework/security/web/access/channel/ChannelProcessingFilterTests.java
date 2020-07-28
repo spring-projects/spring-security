@@ -170,12 +170,7 @@ public class ChannelProcessingFilterTests {
 
 		@Override
 		public boolean supports(ConfigAttribute attribute) {
-			if (attribute.getAttribute().equals(this.supportAttribute)) {
-				return true;
-			}
-			else {
-				return false;
-			}
+			return attribute.getAttribute().equals(this.supportAttribute);
 		}
 
 	}
