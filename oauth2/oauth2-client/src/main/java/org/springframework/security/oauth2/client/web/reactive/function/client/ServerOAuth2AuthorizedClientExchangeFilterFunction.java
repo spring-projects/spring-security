@@ -540,14 +540,13 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 								.defaultIfEmpty(authorizeRequest.getAuthorizedClient() != null ?
 										authorizeRequest.getAuthorizedClient() : authorizedClient);
 					})
-					.switchIfEmpty(Mono.deferWithContext(context ->
+					.switchIfEmpty(Mono.defer(() ->
 						// Authorize
 						this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
 								.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(
 										"Could not find ClientRegistration with id '" + clientRegistrationId + "'")))
 								.flatMap(clientRegistration -> Mono.just(OAuth2AuthorizationContext.withClientRegistration(clientRegistration).principal(principal).build()))
 								.flatMap(authorizationContext -> authorize(authorizationContext, principal))
-								.subscriberContext(context)
 					));
 		}
 

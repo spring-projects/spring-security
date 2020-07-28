@@ -139,14 +139,13 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 									.defaultIfEmpty(authorizeRequest.getAuthorizedClient() != null ?
 											authorizeRequest.getAuthorizedClient() : authorizedClient);
 						})
-						.switchIfEmpty(Mono.deferWithContext(context ->
+						.switchIfEmpty(Mono.defer(() ->
 								// Authorize
 								this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
 										.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(
 												"Could not find ClientRegistration with id '" + clientRegistrationId + "'")))
 										.flatMap(clientRegistration -> authorizationContext(authorizeRequest, clientRegistration))
 										.flatMap(authorizationContext -> authorize(authorizationContext, principal, serverWebExchange))
-										.subscriberContext(context)
 								)
 						));
 	}
