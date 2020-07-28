@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,19 @@
 package org.springframework.security.saml2.provider.service.registration;
 
 /**
- * Resolves a {@link RelyingPartyRegistration}, a configured service provider and remote identity provider pair
- * based on a unique registrationId.
+ * A repository for {@link RelyingPartyRegistration}s
+ *
  * @since 5.2
+ * @author Filip Hanik
  */
 public interface RelyingPartyRegistrationRepository {
 
 	/**
-	 * Resolves an {@link RelyingPartyRegistration} by registrationId, or returns the default provider
-	 * if no registrationId is provided
+	 * Returns the relying party registration identified by the provided {@code registrationId},
+	 * or {@code null} if not found.
 	 *
-	 * @param registrationId - a provided registrationId, may be be null or empty
-	 * @return {@link RelyingPartyRegistration} if found, {@code null} if an registrationId is provided and
-	 * no registration is found. Returns a default, implementation specific,
-	 * {@link RelyingPartyRegistration} if no registrationId is provided
+	 * @param registrationId the registration identifier
+	 * @return the {@link RelyingPartyRegistration} if found, otherwise {@code null}
 	 */
 	RelyingPartyRegistration findByRegistrationId(String registrationId);
 
