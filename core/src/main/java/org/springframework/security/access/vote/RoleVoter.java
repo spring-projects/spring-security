@@ -68,12 +68,7 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 
 	@Override
 	public boolean supports(ConfigAttribute attribute) {
-		if ((attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getRolePrefix())) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return (attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getRolePrefix());
 	}
 
 	/**
