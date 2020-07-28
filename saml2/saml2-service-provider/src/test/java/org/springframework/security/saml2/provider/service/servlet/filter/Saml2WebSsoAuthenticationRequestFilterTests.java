@@ -30,6 +30,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriUtils;
 
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyPrivateCredential;
+import static org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationRequestContexts.authenticationRequestContext;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
 
 public class Saml2WebSsoAuthenticationRequestFilterTests {
@@ -49,6 +51,8 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	private Saml2WebSsoAuthenticationRequestFilter filter;
 	private RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
 	private Saml2AuthenticationRequestFactory factory = mock(Saml2AuthenticationRequestFactory.class);
+	private Saml2AuthenticationRequestContextResolver resolver =
+			mock(Saml2AuthenticationRequestContextResolver.class);
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
 	private MockFilterChain filterChain;
@@ -188,12 +192,14 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		when(authenticationRequest.getAuthenticationRequestUri()).thenReturn("uri");
 		when(authenticationRequest.getRelayState()).thenReturn("relay");
 		when(authenticationRequest.getSamlRequest()).thenReturn("saml");
-		when(this.repository.findByRegistrationId("registration-id")).thenReturn(relyingParty);
+		when(this.resolver.resolve(this.request)).thenReturn(authenticationRequestContext()
+				.relyingPartyRegistration(relyingParty)
+				.build());
 		when(this.factory.createPostAuthenticationRequest(any()))
 				.thenReturn(authenticationRequest);
 
 		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter
-				(this.repository, this.factory);
+				(this.resolver, this.factory);
 		filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getContentAsString())
 				.contains("<form action=\"uri\" method=\"post\">")

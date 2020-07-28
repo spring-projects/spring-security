@@ -65,10 +65,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
-import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -87,6 +85,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationRequestContexts.authenticationRequestContext;
 import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -161,11 +160,11 @@ public class Saml2LoginConfigurerTests {
 		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
 		Saml2AuthenticationRequestContextResolver resolver =
 				CustomAuthenticationRequestContextResolver.resolver;
-		when(resolver.resolve(any(HttpServletRequest.class), any(RelyingPartyRegistration.class)))
+		when(resolver.resolve(any(HttpServletRequest.class)))
 				.thenReturn(context);
 		this.mvc.perform(get("/saml2/authenticate/registration-id"))
 				.andExpect(status().isFound());
-		verify(resolver).resolve(any(HttpServletRequest.class), any(RelyingPartyRegistration.class));
+		verify(resolver).resolve(any(HttpServletRequest.class));
 	}
 
 	@Test
@@ -276,22 +275,11 @@ public class Saml2LoginConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			ObjectPostProcessor<Saml2WebSsoAuthenticationRequestFilter> processor
-					= new ObjectPostProcessor<Saml2WebSsoAuthenticationRequestFilter>() {
-				@Override
-				public <O extends Saml2WebSsoAuthenticationRequestFilter> O postProcess(O filter) {
-					filter.setAuthenticationRequestContextResolver(resolver);
-					return filter;
-				}
-			};
-
 			http
 				.authorizeRequests(authz -> authz
 						.anyRequest().authenticated()
 				)
-				.saml2Login(saml2 -> saml2
-						.addObjectPostProcessor(processor)
-				);
+				.saml2Login(withDefaults());
 		}
 
 		@Bean

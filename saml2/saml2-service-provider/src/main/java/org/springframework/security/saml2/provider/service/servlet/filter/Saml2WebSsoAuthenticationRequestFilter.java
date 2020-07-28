@@ -30,6 +30,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -69,9 +70,8 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
  */
 public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter {
 
-	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
+	private final Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver;
 	private Saml2AuthenticationRequestFactory authenticationRequestFactory;
-	private Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver = new DefaultSaml2AuthenticationRequestContextResolver();
 
 	private RequestMatcher redirectMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
 
@@ -83,21 +83,24 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	 */
 	@Deprecated
 	public Saml2WebSsoAuthenticationRequestFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
-		this(relyingPartyRegistrationRepository,
+		this(new DefaultSaml2AuthenticationRequestContextResolver(
+				new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository)),
 				new org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory());
 	}
 
 	/**
 	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the provided parameters
 	 *
-	 * @param relyingPartyRegistrationRepository a repository for relying party configurations
+	 * @param authenticationRequestContextResolver a strategy for formulating a {@link Saml2AuthenticationRequestContext}
 	 * @since 5.4
 	 */
-	public Saml2WebSsoAuthenticationRequestFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
+	public Saml2WebSsoAuthenticationRequestFilter(
+			Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver,
 			Saml2AuthenticationRequestFactory authenticationRequestFactory) {
-		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
+
+		Assert.notNull(authenticationRequestContextResolver, "authenticationRequestContextResolver cannot be null");
 		Assert.notNull(authenticationRequestFactory, "authenticationRequestFactory cannot be null");
-		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
+		this.authenticationRequestContextResolver = authenticationRequestContextResolver;
 		this.authenticationRequestFactory = authenticationRequestFactory;
 	}
 
@@ -124,17 +127,6 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	}
 
 	/**
-	 * Use the given {@link Saml2AuthenticationRequestContextResolver} that creates a {@link Saml2AuthenticationRequestContext}
-	 *
-	 * @param authenticationRequestContextResolver the {@link Saml2AuthenticationRequestContextResolver} to use
-	 * @since 5.4
-	 */
-	public void setAuthenticationRequestContextResolver(Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver) {
-		Assert.notNull(authenticationRequestContextResolver, "authenticationRequestContextResolver cannot be null");
-		this.authenticationRequestContextResolver = authenticationRequestContextResolver;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -147,14 +139,12 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 			return;
 		}
 
-		String registrationId = matcher.getVariables().get("registrationId");
-		RelyingPartyRegistration relyingParty =
-				this.relyingPartyRegistrationRepository.findByRegistrationId(registrationId);
-		if (relyingParty == null) {
+		Saml2AuthenticationRequestContext context = this.authenticationRequestContextResolver.resolve(request);
+		if (context == null) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-		Saml2AuthenticationRequestContext context = authenticationRequestContextResolver.resolve(request, relyingParty);
+		RelyingPartyRegistration relyingParty = context.getRelyingPartyRegistration();
 		if (relyingParty.getAssertingPartyDetails().getSingleSignOnServiceBinding() == Saml2MessageBinding.REDIRECT) {
 			sendRedirect(response, context);
 		} else {

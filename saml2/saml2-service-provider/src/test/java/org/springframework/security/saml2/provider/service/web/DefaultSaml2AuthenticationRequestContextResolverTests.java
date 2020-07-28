@@ -44,11 +44,13 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 	private MockHttpServletRequest request;
 	private RelyingPartyRegistration.Builder relyingPartyBuilder;
 	private Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver
-			= new DefaultSaml2AuthenticationRequestContextResolver();
+			= new DefaultSaml2AuthenticationRequestContextResolver(
+					new DefaultRelyingPartyRegistrationResolver(id -> relyingPartyBuilder.build()));
 
 	@Before
 	public void setup() {
 		this.request = new MockHttpServletRequest();
+		this.request.setPathInfo("/saml2/authenticate/registration-id");
 		this.relyingPartyBuilder = RelyingPartyRegistration
 				.withRegistrationId(REGISTRATION_ID)
 				.localEntityIdTemplate(RELYING_PARTY_ENTITY_ID)
@@ -61,52 +63,43 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 	@Test
 	public void resolveWhenRequestAndRelyingPartyNotNullThenCreateSaml2AuthenticationRequestContext() {
 		this.request.addParameter("RelayState", "relay-state");
-		RelyingPartyRegistration relyingParty = this.relyingPartyBuilder.build();
 		Saml2AuthenticationRequestContext context =
-				this.authenticationRequestContextResolver.resolve(this.request, relyingParty);
+				this.authenticationRequestContextResolver.resolve(this.request);
 
 		assertThat(context).isNotNull();
 		assertThat(context.getAssertionConsumerServiceUrl()).isEqualTo(RELYING_PARTY_SSO_URL);
 		assertThat(context.getRelayState()).isEqualTo("relay-state");
 		assertThat(context.getDestination()).isEqualTo(ASSERTING_PARTY_SSO_URL);
 		assertThat(context.getIssuer()).isEqualTo(RELYING_PARTY_ENTITY_ID);
-		assertThat(context.getRelyingPartyRegistration()).isSameAs(relyingParty);
+		assertThat(context.getRelyingPartyRegistration().getRegistrationId())
+				.isSameAs(this.relyingPartyBuilder.build().getRegistrationId());
 	}
 
 	@Test
 	public void resolveWhenAssertionConsumerServiceUrlTemplateContainsRegistrationIdThenResolves() {
-		RelyingPartyRegistration relyingParty = this.relyingPartyBuilder
-				.assertionConsumerServiceUrlTemplate("/saml2/authenticate/{registrationId}")
-				.build();
+		this.relyingPartyBuilder
+				.assertionConsumerServiceLocation("/saml2/authenticate/{registrationId}");
 		Saml2AuthenticationRequestContext context =
-				this.authenticationRequestContextResolver.resolve(this.request, relyingParty);
+				this.authenticationRequestContextResolver.resolve(this.request);
 
 		assertThat(context.getAssertionConsumerServiceUrl()).isEqualTo("/saml2/authenticate/registration-id");
 	}
 
 	@Test
 	public void resolveWhenAssertionConsumerServiceUrlTemplateContainsBaseUrlThenResolves() {
-		RelyingPartyRegistration relyingParty = this.relyingPartyBuilder
-				.assertionConsumerServiceUrlTemplate("{baseUrl}/saml2/authenticate/{registrationId}")
-				.build();
+		this.relyingPartyBuilder
+				.assertionConsumerServiceLocation("{baseUrl}/saml2/authenticate/{registrationId}");
 		Saml2AuthenticationRequestContext context =
-				this.authenticationRequestContextResolver.resolve(this.request, relyingParty);
+				this.authenticationRequestContextResolver.resolve(this.request);
 
 		assertThat(context.getAssertionConsumerServiceUrl())
 				.isEqualTo("http://localhost/saml2/authenticate/registration-id");
 	}
 
 	@Test
-	public void resolveWhenRequestNullThenException() {
-		assertThatCode(() ->
-				this.authenticationRequestContextResolver.resolve(this.request, null))
-						.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
 	public void resolveWhenRelyingPartyNullThenException() {
 		assertThatCode(() ->
-				this.authenticationRequestContextResolver.resolve(null, this.relyingPartyBuilder.build()))
+				this.authenticationRequestContextResolver.resolve(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 }
