@@ -24,10 +24,7 @@ import java.security.cert.X509Certificate;
 
 import org.springframework.security.converter.RsaKeyConverters;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
-
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION;
+import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
 
 /**
  * Preconfigured SAML credentials for SAML integration tests.
@@ -58,7 +55,7 @@ public class TestSaml2Credentials {
 				+ "xbzb7ykxVr7EVFXwltPxzE9TmL9OACNNyF5eJHWMRMllarUvkcXlh4pux4ks9e6z\n"
 				+ "V9DQBy2zds9f1I3qxg0eX6JnGrXi/ZiCT+lJgVe3ZFXiejiLAiKB04sXW3ti0LW3\n"
 				+ "lx13Y1YlQ4/tlpgTgfIJxKV6nyPiLoK0nywbMd+vpAirDt2Oc+hk\n" + "-----END CERTIFICATE-----";
-		return new Saml2X509Credential(x509Certificate(certificate), VERIFICATION);
+		return new Saml2X509Credential(x509Certificate(certificate), Saml2X509CredentialType.VERIFICATION);
 	}
 
 	static X509Certificate x509Certificate(String source) {
@@ -105,7 +102,7 @@ public class TestSaml2Credentials {
 				+ "RZ/nbTJ7VTeZOSyRoVn5XHhpuJ0B\n" + "-----END CERTIFICATE-----";
 		PrivateKey pk = RsaKeyConverters.pkcs8().convert(new ByteArrayInputStream(key.getBytes()));
 		X509Certificate cert = x509Certificate(certificate);
-		return new Saml2X509Credential(pk, cert, SIGNING, DECRYPTION);
+		return new Saml2X509Credential(pk, cert, Saml2X509CredentialType.SIGNING, Saml2X509CredentialType.DECRYPTION);
 	}
 
 }

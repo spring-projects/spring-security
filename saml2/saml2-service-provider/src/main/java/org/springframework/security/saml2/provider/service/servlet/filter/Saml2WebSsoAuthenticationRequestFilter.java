@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -43,8 +44,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
-
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * This {@code Filter} formulates a
@@ -176,7 +175,8 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	private void addParameter(String name, String value, UriComponentsBuilder builder) {
 		Assert.hasText(name, "name cannot be empty or null");
 		if (StringUtils.hasText(value)) {
-			builder.queryParam(UriUtils.encode(name, ISO_8859_1), UriUtils.encode(value, ISO_8859_1));
+			builder.queryParam(UriUtils.encode(name, StandardCharsets.ISO_8859_1),
+					UriUtils.encode(value, StandardCharsets.ISO_8859_1));
 		}
 	}
 

@@ -33,8 +33,10 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -52,8 +54,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Client;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -109,8 +109,8 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 	@Test
 	public void oauth2ClientWhenClientRegistrationThenUses() throws Exception {
 
-		ClientRegistration clientRegistration = clientRegistration().registrationId("registration-id")
-				.clientId("client-id").build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+				.registrationId("registration-id").clientId("client-id").build();
 		this.mvc.perform(get("/client-id").with(oauth2Client().clientRegistration(clientRegistration)))
 				.andExpect(content().string("client-id"));
 	}
@@ -131,7 +131,7 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 	@Test
 	public void oauth2ClientWhenAccessTokenThenUses() throws Exception {
-		OAuth2AccessToken accessToken = noScopes();
+		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
 		this.mvc.perform(get("/access-token").with(oauth2Client("registration-id").accessToken(accessToken)))
 				.andExpect(content().string("no-scopes"));
 	}
@@ -141,7 +141,8 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 		this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
 				.andExpect(content().string("test-client"));
 
-		OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(clientRegistration().build(), "sub", noScopes());
+		OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(TestClientRegistrations.clientRegistration().build(),
+				"sub", TestOAuth2AccessTokens.noScopes());
 		OAuth2AuthorizedClientRepository repository = this.context.getBean(OAuth2AuthorizedClientRepository.class);
 		given(repository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
 				any(HttpServletRequest.class))).willReturn(client);

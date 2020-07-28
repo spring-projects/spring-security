@@ -59,7 +59,6 @@ import org.springframework.security.util.FieldUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 /**
  * @author Ben Alex
@@ -185,7 +184,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "<global-method-security>" + "   <protect-pointcut expression="
 				+ "     'execution(* org.springframework.security.access.annotation.BusinessService.*(..)) "
 				+ "       and not execution(* org.springframework.security.access.annotation.BusinessService.someOther(String)))' "
-				+ "               access='ROLE_USER'/>" + "</global-method-security>" + AUTH_PROVIDER_XML);
+				+ "               access='ROLE_USER'/>" + "</global-method-security>"
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		this.target = (BusinessService) this.appContext.getBean("target");
 		// String method should not be protected
 		this.target.someOther("somestring");
@@ -215,7 +215,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "<b:bean id='businessService' class='org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean'>"
 				+ "    <b:property name='serviceUrl' value='http://localhost:8080/SomeService'/>"
 				+ "    <b:property name='serviceInterface' value='org.springframework.security.access.annotation.BusinessService'/>"
-				+ "</b:bean>" + AUTH_PROVIDER_XML);
+				+ "</b:bean>" + ConfigTestUtils.AUTH_PROVIDER_XML);
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
@@ -229,7 +229,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance() throws Exception {
-		setContext("<global-method-security pre-post-annotations='enabled'/>" + AUTH_PROVIDER_XML);
+		setContext("<global-method-security pre-post-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML);
 		AffirmativeBased adm = (AffirmativeBased) this.appContext.getBeansOfType(AffirmativeBased.class).values()
 				.toArray()[0];
 		List voters = (List) FieldUtils.getFieldValue(adm, "decisionVoters");
@@ -247,7 +247,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	public void accessIsDeniedForHasRoleExpression() {
 		setContext("<global-method-security pre-post-annotations='enabled'/>"
 				+ "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>"
-				+ AUTH_PROVIDER_XML);
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		this.target = (BusinessService) this.appContext.getBean("target");
 		this.target.someAdminMethod();
@@ -259,7 +259,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "<b:bean id='number' class='java.lang.Integer'>" + "    <b:constructor-arg value='1294'/>"
 				+ "</b:bean>"
 				+ "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>"
-				+ AUTH_PROVIDER_XML);
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		ExpressionProtectedBusinessServiceImpl target = (ExpressionProtectedBusinessServiceImpl) this.appContext
 				.getBean("target");
@@ -270,7 +270,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	public void preAndPostFilterAnnotationsWorkWithLists() {
 		setContext("<global-method-security pre-post-annotations='enabled'/>"
 				+ "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>"
-				+ AUTH_PROVIDER_XML);
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		this.target = (BusinessService) this.appContext.getBean("target");
 		List<String> arg = new ArrayList<>();
@@ -289,7 +289,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	public void prePostFilterAnnotationWorksWithArrays() {
 		setContext("<global-method-security pre-post-annotations='enabled'/>"
 				+ "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>"
-				+ AUTH_PROVIDER_XML);
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		this.target = (BusinessService) this.appContext.getBean("target");
 		Object[] arg = new String[] { "joe", "bob", "sam" };
@@ -306,7 +306,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "<b:bean id='expressionHandler' class='org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler'>"
 				+ "   <b:property name='permissionEvaluator' ref='myPermissionEvaluator'/>" + "</b:bean>"
 				+ "<b:bean id='myPermissionEvaluator' class='org.springframework.security.config.method.TestPermissionEvaluator'/>"
-				+ AUTH_PROVIDER_XML);
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 	}
 
 	// SEC-1450
@@ -317,7 +317,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				"<b:bean id='target' class='org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParserTests$ConcreteFoo'/>"
 						+ "<global-method-security>"
 						+ "   <protect-pointcut expression='execution(* org..*Foo.foo(..))' access='ROLE_USER'/>"
-						+ "</global-method-security>" + AUTH_PROVIDER_XML);
+						+ "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML);
 		Foo foo = (Foo) this.appContext.getBean("target");
 		foo.foo(new SecurityConfig("A"));
 	}
@@ -327,7 +327,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	@SuppressWarnings("unchecked")
 	public void genericsMethodArgumentNamesAreResolved() {
 		setContext("<b:bean id='target' class='" + ConcreteFoo.class.getName() + "'/>"
-				+ "<global-method-security pre-post-annotations='enabled'/>" + AUTH_PROVIDER_XML);
+				+ "<global-method-security pre-post-annotations='enabled'/>" + ConfigTestUtils.AUTH_PROVIDER_XML);
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		Foo foo = (Foo) this.appContext.getBean("target");
 		foo.foo(new SecurityConfig("A"));
@@ -341,7 +341,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		parent.registerSingleton("runAsMgr", RunAsManagerImpl.class, props);
 		parent.refresh();
 
-		setContext("<global-method-security run-as-manager-ref='runAsMgr'/>" + AUTH_PROVIDER_XML, parent);
+		setContext("<global-method-security run-as-manager-ref='runAsMgr'/>" + ConfigTestUtils.AUTH_PROVIDER_XML,
+				parent);
 		RunAsManagerImpl ram = (RunAsManagerImpl) this.appContext.getBean("runAsMgr");
 		MethodSecurityMetadataSourceAdvisor msi = (MethodSecurityMetadataSourceAdvisor) this.appContext
 				.getBeansOfType(MethodSecurityMetadataSourceAdvisor.class).values().toArray()[0];
@@ -355,7 +356,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "<method-security-metadata-source id='mds'>" + "      <protect method='" + Foo.class.getName()
 				+ ".foo' access='ROLE_ADMIN'/>" + "</method-security-metadata-source>"
 				+ "<global-method-security pre-post-annotations='enabled' metadata-source-ref='mds'/>"
-				+ AUTH_PROVIDER_XML);
+				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		// External MDS should take precedence over PreAuthorize
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		Foo foo = (Foo) this.appContext.getBean("target");
@@ -377,7 +378,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ ".foo' access='ROLE_ADMIN'/>" + "</method-security-metadata-source>"
 				+ "<global-method-security pre-post-annotations='enabled' metadata-source-ref='mds' authentication-manager-ref='customAuthMgr'/>"
 				+ "<b:bean id='customAuthMgr' class='org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParserTests$CustomAuthManager'>"
-				+ "      <b:constructor-arg value='authManager'/>" + "</b:bean>" + AUTH_PROVIDER_XML);
+				+ "      <b:constructor-arg value='authManager'/>" + "</b:bean>" + ConfigTestUtils.AUTH_PROVIDER_XML);
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		Foo foo = (Foo) this.appContext.getBean("target");
 		try {

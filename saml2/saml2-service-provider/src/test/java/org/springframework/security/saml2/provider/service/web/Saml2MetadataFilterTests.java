@@ -23,9 +23,11 @@ import org.junit.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,8 +36,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.springframework.security.saml2.core.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
-import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.noCredentials;
 
 /**
  * Tests for {@link Saml2MetadataFilter}
@@ -108,9 +108,9 @@ public class Saml2MetadataFilterTests {
 	public void doFilterWhenRelyingPartyRegistrationFoundThenInvokesMetadataResolver() throws Exception {
 		// given
 		this.request.setPathInfo("/saml2/service-provider-metadata/validRegistration");
-		RelyingPartyRegistration validRegistration = noCredentials()
-				.assertingPartyDetails(
-						party -> party.verificationX509Credentials(c -> c.add(relyingPartyVerifyingCredential())))
+		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.noCredentials()
+				.assertingPartyDetails(party -> party.verificationX509Credentials(
+						c -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 				.build();
 
 		String generatedMetadata = "<xml>test</xml>";

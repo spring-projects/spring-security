@@ -102,6 +102,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -120,7 +121,6 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -618,8 +618,8 @@ public class MiscHttpConfigTests {
 
 		this.mvc.perform(get("/details").session(session)).andExpect(content().string(details.getClass().getName()));
 
-		assertThat(getField(getFilter(OpenIDAuthenticationFilter.class), "authenticationDetailsSource"))
-				.isEqualTo(source);
+		assertThat(ReflectionTestUtils.getField(getFilter(OpenIDAuthenticationFilter.class),
+				"authenticationDetailsSource")).isEqualTo(source);
 	}
 
 	@Test

@@ -32,7 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMessageSecurityMetadataSourceTests {
@@ -73,14 +73,14 @@ public class DefaultMessageSecurityMetadataSourceTests {
 
 	@Test
 	public void getAttributesFirst() {
-		when(this.matcher1.matches(this.message)).thenReturn(true);
+		given(this.matcher1.matches(this.message)).willReturn(true);
 
 		assertThat(this.source.getAttributes(this.message)).containsOnly(this.config1);
 	}
 
 	@Test
 	public void getAttributesSecond() {
-		when(this.matcher1.matches(this.message)).thenReturn(true);
+		given(this.matcher1.matches(this.message)).willReturn(true);
 
 		assertThat(this.source.getAttributes(this.message)).containsOnly(this.config2);
 	}

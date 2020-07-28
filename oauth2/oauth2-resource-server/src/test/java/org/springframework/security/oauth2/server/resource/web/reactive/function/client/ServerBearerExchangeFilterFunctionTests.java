@@ -25,6 +25,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -34,7 +35,6 @@ import org.springframework.security.oauth2.server.resource.web.MockExchangeFunct
 import org.springframework.web.reactive.function.client.ClientRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpMethod.GET;
 
 /**
  * Tests for {@link ServerBearerExchangeFilterFunction}
@@ -60,7 +60,7 @@ public class ServerBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenUnauthenticatedThenAuthorizationHeaderNull() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -69,7 +69,7 @@ public class ServerBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenAuthenticatedThenAuthorizationHeaderNull() throws Exception {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
@@ -81,7 +81,7 @@ public class ServerBearerExchangeFilterFunctionTests {
 	// gh-7353
 	@Test
 	public void filterWhenAuthenticatedWithOtherTokenThenAuthorizationHeaderNull() throws Exception {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
 		this.function.filter(request, this.exchange)
@@ -92,7 +92,7 @@ public class ServerBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
 				.header(HttpHeaders.AUTHORIZATION, "Existing").build();
 
 		this.function.filter(request, this.exchange)

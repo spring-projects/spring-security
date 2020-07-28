@@ -26,9 +26,9 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link ReactiveJwtAuthenticationConverterAdapter}
@@ -44,7 +44,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 	@Test
 	public void convertWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {
-		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
+		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
@@ -55,7 +55,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 	@Test
 	public void convertWhenTokenHasEmptyScopeAttributeThenTranslatedToNoAuthorities() {
-		Jwt jwt = jwt().claim("scope", "").build();
+		Jwt jwt = TestJwts.jwt().claim("scope", "").build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 
@@ -66,7 +66,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 	@Test
 	public void convertWhenTokenHasScpAttributeThenTranslatedToAuthorities() {
-		Jwt jwt = jwt().claim("scp", Arrays.asList("message:read", "message:write")).build();
+		Jwt jwt = TestJwts.jwt().claim("scp", Arrays.asList("message:read", "message:write")).build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 
@@ -78,7 +78,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 	@Test
 	public void convertWhenTokenHasEmptyScpAttributeThenTranslatedToNoAuthorities() {
-		Jwt jwt = jwt().claim("scp", Arrays.asList()).build();
+		Jwt jwt = TestJwts.jwt().claim("scp", Arrays.asList()).build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 
@@ -89,7 +89,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 	@Test
 	public void convertWhenTokenHasBothScopeAndScpThenScopeAttributeIsTranslatedToAuthorities() {
-		Jwt jwt = jwt().claim("scp", Arrays.asList("message:read", "message:write"))
+		Jwt jwt = TestJwts.jwt().claim("scp", Arrays.asList("message:read", "message:write"))
 				.claim("scope", "missive:read missive:write").build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
@@ -102,7 +102,8 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 	@Test
 	public void convertWhenTokenHasEmptyScopeAndNonEmptyScpThenScopeAttributeIsTranslatedToNoAuthorities() {
-		Jwt jwt = jwt().claim("scp", Arrays.asList("message:read", "message:write")).claim("scope", "").build();
+		Jwt jwt = TestJwts.jwt().claim("scp", Arrays.asList("message:read", "message:write")).claim("scope", "")
+				.build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 

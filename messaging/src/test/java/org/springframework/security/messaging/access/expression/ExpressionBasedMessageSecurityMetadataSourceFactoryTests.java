@@ -31,8 +31,7 @@ import org.springframework.security.messaging.access.intercept.MessageSecurityMe
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory.createExpressionMessageMetadataSource;
+import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
@@ -67,7 +66,8 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 		this.matcherToExpression.put(this.matcher1, this.expression1);
 		this.matcherToExpression.put(this.matcher2, this.expression2);
 
-		this.source = createExpressionMessageMetadataSource(this.matcherToExpression);
+		this.source = ExpressionBasedMessageSecurityMetadataSourceFactory
+				.createExpressionMessageMetadataSource(this.matcherToExpression);
 		this.rootObject = new MessageSecurityExpressionRoot(this.authentication, this.message);
 	}
 
@@ -81,7 +81,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 
 	@Test
 	public void createExpressionMessageMetadataSourceMatchFirst() {
-		when(this.matcher1.matches(this.message)).thenReturn(true);
+		given(this.matcher1.matches(this.message)).willReturn(true);
 
 		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
 
@@ -94,7 +94,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 
 	@Test
 	public void createExpressionMessageMetadataSourceMatchSecond() {
-		when(this.matcher2.matches(this.message)).thenReturn(true);
+		given(this.matcher2.matches(this.message)).willReturn(true);
 
 		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
 

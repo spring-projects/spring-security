@@ -22,9 +22,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
-
-import static org.springframework.security.core.authority.AuthorityUtils.NO_AUTHORITIES;
 
 /**
  * A domain object that wraps the attributes of an OAuth 2.0 token.
@@ -65,7 +64,8 @@ public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2Authenti
 
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		this.attributes = Collections.unmodifiableMap(attributes);
-		this.authorities = authorities == null ? NO_AUTHORITIES : Collections.unmodifiableCollection(authorities);
+		this.authorities = authorities == null ? AuthorityUtils.NO_AUTHORITIES
+				: Collections.unmodifiableCollection(authorities);
 		this.name = name == null ? (String) this.attributes.get("sub") : name;
 	}
 

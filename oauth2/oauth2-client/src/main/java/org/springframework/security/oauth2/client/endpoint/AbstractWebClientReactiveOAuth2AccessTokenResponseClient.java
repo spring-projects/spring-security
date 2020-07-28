@@ -26,14 +26,13 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
 
 /**
  * Abstract base class for all of the {@code WebClientReactive*TokenResponseClient}s that
@@ -169,7 +168,7 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 	 * @return the token response from the response body.
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
-		return response.body(oauth2AccessTokenResponse())
+		return response.body(OAuth2BodyExtractors.oauth2AccessTokenResponse())
 				.map(tokenResponse -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 

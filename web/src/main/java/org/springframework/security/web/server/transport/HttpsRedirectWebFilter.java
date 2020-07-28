@@ -25,13 +25,12 @@ import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.anyExchange;
 
 /**
  * Redirects any non-HTTPS request to its HTTPS equivalent.
@@ -48,7 +47,7 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 
 	private PortMapper portMapper = new PortMapperImpl();
 
-	private ServerWebExchangeMatcher requiresHttpsRedirectMatcher = anyExchange();
+	private ServerWebExchangeMatcher requiresHttpsRedirectMatcher = ServerWebExchangeMatchers.anyExchange();
 
 	private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 

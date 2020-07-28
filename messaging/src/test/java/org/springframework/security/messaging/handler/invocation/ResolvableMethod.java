@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
@@ -53,8 +54,6 @@ import org.springframework.objenesis.SpringObjenesis;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
-
-import static java.util.stream.Collectors.joining;
 
 /**
  * NOTE: This class is a replica of the same class in spring-web so it can be used for
@@ -216,13 +215,14 @@ public final class ResolvableMethod {
 
 	private String formatMethod() {
 		return (method().getName() + Arrays.stream(this.method.getParameters()).map(this::formatParameter)
-				.collect(joining(",\n\t", "(\n\t", "\n)")));
+				.collect(Collectors.joining(",\n\t", "(\n\t", "\n)")));
 	}
 
 	private String formatParameter(Parameter param) {
 		Annotation[] anns = param.getAnnotations();
 		return (anns.length > 0
-				? Arrays.stream(anns).map(this::formatAnnotation).collect(joining(",", "[", "]")) + " " + param
+				? Arrays.stream(anns).map(this::formatAnnotation).collect(Collectors.joining(",", "[", "]")) + " "
+						+ param
 				: param.toString());
 	}
 
@@ -427,8 +427,8 @@ public final class ResolvableMethod {
 		}
 
 		private String formatMethods(Set<Method> methods) {
-			return "\nMatched:\n"
-					+ methods.stream().map(Method::toGenericString).collect(joining(",\n\t", "[\n\t", "\n]"));
+			return "\nMatched:\n" + methods.stream().map(Method::toGenericString)
+					.collect(Collectors.joining(",\n\t", "[\n\t", "\n]"));
 		}
 
 		public ResolvableMethod mockCall(Consumer<T> invoker) {
@@ -504,7 +504,8 @@ public final class ResolvableMethod {
 		}
 
 		private String formatFilters() {
-			return this.filters.stream().map(Object::toString).collect(joining(",\n\t\t", "[\n\t\t", "\n\t]"));
+			return this.filters.stream().map(Object::toString)
+					.collect(Collectors.joining(",\n\t\t", "[\n\t\t", "\n\t]"));
 		}
 
 	}

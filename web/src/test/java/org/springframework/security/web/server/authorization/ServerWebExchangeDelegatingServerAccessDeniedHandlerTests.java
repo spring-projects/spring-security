@@ -25,14 +25,13 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.security.web.server.authorization.ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
 
 public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 
@@ -55,7 +54,7 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 	public void handleWhenNothingMatchesThenOnlyDefaultHandlerInvoked() {
 		ServerAccessDeniedHandler handler = mock(ServerAccessDeniedHandler.class);
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
-		given(matcher.matches(this.exchange)).willReturn(notMatch());
+		given(matcher.matches(this.exchange)).willReturn(MatchResult.notMatch());
 		given(handler.handle(this.exchange, null)).willReturn(Mono.empty());
 		given(this.accessDeniedHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 
@@ -75,7 +74,7 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 		ServerWebExchangeMatcher firstMatcher = mock(ServerWebExchangeMatcher.class);
 		ServerAccessDeniedHandler secondHandler = mock(ServerAccessDeniedHandler.class);
 		ServerWebExchangeMatcher secondMatcher = mock(ServerWebExchangeMatcher.class);
-		given(firstMatcher.matches(this.exchange)).willReturn(match());
+		given(firstMatcher.matches(this.exchange)).willReturn(MatchResult.match());
 		given(firstHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 		given(secondHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 
@@ -98,8 +97,8 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 		ServerWebExchangeMatcher firstMatcher = mock(ServerWebExchangeMatcher.class);
 		ServerAccessDeniedHandler secondHandler = mock(ServerAccessDeniedHandler.class);
 		ServerWebExchangeMatcher secondMatcher = mock(ServerWebExchangeMatcher.class);
-		given(firstMatcher.matches(this.exchange)).willReturn(notMatch());
-		given(secondMatcher.matches(this.exchange)).willReturn(match());
+		given(firstMatcher.matches(this.exchange)).willReturn(MatchResult.notMatch());
+		given(secondMatcher.matches(this.exchange)).willReturn(MatchResult.match());
 		given(firstHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 		given(secondHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 

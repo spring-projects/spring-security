@@ -48,6 +48,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,7 +61,6 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -139,7 +139,8 @@ public class SessionManagementConfigTests {
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(request.getSession(false)).isNotNull();
-		assertThat(request.getSession(false).getAttribute(SPRING_SECURITY_CONTEXT_KEY)).isNotNull();
+		assertThat(request.getSession(false)
+				.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)).isNotNull();
 	}
 
 	@Test
@@ -169,7 +170,8 @@ public class SessionManagementConfigTests {
 						.session(new MockHttpSession()).with(csrf()))
 				.andExpect(status().isFound()).andExpect(session()).andReturn();
 
-		assertThat(result.getRequest().getSession(false).getAttribute(SPRING_SECURITY_CONTEXT_KEY)).isNull();
+		assertThat(result.getRequest().getSession(false)
+				.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)).isNull();
 	}
 
 	@Test

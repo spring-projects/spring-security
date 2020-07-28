@@ -30,6 +30,7 @@ import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSBoolean;
@@ -78,8 +79,6 @@ import org.opensaml.xmlsec.signature.support.SignatureSupport;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
-
-import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
 
 final class TestOpenSamlObjects {
 
@@ -368,7 +367,7 @@ final class TestOpenSamlObjects {
 	}
 
 	static <T extends XMLObject> T build(QName qName) {
-		return (T) getBuilderFactory().getBuilder(qName).buildObject(qName);
+		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
 
 }

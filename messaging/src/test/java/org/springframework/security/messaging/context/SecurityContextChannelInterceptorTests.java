@@ -35,7 +35,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.core.context.SecurityContextHolder.clearContext;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityContextChannelInterceptorTests {
@@ -69,7 +68,7 @@ public class SecurityContextChannelInterceptorTests {
 
 	@After
 	public void cleanup() {
-		clearContext();
+		SecurityContextHolder.clearContext();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

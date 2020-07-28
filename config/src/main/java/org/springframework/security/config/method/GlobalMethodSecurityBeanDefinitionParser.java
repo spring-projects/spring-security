@@ -80,13 +80,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
-import static org.springframework.security.config.Elements.EXPRESSION_HANDLER;
-import static org.springframework.security.config.Elements.INVOCATION_ATTRIBUTE_FACTORY;
-import static org.springframework.security.config.Elements.INVOCATION_HANDLING;
-import static org.springframework.security.config.Elements.POST_INVOCATION_ADVICE;
-import static org.springframework.security.config.Elements.PRE_INVOCATION_ADVICE;
-import static org.springframework.security.config.Elements.PROTECT_POINTCUT;
-
 /**
  * Processes the top-level "global-method-security" element.
  *
@@ -150,12 +143,12 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		}
 
 		if (prePostAnnotationsEnabled) {
-			Element prePostElt = DomUtils.getChildElementByTagName(element, INVOCATION_HANDLING);
-			Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, EXPRESSION_HANDLER);
+			Element prePostElt = DomUtils.getChildElementByTagName(element, Elements.INVOCATION_HANDLING);
+			Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
 
 			if (prePostElt != null && expressionHandlerElt != null) {
-				pc.getReaderContext().error(
-						INVOCATION_HANDLING + " and " + EXPRESSION_HANDLER + " cannot be used together ", source);
+				pc.getReaderContext().error(Elements.INVOCATION_HANDLING + " and " + Elements.EXPRESSION_HANDLER
+						+ " cannot be used together ", source);
 			}
 
 			BeanDefinitionBuilder preInvocationVoterBldr = BeanDefinitionBuilder
@@ -170,11 +163,12 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 			if (prePostElt != null) {
 				// Customized override of expression handling system
-				String attributeFactoryRef = DomUtils.getChildElementByTagName(prePostElt, INVOCATION_ATTRIBUTE_FACTORY)
+				String attributeFactoryRef = DomUtils
+						.getChildElementByTagName(prePostElt, Elements.INVOCATION_ATTRIBUTE_FACTORY)
 						.getAttribute("ref");
-				String preAdviceRef = DomUtils.getChildElementByTagName(prePostElt, PRE_INVOCATION_ADVICE)
+				String preAdviceRef = DomUtils.getChildElementByTagName(prePostElt, Elements.PRE_INVOCATION_ADVICE)
 						.getAttribute("ref");
-				String postAdviceRef = DomUtils.getChildElementByTagName(prePostElt, POST_INVOCATION_ADVICE)
+				String postAdviceRef = DomUtils.getChildElementByTagName(prePostElt, Elements.POST_INVOCATION_ADVICE)
 						.getAttribute("ref");
 
 				mds.addConstructorArgReference(attributeFactoryRef);
@@ -257,7 +251,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		// Now create a Map<String, ConfigAttribute> for each <protect-pointcut>
 		// sub-element
 		Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(pc,
-				DomUtils.getChildElementsByTagName(element, PROTECT_POINTCUT));
+				DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT));
 
 		if (pointcutMap.size() > 0) {
 			if (useAspectJ) {

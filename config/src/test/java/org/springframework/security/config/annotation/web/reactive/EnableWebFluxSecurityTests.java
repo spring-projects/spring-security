@@ -51,6 +51,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
@@ -71,7 +72,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.result.view.AbstractView;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
 
 /**
  * @author Rob Winch
@@ -202,8 +202,9 @@ public class EnableWebFluxSecurityTests {
 		MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
 		data.add("username", "user");
 		data.add("password", "password");
-		client.mutateWith(csrf()).post().uri("/login").body(BodyInserters.fromFormData(data)).exchange().expectStatus()
-				.is3xxRedirection().expectHeader().valueMatches("Location", "/");
+		client.mutateWith(SecurityMockServerConfigurers.csrf()).post().uri("/login")
+				.body(BodyInserters.fromFormData(data)).exchange().expectStatus().is3xxRedirection().expectHeader()
+				.valueMatches("Location", "/");
 	}
 
 	@Test

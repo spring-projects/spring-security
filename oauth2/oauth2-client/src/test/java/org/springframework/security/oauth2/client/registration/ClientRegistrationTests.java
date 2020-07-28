@@ -30,8 +30,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.security.oauth2.client.registration.ClientRegistration.withClientRegistration;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 
 /**
  * Tests for {@link ClientRegistration}.
@@ -497,8 +495,8 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenClientRegistrationProvidedThenMakesACopy() {
-		ClientRegistration clientRegistration = clientRegistration().build();
-		ClientRegistration updated = withClientRegistration(clientRegistration).build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		ClientRegistration updated = ClientRegistration.withClientRegistration(clientRegistration).build();
 		assertThat(clientRegistration.getScopes()).isEqualTo(updated.getScopes());
 		assertThat(clientRegistration.getScopes()).isNotSameAs(updated.getScopes());
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
@@ -509,8 +507,8 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenClientRegistrationProvidedThenEachPropertyMatches() {
-		ClientRegistration clientRegistration = clientRegistration().build();
-		ClientRegistration updated = withClientRegistration(clientRegistration).build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		ClientRegistration updated = ClientRegistration.withClientRegistration(clientRegistration).build();
 		assertThat(clientRegistration.getRegistrationId()).isEqualTo(updated.getRegistrationId());
 		assertThat(clientRegistration.getClientId()).isEqualTo(updated.getClientId());
 		assertThat(clientRegistration.getClientSecret()).isEqualTo(updated.getClientSecret());
@@ -544,9 +542,9 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenClientRegistrationValuesOverriddenThenPropagated() {
-		ClientRegistration clientRegistration = clientRegistration().build();
-		ClientRegistration updated = withClientRegistration(clientRegistration).clientSecret("a-new-secret")
-				.scope("a-new-scope")
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		ClientRegistration updated = ClientRegistration.withClientRegistration(clientRegistration)
+				.clientSecret("a-new-secret").scope("a-new-scope")
 				.providerConfigurationMetadata(Collections.singletonMap("a-new-config", "a-new-value")).build();
 
 		assertThat(clientRegistration.getClientSecret()).isNotEqualTo(updated.getClientSecret());

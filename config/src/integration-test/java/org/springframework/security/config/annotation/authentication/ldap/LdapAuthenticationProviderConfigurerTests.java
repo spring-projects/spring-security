@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.authentication.ldap;
 
+import java.util.Collections;
+
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -29,7 +31,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static java.util.Collections.singleton;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 
@@ -54,16 +55,18 @@ public class LdapAuthenticationProviderConfigurerTests {
 	public void authenticationManagerSupportMultipleLdapContextWithDefaultRolePrefix() throws Exception {
 		this.spring.register(MultiLdapAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
-				.withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
+				.andExpect(authenticated().withUsername("bob")
+						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	@Test
 	public void authenticationManagerSupportMultipleLdapContextWithCustomRolePrefix() throws Exception {
 		this.spring.register(MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
-				.withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
+				.andExpect(authenticated().withUsername("bob")
+						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS"))));
 	}
 
 	@Test

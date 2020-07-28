@@ -94,13 +94,16 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -124,6 +127,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.context.support.GenericWebApplicationContext;
@@ -131,7 +135,7 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -140,12 +144,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -154,8 +152,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * Tests for {@link OAuth2ResourceServerConfigurer}
@@ -169,9 +165,9 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	private static final String JWT_SUBJECT = "mock-test-subject";
 
-	private static final Map<String, Object> JWT_CLAIMS = Collections.singletonMap(SUB, JWT_SUBJECT);
+	private static final Map<String, Object> JWT_CLAIMS = Collections.singletonMap(JwtClaimNames.SUB, JWT_SUBJECT);
 
-	private static final Jwt JWT = jwt().build();
+	private static final Jwt JWT = TestJwts.jwt().build();
 
 	private static final String JWK_SET_URI = "https://mock.org";
 
@@ -185,8 +181,8 @@ public class OAuth2ResourceServerConfigurerTests {
 	private static final String CLIENT_SECRET = "client-secret";
 
 	private static final BearerTokenAuthentication INTROSPECTION_AUTHENTICATION_TOKEN = new BearerTokenAuthentication(
-			new DefaultOAuth2AuthenticatedPrincipal(JWT_CLAIMS, Collections.emptyList()), noScopes(),
-			Collections.emptyList());
+			new DefaultOAuth2AuthenticatedPrincipal(JWT_CLAIMS, Collections.emptyList()),
+			TestOAuth2AccessTokens.noScopes(), Collections.emptyList());
 
 	@Autowired(required = false)
 	MockMvc mvc;
@@ -1361,8 +1357,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	private String jwtFromIssuer(String issuer) throws Exception {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put(ISS, issuer);
-		claims.put(SUB, "test-subject");
+		claims.put(JwtClaimNames.ISS, issuer);
+		claims.put(JwtClaimNames.SUB, "test-subject");
 		claims.put("scope", "message:read");
 		JWSObject jws = new JWSObject(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("1").build(),
 				new Payload(new JSONObject(claims)));
@@ -2066,7 +2062,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		JwtDecoder decoder() throws Exception {
 			RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")
 					.generatePublic(new X509EncodedKeySpec(this.spec));
-			return withPublicKey(publicKey).build();
+			return NimbusJwtDecoder.withPublicKey(publicKey).build();
 		}
 
 	}
@@ -2285,7 +2281,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			return "post";
 		}
 
-		@RequestMapping(value = "/authenticated", method = { GET, POST })
+		@RequestMapping(value = "/authenticated", method = { RequestMethod.GET, RequestMethod.POST })
 		public String authenticated(Authentication authentication) {
 			return authentication.getName();
 		}
@@ -2365,7 +2361,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		@Bean
 		NimbusJwtDecoder jwtDecoder() {
-			return withJwkSetUri("https://example.org/.well-known/jwks.json").restOperations(this.rest).build();
+			return NimbusJwtDecoder.withJwkSetUri("https://example.org/.well-known/jwks.json").restOperations(this.rest)
+					.build();
 		}
 
 		@Bean

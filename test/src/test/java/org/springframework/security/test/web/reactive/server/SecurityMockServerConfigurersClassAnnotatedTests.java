@@ -32,8 +32,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 /**
  * @author Rob Winch
@@ -45,7 +43,8 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMockServerConfigurersTests {
 
 	WebTestClient client = WebTestClient.bindToController(this.controller)
-			.webFilter(new SecurityContextServerWebExchangeWebFilter()).apply(springSecurity()).configureClient()
+			.webFilter(new SecurityContextServerWebExchangeWebFilter())
+			.apply(SecurityMockServerConfigurers.springSecurity()).configureClient()
 			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 
 	@Test
@@ -69,8 +68,9 @@ public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMo
 
 	@Test
 	public void withMockUserWhenMutateWithThenMustateWithOverrides() {
-		this.client.mutateWith(mockUser("mutateWith-mockUser")).get().exchange().expectStatus().isOk()
-				.expectBody(String.class).consumeWith(response -> assertThat(response.getResponseBody())
+		this.client.mutateWith(SecurityMockServerConfigurers.mockUser("mutateWith-mockUser")).get().exchange()
+				.expectStatus().isOk().expectBody(String.class)
+				.consumeWith(response -> assertThat(response.getResponseBody())
 						.contains("\"username\":\"mutateWith-mockUser\""));
 
 		Principal principal = this.controller.removePrincipal();

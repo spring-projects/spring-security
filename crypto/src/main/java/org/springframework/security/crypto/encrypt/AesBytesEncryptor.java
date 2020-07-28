@@ -27,13 +27,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
-
-import static org.springframework.security.crypto.encrypt.CipherUtils.doFinal;
-import static org.springframework.security.crypto.encrypt.CipherUtils.initCipher;
-import static org.springframework.security.crypto.encrypt.CipherUtils.newCipher;
-import static org.springframework.security.crypto.encrypt.CipherUtils.newSecretKey;
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
  * Encryptor that uses AES encryption.
@@ -80,7 +74,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		}
 
 		public Cipher createCipher() {
-			return newCipher(this.toString());
+			return CipherUtils.newCipher(this.toString());
 		}
 
 		public BytesKeyGenerator defaultIvGenerator() {
@@ -98,8 +92,8 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	}
 
 	public AesBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator, CipherAlgorithm alg) {
-		this(newSecretKey("PBKDF2WithHmacSHA1", new PBEKeySpec(password.toCharArray(), Hex.decode(salt), 1024, 256)),
-				ivGenerator, alg);
+		this(CipherUtils.newSecretKey("PBKDF2WithHmacSHA1",
+				new PBEKeySpec(password.toCharArray(), Hex.decode(salt), 1024, 256)), ivGenerator, alg);
 	}
 
 	/**
@@ -122,9 +116,9 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	public byte[] encrypt(byte[] bytes) {
 		synchronized (this.encryptor) {
 			byte[] iv = this.ivGenerator.generateKey();
-			initCipher(this.encryptor, Cipher.ENCRYPT_MODE, this.secretKey, this.alg.getParameterSpec(iv));
-			byte[] encrypted = doFinal(this.encryptor, bytes);
-			return this.ivGenerator != NULL_IV_GENERATOR ? concatenate(iv, encrypted) : encrypted;
+			CipherUtils.initCipher(this.encryptor, Cipher.ENCRYPT_MODE, this.secretKey, this.alg.getParameterSpec(iv));
+			byte[] encrypted = CipherUtils.doFinal(this.encryptor, bytes);
+			return this.ivGenerator != NULL_IV_GENERATOR ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 		}
 	}
 
@@ -132,8 +126,8 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	public byte[] decrypt(byte[] encryptedBytes) {
 		synchronized (this.decryptor) {
 			byte[] iv = iv(encryptedBytes);
-			initCipher(this.decryptor, Cipher.DECRYPT_MODE, this.secretKey, this.alg.getParameterSpec(iv));
-			return doFinal(this.decryptor,
+			CipherUtils.initCipher(this.decryptor, Cipher.DECRYPT_MODE, this.secretKey, this.alg.getParameterSpec(iv));
+			return CipherUtils.doFinal(this.decryptor,
 					this.ivGenerator != NULL_IV_GENERATOR ? encrypted(encryptedBytes, iv.length) : encryptedBytes);
 		}
 	}
@@ -141,12 +135,13 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	// internal helpers
 
 	private byte[] iv(byte[] encrypted) {
-		return this.ivGenerator != NULL_IV_GENERATOR ? subArray(encrypted, 0, this.ivGenerator.getKeyLength())
+		return this.ivGenerator != NULL_IV_GENERATOR
+				? EncodingUtils.subArray(encrypted, 0, this.ivGenerator.getKeyLength())
 				: NULL_IV_GENERATOR.generateKey();
 	}
 
 	private byte[] encrypted(byte[] encryptedBytes, int ivLength) {
-		return subArray(encryptedBytes, ivLength, encryptedBytes.length);
+		return EncodingUtils.subArray(encryptedBytes, ivLength, encryptedBytes.length);
 	}
 
 	private static final BytesKeyGenerator NULL_IV_GENERATOR = new BytesKeyGenerator() {

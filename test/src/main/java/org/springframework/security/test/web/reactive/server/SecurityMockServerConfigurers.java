@@ -67,6 +67,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -88,9 +89,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
-
-import static java.lang.Boolean.TRUE;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
  * Test utilities for working with Spring Security and
@@ -469,8 +467,8 @@ public class SecurityMockServerConfigurers {
 		 * @return the {@link JwtMutator} for further configuration
 		 */
 		public JwtMutator jwt(Consumer<Jwt.Builder> jwtBuilderConsumer) {
-			Jwt.Builder jwtBuilder = Jwt.withTokenValue("token").header("alg", "none").claim(SUB, "user").claim("scope",
-					"read");
+			Jwt.Builder jwtBuilder = Jwt.withTokenValue("token").header("alg", "none").claim(JwtClaimNames.SUB, "user")
+					.claim("scope", "read");
 			jwtBuilderConsumer.accept(jwtBuilder);
 			this.jwt = jwtBuilder.build();
 			return this;
@@ -1178,11 +1176,11 @@ public class SecurityMockServerConfigurers {
 			}
 
 			public static void enable(ServerWebExchange exchange) {
-				exchange.getAttributes().put(ENABLED_ATTR_NAME, TRUE);
+				exchange.getAttributes().put(ENABLED_ATTR_NAME, Boolean.TRUE);
 			}
 
 			public boolean isEnabled(ServerWebExchange exchange) {
-				return TRUE.equals(exchange.getAttribute(ENABLED_ATTR_NAME));
+				return Boolean.TRUE.equals(exchange.getAttribute(ENABLED_ATTR_NAME));
 			}
 
 		}

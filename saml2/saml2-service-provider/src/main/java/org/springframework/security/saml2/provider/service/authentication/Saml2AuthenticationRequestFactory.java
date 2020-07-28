@@ -22,10 +22,6 @@ import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
-import static org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequest.withAuthenticationRequestContext;
-import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDeflate;
-import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlEncode;
-
 /**
  * Component that generates AuthenticationRequest, <code>samlp:AuthnRequestType</code>
  * XML, and accompanying signature data. as defined by
@@ -81,9 +77,10 @@ public interface Saml2AuthenticationRequestFactory {
 	default Saml2RedirectAuthenticationRequest createRedirectAuthenticationRequest(
 			Saml2AuthenticationRequestContext context) {
 		// backwards compatible with 5.2.x settings
-		Saml2AuthenticationRequest.Builder resultBuilder = withAuthenticationRequestContext(context);
+		Saml2AuthenticationRequest.Builder resultBuilder = Saml2AuthenticationRequest
+				.withAuthenticationRequestContext(context);
 		String samlRequest = createAuthenticationRequest(resultBuilder.build());
-		samlRequest = samlEncode(samlDeflate(samlRequest));
+		samlRequest = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(samlRequest));
 		return Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest(samlRequest)
 				.build();
 	}
@@ -108,9 +105,10 @@ public interface Saml2AuthenticationRequestFactory {
 	 */
 	default Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
 		// backwards compatible with 5.2.x settings
-		Saml2AuthenticationRequest.Builder resultBuilder = withAuthenticationRequestContext(context);
+		Saml2AuthenticationRequest.Builder resultBuilder = Saml2AuthenticationRequest
+				.withAuthenticationRequestContext(context);
 		String samlRequest = createAuthenticationRequest(resultBuilder.build());
-		samlRequest = samlEncode(samlRequest.getBytes(StandardCharsets.UTF_8));
+		samlRequest = Saml2Utils.samlEncode(samlRequest.getBytes(StandardCharsets.UTF_8));
 		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest(samlRequest)
 				.build();
 	}

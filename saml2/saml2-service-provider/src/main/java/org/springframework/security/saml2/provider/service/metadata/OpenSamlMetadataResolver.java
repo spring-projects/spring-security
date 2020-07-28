@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.opensaml.core.xml.XMLObjectBuilder;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -44,9 +45,6 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 
-import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
-import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getMarshallerFactory;
-
 /**
  * Resolves the SAML 2.0 Relying Party Metadata for a given
  * {@link RelyingPartyRegistration} using the OpenSAML API.
@@ -64,8 +62,8 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	private final EntityDescriptorMarshaller entityDescriptorMarshaller;
 
 	public OpenSamlMetadataResolver() {
-		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller) getMarshallerFactory()
-				.getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
+		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller) XMLObjectProviderRegistrySupport
+				.getMarshallerFactory().getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.entityDescriptorMarshaller, "entityDescriptorMarshaller cannot be null");
 	}
 
@@ -135,7 +133,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	@SuppressWarnings("unchecked")
 	private <T> T build(QName elementName) {
-		XMLObjectBuilder<?> builder = getBuilderFactory().getBuilder(elementName);
+		XMLObjectBuilder<?> builder = XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(elementName);
 		if (builder == null) {
 			throw new Saml2Exception("Unable to resolve Builder for " + elementName);
 		}

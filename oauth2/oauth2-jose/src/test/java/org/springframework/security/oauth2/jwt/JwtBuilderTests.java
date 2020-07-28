@@ -21,9 +21,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.EXP;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.IAT;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
  * Tests for {@link Jwt.Builder}.
@@ -69,7 +66,7 @@ public class JwtBuilderTests {
 		jwt = jwtBuilder.expiresAt(now).build();
 		assertThat(jwt.getExpiresAt()).isSameAs(now);
 
-		assertThatCode(() -> jwtBuilder.claim(EXP, "not an instant").build())
+		assertThatCode(() -> jwtBuilder.claim(JwtClaimNames.EXP, "not an instant").build())
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -85,7 +82,7 @@ public class JwtBuilderTests {
 		jwt = jwtBuilder.issuedAt(now).build();
 		assertThat(jwt.getIssuedAt()).isSameAs(now);
 
-		assertThatCode(() -> jwtBuilder.claim(IAT, "not an instant").build())
+		assertThatCode(() -> jwtBuilder.claim(JwtClaimNames.IAT, "not an instant").build())
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -96,10 +93,10 @@ public class JwtBuilderTests {
 		String generic = new String("sub");
 		String named = new String("sub");
 
-		Jwt jwt = jwtBuilder.subject(named).claim(SUB, generic).build();
+		Jwt jwt = jwtBuilder.subject(named).claim(JwtClaimNames.SUB, generic).build();
 		assertThat(jwt.getSubject()).isSameAs(generic);
 
-		jwt = jwtBuilder.claim(SUB, generic).subject(named).build();
+		jwt = jwtBuilder.claim(JwtClaimNames.SUB, generic).subject(named).build();
 		assertThat(jwt.getSubject()).isSameAs(named);
 	}
 
@@ -107,7 +104,7 @@ public class JwtBuilderTests {
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
 		Jwt.Builder jwtBuilder = Jwt.withTokenValue("token").claim("needs", "a claim").header("needs", "a header");
 
-		Jwt jwt = jwtBuilder.subject("sub").claims(claims -> claims.remove(SUB)).build();
+		Jwt jwt = jwtBuilder.subject("sub").claims(claims -> claims.remove(JwtClaimNames.SUB)).build();
 		assertThat(jwt.getSubject()).isNull();
 	}
 

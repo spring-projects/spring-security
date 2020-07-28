@@ -26,10 +26,10 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link ReactiveJwtAuthenticationConverter}
@@ -43,7 +43,7 @@ public class ReactiveJwtAuthenticationConverterTests {
 
 	@Test
 	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
-		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
+		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
@@ -61,7 +61,7 @@ public class ReactiveJwtAuthenticationConverterTests {
 
 	@Test
 	public void convertWithOverriddenGrantedAuthoritiesConverter() {
-		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
+		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 
 		Converter<Jwt, Flux<GrantedAuthority>> grantedAuthoritiesConverter = token -> Flux
 				.just(new SimpleGrantedAuthority("blah"));

@@ -50,6 +50,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
@@ -68,14 +69,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.HEAD;
-import static org.springframework.web.bind.annotation.RequestMethod.OPTIONS;
-import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
-import static org.springframework.web.bind.annotation.RequestMethod.TRACE;
 
 /**
  * @author Rob Winch
@@ -441,20 +434,22 @@ public class CsrfConfigTests {
 	@Controller
 	public static class RootController {
 
-		@RequestMapping(value = "/csrf-in-header", method = { HEAD, TRACE, OPTIONS })
+		@RequestMapping(value = "/csrf-in-header",
+				method = { RequestMethod.HEAD, RequestMethod.TRACE, RequestMethod.OPTIONS })
 		@ResponseBody
 		String csrfInHeaderAndBody(CsrfToken token, HttpServletResponse response) {
 			response.setHeader(token.getHeaderName(), token.getToken());
 			return csrfInBody(token);
 		}
 
-		@RequestMapping(value = "/csrf", method = { POST, PUT, PATCH, DELETE, GET })
+		@RequestMapping(value = "/csrf", method = { RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH,
+				RequestMethod.DELETE, RequestMethod.GET })
 		@ResponseBody
 		String csrfInBody(CsrfToken token) {
 			return token.getToken();
 		}
 
-		@RequestMapping(value = "/ok", method = { POST, GET })
+		@RequestMapping(value = "/ok", method = { RequestMethod.POST, RequestMethod.GET })
 		@ResponseBody
 		String ok() {
 			return "ok";

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonClassDescription;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
 import org.junit.Test;
@@ -29,10 +31,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_ABSENT;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static com.fasterxml.jackson.annotation.JsonInclude.Value.construct;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -181,7 +179,8 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 
 	@Test
 	public void serializingThenDeserializingWithConfiguredObjectMapperShouldWork() throws IOException {
-		this.mapper.setDefaultPropertyInclusion(construct(ALWAYS, NON_NULL)).setSerializationInclusion(NON_ABSENT);
+		this.mapper.setDefaultPropertyInclusion(Value.construct(Include.ALWAYS, Include.NON_NULL))
+				.setSerializationInclusion(Include.NON_ABSENT);
 		UsernamePasswordAuthenticationToken original = new UsernamePasswordAuthenticationToken("Frodo", null);
 		String serialized = this.mapper.writeValueAsString(original);
 		UsernamePasswordAuthenticationToken deserialized = this.mapper.readValue(serialized,

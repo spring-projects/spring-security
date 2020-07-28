@@ -22,9 +22,7 @@ import org.bouncycastle.crypto.params.AEADParameters;
 
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
-
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
  * An Encryptor equivalent to {@link AesBytesEncryptor} using {@link CipherAlgorithm#GCM}
@@ -53,13 +51,13 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 		blockCipher.init(true, new AEADParameters(this.secretKey, 128, iv, null));
 
 		byte[] encrypted = process(blockCipher, bytes);
-		return iv != null ? concatenate(iv, encrypted) : encrypted;
+		return iv != null ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 	}
 
 	@Override
 	public byte[] decrypt(byte[] encryptedBytes) {
-		byte[] iv = subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
-		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
+		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
+		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
 
 		@SuppressWarnings("deprecation")
 		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());

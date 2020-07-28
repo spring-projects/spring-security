@@ -28,12 +28,6 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
-import static org.springframework.security.oauth2.client.jackson2.JsonNodeUtils.MAP_TYPE_REFERENCE;
-import static org.springframework.security.oauth2.client.jackson2.JsonNodeUtils.SET_TYPE_REFERENCE;
-import static org.springframework.security.oauth2.client.jackson2.JsonNodeUtils.findObjectNode;
-import static org.springframework.security.oauth2.client.jackson2.JsonNodeUtils.findStringValue;
-import static org.springframework.security.oauth2.client.jackson2.JsonNodeUtils.findValue;
-
 /**
  * A {@code JsonDeserializer} for {@link OAuth2AuthorizationRequest}.
  *
@@ -53,7 +47,7 @@ final class OAuth2AuthorizationRequestDeserializer extends JsonDeserializer<OAut
 		JsonNode authorizationRequestNode = mapper.readTree(parser);
 
 		AuthorizationGrantType authorizationGrantType = AUTHORIZATION_GRANT_TYPE_CONVERTER
-				.convert(findObjectNode(authorizationRequestNode, "authorizationGrantType"));
+				.convert(JsonNodeUtils.findObjectNode(authorizationRequestNode, "authorizationGrantType"));
 
 		OAuth2AuthorizationRequest.Builder builder;
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
@@ -66,15 +60,19 @@ final class OAuth2AuthorizationRequestDeserializer extends JsonDeserializer<OAut
 			throw new JsonParseException(parser, "Invalid authorizationGrantType");
 		}
 
-		return builder.authorizationUri(findStringValue(authorizationRequestNode, "authorizationUri"))
-				.clientId(findStringValue(authorizationRequestNode, "clientId"))
-				.redirectUri(findStringValue(authorizationRequestNode, "redirectUri"))
-				.scopes(findValue(authorizationRequestNode, "scopes", SET_TYPE_REFERENCE, mapper))
-				.state(findStringValue(authorizationRequestNode, "state"))
-				.additionalParameters(
-						findValue(authorizationRequestNode, "additionalParameters", MAP_TYPE_REFERENCE, mapper))
-				.authorizationRequestUri(findStringValue(authorizationRequestNode, "authorizationRequestUri"))
-				.attributes(findValue(authorizationRequestNode, "attributes", MAP_TYPE_REFERENCE, mapper)).build();
+		return builder.authorizationUri(JsonNodeUtils.findStringValue(authorizationRequestNode, "authorizationUri"))
+				.clientId(JsonNodeUtils.findStringValue(authorizationRequestNode, "clientId"))
+				.redirectUri(JsonNodeUtils.findStringValue(authorizationRequestNode, "redirectUri"))
+				.scopes(JsonNodeUtils
+						.findValue(authorizationRequestNode, "scopes", JsonNodeUtils.SET_TYPE_REFERENCE, mapper))
+				.state(JsonNodeUtils.findStringValue(authorizationRequestNode, "state"))
+				.additionalParameters(JsonNodeUtils.findValue(authorizationRequestNode, "additionalParameters",
+						JsonNodeUtils.MAP_TYPE_REFERENCE, mapper))
+				.authorizationRequestUri(
+						JsonNodeUtils.findStringValue(authorizationRequestNode, "authorizationRequestUri"))
+				.attributes(JsonNodeUtils.findValue(authorizationRequestNode, "attributes",
+						JsonNodeUtils.MAP_TYPE_REFERENCE, mapper))
+				.build();
 	}
 
 }

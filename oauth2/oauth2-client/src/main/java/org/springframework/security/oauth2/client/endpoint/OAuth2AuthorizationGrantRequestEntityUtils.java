@@ -24,8 +24,6 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-
 /**
  * Utility methods used by the {@link Converter}'s that convert from an implementation of
  * an {@link AbstractOAuth2AuthorizationGrantRequest} to a {@link RequestEntity}
@@ -53,7 +51,7 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 	private static HttpHeaders getDefaultTokenRequestHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
-		final MediaType contentType = MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+		final MediaType contentType = MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		headers.setContentType(contentType);
 		return headers;
 	}

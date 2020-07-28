@@ -31,11 +31,6 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
-import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.createDefaultAuthorizedClientRepository;
-import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.getAuthorizedClientRepository;
-import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.getAuthorizedClientService;
-import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.getClientRegistrationRepository;
-
 /**
  * @author Joe Grandja
  * @since 5.3
@@ -71,12 +66,15 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		Element authorizationCodeGrantElt = DomUtils.getChildElementByTagName(element, ELT_AUTHORIZATION_CODE_GRANT);
 
-		BeanMetadataElement clientRegistrationRepository = getClientRegistrationRepository(element);
-		BeanMetadataElement authorizedClientRepository = getAuthorizedClientRepository(element);
+		BeanMetadataElement clientRegistrationRepository = OAuth2ClientBeanDefinitionParserUtils
+				.getClientRegistrationRepository(element);
+		BeanMetadataElement authorizedClientRepository = OAuth2ClientBeanDefinitionParserUtils
+				.getAuthorizedClientRepository(element);
 		if (authorizedClientRepository == null) {
-			BeanMetadataElement authorizedClientService = getAuthorizedClientService(element);
-			this.defaultAuthorizedClientRepository = createDefaultAuthorizedClientRepository(
-					clientRegistrationRepository, authorizedClientService);
+			BeanMetadataElement authorizedClientService = OAuth2ClientBeanDefinitionParserUtils
+					.getAuthorizedClientService(element);
+			this.defaultAuthorizedClientRepository = OAuth2ClientBeanDefinitionParserUtils
+					.createDefaultAuthorizedClientRepository(clientRegistrationRepository, authorizedClientService);
 			authorizedClientRepository = new RuntimeBeanReference(OAuth2AuthorizedClientRepository.class);
 		}
 		BeanMetadataElement authorizationRequestRepository = getAuthorizationRequestRepository(

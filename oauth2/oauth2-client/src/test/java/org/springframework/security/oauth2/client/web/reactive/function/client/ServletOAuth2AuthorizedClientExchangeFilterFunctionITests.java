@@ -64,8 +64,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 /**
  * @author Joe Grandja
@@ -163,8 +161,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				.willReturn(clientRegistration);
 
 		this.webClient.get().uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
-				.bodyToMono(String.class).block();
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(clientRegistration.getRegistrationId()))
+				.retrieve().bodyToMono(String.class).block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
 
@@ -200,8 +199,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				eq(clientRegistration.getRegistrationId()), eq(this.authentication), eq(this.request));
 
 		this.webClient.get().uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
-				.bodyToMono(String.class).block();
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(clientRegistration.getRegistrationId()))
+				.retrieve().bodyToMono(String.class).block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
 
@@ -240,11 +240,13 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				.willReturn(clientRegistration2);
 
 		this.webClient.get().uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration1.getRegistrationId())).retrieve()
-				.bodyToMono(String.class)
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(clientRegistration1.getRegistrationId()))
+				.retrieve().bodyToMono(String.class)
 				.flatMap(response -> this.webClient.get().uri(this.serverUrl)
-						.attributes(clientRegistrationId(clientRegistration2.getRegistrationId())).retrieve()
-						.bodyToMono(String.class))
+						.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+								.clientRegistrationId(clientRegistration2.getRegistrationId()))
+						.retrieve().bodyToMono(String.class))
 				.subscriberContext(context()).block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(4);
@@ -262,7 +264,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		contextAttributes.put(HttpServletRequest.class, this.request);
 		contextAttributes.put(HttpServletResponse.class, this.response);
 		contextAttributes.put(Authentication.class, this.authentication);
-		return Context.of(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY, contextAttributes);
+		return Context.of(ServletOAuth2AuthorizedClientExchangeFilterFunction.SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY,
+				contextAttributes);
 	}
 
 	private MockResponse jsonResponse(String json) {

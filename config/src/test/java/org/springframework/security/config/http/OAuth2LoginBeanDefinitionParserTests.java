@@ -52,6 +52,7 @@ import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -78,8 +79,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.accessTokenResponse;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.oidcAccessTokenResponse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -214,7 +213,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
@@ -243,7 +242,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
@@ -269,7 +268,8 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = oidcAccessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.oidcAccessTokenResponse()
+				.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		Jwt jwt = TestJwts.user();
@@ -297,7 +297,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
@@ -326,7 +326,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		accessTokenResponse = oidcAccessTokenResponse().build();
+		accessTokenResponse = TestOAuth2AccessTokenResponses.oidcAccessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		Jwt jwt = TestJwts.user();
@@ -359,7 +359,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
@@ -428,7 +428,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
@@ -456,7 +456,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();
@@ -484,7 +484,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		OAuth2User oauth2User = TestOAuth2Users.create();

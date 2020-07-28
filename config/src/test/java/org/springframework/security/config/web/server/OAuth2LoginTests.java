@@ -80,6 +80,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
@@ -108,7 +109,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * @author Rob Winch
@@ -680,7 +680,7 @@ public class OAuth2LoginTests {
 					claims.put(IdTokenClaimNames.ISS, "http://localhost/issuer");
 					claims.put(IdTokenClaimNames.AUD, Collections.singletonList("client"));
 					claims.put(IdTokenClaimNames.AZP, "client");
-					Jwt jwt = jwt().claims(c -> c.putAll(claims)).build();
+					Jwt jwt = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 					return Mono.just(jwt);
 				};
 			}

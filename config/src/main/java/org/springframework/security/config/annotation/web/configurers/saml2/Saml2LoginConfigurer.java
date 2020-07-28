@@ -47,8 +47,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-
-import static org.springframework.util.StringUtils.hasText;
+import org.springframework.util.StringUtils;
 
 /**
  * An {@link AbstractHttpConfigurer} for SAML 2.0 Login, which leverages the SAML 2.0 Web
@@ -215,7 +214,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		setAuthenticationFilter(this.saml2WebSsoAuthenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 
-		if (hasText(this.loginPage)) {
+		if (StringUtils.hasText(this.loginPage)) {
 			// Set custom login page
 			super.loginPage(this.loginPage);
 			super.init(http);

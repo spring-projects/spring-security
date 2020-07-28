@@ -40,8 +40,6 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
-import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_REQUEST_MATCHER_REF;
-
 /**
  * Allows for convenient creation of a {@link FilterInvocationSecurityMetadataSource} bean
  * for use with a FilterSecurityInterceptor.
@@ -161,7 +159,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 			}
 
 			String path = urlElt.getAttribute(ATT_PATTERN);
-			String matcherRef = urlElt.getAttribute(ATT_REQUEST_MATCHER_REF);
+			String matcherRef = urlElt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REQUEST_MATCHER_REF);
 			boolean hasMatcherRef = StringUtils.hasText(matcherRef);
 
 			if (!hasMatcherRef && !StringUtils.hasText(path)) {

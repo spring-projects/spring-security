@@ -15,13 +15,13 @@
  */
 package org.springframework.security.messaging.util.matcher;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import static java.util.Arrays.asList;
-import static org.apache.commons.logging.LogFactory.getLog;
-import static org.springframework.util.Assert.notEmpty;
+import org.springframework.util.Assert;
 
 /**
  * Abstract {@link MessageMatcher} containing multiple {@link MessageMatcher}
@@ -30,7 +30,7 @@ import static org.springframework.util.Assert.notEmpty;
  */
 abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 
-	protected final Log LOGGER = getLog(getClass());
+	protected final Log LOGGER = LogFactory.getLog(getClass());
 
 	private final List<MessageMatcher<T>> messageMatchers;
 
@@ -39,7 +39,7 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
-		notEmpty(messageMatchers, "messageMatchers must contain a value");
+		Assert.notEmpty(messageMatchers, "messageMatchers must contain a value");
 		if (messageMatchers.contains(null)) {
 			throw new IllegalArgumentException("messageMatchers cannot contain null values");
 		}
@@ -53,7 +53,7 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 	 */
 	@SafeVarargs
 	AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
-		this(asList(messageMatchers));
+		this(Arrays.asList(messageMatchers));
 	}
 
 	public List<MessageMatcher<T>> getMessageMatchers() {

@@ -31,7 +31,6 @@ import org.springframework.security.web.server.csrf.DefaultCsrfToken;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME;
 
 /**
  * @author Rob Winch
@@ -50,7 +49,7 @@ public class CsrfRequestDataValueProcessorTests {
 	@Before
 	public void setup() {
 		this.expected.put(this.token.getParameterName(), this.token.getToken());
-		this.exchange.getAttributes().put(DEFAULT_CSRF_ATTR_NAME, this.token);
+		this.exchange.getAttributes().put(CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME, this.token);
 	}
 
 	@Test
@@ -120,7 +119,7 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void createGetExtraHiddenFieldsHasCsrfToken() {
 		CsrfToken token = new DefaultCsrfToken("1", "a", "b");
-		this.exchange.getAttributes().put(DEFAULT_CSRF_ATTR_NAME, token);
+		this.exchange.getAttributes().put(CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME, token);
 		Map<String, String> expected = new HashMap<>();
 		expected.put(token.getParameterName(), token.getToken());
 

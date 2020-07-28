@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
@@ -26,9 +27,6 @@ import java.util.zip.InflaterOutputStream;
 import org.apache.commons.codec.binary.Base64;
 
 import org.springframework.security.saml2.Saml2Exception;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.zip.Deflater.DEFLATED;
 
 /**
  * @since 5.3
@@ -48,8 +46,8 @@ final class Saml2Utils {
 	static byte[] samlDeflate(String s) {
 		try {
 			ByteArrayOutputStream b = new ByteArrayOutputStream();
-			DeflaterOutputStream deflater = new DeflaterOutputStream(b, new Deflater(DEFLATED, true));
-			deflater.write(s.getBytes(UTF_8));
+			DeflaterOutputStream deflater = new DeflaterOutputStream(b, new Deflater(Deflater.DEFLATED, true));
+			deflater.write(s.getBytes(StandardCharsets.UTF_8));
 			deflater.finish();
 			return b.toByteArray();
 		}
@@ -64,7 +62,7 @@ final class Saml2Utils {
 			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
 			iout.write(b);
 			iout.finish();
-			return new String(out.toByteArray(), UTF_8);
+			return new String(out.toByteArray(), StandardCharsets.UTF_8);
 		}
 		catch (IOException e) {
 			throw new Saml2Exception("Unable to inflate string", e);

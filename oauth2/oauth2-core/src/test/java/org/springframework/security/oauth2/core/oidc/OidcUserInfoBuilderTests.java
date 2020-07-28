@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.core.oidc;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
 
 /**
  * Tests for {@link OidcUserInfo}
@@ -49,10 +48,10 @@ public class OidcUserInfoBuilderTests {
 		String generic = new String("sub");
 		String named = new String("sub");
 
-		OidcUserInfo userInfo = userInfoBuilder.subject(named).claim(SUB, generic).build();
+		OidcUserInfo userInfo = userInfoBuilder.subject(named).claim(IdTokenClaimNames.SUB, generic).build();
 		assertThat(userInfo.getSubject()).isSameAs(generic);
 
-		userInfo = userInfoBuilder.claim(SUB, generic).subject(named).build();
+		userInfo = userInfoBuilder.claim(IdTokenClaimNames.SUB, generic).subject(named).build();
 		assertThat(userInfo.getSubject()).isSameAs(named);
 	}
 
@@ -60,7 +59,8 @@ public class OidcUserInfoBuilderTests {
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
 		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder().claim("needs", "a claim");
 
-		OidcUserInfo userInfo = userInfoBuilder.subject("sub").claims(claims -> claims.remove(SUB)).build();
+		OidcUserInfo userInfo = userInfoBuilder.subject("sub").claims(claims -> claims.remove(IdTokenClaimNames.SUB))
+				.build();
 		assertThat(userInfo.getSubject()).isNull();
 	}
 

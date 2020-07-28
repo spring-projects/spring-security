@@ -18,19 +18,17 @@ package org.springframework.security.saml2.provider.service.registration;
 
 import org.junit.Test;
 
+import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
-import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRegistrationId;
-import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
-import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
 
 public class RelyingPartyRegistrationTests {
 
 	@Test
 	public void withRelyingPartyRegistrationWorks() {
-		RelyingPartyRegistration registration = relyingPartyRegistration().providerDetails(p -> p.binding(POST))
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+				.providerDetails(p -> p.binding(Saml2MessageBinding.POST))
 				.providerDetails(p -> p.signAuthNRequest(false))
 				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
 		RelyingPartyRegistration copy = RelyingPartyRegistration.withRelyingPartyRegistration(registration).build();
@@ -59,7 +57,8 @@ public class RelyingPartyRegistrationTests {
 				.isEqualTo("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php");
 		assertThat(copy.getProviderDetails().getBinding()).isEqualTo(registration.getProviderDetails().getBinding())
 				.isEqualTo(copy.getAssertingPartyDetails().getSingleSignOnServiceBinding())
-				.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding()).isEqualTo(POST);
+				.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
+				.isEqualTo(Saml2MessageBinding.POST);
 		assertThat(copy.getProviderDetails().isSignAuthNRequest())
 				.isEqualTo(registration.getProviderDetails().isSignAuthNRequest())
 				.isEqualTo(copy.getAssertingPartyDetails().getWantAuthnRequestsSigned())
@@ -76,13 +75,13 @@ public class RelyingPartyRegistrationTests {
 
 	@Test
 	public void buildWhenUsingDefaultsThenAssertionConsumerServiceBindingDefaultsToPost() {
-		RelyingPartyRegistration relyingPartyRegistration = withRegistrationId("id").entityId("entity-id")
-				.assertionConsumerServiceLocation("location")
+		RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("id")
+				.entityId("entity-id").assertionConsumerServiceLocation("location")
 				.assertingPartyDetails(
 						assertingParty -> assertingParty.entityId("entity-id").singleSignOnServiceLocation("location"))
-				.credentials(c -> c.add(relyingPartyVerifyingCredential())).build();
+				.credentials(c -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())).build();
 
-		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding()).isEqualTo(POST);
+		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 	}
 
 }

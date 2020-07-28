@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.springframework.security.saml2.Saml2Exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link RelyingPartyRegistration}

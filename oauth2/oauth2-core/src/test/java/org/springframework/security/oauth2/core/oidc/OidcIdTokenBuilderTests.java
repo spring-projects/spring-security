@@ -22,9 +22,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.EXP;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.IAT;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
 
 /**
  * Tests for {@link OidcUserInfo}
@@ -62,7 +59,7 @@ public class OidcIdTokenBuilderTests {
 		idToken = idTokenBuilder.expiresAt(now).build();
 		assertThat(idToken.getExpiresAt()).isSameAs(now);
 
-		assertThatCode(() -> idTokenBuilder.claim(EXP, "not an instant").build())
+		assertThatCode(() -> idTokenBuilder.claim(IdTokenClaimNames.EXP, "not an instant").build())
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -78,7 +75,7 @@ public class OidcIdTokenBuilderTests {
 		idToken = idTokenBuilder.issuedAt(now).build();
 		assertThat(idToken.getIssuedAt()).isSameAs(now);
 
-		assertThatCode(() -> idTokenBuilder.claim(IAT, "not an instant").build())
+		assertThatCode(() -> idTokenBuilder.claim(IdTokenClaimNames.IAT, "not an instant").build())
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -89,10 +86,10 @@ public class OidcIdTokenBuilderTests {
 		String generic = new String("sub");
 		String named = new String("sub");
 
-		OidcIdToken idToken = idTokenBuilder.subject(named).claim(SUB, generic).build();
+		OidcIdToken idToken = idTokenBuilder.subject(named).claim(IdTokenClaimNames.SUB, generic).build();
 		assertThat(idToken.getSubject()).isSameAs(generic);
 
-		idToken = idTokenBuilder.claim(SUB, generic).subject(named).build();
+		idToken = idTokenBuilder.claim(IdTokenClaimNames.SUB, generic).subject(named).build();
 		assertThat(idToken.getSubject()).isSameAs(named);
 	}
 
@@ -100,7 +97,8 @@ public class OidcIdTokenBuilderTests {
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token").claim("needs", "a claim");
 
-		OidcIdToken idToken = idTokenBuilder.subject("sub").claims(claims -> claims.remove(SUB)).build();
+		OidcIdToken idToken = idTokenBuilder.subject("sub").claims(claims -> claims.remove(IdTokenClaimNames.SUB))
+				.build();
 		assertThat(idToken.getSubject()).isNull();
 	}
 

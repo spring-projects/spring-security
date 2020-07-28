@@ -43,6 +43,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -51,12 +52,15 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -65,12 +69,6 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider.createHash;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.error;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link OidcAuthorizationCodeAuthenticationProvider}.
@@ -107,20 +105,20 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() {
-		this.clientRegistration = clientRegistration().clientId("client1").build();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().clientId("client1").build();
 		Map<String, Object> attributes = new HashMap<>();
 		Map<String, Object> additionalParameters = new HashMap<>();
 		try {
 			String nonce = this.secureKeyGenerator.generateKey();
-			this.nonceHash = createHash(nonce);
+			this.nonceHash = OidcAuthorizationCodeAuthenticationProvider.createHash(nonce);
 			attributes.put(OidcParameterNames.NONCE, nonce);
 			additionalParameters.put(OidcParameterNames.NONCE, this.nonceHash);
 		}
 		catch (NoSuchAlgorithmException e) {
 		}
-		this.authorizationRequest = request().scope("openid", "profile", "email").attributes(attributes)
-				.additionalParameters(additionalParameters).build();
-		this.authorizationResponse = success().build();
+		this.authorizationRequest = TestOAuth2AuthorizationRequests.request().scope("openid", "profile", "email")
+				.attributes(attributes).additionalParameters(additionalParameters).build();
+		this.authorizationResponse = TestOAuth2AuthorizationResponses.success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				this.authorizationResponse);
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
@@ -163,7 +161,8 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationRequestDoesNotContainOpenidScopeThenReturnNull() {
-		OAuth2AuthorizationRequest authorizationRequest = request().scope("scope1").build();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request().scope("scope1")
+				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				this.authorizationResponse);
 
@@ -178,7 +177,8 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(OAuth2ErrorCodes.INVALID_SCOPE));
 
-		OAuth2AuthorizationResponse authorizationResponse = error().errorCode(OAuth2ErrorCodes.INVALID_SCOPE).build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.error()
+				.errorCode(OAuth2ErrorCodes.INVALID_SCOPE).build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 
@@ -191,7 +191,8 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_state_parameter"));
 
-		OAuth2AuthorizationResponse authorizationResponse = success().state("89012").build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success().state("89012")
+				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 
@@ -217,7 +218,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_signature_verifier"));
 
-		ClientRegistration clientRegistration = clientRegistration().jwkSetUri(null).build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().jwkSetUri(null).build();
 
 		this.authenticationProvider
 				.authenticate(new OAuth2LoginAuthenticationToken(clientRegistration, this.authorizationExchange));
@@ -333,7 +334,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	}
 
 	private void setUpIdToken(Map<String, Object> claims) {
-		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
+		Jwt idToken = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 		given(jwtDecoder.decode(anyString())).willReturn(idToken);
 		this.authenticationProvider.setJwtDecoderFactory(registration -> jwtDecoder);

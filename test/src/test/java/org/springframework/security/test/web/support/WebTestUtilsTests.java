@@ -42,8 +42,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.support.WebTestUtils.getCsrfTokenRepository;
-import static org.springframework.security.test.web.support.WebTestUtils.getSecurityContextRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebTestUtilsTests {
@@ -72,19 +70,22 @@ public class WebTestUtilsTests {
 
 	@Test
 	public void getCsrfTokenRepositorytNoWac() {
-		assertThat(getCsrfTokenRepository(this.request)).isInstanceOf(HttpSessionCsrfTokenRepository.class);
+		assertThat(WebTestUtils.getCsrfTokenRepository(this.request))
+				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
 	public void getCsrfTokenRepositorytNoSecurity() {
 		loadConfig(Config.class);
-		assertThat(getCsrfTokenRepository(this.request)).isInstanceOf(HttpSessionCsrfTokenRepository.class);
+		assertThat(WebTestUtils.getCsrfTokenRepository(this.request))
+				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
 	public void getCsrfTokenRepositorytSecurityNoCsrf() {
 		loadConfig(SecurityNoCsrfConfig.class);
-		assertThat(getCsrfTokenRepository(this.request)).isInstanceOf(HttpSessionCsrfTokenRepository.class);
+		assertThat(WebTestUtils.getCsrfTokenRepository(this.request))
+				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
@@ -92,26 +93,29 @@ public class WebTestUtilsTests {
 		CustomSecurityConfig.CONTEXT_REPO = this.contextRepo;
 		CustomSecurityConfig.CSRF_REPO = this.csrfRepo;
 		loadConfig(CustomSecurityConfig.class);
-		assertThat(getCsrfTokenRepository(this.request)).isSameAs(this.csrfRepo);
+		assertThat(WebTestUtils.getCsrfTokenRepository(this.request)).isSameAs(this.csrfRepo);
 	}
 
 	// getSecurityContextRepository
 
 	@Test
 	public void getSecurityContextRepositoryNoWac() {
-		assertThat(getSecurityContextRepository(this.request)).isInstanceOf(HttpSessionSecurityContextRepository.class);
+		assertThat(WebTestUtils.getSecurityContextRepository(this.request))
+				.isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
 	public void getSecurityContextRepositoryNoSecurity() {
 		loadConfig(Config.class);
-		assertThat(getSecurityContextRepository(this.request)).isInstanceOf(HttpSessionSecurityContextRepository.class);
+		assertThat(WebTestUtils.getSecurityContextRepository(this.request))
+				.isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
 	public void getSecurityContextRepositorySecurityNoCsrf() {
 		loadConfig(SecurityNoCsrfConfig.class);
-		assertThat(getSecurityContextRepository(this.request)).isInstanceOf(HttpSessionSecurityContextRepository.class);
+		assertThat(WebTestUtils.getSecurityContextRepository(this.request))
+				.isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
@@ -119,7 +123,7 @@ public class WebTestUtilsTests {
 		CustomSecurityConfig.CONTEXT_REPO = this.contextRepo;
 		CustomSecurityConfig.CSRF_REPO = this.csrfRepo;
 		loadConfig(CustomSecurityConfig.class);
-		assertThat(getSecurityContextRepository(this.request)).isSameAs(this.contextRepo);
+		assertThat(WebTestUtils.getSecurityContextRepository(this.request)).isSameAs(this.contextRepo);
 	}
 
 	// gh-3343

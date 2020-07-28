@@ -34,10 +34,12 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,9 +54,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientCredentials;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -79,7 +78,8 @@ public class OAuth2ClientConfigurationTests {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
 
 		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
-		ClientRegistration clientRegistration = clientRegistration().registrationId(clientRegistrationId).build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+				.registrationId(clientRegistrationId).build();
 		given(clientRegistrationRepository.findByRegistrationId(eq(clientRegistrationId)))
 				.willReturn(clientRegistration);
 
@@ -99,8 +99,10 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClientArgumentResolverConfig.ACCESS_TOKEN_RESPONSE_CLIENT = accessTokenResponseClient;
 		this.spring.register(OAuth2AuthorizedClientArgumentResolverConfig.class).autowire();
 
-		this.mockMvc.perform(get("/authorized-client").with(authentication(authentication))).andExpect(status().isOk())
-				.andExpect(content().string("resolved"));
+		this.mockMvc
+				.perform(get("/authorized-client")
+						.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isOk()).andExpect(content().string("resolved"));
 		verifyZeroInteractions(accessTokenResponseClient);
 	}
 
@@ -115,7 +117,8 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AccessTokenResponseClient accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 
-		ClientRegistration clientRegistration = clientCredentials().registrationId(clientRegistrationId).build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
+				.registrationId(clientRegistrationId).build();
 		given(clientRegistrationRepository.findByRegistrationId(clientRegistrationId)).willReturn(clientRegistration);
 
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
@@ -128,8 +131,10 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClientArgumentResolverConfig.ACCESS_TOKEN_RESPONSE_CLIENT = accessTokenResponseClient;
 		this.spring.register(OAuth2AuthorizedClientArgumentResolverConfig.class).autowire();
 
-		this.mockMvc.perform(get("/authorized-client").with(authentication(authentication))).andExpect(status().isOk())
-				.andExpect(content().string("resolved"));
+		this.mockMvc
+				.perform(get("/authorized-client")
+						.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isOk()).andExpect(content().string("resolved"));
 		verify(accessTokenResponseClient, times(1)).getTokenResponse(any(OAuth2ClientCredentialsGrantRequest.class));
 	}
 
@@ -176,7 +181,8 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AuthorizedClientManager authorizedClientManager = mock(OAuth2AuthorizedClientManager.class);
 
-		ClientRegistration clientRegistration = clientRegistration().registrationId(clientRegistrationId).build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+				.registrationId(clientRegistrationId).build();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principalName,
 				TestOAuth2AccessTokens.noScopes());
 
@@ -187,8 +193,10 @@ public class OAuth2ClientConfigurationTests {
 		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_MANAGER = authorizedClientManager;
 		this.spring.register(OAuth2AuthorizedClientManagerRegisteredConfig.class).autowire();
 
-		this.mockMvc.perform(get("/authorized-client").with(authentication(authentication))).andExpect(status().isOk())
-				.andExpect(content().string("resolved"));
+		this.mockMvc
+				.perform(get("/authorized-client")
+						.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isOk()).andExpect(content().string("resolved"));
 
 		verify(authorizedClientManager).authorize(any());
 		verifyNoInteractions(clientRegistrationRepository);

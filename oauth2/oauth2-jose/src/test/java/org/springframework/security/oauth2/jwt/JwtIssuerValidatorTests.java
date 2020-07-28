@@ -21,7 +21,6 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * @author Josh Cummings
@@ -35,14 +34,14 @@ public class JwtIssuerValidatorTests {
 
 	@Test
 	public void validateWhenIssuerMatchesThenReturnsSuccess() {
-		Jwt jwt = jwt().claim("iss", ISSUER).build();
+		Jwt jwt = TestJwts.jwt().claim("iss", ISSUER).build();
 
 		assertThat(this.validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
 	public void validateWhenIssuerMismatchesThenReturnsError() {
-		Jwt jwt = jwt().claim(JwtClaimNames.ISS, "https://other").build();
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "https://other").build();
 
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 
@@ -51,7 +50,7 @@ public class JwtIssuerValidatorTests {
 
 	@Test
 	public void validateWhenJwtHasNoIssuerThenReturnsError() {
-		Jwt jwt = jwt().claim(JwtClaimNames.AUD, "https://aud").build();
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.AUD, "https://aud").build();
 
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 		assertThat(result.getErrors()).isNotEmpty();
@@ -60,7 +59,7 @@ public class JwtIssuerValidatorTests {
 	// gh-6073
 	@Test
 	public void validateWhenIssuerMatchesAndIsNotAUriThenReturnsSuccess() {
-		Jwt jwt = jwt().claim(JwtClaimNames.ISS, "issuer").build();
+		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "issuer").build();
 		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
 
 		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());

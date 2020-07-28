@@ -33,6 +33,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -45,9 +46,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals.active;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.opaqueToken;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -98,8 +98,8 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 	public void opaqueTokenWhenPrincipalSpecifiedThenAuthenticationHasPrincipal() throws Exception {
 		Collection authorities = Collections.singleton(new SimpleGrantedAuthority("SCOPE_read"));
 		OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
-		when(principal.getName()).thenReturn("ben");
-		when(principal.getAuthorities()).thenReturn(authorities);
+		given(principal.getName()).willReturn("ben");
+		given(principal.getAuthorities()).willReturn(authorities);
 
 		this.mvc.perform(get("/name").with(opaqueToken().principal(principal))).andExpect(content().string("ben"));
 	}
@@ -107,7 +107,7 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 	// gh-7800
 	@Test
 	public void opaqueTokenWhenPrincipalSpecifiedThenLastCalledTakesPrecedence() throws Exception {
-		OAuth2AuthenticatedPrincipal principal = active(a -> a.put("scope", "user"));
+		OAuth2AuthenticatedPrincipal principal = TestOAuth2AuthenticatedPrincipals.active(a -> a.put("scope", "user"));
 
 		this.mvc.perform(
 				get("/opaque-token/sub").with(opaqueToken().attributes(a -> a.put("sub", "foo")).principal(principal)))

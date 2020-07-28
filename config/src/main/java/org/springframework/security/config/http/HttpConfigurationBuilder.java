@@ -74,24 +74,6 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
-import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_FILTERS;
-import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_HTTP_METHOD;
-import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN;
-import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_REQUEST_MATCHER_REF;
-import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL;
-import static org.springframework.security.config.http.SecurityFilters.CHANNEL_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.CONCURRENT_SESSION_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.CORS_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.CSRF_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.FILTER_SECURITY_INTERCEPTOR;
-import static org.springframework.security.config.http.SecurityFilters.HEADERS_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.JAAS_API_SUPPORT_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.REQUEST_CACHE_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.SECURITY_CONTEXT_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.SERVLET_API_SUPPORT_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.SESSION_MANAGEMENT_FILTER;
-import static org.springframework.security.config.http.SecurityFilters.WEB_ASYNC_MANAGER_FILTER;
-
 /**
  * Stateful class which helps HttpSecurityBDP to create the configuration for the
  * &lt;http&gt; element.
@@ -197,7 +179,7 @@ class HttpConfigurationBuilder {
 		this.interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
 
 		for (Element urlElt : this.interceptUrls) {
-			if (StringUtils.hasText(urlElt.getAttribute(ATT_FILTERS))) {
+			if (StringUtils.hasText(urlElt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS))) {
 				pc.getReaderContext()
 						.error("The use of \"filters='none'\" is no longer supported. Please define a"
 								+ " separate <http> element for the pattern you want to exclude and use the attribute"
@@ -637,16 +619,16 @@ class HttpConfigurationBuilder {
 		ManagedMap<BeanMetadataElement, BeanDefinition> channelRequestMap = new ManagedMap<>();
 
 		for (Element urlElt : this.interceptUrls) {
-			String path = urlElt.getAttribute(ATT_PATH_PATTERN);
-			String method = urlElt.getAttribute(ATT_HTTP_METHOD);
-			String matcherRef = urlElt.getAttribute(ATT_REQUEST_MATCHER_REF);
+			String path = urlElt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
+			String method = urlElt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_HTTP_METHOD);
+			String matcherRef = urlElt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REQUEST_MATCHER_REF);
 			boolean hasMatcherRef = StringUtils.hasText(matcherRef);
 
 			if (!hasMatcherRef && !StringUtils.hasText(path)) {
 				this.pc.getReaderContext().error("pattern attribute cannot be empty or null", urlElt);
 			}
 
-			String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
+			String requiredChannel = urlElt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL);
 
 			if (StringUtils.hasText(requiredChannel)) {
 				BeanMetadataElement matcher = hasMatcherRef ? new RuntimeBeanReference(matcherRef)
@@ -805,47 +787,47 @@ class HttpConfigurationBuilder {
 		List<OrderDecorator> filters = new ArrayList<>();
 
 		if (this.cpf != null) {
-			filters.add(new OrderDecorator(this.cpf, CHANNEL_FILTER));
+			filters.add(new OrderDecorator(this.cpf, SecurityFilters.CHANNEL_FILTER));
 		}
 
 		if (this.concurrentSessionFilter != null) {
-			filters.add(new OrderDecorator(this.concurrentSessionFilter, CONCURRENT_SESSION_FILTER));
+			filters.add(new OrderDecorator(this.concurrentSessionFilter, SecurityFilters.CONCURRENT_SESSION_FILTER));
 		}
 
 		if (this.webAsyncManagerFilter != null) {
-			filters.add(new OrderDecorator(this.webAsyncManagerFilter, WEB_ASYNC_MANAGER_FILTER));
+			filters.add(new OrderDecorator(this.webAsyncManagerFilter, SecurityFilters.WEB_ASYNC_MANAGER_FILTER));
 		}
 
-		filters.add(new OrderDecorator(this.securityContextPersistenceFilter, SECURITY_CONTEXT_FILTER));
+		filters.add(new OrderDecorator(this.securityContextPersistenceFilter, SecurityFilters.SECURITY_CONTEXT_FILTER));
 
 		if (this.servApiFilter != null) {
-			filters.add(new OrderDecorator(this.servApiFilter, SERVLET_API_SUPPORT_FILTER));
+			filters.add(new OrderDecorator(this.servApiFilter, SecurityFilters.SERVLET_API_SUPPORT_FILTER));
 		}
 
 		if (this.jaasApiFilter != null) {
-			filters.add(new OrderDecorator(this.jaasApiFilter, JAAS_API_SUPPORT_FILTER));
+			filters.add(new OrderDecorator(this.jaasApiFilter, SecurityFilters.JAAS_API_SUPPORT_FILTER));
 		}
 
 		if (this.sfpf != null) {
-			filters.add(new OrderDecorator(this.sfpf, SESSION_MANAGEMENT_FILTER));
+			filters.add(new OrderDecorator(this.sfpf, SecurityFilters.SESSION_MANAGEMENT_FILTER));
 		}
 
-		filters.add(new OrderDecorator(this.fsi, FILTER_SECURITY_INTERCEPTOR));
+		filters.add(new OrderDecorator(this.fsi, SecurityFilters.FILTER_SECURITY_INTERCEPTOR));
 
 		if (this.sessionPolicy != SessionCreationPolicy.STATELESS) {
-			filters.add(new OrderDecorator(this.requestCacheAwareFilter, REQUEST_CACHE_FILTER));
+			filters.add(new OrderDecorator(this.requestCacheAwareFilter, SecurityFilters.REQUEST_CACHE_FILTER));
 		}
 
 		if (this.corsFilter != null) {
-			filters.add(new OrderDecorator(this.corsFilter, CORS_FILTER));
+			filters.add(new OrderDecorator(this.corsFilter, SecurityFilters.CORS_FILTER));
 		}
 
 		if (this.addHeadersFilter != null) {
-			filters.add(new OrderDecorator(this.addHeadersFilter, HEADERS_FILTER));
+			filters.add(new OrderDecorator(this.addHeadersFilter, SecurityFilters.HEADERS_FILTER));
 		}
 
 		if (this.csrfFilter != null) {
-			filters.add(new OrderDecorator(this.csrfFilter, CSRF_FILTER));
+			filters.add(new OrderDecorator(this.csrfFilter, SecurityFilters.CSRF_FILTER));
 		}
 
 		return filters;

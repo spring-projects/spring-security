@@ -63,6 +63,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -71,8 +72,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager.createHash;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * @author Rob Winch
@@ -196,7 +195,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.SUB, "sub");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
 		claims.put(IdTokenClaimNames.NONCE, "invalid-nonce-hash");
-		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
+		Jwt idToken = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
@@ -221,7 +220,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
-		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
+		Jwt idToken = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		given(this.userService.loadUser(any())).willReturn(Mono.empty());
@@ -244,7 +243,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
-		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
+		Jwt idToken = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
@@ -275,7 +274,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
-		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
+		Jwt idToken = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
@@ -310,7 +309,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList(clientRegistration.getClientId()));
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
-		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
+		Jwt idToken = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
@@ -340,7 +339,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Collections.singletonList(clientRegistration.getClientId()));
 		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
-		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
+		Jwt idToken = TestJwts.jwt().claims(c -> c.putAll(claims)).build();
 
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
@@ -366,7 +365,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		try {
 			String nonce = this.secureKeyGenerator.generateKey();
-			this.nonceHash = createHash(nonce);
+			this.nonceHash = OidcAuthorizationCodeReactiveAuthenticationManager.createHash(nonce);
 			attributes.put(OidcParameterNames.NONCE, nonce);
 			additionalParameters.put(OidcParameterNames.NONCE, this.nonceHash);
 		}

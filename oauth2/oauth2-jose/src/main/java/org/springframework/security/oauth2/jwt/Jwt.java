@@ -25,14 +25,6 @@ import java.util.function.Consumer;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.AUD;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.EXP;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.IAT;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.JTI;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.NBF;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
-
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing a JSON Web Token
  * (JWT).
@@ -182,7 +174,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder audience(Collection<String> audience) {
-			return claim(AUD, audience);
+			return claim(JwtClaimNames.AUD, audience);
 		}
 
 		/**
@@ -191,7 +183,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder expiresAt(Instant expiresAt) {
-			this.claim(EXP, expiresAt);
+			this.claim(JwtClaimNames.EXP, expiresAt);
 			return this;
 		}
 
@@ -201,7 +193,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder jti(String jti) {
-			this.claim(JTI, jti);
+			this.claim(JwtClaimNames.JTI, jti);
 			return this;
 		}
 
@@ -211,7 +203,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder issuedAt(Instant issuedAt) {
-			this.claim(IAT, issuedAt);
+			this.claim(JwtClaimNames.IAT, issuedAt);
 			return this;
 		}
 
@@ -221,7 +213,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder issuer(String issuer) {
-			this.claim(ISS, issuer);
+			this.claim(JwtClaimNames.ISS, issuer);
 			return this;
 		}
 
@@ -231,7 +223,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder notBefore(Instant notBefore) {
-			this.claim(NBF, notBefore);
+			this.claim(JwtClaimNames.NBF, notBefore);
 			return this;
 		}
 
@@ -241,7 +233,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder subject(String subject) {
-			this.claim(SUB, subject);
+			this.claim(JwtClaimNames.SUB, subject);
 			return this;
 		}
 
@@ -250,8 +242,8 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return The constructed {@link Jwt}
 		 */
 		public Jwt build() {
-			Instant iat = toInstant(this.claims.get(IAT));
-			Instant exp = toInstant(this.claims.get(EXP));
+			Instant iat = toInstant(this.claims.get(JwtClaimNames.IAT));
+			Instant exp = toInstant(this.claims.get(JwtClaimNames.EXP));
 			return new Jwt(this.tokenValue, iat, exp, this.headers, this.claims);
 		}
 

@@ -26,19 +26,6 @@ import java.util.function.Consumer;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.ACR;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AMR;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AT_HASH;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AUD;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AUTH_TIME;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AZP;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.C_HASH;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.EXP;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.IAT;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.ISS;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.NONCE;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
-
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing an OpenID Connect Core
  * 1.0 ID Token.
@@ -145,7 +132,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder accessTokenHash(String accessTokenHash) {
-			return claim(AT_HASH, accessTokenHash);
+			return claim(IdTokenClaimNames.AT_HASH, accessTokenHash);
 		}
 
 		/**
@@ -154,7 +141,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder audience(Collection<String> audience) {
-			return claim(AUD, audience);
+			return claim(IdTokenClaimNames.AUD, audience);
 		}
 
 		/**
@@ -163,7 +150,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder authTime(Instant authenticatedAt) {
-			return claim(AUTH_TIME, authenticatedAt);
+			return claim(IdTokenClaimNames.AUTH_TIME, authenticatedAt);
 		}
 
 		/**
@@ -174,7 +161,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder authenticationContextClass(String authenticationContextClass) {
-			return claim(ACR, authenticationContextClass);
+			return claim(IdTokenClaimNames.ACR, authenticationContextClass);
 		}
 
 		/**
@@ -183,7 +170,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder authenticationMethods(List<String> authenticationMethods) {
-			return claim(AMR, authenticationMethods);
+			return claim(IdTokenClaimNames.AMR, authenticationMethods);
 		}
 
 		/**
@@ -192,7 +179,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder authorizationCodeHash(String authorizationCodeHash) {
-			return claim(C_HASH, authorizationCodeHash);
+			return claim(IdTokenClaimNames.C_HASH, authorizationCodeHash);
 		}
 
 		/**
@@ -201,7 +188,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder authorizedParty(String authorizedParty) {
-			return claim(AZP, authorizedParty);
+			return claim(IdTokenClaimNames.AZP, authorizedParty);
 		}
 
 		/**
@@ -210,7 +197,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder expiresAt(Instant expiresAt) {
-			return this.claim(EXP, expiresAt);
+			return this.claim(IdTokenClaimNames.EXP, expiresAt);
 		}
 
 		/**
@@ -219,7 +206,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder issuedAt(Instant issuedAt) {
-			return this.claim(IAT, issuedAt);
+			return this.claim(IdTokenClaimNames.IAT, issuedAt);
 		}
 
 		/**
@@ -228,7 +215,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder issuer(String issuer) {
-			return this.claim(ISS, issuer);
+			return this.claim(IdTokenClaimNames.ISS, issuer);
 		}
 
 		/**
@@ -237,7 +224,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder nonce(String nonce) {
-			return this.claim(NONCE, nonce);
+			return this.claim(IdTokenClaimNames.NONCE, nonce);
 		}
 
 		/**
@@ -246,7 +233,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder subject(String subject) {
-			return this.claim(SUB, subject);
+			return this.claim(IdTokenClaimNames.SUB, subject);
 		}
 
 		/**
@@ -254,8 +241,8 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return The constructed {@link OidcIdToken}
 		 */
 		public OidcIdToken build() {
-			Instant iat = toInstant(this.claims.get(IAT));
-			Instant exp = toInstant(this.claims.get(EXP));
+			Instant iat = toInstant(this.claims.get(IdTokenClaimNames.IAT));
+			Instant exp = toInstant(this.claims.get(IdTokenClaimNames.EXP));
 			return new OidcIdToken(this.tokenValue, iat, exp, this.claims);
 		}
 

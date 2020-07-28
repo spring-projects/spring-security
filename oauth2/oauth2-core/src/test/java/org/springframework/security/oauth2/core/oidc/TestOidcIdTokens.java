@@ -18,8 +18,6 @@ package org.springframework.security.oauth2.core.oidc;
 
 import java.time.Instant;
 
-import static org.springframework.security.oauth2.core.oidc.OidcIdToken.withTokenValue;
-
 /**
  * Test {@link OidcIdToken}s
  *
@@ -28,8 +26,8 @@ import static org.springframework.security.oauth2.core.oidc.OidcIdToken.withToke
 public class TestOidcIdTokens {
 
 	public static OidcIdToken.Builder idToken() {
-		return withTokenValue("id-token").issuer("https://example.com").subject("subject").issuedAt(Instant.now())
-				.expiresAt(Instant.now().plusSeconds(86400)).claim("id", "id");
+		return OidcIdToken.withTokenValue("id-token").issuer("https://example.com").subject("subject")
+				.issuedAt(Instant.now()).expiresAt(Instant.now().plusSeconds(86400)).claim("id", "id");
 	}
 
 }

@@ -21,9 +21,7 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
-
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
  * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered
@@ -81,7 +79,7 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		byte[] digested = decode(encodedPassword);
-		byte[] salt = subArray(digested, 0, this.saltGenerator.getKeyLength());
+		byte[] salt = EncodingUtils.subArray(digested, 0, this.saltGenerator.getKeyLength());
 		return MessageDigest.isEqual(digested, digest(rawPassword, salt));
 	}
 
@@ -99,8 +97,8 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	}
 
 	private byte[] digest(CharSequence rawPassword, byte[] salt) {
-		byte[] digest = this.digester.digest(concatenate(salt, this.secret, Utf8.encode(rawPassword)));
-		return concatenate(salt, digest);
+		byte[] digest = this.digester.digest(EncodingUtils.concatenate(salt, this.secret, Utf8.encode(rawPassword)));
+		return EncodingUtils.concatenate(salt, digest);
 	}
 
 	private byte[] decode(CharSequence encodedPassword) {

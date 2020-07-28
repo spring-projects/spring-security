@@ -49,8 +49,12 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
+import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.UrlUtils;
@@ -65,10 +69,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
-import static org.springframework.security.oauth2.core.TestOAuth2RefreshTokens.refreshToken;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeGrantFilter}.
@@ -473,14 +473,15 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 			ClientRegistration registration) {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
-		OAuth2AuthorizationRequest authorizationRequest = request().attributes(attributes)
-				.redirectUri(UrlUtils.buildFullRequestUrl(request)).build();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.attributes(attributes).redirectUri(UrlUtils.buildFullRequestUrl(request)).build();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 	}
 
 	private void setUpAuthenticationResult(ClientRegistration registration) {
 		OAuth2AuthorizationCodeAuthenticationToken authentication = new OAuth2AuthorizationCodeAuthenticationToken(
-				registration, success(), noScopes(), refreshToken());
+				registration, TestOAuth2AuthorizationExchanges.success(), TestOAuth2AccessTokens.noScopes(),
+				TestOAuth2RefreshTokens.refreshToken());
 		given(this.authenticationManager.authenticate(any(Authentication.class))).willReturn(authentication);
 	}
 

@@ -39,6 +39,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -61,8 +62,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.springframework.security.core.context.ReactiveSecurityContextHolder.withSecurityContext;
-import static org.springframework.security.web.server.authentication.SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR;
 
 /**
  * @author Artur Otrzonsek
@@ -136,7 +135,8 @@ public class SwitchUserWebFilterTests {
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+				.block();
 
 		// then
 		verifyNoInteractions(chain);
@@ -156,7 +156,7 @@ public class SwitchUserWebFilterTests {
 		assertThat(switchUserAuthentication.getName()).isEqualTo(targetUsername);
 		assertThat(switchUserAuthentication.getAuthorities()).anyMatch(SwitchUserGrantedAuthority.class::isInstance);
 		assertThat(switchUserAuthentication.getAuthorities())
-				.anyMatch((a) -> a.getAuthority().contains(ROLE_PREVIOUS_ADMINISTRATOR));
+				.anyMatch((a) -> a.getAuthority().contains(SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR));
 		assertThat(
 				switchUserAuthentication.getAuthorities().stream().filter(a -> a instanceof SwitchUserGrantedAuthority)
 						.map(a -> ((SwitchUserGrantedAuthority) a).getSource()).map(Principal::getName))
@@ -169,8 +169,8 @@ public class SwitchUserWebFilterTests {
 		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("origPrincipal",
 				"origCredentials");
 
-		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR,
-				originalAuthentication);
+		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(
+				SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR, originalAuthentication);
 		final Authentication switchUserAuthentication = new UsernamePasswordAuthenticationToken("switchPrincipal",
 				"switchCredentials", Collections.singleton(switchAuthority));
 
@@ -191,7 +191,8 @@ public class SwitchUserWebFilterTests {
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+				.block();
 
 		// then
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
@@ -221,7 +222,8 @@ public class SwitchUserWebFilterTests {
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+				.block();
 		verifyNoInteractions(chain);
 	}
 
@@ -241,7 +243,8 @@ public class SwitchUserWebFilterTests {
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+				.block();
 
 		verify(this.failureHandler).onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class));
 		verifyNoInteractions(chain);
@@ -266,7 +269,8 @@ public class SwitchUserWebFilterTests {
 
 		// when then
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+				.block();
 		verifyNoInteractions(chain);
 	}
 
@@ -279,8 +283,8 @@ public class SwitchUserWebFilterTests {
 		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("origPrincipal",
 				"origCredentials");
 
-		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR,
-				originalAuthentication);
+		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(
+				SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR, originalAuthentication);
 		final Authentication switchUserAuthentication = new UsernamePasswordAuthenticationToken("switchPrincipal",
 				"switchCredentials", Collections.singleton(switchAuthority));
 
@@ -294,7 +298,8 @@ public class SwitchUserWebFilterTests {
 
 		// when
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+				.block();
 
 		// then
 		final ArgumentCaptor<SecurityContext> securityContextCaptor = ArgumentCaptor.forClass(SecurityContext.class);
@@ -329,7 +334,8 @@ public class SwitchUserWebFilterTests {
 
 		// when then
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(withSecurityContext(Mono.just(securityContext))).block();
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+				.block();
 		verifyNoInteractions(chain);
 	}
 

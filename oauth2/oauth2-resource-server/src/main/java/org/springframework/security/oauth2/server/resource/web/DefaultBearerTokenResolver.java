@@ -24,10 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
+import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.util.StringUtils;
-
-import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidRequest;
-import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidToken;
 
 /**
  * The default {@link BearerTokenResolver} implementation based on RFC 6750.
@@ -57,7 +55,8 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		String parameterToken = resolveFromRequestParameters(request);
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
-				BearerTokenError error = invalidRequest("Found multiple bearer tokens in the request");
+				BearerTokenError error = BearerTokenErrors
+						.invalidRequest("Found multiple bearer tokens in the request");
 				throw new OAuth2AuthenticationException(error);
 			}
 			return authorizationHeaderToken;
@@ -109,7 +108,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			Matcher matcher = authorizationPattern.matcher(authorization);
 
 			if (!matcher.matches()) {
-				BearerTokenError error = invalidToken("Bearer token is malformed");
+				BearerTokenError error = BearerTokenErrors.invalidToken("Bearer token is malformed");
 				throw new OAuth2AuthenticationException(error);
 			}
 
@@ -128,7 +127,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			return values[0];
 		}
 
-		BearerTokenError error = invalidRequest("Found multiple bearer tokens in the request");
+		BearerTokenError error = BearerTokenErrors.invalidRequest("Found multiple bearer tokens in the request");
 		throw new OAuth2AuthenticationException(error);
 	}
 

@@ -59,12 +59,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriUtils;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDeflate;
-import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlEncode;
-import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @since 5.2
@@ -130,7 +126,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 				? serialize(sign(authnRequest, context.getRelyingPartyRegistration())) : serialize(authnRequest);
 
 		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
-				.samlRequest(samlEncode(xml.getBytes(UTF_8))).build();
+				.samlRequest(Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8))).build();
 	}
 
 	/**
@@ -142,7 +138,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		AuthnRequest authnRequest = createAuthnRequest(context);
 		String xml = serialize(authnRequest);
 		Builder result = Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context);
-		String deflatedAndEncoded = samlEncode(samlDeflate(xml));
+		String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 		result.samlRequest(deflatedAndEncoded).relayState(context.getRelayState());
 
 		if (context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
@@ -264,7 +260,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		StringBuilder queryString = new StringBuilder();
 		queryString.append("SAMLRequest").append("=").append(UriUtils.encode(samlRequest, StandardCharsets.ISO_8859_1))
 				.append("&");
-		if (hasText(relayState)) {
+		if (StringUtils.hasText(relayState)) {
 			queryString.append("RelayState").append("=")
 					.append(UriUtils.encode(relayState, StandardCharsets.ISO_8859_1)).append("&");
 		}
@@ -277,7 +273,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 			Map<String, String> result = new LinkedHashMap<>();
 			result.put("SAMLRequest", samlRequest);
-			if (hasText(relayState)) {
+			if (StringUtils.hasText(relayState)) {
 				result.put("RelayState", relayState);
 			}
 			result.put("SigAlg", algorithmUri);

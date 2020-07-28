@@ -42,6 +42,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -56,7 +57,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
 
 /**
  * @author Rob Winch
@@ -333,7 +333,8 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 			MockServerHttpRequest authorizationRequest, ClientRegistration registration) {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
-		return request().attributes(attributes).redirectUri(authorizationRequest.getURI().toString()).build();
+		return TestOAuth2AuthorizationRequests.request().attributes(attributes)
+				.redirectUri(authorizationRequest.getURI().toString()).build();
 	}
 
 	private static MockServerHttpRequest createAuthorizationRequest(String requestUri) {

@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -55,7 +56,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.accessTokenResponse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -153,7 +153,7 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -183,7 +183,7 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
 
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

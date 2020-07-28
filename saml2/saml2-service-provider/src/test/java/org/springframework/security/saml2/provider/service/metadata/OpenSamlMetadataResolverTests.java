@@ -18,13 +18,12 @@ package org.springframework.security.saml2.provider.service.metadata;
 
 import org.junit.Test;
 
+import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.saml2.core.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
-import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.REDIRECT;
-import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.full;
-import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.noCredentials;
 
 /**
  * Tests for {@link OpenSamlMetadataResolver}
@@ -34,7 +33,8 @@ public class OpenSamlMetadataResolverTests {
 	@Test
 	public void resolveWhenRelyingPartyThenMetadataMatches() {
 		// given
-		RelyingPartyRegistration relyingPartyRegistration = full().assertionConsumerServiceBinding(REDIRECT).build();
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
+				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 
 		// when
@@ -52,9 +52,9 @@ public class OpenSamlMetadataResolverTests {
 	@Test
 	public void resolveWhenRelyingPartyNoCredentialsThenMetadataMatches() {
 		// given
-		RelyingPartyRegistration relyingPartyRegistration = noCredentials()
-				.assertingPartyDetails(
-						party -> party.verificationX509Credentials(c -> c.add(relyingPartyVerifyingCredential())))
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
+				.assertingPartyDetails(party -> party.verificationX509Credentials(
+						c -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 				.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 

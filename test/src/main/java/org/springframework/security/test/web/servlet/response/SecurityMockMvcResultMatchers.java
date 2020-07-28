@@ -28,12 +28,10 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.test.util.AssertionErrors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
-
-import static org.springframework.test.util.AssertionErrors.assertEquals;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * Security related {@link MockMvc} {@link ResultMatcher}s.
@@ -97,42 +95,46 @@ public final class SecurityMockMvcResultMatchers {
 
 			Authentication auth = context.getAuthentication();
 
-			assertTrue("Authentication should not be null", auth != null);
+			AssertionErrors.assertTrue("Authentication should not be null", auth != null);
 
 			if (this.assertAuthentication != null) {
 				this.assertAuthentication.accept(auth);
 			}
 
 			if (this.expectedContext != null) {
-				assertEquals(this.expectedContext + " does not equal " + context, this.expectedContext, context);
+				AssertionErrors.assertEquals(this.expectedContext + " does not equal " + context, this.expectedContext,
+						context);
 			}
 
 			if (this.expectedAuthentication != null) {
-				assertEquals(this.expectedAuthentication + " does not equal " + context.getAuthentication(),
+				AssertionErrors.assertEquals(
+						this.expectedAuthentication + " does not equal " + context.getAuthentication(),
 						this.expectedAuthentication, context.getAuthentication());
 			}
 
 			if (this.expectedAuthenticationPrincipal != null) {
-				assertTrue("Authentication cannot be null", context.getAuthentication() != null);
-				assertEquals(
+				AssertionErrors.assertTrue("Authentication cannot be null", context.getAuthentication() != null);
+				AssertionErrors.assertEquals(
 						this.expectedAuthenticationPrincipal + " does not equal "
 								+ context.getAuthentication().getPrincipal(),
 						this.expectedAuthenticationPrincipal, context.getAuthentication().getPrincipal());
 			}
 
 			if (this.expectedAuthenticationName != null) {
-				assertTrue("Authentication cannot be null", auth != null);
+				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
 				String name = auth.getName();
-				assertEquals(this.expectedAuthenticationName + " does not equal " + name,
+				AssertionErrors.assertEquals(this.expectedAuthenticationName + " does not equal " + name,
 						this.expectedAuthenticationName, name);
 			}
 
 			if (this.expectedGrantedAuthorities != null) {
-				assertTrue("Authentication cannot be null", auth != null);
+				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
 				Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-				assertTrue(authorities + " does not contain the same authorities as " + this.expectedGrantedAuthorities,
+				AssertionErrors.assertTrue(
+						authorities + " does not contain the same authorities as " + this.expectedGrantedAuthorities,
 						authorities.containsAll(this.expectedGrantedAuthorities));
-				assertTrue(this.expectedGrantedAuthorities + " does not contain the same authorities as " + authorities,
+				AssertionErrors.assertTrue(
+						this.expectedGrantedAuthorities + " does not contain the same authorities as " + authorities,
 						this.expectedGrantedAuthorities.containsAll(authorities));
 			}
 		}
@@ -240,7 +242,7 @@ public final class SecurityMockMvcResultMatchers {
 			SecurityContext context = load(result);
 
 			Authentication authentication = context.getAuthentication();
-			assertTrue("Expected anonymous Authentication got " + context,
+			AssertionErrors.assertTrue("Expected anonymous Authentication got " + context,
 					authentication == null || this.trustResolver.isAnonymous(authentication));
 		}
 

@@ -20,9 +20,7 @@ import java.security.MessageDigest;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
-
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
  * Abstract base class for password encoders
@@ -47,14 +45,14 @@ public abstract class AbstractPasswordEncoder implements PasswordEncoder {
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		byte[] digested = Hex.decode(encodedPassword);
-		byte[] salt = subArray(digested, 0, this.saltGenerator.getKeyLength());
+		byte[] salt = EncodingUtils.subArray(digested, 0, this.saltGenerator.getKeyLength());
 		return matches(digested, encodeAndConcatenate(rawPassword, salt));
 	}
 
 	protected abstract byte[] encode(CharSequence rawPassword, byte[] salt);
 
 	protected byte[] encodeAndConcatenate(CharSequence rawPassword, byte[] salt) {
-		return concatenate(salt, encode(rawPassword, salt));
+		return EncodingUtils.concatenate(salt, encode(rawPassword, salt));
 	}
 
 	/**

@@ -24,6 +24,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,8 +72,8 @@ public class NamespaceAuthenticationManagerTests {
 	public void authenticationManagerWhenGlobalAndEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
 		this.spring.register(GlobalEraseCredentialsFalseConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
+		this.mockMvc.perform(SecurityMockMvcRequestBuilders.formLogin()).andExpect(SecurityMockMvcResultMatchers
+				.authenticated().withAuthentication(a -> assertThat(a.getCredentials()).isNotNull()));
 	}
 
 	@EnableWebSecurity

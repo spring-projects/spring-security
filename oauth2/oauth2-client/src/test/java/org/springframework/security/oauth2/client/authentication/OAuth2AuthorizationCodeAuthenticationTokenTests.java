@@ -21,15 +21,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeAuthenticationToken}.
@@ -46,9 +46,10 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = clientRegistration().build();
-		this.authorizationExchange = new OAuth2AuthorizationExchange(request().build(), success().code("code").build());
-		this.accessToken = noScopes();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
+		this.authorizationExchange = new OAuth2AuthorizationExchange(TestOAuth2AuthorizationRequests.request().build(),
+				TestOAuth2AuthorizationResponses.success().code("code").build());
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
 	}
 
 	@Test

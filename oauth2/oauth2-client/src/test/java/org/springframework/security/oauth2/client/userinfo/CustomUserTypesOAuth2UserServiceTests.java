@@ -34,15 +34,15 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 
 /**
  * Tests for {@link CustomUserTypesOAuth2UserService}.
@@ -68,8 +68,8 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String registrationId = "client-registration-id-1";
-		this.clientRegistrationBuilder = clientRegistration().registrationId(registrationId);
-		this.accessToken = noScopes();
+		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration().registrationId(registrationId);
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
 
 		Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 		customUserTypes.put(registrationId, CustomOAuth2User.class);
@@ -113,8 +113,8 @@ public class CustomUserTypesOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenCustomUserTypeNotFoundThenReturnNull() {
-		ClientRegistration clientRegistration = clientRegistration().registrationId("other-client-registration-id-1")
-				.build();
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+				.registrationId("other-client-registration-id-1").build();
 
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 		assertThat(user).isNull();

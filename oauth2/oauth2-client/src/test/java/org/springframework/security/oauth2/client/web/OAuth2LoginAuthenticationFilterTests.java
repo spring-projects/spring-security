@@ -50,6 +50,7 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -65,7 +66,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
 
 /**
  * Tests for {@link OAuth2LoginAuthenticationFilter}.
@@ -490,7 +490,8 @@ public class OAuth2LoginAuthenticationFilterTests {
 		given(this.loginAuthentication.getName()).willReturn(this.principalName1);
 		given(this.loginAuthentication.getAuthorities()).willReturn(AuthorityUtils.createAuthorityList("ROLE_USER"));
 		given(this.loginAuthentication.getClientRegistration()).willReturn(registration);
-		given(this.loginAuthentication.getAuthorizationExchange()).willReturn(success());
+		given(this.loginAuthentication.getAuthorizationExchange())
+				.willReturn(TestOAuth2AuthorizationExchanges.success());
 		given(this.loginAuthentication.getAccessToken()).willReturn(mock(OAuth2AccessToken.class));
 		given(this.loginAuthentication.getRefreshToken()).willReturn(mock(OAuth2RefreshToken.class));
 		given(this.loginAuthentication.isAuthenticated()).willReturn(true);

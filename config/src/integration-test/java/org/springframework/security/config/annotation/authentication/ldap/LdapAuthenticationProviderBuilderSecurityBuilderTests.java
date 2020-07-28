@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.authentication.ldap;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.directory.SearchControls;
@@ -46,7 +47,6 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -117,8 +117,9 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	public void bindAuthentication() throws Exception {
 		this.spring.register(BindAuthenticationConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
-				.withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
+				.andExpect(authenticated().withUsername("bob")
+						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	// SEC-2472
@@ -126,8 +127,9 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	public void canUseCryptoPasswordEncoder() throws Exception {
 		this.spring.register(PasswordEncoderConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bcrypt").password("password")).andExpect(authenticated()
-				.withUsername("bcrypt").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bcrypt").password("password"))
+				.andExpect(authenticated().withUsername("bcrypt")
+						.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	private LdapAuthenticationProvider ldapProvider() {

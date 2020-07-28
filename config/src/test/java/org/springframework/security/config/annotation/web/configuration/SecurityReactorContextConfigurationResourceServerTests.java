@@ -31,14 +31,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
+import org.springframework.security.oauth2.server.resource.authentication.TestBearerTokenAuthentications;
 import org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServletBearerExchangeFilterFunction;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static org.springframework.security.oauth2.server.resource.authentication.TestBearerTokenAuthentications.bearer;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,21 +60,21 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 	// gh-7418
 	@Test
 	public void requestWhenUsingFilterThenBearerTokenPropagated() throws Exception {
-		BearerTokenAuthentication authentication = bearer();
+		BearerTokenAuthentication authentication = TestBearerTokenAuthentications.bearer();
 		this.spring.register(BearerFilterConfig.class, WebServerConfig.class, Controller.class).autowire();
 
-		this.mockMvc.perform(get("/token").with(authentication(authentication))).andExpect(status().isOk())
-				.andExpect(content().string("Bearer token"));
+		this.mockMvc.perform(get("/token").with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isOk()).andExpect(content().string("Bearer token"));
 	}
 
 	// gh-7418
 	@Test
 	public void requestWhenNotUsingFilterThenBearerTokenNotPropagated() throws Exception {
-		BearerTokenAuthentication authentication = bearer();
+		BearerTokenAuthentication authentication = TestBearerTokenAuthentications.bearer();
 		this.spring.register(BearerFilterlessConfig.class, WebServerConfig.class, Controller.class).autowire();
 
-		this.mockMvc.perform(get("/token").with(authentication(authentication))).andExpect(status().isOk())
-				.andExpect(content().string(""));
+		this.mockMvc.perform(get("/token").with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isOk()).andExpect(content().string(""));
 	}
 
 	@EnableWebSecurity

@@ -37,6 +37,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -52,7 +53,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -128,7 +128,8 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 
 	@Test
 	public void oauth2LoginWhenClientRegistrationSpecifiedThenUses() throws Exception {
-		this.mvc.perform(get("/client-id").with(oauth2Login().clientRegistration(clientRegistration().build())))
+		this.mvc.perform(get("/client-id")
+				.with(oauth2Login().clientRegistration(TestClientRegistrations.clientRegistration().build())))
 				.andExpect(content().string("client-id"));
 	}
 

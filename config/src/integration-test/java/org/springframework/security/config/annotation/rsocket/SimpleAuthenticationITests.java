@@ -22,6 +22,7 @@ import java.util.List;
 import io.rsocket.RSocketFactory;
 import io.rsocket.exceptions.ApplicationErrorException;
 import io.rsocket.frame.decoder.PayloadDecoder;
+import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
 import org.junit.After;
@@ -50,7 +51,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
-import static io.rsocket.metadata.WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -101,7 +101,8 @@ public class SimpleAuthenticationITests {
 
 	@Test
 	public void retrieveMonoWhenAuthorizedThenGranted() {
-		MimeType authenticationMimeType = MimeTypeUtils.parseMimeType(MESSAGE_RSOCKET_AUTHENTICATION.getString());
+		MimeType authenticationMimeType = MimeTypeUtils
+				.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
 		this.requester = RSocketRequester.builder().setupMetadata(credentials, authenticationMimeType)

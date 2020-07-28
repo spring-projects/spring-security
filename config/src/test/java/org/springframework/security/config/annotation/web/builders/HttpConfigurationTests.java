@@ -38,8 +38,7 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -62,11 +61,11 @@ public class HttpConfigurationTests {
 
 	@Test
 	public void configureWhenAddFilterUnregisteredThenThrowsBeanCreationException() {
-		Throwable thrown = catchThrowable(() -> this.spring.register(UnregisteredFilterConfig.class).autowire());
-		assertThat(thrown).isInstanceOf(BeanCreationException.class);
-		assertThat(thrown.getMessage()).contains("The Filter class " + UnregisteredFilter.class.getName()
-				+ " does not have a registered order and cannot be added without a specified order."
-				+ " Consider using addFilterBefore or addFilterAfter instead.");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(UnregisteredFilterConfig.class).autowire())
+				.withMessageContaining("The Filter class " + UnregisteredFilter.class.getName()
+						+ " does not have a registered order and cannot be added without a specified order."
+						+ " Consider using addFilterBefore or addFilterAfter instead.");
 	}
 
 	// https://github.com/spring-projects/spring-security-javaconfig/issues/104

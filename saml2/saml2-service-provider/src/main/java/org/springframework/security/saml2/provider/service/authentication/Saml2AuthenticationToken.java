@@ -24,8 +24,6 @@ import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRegistrationId;
-
 /**
  * Represents an incoming SAML 2.0 response containing an assertion that has not been
  * validated. {@link Saml2AuthenticationToken#isAuthenticated()} will always return false.
@@ -78,8 +76,9 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	public Saml2AuthenticationToken(String saml2Response, String recipientUri, String idpEntityId,
 			String localSpEntityId, List<Saml2X509Credential> credentials) {
 		super(null);
-		this.relyingPartyRegistration = withRegistrationId(idpEntityId).entityId(localSpEntityId)
-				.assertionConsumerServiceLocation(recipientUri).credentials(c -> c.addAll(credentials))
+		this.relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId(idpEntityId)
+				.entityId(localSpEntityId).assertionConsumerServiceLocation(recipientUri)
+				.credentials(c -> c.addAll(credentials))
 				.assertingPartyDetails(
 						assertingParty -> assertingParty.entityId(idpEntityId).singleSignOnServiceLocation(idpEntityId))
 				.build();

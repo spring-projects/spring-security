@@ -33,7 +33,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 /**
  * Tests for {@link OAuth2UserRequestEntityConverter}.
@@ -78,7 +77,7 @@ public class OAuth2UserRequestEntityConverterTests {
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getContentType())
-				.isEqualTo(MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.ACCESS_TOKEN))

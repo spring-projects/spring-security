@@ -63,7 +63,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 /**
  * @author Phil Clay
@@ -142,8 +141,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				.willReturn(Mono.just(clientRegistration));
 
 		this.webClient.get().uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
-				.bodyToMono(String.class).subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(clientRegistration.getRegistrationId()))
+				.retrieve().bodyToMono(String.class)
+				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
@@ -180,8 +181,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				eq(clientRegistration.getRegistrationId()), eq(this.authentication), eq(this.exchange));
 
 		this.webClient.get().uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
-				.bodyToMono(String.class).subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(clientRegistration.getRegistrationId()))
+				.retrieve().bodyToMono(String.class)
+				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
@@ -221,11 +224,13 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				.willReturn(Mono.just(clientRegistration2));
 
 		this.webClient.get().uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration1.getRegistrationId())).retrieve()
-				.bodyToMono(String.class)
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(clientRegistration1.getRegistrationId()))
+				.retrieve().bodyToMono(String.class)
 				.flatMap(response -> this.webClient.get().uri(this.serverUrl)
-						.attributes(clientRegistrationId(clientRegistration2.getRegistrationId())).retrieve()
-						.bodyToMono(String.class))
+						.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+								.clientRegistrationId(clientRegistration2.getRegistrationId()))
+						.retrieve().bodyToMono(String.class))
 				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 
@@ -267,8 +272,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 						eq(this.exchange));
 
 		Mono<String> requestMono = this.webClient.get().uri(this.serverUrl)
-				.attributes(clientRegistrationId(clientRegistration.getRegistrationId())).retrieve()
-				.bodyToMono(String.class).subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
+				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(clientRegistration.getRegistrationId()))
+				.retrieve().bodyToMono(String.class)
+				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
 
 		// first try should fail, and remove the cached authorized client

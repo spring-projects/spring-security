@@ -96,8 +96,8 @@ import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -106,9 +106,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
-import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
 /**
  * @author Rob Winch
@@ -208,7 +205,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenAuthorizedClientNullThenAuthorizationHeaderNull() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -219,8 +216,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenAuthorizedClientThenAuthorizationHeader() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 
@@ -232,8 +230,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.header(HttpHeaders.AUTHORIZATION, "Existing").attributes(oauth2AuthorizedClient(authorizedClient))
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.header(HttpHeaders.AUTHORIZATION, "Existing")
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
@@ -259,8 +258,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
 
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		this.function.filter(request, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
@@ -285,8 +285,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(registration, "principalName",
 				this.accessToken, null);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		this.function.filter(request, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
@@ -317,8 +318,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
 
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
 		this.function.filter(request, this.exchange)
@@ -357,8 +359,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 
@@ -379,8 +382,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenRefreshTokenNullThenShouldRefreshFalse() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 
@@ -399,8 +403,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 
@@ -425,8 +430,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.UNAUTHORIZED.value());
 
@@ -460,8 +466,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		WebClientResponseException exception = WebClientResponseException.create(HttpStatus.UNAUTHORIZED.value(),
 				HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8);
@@ -499,8 +506,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.FORBIDDEN.value());
 
@@ -534,8 +542,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		WebClientResponseException exception = WebClientResponseException.create(HttpStatus.FORBIDDEN.value(),
 				HttpStatus.FORBIDDEN.getReasonPhrase(), HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8);
@@ -573,8 +582,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		String wwwAuthenticateHeader = "Bearer error=\"insufficient_scope\", "
 				+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
@@ -617,8 +627,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		OAuth2AuthorizationException exception = new OAuth2AuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, null, null));
@@ -646,8 +657,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
 				this.accessToken, refreshToken);
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient)).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+				.build();
 
 		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.BAD_REQUEST.value());
 
@@ -689,8 +701,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED).body("username=username&password=password"))
 				.build();
 
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(clientRegistrationId(registration.getRegistrationId())).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(registration.getRegistrationId()))
+				.build();
 
 		this.function.filter(request, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
@@ -715,8 +729,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken, refreshToken);
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
 				.willReturn(Mono.just(authorizedClient));
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(clientRegistrationId(this.registration.getRegistrationId())).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(this.registration.getRegistrationId()))
+				.build();
 
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 
@@ -738,7 +754,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken, refreshToken);
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
 				.willReturn(Mono.just(authorizedClient));
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 
@@ -761,7 +777,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken, refreshToken);
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
 				.willReturn(Mono.just(authorizedClient));
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		OAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
@@ -783,7 +799,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenDefaultOAuth2AuthorizedClientFalseThenEmpty() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 
 		OAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
@@ -806,8 +822,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken, refreshToken);
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
 				.willReturn(Mono.just(authorizedClient));
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(clientRegistrationId(this.registration.getRegistrationId())).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(this.registration.getRegistrationId()))
+				.build();
 
 		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
 
@@ -835,8 +853,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId())))
 				.willReturn(Mono.just(registration));
 
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(clientRegistrationId(registration.getRegistrationId())).build();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
+						.clientRegistrationId(registration.getRegistrationId()))
+				.build();
 
 		this.function.filter(request, this.exchange).block();
 

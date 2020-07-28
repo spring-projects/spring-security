@@ -20,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -34,11 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.powermock.api.mockito.PowerMockito.doThrow;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyZeroInteractions;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * @author Luke Taylor
@@ -88,9 +86,9 @@ public class SecurityNamespaceHandlerTests {
 	@Test
 	public void initDoesNotLogErrorWhenFilterChainProxyFailsToLoad() throws Exception {
 		String className = "javax.servlet.Filter";
-		spy(ClassUtils.class);
-		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName", eq(FILTER_CHAIN_PROXY_CLASSNAME),
-				any(ClassLoader.class));
+		PowerMockito.spy(ClassUtils.class);
+		PowerMockito.doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName",
+				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
 
 		Log logger = mock(Log.class);
 		SecurityNamespaceHandler handler = new SecurityNamespaceHandler();
@@ -98,7 +96,7 @@ public class SecurityNamespaceHandlerTests {
 
 		handler.init();
 
-		verifyStatic(ClassUtils.class);
+		PowerMockito.verifyStatic(ClassUtils.class);
 		ClassUtils.forName(eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
 		verifyZeroInteractions(logger);
 	}
@@ -108,18 +106,18 @@ public class SecurityNamespaceHandlerTests {
 		String className = "javax.servlet.Filter";
 		this.thrown.expect(BeanDefinitionParsingException.class);
 		this.thrown.expectMessage("NoClassDefFoundError: " + className);
-		spy(ClassUtils.class);
-		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName", eq(FILTER_CHAIN_PROXY_CLASSNAME),
-				any(ClassLoader.class));
+		PowerMockito.spy(ClassUtils.class);
+		PowerMockito.doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName",
+				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER + XML_HTTP_BLOCK);
 	}
 
 	@Test
 	public void filterNoClassDefFoundErrorNoHttpBlock() throws Exception {
 		String className = "javax.servlet.Filter";
-		spy(ClassUtils.class);
-		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName", eq(FILTER_CHAIN_PROXY_CLASSNAME),
-				any(ClassLoader.class));
+		PowerMockito.spy(ClassUtils.class);
+		PowerMockito.doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName",
+				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER);
 		// should load just fine since no http block
 	}
@@ -129,8 +127,8 @@ public class SecurityNamespaceHandlerTests {
 		String className = FILTER_CHAIN_PROXY_CLASSNAME;
 		this.thrown.expect(BeanDefinitionParsingException.class);
 		this.thrown.expectMessage("ClassNotFoundException: " + className);
-		spy(ClassUtils.class);
-		doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName",
+		PowerMockito.spy(ClassUtils.class);
+		PowerMockito.doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName",
 				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER + XML_HTTP_BLOCK);
 	}
@@ -138,8 +136,8 @@ public class SecurityNamespaceHandlerTests {
 	@Test
 	public void filterChainProxyClassNotFoundExceptionNoHttpBlock() throws Exception {
 		String className = FILTER_CHAIN_PROXY_CLASSNAME;
-		spy(ClassUtils.class);
-		doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName",
+		PowerMockito.spy(ClassUtils.class);
+		PowerMockito.doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName",
 				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER);
 		// should load just fine since no http block
@@ -148,9 +146,9 @@ public class SecurityNamespaceHandlerTests {
 	@Test
 	public void websocketNotFoundExceptionNoMessageBlock() throws Exception {
 		String className = FILTER_CHAIN_PROXY_CLASSNAME;
-		spy(ClassUtils.class);
-		doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName", eq(Message.class.getName()),
-				any(ClassLoader.class));
+		PowerMockito.spy(ClassUtils.class);
+		PowerMockito.doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName",
+				eq(Message.class.getName()), any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER);
 		// should load just fine since no websocket block
 	}

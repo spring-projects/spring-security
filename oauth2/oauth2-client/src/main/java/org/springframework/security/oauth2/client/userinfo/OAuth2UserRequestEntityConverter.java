@@ -30,8 +30,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-
 /**
  * A {@link Converter} that converts the provided {@link OAuth2UserRequest} to a
  * {@link RequestEntity} representation of a request for the UserInfo Endpoint.
@@ -45,7 +43,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserRequest, RequestEntity<?>> {
 
 	private static final MediaType DEFAULT_CONTENT_TYPE = MediaType
-			.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+			.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 
 	/**
 	 * Returns the {@link RequestEntity} used for the UserInfo Request.

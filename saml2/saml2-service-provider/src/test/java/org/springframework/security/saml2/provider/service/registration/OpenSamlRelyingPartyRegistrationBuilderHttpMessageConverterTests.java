@@ -25,12 +25,12 @@ import java.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.security.saml2.Saml2Exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.http.HttpStatus.OK;
 
 public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 
@@ -62,7 +62,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 	@Test
 	public void readWhenMissingIDPSSODescriptorThenException() {
 		MockClientHttpResponse response = new MockClientHttpResponse(
-				(String.format(ENTITY_DESCRIPTOR_TEMPLATE, "")).getBytes(), OK);
+				(String.format(ENTITY_DESCRIPTOR_TEMPLATE, "")).getBytes(), HttpStatus.OK);
 		assertThatCode(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
 				.isInstanceOf(Saml2Exception.class)
 				.hasMessageContaining("Metadata response is missing the necessary IDPSSODescriptor element");
@@ -71,7 +71,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 	@Test
 	public void readWhenMissingVerificationKeyThenException() {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, ""));
-		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), OK);
+		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), HttpStatus.OK);
 		assertThatCode(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
 				.isInstanceOf(Saml2Exception.class).hasMessageContaining(
 						"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
@@ -81,7 +81,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 	public void readWhenMissingSingleSignOnServiceThenException() {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
 				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")));
-		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), OK);
+		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), HttpStatus.OK);
 		assertThatCode(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
 				.isInstanceOf(Saml2Exception.class).hasMessageContaining(
 						"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
@@ -94,7 +94,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 						String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")
 								+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"")
 								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
-		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), OK);
+		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), HttpStatus.OK);
 		RelyingPartyRegistration registration = this.converter.read(RelyingPartyRegistration.Builder.class, response)
 				.registrationId("one").build();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
@@ -114,7 +114,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 	public void readWhenKeyDescriptorHasNoUseThenConfiguresBothKeyTypes() throws Exception {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
 				String.format(KEY_DESCRIPTOR_TEMPLATE, "") + String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
-		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), OK);
+		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), HttpStatus.OK);
 		RelyingPartyRegistration registration = this.converter.read(RelyingPartyRegistration.Builder.class, response)
 				.registrationId("one").build();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();

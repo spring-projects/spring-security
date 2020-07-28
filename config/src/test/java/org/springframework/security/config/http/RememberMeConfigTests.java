@@ -30,6 +30,8 @@ import org.springframework.security.TestDataSource;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,9 +45,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices.DEFAULT_PARAMETER;
-import static org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
-import static org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl.CREATE_TABLE_SQL;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
@@ -73,7 +72,8 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(this.xml("WithTokenRepository")).autowire();
 
 		MvcResult result = this.rememberAuthentication("user", "password")
-				.andExpect(cookie().secure(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false)).andReturn();
+				.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false))
+				.andReturn();
 
 		Cookie cookie = rememberMeCookie(result);
 
@@ -91,10 +91,11 @@ public class RememberMeConfigTests {
 
 		TestDataSource dataSource = this.spring.getContext().getBean(TestDataSource.class);
 		JdbcTemplate template = new JdbcTemplate(dataSource);
-		template.execute(CREATE_TABLE_SQL);
+		template.execute(JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);
 
 		MvcResult result = this.rememberAuthentication("user", "password")
-				.andExpect(cookie().secure(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false)).andReturn();
+				.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false))
+				.andReturn();
 
 		Cookie cookie = rememberMeCookie(result);
 
@@ -111,10 +112,11 @@ public class RememberMeConfigTests {
 
 		TestDataSource dataSource = this.spring.getContext().getBean(TestDataSource.class);
 		JdbcTemplate template = new JdbcTemplate(dataSource);
-		template.execute(CREATE_TABLE_SQL);
+		template.execute(JdbcTokenRepositoryImpl.CREATE_TABLE_SQL);
 
 		MvcResult result = this.rememberAuthentication("user", "password")
-				.andExpect(cookie().secure(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false)).andReturn();
+				.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false))
+				.andReturn();
 
 		Cookie cookie = rememberMeCookie(result);
 
@@ -130,8 +132,9 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(this.xml("WithServicesRef")).autowire();
 
 		MvcResult result = this.rememberAuthentication("user", "password")
-				.andExpect(cookie().secure(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false))
-				.andExpect(cookie().maxAge(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 5000)).andReturn();
+				.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false))
+				.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 5000))
+				.andReturn();
 
 		Cookie cookie = rememberMeCookie(result);
 
@@ -139,7 +142,8 @@ public class RememberMeConfigTests {
 
 		// SEC-909
 		this.mvc.perform(post("/logout").cookie(cookie).with(csrf()))
-				.andExpect(cookie().maxAge(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 0)).andReturn();
+				.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 0))
+				.andReturn();
 	}
 
 	@Test
@@ -152,7 +156,7 @@ public class RememberMeConfigTests {
 		Cookie cookie = rememberMeCookie(result);
 
 		this.mvc.perform(post("/logout").cookie(cookie).with(csrf()))
-				.andExpect(cookie().maxAge(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 0));
+				.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 0));
 	}
 
 	@Test
@@ -162,7 +166,8 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(this.xml("TokenValidity")).autowire();
 
 		MvcResult result = this.rememberAuthentication("user", "password")
-				.andExpect(cookie().maxAge(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 10000)).andReturn();
+				.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 10000))
+				.andReturn();
 
 		Cookie cookie = rememberMeCookie(result);
 
@@ -175,7 +180,7 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(this.xml("NegativeTokenValidity")).autowire();
 
 		this.rememberAuthentication("user", "password")
-				.andExpect(cookie().maxAge(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, -1));
+				.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, -1));
 	}
 
 	@Test
@@ -191,7 +196,7 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(this.xml("Sec2165")).autowire();
 
 		this.rememberAuthentication("user", "password")
-				.andExpect(cookie().maxAge(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 30));
+				.andExpect(cookie().maxAge(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, 30));
 	}
 
 	@Test
@@ -200,7 +205,7 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(this.xml("SecureCookie")).autowire();
 
 		this.rememberAuthentication("user", "password")
-				.andExpect(cookie().secure(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, true));
+				.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, true));
 	}
 
 	/**
@@ -212,7 +217,7 @@ public class RememberMeConfigTests {
 		this.spring.configLocations(this.xml("Sec1827")).autowire();
 
 		this.rememberAuthentication("user", "password")
-				.andExpect(cookie().secure(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false));
+				.andExpect(cookie().secure(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, false));
 	}
 
 	@Test
@@ -304,7 +309,8 @@ public class RememberMeConfigTests {
 
 	private ResultActions rememberAuthentication(String username, String password) throws Exception {
 
-		return this.mvc.perform(login(username, password).param(DEFAULT_PARAMETER, "true").with(csrf()))
+		return this.mvc.perform(
+				login(username, password).param(AbstractRememberMeServices.DEFAULT_PARAMETER, "true").with(csrf()))
 				.andExpect(redirectedUrl("/"));
 	}
 
