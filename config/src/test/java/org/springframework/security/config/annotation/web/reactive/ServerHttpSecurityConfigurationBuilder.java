@@ -26,7 +26,10 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
  * @author Rob Winch
  * @since 5.0
  */
-public class ServerHttpSecurityConfigurationBuilder {
+public final class ServerHttpSecurityConfigurationBuilder {
+
+	private ServerHttpSecurityConfigurationBuilder() {
+	}
 
 	public static ServerHttpSecurity http() {
 		return new ServerHttpSecurityConfiguration().httpSecurity();

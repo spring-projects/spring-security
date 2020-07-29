@@ -34,7 +34,10 @@ import org.springframework.web.server.WebFilter;
  * @since 5.0
  *
  */
-public class WebTestClientBuilder {
+public final class WebTestClientBuilder {
+
+	private WebTestClientBuilder() {
+	}
 
 	public static Builder bindToWebFilters(WebFilter... webFilters) {
 		return WebTestClient.bindToController(new Http200RestController()).webFilter(webFilters).configureClient();

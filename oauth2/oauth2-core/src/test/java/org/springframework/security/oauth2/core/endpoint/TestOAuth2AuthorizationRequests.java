@@ -23,7 +23,10 @@ import java.util.Map;
  * @author Rob Winch
  * @since 5.1
  */
-public class TestOAuth2AuthorizationRequests {
+public final class TestOAuth2AuthorizationRequests {
+
+	private TestOAuth2AuthorizationRequests() {
+	}
 
 	public static OAuth2AuthorizationRequest.Builder request() {
 		String registrationId = "registration-id";

@@ -32,10 +32,9 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Joe Grandja
  * @since 5.2
  */
-public class TestKeys {
+public final class TestKeys {
 
 	public static final KeyFactory kf;
-
 	static {
 		try {
 			kf = KeyFactory.getInstance("RSA");
@@ -57,12 +56,11 @@ public class TestKeys {
 			+ "kJdJ/ZIV+WW4noDdzpKqHcwmB8FsrumlVY/DNVvUSDIipiq9PbP4H99TXN1o746o"
 			+ "RaNa07rq1hoCgMSSy+85SagCoxlmyE+D+of9SsMY8Ol9t0rdzpobBuhyJ/o5dfvj" + "KwIDAQAB";
 
-	public static final RSAPublicKey DEFAULT_PUBLIC_KEY = publicKey();
-
-	private static RSAPublicKey publicKey() {
+	public static final RSAPublicKey DEFAULT_PUBLIC_KEY;
+	static {
 		X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(DEFAULT_RSA_PUBLIC_KEY));
 		try {
-			return (RSAPublicKey) kf.generatePublic(spec);
+			DEFAULT_PUBLIC_KEY = (RSAPublicKey) kf.generatePublic(spec);
 		}
 		catch (InvalidKeySpecException ex) {
 			throw new IllegalArgumentException(ex);
@@ -95,16 +93,19 @@ public class TestKeys {
 			+ "c5TVvhG/ubfBspI5DhQqIGijnVBzFT//UfIYMSKJo75qqBEyP2EJSmCsunWsAFsM"
 			+ "TszuiGTkrKcZy9G0wJqPztZZl2F2+bJgnA6nBEV7g5PA4Af+QSmaIhRwqGDAuROR" + "47jndeyIaMTNETEmOnms+as17g==";
 
-	public static final RSAPrivateKey DEFAULT_PRIVATE_KEY = privateKey();
+	public static final RSAPrivateKey DEFAULT_PRIVATE_KEY;
 
-	private static RSAPrivateKey privateKey() {
+	static {
 		PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(DEFAULT_RSA_PRIVATE_KEY));
 		try {
-			return (RSAPrivateKey) kf.generatePrivate(spec);
+			DEFAULT_PRIVATE_KEY = (RSAPrivateKey) kf.generatePrivate(spec);
 		}
 		catch (InvalidKeySpecException ex) {
 			throw new IllegalArgumentException(ex);
 		}
+	}
+
+	private TestKeys() {
 	}
 
 }

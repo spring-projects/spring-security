@@ -31,6 +31,9 @@ import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X
 
 public final class TestSaml2X509Credentials {
 
+	private TestSaml2X509Credentials() {
+	}
+
 	public static Saml2X509Credential assertingPartySigningCredential() {
 		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(), Saml2X509CredentialType.SIGNING);
 	}

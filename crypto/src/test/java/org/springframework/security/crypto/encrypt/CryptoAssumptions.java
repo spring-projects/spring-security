@@ -26,7 +26,10 @@ import org.junit.AssumptionViolatedException;
 
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 
-public class CryptoAssumptions {
+public final class CryptoAssumptions {
+
+	private CryptoAssumptions() {
+	}
 
 	public static void assumeGCMJCE() {
 		assumeAes256(CipherAlgorithm.GCM);

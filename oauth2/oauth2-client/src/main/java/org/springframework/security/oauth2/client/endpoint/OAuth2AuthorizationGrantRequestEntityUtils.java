@@ -40,6 +40,9 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 
 	private static HttpHeaders DEFAULT_TOKEN_REQUEST_HEADERS = getDefaultTokenRequestHeaders();
 
+	private OAuth2AuthorizationGrantRequestEntityUtils() {
+	}
+
 	static HttpHeaders getTokenRequestHeaders(ClientRegistration clientRegistration) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.addAll(DEFAULT_TOKEN_REQUEST_HEADERS);

@@ -19,7 +19,10 @@ package org.springframework.security.oauth2.jwt;
 import java.time.Instant;
 import java.util.Arrays;
 
-public class TestJwts {
+public final class TestJwts {
+
+	private TestJwts() {
+	}
 
 	public static Jwt.Builder jwt() {
 		return Jwt.withTokenValue("token").header("alg", "none").audience(Arrays.asList("https://audience.example.org"))

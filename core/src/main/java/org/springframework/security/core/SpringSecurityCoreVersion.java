@@ -30,7 +30,7 @@ import org.springframework.core.SpringVersion;
  * @author Luke Taylor
  * @author Rob Winch
  */
-public class SpringSecurityCoreVersion {
+public final class SpringSecurityCoreVersion {
 
 	private static final String DISABLE_CHECKS = SpringSecurityCoreVersion.class.getName().concat(".DISABLE_CHECKS");
 
@@ -48,6 +48,9 @@ public class SpringSecurityCoreVersion {
 
 	static {
 		performVersionChecks();
+	}
+
+	private SpringSecurityCoreVersion() {
 	}
 
 	public static String getVersion() {

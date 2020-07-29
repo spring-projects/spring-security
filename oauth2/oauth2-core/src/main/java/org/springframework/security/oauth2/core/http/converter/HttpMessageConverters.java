@@ -45,6 +45,9 @@ final class HttpMessageConverters {
 		jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
 	}
 
+	private HttpMessageConverters() {
+	}
+
 	static GenericHttpMessageConverter<Object> getJsonMessageConverter() {
 		if (jackson2Present) {
 			return new MappingJackson2HttpMessageConverter();

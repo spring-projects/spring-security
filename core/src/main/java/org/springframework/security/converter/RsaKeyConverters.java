@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.2
  */
-public class RsaKeyConverters {
+public final class RsaKeyConverters {
 
 	private static final String DASHES = "-----";
 
@@ -49,6 +49,9 @@ public class RsaKeyConverters {
 	private static final String X509_PEM_HEADER = DASHES + "BEGIN PUBLIC KEY" + DASHES;
 
 	private static final String X509_PEM_FOOTER = DASHES + "END PUBLIC KEY" + DASHES;
+
+	private RsaKeyConverters() {
+	}
 
 	/**
 	 * Construct a {@link Converter} for converting a PEM-encoded PKCS#8 RSA Private Key

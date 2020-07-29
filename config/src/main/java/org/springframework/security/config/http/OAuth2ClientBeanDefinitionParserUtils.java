@@ -37,6 +37,9 @@ final class OAuth2ClientBeanDefinitionParserUtils {
 
 	private static final String ATT_AUTHORIZED_CLIENT_SERVICE_REF = "authorized-client-service-ref";
 
+	private OAuth2ClientBeanDefinitionParserUtils() {
+	}
+
 	static BeanMetadataElement getClientRegistrationRepository(Element element) {
 		BeanMetadataElement clientRegistrationRepository;
 		String clientRegistrationRepositoryRef = element.getAttribute(ATT_CLIENT_REGISTRATION_REPOSITORY_REF);

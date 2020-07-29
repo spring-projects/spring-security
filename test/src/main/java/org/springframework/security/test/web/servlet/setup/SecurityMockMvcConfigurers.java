@@ -30,6 +30,9 @@ import org.springframework.util.Assert;
  */
 public final class SecurityMockMvcConfigurers {
 
+	private SecurityMockMvcConfigurers() {
+	}
+
 	/**
 	 * Configures the MockMvcBuilder for use with Spring Security. Specifically the
 	 * configurer adds the Spring Bean named "springSecurityFilterChain" as a Filter. It

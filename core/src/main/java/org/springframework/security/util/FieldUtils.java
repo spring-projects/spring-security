@@ -29,6 +29,9 @@ import org.springframework.util.StringUtils;
  */
 public final class FieldUtils {
 
+	private FieldUtils() {
+	}
+
 	/**
 	 * Attempts to locate the specified field on the class.
 	 * @param clazz the class definition containing the field

@@ -31,6 +31,9 @@ final class DigestAuthUtils {
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
+	private DigestAuthUtils() {
+	}
+
 	static String encodePasswordInA1Format(String username, String realm, String password) {
 		String a1 = username + ":" + realm + ":" + password;
 

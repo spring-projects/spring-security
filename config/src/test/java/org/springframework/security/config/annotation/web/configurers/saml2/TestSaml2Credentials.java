@@ -29,7 +29,10 @@ import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X
 /**
  * Preconfigured SAML credentials for SAML integration tests.
  */
-public class TestSaml2Credentials {
+public final class TestSaml2Credentials {
+
+	private TestSaml2Credentials() {
+	}
 
 	static Saml2X509Credential verificationCertificate() {
 		String certificate = "-----BEGIN CERTIFICATE-----\n"

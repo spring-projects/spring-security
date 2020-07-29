@@ -30,7 +30,10 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 /**
  * @author Joe Grandja
  */
-public class TestOidcUsers {
+public final class TestOidcUsers {
+
+	private TestOidcUsers() {
+	}
 
 	public static DefaultOidcUser create() {
 		OidcIdToken idToken = idToken();

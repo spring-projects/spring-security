@@ -23,7 +23,10 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
  * @author Rob Winch
  * @since 5.1
  */
-public class TestClientRegistrations {
+public final class TestClientRegistrations {
+
+	private TestClientRegistrations() {
+	}
 
 	public static ClientRegistration.Builder clientRegistration() {
 		return ClientRegistration.withRegistrationId("registration-id")

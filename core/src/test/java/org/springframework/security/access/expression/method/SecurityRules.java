@@ -16,7 +16,10 @@
 
 package org.springframework.security.access.expression.method;
 
-public class SecurityRules {
+public final class SecurityRules {
+
+	private SecurityRules() {
+	}
 
 	public static boolean disallow() {
 		return false;

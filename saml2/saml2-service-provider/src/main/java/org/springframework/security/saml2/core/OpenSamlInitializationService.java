@@ -74,11 +74,14 @@ import org.springframework.security.saml2.Saml2Exception;
  * @author Josh Cummings
  * @since 5.4
  */
-public class OpenSamlInitializationService {
+public final class OpenSamlInitializationService {
 
 	private static final Log log = LogFactory.getLog(OpenSamlInitializationService.class);
 
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
+
+	private OpenSamlInitializationService() {
+	}
 
 	/**
 	 * Ready OpenSAML for use and configure it with reasonable defaults.
