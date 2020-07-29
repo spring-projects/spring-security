@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * X.509 client certificate authentication support. Hooks into the certificate exposed by
  * the servlet container through the {@code javax.servlet.request.X509Certificate}

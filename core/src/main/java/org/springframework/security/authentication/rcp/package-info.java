@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Allows remote clients to authenticate and obtain a populated
  * <code>Authentication</code> object.

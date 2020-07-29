@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Classes and interfaces that provide support for
  * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}.

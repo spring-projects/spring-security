@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Contains the infrastructure classes for handling the {@code @PreAuthorize},
  * {@code @PreFilter}, {@code @PostAuthorize} and {@code @PostFilter} annotations.

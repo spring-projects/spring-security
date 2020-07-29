@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Classes and interfaces providing support to the client for initiating requests to the
  * OAuth 2.0 Authorization Server's UserInfo Endpoint.
