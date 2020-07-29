@@ -7,5 +7,11 @@
 		<property name="file"
 			value="${config_loc}/checkstyle-suppressions.xml" />
 	</module>
-	<module name="io.spring.javaformat.checkstyle.SpringChecks" />
+	<module name="com.puppycrawl.tools.checkstyle.checks.header.RegexpHeaderCheck">
+		<property name="headerFile" value="${config_loc}/header.txt" />
+		<property name="fileExtensions" value="java" />
+	</module>
+	<module name="io.spring.javaformat.checkstyle.SpringChecks">
+		<property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringHeaderCheck" />
+	</module>
 </module>
