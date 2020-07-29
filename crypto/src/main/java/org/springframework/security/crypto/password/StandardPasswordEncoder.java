@@ -83,8 +83,6 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 		return MessageDigest.isEqual(digested, digest(rawPassword, salt));
 	}
 
-	// internal helpers
-
 	private StandardPasswordEncoder(String algorithm, CharSequence secret) {
 		this.digester = new Digester(algorithm, DEFAULT_ITERATIONS);
 		this.secret = Utf8.encode(secret);

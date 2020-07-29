@@ -28,16 +28,12 @@ public class DefaultRequestRejectedHandlerTests {
 
 	@Test
 	public void defaultRequestRejectedHandlerRethrowsTheException() throws Exception {
-		// given:
 		RequestRejectedException requestRejectedException = new RequestRejectedException("rejected");
 		DefaultRequestRejectedHandler sut = new DefaultRequestRejectedHandler();
-
-		// when:
 		try {
 			sut.handle(mock(HttpServletRequest.class), mock(HttpServletResponse.class), requestRejectedException);
 		}
 		catch (RequestRejectedException exception) {
-			// then:
 			Assert.assertThat(exception.getMessage(), CoreMatchers.is("rejected"));
 			return;
 		}

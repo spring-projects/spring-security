@@ -58,8 +58,6 @@ public class HelloWebfluxMethodApplicationTests {
 			.expectStatus().isUnauthorized();
 	}
 
-	// --- Basic Authentication ---
-
 	@Test
 	public void messageWhenUserThenForbidden() {
 		this.rest
@@ -81,8 +79,6 @@ public class HelloWebfluxMethodApplicationTests {
 			.expectBody(String.class).isEqualTo("Hello World!");
 	}
 
-	// --- WithMockUser ---
-
 	@Test
 	@WithMockUser
 	public void messageWhenWithMockUserThenForbidden() {
@@ -103,8 +99,6 @@ public class HelloWebfluxMethodApplicationTests {
 			.expectStatus().isOk()
 			.expectBody(String.class).isEqualTo("Hello World!");
 	}
-
-	// --- mutateWith mockUser ---
 
 	@Test
 	public void messageWhenMutateWithMockUserThenForbidden() {

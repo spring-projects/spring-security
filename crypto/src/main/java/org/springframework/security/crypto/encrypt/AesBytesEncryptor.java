@@ -132,8 +132,6 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		}
 	}
 
-	// internal helpers
-
 	private byte[] iv(byte[] encrypted) {
 		return this.ivGenerator != NULL_IV_GENERATOR
 				? EncodingUtils.subArray(encrypted, 0, this.ivGenerator.getKeyLength())

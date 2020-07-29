@@ -135,8 +135,6 @@ public class HttpHeadersConfigTests {
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(headers));
 	}
 
-	// -- defaults disabled
-
 	/**
 	 * gh-3986
 	 */
@@ -480,8 +478,6 @@ public class HttpHeadersConfigTests {
 				.andExpect(excludesDefaults());
 	}
 
-	// -- single-header disabled
-
 	@Test
 	public void requestWhenCacheControlDisabledThenExcludesHeader() throws Exception {
 
@@ -549,8 +545,6 @@ public class HttpHeadersConfigTests {
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(allButXssProtection))
 				.andExpect(excludes(xssProtection));
 	}
-
-	// --- disable error handling ---
 
 	@Test
 	public void configureWhenHstsDisabledAndIncludeSubdomainsSpecifiedThenAutowireFails() {

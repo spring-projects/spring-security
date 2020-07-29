@@ -557,7 +557,6 @@ public class AclImplTests {
 
 	@Test
 	public void hashCodeWithoutStackOverFlow() throws Exception {
-		// given
 		Sid sid = new PrincipalSid("pSid");
 		ObjectIdentity oid = new ObjectIdentityImpl("type", 1);
 		AclAuthorizationStrategy authStrategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("role"));
@@ -570,7 +569,6 @@ public class AclImplTests {
 		fieldAces.setAccessible(true);
 		List<AccessControlEntryImpl> aces = (List<AccessControlEntryImpl>) fieldAces.get(acl);
 		aces.add(ace);
-		// when - then none StackOverFlowError been raised
 		ace.hashCode();
 	}
 

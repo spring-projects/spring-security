@@ -60,8 +60,6 @@ public class OAuth2ResourceServerApplicationITests {
 				.andExpect(content().string(containsString("Hello, subject!")));
 	}
 
-	// -- tests with scopes
-
 	@Test
 	public void performWhenValidBearerTokenThenScopedRequestsAlsoWork()
 			throws Exception {

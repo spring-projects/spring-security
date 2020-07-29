@@ -60,8 +60,6 @@ public class OAuth2ResourceServerApplicationITests {
 				.andExpect(content().string(containsString("Hello, subject for tenant one!")));
 	}
 
-	// -- tests with scopes
-
 	@Test
 	public void tenantOnePerformWhenValidBearerTokenThenScopedRequestsAlsoWork()
 			throws Exception {
@@ -95,8 +93,6 @@ public class OAuth2ResourceServerApplicationITests {
 				.andExpect(status().isOk())
 				.andExpect(content().string(containsString("Hello, subject for tenant two!")));
 	}
-
-	// -- tests with scopes
 
 	@Test
 	public void tenantTwoPerformWhenValidBearerTokenThenScopedRequestsAlsoWork()

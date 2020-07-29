@@ -74,8 +74,6 @@ public class DelegatingSecurityContextRunnableTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	// --- constructor ---
-
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullDelegate() {
 		new DelegatingSecurityContextRunnable(null);
@@ -95,8 +93,6 @@ public class DelegatingSecurityContextRunnableTests {
 	public void constructorNullSecurityContext() {
 		new DelegatingSecurityContextRunnable(this.delegate, null);
 	}
-
-	// --- run ---
 
 	@Test
 	public void call() throws Exception {
@@ -123,8 +119,6 @@ public class DelegatingSecurityContextRunnableTests {
 		assertWrapped(this.runnable);
 	}
 
-	// --- create ---
-
 	@Test(expected = IllegalArgumentException.class)
 	public void createNullDelegate() {
 		DelegatingSecurityContextRunnable.create(null, this.securityContext);
@@ -149,8 +143,6 @@ public class DelegatingSecurityContextRunnableTests {
 		this.runnable = DelegatingSecurityContextRunnable.create(this.delegate, this.securityContext);
 		assertWrapped(this.runnable);
 	}
-
-	// --- toString
 
 	// SEC-2682
 	@Test

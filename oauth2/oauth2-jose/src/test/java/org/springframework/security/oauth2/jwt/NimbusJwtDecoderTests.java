@@ -491,16 +491,13 @@ public class NimbusJwtDecoderTests {
 
 	@Test
 	public void decodeWhenCacheThenStoreRetrievedJwkSetToCache() {
-		// given
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restOperations(restOperations)
 				.cache(cache).build();
-		// when
 		jwtDecoder.decode(SIGNED_JWT);
-		// then
 		assertThat(cache.get(JWK_SET_URI, String.class)).isEqualTo(JWK_SET);
 		ArgumentCaptor<RequestEntity> requestEntityCaptor = ArgumentCaptor.forClass(RequestEntity.class);
 		verify(restOperations).exchange(requestEntityCaptor.capture(), eq(String.class));
@@ -511,15 +508,12 @@ public class NimbusJwtDecoderTests {
 
 	@Test
 	public void decodeWhenCacheThenRetrieveFromCache() {
-		// given
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = mock(Cache.class);
 		given(cache.get(eq(JWK_SET_URI), any(Callable.class))).willReturn(JWK_SET);
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).cache(cache)
 				.restOperations(restOperations).build();
-		// when
 		jwtDecoder.decode(SIGNED_JWT);
-		// then
 		verify(cache).get(eq(JWK_SET_URI), any(Callable.class));
 		verifyNoMoreInteractions(cache);
 		verifyNoInteractions(restOperations);
@@ -527,14 +521,12 @@ public class NimbusJwtDecoderTests {
 
 	@Test
 	public void decodeWhenCacheIsConfiguredAndValueLoaderErrorsThenThrowsJwtException() {
-		// given
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willThrow(new RestClientException("Cannot retrieve JWK Set"));
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restOperations(restOperations)
 				.cache(cache).build();
-		// then
 		assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtException.class)
 				.isNotInstanceOf(BadJwtException.class)
 				.hasMessageContaining("An error occurred while attempting to decode the Jwt");
