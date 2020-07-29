@@ -82,13 +82,13 @@ class JwtDecoderProviderConfigurationUtils {
 
 				return configuration;
 			}
-			catch (IllegalArgumentException e) {
-				throw e;
+			catch (IllegalArgumentException ex) {
+				throw ex;
 			}
-			catch (RuntimeException e) {
-				if (!(e instanceof HttpClientErrorException
-						&& ((HttpClientErrorException) e).getStatusCode().is4xxClientError())) {
-					throw new IllegalArgumentException(errorMessage, e);
+			catch (RuntimeException ex) {
+				if (!(ex instanceof HttpClientErrorException
+						&& ((HttpClientErrorException) ex).getStatusCode().is4xxClientError())) {
+					throw new IllegalArgumentException(errorMessage, ex);
 				}
 				// else try another endpoint
 			}

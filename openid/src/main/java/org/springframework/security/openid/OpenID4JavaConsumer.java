@@ -84,8 +84,8 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		try {
 			discoveries = this.consumerManager.discover(identityUrl);
 		}
-		catch (DiscoveryException e) {
-			throw new OpenIDConsumerException("Error during discovery", e);
+		catch (DiscoveryException ex) {
+			throw new OpenIDConsumerException("Error during discovery", ex);
 		}
 
 		DiscoveryInformation information = this.consumerManager.associate(discoveries);
@@ -112,8 +112,8 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 				authReq.addExtension(fetchRequest);
 			}
 		}
-		catch (MessageException | ConsumerException e) {
-			throw new OpenIDConsumerException("Error processing ConsumerManager authentication", e);
+		catch (MessageException | ConsumerException ex) {
+			throw new OpenIDConsumerException("Error processing ConsumerManager authentication", ex);
 		}
 
 		return authReq.getDestinationUrl(true);
@@ -153,8 +153,8 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		try {
 			verification = this.consumerManager.verify(receivingURL.toString(), openidResp, discovered);
 		}
-		catch (MessageException | AssociationException | DiscoveryException e) {
-			throw new OpenIDConsumerException("Error verifying openid response", e);
+		catch (MessageException | AssociationException | DiscoveryException ex) {
+			throw new OpenIDConsumerException("Error verifying openid response", ex);
 		}
 
 		// examine the verification result and extract the verified identifier
@@ -201,8 +201,8 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 				}
 			}
 		}
-		catch (MessageException e) {
-			throw new OpenIDConsumerException("Attribute retrieval failed", e);
+		catch (MessageException ex) {
+			throw new OpenIDConsumerException("Attribute retrieval failed", ex);
 		}
 
 		if (this.logger.isDebugEnabled()) {

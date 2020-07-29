@@ -25,8 +25,9 @@ public final class ExpressionUtils {
 		try {
 			return expr.getValue(ctx, Boolean.class);
 		}
-		catch (EvaluationException e) {
-			throw new IllegalArgumentException("Failed to evaluate expression '" + expr.getExpressionString() + "'", e);
+		catch (EvaluationException ex) {
+			throw new IllegalArgumentException("Failed to evaluate expression '" + expr.getExpressionString() + "'",
+					ex);
 		}
 	}
 

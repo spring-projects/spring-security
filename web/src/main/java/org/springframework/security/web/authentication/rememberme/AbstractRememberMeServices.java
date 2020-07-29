@@ -154,8 +154,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 		catch (AccountStatusException statusInvalid) {
 			this.logger.debug("Invalid UserDetails: " + statusInvalid.getMessage());
 		}
-		catch (RememberMeAuthenticationException e) {
-			this.logger.debug(e.getMessage());
+		catch (RememberMeAuthenticationException ex) {
+			this.logger.debug(ex.getMessage());
 		}
 
 		cancelCookie(request, response);
@@ -219,7 +219,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 		try {
 			Base64.getDecoder().decode(cookieValue.getBytes());
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			throw new InvalidCookieException("Cookie token was not Base64 encoded; value was '" + cookieValue + "'");
 		}
 
@@ -231,8 +231,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 			try {
 				tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8.toString());
 			}
-			catch (UnsupportedEncodingException e) {
-				this.logger.error(e.getMessage(), e);
+			catch (UnsupportedEncodingException ex) {
+				this.logger.error(ex.getMessage(), ex);
 			}
 		}
 
@@ -250,8 +250,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 			try {
 				sb.append(URLEncoder.encode(cookieTokens[i], StandardCharsets.UTF_8.toString()));
 			}
-			catch (UnsupportedEncodingException e) {
-				this.logger.error(e.getMessage(), e);
+			catch (UnsupportedEncodingException ex) {
+				this.logger.error(ex.getMessage(), ex);
 			}
 
 			if (i < cookieTokens.length - 1) {

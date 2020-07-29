@@ -101,8 +101,8 @@ public final class IpAddressMatcher implements RequestMatcher {
 		try {
 			return InetAddress.getByName(address);
 		}
-		catch (UnknownHostException e) {
-			throw new IllegalArgumentException("Failed to parse address" + address, e);
+		catch (UnknownHostException ex) {
+			throw new IllegalArgumentException("Failed to parse address" + address, ex);
 		}
 	}
 

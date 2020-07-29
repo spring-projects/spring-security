@@ -30,8 +30,8 @@ import org.springframework.security.core.AuthenticationException;
 public class DefaultLoginExceptionResolver implements LoginExceptionResolver {
 
 	@Override
-	public AuthenticationException resolveException(LoginException e) {
-		return new AuthenticationServiceException(e.getMessage(), e);
+	public AuthenticationException resolveException(LoginException ex) {
+		return new AuthenticationServiceException(ex.getMessage(), ex);
 	}
 
 }

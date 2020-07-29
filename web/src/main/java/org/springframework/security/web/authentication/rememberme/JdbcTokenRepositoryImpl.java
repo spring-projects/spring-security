@@ -100,8 +100,8 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 			this.logger.error("Querying token for series '" + seriesId + "' returned more than one value. Series"
 					+ " should be unique");
 		}
-		catch (DataAccessException e) {
-			this.logger.error("Failed to load token for series " + seriesId, e);
+		catch (DataAccessException ex) {
+			this.logger.error("Failed to load token for series " + seriesId, ex);
 		}
 
 		return null;

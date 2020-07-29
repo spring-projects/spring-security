@@ -242,8 +242,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 			SignatureSupport.signObject(authnRequest, parameters);
 			return authnRequest;
 		}
-		catch (MarshallingException | SignatureException | SecurityException e) {
-			throw new Saml2Exception(e);
+		catch (MarshallingException | SignatureException | SecurityException ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
 
@@ -280,8 +280,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 			result.put("Signature", b64Signature);
 			return result;
 		}
-		catch (SecurityException e) {
-			throw new Saml2Exception(e);
+		catch (SecurityException ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
 
@@ -290,8 +290,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 			Element element = this.marshaller.marshall(authnRequest);
 			return SerializeSupport.nodeToString(element);
 		}
-		catch (MarshallingException e) {
-			throw new Saml2Exception(e);
+		catch (MarshallingException ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
 

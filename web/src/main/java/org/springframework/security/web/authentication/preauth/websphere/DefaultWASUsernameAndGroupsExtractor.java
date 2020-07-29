@@ -137,9 +137,9 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 
 			return new ArrayList(groups);
 		}
-		catch (Exception e) {
-			logger.error("Exception occured while looking up groups for user", e);
-			throw new RuntimeException("Exception occured while looking up groups for user", e);
+		catch (Exception ex) {
+			logger.error("Exception occured while looking up groups for user", ex);
+			throw new RuntimeException("Exception occured while looking up groups for user", ex);
 		}
 		finally {
 			try {
@@ -147,8 +147,8 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 					ic.close();
 				}
 			}
-			catch (NamingException e) {
-				logger.debug("Exception occured while closing context", e);
+			catch (NamingException ex) {
+				logger.debug("Exception occured while closing context", ex);
 			}
 		}
 	}
@@ -157,23 +157,23 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 		try {
 			return method.invoke(instance, args);
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
-					+ Arrays.asList(args) + ")", e);
+					+ Arrays.asList(args) + ")", ex);
 			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
-					+ method.getName() + "(" + Arrays.asList(args) + ")", e);
+					+ method.getName() + "(" + Arrays.asList(args) + ")", ex);
 		}
-		catch (IllegalAccessException e) {
+		catch (IllegalAccessException ex) {
 			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
-					+ Arrays.asList(args) + ")", e);
+					+ Arrays.asList(args) + ")", ex);
 			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
-					+ method.getName() + "(" + Arrays.asList(args) + ")", e);
+					+ method.getName() + "(" + Arrays.asList(args) + ")", ex);
 		}
-		catch (InvocationTargetException e) {
+		catch (InvocationTargetException ex) {
 			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
-					+ Arrays.asList(args) + ")", e);
+					+ Arrays.asList(args) + ")", ex);
 			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
-					+ method.getName() + "(" + Arrays.asList(args) + ")", e);
+					+ method.getName() + "(" + Arrays.asList(args) + ")", ex);
 		}
 	}
 
@@ -187,14 +187,14 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 			}
 			return c.getDeclaredMethod(methodName, parameterTypes);
 		}
-		catch (ClassNotFoundException e) {
+		catch (ClassNotFoundException ex) {
 			logger.error("Required class" + className + " not found");
-			throw new RuntimeException("Required class" + className + " not found", e);
+			throw new RuntimeException("Required class" + className + " not found", ex);
 		}
-		catch (NoSuchMethodException e) {
+		catch (NoSuchMethodException ex) {
 			logger.error("Required method " + methodName + " with parameter types (" + Arrays.asList(parameterTypeNames)
 					+ ") not found on class " + className);
-			throw new RuntimeException("Required class" + className + " not found", e);
+			throw new RuntimeException("Required class" + className + " not found", ex);
 		}
 	}
 
@@ -242,9 +242,9 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 		try {
 			return Class.forName(className);
 		}
-		catch (ClassNotFoundException e) {
+		catch (ClassNotFoundException ex) {
 			logger.error("Required class " + className + " not found");
-			throw new RuntimeException("Required class " + className + " not found", e);
+			throw new RuntimeException("Required class " + className + " not found", ex);
 		}
 	}
 

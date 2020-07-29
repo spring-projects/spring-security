@@ -137,8 +137,8 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 			this.tokenRepository.updateToken(newToken.getSeries(), newToken.getTokenValue(), newToken.getDate());
 			addCookie(newToken, request, response);
 		}
-		catch (Exception e) {
-			this.logger.error("Failed to update token: ", e);
+		catch (Exception ex) {
+			this.logger.error("Failed to update token: ", ex);
 			throw new RememberMeAuthenticationException("Autologin failed due to data access problem");
 		}
 
@@ -163,8 +163,8 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 			this.tokenRepository.createNewToken(persistentToken);
 			addCookie(persistentToken, request, response);
 		}
-		catch (Exception e) {
-			this.logger.error("Failed to save persistent token ", e);
+		catch (Exception ex) {
+			this.logger.error("Failed to save persistent token ", ex);
 		}
 	}
 

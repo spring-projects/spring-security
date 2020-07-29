@@ -33,8 +33,8 @@ public class AuthenticationCancelledException extends AuthenticationException {
 		super(msg);
 	}
 
-	public AuthenticationCancelledException(String msg, Throwable t) {
-		super(msg, t);
+	public AuthenticationCancelledException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
 
 }

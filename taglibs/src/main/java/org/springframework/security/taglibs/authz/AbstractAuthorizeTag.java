@@ -129,10 +129,8 @@ public abstract class AbstractAuthorizeTag {
 			accessExpression = handler.getExpressionParser().parseExpression(getAccess());
 
 		}
-		catch (ParseException e) {
-			IOException ioException = new IOException();
-			ioException.initCause(e);
-			throw ioException;
+		catch (ParseException ex) {
+			throw new IOException(ex);
 		}
 
 		return ExpressionUtils.evaluateAsBoolean(accessExpression, createExpressionEvaluationContext(handler));

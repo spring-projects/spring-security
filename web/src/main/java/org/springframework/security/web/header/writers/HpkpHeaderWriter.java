@@ -414,8 +414,8 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 		try {
 			this.reportUri = new URI(reportUri);
 		}
-		catch (URISyntaxException e) {
-			throw new IllegalArgumentException(e);
+		catch (URISyntaxException ex) {
+			throw new IllegalArgumentException(ex);
 		}
 		updateHpkpHeaderValue();
 	}

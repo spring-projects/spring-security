@@ -122,8 +122,8 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 			try {
 				methods = bean.getClass().getMethods();
 			}
-			catch (Exception e) {
-				throw new IllegalStateException(e.getMessage());
+			catch (Exception ex) {
+				throw new IllegalStateException(ex.getMessage());
 			}
 
 			// Check to see if any of those methods are compatible with our pointcut

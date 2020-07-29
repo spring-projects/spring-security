@@ -1426,8 +1426,8 @@ public class ServerHttpSecurity {
 				return writer.toString();
 			}
 		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
+		catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

@@ -153,8 +153,8 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 		try {
 			initializeMethodSecurityInterceptor();
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 
 		PermissionEvaluator permissionEvaluator = getSingleBeanOrNull(PermissionEvaluator.class);
@@ -182,7 +182,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 		try {
 			return this.context.getBean(type);
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 		}
 		return null;
 	}

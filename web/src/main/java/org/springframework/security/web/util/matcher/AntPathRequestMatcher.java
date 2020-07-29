@@ -249,7 +249,7 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 		try {
 			return HttpMethod.valueOf(method);
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 		}
 
 		return null;

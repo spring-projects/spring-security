@@ -119,7 +119,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 		try {
 			return this.context.getBean(SimpAnnotationMethodMessageHandler.class).getPathMatcher();
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 			return new AntPathMatcher();
 		}
 	}

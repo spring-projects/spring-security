@@ -248,7 +248,7 @@ public final class Base64 {
 		try {
 			decode(bytes);
 		}
-		catch (InvalidBase64CharacterException e) {
+		catch (InvalidBase64CharacterException ex) {
 			return false;
 		}
 		return true;

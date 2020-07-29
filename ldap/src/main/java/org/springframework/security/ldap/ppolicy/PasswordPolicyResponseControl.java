@@ -84,8 +84,8 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 		try {
 			decoder.decode();
 		}
-		catch (IOException e) {
-			throw new DataRetrievalFailureException("Failed to parse control value", e);
+		catch (IOException ex) {
+			throw new DataRetrievalFailureException("Failed to parse control value", ex);
 		}
 	}
 
@@ -340,8 +340,8 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	// try {
 	// number = ((Long)decoder.decodeNumeric(new ByteArrayInputStream(content),
 	// content.length)).intValue();
-	// } catch(IOException e) {
-	// throw new LdapDataAccessException("Failed to parse number ", e);
+	// } catch(IOException ex) {
+	// throw new LdapDataAccessException("Failed to parse number ", ex);
 	// }
 	//
 	// if(contentTag == 0) {

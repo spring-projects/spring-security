@@ -282,11 +282,11 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			process(token, response);
 			return this.authenticationConverter.apply(token).convert(response);
 		}
-		catch (Saml2AuthenticationException e) {
-			throw e;
+		catch (Saml2AuthenticationException ex) {
+			throw ex;
 		}
-		catch (Exception e) {
-			throw authException(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, e.getMessage(), e);
+		catch (Exception ex) {
+			throw authException(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, ex.getMessage(), ex);
 		}
 	}
 
@@ -309,8 +309,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			Element element = document.getDocumentElement();
 			return (Response) this.responseUnmarshaller.unmarshall(element);
 		}
-		catch (Exception e) {
-			throw authException(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, e.getMessage(), e);
+		catch (Exception ex) {
+			throw authException(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, ex.getMessage(), ex);
 		}
 	}
 
@@ -371,10 +371,10 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			try {
 				profileValidator.validate(response.getSignature());
 			}
-			catch (Exception e) {
+			catch (Exception ex) {
 				validationExceptions.put(Saml2ErrorCodes.INVALID_SIGNATURE,
 						authException(Saml2ErrorCodes.INVALID_SIGNATURE,
-								"Invalid signature for SAML Response [" + response.getID() + "]: ", e));
+								"Invalid signature for SAML Response [" + response.getID() + "]: ", ex));
 			}
 
 			try {
@@ -389,10 +389,10 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 									"Invalid signature for SAML Response [" + response.getID() + "]"));
 				}
 			}
-			catch (Exception e) {
+			catch (Exception ex) {
 				validationExceptions.put(Saml2ErrorCodes.INVALID_SIGNATURE,
 						authException(Saml2ErrorCodes.INVALID_SIGNATURE,
-								"Invalid signature for SAML Response [" + response.getID() + "]: ", e));
+								"Invalid signature for SAML Response [" + response.getID() + "]: ", ex));
 			}
 		}
 
@@ -421,8 +421,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 				Assertion assertion = decrypter.decrypt(encryptedAssertion);
 				assertions.add(assertion);
 			}
-			catch (DecryptionException e) {
-				throw authException(Saml2ErrorCodes.DECRYPTION_ERROR, e.getMessage(), e);
+			catch (DecryptionException ex) {
+				throw authException(Saml2ErrorCodes.DECRYPTION_ERROR, ex.getMessage(), ex);
 			}
 		}
 		response.getAssertions().addAll(assertions);
@@ -457,11 +457,11 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 							authException(Saml2ErrorCodes.INVALID_ASSERTION, message));
 				}
 			}
-			catch (Exception e) {
+			catch (Exception ex) {
 				String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
-						((Response) assertion.getParent()).getID(), e.getMessage());
+						((Response) assertion.getParent()).getID(), ex.getMessage());
 				validationExceptions.put(Saml2ErrorCodes.INVALID_ASSERTION,
-						authException(Saml2ErrorCodes.INVALID_ASSERTION, message, e));
+						authException(Saml2ErrorCodes.INVALID_ASSERTION, message, ex));
 			}
 		}
 
@@ -494,8 +494,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			assertion.getSubject().setNameID(nameId);
 			return nameId;
 		}
-		catch (DecryptionException e) {
-			throw authException(Saml2ErrorCodes.DECRYPTION_ERROR, e.getMessage(), e);
+		catch (DecryptionException ex) {
+			throw authException(Saml2ErrorCodes.DECRYPTION_ERROR, ex.getMessage(), ex);
 		}
 	}
 
@@ -549,8 +549,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 				Element element = marshaller.marshall(xsAny);
 				return SerializeSupport.nodeToString(element);
 			}
-			catch (MarshallingException e) {
-				throw new Saml2Exception(e);
+			catch (MarshallingException ex) {
+				throw new Saml2Exception(ex);
 			}
 		}
 		return xsAny.getTextContent();

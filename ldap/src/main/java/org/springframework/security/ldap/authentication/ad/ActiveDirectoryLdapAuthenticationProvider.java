@@ -165,12 +165,12 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 			ctx = bindAsUser(username, password);
 			return searchForUser(ctx, username);
 		}
-		catch (CommunicationException e) {
-			throw badLdapConnection(e);
+		catch (CommunicationException ex) {
+			throw badLdapConnection(ex);
 		}
-		catch (NamingException e) {
-			this.logger.error("Failed to locate directory entry for authenticated user: " + username, e);
-			throw badCredentials(e);
+		catch (NamingException ex) {
+			this.logger.error("Failed to locate directory entry for authenticated user: " + username, ex);
+			throw badCredentials(ex);
 		}
 		finally {
 			LdapUtils.closeContext(ctx);
@@ -222,13 +222,13 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		try {
 			return this.contextFactory.createContext(env);
 		}
-		catch (NamingException e) {
-			if ((e instanceof AuthenticationException) || (e instanceof OperationNotSupportedException)) {
-				handleBindException(bindPrincipal, e);
-				throw badCredentials(e);
+		catch (NamingException ex) {
+			if ((ex instanceof AuthenticationException) || (ex instanceof OperationNotSupportedException)) {
+				handleBindException(bindPrincipal, ex);
+				throw badCredentials(ex);
 			}
 			else {
-				throw LdapUtils.convertLdapException(e);
+				throw LdapUtils.convertLdapException(ex);
 			}
 		}
 	}

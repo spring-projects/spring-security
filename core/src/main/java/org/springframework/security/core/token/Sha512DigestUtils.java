@@ -43,8 +43,8 @@ public abstract class Sha512DigestUtils {
 		try {
 			return MessageDigest.getInstance("SHA-512");
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e.getMessage());
+		catch (NoSuchAlgorithmException ex) {
+			throw new RuntimeException(ex.getMessage());
 		}
 	}
 

@@ -60,11 +60,11 @@ public final class RelyingPartyRegistrations {
 		try {
 			return rest.getForObject(metadataLocation, RelyingPartyRegistration.Builder.class);
 		}
-		catch (RestClientException e) {
-			if (e.getCause() instanceof Saml2Exception) {
-				throw (Saml2Exception) e.getCause();
+		catch (RestClientException ex) {
+			if (ex.getCause() instanceof Saml2Exception) {
+				throw (Saml2Exception) ex.getCause();
 			}
-			throw new Saml2Exception(e);
+			throw new Saml2Exception(ex);
 		}
 	}
 

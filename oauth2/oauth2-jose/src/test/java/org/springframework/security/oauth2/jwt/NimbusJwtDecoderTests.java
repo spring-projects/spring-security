@@ -607,9 +607,9 @@ public class NimbusJwtDecoderTests {
 			try {
 				return signedJWT.getJWTClaimsSet();
 			}
-			catch (ParseException e) {
+			catch (ParseException ex) {
 				// Payload not a JSON object
-				throw new BadJWTException(e.getMessage(), e);
+				throw new BadJWTException(ex.getMessage(), ex);
 			}
 		}
 

@@ -107,8 +107,8 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 		try {
 			decoded = Argon2EncodingUtils.decode(encodedPassword);
 		}
-		catch (IllegalArgumentException e) {
-			this.logger.warn("Malformed password hash", e);
+		catch (IllegalArgumentException ex) {
+			this.logger.warn("Malformed password hash", ex);
 			return false;
 		}
 

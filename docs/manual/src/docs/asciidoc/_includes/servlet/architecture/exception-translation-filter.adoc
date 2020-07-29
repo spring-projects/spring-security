@@ -36,8 +36,8 @@ The pseudocode for `ExceptionTranslationFilter` looks something like this:
 ----
 try {
 	filterChain.doFilter(request, response); // <1>
-} catch (AccessDeniedException | AuthenticationException e) {
-	if (!authenticated || e instanceof AuthenticationException) {
+} catch (AccessDeniedException | AuthenticationException ex) {
+	if (!authenticated || ex instanceof AuthenticationException) {
 		startAuthentication(); // <2>
 	} else {
 		accessDenied(); // <3>

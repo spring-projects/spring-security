@@ -139,7 +139,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			try {
 				insertAuthorizedClient(authorizedClient, principal);
 			}
-			catch (DuplicateKeyException e) {
+			catch (DuplicateKeyException ex) {
 				updateAuthorizedClient(authorizedClient, principal);
 			}
 		}

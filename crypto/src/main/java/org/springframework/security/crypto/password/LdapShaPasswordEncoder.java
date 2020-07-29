@@ -104,7 +104,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 			sha = MessageDigest.getInstance("SHA");
 			sha.update(Utf8.encode(rawPassword));
 		}
-		catch (java.security.NoSuchAlgorithmException e) {
+		catch (java.security.NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No SHA implementation available!");
 		}
 

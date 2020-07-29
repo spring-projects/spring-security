@@ -75,7 +75,7 @@ public class SecurityContextLoginModuleTests {
 			this.module.login();
 			fail("LoginException expected, there is no Authentication in the SecurityContext");
 		}
-		catch (LoginException e) {
+		catch (LoginException ex) {
 		}
 	}
 
@@ -107,7 +107,7 @@ public class SecurityContextLoginModuleTests {
 			this.module.login();
 			fail("LoginException expected, the authentication is null in the SecurityContext");
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 		}
 	}
 

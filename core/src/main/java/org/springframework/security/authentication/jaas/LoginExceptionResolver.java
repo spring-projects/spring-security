@@ -34,10 +34,10 @@ public interface LoginExceptionResolver {
 
 	/**
 	 * Translates a Jaas LoginException to an SpringSecurityException.
-	 * @param e The LoginException thrown by the configured LoginModule.
+	 * @param ex The LoginException thrown by the configured LoginModule.
 	 * @return The AuthenticationException that the JaasAuthenticationProvider should
 	 * throw.
 	 */
-	AuthenticationException resolveException(LoginException e);
+	AuthenticationException resolveException(LoginException ex);
 
 }

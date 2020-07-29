@@ -103,8 +103,8 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 		try {
 			return JWKSet.parse(body);
 		}
-		catch (ParseException e) {
-			throw new RuntimeException(e);
+		catch (ParseException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

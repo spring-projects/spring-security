@@ -85,8 +85,8 @@ class AclClassIdUtils {
 		try {
 			hasClassIdType = classIdTypeFrom(resultSet) != null;
 		}
-		catch (SQLException e) {
-			log.debug("Unable to obtain the class id type", e);
+		catch (SQLException ex) {
+			log.debug("Unable to obtain the class id type", ex);
 		}
 		return hasClassIdType;
 	}
@@ -101,8 +101,8 @@ class AclClassIdUtils {
 			try {
 				targetType = Class.forName(className);
 			}
-			catch (ClassNotFoundException e) {
-				log.debug("Unable to find class id type on classpath", e);
+			catch (ClassNotFoundException ex) {
+				log.debug("Unable to find class id type on classpath", ex);
 			}
 		}
 		return targetType;

@@ -121,9 +121,9 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 			// new DatabaseSeeder(dataSource, new
 			// ClassPathResource("createAclSchemaPostgres.sql"));
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw e;
+		catch (Exception ex) {
+			ex.printStackTrace();
+			throw ex;
 		}
 	}
 

@@ -129,7 +129,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 			filter.attemptAuthentication(request, new MockHttpServletResponse());
 			fail("Expected AuthenticationException");
 		}
-		catch (AuthenticationException e) {
+		catch (AuthenticationException ex) {
 		}
 	}
 

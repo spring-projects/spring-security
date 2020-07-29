@@ -165,8 +165,8 @@ class SecurityReactorContextConfiguration {
 		}
 
 		@Override
-		public void onError(Throwable t) {
-			this.delegate.onError(t);
+		public void onError(Throwable ex) {
+			this.delegate.onError(ex);
 		}
 
 		@Override

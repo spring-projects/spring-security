@@ -91,12 +91,12 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 		}).onErrorMap(OAuth2IntrospectionException.class, this::onError);
 	}
 
-	private AuthenticationException onError(OAuth2IntrospectionException e) {
-		if (e instanceof BadOpaqueTokenException) {
-			return new InvalidBearerTokenException(e.getMessage(), e);
+	private AuthenticationException onError(OAuth2IntrospectionException ex) {
+		if (ex instanceof BadOpaqueTokenException) {
+			return new InvalidBearerTokenException(ex.getMessage(), ex);
 		}
 		else {
-			return new AuthenticationServiceException(e.getMessage(), e);
+			return new AuthenticationServiceException(ex.getMessage(), ex);
 		}
 	}
 

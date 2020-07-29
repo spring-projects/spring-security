@@ -224,12 +224,12 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 		return webClient;
 	}
 
-	private WebClient mockResponse(Throwable t) {
+	private WebClient mockResponse(Throwable ex) {
 		WebClient real = WebClient.builder().build();
 		WebClient.RequestBodyUriSpec spec = spy(real.post());
 		WebClient webClient = spy(WebClient.class);
 		given(webClient.post()).willReturn(spec);
-		given(spec.exchange()).willThrow(t);
+		given(spec.exchange()).willThrow(ex);
 		return webClient;
 	}
 

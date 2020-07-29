@@ -228,7 +228,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 			try {
 				nonceHash = createHash(requestNonce);
 			}
-			catch (NoSuchAlgorithmException e) {
+			catch (NoSuchAlgorithmException ex) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}

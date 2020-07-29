@@ -100,8 +100,8 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 			try {
 				this.consumer = new OpenID4JavaConsumer();
 			}
-			catch (ConsumerException e) {
-				throw new IllegalArgumentException("Failed to initialize OpenID", e);
+			catch (ConsumerException ex) {
+				throw new IllegalArgumentException("Failed to initialize OpenID", ex);
 			}
 		}
 
@@ -143,8 +143,8 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				// Indicate to parent class that authentication is continuing.
 				return null;
 			}
-			catch (OpenIDConsumerException e) {
-				this.logger.debug("Failed to consume claimedIdentity: " + claimedIdentity, e);
+			catch (OpenIDConsumerException ex) {
+				this.logger.debug("Failed to consume claimedIdentity: " + claimedIdentity, ex);
 				throw new AuthenticationServiceException(
 						"Unable to process claimed identity '" + claimedIdentity + "'");
 			}
@@ -185,8 +185,8 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				realmBuffer.append("/");
 				mapping = realmBuffer.toString();
 			}
-			catch (MalformedURLException e) {
-				this.logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", e);
+			catch (MalformedURLException ex) {
+				this.logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", ex);
 			}
 		}
 
@@ -293,10 +293,10 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 		try {
 			return URLEncoder.encode(value, "UTF-8");
 		}
-		catch (UnsupportedEncodingException e) {
+		catch (UnsupportedEncodingException ex) {
 			Error err = new AssertionError(
 					"The Java platform guarantees UTF-8 support, but it seemingly is not present.");
-			err.initCause(e);
+			err.initCause(ex);
 			throw err;
 		}
 	}

@@ -191,8 +191,8 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 	}
 
-	private OAuth2IntrospectionException onError(Throwable e) {
-		return new OAuth2IntrospectionException(e.getMessage(), e);
+	private OAuth2IntrospectionException onError(Throwable ex) {
+		return new OAuth2IntrospectionException(ex.getMessage(), ex);
 	}
 
 }

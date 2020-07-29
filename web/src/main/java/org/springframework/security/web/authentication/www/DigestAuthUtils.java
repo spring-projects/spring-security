@@ -214,7 +214,7 @@ final class DigestAuthUtils {
 		try {
 			digest = MessageDigest.getInstance("MD5");
 		}
-		catch (NoSuchAlgorithmException e) {
+		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No MD5 algorithm available!");
 		}
 

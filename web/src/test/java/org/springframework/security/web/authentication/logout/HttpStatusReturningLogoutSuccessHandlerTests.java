@@ -69,8 +69,8 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 		try {
 			new HttpStatusReturningLogoutSuccessHandler(null);
 		}
-		catch (IllegalArgumentException e) {
-			assertThat(e).hasMessage("The provided HttpStatus must not be null.");
+		catch (IllegalArgumentException ex) {
+			assertThat(ex).hasMessage("The provided HttpStatus must not be null.");
 			return;
 		}
 

@@ -51,9 +51,9 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 		try {
 			return (AuthenticationManager) this.bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
 		}
-		catch (NoSuchBeanDefinitionException e) {
-			if (!BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
-				throw e;
+		catch (NoSuchBeanDefinitionException ex) {
+			if (!BeanIds.AUTHENTICATION_MANAGER.equals(ex.getBeanName())) {
+				throw ex;
 			}
 
 			UserDetailsService uds = getBeanOrNull(UserDetailsService.class);

@@ -437,7 +437,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 			try {
 				return this.request.getSession(true);
 			}
-			catch (IllegalStateException e) {
+			catch (IllegalStateException ex) {
 				// Response must already be committed, therefore can't create a new
 				// session
 				HttpSessionSecurityContextRepository.this.logger

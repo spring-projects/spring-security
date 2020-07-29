@@ -119,8 +119,8 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 			try {
 				return factory.createSecurityContext(annotation);
 			}
-			catch (RuntimeException e) {
-				throw new IllegalStateException("Unable to create SecurityContext using " + annotation, e);
+			catch (RuntimeException ex) {
+				throw new IllegalStateException("Unable to create SecurityContext using " + annotation, ex);
 			}
 		};
 		TestExecutionEvent initialize = withSecurityContext.setupBefore();
@@ -149,11 +149,11 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 		try {
 			return testContext.getApplicationContext().getAutowireCapableBeanFactory().createBean(clazz);
 		}
-		catch (IllegalStateException e) {
+		catch (IllegalStateException ex) {
 			return BeanUtils.instantiateClass(clazz);
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

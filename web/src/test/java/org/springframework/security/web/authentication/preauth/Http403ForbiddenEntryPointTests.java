@@ -38,8 +38,8 @@ public class Http403ForbiddenEntryPointTests {
 			assertThat(resp.getStatus()).withFailMessage("Incorrect status")
 					.isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 		}
-		catch (IOException e) {
-			fail("Unexpected exception thrown: " + e);
+		catch (IOException ex) {
+			fail("Unexpected exception thrown: " + ex);
 		}
 	}
 

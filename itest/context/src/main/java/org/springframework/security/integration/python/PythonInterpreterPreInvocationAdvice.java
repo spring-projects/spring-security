@@ -52,8 +52,8 @@ public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthor
 		try {
 			python.execfile(scriptResource.getInputStream());
 		}
-		catch (IOException e) {
-			throw new IllegalArgumentException("Couldn't run python script, " + script, e);
+		catch (IOException ex) {
+			throw new IllegalArgumentException("Couldn't run python script, " + script, ex);
 		}
 
 		PyObject allowed = python.get("allow");

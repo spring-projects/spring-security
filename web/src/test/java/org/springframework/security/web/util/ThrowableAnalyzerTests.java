@@ -96,7 +96,7 @@ public class ThrowableAnalyzerTests {
 
 			fail("IllegalArgumentExpected");
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			// ok
 		}
 	}
@@ -231,7 +231,7 @@ public class ThrowableAnalyzerTests {
 			ThrowableAnalyzer.verifyThrowableHierarchy(null, Throwable.class);
 			fail("IllegalArgumentException expected");
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			// ok
 		}
 	}
@@ -244,7 +244,7 @@ public class ThrowableAnalyzerTests {
 			ThrowableAnalyzer.verifyThrowableHierarchy(throwable, InvocationTargetException.class);
 			fail("IllegalArgumentException expected");
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			// ok
 		}
 	}

@@ -113,8 +113,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 		try {
 			return resource.getInputStream();
 		}
-		catch (IOException e) {
-			throw new UncheckedIOException(e);
+		catch (IOException ex) {
+			throw new UncheckedIOException(ex);
 		}
 	}
 
@@ -123,8 +123,8 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 			try (InputStream is = inputStream) {
 				return inputStreamKeyConverter.convert(is);
 			}
-			catch (IOException e) {
-				throw new UncheckedIOException(e);
+			catch (IOException ex) {
+				throw new UncheckedIOException(ex);
 			}
 		};
 	}

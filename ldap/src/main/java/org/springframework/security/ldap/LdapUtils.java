@@ -53,8 +53,8 @@ public final class LdapUtils {
 				ctx.close();
 			}
 		}
-		catch (NamingException e) {
-			logger.error("Failed to close context.", e);
+		catch (NamingException ex) {
+			logger.error("Failed to close context.", ex);
 		}
 	}
 
@@ -64,8 +64,8 @@ public final class LdapUtils {
 				ne.close();
 			}
 		}
-		catch (NamingException e) {
-			logger.error("Failed to close enumeration.", e);
+		catch (NamingException ex) {
+			logger.error("Failed to close enumeration.", ex);
 		}
 	}
 
@@ -177,9 +177,9 @@ public final class LdapUtils {
 		try {
 			return new URI(url);
 		}
-		catch (URISyntaxException e) {
+		catch (URISyntaxException ex) {
 			IllegalArgumentException iae = new IllegalArgumentException("Unable to parse url: " + url);
-			iae.initCause(e);
+			iae.initCause(ex);
 			throw iae;
 		}
 	}

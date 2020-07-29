@@ -94,7 +94,7 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 		try {
 			decoded = Base64.getDecoder().decode(base64Token);
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			throw new BadCredentialsException("Failed to decode basic authentication token");
 		}
 

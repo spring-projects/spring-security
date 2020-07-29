@@ -261,7 +261,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 			attributes.put(OidcParameterNames.NONCE, nonce);
 			additionalParameters.put(OidcParameterNames.NONCE, nonceHash);
 		}
-		catch (NoSuchAlgorithmException e) {
+		catch (NoSuchAlgorithmException ex) {
 		}
 	}
 
@@ -290,7 +290,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeChallenge);
 			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
 		}
-		catch (NoSuchAlgorithmException e) {
+		catch (NoSuchAlgorithmException ex) {
 			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeVerifier);
 		}
 	}

@@ -69,7 +69,7 @@ public class ContextPropagatingRemoteInvocationTests {
 			remoteInvocation.invoke(TargetObject.class.newInstance());
 			fail("Expected IllegalArgumentException");
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			// expected
 		}
 

@@ -107,9 +107,9 @@ public final class SecurityJackson2Modules {
 				instance = securityModule.newInstance();
 			}
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Cannot load module " + className, e);
+				logger.debug("Cannot load module " + className, ex);
 			}
 		}
 		return instance;

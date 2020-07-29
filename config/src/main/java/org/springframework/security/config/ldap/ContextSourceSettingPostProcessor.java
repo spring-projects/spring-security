@@ -52,10 +52,10 @@ class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ord
 			contextSourceClass = ClassUtils.forName(REQUIRED_CONTEXT_SOURCE_CLASS_NAME,
 					ClassUtils.getDefaultClassLoader());
 		}
-		catch (ClassNotFoundException e) {
+		catch (ClassNotFoundException ex) {
 			throw new ApplicationContextException("Couldn't locate: " + REQUIRED_CONTEXT_SOURCE_CLASS_NAME + ". "
 					+ " If you are using LDAP with Spring Security, please ensure that you include the spring-ldap "
-					+ "jar file in your application", e);
+					+ "jar file in your application", ex);
 		}
 
 		String[] sources = bf.getBeanNamesForType(contextSourceClass, false, false);

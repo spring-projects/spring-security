@@ -500,8 +500,8 @@ public class NimbusReactiveJwtDecoderTests {
 		try {
 			return JWKSet.parse(jwkSet);
 		}
-		catch (ParseException e) {
-			throw new IllegalArgumentException(e);
+		catch (ParseException ex) {
+			throw new IllegalArgumentException(ex);
 		}
 	}
 

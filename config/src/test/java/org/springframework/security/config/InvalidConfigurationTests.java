@@ -62,8 +62,8 @@ public class InvalidConfigurationTests {
 			setContext("<http auto-config='true' />");
 			fail();
 		}
-		catch (BeanCreationException e) {
-			Throwable cause = ultimateCause(e);
+		catch (BeanCreationException ex) {
+			Throwable cause = ultimateCause(ex);
 			assertThat(cause instanceof NoSuchBeanDefinitionException).isTrue();
 			NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
 			assertThat(nsbe.getBeanName()).isEqualTo(BeanIds.AUTHENTICATION_MANAGER);
@@ -71,11 +71,11 @@ public class InvalidConfigurationTests {
 		}
 	}
 
-	private Throwable ultimateCause(Throwable e) {
-		if (e.getCause() == null) {
-			return e;
+	private Throwable ultimateCause(Throwable ex) {
+		if (ex.getCause() == null) {
+			return ex;
 		}
-		return ultimateCause(e.getCause());
+		return ultimateCause(ex.getCause());
 	}
 
 	private void setContext(String context) {

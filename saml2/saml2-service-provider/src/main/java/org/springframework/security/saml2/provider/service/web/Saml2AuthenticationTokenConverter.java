@@ -99,8 +99,8 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 			iout.finish();
 			return new String(out.toByteArray(), StandardCharsets.UTF_8);
 		}
-		catch (IOException e) {
-			throw new Saml2Exception("Unable to inflate string", e);
+		catch (IOException ex) {
+			throw new Saml2Exception("Unable to inflate string", ex);
 		}
 	}
 

@@ -61,8 +61,8 @@ public final class TestSaml2X509Credentials {
 		try {
 			return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(certBytes);
 		}
-		catch (CertificateException e) {
-			throw new Saml2Exception(e);
+		catch (CertificateException ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
 
@@ -70,8 +70,8 @@ public final class TestSaml2X509Credentials {
 		try {
 			return KeySupport.decodePrivateKey(key.getBytes(StandardCharsets.UTF_8), new char[0]);
 		}
-		catch (KeyException e) {
-			throw new Saml2Exception(e);
+		catch (KeyException ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
 

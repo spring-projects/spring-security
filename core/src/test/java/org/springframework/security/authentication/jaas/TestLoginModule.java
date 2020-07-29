@@ -63,8 +63,8 @@ public class TestLoginModule implements LoginModule {
 			this.password = new String(passwordCallback.getPassword());
 			this.user = nameCallback.getName();
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

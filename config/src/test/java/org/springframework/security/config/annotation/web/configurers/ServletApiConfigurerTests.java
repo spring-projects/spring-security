@@ -209,8 +209,8 @@ public class ServletApiConfigurerTests {
 		try {
 			return (T) FieldUtils.getFieldValue(target, fieldName);
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

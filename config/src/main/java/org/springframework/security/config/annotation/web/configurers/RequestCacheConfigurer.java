@@ -136,7 +136,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		try {
 			return context.getBean(type);
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 			return null;
 		}
 	}

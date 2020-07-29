@@ -204,17 +204,17 @@ public final class ClientRegistrations {
 			try {
 				return supplier.get();
 			}
-			catch (HttpClientErrorException e) {
-				if (!e.getStatusCode().is4xxClientError()) {
-					throw e;
+			catch (HttpClientErrorException ex) {
+				if (!ex.getStatusCode().is4xxClientError()) {
+					throw ex;
 				}
 				// else try another endpoint
 			}
-			catch (IllegalArgumentException | IllegalStateException e) {
-				throw e;
+			catch (IllegalArgumentException | IllegalStateException ex) {
+				throw ex;
 			}
-			catch (RuntimeException e) {
-				throw new IllegalArgumentException(errorMessage, e);
+			catch (RuntimeException ex) {
+				throw new IllegalArgumentException(errorMessage, ex);
 			}
 		}
 		throw new IllegalArgumentException(errorMessage);
@@ -225,8 +225,8 @@ public final class ClientRegistrations {
 		try {
 			return parser.apply(new JSONObject(body));
 		}
-		catch (ParseException e) {
-			throw new RuntimeException(e);
+		catch (ParseException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

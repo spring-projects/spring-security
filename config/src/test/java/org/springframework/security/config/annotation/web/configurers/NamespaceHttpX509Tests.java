@@ -120,8 +120,8 @@ public class NamespaceHttpX509Tests {
 			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 			return (T) certFactory.generateCertificate(is);
 		}
-		catch (Exception e) {
-			throw new IllegalArgumentException(e);
+		catch (Exception ex) {
+			throw new IllegalArgumentException(ex);
 		}
 	}
 
@@ -244,8 +244,8 @@ public class NamespaceHttpX509Tests {
 			try {
 				return ((X500Name) certificate.getSubjectDN()).getCommonName();
 			}
-			catch (Exception e) {
-				throw new IllegalArgumentException(e);
+			catch (Exception ex) {
+				throw new IllegalArgumentException(ex);
 			}
 		}
 

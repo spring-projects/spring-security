@@ -240,11 +240,11 @@ public class AuthenticationFilterTests {
 		try {
 			filter.doFilter(request, response, chain);
 		}
-		catch (ServletException e) {
+		catch (ServletException ex) {
 			verifyZeroInteractions(this.successHandler);
 			assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 
-			throw e;
+			throw ex;
 		}
 	}
 

@@ -80,8 +80,8 @@ public class JndiDnsResolver implements DnsResolver {
 			// only the first.
 			return dnsRecord.get().toString();
 		}
-		catch (NamingException e) {
-			throw new DnsLookupException("DNS lookup failed for: " + hostname, e);
+		catch (NamingException ex) {
+			throw new DnsLookupException("DNS lookup failed for: " + hostname, ex);
 		}
 
 	}
@@ -120,8 +120,8 @@ public class JndiDnsResolver implements DnsResolver {
 				}
 			}
 		}
-		catch (NamingException e) {
-			throw new DnsLookupException("DNS lookup failed for service " + serviceType + " at " + domain, e);
+		catch (NamingException ex) {
+			throw new DnsLookupException("DNS lookup failed for service " + serviceType + " at " + domain, ex);
 		}
 
 		// remove the "." at the end
@@ -137,11 +137,11 @@ public class JndiDnsResolver implements DnsResolver {
 
 			return dnsResult.get(recordType);
 		}
-		catch (NamingException e) {
-			if (e instanceof NameNotFoundException) {
-				throw new DnsEntryNotFoundException("DNS entry not found for:" + query, e);
+		catch (NamingException ex) {
+			if (ex instanceof NameNotFoundException) {
+				throw new DnsEntryNotFoundException("DNS entry not found for:" + query, ex);
 			}
-			throw new DnsLookupException("DNS lookup failed for: " + query, e);
+			throw new DnsLookupException("DNS lookup failed for: " + query, ex);
 		}
 	}
 
@@ -156,8 +156,8 @@ public class JndiDnsResolver implements DnsResolver {
 			try {
 				ictx = new InitialDirContext(env);
 			}
-			catch (NamingException e) {
-				throw new DnsLookupException("Cannot create InitialDirContext for DNS lookup", e);
+			catch (NamingException ex) {
+				throw new DnsLookupException("Cannot create InitialDirContext for DNS lookup", ex);
 			}
 			return ictx;
 		}

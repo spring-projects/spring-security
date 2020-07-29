@@ -118,7 +118,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 			try {
 				this.random = SecureRandom.getInstance("SHA1PRNG");
 			}
-			catch (NoSuchAlgorithmException e) {
+			catch (NoSuchAlgorithmException ex) {
 				// Shouldn't happen...
 				throw new RuntimeException("Failed find SHA1PRNG algorithm!");
 			}

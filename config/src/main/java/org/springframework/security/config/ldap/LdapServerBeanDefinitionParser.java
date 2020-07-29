@@ -221,7 +221,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
 			return String.valueOf(serverSocket.getLocalPort());
 		}
-		catch (IOException e) {
+		catch (IOException ex) {
 			return RANDOM_PORT;
 		}
 	}

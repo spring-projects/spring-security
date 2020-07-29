@@ -156,8 +156,8 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 			return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
 					this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
 		}
-		catch (final TicketValidationException e) {
-			throw new BadCredentialsException(e.getMessage(), e);
+		catch (TicketValidationException ex) {
+			throw new BadCredentialsException(ex.getMessage(), ex);
 		}
 	}
 

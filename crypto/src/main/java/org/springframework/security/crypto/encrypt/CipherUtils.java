@@ -56,11 +56,11 @@ final class CipherUtils {
 			SecretKeyFactory factory = SecretKeyFactory.getInstance(algorithm);
 			return factory.generateSecret(keySpec);
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException("Not a valid encryption algorithm", e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalArgumentException("Not a valid encryption algorithm", ex);
 		}
-		catch (InvalidKeySpecException e) {
-			throw new IllegalArgumentException("Not a valid secret key", e);
+		catch (InvalidKeySpecException ex) {
+			throw new IllegalArgumentException("Not a valid secret key", ex);
 		}
 	}
 
@@ -71,11 +71,11 @@ final class CipherUtils {
 		try {
 			return Cipher.getInstance(algorithm);
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException("Not a valid encryption algorithm", e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalArgumentException("Not a valid encryption algorithm", ex);
 		}
-		catch (NoSuchPaddingException e) {
-			throw new IllegalStateException("Should not happen", e);
+		catch (NoSuchPaddingException ex) {
+			throw new IllegalStateException("Should not happen", ex);
 		}
 	}
 
@@ -86,8 +86,8 @@ final class CipherUtils {
 		try {
 			return cipher.getParameters().getParameterSpec(parameterSpecClass);
 		}
-		catch (InvalidParameterSpecException e) {
-			throw new IllegalArgumentException("Unable to access parameter", e);
+		catch (InvalidParameterSpecException ex) {
+			throw new IllegalArgumentException("Unable to access parameter", ex);
 		}
 	}
 
@@ -117,11 +117,11 @@ final class CipherUtils {
 				cipher.init(mode, secretKey);
 			}
 		}
-		catch (InvalidKeyException e) {
-			throw new IllegalArgumentException("Unable to initialize due to invalid secret key", e);
+		catch (InvalidKeyException ex) {
+			throw new IllegalArgumentException("Unable to initialize due to invalid secret key", ex);
 		}
-		catch (InvalidAlgorithmParameterException e) {
-			throw new IllegalStateException("Unable to initialize due to invalid decryption parameter spec", e);
+		catch (InvalidAlgorithmParameterException ex) {
+			throw new IllegalStateException("Unable to initialize due to invalid decryption parameter spec", ex);
 		}
 	}
 
@@ -133,11 +133,11 @@ final class CipherUtils {
 		try {
 			return cipher.doFinal(input);
 		}
-		catch (IllegalBlockSizeException e) {
-			throw new IllegalStateException("Unable to invoke Cipher due to illegal block size", e);
+		catch (IllegalBlockSizeException ex) {
+			throw new IllegalStateException("Unable to invoke Cipher due to illegal block size", ex);
 		}
-		catch (BadPaddingException e) {
-			throw new IllegalStateException("Unable to invoke Cipher due to bad padding", e);
+		catch (BadPaddingException ex) {
+			throw new IllegalStateException("Unable to invoke Cipher due to bad padding", ex);
 		}
 	}
 

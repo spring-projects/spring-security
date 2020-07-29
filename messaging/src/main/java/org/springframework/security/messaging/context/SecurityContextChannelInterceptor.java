@@ -151,7 +151,7 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 				SecurityContextHolder.setContext(originalContext);
 			}
 		}
-		catch (Throwable t) {
+		catch (Throwable ex) {
 			SecurityContextHolder.clearContext();
 		}
 	}

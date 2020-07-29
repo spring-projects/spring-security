@@ -32,10 +32,10 @@ public interface ServerAuthenticationEntryPoint {
 	/**
 	 * Initiates the authentication flow
 	 * @param exchange
-	 * @param e
+	 * @param ex
 	 * @return {@code Mono<Void>} to indicate when the request for authentication is
 	 * complete
 	 */
-	Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e);
+	Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex);
 
 }

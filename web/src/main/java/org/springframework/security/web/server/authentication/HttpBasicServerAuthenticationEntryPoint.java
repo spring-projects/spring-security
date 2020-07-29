@@ -41,7 +41,7 @@ public class HttpBasicServerAuthenticationEntryPoint implements ServerAuthentica
 	private String headerValue = createHeaderValue(DEFAULT_REALM);
 
 	@Override
-	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
+	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
 		return Mono.fromRunnable(() -> {
 			ServerHttpResponse response = exchange.getResponse();
 			response.setStatusCode(HttpStatus.UNAUTHORIZED);

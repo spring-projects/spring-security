@@ -155,7 +155,7 @@ public class DefaultAuthenticationEventPublisher
 				Assert.isAssignable(AbstractAuthenticationFailureEvent.class, clazz);
 				addMapping((String) exceptionClass, (Class<? extends AbstractAuthenticationFailureEvent>) clazz);
 			}
-			catch (ClassNotFoundException e) {
+			catch (ClassNotFoundException ex) {
 				throw new RuntimeException("Failed to load authentication event class " + eventClass);
 			}
 		}
@@ -194,7 +194,7 @@ public class DefaultAuthenticationEventPublisher
 			this.defaultAuthenticationFailureEventConstructor = defaultAuthenticationFailureEventClass
 					.getConstructor(Authentication.class, AuthenticationException.class);
 		}
-		catch (NoSuchMethodException e) {
+		catch (NoSuchMethodException ex) {
 			throw new RuntimeException("Default Authentication Failure event class "
 					+ defaultAuthenticationFailureEventClass.getName() + " has no suitable constructor");
 		}
@@ -206,7 +206,7 @@ public class DefaultAuthenticationEventPublisher
 					.getConstructor(Authentication.class, AuthenticationException.class);
 			this.exceptionMappings.put(exceptionClass, constructor);
 		}
-		catch (NoSuchMethodException e) {
+		catch (NoSuchMethodException ex) {
 			throw new RuntimeException(
 					"Authentication event class " + eventClass.getName() + " has no suitable constructor");
 		}

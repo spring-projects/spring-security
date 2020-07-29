@@ -46,10 +46,10 @@ public class InsufficientAuthenticationException extends AuthenticationException
 	 * Constructs an <code>InsufficientAuthenticationException</code> with the specified
 	 * message and root cause.
 	 * @param msg the detail message
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public InsufficientAuthenticationException(String msg, Throwable t) {
-		super(msg, t);
+	public InsufficientAuthenticationException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
 
 }

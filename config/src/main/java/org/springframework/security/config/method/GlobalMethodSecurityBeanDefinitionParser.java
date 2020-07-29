@@ -489,12 +489,12 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 					try {
 						this.delegate = this.beanFactory.getBean(this.authMgrBean, AuthenticationManager.class);
 					}
-					catch (NoSuchBeanDefinitionException e) {
-						if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
+					catch (NoSuchBeanDefinitionException ex) {
+						if (BeanIds.AUTHENTICATION_MANAGER.equals(ex.getBeanName())) {
 							throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,
 									AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
 						}
-						throw e;
+						throw ex;
 					}
 				}
 			}

@@ -256,8 +256,8 @@ public class Saml2LoginConfigurerTests {
 			iout.finish();
 			return new String(out.toByteArray(), StandardCharsets.UTF_8);
 		}
-		catch (IOException e) {
-			throw new Saml2Exception("Unable to inflate string", e);
+		catch (IOException ex) {
+			throw new Saml2Exception("Unable to inflate string", ex);
 		}
 	}
 

@@ -178,8 +178,8 @@ public class FilterChainProxy extends GenericFilterBean {
 				request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 				doFilterInternal(request, response, chain);
 			}
-			catch (RequestRejectedException e) {
-				this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, e);
+			catch (RequestRejectedException ex) {
+				this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, ex);
 			}
 			finally {
 				SecurityContextHolder.clearContext();

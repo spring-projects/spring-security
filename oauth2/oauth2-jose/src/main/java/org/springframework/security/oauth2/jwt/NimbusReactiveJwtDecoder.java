@@ -250,11 +250,11 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		try {
 			return jwtProcessor.process(parsedToken, context);
 		}
-		catch (BadJOSEException e) {
-			throw new BadJwtException("Failed to validate the token", e);
+		catch (BadJOSEException ex) {
+			throw new BadJwtException("Failed to validate the token", ex);
 		}
-		catch (JOSEException e) {
-			throw new JwtException("Failed to validate the token", e);
+		catch (JOSEException ex) {
+			throw new JwtException("Failed to validate the token", ex);
 		}
 	}
 
