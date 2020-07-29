@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Enables use of Spring's <code>HttpInvoker</code> extension points to present the
  * <code>principal</code> and <code>credentials</code> located in the

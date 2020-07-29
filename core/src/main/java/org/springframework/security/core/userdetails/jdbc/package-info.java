@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Exposes a JDBC-based authentication repository, implementing
  * {@code org.springframework.security.core.userdetails.UserDetailsService UserDetailsService}.

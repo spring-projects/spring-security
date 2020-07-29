@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * The LDAP authentication provider package. Interfaces are provided for both
  * authentication and retrieval of user roles from an LDAP server.

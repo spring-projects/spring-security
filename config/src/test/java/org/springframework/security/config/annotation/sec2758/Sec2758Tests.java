@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.sec2758;
 
 import javax.annotation.security.RolesAllowed;

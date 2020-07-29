@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Abstract level security interception classes which are responsible for enforcing the
  * configured security constraints for a secure object.

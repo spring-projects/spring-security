@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Embedded Apache Directory Server implementation, as used by the configuration
  * namespace.

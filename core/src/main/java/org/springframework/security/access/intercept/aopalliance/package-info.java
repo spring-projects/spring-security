@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Enforces security for AOP Alliance <code>MethodInvocation</code>s, such as via Spring
  * AOP.

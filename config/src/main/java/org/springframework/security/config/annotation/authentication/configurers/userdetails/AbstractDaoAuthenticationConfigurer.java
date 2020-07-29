@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.authentication.configurers.userdetails;
 
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;

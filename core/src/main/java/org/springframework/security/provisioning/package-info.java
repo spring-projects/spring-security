@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Contains simple user and authority group account provisioning interfaces together with
  * a a JDBC-based implementation.

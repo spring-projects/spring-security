@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Authentication success and failure events which can be published to the Spring
  * application context.
@@ -21,5 +22,4 @@
  * context. These events are received by all registered Spring
  * <code>ApplicationListener</code>s.
  */
-
 package org.springframework.security.authentication.event;

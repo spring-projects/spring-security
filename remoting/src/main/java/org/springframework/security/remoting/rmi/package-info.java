@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Enables use of Spring's RMI remoting extension points to propagate the
  * <code>SecurityContextHolder</code> (which should contain an <code>Authentication</code>

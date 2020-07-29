@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Populates a Servlet request with a new Spring Security compliant
  * {@code HttpServletRequestWrapper}.

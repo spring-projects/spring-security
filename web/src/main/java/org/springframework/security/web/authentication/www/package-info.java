@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * WWW-Authenticate based authentication mechanism implementations: Basic and Digest
  * authentication.

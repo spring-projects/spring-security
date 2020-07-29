@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Strategies for mapping a list of attributes (such as roles or LDAP groups) to a list of
  * {@code GrantedAuthority}s.

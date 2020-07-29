@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Provides a model for an OpenID Connect Core 1.0 representation of a user
  * {@code Principal}.
