@@ -29,13 +29,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Josh Cummings
  */
-public class SecurityFiltersAssertions {
+public final class SecurityFiltersAssertions {
 
 	private static Collection<SecurityFilters> ordered = Arrays.asList(SecurityFilters.values());
 
+	private SecurityFiltersAssertions() {
+	}
+
 	public static void assertEquals(List<String> filters) {
 		List<String> expected = ordered.stream().map(SecurityFilters::name).collect(Collectors.toList());
-
 		assertThat(filters).isEqualTo(expected);
 	}
 

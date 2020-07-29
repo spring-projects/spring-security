@@ -33,8 +33,6 @@ public class MethodInvocationUtilsTests {
 
 	@Test
 	public void createFromClassReturnsMethodWithNoArgInfoForMethodWithNoArgs() {
-		new MethodInvocationUtils();
-
 		MethodInvocation mi = MethodInvocationUtils.createFromClass(String.class, "length");
 		assertThat(mi).isNotNull();
 	}

@@ -29,9 +29,12 @@ import org.springframework.security.core.Authentication;
  * @author Rob Winch
  * @since 5.0
  */
-public class ReactiveSecurityContextHolder {
+public final class ReactiveSecurityContextHolder {
 
 	private static final Class<?> SECURITY_CONTEXT_KEY = SecurityContext.class;
+
+	private ReactiveSecurityContextHolder() {
+	}
 
 	/**
 	 * Gets the {@code Mono<SecurityContext>} from Reactor {@link Context}

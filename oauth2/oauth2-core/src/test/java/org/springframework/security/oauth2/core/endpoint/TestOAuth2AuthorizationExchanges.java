@@ -21,7 +21,10 @@ package org.springframework.security.oauth2.core.endpoint;
  * @author Eddú Meléndez
  * @since 5.1
  */
-public class TestOAuth2AuthorizationExchanges {
+public final class TestOAuth2AuthorizationExchanges {
+
+	private TestOAuth2AuthorizationExchanges() {
+	}
 
 	public static OAuth2AuthorizationExchange success() {
 		OAuth2AuthorizationRequest request = TestOAuth2AuthorizationRequests.request().build();

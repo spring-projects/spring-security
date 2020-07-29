@@ -23,7 +23,10 @@ import org.springframework.security.saml2.provider.service.servlet.filter.Saml2W
 /**
  * Preconfigured test data for {@link RelyingPartyRegistration} objects
  */
-public class TestRelyingPartyRegistrations {
+public final class TestRelyingPartyRegistrations {
+
+	private TestRelyingPartyRegistrations() {
+	}
 
 	public static RelyingPartyRegistration.Builder relyingPartyRegistration() {
 		String registrationId = "simplesamlphp";

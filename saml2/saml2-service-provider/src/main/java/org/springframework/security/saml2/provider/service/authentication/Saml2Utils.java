@@ -35,6 +35,9 @@ final class Saml2Utils {
 
 	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' });
 
+	private Saml2Utils() {
+	}
+
 	static String samlEncode(byte[] b) {
 		return BASE64.encodeAsString(b);
 	}

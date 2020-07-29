@@ -33,7 +33,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
  *
  * @author Josh Cummings
  */
-public class TestBearerTokenAuthentications {
+public final class TestBearerTokenAuthentications {
+
+	private TestBearerTokenAuthentications() {
+	}
 
 	public static BearerTokenAuthentication bearer() {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("SCOPE_USER");

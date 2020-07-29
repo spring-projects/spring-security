@@ -21,7 +21,10 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 /**
  * Test {@link Saml2AuthenticationRequestContext}s
  */
-public class TestSaml2AuthenticationRequestContexts {
+public final class TestSaml2AuthenticationRequestContexts {
+
+	private TestSaml2AuthenticationRequestContexts() {
+	}
 
 	public static Saml2AuthenticationRequestContext.Builder authenticationRequestContext() {
 		return Saml2AuthenticationRequestContext.builder().relayState("relayState").issuer("issuer")

@@ -28,8 +28,6 @@ public class Base64Tests {
 
 	@Test
 	public void isBase64ReturnsTrueForValidBase64() {
-		new Base64(); // unused
-
 		assertThat(Base64.isBase64(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' })).isTrue();
 	}
 

@@ -27,8 +27,6 @@ public class FieldUtilsTests {
 
 	@Test
 	public void gettingAndSettingProtectedFieldIsSuccessful() throws Exception {
-		new FieldUtils();
-
 		Object tc = new TestClass();
 
 		assertThat(FieldUtils.getProtectedFieldValue("protectedField", tc)).isEqualTo("x");

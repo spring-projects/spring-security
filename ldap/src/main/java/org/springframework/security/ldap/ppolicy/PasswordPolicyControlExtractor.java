@@ -29,9 +29,12 @@ import org.apache.commons.logging.LogFactory;
  * @author Luke Taylor
  * @since 3.0
  */
-public class PasswordPolicyControlExtractor {
+public final class PasswordPolicyControlExtractor {
 
 	private static final Log logger = LogFactory.getLog(PasswordPolicyControlExtractor.class);
+
+	private PasswordPolicyControlExtractor() {
+	}
 
 	public static PasswordPolicyResponseControl extractControl(DirContext dirCtx) {
 		LdapContext ctx = (LdapContext) dirCtx;

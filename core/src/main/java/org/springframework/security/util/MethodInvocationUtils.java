@@ -35,6 +35,9 @@ import org.springframework.util.Assert;
  */
 public final class MethodInvocationUtils {
 
+	private MethodInvocationUtils() {
+	}
+
 	/**
 	 * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on
 	 * the passed object, using the <code>args</code> to locate the method.

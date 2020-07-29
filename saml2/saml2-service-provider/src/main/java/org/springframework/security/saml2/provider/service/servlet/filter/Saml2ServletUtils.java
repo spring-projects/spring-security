@@ -34,6 +34,9 @@ final class Saml2ServletUtils {
 
 	private static final char PATH_DELIMITER = '/';
 
+	private Saml2ServletUtils() {
+	}
+
 	static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {
 		if (!StringUtils.hasText(template)) {
 			return baseUrl;

@@ -30,13 +30,16 @@ import org.springframework.security.web.access.channel.ChannelDecisionManagerImp
  * @author Luke Taylor
  * @since 3.0
  */
-public class ChannelAttributeFactory {
+public final class ChannelAttributeFactory {
 
 	private static final String OPT_REQUIRES_HTTP = "http";
 
 	private static final String OPT_REQUIRES_HTTPS = "https";
 
 	private static final String OPT_ANY_CHANNEL = "any";
+
+	private ChannelAttributeFactory() {
+	}
 
 	public static List<ConfigAttribute> createChannelAttributes(String requiredChannel) {
 		String channelConfigAttribute;

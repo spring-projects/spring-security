@@ -97,7 +97,10 @@ import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
  * @author Rob Winch
  * @since 5.0
  */
-public class SecurityMockServerConfigurers {
+public final class SecurityMockServerConfigurers {
+
+	private SecurityMockServerConfigurers() {
+	}
 
 	/**
 	 * Sets up Spring Security's {@link WebTestClient} test support

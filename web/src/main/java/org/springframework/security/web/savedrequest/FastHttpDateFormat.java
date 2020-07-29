@@ -32,7 +32,7 @@ import java.util.TimeZone;
  * @author Remy Maucherat
  * @author Andrey Grebnev
  */
-public class FastHttpDateFormat {
+public final class FastHttpDateFormat {
 
 	/** HTTP date format. */
 	protected static final SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
@@ -65,6 +65,9 @@ public class FastHttpDateFormat {
 
 	/** Parser cache. */
 	protected static final HashMap<String, Long> parseCache = new HashMap<>();
+
+	private FastHttpDateFormat() {
+	}
 
 	/**
 	 * Formats a specified date to HTTP format. If local format is not <code>null</code>,

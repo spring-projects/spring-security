@@ -28,7 +28,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 /**
  * @author Rob Winch
  */
-public class TestOAuth2Users {
+public final class TestOAuth2Users {
+
+	private TestOAuth2Users() {
+	}
 
 	public static DefaultOAuth2User create() {
 		String nameAttributeKey = "username";

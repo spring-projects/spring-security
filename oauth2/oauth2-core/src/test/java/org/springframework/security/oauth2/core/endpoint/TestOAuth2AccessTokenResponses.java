@@ -26,7 +26,10 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
  * @author Rob Winch
  * @since 5.1
  */
-public class TestOAuth2AccessTokenResponses {
+public final class TestOAuth2AccessTokenResponses {
+
+	private TestOAuth2AccessTokenResponses() {
+	}
 
 	public static OAuth2AccessTokenResponse.Builder accessTokenResponse() {
 		return OAuth2AccessTokenResponse.withToken("token").tokenType(OAuth2AccessToken.TokenType.BEARER);

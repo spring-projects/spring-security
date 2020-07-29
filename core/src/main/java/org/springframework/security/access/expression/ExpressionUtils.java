@@ -22,6 +22,9 @@ import org.springframework.expression.Expression;
 
 public final class ExpressionUtils {
 
+	private ExpressionUtils() {
+	}
+
 	public static boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
 		try {
 			return expr.getValue(ctx, Boolean.class);

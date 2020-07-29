@@ -97,6 +97,9 @@ final class TestOpenSamlObjects {
 	private static SecretKey SECRET_KEY = new SecretKeySpec(
 			Base64.getDecoder().decode("shOnwNMoCv88HKMEa91+FlYoD5RNvzMTAL5LGxZKIFk="), "AES");
 
+	private TestOpenSamlObjects() {
+	}
+
 	static Response response() {
 		return response(DESTINATION, ASSERTING_PARTY_ENTITY_ID);
 	}

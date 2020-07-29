@@ -34,6 +34,9 @@ public final class RelyingPartyRegistrations {
 	private static final RestOperations rest = new RestTemplate(
 			Arrays.asList(new OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter()));
 
+	private RelyingPartyRegistrations() {
+	}
+
 	/**
 	 * Return a {@link RelyingPartyRegistration.Builder} based off of the given SAML 2.0
 	 * Asserting Party (IDP) metadata.

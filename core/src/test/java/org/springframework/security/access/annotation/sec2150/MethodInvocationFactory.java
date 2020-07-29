@@ -19,7 +19,10 @@ package org.springframework.security.access.annotation.sec2150;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 
-public class MethodInvocationFactory {
+public final class MethodInvocationFactory {
+
+	private MethodInvocationFactory() {
+	}
 
 	/**
 	 * In order to reproduce the bug for SEC-2150, we must have a proxy object that

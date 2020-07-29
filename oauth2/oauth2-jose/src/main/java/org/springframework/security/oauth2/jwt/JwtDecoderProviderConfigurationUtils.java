@@ -38,7 +38,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Rafiullah Hamedy
  * @since 5.2
  */
-class JwtDecoderProviderConfigurationUtils {
+final class JwtDecoderProviderConfigurationUtils {
 
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
 
@@ -48,6 +48,9 @@ class JwtDecoderProviderConfigurationUtils {
 
 	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
+
+	private JwtDecoderProviderConfigurationUtils() {
+	}
 
 	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
 		return getConfiguration(oidcIssuerLocation, oidc(URI.create(oidcIssuerLocation)));

@@ -36,7 +36,10 @@ import org.springframework.security.oauth2.server.resource.introspection.OAuth2I
  *
  * @author Josh Cummings
  */
-public class TestOAuth2AuthenticatedPrincipals {
+public final class TestOAuth2AuthenticatedPrincipals {
+
+	private TestOAuth2AuthenticatedPrincipals() {
+	}
 
 	public static OAuth2AuthenticatedPrincipal active() {
 		return active(attributes -> {

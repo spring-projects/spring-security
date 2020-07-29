@@ -29,11 +29,14 @@ import org.bouncycastle.util.Arrays;
  * @author Simeon Macke
  * @since 5.3
  */
-class Argon2EncodingUtils {
+final class Argon2EncodingUtils {
 
 	private static final Base64.Encoder b64encoder = Base64.getEncoder().withoutPadding();
 
 	private static final Base64.Decoder b64decoder = Base64.getDecoder();
+
+	private Argon2EncodingUtils() {
+	}
 
 	/**
 	 * Encodes a raw Argon2-hash and its parameters into the standard Argon2-hash-string

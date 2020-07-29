@@ -237,6 +237,9 @@ public final class Base64 {
 			-9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9, -9 // Decimal 244 - 255
 	};
 
+	private Base64() {
+	}
+
 	public static byte[] decode(byte[] bytes) {
 		return decode(bytes, 0, bytes.length, NO_OPTIONS);
 	}

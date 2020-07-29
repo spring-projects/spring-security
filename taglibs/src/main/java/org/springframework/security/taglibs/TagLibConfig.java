@@ -51,6 +51,9 @@ public final class TagLibConfig {
 		}
 	}
 
+	private TagLibConfig() {
+	}
+
 	/**
 	 * Returns EVAL_BODY_INCLUDE if the authorized flag is true or UI security has been
 	 * disabled. Otherwise returns SKIP_BODY.

@@ -23,7 +23,10 @@ import java.time.Instant;
  *
  * @author Josh Cummings
  */
-public class TestOidcIdTokens {
+public final class TestOidcIdTokens {
+
+	private TestOidcIdTokens() {
+	}
 
 	public static OidcIdToken.Builder idToken() {
 		return OidcIdToken.withTokenValue("id-token").issuer("https://example.com").subject("subject")

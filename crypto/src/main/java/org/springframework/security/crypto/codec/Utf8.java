@@ -33,6 +33,9 @@ public final class Utf8 {
 
 	private static final Charset CHARSET = StandardCharsets.UTF_8;
 
+	private Utf8() {
+	}
+
 	/**
 	 * Get the bytes of the String in UTF-8 encoded form.
 	 */
