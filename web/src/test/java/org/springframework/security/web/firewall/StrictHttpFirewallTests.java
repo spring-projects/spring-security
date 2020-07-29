@@ -146,8 +146,6 @@ public class StrictHttpFirewallTests {
 		}
 	}
 
-	// --- ; ---
-
 	@Test(expected = RequestRejectedException.class)
 	public void getFirewalledRequestWhenSemicolonInContextPathThenThrowsRequestRejectedException() {
 		this.request.setContextPath(";/context");
@@ -334,8 +332,6 @@ public class StrictHttpFirewallTests {
 		this.firewall.getFirewalledRequest(this.request);
 	}
 
-	// --- encoded . ---
-
 	@Test(expected = RequestRejectedException.class)
 	public void getFirewalledRequestWhenEncodedPeriodInThenThrowsRequestRejectedException() {
 		this.request.setRequestURI("/%2E/");
@@ -393,8 +389,6 @@ public class StrictHttpFirewallTests {
 		this.request.setRequestURI("/something%00/");
 		this.firewall.getFirewalledRequest(this.request);
 	}
-
-	// --- from DefaultHttpFirewallTests ---
 
 	/**
 	 * On WebSphere 8.5 a URL like /context-root/a/b;%2f1/c can bypass a rule on /a/b/c

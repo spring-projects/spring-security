@@ -96,7 +96,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	// SEC-1915
 	@Test
 	public void customSearchFilterIsUsedForSuccessfulAuthentication() throws Exception {
-		// given
 		String customSearchFilter = "(&(objectClass=user)(sAMAccountName={0}))";
 
 		DirContext ctx = mock(DirContext.class);
@@ -111,17 +110,14 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				"mydomain.eu", "ldap://192.168.1.200/");
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
 
-		// when
 		customProvider.setSearchFilter(customSearchFilter);
 		Authentication result = customProvider.authenticate(this.joe);
 
-		// then
 		assertThat(result.isAuthenticated()).isTrue();
 	}
 
 	@Test
 	public void defaultSearchFilter() throws Exception {
-		// given
 		final String defaultSearchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
 
 		DirContext ctx = mock(DirContext.class);
@@ -136,10 +132,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				"mydomain.eu", "ldap://192.168.1.200/");
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
 
-		// when
 		Authentication result = customProvider.authenticate(this.joe);
 
-		// then
 		assertThat(result.isAuthenticated()).isTrue();
 		verify(ctx).search(any(DistinguishedName.class), eq(defaultSearchFilter), any(Object[].class),
 				any(SearchControls.class));
@@ -148,7 +142,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	// SEC-2897,SEC-2224
 	@Test
 	public void bindPrincipalAndUsernameUsed() throws Exception {
-		// given
 		final String defaultSearchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
 		ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
 
@@ -164,10 +157,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				"mydomain.eu", "ldap://192.168.1.200/");
 		customProvider.contextFactory = createContextFactoryReturning(ctx);
 
-		// when
 		Authentication result = customProvider.authenticate(this.joe);
 
-		// then
 		assertThat(captor.getValue()).containsExactly("joe@mydomain.eu", "joe");
 		assertThat(result.isAuthenticated()).isTrue();
 	}

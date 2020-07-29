@@ -62,8 +62,6 @@ public class OnCommittedResponseWrapperTests {
 		given(this.delegate.getOutputStream()).willReturn(this.out);
 	}
 
-	// --- printwriter
-
 	@Test
 	public void printWriterHashCode() throws Exception {
 		int expected = this.writer.hashCode();

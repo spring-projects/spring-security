@@ -55,8 +55,6 @@ public class ServerOAuth2ResourceServerApplicationITests {
 				.expectBody(String.class).isEqualTo("Hello, subject!");
 	}
 
-	// -- tests with scopes
-
 	@Test
 	public void getWhenValidBearerTokenThenScopedRequestsAlsoWork() {
 

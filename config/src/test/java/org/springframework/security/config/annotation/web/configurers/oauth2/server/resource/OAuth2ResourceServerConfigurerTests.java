@@ -436,8 +436,6 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(content().string("test-subject"));
 	}
 
-	// -- Method Security
-
 	@Test
 	public void getWhenUsingMethodSecurityWithValidBearerTokenThenAcceptsRequest() throws Exception {
 
@@ -494,8 +492,6 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(insufficientScopeHeader());
 	}
 
-	// -- Resource Server should not engage csrf
-
 	@Test
 	public void postWhenUsingDefaultsWithValidBearerTokenAndNoCsrfTokenThenOk() throws Exception {
 
@@ -526,8 +522,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(post("/authenticated").with(bearerToken(token))).andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
 	}
-
-	// -- Resource Server should not create sessions
 
 	@Test
 	public void requestWhenDefaultConfiguredThenSessionIsNotCreated() throws Exception {
@@ -575,8 +569,6 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
-
-	// -- custom bearer token resolver
 
 	@Test
 	public void requestWhenBearerTokenResolverAllowsRequestBodyThenEitherHeaderOrRequestBodyIsAccepted()
@@ -692,8 +684,6 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		assertThat(oauth2.getBearerTokenResolver()).isInstanceOf(DefaultBearerTokenResolver.class);
 	}
-
-	// -- custom jwt decoder
 
 	@Test
 	public void requestWhenCustomJwtDecoderWiredOnDslThenUsed() throws Exception {
@@ -820,8 +810,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		assertThatCode(() -> jwtConfigurer.getJwtDecoder()).isInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
 
-	// -- exception handling
-
 	@Test
 	public void requestWhenRealmNameConfiguredThenUsesOnUnauthenticated() throws Exception {
 
@@ -860,8 +848,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		OAuth2ResourceServerConfigurer configurer = new OAuth2ResourceServerConfigurer(context);
 		assertThatCode(() -> configurer.accessDeniedHandler(null)).isInstanceOf(IllegalArgumentException.class);
 	}
-
-	// -- token validator
 
 	@Test
 	public void requestWhenCustomJwtValidatorFailsThenCorrespondingErrorMessage() throws Exception {
@@ -904,8 +890,6 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(invalidTokenHeader("Jwt expired at"));
 	}
 
-	// -- converter
-
 	@Test
 	public void requestWhenJwtAuthenticationConverterConfiguredOnDslThenIsUsed() throws Exception {
 
@@ -936,8 +920,6 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		this.mvc.perform(get("/requires-read-scope").with(bearerToken(JWT_TOKEN))).andExpect(status().isOk());
 	}
-
-	// -- single key
 
 	@Test
 	public void requestWhenUsingPublicKeyAndValidTokenThenAuthenticates() throws Exception {
@@ -990,8 +972,6 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		verifyBean(AuthenticationProvider.class).authenticate(any(Authentication.class));
 	}
-
-	// -- opaque
 
 	@Test
 	public void getWhenIntrospectingThenOk() throws Exception {
@@ -1099,8 +1079,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		assertThat(opaqueToken.getIntrospector()).isNotNull();
 	}
 
-	// -- In combination with other authentication providers
-
 	@Test
 	public void requestWhenBasicAndResourceServerEntryPointsThenMatchedByRequest() throws Exception {
 
@@ -1171,8 +1149,6 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(status().isOk()).andExpect(content().string("basic-user"));
 	}
 
-	// -- authentication manager
-
 	@Test
 	public void getAuthenticationManagerWhenConfiguredAuthenticationManagerThenTakesPrecedence() {
 		ApplicationContext context = mock(ApplicationContext.class);
@@ -1189,8 +1165,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		assertThat(oauth2ResourceServer.getAuthenticationManager(http)).isSameAs(authenticationManager);
 		verify(http, never()).authenticationProvider(any(AuthenticationProvider.class));
 	}
-
-	// -- authentication manager resolver
 
 	@Test
 	public void getWhenMultipleIssuersThenUsesIssuerClaimToDifferentiate() throws Exception {
@@ -1225,8 +1199,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/authenticated").with(bearerToken(jwtThree))).andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("Invalid issuer"));
 	}
-
-	// -- Incorrect Configuration
 
 	@Test
 	public void configuredWhenMissingJwtAuthenticationProviderThenWiringException() {

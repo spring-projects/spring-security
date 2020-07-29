@@ -335,8 +335,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				.andExpect(status().isNotFound());
 	}
 
-	// -- Resource Server should not engage csrf
-
 	@Test
 	public void postWhenValidBearerTokenAndNoCsrfTokenThenOk() throws Exception {
 
@@ -370,8 +368,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
 	}
-
-	// -- Resource Server should not create sessions
 
 	@Test
 	public void requestWhenJwtThenSessionIsNotCreated() throws Exception {
@@ -420,8 +416,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
-
-	// -- custom bearer token resolver
 
 	@Test
 	public void getWhenCustomBearerTokenResolverThenUses() throws Exception {
@@ -502,8 +496,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		assertThat(oauth2.getBearerTokenResolver(mock(Element.class))).isInstanceOf(RootBeanDefinition.class);
 	}
 
-	// -- custom jwt decoder
-
 	@Test
 	public void requestWhenCustomJwtDecoderThenUsed() throws Exception {
 
@@ -524,8 +516,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		assertThatThrownBy(() -> this.spring.configLocations(xml("JwtDecoderAndJwkSetUri")).autowire())
 				.isInstanceOf(BeanDefinitionParsingException.class);
 	}
-
-	// -- exception handling
 
 	@Test
 	public void requestWhenRealmNameConfiguredThenUsesOnUnauthenticated() throws Exception {
@@ -552,8 +542,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				.andExpect(status().isForbidden())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer realm=\"myRealm\"")));
 	}
-
-	// -- token validator
 
 	@Test
 	public void requestWhenCustomJwtValidatorFailsThenCorrespondingErrorMessage() throws Exception {
@@ -593,8 +581,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				.andExpect(invalidTokenHeader("Jwt expired at"));
 	}
 
-	// -- converter
-
 	@Test
 	public void requestWhenJwtAuthenticationConverterThenUsed() throws Exception {
 
@@ -613,8 +599,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		verify(jwtAuthenticationConverter).convert(any(Jwt.class));
 	}
-
-	// -- single key
 
 	@Test
 	public void requestWhenUsingPublicKeyAndValidTokenThenAuthenticates() throws Exception {
@@ -644,8 +628,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
 				.andExpect(invalidTokenHeader("algorithm"));
 	}
-
-	// -- opaque
 
 	@Test
 	public void getWhenIntrospectingThenOk() throws Exception {
@@ -687,8 +669,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		assertThatCode(() -> this.spring.configLocations(xml("OpaqueTokenAndIntrospectionUri")).autowire())
 				.isInstanceOf(BeanDefinitionParsingException.class);
 	}
-
-	// -- authentication manager resolver
 
 	@Test
 	public void getWhenAuthenticationManagerResolverThenUses() throws Exception {
@@ -738,12 +718,9 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				.andExpect(status().isUnauthorized()).andExpect(invalidTokenHeader("Invalid issuer"));
 	}
 
-	// -- In combination with other authentication providers
-
 	@Test
-	public void requestWhenBasicAndResourceServerEntryPointsThenBearerTokenPresides() throws Exception { // different
-																											// from
-																											// DSL
+	public void requestWhenBasicAndResourceServerEntryPointsThenBearerTokenPresides() throws Exception {
+		// different from DSL
 
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("BasicAndResourceServer")).autowire();
 
@@ -762,9 +739,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void requestWhenFormLoginAndResourceServerEntryPointsThenSessionCreatedByRequest() throws Exception { // different
-																													// from
-																													// DSL
+	public void requestWhenFormLoginAndResourceServerEntryPointsThenSessionCreatedByRequest() throws Exception {
+		// different from DSL
 
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("FormAndResourceServer")).autowire();
 
@@ -793,8 +769,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		this.mvc.perform(get("/authenticated").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
-
-	// -- Incorrect Configuration
 
 	@Test
 	public void configuredWhenMissingJwtAuthenticationProviderThenWiringException() {

@@ -75,8 +75,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private List<HeaderWriter> headerWriters = new ArrayList<>();
 
-	// --- default header writers ---
-
 	private final ContentTypeOptionsConfig contentTypeOptions = new ContentTypeOptionsConfig();
 
 	private final XXssConfig xssProtection = new XXssConfig();

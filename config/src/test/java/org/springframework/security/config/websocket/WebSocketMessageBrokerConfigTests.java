@@ -242,8 +242,6 @@ public class WebSocketMessageBrokerConfigTests {
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
 	}
 
-	// -- invalid intercept types -- //
-
 	@Test
 	public void configureWhenUsingConnectMessageTypeThenAutowireFails() {
 		ThrowingCallable bad = () -> this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire();

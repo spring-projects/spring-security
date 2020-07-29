@@ -41,14 +41,10 @@ public abstract class AbstractDelegatingSecurityContextExecutorTests
 
 	private DelegatingSecurityContextExecutor executor;
 
-	// --- constructor ---
-
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullDelegate() {
 		new DelegatingSecurityContextExecutor(null);
 	}
-
-	// --- execute ---
 
 	@Test
 	public void execute() {
