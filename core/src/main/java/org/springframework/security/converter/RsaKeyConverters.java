@@ -82,8 +82,8 @@ public class RsaKeyConverters {
 			try {
 				return (RSAPrivateKey) keyFactory.generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
 			}
-			catch (Exception e) {
-				throw new IllegalArgumentException(e);
+			catch (Exception ex) {
+				throw new IllegalArgumentException(ex);
 			}
 		};
 	}
@@ -115,8 +115,8 @@ public class RsaKeyConverters {
 			try {
 				return (RSAPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(x509));
 			}
-			catch (Exception e) {
-				throw new IllegalArgumentException(e);
+			catch (Exception ex) {
+				throw new IllegalArgumentException(ex);
 			}
 		};
 	}
@@ -130,8 +130,8 @@ public class RsaKeyConverters {
 		try {
 			return KeyFactory.getInstance("RSA");
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException(e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalStateException(ex);
 		}
 	}
 

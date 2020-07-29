@@ -38,8 +38,8 @@ public class PasswordPolicyControlExtractor {
 		try {
 			ctrls = ctx.getResponseControls();
 		}
-		catch (javax.naming.NamingException e) {
-			logger.error("Failed to obtain response controls", e);
+		catch (javax.naming.NamingException ex) {
+			logger.error("Failed to obtain response controls", ex);
 		}
 
 		for (int i = 0; ctrls != null && i < ctrls.length; i++) {

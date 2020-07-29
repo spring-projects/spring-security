@@ -135,8 +135,8 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 			digestAuth.validateAndDecode(this.authenticationEntryPoint.getKey(),
 					this.authenticationEntryPoint.getRealmName());
 		}
-		catch (BadCredentialsException e) {
-			fail(request, response, e);
+		catch (BadCredentialsException ex) {
+			fail(request, response, ex);
 
 			return;
 		}
@@ -374,7 +374,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 			try {
 				Base64.getDecoder().decode(this.nonce.getBytes());
 			}
-			catch (IllegalArgumentException e) {
+			catch (IllegalArgumentException ex) {
 				throw new BadCredentialsException(
 						DigestAuthenticationFilter.this.messages.getMessage("DigestAuthenticationFilter.nonceEncoding",
 								new Object[] { this.nonce }, "Nonce is not encoded in Base64; received nonce {0}"));

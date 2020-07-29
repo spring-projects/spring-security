@@ -177,9 +177,9 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 				// redirect to target url
 				this.successHandler.onAuthenticationSuccess(request, response, targetUser);
 			}
-			catch (AuthenticationException e) {
-				this.logger.debug("Switch User failed", e);
-				this.failureHandler.onAuthenticationFailure(request, response, e);
+			catch (AuthenticationException ex) {
+				this.logger.debug("Switch User failed", ex);
+				this.failureHandler.onAuthenticationFailure(request, response, ex);
 			}
 
 			return;
@@ -310,7 +310,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 			// SEC-1763. Check first if we are already switched.
 			currentAuth = attemptExitUser(request);
 		}
-		catch (AuthenticationCredentialsNotFoundException e) {
+		catch (AuthenticationCredentialsNotFoundException ex) {
 			currentAuth = SecurityContextHolder.getContext().getAuthentication();
 		}
 

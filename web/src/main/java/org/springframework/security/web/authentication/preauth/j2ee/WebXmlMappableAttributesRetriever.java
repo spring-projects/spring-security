@@ -118,15 +118,15 @@ public class WebXmlMappableAttributesRetriever
 			doc = db.parse(aStream);
 			return doc;
 		}
-		catch (FactoryConfigurationError | IOException | SAXException | ParserConfigurationException e) {
-			throw new RuntimeException("Unable to parse document object", e);
+		catch (FactoryConfigurationError | IOException | SAXException | ParserConfigurationException ex) {
+			throw new RuntimeException("Unable to parse document object", ex);
 		}
 		finally {
 			try {
 				aStream.close();
 			}
-			catch (IOException e) {
-				this.logger.warn("Failed to close input stream for web.xml", e);
+			catch (IOException ex) {
+				this.logger.warn("Failed to close input stream for web.xml", ex);
 			}
 		}
 	}

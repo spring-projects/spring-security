@@ -369,7 +369,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 			attributes.put(OidcParameterNames.NONCE, nonce);
 			additionalParameters.put(OidcParameterNames.NONCE, this.nonceHash);
 		}
-		catch (NoSuchAlgorithmException e) {
+		catch (NoSuchAlgorithmException ex) {
 		}
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode().state("state")
 				.clientId(clientRegistration.getClientId())

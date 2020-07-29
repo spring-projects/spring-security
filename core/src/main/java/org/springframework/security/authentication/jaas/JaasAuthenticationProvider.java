@@ -223,7 +223,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 
 			return new URL("file", "", loginConfigPath).toString();
 		}
-		catch (IOException e) {
+		catch (IOException ex) {
 			// SEC-1700: May be inside a jar
 			return this.loginConfig.getURL().toString();
 		}

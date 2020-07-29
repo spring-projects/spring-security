@@ -595,7 +595,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 			try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
 				return serverSocket.getLocalPort();
 			}
-			catch (IOException e) {
+			catch (IOException ex) {
 				return RANDOM_PORT;
 			}
 		}

@@ -295,7 +295,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 			}
 			return true;
 		}
-		catch (org.springframework.ldap.NameNotFoundException e) {
+		catch (org.springframework.ldap.NameNotFoundException ex) {
 			return false;
 		}
 	}
@@ -436,7 +436,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 			try {
 				ctx.reconnect(null);
 			}
-			catch (javax.naming.AuthenticationException e) {
+			catch (javax.naming.AuthenticationException ex) {
 				throw new BadCredentialsException("Authentication for password change failed.");
 			}
 
@@ -459,7 +459,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 			try {
 				return ctx.extendedOperation(request);
 			}
-			catch (javax.naming.AuthenticationException e) {
+			catch (javax.naming.AuthenticationException ex) {
 				throw new BadCredentialsException("Authentication for password change failed.");
 			}
 		});
@@ -563,7 +563,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 			try {
 				dest.write(src);
 			}
-			catch (IOException e) {
+			catch (IOException ex) {
 				throw new IllegalArgumentException("Failed to BER encode provided value of type: " + type);
 			}
 		}

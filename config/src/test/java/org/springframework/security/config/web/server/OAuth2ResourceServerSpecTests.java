@@ -447,8 +447,8 @@ public class OAuth2ResourceServerSpecTests {
 			KeyFactory factory = KeyFactory.getInstance("RSA");
 			rsaPublicKey = (RSAPublicKey) factory.generatePublic(spec);
 		}
-		catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			e.printStackTrace();
+		catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+			ex.printStackTrace();
 		}
 		return rsaPublicKey;
 	}

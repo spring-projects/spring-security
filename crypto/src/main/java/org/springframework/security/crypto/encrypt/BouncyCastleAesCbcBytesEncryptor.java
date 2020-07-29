@@ -74,8 +74,8 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		try {
 			bytesWritten += blockCipher.doFinal(buf, bytesWritten);
 		}
-		catch (InvalidCipherTextException e) {
-			throw new IllegalStateException("unable to encrypt/decrypt", e);
+		catch (InvalidCipherTextException ex) {
+			throw new IllegalStateException("unable to encrypt/decrypt", ex);
 		}
 		if (bytesWritten == buf.length) {
 			return buf;

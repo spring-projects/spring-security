@@ -140,8 +140,8 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 					return issuer;
 				}
 			}
-			catch (Exception e) {
-				throw new InvalidBearerTokenException(e.getMessage(), e);
+			catch (Exception ex) {
+				throw new InvalidBearerTokenException(ex.getMessage(), ex);
 			}
 			throw new InvalidBearerTokenException("Missing issuer");
 		}

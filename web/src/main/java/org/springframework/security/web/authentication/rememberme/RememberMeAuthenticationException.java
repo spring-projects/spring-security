@@ -30,10 +30,10 @@ public class RememberMeAuthenticationException extends AuthenticationException {
 	 * Constructs a {@code RememberMeAuthenticationException} with the specified message
 	 * and root cause.
 	 * @param msg the detail message
-	 * @param t the root cause
+	 * @param cause the root cause
 	 */
-	public RememberMeAuthenticationException(String msg, Throwable t) {
-		super(msg, t);
+	public RememberMeAuthenticationException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
 
 	/**

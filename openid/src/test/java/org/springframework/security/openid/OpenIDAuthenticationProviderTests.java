@@ -231,7 +231,7 @@ public class OpenIDAuthenticationProviderTests {
 			provider.afterPropertiesSet();
 			fail("IllegalArgumentException expected, ssoAuthoritiesPopulator is null");
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			// expected
 		}
 

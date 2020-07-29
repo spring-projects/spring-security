@@ -76,8 +76,8 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 		try {
 			httpRequestMediaTypes = resolveMediaTypes(exchange);
 		}
-		catch (NotAcceptableStatusException e) {
-			this.logger.debug("Failed to parse MediaTypes, returning false", e);
+		catch (NotAcceptableStatusException ex) {
+			this.logger.debug("Failed to parse MediaTypes, returning false", ex);
 			return MatchResult.notMatch();
 		}
 		if (this.logger.isDebugEnabled()) {

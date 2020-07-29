@@ -63,9 +63,9 @@ final class AutowireBeanFactoryObjectPostProcessor
 		try {
 			result = (T) this.autowireBeanFactory.initializeBean(object, object.toString());
 		}
-		catch (RuntimeException e) {
+		catch (RuntimeException ex) {
 			Class<?> type = object.getClass();
-			throw new RuntimeException("Could not postProcess " + object + " of type " + type, e);
+			throw new RuntimeException("Could not postProcess " + object + " of type " + type, ex);
 		}
 		this.autowireBeanFactory.autowireBean(object);
 		if (result instanceof DisposableBean) {

@@ -42,10 +42,10 @@ public class AuthenticationServiceException extends AuthenticationException {
 	 * Constructs an <code>AuthenticationServiceException</code> with the specified
 	 * message and root cause.
 	 * @param msg the detail message
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public AuthenticationServiceException(String msg, Throwable t) {
-		super(msg, t);
+	public AuthenticationServiceException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
 
 }

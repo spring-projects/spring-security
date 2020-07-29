@@ -325,7 +325,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		try {
 			return context.getBean(clazz);
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 		}
 		return null;
 	}

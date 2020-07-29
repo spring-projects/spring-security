@@ -506,7 +506,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			try {
 				return this.bearerTokenResolver.resolve(request) != null;
 			}
-			catch (OAuth2AuthenticationException e) {
+			catch (OAuth2AuthenticationException ex) {
 				return false;
 			}
 		}

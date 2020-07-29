@@ -31,8 +31,8 @@ public class OpenIDConsumerException extends Exception {
 		super(message);
 	}
 
-	public OpenIDConsumerException(String message, Throwable t) {
-		super(message, t);
+	public OpenIDConsumerException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 }

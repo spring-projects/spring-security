@@ -77,7 +77,7 @@ public class JaasAuthenticationProviderTests {
 			this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf"));
 			fail("LoginException should have been thrown for the bad password");
 		}
-		catch (AuthenticationException e) {
+		catch (AuthenticationException ex) {
 		}
 
 		assertThat(this.eventCheck.failedEvent).as("Failure event not fired").isNotNull();
@@ -92,7 +92,7 @@ public class JaasAuthenticationProviderTests {
 			this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password"));
 			fail("LoginException should have been thrown for the bad user");
 		}
-		catch (AuthenticationException e) {
+		catch (AuthenticationException ex) {
 		}
 
 		assertThat(this.eventCheck.failedEvent).as("Failure event not fired").isNotNull();
@@ -241,9 +241,9 @@ public class JaasAuthenticationProviderTests {
 		try {
 			this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 		}
-		catch (LockedException e) {
+		catch (LockedException ex) {
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 			fail("LockedException should have been thrown and caught");
 		}
 	}

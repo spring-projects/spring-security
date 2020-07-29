@@ -102,8 +102,8 @@ public class AuthenticationTag extends TagSupport {
 				BeanWrapperImpl wrapper = new BeanWrapperImpl(auth);
 				result = wrapper.getPropertyValue(this.property);
 			}
-			catch (BeansException e) {
-				throw new JspException(e);
+			catch (BeansException ex) {
+				throw new JspException(ex);
 			}
 		}
 

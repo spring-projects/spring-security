@@ -194,8 +194,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 		try {
 			return (List<AccessControlEntryImpl>) this.fieldAces.get(acl);
 		}
-		catch (IllegalAccessException e) {
-			throw new IllegalStateException("Could not obtain AclImpl.aces field", e);
+		catch (IllegalAccessException ex) {
+			throw new IllegalStateException("Could not obtain AclImpl.aces field", ex);
 		}
 	}
 
@@ -203,8 +203,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 		try {
 			this.fieldAcl.set(ace, acl);
 		}
-		catch (IllegalAccessException e) {
-			throw new IllegalStateException("Could not or set AclImpl on AccessControlEntryImpl fields", e);
+		catch (IllegalAccessException ex) {
+			throw new IllegalStateException("Could not or set AclImpl on AccessControlEntryImpl fields", ex);
 		}
 	}
 
@@ -212,8 +212,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 		try {
 			this.fieldAces.set(acl, aces);
 		}
-		catch (IllegalAccessException e) {
-			throw new IllegalStateException("Could not set AclImpl entries", e);
+		catch (IllegalAccessException ex) {
+			throw new IllegalStateException("Could not set AclImpl entries", ex);
 		}
 	}
 

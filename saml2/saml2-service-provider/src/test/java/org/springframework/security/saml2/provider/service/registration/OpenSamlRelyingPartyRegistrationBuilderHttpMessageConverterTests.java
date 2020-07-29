@@ -130,8 +130,8 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 			InputStream certificate = new ByteArrayInputStream(Base64.getDecoder().decode(data.getBytes()));
 			return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(certificate);
 		}
-		catch (Exception e) {
-			throw new IllegalArgumentException(e);
+		catch (Exception ex) {
+			throw new IllegalArgumentException(ex);
 		}
 	}
 

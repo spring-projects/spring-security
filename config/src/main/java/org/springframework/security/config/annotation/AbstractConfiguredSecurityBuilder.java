@@ -102,8 +102,8 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 			try {
 				return build();
 			}
-			catch (Exception e) {
-				this.logger.debug("Failed to perform build. Returning null", e);
+			catch (Exception ex) {
+				this.logger.debug("Failed to perform build. Returning null", ex);
 				return null;
 			}
 		}

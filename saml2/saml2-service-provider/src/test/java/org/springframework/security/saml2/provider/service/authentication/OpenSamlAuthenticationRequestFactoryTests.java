@@ -226,8 +226,8 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 			Element element = document.getDocumentElement();
 			return (AuthnRequest) this.unmarshaller.unmarshall(element);
 		}
-		catch (Exception e) {
-			throw new Saml2Exception(e);
+		catch (Exception ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
 

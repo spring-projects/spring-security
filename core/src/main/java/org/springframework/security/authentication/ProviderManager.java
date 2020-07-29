@@ -188,14 +188,14 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 					break;
 				}
 			}
-			catch (AccountStatusException | InternalAuthenticationServiceException e) {
-				prepareException(e, authentication);
+			catch (AccountStatusException | InternalAuthenticationServiceException ex) {
+				prepareException(ex, authentication);
 				// SEC-546: Avoid polling additional providers if auth failure is due to
 				// invalid account status
-				throw e;
+				throw ex;
 			}
-			catch (AuthenticationException e) {
-				lastException = e;
+			catch (AuthenticationException ex) {
+				lastException = ex;
 			}
 		}
 
@@ -205,15 +205,15 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				parentResult = this.parent.authenticate(authentication);
 				result = parentResult;
 			}
-			catch (ProviderNotFoundException e) {
+			catch (ProviderNotFoundException ex) {
 				// ignore as we will throw below if no other exception occurred prior to
 				// calling parent and the parent
 				// may throw ProviderNotFound even though a provider in the child already
 				// handled the request
 			}
-			catch (AuthenticationException e) {
-				parentException = e;
-				lastException = e;
+			catch (AuthenticationException ex) {
+				parentException = ex;
+				lastException = ex;
 			}
 		}
 

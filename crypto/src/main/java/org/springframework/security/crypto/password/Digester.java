@@ -64,8 +64,8 @@ final class Digester {
 		try {
 			return MessageDigest.getInstance(algorithm);
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException("No such hashing algorithm", e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalStateException("No such hashing algorithm", ex);
 		}
 	}
 

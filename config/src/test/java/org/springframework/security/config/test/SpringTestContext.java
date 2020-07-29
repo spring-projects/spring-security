@@ -65,7 +65,7 @@ public class SpringTestContext implements Closeable {
 		try {
 			this.context.close();
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 		}
 	}
 

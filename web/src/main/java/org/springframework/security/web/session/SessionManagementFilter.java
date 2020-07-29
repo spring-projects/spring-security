@@ -95,11 +95,11 @@ public class SessionManagementFilter extends GenericFilterBean {
 				try {
 					this.sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
 				}
-				catch (SessionAuthenticationException e) {
+				catch (SessionAuthenticationException ex) {
 					// The session strategy can reject the authentication
-					this.logger.debug("SessionAuthenticationStrategy rejected the authentication object", e);
+					this.logger.debug("SessionAuthenticationStrategy rejected the authentication object", ex);
 					SecurityContextHolder.clearContext();
-					this.failureHandler.onAuthenticationFailure(request, response, e);
+					this.failureHandler.onAuthenticationFailure(request, response, ex);
 
 					return;
 				}

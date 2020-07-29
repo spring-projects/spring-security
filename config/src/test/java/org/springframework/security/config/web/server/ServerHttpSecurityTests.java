@@ -470,7 +470,7 @@ public class ServerHttpSecurityTests {
 			Object converter = ReflectionTestUtils.getField(filter, "authenticationConverter");
 			return converter.getClass().isAssignableFrom(ServerX509AuthenticationConverter.class);
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 			// field doesn't exist
 			return false;
 		}

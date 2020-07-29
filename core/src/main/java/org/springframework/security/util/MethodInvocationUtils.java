@@ -137,7 +137,7 @@ public final class MethodInvocationUtils {
 		try {
 			method = clazz.getMethod(methodName, classArgs);
 		}
-		catch (NoSuchMethodException e) {
+		catch (NoSuchMethodException ex) {
 			return null;
 		}
 

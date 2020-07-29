@@ -201,8 +201,8 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 		try {
 			httpRequestMediaTypes = this.contentNegotiationStrategy.resolveMediaTypes(new ServletWebRequest(request));
 		}
-		catch (HttpMediaTypeNotAcceptableException e) {
-			this.logger.debug("Failed to parse MediaTypes, returning false", e);
+		catch (HttpMediaTypeNotAcceptableException ex) {
+			this.logger.debug("Failed to parse MediaTypes, returning false", ex);
 			return false;
 		}
 		if (this.logger.isDebugEnabled()) {

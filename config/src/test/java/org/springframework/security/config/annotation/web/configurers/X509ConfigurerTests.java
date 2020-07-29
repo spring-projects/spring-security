@@ -94,8 +94,8 @@ public class X509ConfigurerTests {
 			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 			return (T) certFactory.generateCertificate(is);
 		}
-		catch (Exception e) {
-			throw new IllegalArgumentException(e);
+		catch (Exception ex) {
+			throw new IllegalArgumentException(ex);
 		}
 	}
 

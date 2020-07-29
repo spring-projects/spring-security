@@ -311,26 +311,26 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		try {
 			this.defaultWebSecurityExpressionHandler.setRoleHierarchy(applicationContext.getBean(RoleHierarchy.class));
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 		}
 
 		try {
 			this.defaultWebSecurityExpressionHandler
 					.setPermissionEvaluator(applicationContext.getBean(PermissionEvaluator.class));
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 		}
 
 		this.ignoredRequestRegistry = new IgnoredRequestConfigurer(applicationContext);
 		try {
 			this.httpFirewall = applicationContext.getBean(HttpFirewall.class);
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 		}
 		try {
 			this.requestRejectedHandler = applicationContext.getBean(RequestRejectedHandler.class);
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 		}
 	}
 

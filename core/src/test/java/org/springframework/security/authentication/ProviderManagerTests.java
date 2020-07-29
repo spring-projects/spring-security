@@ -271,8 +271,8 @@ public class ProviderManagerTests {
 			mgr.authenticate(authReq);
 			fail("Expected exception");
 		}
-		catch (BadCredentialsException e) {
-			assertThat(e).isSameAs(expected);
+		catch (BadCredentialsException ex) {
+			assertThat(ex).isSameAs(expected);
 		}
 	}
 
@@ -289,8 +289,8 @@ public class ProviderManagerTests {
 			mgr.authenticate(authReq);
 			fail("Expected exception");
 		}
-		catch (LockedException e) {
-			assertThat(e).isSameAs(expected);
+		catch (LockedException ex) {
+			assertThat(ex).isSameAs(expected);
 		}
 		verify(publisher).publishAuthenticationFailure(expected, authReq);
 	}
@@ -329,18 +329,18 @@ public class ProviderManagerTests {
 			childMgr.authenticate(authReq);
 			fail("Expected exception");
 		}
-		catch (BadCredentialsException e) {
-			assertThat(e).isSameAs(badCredentialsExParent);
+		catch (BadCredentialsException ex) {
+			assertThat(ex).isSameAs(badCredentialsExParent);
 		}
 		verify(publisher).publishAuthenticationFailure(badCredentialsExParent, authReq); // Parent
 																							// publishes
 		verifyNoMoreInteractions(publisher); // Child should not publish (duplicate event)
 	}
 
-	private AuthenticationProvider createProviderWhichThrows(final AuthenticationException e) {
+	private AuthenticationProvider createProviderWhichThrows(final AuthenticationException ex) {
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
 		given(provider.supports(any(Class.class))).willReturn(true);
-		given(provider.authenticate(any(Authentication.class))).willThrow(e);
+		given(provider.authenticate(any(Authentication.class))).willThrow(ex);
 
 		return provider;
 	}

@@ -259,29 +259,18 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			this.service.startup();
 			this.server.start();
 		}
-		catch (Exception e) {
-			throw new RuntimeException("Server startup failed", e);
+		catch (Exception ex) {
+			throw new RuntimeException("Server startup failed", ex);
 		}
 
 		try {
 			this.service.getAdminSession().lookup(this.partition.getSuffixDn());
 		}
-		catch (LdapNameNotFoundException e) {
-			try {
-				LdapDN dn = new LdapDN(this.root);
-				Assert.isTrue(this.root.startsWith("dc="), "root must start with dc=");
-				String dc = this.root.substring(3, this.root.indexOf(','));
-				ServerEntry entry = this.service.newEntry(dn);
-				entry.add("objectClass", "top", "domain", "extensibleObject");
-				entry.add("dc", dc);
-				this.service.getAdminSession().add(entry);
-			}
-			catch (Exception e1) {
-				this.logger.error("Failed to create dc entry", e1);
-			}
+		catch (LdapNameNotFoundException ex) {
+			handleLdapNameNotFoundException();
 		}
-		catch (Exception e) {
-			this.logger.error("Lookup failed", e);
+		catch (Exception ex) {
+			this.logger.error("Lookup failed", ex);
 		}
 
 		SocketAcceptor socketAcceptor = this.server.getSocketAcceptor(this.transport);
@@ -293,8 +282,23 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		try {
 			importLdifs();
 		}
-		catch (Exception e) {
-			throw new RuntimeException("Failed to import LDIF file(s)", e);
+		catch (Exception ex) {
+			throw new RuntimeException("Failed to import LDIF file(s)", ex);
+		}
+	}
+
+	private void handleLdapNameNotFoundException() {
+		try {
+			LdapDN dn = new LdapDN(this.root);
+			Assert.isTrue(this.root.startsWith("dc="), "root must start with dc=");
+			String dc = this.root.substring(3, this.root.indexOf(','));
+			ServerEntry entry = this.service.newEntry(dn);
+			entry.add("objectClass", "top", "domain", "extensibleObject");
+			entry.add("dc", dc);
+			this.service.getAdminSession().add(entry);
+		}
+		catch (Exception ex) {
+			this.logger.error("Failed to create dc entry", ex);
 		}
 	}
 
@@ -309,8 +313,8 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			this.server.stop();
 			this.service.shutdown();
 		}
-		catch (Exception e) {
-			this.logger.error("Shutdown failed", e);
+		catch (Exception ex) {
+			this.logger.error("Shutdown failed", ex);
 			return;
 		}
 
@@ -350,7 +354,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			try {
 				ldifFile = ldifs[0].getFile().getAbsolutePath();
 			}
-			catch (IOException e) {
+			catch (IOException ex) {
 				ldifFile = ldifs[0].getURI().toString();
 			}
 			this.logger.info("Loading LDIF file: " + ldifFile);

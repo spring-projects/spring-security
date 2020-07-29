@@ -117,21 +117,21 @@ public class RoleHierarchyImplTests {
 			roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_A");
 			fail("Cycle in role hierarchy was not detected!");
 		}
-		catch (CycleInRoleHierarchyException e) {
+		catch (CycleInRoleHierarchyException ex) {
 		}
 
 		try {
 			roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_A");
 			fail("Cycle in role hierarchy was not detected!");
 		}
-		catch (CycleInRoleHierarchyException e) {
+		catch (CycleInRoleHierarchyException ex) {
 		}
 
 		try {
 			roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_A");
 			fail("Cycle in role hierarchy was not detected!");
 		}
-		catch (CycleInRoleHierarchyException e) {
+		catch (CycleInRoleHierarchyException ex) {
 		}
 
 		try {
@@ -139,14 +139,14 @@ public class RoleHierarchyImplTests {
 					"ROLE_A > ROLE_B\nROLE_B > ROLE_C\nROLE_C > ROLE_E\nROLE_E > ROLE_D\nROLE_D > ROLE_B");
 			fail("Cycle in role hierarchy was not detected!");
 		}
-		catch (CycleInRoleHierarchyException e) {
+		catch (CycleInRoleHierarchyException ex) {
 		}
 
 		try {
 			roleHierarchyImpl.setHierarchy("ROLE_C > ROLE_B\nROLE_B > ROLE_A\nROLE_A > ROLE_B");
 			fail("Cycle in role hierarchy was not detected!");
 		}
-		catch (CycleInRoleHierarchyException e) {
+		catch (CycleInRoleHierarchyException ex) {
 		}
 	}
 
@@ -157,7 +157,7 @@ public class RoleHierarchyImplTests {
 		try {
 			roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
 		}
-		catch (CycleInRoleHierarchyException e) {
+		catch (CycleInRoleHierarchyException ex) {
 			fail("A cycle in role hierarchy was incorrectly detected!");
 		}
 	}

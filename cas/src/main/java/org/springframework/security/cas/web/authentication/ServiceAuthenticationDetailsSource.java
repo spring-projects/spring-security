@@ -74,8 +74,8 @@ public class ServiceAuthenticationDetailsSource
 			return new DefaultServiceAuthenticationDetails(this.serviceProperties.getService(), context,
 					this.artifactPattern);
 		}
-		catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+		catch (MalformedURLException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

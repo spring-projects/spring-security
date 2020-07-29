@@ -34,10 +34,10 @@ public class ChildrenExistException extends AclDataAccessException {
 	 * Constructs an <code>ChildrenExistException</code> with the specified message and
 	 * root cause.
 	 * @param msg the detail message
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public ChildrenExistException(String msg, Throwable t) {
-		super(msg, t);
+	public ChildrenExistException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
 
 }

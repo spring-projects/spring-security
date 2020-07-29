@@ -478,9 +478,9 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			try {
 				builder.addConstructorArgValue(new StaticAllowFromStrategy(new URI(value)));
 			}
-			catch (URISyntaxException e) {
+			catch (URISyntaxException ex) {
 				parserContext.getReaderContext().error("'value' attribute doesn't represent a valid URI.", frameElement,
-						e);
+						ex);
 			}
 			return;
 		}

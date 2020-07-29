@@ -145,8 +145,8 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 						return issuer;
 					}
 				}
-				catch (Exception e) {
-					throw new InvalidBearerTokenException(e.getMessage(), e);
+				catch (Exception ex) {
+					throw new InvalidBearerTokenException(ex.getMessage(), ex);
 				}
 			});
 		}

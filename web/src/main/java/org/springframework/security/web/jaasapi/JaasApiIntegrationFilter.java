@@ -98,8 +98,8 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 		try {
 			Subject.doAs(subject, continueChain);
 		}
-		catch (PrivilegedActionException e) {
-			throw new ServletException(e.getMessage(), e);
+		catch (PrivilegedActionException ex) {
+			throw new ServletException(ex.getMessage(), ex);
 		}
 	}
 

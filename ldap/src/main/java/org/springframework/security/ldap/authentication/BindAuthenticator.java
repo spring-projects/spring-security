@@ -127,20 +127,20 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
 			return result;
 		}
-		catch (NamingException e) {
+		catch (NamingException ex) {
 			// This will be thrown if an invalid user name is used and the method may
 			// be called multiple times to try different names, so we trap the exception
 			// unless a subclass wishes to implement more specialized behaviour.
-			if ((e instanceof org.springframework.ldap.AuthenticationException)
-					|| (e instanceof org.springframework.ldap.OperationNotSupportedException)) {
-				handleBindException(userDnStr, username, e);
+			if ((ex instanceof org.springframework.ldap.AuthenticationException)
+					|| (ex instanceof org.springframework.ldap.OperationNotSupportedException)) {
+				handleBindException(userDnStr, username, ex);
 			}
 			else {
-				throw e;
+				throw ex;
 			}
 		}
-		catch (javax.naming.NamingException e) {
-			throw LdapUtils.convertLdapException(e);
+		catch (javax.naming.NamingException ex) {
+			throw LdapUtils.convertLdapException(ex);
 		}
 		finally {
 			LdapUtils.closeContext(ctx);

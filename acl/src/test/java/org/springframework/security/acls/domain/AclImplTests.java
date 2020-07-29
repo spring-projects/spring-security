@@ -628,8 +628,8 @@ public class AclImplTests {
 							((AuditableAccessControlEntry) ac).isAuditFailure()));
 				}
 			}
-			catch (IllegalAccessException e) {
-				e.printStackTrace();
+			catch (IllegalAccessException ex) {
+				ex.printStackTrace();
 			}
 
 			return acl;

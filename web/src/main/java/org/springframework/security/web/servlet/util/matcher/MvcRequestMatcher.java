@@ -82,7 +82,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		try {
 			return this.introspector.getMatchableHandlerMapping(request);
 		}
-		catch (Throwable t) {
+		catch (Throwable ex) {
 			return null;
 		}
 	}

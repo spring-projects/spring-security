@@ -156,8 +156,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 			successfulAuthentication(request, response, filterChain, authenticationResult);
 		}
-		catch (AuthenticationException e) {
-			unsuccessfulAuthentication(request, response, e);
+		catch (AuthenticationException ex) {
+			unsuccessfulAuthentication(request, response, ex);
 		}
 	}
 

@@ -210,8 +210,8 @@ final class TestOpenSamlObjects {
 		try {
 			SignatureSupport.signObject(signable, parameters);
 		}
-		catch (MarshallingException | SignatureException | SecurityException e) {
-			throw new Saml2Exception(e);
+		catch (MarshallingException | SignatureException | SecurityException ex) {
+			throw new Saml2Exception(ex);
 		}
 
 		return signable;
@@ -228,8 +228,8 @@ final class TestOpenSamlObjects {
 		try {
 			SignatureSupport.signObject(signable, parameters);
 		}
-		catch (MarshallingException | SignatureException | SecurityException e) {
-			throw new Saml2Exception(e);
+		catch (MarshallingException | SignatureException | SecurityException ex) {
+			throw new Saml2Exception(ex);
 		}
 
 		return signable;
@@ -241,8 +241,8 @@ final class TestOpenSamlObjects {
 		try {
 			return encrypter.encrypt(assertion);
 		}
-		catch (EncryptionException e) {
-			throw new Saml2Exception("Unable to encrypt assertion.", e);
+		catch (EncryptionException ex) {
+			throw new Saml2Exception("Unable to encrypt assertion.", ex);
 		}
 	}
 
@@ -253,8 +253,8 @@ final class TestOpenSamlObjects {
 		try {
 			return encrypter.encrypt(assertion);
 		}
-		catch (EncryptionException e) {
-			throw new Saml2Exception("Unable to encrypt assertion.", e);
+		catch (EncryptionException ex) {
+			throw new Saml2Exception("Unable to encrypt assertion.", ex);
 		}
 	}
 
@@ -264,8 +264,8 @@ final class TestOpenSamlObjects {
 		try {
 			return encrypter.encrypt(nameId);
 		}
-		catch (EncryptionException e) {
-			throw new Saml2Exception("Unable to encrypt nameID.", e);
+		catch (EncryptionException ex) {
+			throw new Saml2Exception("Unable to encrypt nameID.", ex);
 		}
 	}
 
@@ -276,8 +276,8 @@ final class TestOpenSamlObjects {
 		try {
 			return encrypter.encrypt(nameId);
 		}
-		catch (EncryptionException e) {
-			throw new Saml2Exception("Unable to encrypt nameID.", e);
+		catch (EncryptionException ex) {
+			throw new Saml2Exception("Unable to encrypt nameID.", ex);
 		}
 	}
 

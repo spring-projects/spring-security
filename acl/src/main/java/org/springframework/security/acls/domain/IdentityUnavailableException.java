@@ -34,10 +34,10 @@ public class IdentityUnavailableException extends RuntimeException {
 	 * Constructs an <code>IdentityUnavailableException</code> with the specified message
 	 * and root cause.
 	 * @param msg the detail message
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public IdentityUnavailableException(String msg, Throwable t) {
-		super(msg, t);
+	public IdentityUnavailableException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
 
 }

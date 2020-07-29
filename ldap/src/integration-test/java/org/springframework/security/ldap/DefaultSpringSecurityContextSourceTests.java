@@ -85,7 +85,7 @@ public class DefaultSpringSecurityContextSourceTests {
 		try {
 			ctx = this.contextSource.getContext("uid=Bob,ou=people,dc=springframework,dc=org", "bobspassword");
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 		}
 		assertThat(ctx).isNotNull();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);

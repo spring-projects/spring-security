@@ -436,8 +436,8 @@ public class OpenSamlAuthenticationProviderTests {
 			Element element = marshaller.marshall(object);
 			return SerializeSupport.nodeToString(element);
 		}
-		catch (MarshallingException e) {
-			throw new Saml2Exception(e);
+		catch (MarshallingException ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
 

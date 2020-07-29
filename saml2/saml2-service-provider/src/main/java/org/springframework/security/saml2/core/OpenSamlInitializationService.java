@@ -119,8 +119,8 @@ public class OpenSamlInitializationService {
 			try {
 				InitializationService.initialize();
 			}
-			catch (Exception e) {
-				throw new Saml2Exception(e);
+			catch (Exception ex) {
+				throw new Saml2Exception(ex);
 			}
 
 			BasicParserPool parserPool = new BasicParserPool();
@@ -139,8 +139,8 @@ public class OpenSamlInitializationService {
 			try {
 				parserPool.initialize();
 			}
-			catch (Exception e) {
-				throw new Saml2Exception(e);
+			catch (Exception ex) {
+				throw new Saml2Exception(ex);
 			}
 			XMLObjectProviderRegistrySupport.setParserPool(parserPool);
 

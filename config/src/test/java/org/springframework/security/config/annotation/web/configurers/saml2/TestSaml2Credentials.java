@@ -64,8 +64,8 @@ public class TestSaml2Credentials {
 			return (X509Certificate) factory
 					.generateCertificate(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
 		}
-		catch (Exception e) {
-			throw new IllegalArgumentException(e);
+		catch (Exception ex) {
+			throw new IllegalArgumentException(ex);
 		}
 	}
 

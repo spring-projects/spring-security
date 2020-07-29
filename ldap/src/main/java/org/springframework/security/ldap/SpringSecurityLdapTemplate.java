@@ -197,8 +197,8 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 						extractStringAttributeValues(adapter, record, attr.getID());
 					}
 				}
-				catch (NamingException x) {
-					org.springframework.ldap.support.LdapUtils.convertLdapException(x);
+				catch (NamingException ex) {
+					org.springframework.ldap.support.LdapUtils.convertLdapException(ex);
 				}
 			}
 			else {
@@ -316,7 +316,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 				results.add(dca);
 			}
 		}
-		catch (PartialResultException e) {
+		catch (PartialResultException ex) {
 			LdapUtils.closeEnumeration(resultsEnum);
 			logger.info("Ignoring PartialResultException");
 		}

@@ -112,8 +112,8 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 		try {
 			SecretKeyFactory.getInstance(algorithmName);
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException("Invalid algorithm '" + algorithmName + "'.", e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalArgumentException("Invalid algorithm '" + algorithmName + "'.", ex);
 		}
 		this.algorithm = algorithmName;
 	}
@@ -163,8 +163,8 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 			SecretKeyFactory skf = SecretKeyFactory.getInstance(this.algorithm);
 			return EncodingUtils.concatenate(salt, skf.generateSecret(spec).getEncoded());
 		}
-		catch (GeneralSecurityException e) {
-			throw new IllegalStateException("Could not create hash", e);
+		catch (GeneralSecurityException ex) {
+			throw new IllegalStateException("Could not create hash", ex);
 		}
 	}
 

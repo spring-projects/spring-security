@@ -79,8 +79,8 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 			return TagLibConfig.evalOrSkip(this.authorized);
 
 		}
-		catch (IOException e) {
-			throw new JspException(e);
+		catch (IOException ex) {
+			throw new JspException(ex);
 		}
 	}
 
@@ -101,8 +101,8 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 				this.pageContext.getOut().write(TagLibConfig.getSecuredUiSuffix());
 			}
 		}
-		catch (IOException e) {
-			throw new JspException(e);
+		catch (IOException ex) {
+			throw new JspException(ex);
 		}
 
 		return EVAL_PAGE;

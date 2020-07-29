@@ -65,8 +65,8 @@ public class TestOAuth2AuthenticatedPrincipals {
 		try {
 			return new URL(url);
 		}
-		catch (IOException e) {
-			throw new UncheckedIOException(e);
+		catch (IOException ex) {
+			throw new UncheckedIOException(ex);
 		}
 	}
 

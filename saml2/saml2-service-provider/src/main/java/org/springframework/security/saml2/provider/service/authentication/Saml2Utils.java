@@ -51,8 +51,8 @@ final class Saml2Utils {
 			deflater.finish();
 			return b.toByteArray();
 		}
-		catch (IOException e) {
-			throw new Saml2Exception("Unable to deflate string", e);
+		catch (IOException ex) {
+			throw new Saml2Exception("Unable to deflate string", ex);
 		}
 	}
 
@@ -64,8 +64,8 @@ final class Saml2Utils {
 			iout.finish();
 			return new String(out.toByteArray(), StandardCharsets.UTF_8);
 		}
-		catch (IOException e) {
-			throw new Saml2Exception("Unable to inflate string", e);
+		catch (IOException ex) {
+			throw new Saml2Exception("Unable to inflate string", ex);
 		}
 	}
 

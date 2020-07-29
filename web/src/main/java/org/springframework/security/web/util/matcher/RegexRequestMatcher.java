@@ -120,7 +120,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 		try {
 			return HttpMethod.valueOf(method);
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException ex) {
 		}
 
 		return null;

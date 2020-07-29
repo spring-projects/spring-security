@@ -69,12 +69,12 @@ public class ApacheDSContainerTests {
 			try {
 				server1.destroy();
 			}
-			catch (Throwable t) {
+			catch (Throwable ex) {
 			}
 			try {
 				server2.destroy();
 			}
-			catch (Throwable t) {
+			catch (Throwable ex) {
 			}
 		}
 	}
@@ -95,12 +95,12 @@ public class ApacheDSContainerTests {
 			try {
 				server1.destroy();
 			}
-			catch (Throwable t) {
+			catch (Throwable ex) {
 			}
 			try {
 				server2.destroy();
 			}
-			catch (Throwable t) {
+			catch (Throwable ex) {
 			}
 		}
 	}
@@ -116,8 +116,8 @@ public class ApacheDSContainerTests {
 			server.afterPropertiesSet();
 			fail("Expected an IllegalArgumentException to be thrown.");
 		}
-		catch (IllegalArgumentException e) {
-			assertThat(e).hasMessage("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
+		catch (IllegalArgumentException ex) {
+			assertThat(ex).hasMessage("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
 		}
 	}
 
@@ -143,9 +143,9 @@ public class ApacheDSContainerTests {
 			server.afterPropertiesSet();
 			fail("Expected a RuntimeException to be thrown.");
 		}
-		catch (RuntimeException e) {
-			assertThat(e).hasMessage("Server startup failed");
-			assertThat(e).hasRootCauseInstanceOf(UnrecoverableKeyException.class);
+		catch (RuntimeException ex) {
+			assertThat(ex).hasMessage("Server startup failed");
+			assertThat(ex).hasRootCauseInstanceOf(UnrecoverableKeyException.class);
 		}
 	}
 
@@ -187,7 +187,7 @@ public class ApacheDSContainerTests {
 			try {
 				server.destroy();
 			}
-			catch (Throwable t) {
+			catch (Throwable ex) {
 			}
 		}
 	}

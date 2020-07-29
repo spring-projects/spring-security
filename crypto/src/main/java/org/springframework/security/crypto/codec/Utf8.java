@@ -43,8 +43,8 @@ public final class Utf8 {
 
 			return bytesCopy;
 		}
-		catch (CharacterCodingException e) {
-			throw new IllegalArgumentException("Encoding failed", e);
+		catch (CharacterCodingException ex) {
+			throw new IllegalArgumentException("Encoding failed", ex);
 		}
 	}
 
@@ -55,8 +55,8 @@ public final class Utf8 {
 		try {
 			return CHARSET.newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
 		}
-		catch (CharacterCodingException e) {
-			throw new IllegalArgumentException("Decoding failed", e);
+		catch (CharacterCodingException ex) {
+			throw new IllegalArgumentException("Decoding failed", ex);
 		}
 	}
 

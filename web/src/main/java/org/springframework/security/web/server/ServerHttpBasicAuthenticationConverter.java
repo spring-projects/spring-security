@@ -72,7 +72,7 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 		try {
 			return Base64.getDecoder().decode(value);
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 			return new byte[0];
 		}
 	}

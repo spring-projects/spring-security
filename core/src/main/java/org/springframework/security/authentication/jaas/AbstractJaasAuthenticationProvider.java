@@ -256,8 +256,8 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 								+ "The LoginContext is unavailable");
 					}
 				}
-				catch (LoginException e) {
-					this.log.warn("Error error logging out of LoginContext", e);
+				catch (LoginException ex) {
+					this.log.warn("Error error logging out of LoginContext", ex);
 				}
 			}
 		}

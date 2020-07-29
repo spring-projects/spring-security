@@ -114,7 +114,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 			attributes.put(OidcParameterNames.NONCE, nonce);
 			additionalParameters.put(OidcParameterNames.NONCE, this.nonceHash);
 		}
-		catch (NoSuchAlgorithmException e) {
+		catch (NoSuchAlgorithmException ex) {
 		}
 		this.authorizationRequest = TestOAuth2AuthorizationRequests.request().scope("openid", "profile", "email")
 				.attributes(attributes).additionalParameters(additionalParameters).build();

@@ -75,9 +75,9 @@ public class UnboundIdContainerLdifTests {
 			this.appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class);
 			failBecauseExceptionWasNotThrown(IllegalStateException.class);
 		}
-		catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+		catch (Exception ex) {
+			assertThat(ex.getCause()).isInstanceOf(IllegalStateException.class);
+			assertThat(ex.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
 		}
 	}
 
@@ -87,9 +87,9 @@ public class UnboundIdContainerLdifTests {
 			this.appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class);
 			failBecauseExceptionWasNotThrown(IllegalStateException.class);
 		}
-		catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:does-not-exist.ldif");
+		catch (Exception ex) {
+			assertThat(ex.getCause()).isInstanceOf(IllegalStateException.class);
+			assertThat(ex.getMessage()).contains("Unable to load LDIF classpath:does-not-exist.ldif");
 		}
 	}
 

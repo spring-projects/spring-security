@@ -42,8 +42,8 @@ public class XmlParser implements AutoCloseable {
 
 			return new XmlNode(dBuilder.parse(this.xml));
 		}
-		catch (IOException | ParserConfigurationException | SAXException e) {
-			throw new IllegalStateException(e);
+		catch (IOException | ParserConfigurationException | SAXException ex) {
+			throw new IllegalStateException(ex);
 		}
 	}
 

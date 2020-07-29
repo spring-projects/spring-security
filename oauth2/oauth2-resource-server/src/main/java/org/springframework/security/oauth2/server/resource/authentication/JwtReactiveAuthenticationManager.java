@@ -70,12 +70,12 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}
 
-	private AuthenticationException onError(JwtException e) {
-		if (e instanceof BadJwtException) {
-			return new InvalidBearerTokenException(e.getMessage(), e);
+	private AuthenticationException onError(JwtException ex) {
+		if (ex instanceof BadJwtException) {
+			return new InvalidBearerTokenException(ex.getMessage(), ex);
 		}
 		else {
-			return new AuthenticationServiceException(e.getMessage(), e);
+			return new AuthenticationServiceException(ex.getMessage(), ex);
 		}
 	}
 

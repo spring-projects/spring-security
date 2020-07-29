@@ -113,7 +113,7 @@ public class GlobalMethodSecurityConfigurationTests {
 		try {
 			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("foo", "bar"));
 		}
-		catch (AuthenticationException e) {
+		catch (AuthenticationException ex) {
 		}
 
 		assertThat(this.events.getEvents()).extracting(Object::getClass)

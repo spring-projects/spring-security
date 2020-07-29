@@ -39,8 +39,8 @@ public class TestKeys {
 		try {
 			kf = KeyFactory.getInstance("RSA");
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException(e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalStateException(ex);
 		}
 	}
 
@@ -63,8 +63,8 @@ public class TestKeys {
 		try {
 			return (RSAPublicKey) kf.generatePublic(spec);
 		}
-		catch (InvalidKeySpecException e) {
-			throw new IllegalArgumentException(e);
+		catch (InvalidKeySpecException ex) {
+			throw new IllegalArgumentException(ex);
 		}
 	}
 
@@ -101,8 +101,8 @@ public class TestKeys {
 		try {
 			return (RSAPrivateKey) kf.generatePrivate(spec);
 		}
-		catch (InvalidKeySpecException e) {
-			throw new IllegalArgumentException(e);
+		catch (InvalidKeySpecException ex) {
+			throw new IllegalArgumentException(ex);
 		}
 	}
 

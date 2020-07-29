@@ -365,11 +365,11 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 			this.provider.contextFactory = createContextFactoryThrowing(new CommunicationException(msg));
 			this.provider.authenticate(this.joe);
 		}
-		catch (InternalAuthenticationServiceException e) {
+		catch (InternalAuthenticationServiceException ex) {
 			// Since GH-8418 ldap communication exception is wrapped into
 			// InternalAuthenticationServiceException.
 			// This test is about the wrapped exception, so we throw it.
-			throw e.getCause();
+			throw ex.getCause();
 		}
 	}
 
@@ -419,11 +419,11 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 		}
 	}
 
-	ContextFactory createContextFactoryThrowing(final NamingException e) {
+	ContextFactory createContextFactoryThrowing(final NamingException ex) {
 		return new ContextFactory() {
 			@Override
 			DirContext createContext(Hashtable<?, ?> env) throws NamingException {
-				throw e;
+				throw ex;
 			}
 		};
 	}

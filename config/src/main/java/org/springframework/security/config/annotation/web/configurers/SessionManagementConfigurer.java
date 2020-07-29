@@ -560,7 +560,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		try {
 			return context.getBean(type);
 		}
-		catch (NoSuchBeanDefinitionException e) {
+		catch (NoSuchBeanDefinitionException ex) {
 			return null;
 		}
 	}

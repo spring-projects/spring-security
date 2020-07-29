@@ -40,8 +40,8 @@ public class KeyBasedPersistenceTokenServiceTests {
 			service.setSecureRandom(rnd);
 			service.afterPropertiesSet();
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 		return service;
 	}

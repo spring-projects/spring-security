@@ -39,8 +39,8 @@ abstract class AbstractCsrfTag extends TagSupport {
 			try {
 				this.pageContext.getOut().write(this.handleToken(token));
 			}
-			catch (IOException e) {
-				throw new JspException(e);
+			catch (IOException ex) {
+				throw new JspException(ex);
 			}
 		}
 

@@ -111,7 +111,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		try {
 			x509Certificate.setValue(new String(Base64.getEncoder().encode(certificate.getEncoded())));
 		}
-		catch (CertificateEncodingException e) {
+		catch (CertificateEncodingException ex) {
 			throw new Saml2Exception("Cannot encode certificate " + certificate.toString());
 		}
 
@@ -145,8 +145,8 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 			Element element = this.entityDescriptorMarshaller.marshall(entityDescriptor);
 			return SerializeSupport.prettyPrintXML(element);
 		}
-		catch (Exception e) {
-			throw new Saml2Exception(e);
+		catch (Exception ex) {
+			throw new Saml2Exception(ex);
 		}
 	}
 

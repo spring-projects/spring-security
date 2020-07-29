@@ -62,7 +62,7 @@ public class RedirectServerAuthenticationEntryPoint implements ServerAuthenticat
 	}
 
 	@Override
-	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
+	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
 		return this.requestCache.saveRequest(exchange)
 				.then(this.redirectStrategy.sendRedirect(exchange, this.location));
 	}
