@@ -45,7 +45,7 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	public static final String USER_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.core.userdetails.User\", "
 		+ "\"username\": \"admin\","
-		+ " \"password\": "+ USER_PASSWORD +", "
+		+ " \"password\": " + USER_PASSWORD + ", "
 		+ "\"accountNonExpired\": true, "
 		+ "\"accountNonLocked\": true, "
 		+ "\"credentialsNonExpired\": true, "

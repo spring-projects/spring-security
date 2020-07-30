@@ -57,8 +57,7 @@ class CookieDeserializer extends JsonDeserializer<Cookie> {
 	}
 
 	private JsonNode readJsonNode(JsonNode jsonNode, String field) {
-		return hasNonNullField(jsonNode, field) ? jsonNode.get(field)
-				: MissingNode.getInstance();
+		return hasNonNullField(jsonNode, field) ? jsonNode.get(field) : MissingNode.getInstance();
 	}
 
 	private boolean hasNonNullField(JsonNode jsonNode, String field) {

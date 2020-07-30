@@ -3,8 +3,6 @@
 		"-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
 		"https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-	<suppress files=".*" checks="WhitespaceAfter" />
-	<suppress files=".*" checks="WhitespaceAround" />
 	<suppress files=".*" checks="JavadocMethod" />
 	<suppress files=".*" checks="JavadocStyle" />
 	<suppress files=".*" checks="JavadocTagContinuationIndentation" />

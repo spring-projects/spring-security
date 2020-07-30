@@ -41,7 +41,7 @@ public class PreAuthenticatedAuthenticationTokenMixinTests extends AbstractMixin
 		+ "\"credentials\": \"credentials\", "
 		+ "\"authenticated\": true, "
 		+ "\"details\": null, "
-		+ "\"authorities\": "+ SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
+		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
 

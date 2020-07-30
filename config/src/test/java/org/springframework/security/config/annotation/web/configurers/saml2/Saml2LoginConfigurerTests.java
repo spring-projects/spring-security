@@ -349,7 +349,8 @@ public class Saml2LoginConfigurerTests {
 				.authorizeRequests((authz) -> authz
 					.anyRequest().authenticated()
 				)
-				.saml2Login((saml2) -> {});
+				.saml2Login((saml2) -> {
+				});
 			// @formatter:on
 		}
 
