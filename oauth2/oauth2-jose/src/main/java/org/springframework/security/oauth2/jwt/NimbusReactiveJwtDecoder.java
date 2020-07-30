@@ -15,17 +15,6 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.security.interfaces.RSAPublicKey;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import javax.crypto.SecretKey;
-
 import com.nimbusds.jose.Header;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -47,28 +36,41 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
- * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
- * JSON Web Token (JWT) and additionally verifies it's digital signature if the JWT is a
- * JSON Web Signature (JWS).
- *
- * <p>
- * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK internally.
- *
- * @author Rob Winch
- * @author Joe Grandja
+* An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
+* JSON Web Token (JWT) and additionally verifies it's digital signature if the JWT is a
+* JSON Web Signature (JWS).
+*
+* <p>
+* <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK internally.
+*
+* @author Rob Winch
+* @author Joe Grandja
  * @since 5.1
  * @see ReactiveJwtDecoder
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
@@ -178,10 +180,16 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private Jwt validateJwt(Jwt jwt) {
 		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
-
-		if ( result.hasErrors() ) {
-			String message = result.getErrors().iterator().next().getDescription();
-			throw new JwtValidationException(message, result.getErrors());
+		if (result.hasErrors()) {
+			Collection<OAuth2Error> errors = result.getErrors();
+			String validationErrorString = "Unable to validate Jwt";
+			for (OAuth2Error oAuth2Error : errors) {
+				if (!StringUtils.isEmpty(oAuth2Error.getDescription())) {
+					validationErrorString = oAuth2Error.getDescription();
+					break;
+				}
+			}
+			throw new JwtValidationException(validationErrorString, errors);
 		}
 
 		return jwt;

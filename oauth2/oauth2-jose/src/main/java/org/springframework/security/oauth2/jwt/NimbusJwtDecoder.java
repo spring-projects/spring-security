@@ -22,6 +22,7 @@ import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,11 +56,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -167,9 +170,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	private Jwt validateJwt(Jwt jwt){
 		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
 		if (result.hasErrors()) {
-			String description = result.getErrors().iterator().next().getDescription();
+			Collection<OAuth2Error> errors = result.getErrors();
+			String validationErrorString = "Unable to validate Jwt";
+			for (OAuth2Error oAuth2Error : errors) {
+				if (!StringUtils.isEmpty(oAuth2Error.getDescription())) {
+					validationErrorString = String.format(
+							DECODING_ERROR_MESSAGE_TEMPLATE, oAuth2Error.getDescription());
+					break;
+				}
+			}
 			throw new JwtValidationException(
-					String.format(DECODING_ERROR_MESSAGE_TEMPLATE, description),
+					validationErrorString,
 					result.getErrors());
 		}
 
