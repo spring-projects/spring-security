@@ -1907,7 +1907,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		@Bean
-		public JwtDecoder decoder() {
+		JwtDecoder decoder() {
 			return mock(JwtDecoder.class);
 		}
 
@@ -1930,7 +1930,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		@Bean
-		public AuthenticationProvider authenticationProvider() {
+		AuthenticationProvider authenticationProvider() {
 			return mock(AuthenticationProvider.class);
 		}
 
@@ -1955,7 +1955,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:on
 		}
 
-		public OAuth2TokenValidator<Jwt> getJwtValidator() {
+		OAuth2TokenValidator<Jwt> getJwtValidator() {
 			return this.jwtValidator;
 		}
 
@@ -2122,7 +2122,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		@Bean
-		public AuthenticationProvider authenticationProvider() {
+		AuthenticationProvider authenticationProvider() {
 			return mock(AuthenticationProvider.class);
 		}
 
@@ -2150,7 +2150,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		@Bean
-		public AuthenticationProvider authenticationProvider() {
+		AuthenticationProvider authenticationProvider() {
 			return mock(AuthenticationProvider.class);
 		}
 
@@ -2234,7 +2234,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	static class JwtDecoderConfig {
 
 		@Bean
-		public JwtDecoder jwtDecoder() {
+		JwtDecoder jwtDecoder() {
 			return mock(JwtDecoder.class);
 		}
 
@@ -2244,35 +2244,35 @@ public class OAuth2ResourceServerConfigurerTests {
 	static class BasicController {
 
 		@GetMapping("/")
-		public String get() {
+		String get() {
 			return "ok";
 		}
 
 		@PostMapping("/post")
-		public String post() {
+		String post() {
 			return "post";
 		}
 
 		@RequestMapping(value = "/authenticated", method = { RequestMethod.GET, RequestMethod.POST })
-		public String authenticated(Authentication authentication) {
+		String authenticated(Authentication authentication) {
 			return authentication.getName();
 		}
 
 		@GetMapping("/requires-read-scope")
-		public String requiresReadScope(JwtAuthenticationToken token) {
+		String requiresReadScope(JwtAuthenticationToken token) {
 			return token.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())
 					.toString();
 		}
 
 		@GetMapping("/ms-requires-read-scope")
 		@PreAuthorize("hasAuthority('SCOPE_message:read')")
-		public String msRequiresReadScope(JwtAuthenticationToken token) {
+		String msRequiresReadScope(JwtAuthenticationToken token) {
 			return requiresReadScope(token);
 		}
 
 		@GetMapping("/ms-deny")
 		@PreAuthorize("denyAll")
-		public String deny() {
+		String deny() {
 			return "hmm, that's odd";
 		}
 
@@ -2284,7 +2284,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		private final MockWebServer server = new MockWebServer();
 
 		@PreDestroy
-		public void shutdown() throws IOException {
+		void shutdown() throws IOException {
 			this.server.shutdown();
 		}
 
@@ -2297,7 +2297,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		@Bean
-		public MockWebServer web() {
+		MockWebServer web() {
 			return this.server;
 		}
 
@@ -2354,7 +2354,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			this.token = token;
 		}
 
-		public BearerTokenRequestPostProcessor asParam() {
+		BearerTokenRequestPostProcessor asParam() {
 			this.asRequestParameter = true;
 			return this;
 		}

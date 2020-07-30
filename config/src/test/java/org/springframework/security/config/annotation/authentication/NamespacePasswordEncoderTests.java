@@ -104,7 +104,7 @@ public class NamespacePasswordEncoderTests {
 		}
 
 		@Bean
-		public DataSource dataSource() {
+		DataSource dataSource() {
 			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
@@ -133,7 +133,7 @@ public class NamespacePasswordEncoderTests {
 		}
 
 		@Bean
-		public DataSource dataSource() {
+		DataSource dataSource() {
 			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}

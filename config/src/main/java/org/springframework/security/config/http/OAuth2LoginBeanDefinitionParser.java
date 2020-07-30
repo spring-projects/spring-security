@@ -455,7 +455,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		@SuppressWarnings({ "unchecked", "unused" })
-		public Map<String, String> getLoginLinks() {
+		Map<String, String> getLoginLinks() {
 			Iterable<ClientRegistration> clientRegistrations = null;
 			ClientRegistrationRepository clientRegistrationRepository = this.context
 					.getBean(ClientRegistrationRepository.class);

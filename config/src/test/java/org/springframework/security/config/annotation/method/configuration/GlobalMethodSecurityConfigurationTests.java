@@ -340,12 +340,12 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class CustomTrustResolverConfig {
 
 		@Bean
-		public AuthenticationTrustResolver trustResolver() {
+		AuthenticationTrustResolver trustResolver() {
 			return mock(AuthenticationTrustResolver.class);
 		}
 
 		@Bean
-		public MethodSecurityServiceImpl service() {
+		MethodSecurityServiceImpl service() {
 			return new MethodSecurityServiceImpl();
 		}
 
@@ -355,12 +355,12 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class ExpressionHandlerHasBeanResolverSetConfig {
 
 		@Bean
-		public MethodSecurityServiceImpl service() {
+		MethodSecurityServiceImpl service() {
 			return new MethodSecurityServiceImpl();
 		}
 
 		@Bean
-		public Authz authz() {
+		Authz authz() {
 			return new Authz();
 		}
 
@@ -370,7 +370,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class MethodSecurityServiceConfig {
 
 		@Bean
-		public MethodSecurityService service() {
+		MethodSecurityService service() {
 			return new MethodSecurityServiceImpl();
 		}
 
@@ -380,12 +380,12 @@ public class GlobalMethodSecurityConfigurationTests {
 	public static class AutowirePermissionEvaluatorConfig {
 
 		@Bean
-		public PermissionEvaluator permissionEvaluator() {
+		PermissionEvaluator permissionEvaluator() {
 			return mock(PermissionEvaluator.class);
 		}
 
 		@Bean
-		public MethodSecurityService service() {
+		MethodSecurityService service() {
 			return new MethodSecurityServiceImpl();
 		}
 
@@ -395,12 +395,12 @@ public class GlobalMethodSecurityConfigurationTests {
 	public static class MultiPermissionEvaluatorConfig {
 
 		@Bean
-		public PermissionEvaluator permissionEvaluator() {
+		PermissionEvaluator permissionEvaluator() {
 			return mock(PermissionEvaluator.class);
 		}
 
 		@Bean
-		public PermissionEvaluator permissionEvaluator2() {
+		PermissionEvaluator permissionEvaluator2() {
 			return mock(PermissionEvaluator.class);
 		}
 
@@ -415,7 +415,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class ParentConfig {
 
 		@Bean
-		public MethodSecurityService service() {
+		MethodSecurityService service() {
 			return new MethodSecurityServiceImpl();
 		}
 
@@ -425,7 +425,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class Sec2479ParentConfig {
 
 		@Bean
-		public AuthenticationManager am() {
+		AuthenticationManager am() {
 			return mock(AuthenticationManager.class);
 		}
 
@@ -435,7 +435,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class Sec2479ChildConfig {
 
 		@Bean
-		public MethodSecurityService service() {
+		MethodSecurityService service() {
 			return new MethodSecurityServiceImpl();
 		}
 
@@ -445,17 +445,17 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class Sec2815Config {
 
 		@Bean
-		public MethodSecurityService service() {
+		MethodSecurityService service() {
 			return new MethodSecurityServiceImpl();
 		}
 
 		@Bean
-		public MockBeanPostProcessor mockBeanPostProcessor() {
+		MockBeanPostProcessor mockBeanPostProcessor() {
 			return new MockBeanPostProcessor();
 		}
 
 		@Bean
-		public DataSource dataSource() {
+		DataSource dataSource() {
 			return mock(DataSource.class);
 		}
 
@@ -499,12 +499,12 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class Sec3005Config {
 
 		@Bean
-		public MethodSecurityService service() {
+		MethodSecurityService service() {
 			return new MethodSecurityServiceImpl();
 		}
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication();
 		}
 
@@ -548,24 +548,24 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class CustomGrantedAuthorityConfig {
 
 		@Bean
-		public GrantedAuthorityDefaults ga() {
+		GrantedAuthorityDefaults ga() {
 			return new GrantedAuthorityDefaults("ROLE:");
 		}
 
 		@Bean
-		public CustomAuthorityService service() {
+		CustomAuthorityService service() {
 			return new CustomAuthorityService();
 		}
 
 		@Bean
-		public MethodSecurityServiceImpl methodSecurityService() {
+		MethodSecurityServiceImpl methodSecurityService() {
 			return new MethodSecurityServiceImpl();
 		}
 
 		static class CustomAuthorityService {
 
 			@PreAuthorize("hasRole('ROLE:USER')")
-			public void customPrefixRoleUser() {
+			void customPrefixRoleUser() {
 			}
 
 		}
@@ -576,24 +576,24 @@ public class GlobalMethodSecurityConfigurationTests {
 	static class EmptyRolePrefixGrantedAuthorityConfig {
 
 		@Bean
-		public GrantedAuthorityDefaults ga() {
+		GrantedAuthorityDefaults ga() {
 			return new GrantedAuthorityDefaults("");
 		}
 
 		@Bean
-		public CustomAuthorityService service() {
+		CustomAuthorityService service() {
 			return new CustomAuthorityService();
 		}
 
 		@Bean
-		public MethodSecurityServiceImpl methodSecurityService() {
+		MethodSecurityServiceImpl methodSecurityService() {
 			return new MethodSecurityServiceImpl();
 		}
 
 		static class CustomAuthorityService {
 
 			@Secured("USER")
-			public void emptyPrefixRoleUser() {
+			void emptyPrefixRoleUser() {
 			}
 
 		}

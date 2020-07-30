@@ -168,7 +168,7 @@ public class HttpSecurityConfigurationTests {
 	static class NameController {
 
 		@GetMapping("/name")
-		public Callable<String> name() {
+		Callable<String> name() {
 			return () -> SecurityContextHolder.getContext().getAuthentication().getName();
 		}
 
@@ -178,7 +178,7 @@ public class HttpSecurityConfigurationTests {
 	static class DefaultWithFilterChainConfig {
 
 		@Bean
-		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			return http.build();
 		}
 
@@ -188,7 +188,7 @@ public class HttpSecurityConfigurationTests {
 	static class AuthorizeRequestsConfig {
 
 		@Bean
-		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			return http.authorizeRequests((authorize) -> authorize.anyRequest().permitAll()).build();
 		}
 
@@ -198,7 +198,7 @@ public class HttpSecurityConfigurationTests {
 	static class SecurityEnabledConfig {
 
 		@Bean
-		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			return http.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
 					.formLogin(withDefaults()).build();
 		}
@@ -209,7 +209,7 @@ public class HttpSecurityConfigurationTests {
 	static class UserDetailsConfig {
 
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER")
 					.build();
 			return new InMemoryUserDetailsManager(user);
@@ -221,7 +221,7 @@ public class HttpSecurityConfigurationTests {
 	static class BaseController {
 
 		@GetMapping("/")
-		public void index() {
+		void index() {
 		}
 
 	}
@@ -230,7 +230,7 @@ public class HttpSecurityConfigurationTests {
 	static class UserController {
 
 		@GetMapping("/user")
-		public void user(HttpServletRequest request) {
+		void user(HttpServletRequest request) {
 			if (!request.isUserInRole("USER")) {
 				throw new AccessDeniedException("This resource is only available to users");
 			}

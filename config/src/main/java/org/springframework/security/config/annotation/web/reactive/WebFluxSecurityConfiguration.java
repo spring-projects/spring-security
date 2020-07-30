@@ -65,17 +65,17 @@ class WebFluxSecurityConfiguration {
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(WEB_FILTER_CHAIN_FILTER_ORDER)
-	public WebFilterChainProxy springSecurityWebFilterChainFilter() {
+	WebFilterChainProxy springSecurityWebFilterChainFilter() {
 		return new WebFilterChainProxy(getSecurityWebFilterChains());
 	}
 
 	@Bean(name = AbstractView.REQUEST_DATA_VALUE_PROCESSOR_BEAN_NAME)
-	public CsrfRequestDataValueProcessor requestDataValueProcessor() {
+	CsrfRequestDataValueProcessor requestDataValueProcessor() {
 		return new CsrfRequestDataValueProcessor();
 	}
 
 	@Bean
-	public static BeanFactoryPostProcessor conversionServicePostProcessor() {
+	static BeanFactoryPostProcessor conversionServicePostProcessor() {
 		return new RsaKeyConversionServicePostProcessor();
 	}
 

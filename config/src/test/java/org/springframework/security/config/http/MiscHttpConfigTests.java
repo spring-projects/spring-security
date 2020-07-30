@@ -751,12 +751,12 @@ public class MiscHttpConfigTests {
 	static class BasicController {
 
 		@RequestMapping("/unprotected")
-		public String unprotected() {
+		String unprotected() {
 			return "ok";
 		}
 
 		@RequestMapping("/protected")
-		public String protectedMethod(@AuthenticationPrincipal String name) {
+		String protectedMethod(@AuthenticationPrincipal String name) {
 			return name;
 		}
 
@@ -766,7 +766,7 @@ public class MiscHttpConfigTests {
 	static class CustomKeyController {
 
 		@GetMapping("/customKey")
-		public String customKey() {
+		String customKey() {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 			if (authentication != null && authentication instanceof AnonymousAuthenticationToken) {
@@ -782,18 +782,18 @@ public class MiscHttpConfigTests {
 	static class AuthenticationController {
 
 		@GetMapping("/password")
-		public String password(@AuthenticationPrincipal Authentication authentication) {
+		String password(@AuthenticationPrincipal Authentication authentication) {
 			return (String) authentication.getCredentials();
 		}
 
 		@GetMapping("/roles")
-		public String roles(@AuthenticationPrincipal Authentication authentication) {
+		String roles(@AuthenticationPrincipal Authentication authentication) {
 			return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 					.collect(Collectors.joining(","));
 		}
 
 		@GetMapping("/details")
-		public String details(@AuthenticationPrincipal Authentication authentication) {
+		String details(@AuthenticationPrincipal Authentication authentication) {
 			return authentication.getDetails().getClass().getName();
 		}
 
@@ -803,7 +803,7 @@ public class MiscHttpConfigTests {
 	static class JaasController {
 
 		@GetMapping("/username")
-		public String username() {
+		String username() {
 			Subject subject = Subject.getSubject(AccessController.getContext());
 			return subject.getPrincipals().iterator().next().getName();
 		}

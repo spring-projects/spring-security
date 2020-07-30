@@ -93,7 +93,7 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 		static class Controller {
 
 			@RequestMapping("/")
-			public String ok() {
+			String ok() {
 				return "ok";
 			}
 

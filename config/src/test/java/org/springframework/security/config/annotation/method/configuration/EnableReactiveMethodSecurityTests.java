@@ -470,12 +470,12 @@ public class EnableReactiveMethodSecurityTests {
 		ReactiveMessageService delegate = mock(ReactiveMessageService.class);
 
 		@Bean
-		public DelegatingReactiveMessageService defaultMessageService() {
+		DelegatingReactiveMessageService defaultMessageService() {
 			return new DelegatingReactiveMessageService(this.delegate);
 		}
 
 		@Bean
-		public Authz authz() {
+		Authz authz() {
 			return new Authz();
 		}
 

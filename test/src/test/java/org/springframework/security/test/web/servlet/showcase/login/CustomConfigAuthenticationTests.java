@@ -117,7 +117,7 @@ public class CustomConfigAuthenticationTests {
 		// @formatter:on
 
 		@Bean
-		public SecurityContextRepository securityContextRepository() {
+		SecurityContextRepository securityContextRepository() {
 			HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 			repo.setSpringSecurityContextKey("CUSTOM");
 			return repo;

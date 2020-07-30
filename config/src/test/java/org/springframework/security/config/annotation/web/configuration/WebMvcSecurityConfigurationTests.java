@@ -106,18 +106,18 @@ public class WebMvcSecurityConfigurationTests {
 	static class TestController {
 
 		@RequestMapping("/authentication-principal")
-		public ModelAndView authenticationPrincipal(@AuthenticationPrincipal String principal) {
+		ModelAndView authenticationPrincipal(@AuthenticationPrincipal String principal) {
 			return new ModelAndView("authentication-principal-view", "result", principal);
 		}
 
 		@RequestMapping("/deprecated-authentication-principal")
-		public ModelAndView deprecatedAuthenticationPrincipal(
+		ModelAndView deprecatedAuthenticationPrincipal(
 				@org.springframework.security.web.bind.annotation.AuthenticationPrincipal String principal) {
 			return new ModelAndView("deprecated-authentication-principal-view", "result", principal);
 		}
 
 		@RequestMapping("/csrf")
-		public ModelAndView csrf(CsrfToken token) {
+		ModelAndView csrf(CsrfToken token) {
 			return new ModelAndView("view", "result", token);
 		}
 
@@ -129,7 +129,7 @@ public class WebMvcSecurityConfigurationTests {
 	static class Config {
 
 		@Bean
-		public TestController testController() {
+		TestController testController() {
 			return new TestController();
 		}
 

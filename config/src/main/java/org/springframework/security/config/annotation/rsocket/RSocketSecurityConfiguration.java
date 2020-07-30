@@ -60,7 +60,7 @@ class RSocketSecurityConfiguration {
 
 	@Bean(name = RSOCKET_SECURITY_BEAN_NAME)
 	@Scope("prototype")
-	public RSocketSecurity rsocketSecurity(ApplicationContext context) {
+	RSocketSecurity rsocketSecurity(ApplicationContext context) {
 		RSocketSecurity security = new RSocketSecurity().authenticationManager(authenticationManager());
 		security.setApplicationContext(context);
 		return security;

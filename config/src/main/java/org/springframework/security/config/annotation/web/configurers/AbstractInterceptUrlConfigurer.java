@@ -61,12 +61,15 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * @see ExpressionUrlAuthorizationConfigurer
  * @see UrlAuthorizationConfigurer
  */
-abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConfigurer<C, H>, H extends HttpSecurityBuilder<H>>
+public abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConfigurer<C, H>, H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<C, H> {
 
 	private Boolean filterSecurityInterceptorOncePerRequest;
 
 	private AccessDecisionManager accessDecisionManager;
+
+	AbstractInterceptUrlConfigurer() {
+	}
 
 	@Override
 	public void configure(H http) throws Exception {
@@ -145,8 +148,11 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 		return securityInterceptor;
 	}
 
-	abstract class AbstractInterceptUrlRegistry<R extends AbstractInterceptUrlRegistry<R, T>, T>
+	public abstract class AbstractInterceptUrlRegistry<R extends AbstractInterceptUrlRegistry<R, T>, T>
 			extends AbstractConfigAttributeRequestMatcherRegistry<T> {
+
+		AbstractInterceptUrlRegistry() {
+		}
 
 		/**
 		 * Allows setting the {@link AccessDecisionManager}. If none is provided, a

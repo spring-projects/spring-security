@@ -58,7 +58,7 @@ final class HtmlUnitWebTestClient {
 		this.webTestClient = webTestClient.mutate().filter(new FollowRedirects()).filter(new CookieManager()).build();
 	}
 
-	public FluxExchangeResult<String> getResponse(WebRequest webRequest) {
+	FluxExchangeResult<String> getResponse(WebRequest webRequest) {
 		WebTestClient.RequestBodySpec request = this.webTestClient.method(httpMethod(webRequest)).uri(uri(webRequest));
 		contentType(request, webRequest);
 		cookies(request, webRequest);

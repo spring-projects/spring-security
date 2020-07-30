@@ -265,20 +265,20 @@ public class OAuth2ClientConfigurerTests {
 		}
 
 		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository() {
+		ClientRegistrationRepository clientRegistrationRepository() {
 			return clientRegistrationRepository;
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return authorizedClientRepository;
 		}
 
 		@RestController
-		public class ResourceController {
+		class ResourceController {
 
 			@GetMapping("/resource1")
-			public String resource1(
+			String resource1(
 					@RegisteredOAuth2AuthorizedClient("registration-1") OAuth2AuthorizedClient authorizedClient) {
 				return "resource1";
 			}
@@ -304,12 +304,12 @@ public class OAuth2ClientConfigurerTests {
 		}
 
 		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository() {
+		ClientRegistrationRepository clientRegistrationRepository() {
 			return clientRegistrationRepository;
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return authorizedClientRepository;
 		}
 

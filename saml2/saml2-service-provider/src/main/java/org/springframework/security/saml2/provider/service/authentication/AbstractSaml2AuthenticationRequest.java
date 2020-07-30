@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  * @see Saml2AuthenticationRequestFactory#createPostAuthenticationRequest(Saml2AuthenticationRequestContext)
  * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
  */
-abstract class AbstractSaml2AuthenticationRequest {
+public abstract class AbstractSaml2AuthenticationRequest {
 
 	private final String samlRequest;
 
@@ -96,7 +96,7 @@ abstract class AbstractSaml2AuthenticationRequest {
 	/**
 	 * A builder for {@link AbstractSaml2AuthenticationRequest} and its subclasses.
 	 */
-	static class Builder<T extends Builder<T>> {
+	public static class Builder<T extends Builder<T>> {
 
 		String authenticationRequestUri;
 

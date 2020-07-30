@@ -86,15 +86,12 @@ public class WithUserDetailsTests {
 	static class Config {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-					.userDetailsService(myUserDetailsService());
-			// @formatter:on
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth.userDetailsService(myUserDetailsService());
 		}
 
 		@Bean
-		public UserDetailsService myUserDetailsService() {
+		UserDetailsService myUserDetailsService() {
 			return new CustomUserDetailsService();
 		}
 

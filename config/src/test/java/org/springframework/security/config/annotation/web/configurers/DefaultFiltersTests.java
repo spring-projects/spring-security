@@ -139,7 +139,7 @@ public class DefaultFiltersTests {
 	static class FilterChainProxyBuilderMissingConfig {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()
@@ -153,7 +153,7 @@ public class DefaultFiltersTests {
 	static class UserDetailsServiceConfig {
 
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user(), PasswordEncodedUser.admin());
 		}
 

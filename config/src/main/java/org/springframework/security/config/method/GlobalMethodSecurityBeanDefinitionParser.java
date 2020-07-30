@@ -514,7 +514,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 		private Jsr250MethodSecurityMetadataSource source = new Jsr250MethodSecurityMetadataSource();
 
-		public Jsr250MethodSecurityMetadataSource getBean() {
+		Jsr250MethodSecurityMetadataSource getBean() {
 			this.source.setDefaultRolePrefix(this.rolePrefix);
 			return this.source;
 		}
@@ -525,7 +525,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 		private DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
 
-		public DefaultMethodSecurityExpressionHandler getBean() {
+		DefaultMethodSecurityExpressionHandler getBean() {
 			this.handler.setDefaultRolePrefix(this.rolePrefix);
 			return this.handler;
 		}

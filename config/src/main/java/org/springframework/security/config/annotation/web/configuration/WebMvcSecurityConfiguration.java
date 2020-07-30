@@ -66,7 +66,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	}
 
 	@Bean
-	public RequestDataValueProcessor requestDataValueProcessor() {
+	RequestDataValueProcessor requestDataValueProcessor() {
 		return new CsrfRequestDataValueProcessor();
 	}
 

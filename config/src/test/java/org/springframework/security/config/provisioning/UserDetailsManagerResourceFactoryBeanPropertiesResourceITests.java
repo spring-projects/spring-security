@@ -47,7 +47,7 @@ public class UserDetailsManagerResourceFactoryBeanPropertiesResourceITests {
 	static class Config {
 
 		@Bean
-		public UserDetailsManagerResourceFactoryBean userDetailsService() {
+		UserDetailsManagerResourceFactoryBean userDetailsService() {
 			return UserDetailsManagerResourceFactoryBean.fromResource(new InMemoryResource("user=password,ROLE_USER"));
 		}
 

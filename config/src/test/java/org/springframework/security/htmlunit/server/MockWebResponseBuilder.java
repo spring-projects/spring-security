@@ -50,7 +50,7 @@ final class MockWebResponseBuilder {
 		this.exchangeResult = exchangeResult;
 	}
 
-	public WebResponse build() throws IOException {
+	WebResponse build() throws IOException {
 		WebResponseData webResponseData = webResponseData();
 		long endTime = System.currentTimeMillis();
 		return new WebResponse(webResponseData, this.webRequest, endTime - this.startTime);

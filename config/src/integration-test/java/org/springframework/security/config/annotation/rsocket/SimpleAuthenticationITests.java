@@ -121,19 +121,19 @@ public class SimpleAuthenticationITests {
 	static class Config {
 
 		@Bean
-		public ServerController controller() {
+		ServerController controller() {
 			return new ServerController();
 		}
 
 		@Bean
-		public RSocketMessageHandler messageHandler() {
+		RSocketMessageHandler messageHandler() {
 			RSocketMessageHandler handler = new RSocketMessageHandler();
 			handler.setRSocketStrategies(rsocketStrategies());
 			return handler;
 		}
 
 		@Bean
-		public RSocketStrategies rsocketStrategies() {
+		RSocketStrategies rsocketStrategies() {
 			return RSocketStrategies.builder().encoder(new SimpleAuthenticationEncoder()).build();
 		}
 

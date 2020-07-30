@@ -176,11 +176,11 @@ public class FilterInvocation {
 			return null;
 		}
 
-		public void setRequestURI(String requestURI) {
+		void setRequestURI(String requestURI) {
 			this.requestURI = requestURI;
 		}
 
-		public void setPathInfo(String pathInfo) {
+		void setPathInfo(String pathInfo) {
 			this.pathInfo = pathInfo;
 		}
 
@@ -189,7 +189,7 @@ public class FilterInvocation {
 			return this.requestURI;
 		}
 
-		public void setContextPath(String contextPath) {
+		void setContextPath(String contextPath) {
 			this.contextPath = contextPath;
 		}
 
@@ -198,7 +198,7 @@ public class FilterInvocation {
 			return this.contextPath;
 		}
 
-		public void setServletPath(String servletPath) {
+		void setServletPath(String servletPath) {
 			this.servletPath = servletPath;
 		}
 
@@ -207,7 +207,7 @@ public class FilterInvocation {
 			return this.servletPath;
 		}
 
-		public void setMethod(String method) {
+		void setMethod(String method) {
 			this.method = method;
 		}
 
@@ -226,7 +226,7 @@ public class FilterInvocation {
 			return this.queryString;
 		}
 
-		public void setQueryString(String queryString) {
+		void setQueryString(String queryString) {
 			this.queryString = queryString;
 		}
 
@@ -261,7 +261,7 @@ public class FilterInvocation {
 			}
 		}
 
-		public void addHeader(String name, String value) {
+		void addHeader(String name, String value) {
 			this.headers.add(name, value);
 		}
 
@@ -286,7 +286,7 @@ public class FilterInvocation {
 			return this.parameters.get(name);
 		}
 
-		public void setParameter(String name, String... values) {
+		void setParameter(String name, String... values) {
 			this.parameters.put(name, values);
 		}
 

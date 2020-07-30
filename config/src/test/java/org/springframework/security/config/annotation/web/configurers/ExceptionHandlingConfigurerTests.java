@@ -267,7 +267,7 @@ public class ExceptionHandlingConfigurerTests {
 	static class DefaultSecurityConfig {
 
 		@Bean
-		public InMemoryUserDetailsManager userDetailsManager() {
+		InMemoryUserDetailsManager userDetailsManager() {
 			// @formatter:off
 			return new InMemoryUserDetailsManager(User.withDefaultPasswordEncoder()
 				.username("user")
@@ -310,7 +310,7 @@ public class ExceptionHandlingConfigurerTests {
 		static ContentNegotiationStrategy CNS = mock(ContentNegotiationStrategy.class);
 
 		@Bean
-		public static ContentNegotiationStrategy cns() {
+		static ContentNegotiationStrategy cns() {
 			return CNS;
 		}
 

@@ -32,11 +32,11 @@ final class Logger {
 
 	private static final Log logger = LogFactory.getLog("Spring Security Debugger");
 
-	public void info(String message) {
+	void info(String message) {
 		info(message, false);
 	}
 
-	public void info(String message, boolean dumpStack) {
+	void info(String message, boolean dumpStack) {
 		StringBuilder output = new StringBuilder(256);
 		output.append("\n\n************************************************************\n\n");
 		output.append(message).append("\n");

@@ -3,7 +3,6 @@
 		"-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
 		"https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-	<suppress files=".*" checks="SpringMethodVisibility" />
 	<suppress files=".*" checks="SpringTernary" />
 	<suppress files=".*" checks="WhitespaceAfter" />
 	<suppress files=".*" checks="WhitespaceAround" />
@@ -32,4 +31,25 @@
 	<suppress files="BearerTokenErrorCodes\.java" checks="InterfaceIsType"/>
 	<suppress files="OAuth2IntrospectionClaimNames\.java" checks="InterfaceIsType"/>
 	<suppress files="Saml2ErrorCodes\.java" checks="InterfaceIsType"/>
+
+	<!-- Method Visibility that we can't reduce -->
+	<suppress files="AbstractAclVoterTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AbstractSecurityWebSocketMessageBrokerConfigurerTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AnnotationParameterNameDiscovererTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AnnotationSecurityAspectTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="AuthenticationPrincipalArgumentResolverTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ELRequestMatcherContext\.java" checks="SpringMethodVisibility"/>
+	<suppress files="EnableWebFluxSecurityTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ExpressionBasedPreInvocationAdviceTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ExpressionUrlAuthorizationConfigurerTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="Jsr250MethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="MapBasedMethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="OAuth2ResourceServerBeanDefinitionParserTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ObjectIdentityImplTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ObjectIdentityRetrievalStrategyImplTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ProtectPointcutPostProcessor\.java" checks="SpringMethodVisibility"/>
+	<suppress files="ReactiveMethodSecurityConfigurationTests" checks="SpringMethodVisibility"/>
+	<suppress files="WebSocketMessageBrokerConfigTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="WebSecurityConfigurationTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="WithSecurityContextTestExecutionListenerTests\.java" checks="SpringMethodVisibility"/>
 </suppressions>

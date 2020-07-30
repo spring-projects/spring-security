@@ -166,7 +166,7 @@ public class GrantedAuthorityDefaultsJcTests {
 	static class Config extends WebSecurityConfigurerAdapter {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()
@@ -184,12 +184,12 @@ public class GrantedAuthorityDefaultsJcTests {
 		}
 
 		@Bean
-		public MessageService messageService() {
+		MessageService messageService() {
 			return new HelloWorldMessageService();
 		}
 
 		@Bean
-		public static GrantedAuthorityDefaults grantedAuthorityDefaults() {
+		static GrantedAuthorityDefaults grantedAuthorityDefaults() {
 			return new GrantedAuthorityDefaults("");
 		}
 

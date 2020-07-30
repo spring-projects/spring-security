@@ -122,20 +122,20 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends A
 	 */
 	static final class UrlMapping {
 
-		private RequestMatcher requestMatcher;
+		private final RequestMatcher requestMatcher;
 
-		private Collection<ConfigAttribute> configAttrs;
+		private final Collection<ConfigAttribute> configAttrs;
 
 		UrlMapping(RequestMatcher requestMatcher, Collection<ConfigAttribute> configAttrs) {
 			this.requestMatcher = requestMatcher;
 			this.configAttrs = configAttrs;
 		}
 
-		public RequestMatcher getRequestMatcher() {
+		RequestMatcher getRequestMatcher() {
 			return this.requestMatcher;
 		}
 
-		public Collection<ConfigAttribute> getConfigAttrs() {
+		Collection<ConfigAttribute> getConfigAttrs() {
 			return this.configAttrs;
 		}
 

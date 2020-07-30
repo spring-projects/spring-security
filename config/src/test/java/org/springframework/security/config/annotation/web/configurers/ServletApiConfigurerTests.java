@@ -256,7 +256,7 @@ public class ServletApiConfigurerTests {
 		}
 
 		@Bean
-		public AuthenticationManager customAuthenticationManager() throws Exception {
+		AuthenticationManager customAuthenticationManager() throws Exception {
 			return super.authenticationManagerBean();
 		}
 
@@ -356,7 +356,7 @@ public class ServletApiConfigurerTests {
 	static class AdminController {
 
 		@GetMapping("/admin")
-		public void admin(HttpServletRequest request) {
+		void admin(HttpServletRequest request) {
 			if (!request.isUserInRole("ADMIN")) {
 				throw new AccessDeniedException("This resource is only available to admins");
 			}

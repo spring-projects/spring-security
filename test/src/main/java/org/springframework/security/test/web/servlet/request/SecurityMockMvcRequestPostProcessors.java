@@ -568,11 +568,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 				}
 			}
 
-			public static void enable(HttpServletRequest request) {
+			static void enable(HttpServletRequest request) {
 				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
 			}
 
-			public boolean isEnabled(HttpServletRequest request) {
+			boolean isEnabled(HttpServletRequest request) {
 				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
 			}
 
@@ -1659,11 +1659,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 				}
 			}
 
-			public static void enable(HttpServletRequest request) {
+			static void enable(HttpServletRequest request) {
 				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
 			}
 
-			public boolean isEnabled(HttpServletRequest request) {
+			boolean isEnabled(HttpServletRequest request) {
 				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
 			}
 
@@ -1672,6 +1672,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private static final class OAuth2ClientServletTestUtils {
 
 			private static final OAuth2AuthorizedClientRepository DEFAULT_CLIENT_REPO = new HttpSessionOAuth2AuthorizedClientRepository();
+
+			private OAuth2ClientServletTestUtils() {
+			}
 
 			/**
 			 * Gets the {@link OAuth2AuthorizedClientManager} for the specified
@@ -1682,7 +1685,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			 * @return the {@link OAuth2AuthorizedClientManager} for the specified
 			 * {@link HttpServletRequest}
 			 */
-			public static OAuth2AuthorizedClientManager getOAuth2AuthorizedClientManager(HttpServletRequest request) {
+			static OAuth2AuthorizedClientManager getOAuth2AuthorizedClientManager(HttpServletRequest request) {
 				OAuth2AuthorizedClientArgumentResolver resolver = findResolver(request,
 						OAuth2AuthorizedClientArgumentResolver.class);
 				if (resolver == null) {
@@ -1700,7 +1703,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			 * {@link OAuth2AuthorizedClientManager}
 			 * @param manager the {@link OAuth2AuthorizedClientManager} to set
 			 */
-			public static void setOAuth2AuthorizedClientManager(HttpServletRequest request,
+			static void setOAuth2AuthorizedClientManager(HttpServletRequest request,
 					OAuth2AuthorizedClientManager manager) {
 				OAuth2AuthorizedClientArgumentResolver resolver = findResolver(request,
 						OAuth2AuthorizedClientArgumentResolver.class);
@@ -1753,9 +1756,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 					return null;
 				}
 
-			}
-
-			private OAuth2ClientServletTestUtils() {
 			}
 
 		}

@@ -107,11 +107,11 @@ public class SecurityJackson2ModulesTests {
 
 		private String property = "bar";
 
-		public String getProperty() {
+		String getProperty() {
 			return this.property;
 		}
 
-		public void setProperty(String property) {
+		void setProperty(String property) {
 		}
 
 	}
@@ -121,11 +121,11 @@ public class SecurityJackson2ModulesTests {
 
 		private String property = "bar";
 
-		public String getProperty() {
+		String getProperty() {
 			return this.property;
 		}
 
-		public void setProperty(String property) {
+		void setProperty(String property) {
 		}
 
 	}

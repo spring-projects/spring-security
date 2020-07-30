@@ -46,7 +46,7 @@ final class Digester {
 		setIterations(iterations);
 	}
 
-	public byte[] digest(byte[] value) {
+	byte[] digest(byte[] value) {
 		MessageDigest messageDigest = createDigest(this.algorithm);
 		for (int i = 0; i < this.iterations; i++) {
 			value = messageDigest.digest(value);

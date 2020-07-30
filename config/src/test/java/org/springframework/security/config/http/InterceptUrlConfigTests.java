@@ -228,12 +228,12 @@ public class InterceptUrlConfigTests {
 	static class PathController {
 
 		@RequestMapping("/path")
-		public String path() {
+		String path() {
 			return "path";
 		}
 
 		@RequestMapping("/path/{un}/path")
-		public String path(@PathVariable("un") String name) {
+		String path(@PathVariable("un") String name) {
 			return name;
 		}
 

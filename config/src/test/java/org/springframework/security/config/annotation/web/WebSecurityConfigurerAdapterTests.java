@@ -284,7 +284,7 @@ public class WebSecurityConfigurerAdapterTests {
 	static class InMemoryConfigureGlobalConfig extends WebSecurityConfigurerAdapter {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()
@@ -308,7 +308,7 @@ public class WebSecurityConfigurerAdapterTests {
 		private ContentNegotiationStrategy contentNegotiationStrategySharedObject;
 
 		@Bean
-		public ContentNegotiationStrategy contentNegotiationStrategy() {
+		ContentNegotiationStrategy contentNegotiationStrategy() {
 			return CONTENT_NEGOTIATION_STRATEGY_BEAN;
 		}
 
@@ -337,7 +337,7 @@ public class WebSecurityConfigurerAdapterTests {
 	static class RequiresUserDetailsServiceConfig {
 
 		@Bean
-		public MyFilter myFilter(UserDetailsService userDetailsService) {
+		MyFilter myFilter(UserDetailsService userDetailsService) {
 			return new MyFilter(userDetailsService);
 		}
 
@@ -408,7 +408,7 @@ public class WebSecurityConfigurerAdapterTests {
 		private AuthenticationTrustResolver authenticationTrustResolverSharedObject;
 
 		@Bean
-		public AuthenticationTrustResolver authenticationTrustResolver() {
+		AuthenticationTrustResolver authenticationTrustResolver() {
 			return AUTHENTICATION_TRUST_RESOLVER_BEAN;
 		}
 
@@ -439,7 +439,7 @@ public class WebSecurityConfigurerAdapterTests {
 		}
 
 		@Bean
-		public AuthenticationEventPublisher authenticationEventPublisher() {
+		AuthenticationEventPublisher authenticationEventPublisher() {
 			return mock(AuthenticationEventPublisher.class);
 		}
 

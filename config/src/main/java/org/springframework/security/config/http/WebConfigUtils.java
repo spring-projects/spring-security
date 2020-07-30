@@ -27,17 +27,18 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @author Ben Alex
  */
-abstract class WebConfigUtils {
+final class WebConfigUtils {
 
-	public static int countNonEmpty(String[] objects) {
+	private WebConfigUtils() {
+	}
+
+	static int countNonEmpty(String[] objects) {
 		int nonNulls = 0;
-
 		for (String object : objects) {
 			if (StringUtils.hasText(object)) {
 				nonNulls++;
 			}
 		}
-
 		return nonNulls;
 	}
 

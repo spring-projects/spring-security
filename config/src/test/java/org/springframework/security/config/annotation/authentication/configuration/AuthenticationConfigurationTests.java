@@ -356,7 +356,7 @@ public class AuthenticationConfigurationTests {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 
 		@Bean
-		public AuthenticationManager authenticationManager() {
+		AuthenticationManager authenticationManager() {
 			return this.authenticationManager;
 		}
 
@@ -366,7 +366,7 @@ public class AuthenticationConfigurationTests {
 	static class ServicesConfig {
 
 		@Bean
-		public Service service() {
+		Service service() {
 			return new ServiceImpl();
 		}
 
@@ -466,12 +466,12 @@ public class AuthenticationConfigurationTests {
 	static class Sec2531Config {
 
 		@Bean
-		public ObjectPostProcessor objectPostProcessor() {
+		ObjectPostProcessor objectPostProcessor() {
 			return mock(ObjectPostProcessor.class);
 		}
 
 		@Bean
-		public AuthenticationManager manager() {
+		AuthenticationManager manager() {
 			return null;
 		}
 
@@ -488,7 +488,7 @@ public class AuthenticationConfigurationTests {
 	static class Sec2822WebSecurity extends WebSecurityConfigurerAdapter {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication();
 		}
 
@@ -498,14 +498,14 @@ public class AuthenticationConfigurationTests {
 	static class Sec2822UseAuth {
 
 		@Autowired
-		public void useAuthenticationManager(AuthenticationConfiguration auth) throws Exception {
+		void useAuthenticationManager(AuthenticationConfiguration auth) throws Exception {
 			auth.getAuthenticationManager();
 		}
 
 		// Ensures that Sec2822UseAuth is initialized before Sec2822WebSecurity
 		// must have additional GlobalAuthenticationConfigurerAdapter to trigger SEC-2822
 		@Bean
-		public static GlobalAuthenticationConfigurerAdapter bootGlobalAuthenticationConfigurerAdapter() {
+		static GlobalAuthenticationConfigurerAdapter bootGlobalAuthenticationConfigurerAdapter() {
 			return new BootGlobalAuthenticationConfigurerAdapter();
 		}
 
@@ -621,12 +621,12 @@ public class AuthenticationConfigurationTests {
 
 		@Bean
 		@Primary
-		public AuthenticationManager manager1() {
+		AuthenticationManager manager1() {
 			return mock(AuthenticationManager.class);
 		}
 
 		@Bean
-		public AuthenticationManager manager2() {
+		AuthenticationManager manager2() {
 			return mock(AuthenticationManager.class);
 		}
 

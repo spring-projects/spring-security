@@ -37,7 +37,7 @@ import org.springframework.util.StringUtils;
  * directive.
  */
 @Deprecated
-abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStrategy {
+public abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStrategy {
 
 	private static final String DEFAULT_ORIGIN_REQUEST_PARAMETER = "x-frames-allow-from";
 
@@ -45,6 +45,9 @@ abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStr
 
 	/** Logger for use by subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
+
+	AbstractRequestParameterAllowFromStrategy() {
+	}
 
 	@Override
 	public String getAllowFromValue(HttpServletRequest request) {

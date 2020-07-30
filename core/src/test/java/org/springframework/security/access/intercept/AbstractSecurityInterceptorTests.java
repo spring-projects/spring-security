@@ -70,7 +70,7 @@ public class AbstractSecurityInterceptorTests {
 			return this.securityMetadataSource;
 		}
 
-		public void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
+		void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
 			this.securityMetadataSource = securityMetadataSource;
 		}
 
@@ -90,7 +90,7 @@ public class AbstractSecurityInterceptorTests {
 			return this.securityMetadataSource;
 		}
 
-		public void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
+		void setSecurityMetadataSource(SecurityMetadataSource securityMetadataSource) {
 			this.securityMetadataSource = securityMetadataSource;
 		}
 

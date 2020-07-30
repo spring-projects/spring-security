@@ -33,7 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author Rob Winch
  * @since 3.2
  */
-abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, C extends AbstractDaoAuthenticationConfigurer<B, C, U>, U extends UserDetailsService>
+public abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, C extends AbstractDaoAuthenticationConfigurer<B, C, U>, U extends UserDetailsService>
 		extends UserDetailsAwareConfigurer<B, U> {
 
 	private DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -44,7 +44,7 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	 * Creates a new instance
 	 * @param userDetailsService
 	 */
-	protected AbstractDaoAuthenticationConfigurer(U userDetailsService) {
+	AbstractDaoAuthenticationConfigurer(U userDetailsService) {
 		this.userDetailsService = userDetailsService;
 		this.provider.setUserDetailsService(userDetailsService);
 		if (userDetailsService instanceof UserDetailsPasswordService) {

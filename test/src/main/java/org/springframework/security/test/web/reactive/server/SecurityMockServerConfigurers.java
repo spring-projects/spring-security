@@ -1178,11 +1178,11 @@ public final class SecurityMockServerConfigurers {
 				}
 			}
 
-			public static void enable(ServerWebExchange exchange) {
+			static void enable(ServerWebExchange exchange) {
 				exchange.getAttributes().put(ENABLED_ATTR_NAME, Boolean.TRUE);
 			}
 
-			public boolean isEnabled(ServerWebExchange exchange) {
+			boolean isEnabled(ServerWebExchange exchange) {
 				return Boolean.TRUE.equals(exchange.getAttribute(ENABLED_ATTR_NAME));
 			}
 
@@ -1204,8 +1204,7 @@ public final class SecurityMockServerConfigurers {
 			 * @return the {@link ReactiveOAuth2AuthorizedClientManager} for the specified
 			 * {@link ServerWebExchange}
 			 */
-			public static ReactiveOAuth2AuthorizedClientManager getOAuth2AuthorizedClientManager(
-					ServerWebExchange exchange) {
+			static ReactiveOAuth2AuthorizedClientManager getOAuth2AuthorizedClientManager(ServerWebExchange exchange) {
 				OAuth2AuthorizedClientArgumentResolver resolver = findResolver(exchange,
 						OAuth2AuthorizedClientArgumentResolver.class);
 				if (resolver == null) {
@@ -1223,7 +1222,7 @@ public final class SecurityMockServerConfigurers {
 			 * {@link ReactiveOAuth2AuthorizedClientManager}
 			 * @param manager the {@link ReactiveOAuth2AuthorizedClientManager} to set
 			 */
-			public static void setOAuth2AuthorizedClientManager(ServerWebExchange exchange,
+			static void setOAuth2AuthorizedClientManager(ServerWebExchange exchange,
 					ReactiveOAuth2AuthorizedClientManager manager) {
 				OAuth2AuthorizedClientArgumentResolver resolver = findResolver(exchange,
 						OAuth2AuthorizedClientArgumentResolver.class);

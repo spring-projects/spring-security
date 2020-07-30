@@ -515,7 +515,7 @@ public class SessionManagementConfigurerTests {
 		}
 
 		@Bean
-		public SessionRegistry sessionRegistry() {
+		SessionRegistry sessionRegistry() {
 			return SESSION_REGISTRY;
 		}
 
@@ -538,12 +538,12 @@ public class SessionManagementConfigurerTests {
 		}
 
 		@Bean
-		public SessionRegistry sessionRegistryOne() {
+		SessionRegistry sessionRegistryOne() {
 			return SESSION_REGISTRY_ONE;
 		}
 
 		@Bean
-		public SessionRegistry sessionRegistryTwo() {
+		SessionRegistry sessionRegistryTwo() {
 			return SESSION_REGISTRY_TWO;
 		}
 

@@ -129,7 +129,7 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 		return null; // No kid in matcher
 	}
 
-	public void setWebClient(WebClient webClient) {
+	void setWebClient(WebClient webClient) {
 		this.webClient = webClient;
 	}
 

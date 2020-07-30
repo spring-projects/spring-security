@@ -81,7 +81,7 @@ public class SampleEnableGlobalMethodSecurityTests {
 	static class SampleWebSecurityConfig {
 
 		@Bean
-		public MethodSecurityService methodSecurityService() {
+		MethodSecurityService methodSecurityService() {
 			return new MethodSecurityServiceImpl();
 		}
 
