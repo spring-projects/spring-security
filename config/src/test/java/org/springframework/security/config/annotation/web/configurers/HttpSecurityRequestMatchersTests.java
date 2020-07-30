@@ -302,12 +302,12 @@ public class HttpSecurityRequestMatchersTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestMatchers(requestMatchers ->
+				.requestMatchers((requestMatchers) ->
 					requestMatchers
 						.mvcMatchers("/path")
 				)
 				.httpBasic(withDefaults())
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().denyAll()
 				);
@@ -374,13 +374,13 @@ public class HttpSecurityRequestMatchersTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestMatchers(requestMatchers ->
+				.requestMatchers((requestMatchers) ->
 					requestMatchers
 						.mvcMatchers("/path").servletPath("/spring")
 						.mvcMatchers("/never-match")
 				)
 				.httpBasic(withDefaults())
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().denyAll()
 				);

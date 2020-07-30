@@ -123,7 +123,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 		@GetMapping("/token")
 		public String token() {
 			return this.rest.get().uri(this.uri).retrieve().bodyToMono(String.class)
-					.flatMap(result -> this.rest.get().uri(this.uri).retrieve().bodyToMono(String.class)).block();
+					.flatMap((result) -> this.rest.get().uri(this.uri).retrieve().bodyToMono(String.class)).block();
 		}
 
 	}

@@ -42,7 +42,7 @@ public class ReactiveSecurityContextHolderTests {
 				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
 		Mono<SecurityContext> context = Mono.subscriberContext()
-				.flatMap(c -> ReactiveSecurityContextHolder.getContext())
+				.flatMap((c) -> ReactiveSecurityContextHolder.getContext())
 				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedContext)));
 
 		StepVerifier.create(context).expectNext(expectedContext).verifyComplete();
@@ -70,7 +70,7 @@ public class ReactiveSecurityContextHolderTests {
 				new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 
 		Mono<SecurityContext> context = Mono.subscriberContext()
-				.flatMap(c -> ReactiveSecurityContextHolder.getContext())
+				.flatMap((c) -> ReactiveSecurityContextHolder.getContext())
 				.subscriberContext(ReactiveSecurityContextHolder.clearContext())
 				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedContext)));
 
@@ -82,7 +82,7 @@ public class ReactiveSecurityContextHolderTests {
 		Authentication expectedAuthentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
 		Mono<Authentication> authentication = Mono.subscriberContext()
-				.flatMap(c -> ReactiveSecurityContextHolder.getContext()).map(SecurityContext::getAuthentication)
+				.flatMap((c) -> ReactiveSecurityContextHolder.getContext()).map(SecurityContext::getAuthentication)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expectedAuthentication));
 
 		StepVerifier.create(authentication).expectNext(expectedAuthentication).verifyComplete();

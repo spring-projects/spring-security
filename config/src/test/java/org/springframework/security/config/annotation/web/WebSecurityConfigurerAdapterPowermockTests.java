@@ -106,7 +106,7 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 
 		CallableProcessingInterceptor callableProcessingInterceptor = callableProcessingInterceptorArgCaptor
 				.getAllValues().stream()
-				.filter(e -> SecurityContextCallableProcessingInterceptor.class.isAssignableFrom(e.getClass()))
+				.filter((e) -> SecurityContextCallableProcessingInterceptor.class.isAssignableFrom(e.getClass()))
 				.findFirst().orElse(null);
 
 		assertThat(callableProcessingInterceptor).isNotNull();

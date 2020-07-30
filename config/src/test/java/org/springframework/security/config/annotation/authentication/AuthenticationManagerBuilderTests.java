@@ -89,7 +89,7 @@ public class AuthenticationManagerBuilderTests {
 	public void customAuthenticationEventPublisherWithWeb() throws Exception {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);
 		AuthenticationEventPublisher aep = mock(AuthenticationEventPublisher.class);
-		given(opp.postProcess(any())).willAnswer(a -> a.getArgument(0));
+		given(opp.postProcess(any())).willAnswer((a) -> a.getArgument(0));
 		AuthenticationManager am = new AuthenticationManagerBuilder(opp).authenticationEventPublisher(aep)
 				.inMemoryAuthentication().and().build();
 

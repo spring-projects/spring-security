@@ -67,7 +67,7 @@ final class MockWebResponseBuilder {
 		HttpHeaders responseHeaders = this.exchangeResult.getResponseHeaders();
 		List<NameValuePair> result = new ArrayList<>(responseHeaders.size());
 		responseHeaders.forEach((headerName, headerValues) -> headerValues
-				.forEach(headerValue -> result.add(new NameValuePair(headerName, headerValue))));
+				.forEach((headerValue) -> result.add(new NameValuePair(headerName, headerValue))));
 		return result;
 	}
 

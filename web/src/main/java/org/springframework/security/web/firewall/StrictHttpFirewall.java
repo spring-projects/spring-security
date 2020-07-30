@@ -112,13 +112,13 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private Set<String> allowedHttpMethods = createDefaultAllowedHttpMethods();
 
-	private Predicate<String> allowedHostnames = hostname -> true;
+	private Predicate<String> allowedHostnames = (hostname) -> true;
 
 	private static final Pattern ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN = Pattern
 			.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
 
-	private static final Predicate<String> ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE = s -> ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN
-			.matcher(s).matches();
+	private static final Predicate<String> ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE = (
+			s) -> ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(s).matches();
 
 	private Predicate<String> allowedHeaderNames = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
 
@@ -126,7 +126,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private Predicate<String> allowedParameterNames = ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE;
 
-	private Predicate<String> allowedParameterValues = value -> true;
+	private Predicate<String> allowedParameterValues = (value) -> true;
 
 	public StrictHttpFirewall() {
 		urlBlocklistsAddAll(FORBIDDEN_SEMICOLON);

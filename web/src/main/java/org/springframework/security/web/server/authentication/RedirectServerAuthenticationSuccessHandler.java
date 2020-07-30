@@ -73,7 +73,7 @@ public class RedirectServerAuthenticationSuccessHandler implements ServerAuthent
 	public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
 		return this.requestCache.getRedirectUri(exchange).defaultIfEmpty(this.location)
-				.flatMap(location -> this.redirectStrategy.sendRedirect(exchange, location));
+				.flatMap((location) -> this.redirectStrategy.sendRedirect(exchange, location));
 	}
 
 	/**

@@ -73,7 +73,7 @@ public final class PathPatternParserServerWebExchangeMatcher implements ServerWe
 		ServerHttpRequest request = exchange.getRequest();
 		PathContainer path = request.getPath().pathWithinApplication();
 		if (this.method != null && !this.method.equals(request.getMethod())) {
-			return MatchResult.notMatch().doOnNext(result -> {
+			return MatchResult.notMatch().doOnNext((result) -> {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Request '" + request.getMethod() + " " + path + "' doesn't match '" + this.method
 							+ " " + this.pattern.getPatternString() + "'");
@@ -82,7 +82,7 @@ public final class PathPatternParserServerWebExchangeMatcher implements ServerWe
 		}
 		boolean match = this.pattern.matches(path);
 		if (!match) {
-			return MatchResult.notMatch().doOnNext(result -> {
+			return MatchResult.notMatch().doOnNext((result) -> {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Request '" + request.getMethod() + " " + path + "' doesn't match '" + this.method
 							+ " " + this.pattern.getPatternString() + "'");

@@ -44,7 +44,7 @@ public class CompositeServerHttpHeadersWriter implements ServerHttpHeadersWriter
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return Flux.fromIterable(this.writers).concatMap(w -> w.writeHttpHeaders(exchange)).then();
+		return Flux.fromIterable(this.writers).concatMap((w) -> w.writeHttpHeaders(exchange)).then();
 	}
 
 }

@@ -73,8 +73,8 @@ public class AuthenticationPayloadInterceptor implements PayloadInterceptor, Ord
 	@Override
 	public Mono<Void> intercept(PayloadExchange exchange, PayloadInterceptorChain chain) {
 		return this.authenticationConverter.convert(exchange).switchIfEmpty(chain.next(exchange).then(Mono.empty()))
-				.flatMap(a -> this.authenticationManager.authenticate(a))
-				.flatMap(a -> onAuthenticationSuccess(chain.next(exchange), a));
+				.flatMap((a) -> this.authenticationManager.authenticate(a))
+				.flatMap((a) -> onAuthenticationSuccess(chain.next(exchange), a));
 	}
 
 	private Mono<Void> onAuthenticationSuccess(Mono<Void> payload, Authentication authentication) {

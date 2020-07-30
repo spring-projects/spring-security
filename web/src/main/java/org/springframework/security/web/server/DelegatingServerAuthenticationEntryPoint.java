@@ -60,16 +60,16 @@ public class DelegatingServerAuthenticationEntryPoint implements ServerAuthentic
 
 	@Override
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
-		return Flux.fromIterable(this.entryPoints).filterWhen(entry -> isMatch(exchange, entry)).next()
-				.map(entry -> entry.getEntryPoint()).doOnNext(it -> {
+		return Flux.fromIterable(this.entryPoints).filterWhen((entry) -> isMatch(exchange, entry)).next()
+				.map((entry) -> entry.getEntryPoint()).doOnNext((it) -> {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Match found! Executing " + it);
 					}
-				}).switchIfEmpty(Mono.just(this.defaultEntryPoint).doOnNext(it -> {
+				}).switchIfEmpty(Mono.just(this.defaultEntryPoint).doOnNext((it) -> {
 					if (logger.isDebugEnabled()) {
 						logger.debug("No match found. Using default entry point " + this.defaultEntryPoint);
 					}
-				})).flatMap(entryPoint -> entryPoint.commence(exchange, ex));
+				})).flatMap((entryPoint) -> entryPoint.commence(exchange, ex));
 	}
 
 	private Mono<Boolean> isMatch(ServerWebExchange exchange, DelegateEntry entry) {
@@ -77,7 +77,7 @@ public class DelegatingServerAuthenticationEntryPoint implements ServerAuthentic
 		if (logger.isDebugEnabled()) {
 			logger.debug("Trying to match using " + matcher);
 		}
-		return matcher.matches(exchange).map(result -> result.isMatch());
+		return matcher.matches(exchange).map((result) -> result.isMatch());
 	}
 
 	/**

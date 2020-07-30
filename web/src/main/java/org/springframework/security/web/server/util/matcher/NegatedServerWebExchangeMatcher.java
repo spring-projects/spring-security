@@ -44,8 +44,8 @@ public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher
 
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return this.matcher.matches(exchange).flatMap(m -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())
-				.doOnNext(it -> {
+		return this.matcher.matches(exchange).flatMap((m) -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())
+				.doOnNext((it) -> {
 					if (logger.isDebugEnabled()) {
 						logger.debug("matches = " + it.isMatch());
 					}

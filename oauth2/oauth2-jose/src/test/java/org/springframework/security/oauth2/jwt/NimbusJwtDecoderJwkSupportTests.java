@@ -104,7 +104,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 	public void decodeWhenExpClaimNullThenDoesNotThrowException() {
 		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL);
 		jwtDecoder.setRestOperations(mockJwkSetResponse(JWK_SET));
-		jwtDecoder.setClaimSetConverter(map -> {
+		jwtDecoder.setClaimSetConverter((map) -> {
 			Map<String, Object> claims = new HashMap<>(map);
 			claims.remove(JwtClaimNames.EXP);
 			return claims;

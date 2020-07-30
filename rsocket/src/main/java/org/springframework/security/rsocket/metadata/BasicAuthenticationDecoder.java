@@ -45,7 +45,7 @@ public class BasicAuthenticationDecoder extends AbstractDecoder<UsernamePassword
 	@Override
 	public Flux<UsernamePasswordMetadata> decode(Publisher<DataBuffer> input, ResolvableType elementType,
 			MimeType mimeType, Map<String, Object> hints) {
-		return Flux.from(input).map(DataBuffer::asByteBuffer).map(byteBuffer -> {
+		return Flux.from(input).map(DataBuffer::asByteBuffer).map((byteBuffer) -> {
 			byte[] sizeBytes = new byte[4];
 			byteBuffer.get(sizeBytes);
 
@@ -63,7 +63,7 @@ public class BasicAuthenticationDecoder extends AbstractDecoder<UsernamePassword
 	@Override
 	public Mono<UsernamePasswordMetadata> decodeToMono(Publisher<DataBuffer> input, ResolvableType elementType,
 			MimeType mimeType, Map<String, Object> hints) {
-		return Mono.from(input).map(DataBuffer::asByteBuffer).map(byteBuffer -> {
+		return Mono.from(input).map(DataBuffer::asByteBuffer).map((byteBuffer) -> {
 			int usernameSize = byteBuffer.getInt();
 			byte[] usernameBytes = new byte[usernameSize];
 			byteBuffer.get(usernameBytes);

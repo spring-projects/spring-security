@@ -39,7 +39,7 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
-		return authentication.filter(this::isNotAnonymous).map(a -> new AuthorizationDecision(a.isAuthenticated()))
+		return authentication.filter(this::isNotAnonymous).map((a) -> new AuthorizationDecision(a.isAuthenticated()))
 				.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 

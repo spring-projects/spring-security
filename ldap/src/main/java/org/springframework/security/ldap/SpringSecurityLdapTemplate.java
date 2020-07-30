@@ -124,7 +124,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 */
 	public DirContextOperations retrieveEntry(final String dn, final String[] attributesToRetrieve) {
 
-		return (DirContextOperations) executeReadOnly((ContextExecutor) ctx -> {
+		return (DirContextOperations) executeReadOnly((ContextExecutor) (ctx) -> {
 			Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
 
 			// Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
@@ -188,7 +188,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 		final HashSet<Map<String, List<String>>> set = new HashSet<>();
 
-		ContextMapper roleMapper = ctx -> {
+		ContextMapper roleMapper = (ctx) -> {
 			DirContextAdapter adapter = (DirContextAdapter) ctx;
 			Map<String, List<String>> record = new HashMap<>();
 			if (attributeNames == null || attributeNames.length == 0) {
@@ -285,8 +285,8 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 */
 	public DirContextOperations searchForSingleEntry(final String base, final String filter, final Object[] params) {
 
-		return (DirContextOperations) executeReadOnly(
-				(ContextExecutor) ctx -> searchForSingleEntryInternal(ctx, this.searchControls, base, filter, params));
+		return (DirContextOperations) executeReadOnly((ContextExecutor) (ctx) -> searchForSingleEntryInternal(ctx,
+				this.searchControls, base, filter, params));
 	}
 
 	/**

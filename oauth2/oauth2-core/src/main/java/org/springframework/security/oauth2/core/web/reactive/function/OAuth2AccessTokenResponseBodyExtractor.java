@@ -62,7 +62,7 @@ class OAuth2AccessTokenResponseBodyExtractor
 		};
 		BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors.toMono(type);
 		return delegate.extract(inputMessage, context)
-				.onErrorMap(e -> new OAuth2AuthorizationException(
+				.onErrorMap((e) -> new OAuth2AuthorizationException(
 						invalidTokenResponse("An error occurred parsing the Access Token response: " + e.getMessage()),
 						e))
 				.switchIfEmpty(Mono.error(() -> new OAuth2AuthorizationException(

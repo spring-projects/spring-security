@@ -38,7 +38,7 @@ import org.springframework.util.PathMatcher;
  */
 public final class SimpDestinationMessageMatcher implements MessageMatcher<Object> {
 
-	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = message -> {
+	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = (message) -> {
 		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 		return destination == null;
 	};

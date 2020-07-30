@@ -184,7 +184,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 	@Test
 	public void customAuthoritiesMappingFunction() {
-		this.populator.setAuthorityMapper(record -> {
+		this.populator.setAuthorityMapper((record) -> {
 			String dn = record.get(SpringSecurityLdapTemplate.DN_KEY).get(0);
 			String role = record.get(this.populator.getGroupRoleAttribute()).get(0);
 			return new LdapAuthority(role, dn);

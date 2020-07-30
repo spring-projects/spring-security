@@ -127,11 +127,11 @@ public class OpenIDLoginConfigurerTests {
 			List<OpenIDAttribute> attributeList = (List<OpenIDAttribute>) attributeObject;
 			assertThat(
 					attributeList.stream()
-							.anyMatch(attribute -> "nickname".equals(attribute.getName())
+							.anyMatch((attribute) -> "nickname".equals(attribute.getName())
 									&& "https://schema.openid.net/namePerson/friendly".equals(attribute.getType())))
 											.isTrue();
 			assertThat(attributeList.stream()
-					.anyMatch(attribute -> "email".equals(attribute.getName())
+					.anyMatch((attribute) -> "email".equals(attribute.getName())
 							&& "https://schema.openid.net/contact/email".equals(attribute.getType())
 							&& attribute.isRequired() && attribute.getCount() == 2)).isTrue();
 		}
@@ -231,11 +231,11 @@ public class OpenIDLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().authenticated()
 				)
-				.openidLogin(openIdLogin ->
+				.openidLogin((openIdLogin) ->
 					openIdLogin
 						.loginPage("/login/custom")
 				);
@@ -253,22 +253,22 @@ public class OpenIDLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().permitAll()
 				)
-				.openidLogin(openIdLogin ->
+				.openidLogin((openIdLogin) ->
 					openIdLogin
 						.consumerManager(CONSUMER_MANAGER)
-						.attributeExchange(attributeExchange ->
+						.attributeExchange((attributeExchange) ->
 								attributeExchange
 									.identifierPattern(".*")
-									.attribute(nicknameAttribute ->
+									.attribute((nicknameAttribute) ->
 										nicknameAttribute
 											.name("nickname")
 											.type("https://schema.openid.net/namePerson/friendly")
 									)
-									.attribute(emailAttribute ->
+									.attribute((emailAttribute) ->
 										emailAttribute
 											.name("email")
 											.type("https://schema.openid.net/contact/email")
@@ -291,14 +291,14 @@ public class OpenIDLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().permitAll()
 				)
-				.openidLogin(openIdLogin ->
+				.openidLogin((openIdLogin) ->
 					openIdLogin
 							.consumerManager(CONSUMER_MANAGER)
-						.attributeExchange(attributeExchange ->
+						.attributeExchange((attributeExchange) ->
 								attributeExchange
 									.identifierPattern(".*")
 									.attribute(withDefaults())

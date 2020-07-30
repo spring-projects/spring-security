@@ -59,7 +59,7 @@ public class HttpSessionRequestCacheTests {
 	@Test
 	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
-		cache.setRequestMatcher(request -> request.getMethod().equals("GET"));
+		cache.setRequestMatcher((request) -> request.getMethod().equals("GET"));
 
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();

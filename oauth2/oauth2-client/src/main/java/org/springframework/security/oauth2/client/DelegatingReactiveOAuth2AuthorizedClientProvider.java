@@ -73,7 +73,7 @@ public final class DelegatingReactiveOAuth2AuthorizedClientProvider implements R
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		return Flux.fromIterable(this.authorizedClientProviders)
-				.concatMap(authorizedClientProvider -> authorizedClientProvider.authorize(context)).next();
+				.concatMap((authorizedClientProvider) -> authorizedClientProvider.authorize(context)).next();
 	}
 
 }

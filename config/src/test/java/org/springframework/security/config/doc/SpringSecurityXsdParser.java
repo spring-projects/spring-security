@@ -61,7 +61,7 @@ public class SpringSecurityXsdParser {
 	private Map<String, Element> elements(XmlNode node) {
 		Map<String, Element> elementNameToElement = new HashMap<>();
 
-		node.children().forEach(child -> {
+		node.children().forEach((child) -> {
 			if ("element".equals(child.simpleName())) {
 				Element e = elmt(child);
 				elementNameToElement.put(e.getName(), e);
@@ -81,7 +81,7 @@ public class SpringSecurityXsdParser {
 	 */
 	private Collection<Attribute> attrs(XmlNode element) {
 		Collection<Attribute> attrs = new ArrayList<>();
-		element.children().forEach(c -> {
+		element.children().forEach((c) -> {
 			String name = c.simpleName();
 			if ("attribute".equals(name)) {
 				attrs.add(attr(c));
@@ -103,7 +103,7 @@ public class SpringSecurityXsdParser {
 	private Collection<Attribute> attrgrps(XmlNode element) {
 		Collection<Attribute> attrgrp = new ArrayList<>();
 
-		element.children().forEach(c -> {
+		element.children().forEach((c) -> {
 			if (!"element".equals(c.simpleName())) {
 				if ("attributeGroup".equals(c.simpleName())) {
 					if (c.attribute("name") != null) {
@@ -130,7 +130,7 @@ public class SpringSecurityXsdParser {
 			root = root.parent().get();
 		}
 
-		return expand(root).filter(node -> name.equals(node.attribute("name"))).findFirst()
+		return expand(root).filter((node) -> name.equals(node.attribute("name"))).findFirst()
 				.orElseThrow(IllegalArgumentException::new);
 	}
 
@@ -157,8 +157,8 @@ public class SpringSecurityXsdParser {
 	 * @return
 	 */
 	private String desc(XmlNode element) {
-		return element.child("annotation").flatMap(annotation -> annotation.child("documentation"))
-				.map(documentation -> documentation.text()).orElse(null);
+		return element.child("annotation").flatMap((annotation) -> annotation.child("documentation"))
+				.map((documentation) -> documentation.text()).orElse(null);
 	}
 
 	/**
@@ -197,8 +197,8 @@ public class SpringSecurityXsdParser {
 		e.setChildElmts(elements(n));
 		e.setAttrs(attrs(n));
 		e.getAttrs().addAll(attrgrps(n));
-		e.getAttrs().forEach(attr -> attr.setElmt(e));
-		e.getChildElmts().values().forEach(element -> element.getParentElmts().put(e.getName(), e));
+		e.getAttrs().forEach((attr) -> attr.setElmt(e));
+		e.getChildElmts().values().forEach((element) -> element.getParentElmts().put(e.getName(), e));
 
 		String subGrpName = n.attribute("substitutionGroup");
 		if (!StringUtils.isEmpty(subGrpName)) {

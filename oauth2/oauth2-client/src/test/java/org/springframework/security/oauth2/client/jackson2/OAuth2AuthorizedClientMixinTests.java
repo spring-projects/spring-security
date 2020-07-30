@@ -215,7 +215,7 @@ public class OAuth2AuthorizedClientMixinTests {
 		String configurationMetadata = "\"@class\": \"java.util.Collections$UnmodifiableMap\"";
 		if (!CollectionUtils.isEmpty(providerDetails.getConfigurationMetadata())) {
 			configurationMetadata += "," + providerDetails.getConfigurationMetadata().keySet().stream()
-					.map(key -> "\"" + key + "\": \"" + providerDetails.getConfigurationMetadata().get(key) + "\"")
+					.map((key) -> "\"" + key + "\": \"" + providerDetails.getConfigurationMetadata().get(key) + "\"")
 					.collect(Collectors.joining(","));
 		}
 		// @formatter:off

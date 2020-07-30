@@ -242,7 +242,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
 		if (resolver == null) {
 			AuthenticationManager authenticationManager = getAuthenticationManager(http);
-			resolver = request -> authenticationManager;
+			resolver = (request) -> authenticationManager;
 		}
 
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(resolver);

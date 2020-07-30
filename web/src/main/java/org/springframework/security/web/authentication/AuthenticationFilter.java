@@ -77,7 +77,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 	public AuthenticationFilter(AuthenticationManager authenticationManager,
 			AuthenticationConverter authenticationConverter) {
-		this((AuthenticationManagerResolver<HttpServletRequest>) r -> authenticationManager, authenticationConverter);
+		this((AuthenticationManagerResolver<HttpServletRequest>) (r) -> authenticationManager, authenticationConverter);
 	}
 
 	public AuthenticationFilter(AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver,

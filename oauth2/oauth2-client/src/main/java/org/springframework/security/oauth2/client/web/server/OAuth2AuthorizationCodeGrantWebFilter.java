@@ -204,12 +204,12 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.requiresAuthenticationMatcher.matches(exchange)
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap(matchResult -> this.authenticationConverter.convert(exchange).onErrorMap(
+				.flatMap((matchResult) -> this.authenticationConverter.convert(exchange).onErrorMap(
 						OAuth2AuthorizationException.class,
-						e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString())))
+						(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString())))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-				.flatMap(token -> authenticate(exchange, chain, token))
-				.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
+				.flatMap((token) -> authenticate(exchange, chain, token))
+				.onErrorResume(AuthenticationException.class, (e) -> this.authenticationFailureHandler
 						.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e));
 	}
 
@@ -217,12 +217,12 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 		return this.authenticationManager.authenticate(token)
 				.onErrorMap(OAuth2AuthorizationException.class,
-						e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
+						(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
 				.switchIfEmpty(Mono.defer(
 						() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
-				.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
+				.flatMap((authentication) -> onAuthenticationSuccess(authentication, webFilterExchange))
 				.onErrorResume(AuthenticationException.class,
-						e -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
+						(e) -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
 	}
 
 	private Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
@@ -232,15 +232,15 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 				authenticationResult.getAccessToken(), authenticationResult.getRefreshToken());
 		return this.authenticationSuccessHandler.onAuthenticationSuccess(webFilterExchange, authentication)
 				.then(ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
-						.defaultIfEmpty(this.anonymousToken).flatMap(principal -> this.authorizedClientRepository
+						.defaultIfEmpty(this.anonymousToken).flatMap((principal) -> this.authorizedClientRepository
 								.saveAuthorizedClient(authorizedClient, principal, webFilterExchange.getExchange())));
 	}
 
 	private Mono<ServerWebExchangeMatcher.MatchResult> matchesAuthorizationResponse(ServerWebExchange exchange) {
 		return Mono.just(exchange).filter(
-				exch -> OAuth2AuthorizationResponseUtils.isAuthorizationResponse(exch.getRequest().getQueryParams()))
-				.flatMap(exch -> this.authorizationRequestRepository.loadAuthorizationRequest(exchange)
-						.flatMap(authorizationRequest -> matchesRedirectUri(exch.getRequest().getURI(),
+				(exch) -> OAuth2AuthorizationResponseUtils.isAuthorizationResponse(exch.getRequest().getQueryParams()))
+				.flatMap((exch) -> this.authorizationRequestRepository.loadAuthorizationRequest(exchange)
+						.flatMap((authorizationRequest) -> matchesRedirectUri(exch.getRequest().getURI(),
 								authorizationRequest.getRedirectUri())))
 				.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
 	}

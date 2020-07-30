@@ -360,7 +360,7 @@ public class NimbusJwtDecoderTests {
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey)
 				.signatureAlgorithm(SignatureAlgorithm.RS256)
 				.jwtProcessorCustomizer(
-						p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
 				.build();
 		assertThat(decoder.decode(signedJwt.serialize()).containsClaim(JwtClaimNames.EXP)).isNotNull();
 	}
@@ -429,7 +429,7 @@ public class NimbusJwtDecoderTests {
 		SignedJWT signedJwt = signedJwt(secretKey, header, claimsSet);
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256)
 				.jwtProcessorCustomizer(
-						p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
 				.build();
 		assertThat(decoder.decode(signedJwt.serialize()).containsClaim(JwtClaimNames.EXP)).isNotNull();
 	}
@@ -541,7 +541,7 @@ public class NimbusJwtDecoderTests {
 				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restOperations(restOperations)
 				.jwtProcessorCustomizer(
-						p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
 				.build();
 		assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(BadJwtException.class).hasMessageContaining(
 				"An error occurred while attempting to decode the Jwt: Required JOSE header \"typ\" (type) parameter is missing");

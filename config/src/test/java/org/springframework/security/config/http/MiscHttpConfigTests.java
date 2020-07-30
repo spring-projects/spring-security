@@ -340,7 +340,7 @@ public class MiscHttpConfigTests {
 
 		Class<?> userFilterClass = this.spring.getContext().getBean("userFilter").getClass();
 
-		assertThat(filters).extracting((Extractor<Filter, Class<?>>) filter -> filter.getClass()).containsSubsequence(
+		assertThat(filters).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass()).containsSubsequence(
 				userFilterClass, userFilterClass, SecurityContextPersistenceFilter.class, LogoutFilter.class,
 				userFilterClass);
 	}
@@ -355,7 +355,7 @@ public class MiscHttpConfigTests {
 	public void configureWhenUsingX509ThenAddsX509FilterCorrectly() {
 		this.spring.configLocations(xml("X509")).autowire();
 
-		assertThat(getFilters("/")).extracting((Extractor<Filter, Class<?>>) filter -> filter.getClass())
+		assertThat(getFilters("/")).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass())
 				.containsSubsequence(CsrfFilter.class, X509AuthenticationFilter.class,
 						ExceptionTranslationFilter.class);
 	}
@@ -384,7 +384,7 @@ public class MiscHttpConfigTests {
 
 		List<String> values = result.getResponse().getHeaders("Set-Cookie");
 		assertThat(values.size()).isEqualTo(2);
-		assertThat(values).extracting(value -> value.split("=")[0]).contains("JSESSIONID", "mycookie");
+		assertThat(values).extracting((value) -> value.split("=")[0]).contains("JSESSIONID", "mycookie");
 	}
 
 	@Test
@@ -587,7 +587,7 @@ public class MiscHttpConfigTests {
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("joe");
 
-		this.mvc.perform(get("/roles").principal(user).with(request -> {
+		this.mvc.perform(get("/roles").principal(user).with((request) -> {
 			request.addUserRole("admin");
 			request.addUserRole("user");
 			request.addUserRole("unmapped");
@@ -703,7 +703,7 @@ public class MiscHttpConfigTests {
 	}
 
 	private Answer<ILoggingEvent> writeTo(OutputStream os) {
-		return invocation -> {
+		return (invocation) -> {
 			os.write(invocation.getArgument(0).toString().getBytes());
 			return null;
 		};

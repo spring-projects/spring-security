@@ -72,7 +72,7 @@ public class OAuth2LoginReactiveAuthenticationManager implements ReactiveAuthent
 
 	private final ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 
-	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
+	private GrantedAuthoritiesMapper authoritiesMapper = ((authorities) -> authorities);
 
 	public OAuth2LoginReactiveAuthenticationManager(
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
@@ -102,7 +102,7 @@ public class OAuth2LoginReactiveAuthenticationManager implements ReactiveAuthent
 
 			return this.authorizationCodeManager.authenticate(token)
 					.onErrorMap(OAuth2AuthorizationException.class,
-							e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
+							(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
 					.cast(OAuth2AuthorizationCodeAuthenticationToken.class).flatMap(this::onSuccess);
 		});
 	}
@@ -125,7 +125,7 @@ public class OAuth2LoginReactiveAuthenticationManager implements ReactiveAuthent
 		Map<String, Object> additionalParameters = authentication.getAdditionalParameters();
 		OAuth2UserRequest userRequest = new OAuth2UserRequest(authentication.getClientRegistration(), accessToken,
 				additionalParameters);
-		return this.userService.loadUser(userRequest).map(oauth2User -> {
+		return this.userService.loadUser(userRequest).map((oauth2User) -> {
 			Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
 					.mapAuthorities(oauth2User.getAuthorities());
 

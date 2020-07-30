@@ -325,7 +325,7 @@ public class DefaultLoginPageConfigurerTests {
 
 		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChain.getFilterChains().get(0).getFilters().stream()
-				.filter(filter -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class)).count())
+				.filter((filter) -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class)).count())
 						.isZero();
 	}
 

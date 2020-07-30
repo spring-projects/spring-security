@@ -84,9 +84,10 @@ public class RequestCacheTests {
 	@Test
 	public void requestWhenCustomRequestCacheInLambdaThenCustomCacheUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange(authorizeExchange -> authorizeExchange.anyExchange().authenticated())
+				.authorizeExchange((authorizeExchange) -> authorizeExchange.anyExchange().authenticated())
 				.formLogin(withDefaults())
-				.requestCache(requestCache -> requestCache.requestCache(NoOpServerRequestCache.getInstance())).build();
+				.requestCache((requestCache) -> requestCache.requestCache(NoOpServerRequestCache.getInstance()))
+				.build();
 
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new SecuredPageController(), new WebTestClientBuilder.Http200RestController())

@@ -458,8 +458,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		this.resolver.setAuthorizationRequestCustomizer(
-				customizer -> customizer.additionalParameters(params -> params.remove(OidcParameterNames.NONCE))
-						.attributes(attrs -> attrs.remove(OidcParameterNames.NONCE)));
+				(customizer) -> customizer.additionalParameters((params) -> params.remove(OidcParameterNames.NONCE))
+						.attributes((attrs) -> attrs.remove(OidcParameterNames.NONCE)));
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
 		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OidcParameterNames.NONCE);
@@ -478,10 +478,11 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
 
-		this.resolver.setAuthorizationRequestCustomizer(customizer -> customizer.authorizationRequestUri(uriBuilder -> {
-			uriBuilder.queryParam("param1", "value1");
-			return uriBuilder.build();
-		}));
+		this.resolver
+				.setAuthorizationRequestCustomizer((customizer) -> customizer.authorizationRequestUri((uriBuilder) -> {
+					uriBuilder.queryParam("param1", "value1");
+					return uriBuilder.build();
+				}));
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
@@ -498,7 +499,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
 
-		this.resolver.setAuthorizationRequestCustomizer(customizer -> customizer.parameters(params -> {
+		this.resolver.setAuthorizationRequestCustomizer((customizer) -> customizer.parameters((params) -> {
 			params.put("appid", params.get("client_id"));
 			params.remove("client_id");
 		}));

@@ -142,7 +142,7 @@ public class CsrfConfigTests {
 		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
 		MockMvc traceEnabled = MockMvcBuilders.webAppContextSetup(this.spring.getContext()).apply(springSecurity())
-				.addDispatcherServletCustomizer(dispatcherServlet -> dispatcherServlet.setDispatchTraceRequest(true))
+				.addDispatcherServletCustomizer((dispatcherServlet) -> dispatcherServlet.setDispatchTraceRequest(true))
 				.build();
 
 		traceEnabled.perform(request(HttpMethod.TRACE, "/csrf-in-header")).andExpect(csrfInHeader());
@@ -219,7 +219,7 @@ public class CsrfConfigTests {
 		this.spring.configLocations(this.xml("shared-controllers"), this.xml("CsrfEnabled")).autowire();
 
 		MockMvc traceEnabled = MockMvcBuilders.webAppContextSetup(this.spring.getContext()).apply(springSecurity())
-				.addDispatcherServletCustomizer(dispatcherServlet -> dispatcherServlet.setDispatchTraceRequest(true))
+				.addDispatcherServletCustomizer((dispatcherServlet) -> dispatcherServlet.setDispatchTraceRequest(true))
 				.build();
 
 		traceEnabled.perform(request(HttpMethod.TRACE, "/csrf-in-header")).andExpect(csrfInHeader());
@@ -425,11 +425,11 @@ public class CsrfConfigTests {
 	}
 
 	ResultMatcher csrfInHeader() {
-		return new CsrfReturnedResultMatcher(result -> result.getResponse().getHeader("X-CSRF-TOKEN"));
+		return new CsrfReturnedResultMatcher((result) -> result.getResponse().getHeader("X-CSRF-TOKEN"));
 	}
 
 	ResultMatcher csrfInBody() {
-		return new CsrfReturnedResultMatcher(result -> result.getResponse().getContentAsString());
+		return new CsrfReturnedResultMatcher((result) -> result.getResponse().getContentAsString());
 	}
 
 	@Controller

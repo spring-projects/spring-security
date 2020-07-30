@@ -89,22 +89,22 @@ public final class BearerTokenError extends OAuth2Error {
 	}
 
 	private static boolean isDescriptionValid(String description) {
-		return description == null || description.chars().allMatch(c -> withinTheRangeOf(c, 0x20, 0x21)
+		return description == null || description.chars().allMatch((c) -> withinTheRangeOf(c, 0x20, 0x21)
 				|| withinTheRangeOf(c, 0x23, 0x5B) || withinTheRangeOf(c, 0x5D, 0x7E));
 	}
 
 	private static boolean isErrorCodeValid(String errorCode) {
-		return errorCode.chars().allMatch(c -> withinTheRangeOf(c, 0x20, 0x21) || withinTheRangeOf(c, 0x23, 0x5B)
+		return errorCode.chars().allMatch((c) -> withinTheRangeOf(c, 0x20, 0x21) || withinTheRangeOf(c, 0x23, 0x5B)
 				|| withinTheRangeOf(c, 0x5D, 0x7E));
 	}
 
 	private static boolean isErrorUriValid(String errorUri) {
 		return errorUri == null || errorUri.chars()
-				.allMatch(c -> c == 0x21 || withinTheRangeOf(c, 0x23, 0x5B) || withinTheRangeOf(c, 0x5D, 0x7E));
+				.allMatch((c) -> c == 0x21 || withinTheRangeOf(c, 0x23, 0x5B) || withinTheRangeOf(c, 0x5D, 0x7E));
 	}
 
 	private static boolean isScopeValid(String scope) {
-		return scope == null || scope.chars().allMatch(c -> withinTheRangeOf(c, 0x20, 0x21)
+		return scope == null || scope.chars().allMatch((c) -> withinTheRangeOf(c, 0x20, 0x21)
 				|| withinTheRangeOf(c, 0x23, 0x5B) || withinTheRangeOf(c, 0x5D, 0x7E));
 	}
 

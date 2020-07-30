@@ -72,7 +72,7 @@ class SecurityReactorContextConfiguration {
 			Function<? super Publisher<Object>, ? extends Publisher<Object>> lifter = Operators
 					.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
 
-			Hooks.onLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY, pub -> {
+			Hooks.onLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY, (pub) -> {
 				if (!contextAttributesAvailable()) {
 					// No need to decorate so return original Publisher
 					return pub;

@@ -144,7 +144,7 @@ public class OAuth2ClientSpecTests {
 		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
 
 		this.client.get()
-				.uri(uriBuilder -> uriBuilder.path("/authorize/oauth2/code/registration-id")
+				.uri((uriBuilder) -> uriBuilder.path("/authorize/oauth2/code/registration-id")
 						.queryParam(OAuth2ParameterNames.CODE, "code").queryParam(OAuth2ParameterNames.STATE, "state")
 						.build())
 				.exchange().expectStatus().is3xxRedirection();
@@ -185,7 +185,7 @@ public class OAuth2ClientSpecTests {
 		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
 
 		this.client.get()
-				.uri(uriBuilder -> uriBuilder.path("/authorize/oauth2/code/registration-id")
+				.uri((uriBuilder) -> uriBuilder.path("/authorize/oauth2/code/registration-id")
 						.queryParam(OAuth2ParameterNames.CODE, "code").queryParam(OAuth2ParameterNames.STATE, "state")
 						.build())
 				.exchange().expectStatus().is3xxRedirection();
@@ -264,7 +264,7 @@ public class OAuth2ClientSpecTests {
 					.authenticationManager(this.manager)
 					.authorizationRequestRepository(this.authorizationRequestRepository)
 					.and()
-				.requestCache(c -> c.requestCache(this.requestCache));
+				.requestCache((c) -> c.requestCache(this.requestCache));
 			// @formatter:on
 			return http.build();
 		}
@@ -287,12 +287,12 @@ public class OAuth2ClientSpecTests {
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2Client(oauth2Client ->
+				.oauth2Client((oauth2Client) ->
 					oauth2Client
 						.authenticationConverter(this.authenticationConverter)
 						.authenticationManager(this.manager)
 						.authorizationRequestRepository(this.authorizationRequestRepository))
-				.requestCache(c -> c.requestCache(this.requestCache));
+				.requestCache((c) -> c.requestCache(this.requestCache));
 			// @formatter:on
 			return http.build();
 		}

@@ -66,7 +66,7 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 	@Before
 	public void setup() {
 		this.client = WebTestClient.bindToController(this.controller)
-				.argumentResolvers(c -> c.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(
+				.argumentResolvers((c) -> c.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(
 						this.clientRegistrationRepository, this.authorizedClientRepository)))
 				.webFilter(new SecurityContextServerWebExchangeWebFilter())
 				.apply(SecurityMockServerConfigurers.springSecurity()).configureClient()
@@ -114,7 +114,7 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 
 		this.client
 				.mutateWith(SecurityMockServerConfigurers.mockOAuth2Client("registration-id")
-						.clientRegistration(c -> c.clientId("client-id")))
+						.clientRegistration((c) -> c.clientId("client-id")))
 				.get().uri("/client").exchange().expectStatus().isOk();
 
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;

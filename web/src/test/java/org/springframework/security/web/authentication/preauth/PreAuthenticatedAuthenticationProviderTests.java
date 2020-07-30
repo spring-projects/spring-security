@@ -116,7 +116,7 @@ public class PreAuthenticatedAuthenticationProviderTests {
 
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getPreAuthenticatedUserDetailsService(
 			final UserDetails aUserDetails) {
-		return token -> {
+		return (token) -> {
 			if (aUserDetails != null && aUserDetails.getUsername().equals(token.getName())) {
 				return aUserDetails;
 			}

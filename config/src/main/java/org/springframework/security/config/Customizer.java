@@ -37,7 +37,7 @@ public interface Customizer<T> {
 	 * @return a {@link Customizer} that does not alter the input argument.
 	 */
 	static <T> Customizer<T> withDefaults() {
-		return t -> {
+		return (t) -> {
 		};
 	}
 

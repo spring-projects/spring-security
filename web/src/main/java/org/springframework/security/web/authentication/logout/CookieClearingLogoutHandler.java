@@ -73,7 +73,7 @@ public final class CookieClearingLogoutHandler implements LogoutHandler {
 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		this.cookiesToClear.forEach(f -> response.addCookie(f.apply(request)));
+		this.cookiesToClear.forEach((f) -> response.addCookie(f.apply(request)));
 	}
 
 }

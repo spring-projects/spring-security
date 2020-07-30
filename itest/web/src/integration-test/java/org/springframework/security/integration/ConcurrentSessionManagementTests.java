@@ -63,7 +63,7 @@ public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrati
 
 		// Now logout to kill first session
 		mockMvc.perform(post("/logout").with(csrf())).andExpect(status().is3xxRedirection())
-				.andDo(result -> this.context.publishEvent(new SessionDestroyedEvent(session1) {
+				.andDo((result) -> this.context.publishEvent(new SessionDestroyedEvent(session1) {
 					@Override
 					public List<SecurityContext> getSecurityContexts() {
 						return Collections.emptyList();

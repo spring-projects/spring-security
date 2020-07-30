@@ -66,19 +66,19 @@ public class ContactsPage {
 	}
 
 	Predicate<WebElement> byEmail(final String val) {
-		return e -> e.findElements(By.xpath("td[position()=3 and normalize-space()='" + val + "']")).size() == 1;
+		return (e) -> e.findElements(By.xpath("td[position()=3 and normalize-space()='" + val + "']")).size() == 1;
 	}
 
 	Predicate<WebElement> byName(final String val) {
-		return e -> e.findElements(By.xpath("td[position()=2 and normalize-space()='" + val + "']")).size() == 1;
+		return (e) -> e.findElements(By.xpath("td[position()=2 and normalize-space()='" + val + "']")).size() == 1;
 	}
 
 	public DeleteContactLink andHasContact(final String name, final String email) {
 		return this.contacts.stream()
 			.filter(byEmail(email).and(byName(name)))
-			.map(e -> e.findElement(By.cssSelector("td:nth-child(4) > a")))
+			.map((e) -> e.findElement(By.cssSelector("td:nth-child(4) > a")))
 			.findFirst()
-			.map(e -> new DeleteContactLink(webDriver, e))
+			.map((e) -> new DeleteContactLink(webDriver, e))
 			.get();
 	}
 

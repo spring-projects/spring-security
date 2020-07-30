@@ -162,7 +162,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		@Override
 		public AuthenticationManager resolve(String issuer) {
 			if (this.trustedIssuer.test(issuer)) {
-				return this.authenticationManagers.computeIfAbsent(issuer, k -> {
+				return this.authenticationManagers.computeIfAbsent(issuer, (k) -> {
 					JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
 					return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
 				});

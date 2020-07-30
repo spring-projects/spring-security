@@ -72,7 +72,7 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext,
 			ServerWebExchange exchange) {
 		ReactiveAdapter adapter = getAdapterRegistry().getAdapter(parameter.getParameterType());
-		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).flatMap(a -> {
+		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).flatMap((a) -> {
 			Object p = resolvePrincipal(parameter, a.getPrincipal());
 			Mono<Object> principal = Mono.justOrEmpty(p);
 			return adapter == null ? principal : Mono.just(adapter.fromPublisher(principal));

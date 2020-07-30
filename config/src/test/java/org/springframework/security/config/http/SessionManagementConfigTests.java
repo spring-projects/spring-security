@@ -378,7 +378,7 @@ public class SessionManagementConfigTests {
 
 		this.spring.configLocations(this.xml("SessionFixationProtectionNoneWithInvalidSessionUrl")).autowire();
 
-		this.mvc.perform(get("/auth").with(request -> {
+		this.mvc.perform(get("/auth").with((request) -> {
 			request.setRequestedSessionId("1");
 			request.setRequestedSessionIdValid(false);
 			return request;

@@ -91,11 +91,11 @@ public class PortMapperConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel(requiresChannel ->
+				.requiresChannel((requiresChannel) ->
 					requiresChannel
 					.anyRequest().requiresSecure()
 				)
-				.portMapper(portMapper ->
+				.portMapper((portMapper) ->
 					portMapper
 						.http(543).mapsTo(123)
 				);
@@ -113,11 +113,11 @@ public class PortMapperConfigurerTests {
 			customPortMapper.setPortMappings(Collections.singletonMap("543", "123"));
 			// @formatter:off
 			http
-				.requiresChannel(requiresChannel ->
+				.requiresChannel((requiresChannel) ->
 					requiresChannel
 						.anyRequest().requiresSecure()
 				)
-				.portMapper(portMapper ->
+				.portMapper((portMapper) ->
 					portMapper
 						.portMapper(customPortMapper)
 				);

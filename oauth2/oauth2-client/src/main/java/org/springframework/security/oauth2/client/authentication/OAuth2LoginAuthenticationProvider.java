@@ -70,7 +70,7 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 
-	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
+	private GrantedAuthoritiesMapper authoritiesMapper = ((authorities) -> authorities);
 
 	/**
 	 * Constructs an {@code OAuth2LoginAuthenticationProvider} using the provided

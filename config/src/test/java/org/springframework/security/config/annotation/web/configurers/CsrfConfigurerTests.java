@@ -558,7 +558,7 @@ public class CsrfConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf(csrf -> csrf.requireCsrfProtectionMatcher(MATCHER));
+				.csrf((csrf) -> csrf.requireCsrfProtectionMatcher(MATCHER));
 			// @formatter:on
 		}
 
@@ -601,7 +601,7 @@ public class CsrfConfigurerTests {
 			// @formatter:off
 			http
 				.formLogin(withDefaults())
-				.csrf(csrf -> csrf.csrfTokenRepository(REPO));
+				.csrf((csrf) -> csrf.csrfTokenRepository(REPO));
 			// @formatter:on
 		}
 

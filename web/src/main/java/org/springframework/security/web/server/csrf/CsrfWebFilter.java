@@ -116,11 +116,11 @@ public class CsrfWebFilter implements WebFilter {
 			return chain.filter(exchange).then(Mono.empty());
 		}
 
-		return this.requireCsrfProtectionMatcher.matches(exchange).filter(matchResult -> matchResult.isMatch())
-				.filter(matchResult -> !exchange.getAttributes().containsKey(CsrfToken.class.getName()))
-				.flatMap(m -> validateToken(exchange)).flatMap(m -> continueFilterChain(exchange, chain))
+		return this.requireCsrfProtectionMatcher.matches(exchange).filter((matchResult) -> matchResult.isMatch())
+				.filter((matchResult) -> !exchange.getAttributes().containsKey(CsrfToken.class.getName()))
+				.flatMap((m) -> validateToken(exchange)).flatMap((m) -> continueFilterChain(exchange, chain))
 				.switchIfEmpty(continueFilterChain(exchange, chain).then(Mono.empty()))
-				.onErrorResume(CsrfException.class, e -> this.accessDeniedHandler.handle(exchange, e));
+				.onErrorResume(CsrfException.class, (e) -> this.accessDeniedHandler.handle(exchange, e));
 	}
 
 	public static void skipExchange(ServerWebExchange exchange) {
@@ -131,15 +131,15 @@ public class CsrfWebFilter implements WebFilter {
 		return this.csrfTokenRepository.loadToken(exchange)
 				.switchIfEmpty(Mono
 						.defer(() -> Mono.error(new CsrfException("CSRF Token has been associated to this client"))))
-				.filterWhen(expected -> containsValidCsrfToken(exchange, expected))
+				.filterWhen((expected) -> containsValidCsrfToken(exchange, expected))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new CsrfException("Invalid CSRF Token")))).then();
 	}
 
 	private Mono<Boolean> containsValidCsrfToken(ServerWebExchange exchange, CsrfToken expected) {
-		return exchange.getFormData().flatMap(data -> Mono.justOrEmpty(data.getFirst(expected.getParameterName())))
+		return exchange.getFormData().flatMap((data) -> Mono.justOrEmpty(data.getFirst(expected.getParameterName())))
 				.switchIfEmpty(Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst(expected.getHeaderName())))
 				.switchIfEmpty(tokenFromMultipartData(exchange, expected))
-				.map(actual -> actual.equals(expected.getToken()));
+				.map((actual) -> actual.equals(expected.getToken()));
 	}
 
 	private Mono<String> tokenFromMultipartData(ServerWebExchange exchange, CsrfToken expected) {
@@ -152,7 +152,7 @@ public class CsrfWebFilter implements WebFilter {
 		if (!contentType.includes(MediaType.MULTIPART_FORM_DATA)) {
 			return Mono.empty();
 		}
-		return exchange.getMultipartData().map(d -> d.getFirst(expected.getParameterName())).cast(FormFieldPart.class)
+		return exchange.getMultipartData().map((d) -> d.getFirst(expected.getParameterName())).cast(FormFieldPart.class)
 				.map(FormFieldPart::value);
 	}
 
@@ -170,7 +170,7 @@ public class CsrfWebFilter implements WebFilter {
 
 	private Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
 		return this.csrfTokenRepository.generateToken(exchange)
-				.delayUntil(token -> this.csrfTokenRepository.saveToken(exchange, token));
+				.delayUntil((token) -> this.csrfTokenRepository.saveToken(exchange, token));
 	}
 
 	private static class DefaultRequireCsrfProtectionMatcher implements ServerWebExchangeMatcher {
@@ -180,8 +180,8 @@ public class CsrfWebFilter implements WebFilter {
 
 		@Override
 		public Mono<MatchResult> matches(ServerWebExchange exchange) {
-			return Mono.just(exchange.getRequest()).flatMap(r -> Mono.justOrEmpty(r.getMethod()))
-					.filter(m -> ALLOWED_METHODS.contains(m)).flatMap(m -> MatchResult.notMatch())
+			return Mono.just(exchange.getRequest()).flatMap((r) -> Mono.justOrEmpty(r.getMethod()))
+					.filter((m) -> ALLOWED_METHODS.contains(m)).flatMap((m) -> MatchResult.notMatch())
 					.switchIfEmpty(MatchResult.match());
 		}
 

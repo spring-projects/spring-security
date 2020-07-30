@@ -32,64 +32,64 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests(authorizeRequests ->
+			.authorizeRequests((authorizeRequests) -> 
 				authorizeRequests
 					.antMatchers("/resources/**").permitAll()
 					.anyRequest().authenticated()
 			)
-			.openidLogin(openidLogin ->
+			.openidLogin((openidLogin) -> 
 				openidLogin
 					.loginPage("/login")
 					.permitAll()
 					.authenticationUserDetailsService(new CustomUserDetailsService())
-					.attributeExchange(googleExchange ->
+					.attributeExchange((googleExchange) -> 
 						googleExchange
 							.identifierPattern("https://www.google.com/.*")
-							.attribute(emailAttribute ->
+							.attribute((emailAttribute) -> 
 								emailAttribute
 									.name("email")
 									.type("https://axschema.org/contact/email")
 									.required(true)
 							)
-							.attribute(firstnameAttribute ->
+							.attribute((firstnameAttribute) -> 
 								firstnameAttribute
 									.name("firstname")
 									.type("https://axschema.org/namePerson/first")
 									.required(true)
 							)
-							.attribute(lastnameAttribute ->
+							.attribute((lastnameAttribute) -> 
 								lastnameAttribute
 									.name("lastname")
 									.type("https://axschema.org/namePerson/last")
 									.required(true)
 							)
 					)
-					.attributeExchange(yahooExchange ->
+					.attributeExchange((yahooExchange) -> 
 						yahooExchange
 							.identifierPattern(".*yahoo.com.*")
-							.attribute(emailAttribute ->
+							.attribute((emailAttribute) -> 
 								emailAttribute
 									.name("email")
 									.type("https://axschema.org/contact/email")
 									.required(true)
 							)
-							.attribute(fullnameAttribute ->
+							.attribute((fullnameAttribute) -> 
 								fullnameAttribute
 									.name("fullname")
 									.type("https://axschema.org/namePerson")
 									.required(true)
 							)
 					)
-					.attributeExchange(myopenidExchange ->
+					.attributeExchange((myopenidExchange) -> 
 						myopenidExchange
 							.identifierPattern(".*myopenid.com.*")
-							.attribute(emailAttribute ->
+							.attribute((emailAttribute) -> 
 								emailAttribute
 									.name("email")
 									.type("https://schema.openid.net/contact/email")
 									.required(true)
 							)
-							.attribute(fullnameAttribute ->
+							.attribute((fullnameAttribute) -> 
 									fullnameAttribute
 									.name("fullname")
 									.type("https://schema.openid.net/namePerson")

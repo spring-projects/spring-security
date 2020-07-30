@@ -106,7 +106,7 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 		AtomicBoolean slowDone = new AtomicBoolean();
 		CountDownLatch latch = new CountDownLatch(1);
 		ServerAuthenticationSuccessHandler slow = (exchange, authentication) -> Mono.delay(Duration.ofMillis(100))
-				.doOnSuccess(__ -> slowDone.set(true)).then();
+				.doOnSuccess((__) -> slowDone.set(true)).then();
 		ServerAuthenticationSuccessHandler second = (exchange, authentication) -> Mono.fromRunnable(() -> {
 			latch.countDown();
 			assertThat(slowDone.get()).describedAs("ServerAuthenticationSuccessHandler should be executed sequentially")

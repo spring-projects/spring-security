@@ -445,7 +445,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		request.setServletPath(requestUri);
 		if (!CollectionUtils.isEmpty(parameters)) {
 			parameters.forEach(request::addParameter);
-			request.setQueryString(parameters.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue())
+			request.setQueryString(parameters.entrySet().stream().map((e) -> e.getKey() + "=" + e.getValue())
 					.collect(Collectors.joining("&")));
 		}
 		return request;
@@ -465,7 +465,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		authorizationResponse.addParameter(OAuth2ParameterNames.STATE, "state");
 		additionalParameters.forEach(authorizationResponse::addParameter);
 		authorizationResponse.setQueryString(authorizationResponse.getParameterMap().entrySet().stream()
-				.map(e -> e.getKey() + "=" + e.getValue()[0]).collect(Collectors.joining("&")));
+				.map((e) -> e.getKey() + "=" + e.getValue()[0]).collect(Collectors.joining("&")));
 		authorizationResponse.setSession(authorizationRequest.getSession());
 		return authorizationResponse;
 	}

@@ -123,7 +123,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 	@Test
 	public void csrfWhenMutateWithThenDisablesCsrf() {
 		this.client.post().exchange().expectStatus().isEqualTo(HttpStatus.FORBIDDEN).expectBody()
-				.consumeWith(b -> assertThat(new String(b.getResponseBody())).contains("CSRF"));
+				.consumeWith((b) -> assertThat(new String(b.getResponseBody())).contains("CSRF"));
 
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf()).post().exchange().expectStatus().isOk();
 

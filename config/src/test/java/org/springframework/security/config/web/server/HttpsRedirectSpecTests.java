@@ -174,7 +174,7 @@ public class HttpsRedirectSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.redirectToHttps(redirectToHttps ->
+				.redirectToHttps((redirectToHttps) ->
 					redirectToHttps
 						.httpsRedirectWhen(new PathPatternParserServerWebExchangeMatcher("/secure"))
 				);
@@ -215,7 +215,7 @@ public class HttpsRedirectSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.redirectToHttps(redirectToHttps ->
+				.redirectToHttps((redirectToHttps) ->
 					redirectToHttps
 						.portMapper(portMapper())
 				);

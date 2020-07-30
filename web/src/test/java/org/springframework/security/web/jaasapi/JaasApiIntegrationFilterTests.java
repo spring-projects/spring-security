@@ -82,7 +82,7 @@ public class JaasApiIntegrationFilterTests {
 		this.authenticatedSubject.getPrincipals().add(() -> "principal");
 		this.authenticatedSubject.getPrivateCredentials().add("password");
 		this.authenticatedSubject.getPublicCredentials().add("username");
-		this.callbackHandler = callbacks -> {
+		this.callbackHandler = (callbacks) -> {
 			for (Callback callback : callbacks) {
 				if (callback instanceof NameCallback) {
 					((NameCallback) callback).setName("user");

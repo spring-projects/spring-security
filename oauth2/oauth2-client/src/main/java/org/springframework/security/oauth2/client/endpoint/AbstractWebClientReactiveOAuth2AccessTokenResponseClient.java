@@ -67,9 +67,9 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 		Assert.notNull(grantRequest, "grantRequest cannot be null");
 		return Mono.defer(
 				() -> this.webClient.post().uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
-						.headers(headers -> populateTokenRequestHeaders(grantRequest, headers))
+						.headers((headers) -> populateTokenRequestHeaders(grantRequest, headers))
 						.body(createTokenRequestBody(grantRequest)).exchange()
-						.flatMap(response -> readTokenResponse(grantRequest, response)));
+						.flatMap((response) -> readTokenResponse(grantRequest, response)));
 	}
 
 	/**
@@ -170,7 +170,7 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
 		return response.body(OAuth2BodyExtractors.oauth2AccessTokenResponse())
-				.map(tokenResponse -> populateTokenResponse(grantRequest, tokenResponse));
+				.map((tokenResponse) -> populateTokenResponse(grantRequest, tokenResponse));
 	}
 
 	/**

@@ -62,7 +62,7 @@ public class DelegatingSecurityContextRunnableTests {
 	@Before
 	public void setUp() {
 		this.originalSecurityContext = SecurityContextHolder.createEmptyContext();
-		willAnswer((Answer<Object>) invocation -> {
+		willAnswer((Answer<Object>) (invocation) -> {
 			assertThat(SecurityContextHolder.getContext()).isEqualTo(this.securityContext);
 			return null;
 		}).given(this.delegate).run();

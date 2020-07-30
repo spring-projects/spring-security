@@ -80,7 +80,7 @@ public final class DefaultRelyingPartyRegistrationResolver
 	}
 
 	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
-		return template -> resolveUrlTemplate(template, applicationUri, relyingParty);
+		return (template) -> resolveUrlTemplate(template, applicationUri, relyingParty);
 	}
 
 	private static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {

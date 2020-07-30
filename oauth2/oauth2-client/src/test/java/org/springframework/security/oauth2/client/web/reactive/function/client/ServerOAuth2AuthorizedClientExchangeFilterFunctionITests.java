@@ -228,7 +228,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
 						.clientRegistrationId(clientRegistration1.getRegistrationId()))
 				.retrieve().bodyToMono(String.class)
-				.flatMap(response -> this.webClient.get().uri(this.serverUrl)
+				.flatMap((response) -> this.webClient.get().uri(this.serverUrl)
 						.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
 								.clientRegistrationId(clientRegistration2.getRegistrationId()))
 						.retrieve().bodyToMono(String.class))
@@ -281,7 +281,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 		// first try should fail, and remove the cached authorized client
 		assertThatCode(requestMono::block).isInstanceOfSatisfying(WebClientResponseException.class,
-				e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
+				(e) -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
 
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
 

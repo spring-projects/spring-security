@@ -78,9 +78,8 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 		super(null);
 		this.relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId(idpEntityId)
 				.entityId(localSpEntityId).assertionConsumerServiceLocation(recipientUri)
-				.credentials(c -> c.addAll(credentials))
-				.assertingPartyDetails(
-						assertingParty -> assertingParty.entityId(idpEntityId).singleSignOnServiceLocation(idpEntityId))
+				.credentials((c) -> c.addAll(credentials)).assertingPartyDetails((assertingParty) -> assertingParty
+						.entityId(idpEntityId).singleSignOnServiceLocation(idpEntityId))
 				.build();
 		this.saml2Response = saml2Response;
 	}

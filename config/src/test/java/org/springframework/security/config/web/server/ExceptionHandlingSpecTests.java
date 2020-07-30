@@ -52,7 +52,7 @@ public class ExceptionHandlingSpecTests {
 	@Test
 	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAuthenticationEntryPointUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())
+				.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
 				.exceptionHandling(withDefaults()).build();
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
@@ -75,8 +75,8 @@ public class ExceptionHandlingSpecTests {
 	@Test
 	public void requestWhenCustomAuthenticationEntryPointInLambdaThenCustomAuthenticationEntryPointUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange(exchanges -> exchanges.anyExchange().authenticated())
-				.exceptionHandling(exceptionHandling -> exceptionHandling
+				.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
+				.exceptionHandling((exceptionHandling) -> exceptionHandling
 						.authenticationEntryPoint(redirectServerAuthenticationEntryPoint("/auth")))
 				.build();
 
@@ -92,19 +92,19 @@ public class ExceptionHandlingSpecTests {
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
 
-		client.get().uri("/admin").headers(headers -> headers.setBasicAuth("user", "password")).exchange()
+		client.get().uri("/admin").headers((headers) -> headers.setBasicAuth("user", "password")).exchange()
 				.expectStatus().isForbidden();
 	}
 
 	@Test
 	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAccessDeniedHandlerUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http.httpBasic(withDefaults())
-				.authorizeExchange(exchanges -> exchanges.anyExchange().hasRole("ADMIN"))
+				.authorizeExchange((exchanges) -> exchanges.anyExchange().hasRole("ADMIN"))
 				.exceptionHandling(withDefaults()).build();
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
 
-		client.get().uri("/admin").headers(headers -> headers.setBasicAuth("user", "password")).exchange()
+		client.get().uri("/admin").headers((headers) -> headers.setBasicAuth("user", "password")).exchange()
 				.expectStatus().isForbidden();
 	}
 
@@ -116,21 +116,21 @@ public class ExceptionHandlingSpecTests {
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
 
-		client.get().uri("/admin").headers(headers -> headers.setBasicAuth("user", "password")).exchange()
+		client.get().uri("/admin").headers((headers) -> headers.setBasicAuth("user", "password")).exchange()
 				.expectStatus().isBadRequest();
 	}
 
 	@Test
 	public void requestWhenCustomAccessDeniedHandlerInLambdaThenCustomAccessDeniedHandlerUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http.httpBasic(withDefaults())
-				.authorizeExchange(exchanges -> exchanges.anyExchange().hasRole("ADMIN"))
-				.exceptionHandling(exceptionHandling -> exceptionHandling
+				.authorizeExchange((exchanges) -> exchanges.anyExchange().hasRole("ADMIN"))
+				.exceptionHandling((exceptionHandling) -> exceptionHandling
 						.accessDeniedHandler(httpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST)))
 				.build();
 
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
 
-		client.get().uri("/admin").headers(headers -> headers.setBasicAuth("user", "password")).exchange()
+		client.get().uri("/admin").headers((headers) -> headers.setBasicAuth("user", "password")).exchange()
 				.expectStatus().isBadRequest();
 	}
 

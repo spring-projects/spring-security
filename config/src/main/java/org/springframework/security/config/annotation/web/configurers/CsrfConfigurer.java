@@ -170,7 +170,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <pre>
 	 * http
 	 *     .csrf()
-	 *         .ignoringRequestMatchers(request -> "XMLHttpRequest".equals(request.getHeader("X-Requested-With")))
+	 *         .ignoringRequestMatchers((request) -> "XMLHttpRequest".equals(request.getHeader("X-Requested-With")))
 	 *         .and()
 	 *     ...
 	 * </pre>

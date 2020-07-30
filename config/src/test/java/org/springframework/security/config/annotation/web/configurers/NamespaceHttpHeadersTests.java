@@ -153,7 +153,7 @@ public class NamespaceHttpHeadersTests {
 	}
 
 	private static ResultMatcher includes(Map<String, String> headers, String... headerNames) {
-		return result -> {
+		return (result) -> {
 			assertThat(result.getResponse().getHeaderNames()).hasSameSizeAs(headerNames);
 			for (String headerName : headerNames) {
 				header().string(headerName, headers.get(headerName)).match(result);

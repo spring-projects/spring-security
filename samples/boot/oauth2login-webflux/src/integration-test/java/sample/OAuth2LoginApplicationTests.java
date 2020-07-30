@@ -46,7 +46,7 @@ public class OAuth2LoginApplicationTests {
 	@Test
 	public void requestWhenMockOidcLoginThenIndex() {
 		this.clientRegistrationRepository.findByRegistrationId("github")
-				.map(clientRegistration ->
+				.map((clientRegistration) -> 
 						this.test.mutateWith(mockOAuth2Login().clientRegistration(clientRegistration))
 							.get().uri("/")
 							.exchange()

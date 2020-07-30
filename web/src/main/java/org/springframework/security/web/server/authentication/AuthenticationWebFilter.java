@@ -91,7 +91,7 @@ public class AuthenticationWebFilter implements WebFilter {
 	 */
 	public AuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
-		this.authenticationManagerResolver = request -> Mono.just(authenticationManager);
+		this.authenticationManagerResolver = (request) -> Mono.just(authenticationManager);
 	}
 
 	/**
@@ -107,22 +107,22 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.requiresAuthenticationMatcher.matches(exchange).filter(matchResult -> matchResult.isMatch())
-				.flatMap(matchResult -> this.authenticationConverter.convert(exchange))
+		return this.requiresAuthenticationMatcher.matches(exchange).filter((matchResult) -> matchResult.isMatch())
+				.flatMap((matchResult) -> this.authenticationConverter.convert(exchange))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-				.flatMap(token -> authenticate(exchange, chain, token))
-				.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
+				.flatMap((token) -> authenticate(exchange, chain, token))
+				.onErrorResume(AuthenticationException.class, (e) -> this.authenticationFailureHandler
 						.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e));
 	}
 
 	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
 		return this.authenticationManagerResolver.resolve(exchange)
-				.flatMap(authenticationManager -> authenticationManager.authenticate(token))
+				.flatMap((authenticationManager) -> authenticationManager.authenticate(token))
 				.switchIfEmpty(Mono.defer(
 						() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
-				.flatMap(authentication -> onAuthenticationSuccess(authentication,
+				.flatMap((authentication) -> onAuthenticationSuccess(authentication,
 						new WebFilterExchange(exchange, chain)))
-				.doOnError(AuthenticationException.class, e -> {
+				.doOnError(AuthenticationException.class, (e) -> {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Authentication failed: " + e.getMessage());
 					}

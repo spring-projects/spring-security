@@ -45,13 +45,14 @@ public class AuthorizationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return ReactiveSecurityContextHolder.getContext().filter(c -> c.getAuthentication() != null)
+		return ReactiveSecurityContextHolder.getContext().filter((c) -> c.getAuthentication() != null)
 				.map(SecurityContext::getAuthentication)
-				.as(authentication -> this.authorizationManager.verify(authentication, exchange)).doOnSuccess(it -> {
+				.as((authentication) -> this.authorizationManager.verify(authentication, exchange))
+				.doOnSuccess((it) -> {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Authorization successful");
 					}
-				}).doOnError(AccessDeniedException.class, e -> {
+				}).doOnError(AccessDeniedException.class, (e) -> {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Authorization failed: " + e.getMessage());
 					}

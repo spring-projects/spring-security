@@ -56,7 +56,7 @@ public class DefaultLogoutPageGeneratingFilterTests {
 
 	@Test
 	public void doFilterWhenHiddenInputsSetThenHiddenInputsRendered() throws Exception {
-		this.filter.setResolveHiddenInputs(r -> Collections.singletonMap("_csrf", "csrf-token-1"));
+		this.filter.setResolveHiddenInputs((r) -> Collections.singletonMap("_csrf", "csrf-token-1"));
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object()).addFilters(this.filter).build();
 
 		mockMvc.perform(get("/logout")).andExpect(

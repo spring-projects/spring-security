@@ -118,7 +118,7 @@ public class OpenIDConfigTests {
 
 		OpenIDConsumer consumer = mock(OpenIDConsumer.class);
 		given(consumer.beginConsumption(any(HttpServletRequest.class), anyString(), anyString(), anyString()))
-				.will(invocation -> openIdEndpointUrl + invocation.getArgument(2));
+				.will((invocation) -> openIdEndpointUrl + invocation.getArgument(2));
 		openIDFilter.setConsumer(consumer);
 
 		String expectedReturnTo = new StringBuilder("http://localhost/login/openid").append("?")
@@ -155,7 +155,7 @@ public class OpenIDConfigTests {
 			this.mvc.perform(
 					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
 					.andExpect(status().isFound())
-					.andExpect(result -> result.getResponse().getRedirectedUrl().endsWith(
+					.andExpect((result) -> result.getResponse().getRedirectedUrl().endsWith(
 							"openid.ext1.type.nickname=http%3A%2F%2Fschema.openid.net%2FnamePerson%2Ffriendly&"
 									+ "openid.ext1.if_available=nickname&"
 									+ "openid.ext1.type.email=http%3A%2F%2Fschema.openid.net%2Fcontact%2Femail&"

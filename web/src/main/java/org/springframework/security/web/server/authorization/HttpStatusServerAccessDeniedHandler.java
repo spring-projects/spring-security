@@ -50,12 +50,12 @@ public class HttpStatusServerAccessDeniedHandler implements ServerAccessDeniedHa
 
 	@Override
 	public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException ex) {
-		return Mono.defer(() -> Mono.just(exchange.getResponse())).flatMap(response -> {
+		return Mono.defer(() -> Mono.just(exchange.getResponse())).flatMap((response) -> {
 			response.setStatusCode(this.httpStatus);
 			response.getHeaders().setContentType(MediaType.TEXT_PLAIN);
 			DataBufferFactory dataBufferFactory = response.bufferFactory();
 			DataBuffer buffer = dataBufferFactory.wrap(ex.getMessage().getBytes(Charset.defaultCharset()));
-			return response.writeWith(Mono.just(buffer)).doOnError(error -> DataBufferUtils.release(buffer));
+			return response.writeWith(Mono.just(buffer)).doOnError((error) -> DataBufferUtils.release(buffer));
 		});
 	}
 

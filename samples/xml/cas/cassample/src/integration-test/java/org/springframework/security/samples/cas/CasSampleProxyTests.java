@@ -117,14 +117,14 @@ public class CasSampleProxyTests {
 	public void extremelySecurePageWhenReusingTicketThenDisplays() {
 		this.login.to(this::serviceParam).assertAt().login("rod");
 		Map<String, String> ptCache = new HashMap<>();
-		this.extremelySecure.to(url -> url + "?ticket=" + ptCache.computeIfAbsent(url, this::getPt)).assertAt();
-		this.extremelySecure.to(url -> url + "?ticket=" + ptCache.get(url)).assertAt();
+		this.extremelySecure.to((url) -> url + "?ticket=" + ptCache.computeIfAbsent(url, this::getPt)).assertAt();
+		this.extremelySecure.to((url) -> url + "?ticket=" + ptCache.get(url)).assertAt();
 	}
 
 	@Test
 	public void securePageWhenInvalidTicketThenFails() {
 		this.login.to(this::serviceParam).assertAt().login("scott");
-		this.secure.to(url -> url + "?ticket=invalid");
+		this.secure.to((url) -> url + "?ticket=invalid");
 		this.unauthorized.assertAt();
 	}
 

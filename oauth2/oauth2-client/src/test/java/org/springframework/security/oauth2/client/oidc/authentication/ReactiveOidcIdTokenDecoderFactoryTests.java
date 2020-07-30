@@ -109,7 +109,7 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmEcAndJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
-		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> SignatureAlgorithm.ES256);
+		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> SignatureAlgorithm.ES256);
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
@@ -119,7 +119,7 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmHmacAndClientSecretNullThenThrowOAuth2AuthenticationException() {
-		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> MacAlgorithm.HS256);
+		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> MacAlgorithm.HS256);
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.clientSecret(null).build()))
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
@@ -129,7 +129,7 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmNullThenThrowOAuth2AuthenticationException() {
-		this.idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> null);
+		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> null);
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.build()))
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "

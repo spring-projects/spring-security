@@ -99,7 +99,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 
 	private WebFilterExchange createExchange() {
 		return new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()),
-				new DefaultWebFilterChain(e -> Mono.empty()));
+				new DefaultWebFilterChain((e) -> Mono.empty()));
 	}
 
 }

@@ -197,7 +197,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OAUTH_USER");
 		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
 		given(authoritiesMapper.mapAuthorities(anyCollection()))
-				.willAnswer((Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
+				.willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> mappedAuthorities);
 		this.manager.setAuthoritiesMapper(authoritiesMapper);
 
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken())

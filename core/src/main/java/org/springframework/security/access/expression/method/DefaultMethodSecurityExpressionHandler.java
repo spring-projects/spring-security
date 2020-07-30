@@ -204,7 +204,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		if (filterTarget instanceof Stream) {
 			final Stream<?> original = (Stream<?>) filterTarget;
 
-			return original.filter(filterObject -> {
+			return original.filter((filterObject) -> {
 				rootObject.setFilterObject(filterObject);
 				return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
 			}).onClose(original::close);

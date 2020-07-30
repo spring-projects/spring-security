@@ -66,14 +66,14 @@ public class SecurityMockMvcResultMatchersTests {
 
 	@Test
 	public void withAuthenticationWhenMatchesThenSuccess() throws Exception {
-		this.mockMvc.perform(formLogin()).andExpect(authenticated()
-				.withAuthentication(auth -> assertThat(auth).isInstanceOf(UsernamePasswordAuthenticationToken.class)));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withAuthentication(
+				(auth) -> assertThat(auth).isInstanceOf(UsernamePasswordAuthenticationToken.class)));
 	}
 
 	@Test(expected = AssertionError.class)
 	public void withAuthenticationWhenNotMatchesThenFails() throws Exception {
 		this.mockMvc.perform(formLogin()).andExpect(
-				authenticated().withAuthentication(auth -> assertThat(auth.getName()).isEqualTo("notmatch")));
+				authenticated().withAuthentication((auth) -> assertThat(auth.getName()).isEqualTo("notmatch")));
 	}
 
 	// SEC-2719

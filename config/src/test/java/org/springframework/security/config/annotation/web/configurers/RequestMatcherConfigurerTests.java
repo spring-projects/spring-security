@@ -87,15 +87,15 @@ public class RequestMatcherConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestMatchers(requestMatchers ->
+				.requestMatchers((requestMatchers) ->
 					requestMatchers
 						.antMatchers("/api/**")
 				)
-				.requestMatchers(requestMatchers ->
+				.requestMatchers((requestMatchers) ->
 					requestMatchers
 						.antMatchers("/oauth/**")
 				)
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().denyAll()
 				);

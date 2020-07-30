@@ -63,7 +63,7 @@ public class OAuth2LoginControllerTests {
 
 		this.mvc.perform(get("/").with(oauth2Login()
 				.clientRegistration(clientRegistration)
-				.attributes(a -> a.put("sub", "spring-security"))))
+				.attributes((a) -> a.put("sub", "spring-security"))))
 				.andExpect(model().attribute("userName", "spring-security"))
 				.andExpect(model().attribute("clientName", "my-client-name"))
 				.andExpect(model().attribute("userAttributes", Collections.singletonMap("sub", "spring-security")));

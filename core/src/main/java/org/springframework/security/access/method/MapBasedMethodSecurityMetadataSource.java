@@ -156,7 +156,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 
 			if ((regMethodName == null) || (!regMethodName.equals(name) && (regMethodName.length() <= name.length()))) {
 				// no already registered method name, or more specific
-				// method name specification now -> (re-)register method
+				// method name specification (now) -> (re-)register method
 				if (regMethodName != null) {
 					this.logger.debug("Replacing attributes for secure method [" + method + "]: current name [" + name
 							+ "] is more specific than [" + regMethodName + "]");

@@ -214,7 +214,7 @@ public class InterceptUrlConfigTests {
 		MockServletContext servletContext = spy(new MockServletContext());
 		final ServletRegistration registration = mock(ServletRegistration.class);
 		given(registration.getMappings()).willReturn(Collections.singleton(servletPath));
-		Answer<Map<String, ? extends ServletRegistration>> answer = invocation -> Collections.singletonMap("spring",
+		Answer<Map<String, ? extends ServletRegistration>> answer = (invocation) -> Collections.singletonMap("spring",
 				registration);
 		given(servletContext.getServletRegistrations()).willAnswer(answer);
 		return servletContext;

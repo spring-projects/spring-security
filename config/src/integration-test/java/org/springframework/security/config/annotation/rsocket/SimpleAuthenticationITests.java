@@ -139,7 +139,7 @@ public class SimpleAuthenticationITests {
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket.authorizePayload(authorize -> authorize.anyRequest().authenticated().anyExchange().permitAll())
+			rsocket.authorizePayload((authorize) -> authorize.anyRequest().authenticated().anyExchange().permitAll())
 					.simpleAuthentication(Customizer.withDefaults());
 			return rsocket.build();
 		}

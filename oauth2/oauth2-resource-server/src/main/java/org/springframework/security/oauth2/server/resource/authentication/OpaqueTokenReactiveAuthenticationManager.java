@@ -81,7 +81,7 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 	}
 
 	private Mono<BearerTokenAuthentication> authenticate(String token) {
-		return this.introspector.introspect(token).map(principal -> {
+		return this.introspector.introspect(token).map((principal) -> {
 			Instant iat = principal.getAttribute(OAuth2IntrospectionClaimNames.ISSUED_AT);
 			Instant exp = principal.getAttribute(OAuth2IntrospectionClaimNames.EXPIRES_AT);
 

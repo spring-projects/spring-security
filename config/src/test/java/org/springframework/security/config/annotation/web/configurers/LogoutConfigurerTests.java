@@ -267,7 +267,7 @@ public class LogoutConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout(logout ->
+				.logout((logout) ->
 					logout.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class))
 				);
 			// @formatter:on
@@ -296,7 +296,7 @@ public class LogoutConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout(logout ->
+				.logout((logout) ->
 					logout.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null)
 				);
 			// @formatter:on
@@ -397,7 +397,7 @@ public class LogoutConfigurerTests {
 			http
 				.csrf()
 					.disable()
-				.logout(logout -> logout.logoutUrl("/custom/logout"));
+				.logout((logout) -> logout.logoutUrl("/custom/logout"));
 			// @formatter:on
 		}
 
@@ -424,7 +424,7 @@ public class LogoutConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.logout(logout -> logout.addLogoutHandler(null));
+				.logout((logout) -> logout.addLogoutHandler(null));
 			// @formatter:on
 		}
 

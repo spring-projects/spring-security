@@ -60,7 +60,7 @@ import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMat
  *     &#064;Bean
  *     PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
  *         rsocket
- *             .authorizePayload(authorize ->
+ *             .authorizePayload((authorize) ->
  *                 authorize
  *                     .anyRequest().authenticated()
  *             );
@@ -87,7 +87,7 @@ import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMat
  *     &#064;Bean
  *     PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
  *         rsocket
- *             .authorizePayload(authorize ->
+ *             .authorizePayload((authorize) ->
  *                 authorize
  *                     // must have ROLE_SETUP to make connection
  *                     .setup().hasRole("SETUP")

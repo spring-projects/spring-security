@@ -73,7 +73,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder provider(ReactiveOAuth2AuthorizedClientProvider provider) {
 		Assert.notNull(provider, "provider cannot be null");
-		this.builders.computeIfAbsent(provider.getClass(), k -> () -> provider);
+		this.builders.computeIfAbsent(provider.getClass(), (k) -> () -> provider);
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -83,7 +83,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder authorizationCode() {
 		this.builders.computeIfAbsent(AuthorizationCodeReactiveOAuth2AuthorizedClientProvider.class,
-				k -> new AuthorizationCodeGrantBuilder());
+				(k) -> new AuthorizationCodeGrantBuilder());
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -93,7 +93,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder refreshToken() {
 		this.builders.computeIfAbsent(RefreshTokenReactiveOAuth2AuthorizedClientProvider.class,
-				k -> new RefreshTokenGrantBuilder());
+				(k) -> new RefreshTokenGrantBuilder());
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -106,7 +106,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	public ReactiveOAuth2AuthorizedClientProviderBuilder refreshToken(
 			Consumer<RefreshTokenGrantBuilder> builderConsumer) {
 		RefreshTokenGrantBuilder builder = (RefreshTokenGrantBuilder) this.builders.computeIfAbsent(
-				RefreshTokenReactiveOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
+				RefreshTokenReactiveOAuth2AuthorizedClientProvider.class, (k) -> new RefreshTokenGrantBuilder());
 		builderConsumer.accept(builder);
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
@@ -117,7 +117,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder clientCredentials() {
 		this.builders.computeIfAbsent(ClientCredentialsReactiveOAuth2AuthorizedClientProvider.class,
-				k -> new ClientCredentialsGrantBuilder());
+				(k) -> new ClientCredentialsGrantBuilder());
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -131,7 +131,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 			Consumer<ClientCredentialsGrantBuilder> builderConsumer) {
 		ClientCredentialsGrantBuilder builder = (ClientCredentialsGrantBuilder) this.builders.computeIfAbsent(
 				ClientCredentialsReactiveOAuth2AuthorizedClientProvider.class,
-				k -> new ClientCredentialsGrantBuilder());
+				(k) -> new ClientCredentialsGrantBuilder());
 		builderConsumer.accept(builder);
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
@@ -142,7 +142,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder password() {
 		this.builders.computeIfAbsent(PasswordReactiveOAuth2AuthorizedClientProvider.class,
-				k -> new PasswordGrantBuilder());
+				(k) -> new PasswordGrantBuilder());
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -153,8 +153,8 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
-		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders
-				.computeIfAbsent(PasswordReactiveOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
+		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders.computeIfAbsent(
+				PasswordReactiveOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
 		builderConsumer.accept(builder);
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}

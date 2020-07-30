@@ -35,7 +35,7 @@ public class SecurityConfig {
 	@Bean
 	SecurityWebFilterChain configure(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(exchanges ->
+			.authorizeExchange((exchanges) -> 
 				exchanges
 					.pathMatchers("/", "/public/**").permitAll()
 					.anyExchange().authenticated()

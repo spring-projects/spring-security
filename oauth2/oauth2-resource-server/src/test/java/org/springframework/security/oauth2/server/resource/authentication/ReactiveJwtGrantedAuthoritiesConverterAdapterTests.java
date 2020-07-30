@@ -43,7 +43,7 @@ public class ReactiveJwtGrantedAuthoritiesConverterAdapterTests {
 	public void convertWithGrantedAuthoritiesConverter() {
 		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 
-		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter = token -> Arrays
+		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter = (token) -> Arrays
 				.asList(new SimpleGrantedAuthority("blah"));
 
 		Collection<GrantedAuthority> authorities = new ReactiveJwtGrantedAuthoritiesConverterAdapter(

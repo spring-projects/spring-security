@@ -160,10 +160,10 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 					"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
 		}
 		RelyingPartyRegistration.Builder builder = RelyingPartyRegistration.withRegistrationId(descriptor.getEntityID())
-				.assertingPartyDetails(party -> party.entityId(descriptor.getEntityID())
+				.assertingPartyDetails((party) -> party.entityId(descriptor.getEntityID())
 						.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
-						.verificationX509Credentials(c -> c.addAll(verification))
-						.encryptionX509Credentials(c -> c.addAll(encryption)));
+						.verificationX509Credentials((c) -> c.addAll(verification))
+						.encryptionX509Credentials((c) -> c.addAll(encryption)));
 		for (SingleSignOnService singleSignOnService : idpssoDescriptor.getSingleSignOnServices()) {
 			Saml2MessageBinding binding;
 			if (singleSignOnService.getBinding().equals(Saml2MessageBinding.POST.getUrn())) {
@@ -175,8 +175,9 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 			else {
 				continue;
 			}
-			builder.assertingPartyDetails(party -> party.singleSignOnServiceLocation(singleSignOnService.getLocation())
-					.singleSignOnServiceBinding(binding));
+			builder.assertingPartyDetails(
+					(party) -> party.singleSignOnServiceLocation(singleSignOnService.getLocation())
+							.singleSignOnServiceBinding(binding));
 			return builder;
 		}
 		throw new Saml2Exception(

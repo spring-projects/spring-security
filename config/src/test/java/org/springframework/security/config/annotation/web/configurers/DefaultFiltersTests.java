@@ -87,8 +87,8 @@ public class DefaultFiltersTests {
 		DefaultSecurityFilterChain filterChain = (DefaultSecurityFilterChain) filterChains.get(0);
 		assertThat(filterChain.getRequestMatcher()).isInstanceOf(AnyRequestMatcher.class);
 		assertThat(filterChain.getFilters().size()).isEqualTo(1);
-		long filter = filterChain.getFilters().stream().filter(it -> it instanceof UsernamePasswordAuthenticationFilter)
-				.count();
+		long filter = filterChain.getFilters().stream()
+				.filter((it) -> it instanceof UsernamePasswordAuthenticationFilter).count();
 		assertThat(filter).isEqualTo(1);
 	}
 

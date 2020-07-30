@@ -244,7 +244,7 @@ public class RSocketMessageHandlerConnectionITests {
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket.authorizePayload(authorize -> authorize.setup().hasRole("SETUP").route("secure.admin.*")
+			rsocket.authorizePayload((authorize) -> authorize.setup().hasRole("SETUP").route("secure.admin.*")
 					.hasRole("ADMIN").route("secure.**").hasRole("USER").route("secure.authority.*")
 					.hasAuthority("ROLE_USER").route("management.*").hasAnyAuthority("ROLE_ADMIN").route("prohibit")
 					.denyAll().anyRequest().permitAll()).basicAuthentication(Customizer.withDefaults());

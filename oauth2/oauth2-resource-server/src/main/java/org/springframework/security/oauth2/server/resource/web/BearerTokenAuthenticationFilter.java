@@ -85,7 +85,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	 */
 	public BearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
-		this.authenticationManagerResolver = request -> authenticationManager;
+		this.authenticationManagerResolver = (request) -> authenticationManager;
 	}
 
 	/**

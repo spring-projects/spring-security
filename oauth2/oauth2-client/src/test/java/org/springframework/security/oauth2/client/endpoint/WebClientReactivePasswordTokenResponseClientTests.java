@@ -149,7 +149,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
 				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
 				.hasMessageContaining("[invalid_token_response]")
 				.hasMessageContaining("An error occurred parsing the Access Token response")
 				.hasCauseInstanceOf(Throwable.class);
@@ -185,7 +185,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
 				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						e -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
 				.hasMessageContaining("[unauthorized_client]");
 	}
 
@@ -198,7 +198,7 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
 				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
 				.hasMessageContaining("[invalid_token_response]")
 				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}

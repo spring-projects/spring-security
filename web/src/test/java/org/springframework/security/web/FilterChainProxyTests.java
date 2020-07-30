@@ -74,7 +74,7 @@ public class FilterChainProxyTests {
 	public void setup() throws Exception {
 		this.matcher = mock(RequestMatcher.class);
 		this.filter = mock(Filter.class);
-		willAnswer((Answer<Object>) inv -> {
+		willAnswer((Answer<Object>) (inv) -> {
 			Object[] args = inv.getArguments();
 			FilterChain fc = (FilterChain) args[2];
 			HttpServletRequestWrapper extraWrapper = new HttpServletRequestWrapper((HttpServletRequest) args[0]);
@@ -191,7 +191,7 @@ public class FilterChainProxyTests {
 	@Test
 	public void doFilterClearsSecurityContextHolder() throws Exception {
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(true);
-		willAnswer((Answer<Object>) inv -> {
+		willAnswer((Answer<Object>) (inv) -> {
 			SecurityContextHolder.getContext()
 					.setAuthentication(new TestingAuthenticationToken("username", "password"));
 			return null;
@@ -206,7 +206,7 @@ public class FilterChainProxyTests {
 	@Test
 	public void doFilterClearsSecurityContextHolderWithException() throws Exception {
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(true);
-		willAnswer((Answer<Object>) inv -> {
+		willAnswer((Answer<Object>) (inv) -> {
 			SecurityContextHolder.getContext()
 					.setAuthentication(new TestingAuthenticationToken("username", "password"));
 			throw new ServletException("oops");
@@ -228,10 +228,10 @@ public class FilterChainProxyTests {
 	public void doFilterClearsSecurityContextHolderOnceOnForwards() throws Exception {
 		final FilterChain innerChain = mock(FilterChain.class);
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(true);
-		willAnswer((Answer<Object>) inv -> {
+		willAnswer((Answer<Object>) (inv) -> {
 			TestingAuthenticationToken expected = new TestingAuthenticationToken("username", "password");
 			SecurityContextHolder.getContext().setAuthentication(expected);
-			willAnswer((Answer<Object>) inv1 -> {
+			willAnswer((Answer<Object>) (inv1) -> {
 				innerChain.doFilter(this.request, this.response);
 				return null;
 			}).given(this.filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class),

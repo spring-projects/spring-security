@@ -66,7 +66,7 @@ public class NamespaceHttpJeeTests {
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("joe");
 
-		this.mvc.perform(get("/roles").principal(user).with(request -> {
+		this.mvc.perform(get("/roles").principal(user).with((request) -> {
 			request.addUserRole("ROLE_admin");
 			request.addUserRole("ROLE_user");
 			request.addUserRole("ROLE_unmapped");

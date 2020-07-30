@@ -34,7 +34,7 @@ public class LoginPageGeneratingWebFilterTests {
 		MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("/test/login").contextPath("/test"));
 
-		filter.filter(exchange, e -> Mono.empty()).block();
+		filter.filter(exchange, (e) -> Mono.empty()).block();
 
 		assertThat(exchange.getResponse().getBodyAsString().block()).contains("action=\"/test/login\"");
 	}
@@ -46,7 +46,7 @@ public class LoginPageGeneratingWebFilterTests {
 
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/login"));
 
-		filter.filter(exchange, e -> Mono.empty()).block();
+		filter.filter(exchange, (e) -> Mono.empty()).block();
 
 		assertThat(exchange.getResponse().getBodyAsString().block()).contains("action=\"/login\"");
 	}

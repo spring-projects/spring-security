@@ -483,7 +483,7 @@ public class Saml2LoginIntegrationTests {
 			String code,
 			Matcher<String> message
 	) {
-		return result -> {
+		return (result) -> {
 			final HttpSession session = result.getRequest().getSession(false);
 			AssertionErrors.assertNotNull("HttpSession", session);
 			Object exception = session.getAttribute(AUTHENTICATION_EXCEPTION);

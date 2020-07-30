@@ -86,7 +86,7 @@ public class AnonymousAuthenticationWebFilter implements WebFilter {
 			return chain.filter(exchange)
 					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
 					.then(Mono.empty());
-		})).flatMap(securityContext -> {
+		})).flatMap((securityContext) -> {
 			if (logger.isDebugEnabled()) {
 				logger.debug("SecurityContext contains anonymous token: '" + securityContext.getAuthentication() + "'");
 			}

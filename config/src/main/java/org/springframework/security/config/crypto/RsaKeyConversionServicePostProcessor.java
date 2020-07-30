@@ -76,7 +76,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 			registry.addConverter(String.class, RSAPublicKey.class, x509);
 		}
 		else {
-			beanFactory.addPropertyEditorRegistrar(registry -> {
+			beanFactory.addPropertyEditorRegistrar((registry) -> {
 				registry.registerCustomEditor(RSAPublicKey.class, new ConverterPropertyEditorAdapter<>(x509));
 				registry.registerCustomEditor(RSAPrivateKey.class, new ConverterPropertyEditorAdapter<>(pkcs8));
 			});
@@ -101,7 +101,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	}
 
 	private Converter<String, InputStream> pemInputStreamConverter() {
-		return source -> source.startsWith("-----") ? toInputStream(source)
+		return (source) -> source.startsWith("-----") ? toInputStream(source)
 				: toInputStream(this.resourceLoader.getResource(source));
 	}
 
@@ -119,7 +119,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	}
 
 	private <T> Converter<InputStream, T> autoclose(Converter<InputStream, T> inputStreamKeyConverter) {
-		return inputStream -> {
+		return (inputStream) -> {
 			try (InputStream is = inputStream) {
 				return inputStreamKeyConverter.convert(is);
 			}
@@ -130,7 +130,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	}
 
 	private <S, T, I> Converter<S, T> pair(Converter<S, I> one, Converter<I, T> two) {
-		return source -> {
+		return (source) -> {
 			I intermediary = one.convert(source);
 			return two.convert(intermediary);
 		};

@@ -83,7 +83,7 @@ public class JwtAuthenticationProviderTests {
 		given(this.jwtDecoder.decode("token")).willThrow(BadJwtException.class);
 
 		assertThatCode(() -> this.provider.authenticate(token))
-				.matches(failed -> failed instanceof OAuth2AuthenticationException)
+				.matches((failed) -> failed instanceof OAuth2AuthenticationException)
 				.matches(errorCode(BearerTokenErrorCodes.INVALID_TOKEN));
 	}
 
@@ -134,7 +134,7 @@ public class JwtAuthenticationProviderTests {
 	}
 
 	private Predicate<? super Throwable> errorCode(String errorCode) {
-		return failed -> ((OAuth2AuthenticationException) failed).getError().getErrorCode() == errorCode;
+		return (failed) -> ((OAuth2AuthenticationException) failed).getError().getErrorCode() == errorCode;
 	}
 
 }

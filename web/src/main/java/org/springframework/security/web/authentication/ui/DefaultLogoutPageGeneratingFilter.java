@@ -41,7 +41,7 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 
 	private RequestMatcher matcher = new AntPathRequestMatcher("/logout", "GET");
 
-	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = request -> Collections.emptyMap();
+	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = (request) -> Collections.emptyMap();
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

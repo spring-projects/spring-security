@@ -79,7 +79,7 @@ public class WebSessionServerRequestCacheTests {
 
 	@Test
 	public void saveRequestGetRequestWhenPostAndCustomMatcherThenFound() {
-		this.cache.setSaveRequestMatcher(e -> ServerWebExchangeMatcher.MatchResult.match());
+		this.cache.setSaveRequestMatcher((e) -> ServerWebExchangeMatcher.MatchResult.match());
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();
 

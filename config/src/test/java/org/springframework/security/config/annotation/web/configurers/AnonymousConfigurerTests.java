@@ -103,7 +103,7 @@ public class AnonymousConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.anonymous(anonymous ->
+				.anonymous((anonymous) ->
 					anonymous
 						.principal("principal")
 				);
@@ -119,7 +119,7 @@ public class AnonymousConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().permitAll()
 				)
@@ -145,7 +145,7 @@ public class AnonymousConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().permitAll()
 				)

@@ -423,7 +423,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		}
 		else {
 			given(am.authenticate(any(Authentication.class)))
-					.willAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
+					.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
 		}
 
 		filter.setAuthenticationManager(am);

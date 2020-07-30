@@ -59,7 +59,7 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 	@Test
 	public void saveTokenWhenDefaultThenAddsToSession() {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange)
-				.delayUntil(t -> this.repository.saveToken(this.exchange, t));
+				.delayUntil((t) -> this.repository.saveToken(this.exchange, t));
 		result.block();
 
 		WebSession session = this.exchange.getSession().block();

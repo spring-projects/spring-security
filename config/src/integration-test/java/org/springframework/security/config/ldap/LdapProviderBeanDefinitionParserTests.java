@@ -135,8 +135,8 @@ public class LdapProviderBeanDefinitionParserTests {
 
 		ProviderManager providerManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
 		assertThat(providerManager.getProviders()).hasSize(1);
-		assertThat(providerManager.getProviders()).extracting("userDetailsContextMapper")
-				.allSatisfy(contextMapper -> assertThat(contextMapper).isInstanceOf(InetOrgPersonContextMapper.class));
+		assertThat(providerManager.getProviders()).extracting("userDetailsContextMapper").allSatisfy(
+				(contextMapper) -> assertThat(contextMapper).isInstanceOf(InetOrgPersonContextMapper.class));
 	}
 
 	@Test
@@ -153,10 +153,10 @@ public class LdapProviderBeanDefinitionParserTests {
 
 		AuthenticationProvider authenticationProvider = providerManager.getProviders().get(0);
 		assertThat(authenticationProvider).extracting("authenticator.userDnFormat")
-				.satisfies(messageFormats -> assertThat(messageFormats)
+				.satisfies((messageFormats) -> assertThat(messageFormats)
 						.isEqualTo(new MessageFormat[] { new MessageFormat("uid={0},ou=people") }));
 		assertThat(authenticationProvider).extracting("authoritiesPopulator.groupSearchFilter")
-				.satisfies(searchFilter -> assertThat(searchFilter).isEqualTo("member={0}"));
+				.satisfies((searchFilter) -> assertThat(searchFilter).isEqualTo("member={0}"));
 	}
 
 }

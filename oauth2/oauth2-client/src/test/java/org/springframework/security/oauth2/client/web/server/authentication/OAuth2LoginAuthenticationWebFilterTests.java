@@ -74,7 +74,7 @@ public class OAuth2LoginAuthenticationWebFilterTests {
 		this.filter = new OAuth2LoginAuthenticationWebFilter(this.authenticationManager,
 				this.authorizedClientRepository);
 		this.webFilterExchange = new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/")),
-				new DefaultWebFilterChain(exchange -> exchange.getResponse().setComplete()));
+				new DefaultWebFilterChain((exchange) -> exchange.getResponse().setComplete()));
 		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 	}
 

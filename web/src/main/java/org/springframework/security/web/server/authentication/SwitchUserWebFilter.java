@@ -168,8 +168,8 @@ public class SwitchUserWebFilter implements WebFilter {
 
 		return switchUser(webFilterExchange).switchIfEmpty(Mono.defer(() -> exitSwitchUser(webFilterExchange)))
 				.switchIfEmpty(Mono.defer(() -> chain.filter(exchange).then(Mono.empty())))
-				.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
-				.onErrorResume(SwitchUserAuthenticationException.class, exception -> Mono.empty());
+				.flatMap((authentication) -> onAuthenticationSuccess(authentication, webFilterExchange))
+				.onErrorResume(SwitchUserAuthenticationException.class, (exception) -> Mono.empty());
 	}
 
 	/**
@@ -183,11 +183,11 @@ public class SwitchUserWebFilter implements WebFilter {
 	protected Mono<Authentication> switchUser(WebFilterExchange webFilterExchange) {
 		return this.switchUserMatcher.matches(webFilterExchange.getExchange())
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap(matchResult -> ReactiveSecurityContextHolder.getContext())
-				.map(SecurityContext::getAuthentication).flatMap(currentAuthentication -> {
+				.flatMap((matchResult) -> ReactiveSecurityContextHolder.getContext())
+				.map(SecurityContext::getAuthentication).flatMap((currentAuthentication) -> {
 					final String username = getUsername(webFilterExchange.getExchange());
 					return attemptSwitchUser(currentAuthentication, username);
-				}).onErrorResume(AuthenticationException.class, e -> onAuthenticationFailure(e, webFilterExchange)
+				}).onErrorResume(AuthenticationException.class, (e) -> onAuthenticationFailure(e, webFilterExchange)
 						.then(Mono.error(new SwitchUserAuthenticationException(e))));
 	}
 
@@ -202,7 +202,7 @@ public class SwitchUserWebFilter implements WebFilter {
 	protected Mono<Authentication> exitSwitchUser(WebFilterExchange webFilterExchange) {
 		return this.exitUserMatcher.matches(webFilterExchange.getExchange())
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap(matchResult -> ReactiveSecurityContextHolder.getContext()
+				.flatMap((matchResult) -> ReactiveSecurityContextHolder.getContext()
 						.map(SecurityContext::getAuthentication)
 						.switchIfEmpty(Mono.error(this::noCurrentUserException)))
 				.map(this::attemptExitUser);
@@ -228,7 +228,7 @@ public class SwitchUserWebFilter implements WebFilter {
 		return this.userDetailsService.findByUsername(userName)
 				.switchIfEmpty(Mono.error(this::noTargetAuthenticationException))
 				.doOnNext(this.userDetailsChecker::check)
-				.map(userDetails -> createSwitchUserToken(userDetails, currentAuthentication));
+				.map((userDetails) -> createSwitchUserToken(userDetails, currentAuthentication));
 	}
 
 	@NonNull
@@ -255,7 +255,7 @@ public class SwitchUserWebFilter implements WebFilter {
 		return Mono.justOrEmpty(this.failureHandler).switchIfEmpty(Mono.defer(() -> {
 			this.logger.error("Switch User failed", exception);
 			return Mono.error(exception);
-		})).flatMap(failureHandler -> failureHandler.onAuthenticationFailure(webFilterExchange, exception));
+		})).flatMap((failureHandler) -> failureHandler.onAuthenticationFailure(webFilterExchange, exception));
 	}
 
 	private Authentication createSwitchUserToken(UserDetails targetUser, Authentication currentAuthentication) {

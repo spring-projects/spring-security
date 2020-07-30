@@ -209,9 +209,9 @@ public class SecurityReactorContextConfigurationTests {
 		ClientResponse clientResponseOk = ClientResponse.create(HttpStatus.OK).build();
 
 		ExchangeFilterFunction filter = (req, next) -> Mono.subscriberContext()
-				.filter(ctx -> ctx.hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
-				.map(ctx -> ctx.get(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES)).cast(Map.class)
-				.map(attributes -> {
+				.filter((ctx) -> ctx.hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
+				.map((ctx) -> ctx.get(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES)).cast(Map.class)
+				.map((attributes) -> {
 					if (attributes.containsKey(HttpServletRequest.class)
 							&& attributes.containsKey(HttpServletResponse.class)
 							&& attributes.containsKey(Authentication.class)) {
@@ -231,7 +231,7 @@ public class SecurityReactorContextConfigurationTests {
 		expectedContextAttributes.put(Authentication.class, this.authentication);
 
 		Mono<ClientResponse> clientResponseMono = filter.filter(clientRequest, exchange)
-				.flatMap(response -> filter.filter(clientRequest, exchange));
+				.flatMap((response) -> filter.filter(clientRequest, exchange));
 
 		StepVerifier.create(clientResponseMono).expectAccessibleContext()
 				.contains(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, expectedContextAttributes)

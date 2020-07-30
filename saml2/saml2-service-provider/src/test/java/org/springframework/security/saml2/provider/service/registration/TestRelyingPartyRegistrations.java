@@ -42,25 +42,25 @@ public final class TestRelyingPartyRegistrations {
 
 		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(rpEntityId)
 				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.credentials(c -> c.add(signingCredential))
-				.providerDetails(c -> c.entityId(apEntityId).webSsoUrl(singleSignOnServiceLocation))
-				.credentials(c -> c.add(verificationCertificate));
+				.credentials((c) -> c.add(signingCredential))
+				.providerDetails((c) -> c.entityId(apEntityId).webSsoUrl(singleSignOnServiceLocation))
+				.credentials((c) -> c.add(verificationCertificate));
 	}
 
 	public static RelyingPartyRegistration.Builder noCredentials() {
 		return RelyingPartyRegistration.withRegistrationId("registration-id").entityId("rp-entity-id")
-				.assertionConsumerServiceLocation("https://rp.example.org/acs").assertingPartyDetails(party -> party
+				.assertionConsumerServiceLocation("https://rp.example.org/acs").assertingPartyDetails((party) -> party
 						.entityId("ap-entity-id").singleSignOnServiceLocation("https://ap.example.org/sso"));
 	}
 
 	public static RelyingPartyRegistration.Builder full() {
 		return noCredentials()
-				.signingX509Credentials(c -> c.add(org.springframework.security.saml2.core.TestSaml2X509Credentials
+				.signingX509Credentials((c) -> c.add(org.springframework.security.saml2.core.TestSaml2X509Credentials
 						.relyingPartySigningCredential()))
-				.decryptionX509Credentials(c -> c.add(org.springframework.security.saml2.core.TestSaml2X509Credentials
+				.decryptionX509Credentials((c) -> c.add(org.springframework.security.saml2.core.TestSaml2X509Credentials
 						.relyingPartyDecryptingCredential()))
-				.assertingPartyDetails(party -> party.verificationX509Credentials(
-						c -> c.add(org.springframework.security.saml2.core.TestSaml2X509Credentials
+				.assertingPartyDetails((party) -> party.verificationX509Credentials(
+						(c) -> c.add(org.springframework.security.saml2.core.TestSaml2X509Credentials
 								.relyingPartyVerifyingCredential())));
 	}
 

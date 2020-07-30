@@ -69,7 +69,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	@Override
 	public Mono<Void> saveRequest(ServerWebExchange exchange) {
 		return this.saveRequestMatcher.matches(exchange).filter(MatchResult::isMatch)
-				.flatMap(m -> exchange.getSession()).map(WebSession::getAttributes).doOnNext(attrs -> {
+				.flatMap((m) -> exchange.getSession()).map(WebSession::getAttributes).doOnNext((attrs) -> {
 					String requestPath = pathInApplication(exchange.getRequest());
 					attrs.put(this.sessionAttrName, requestPath);
 					if (logger.isDebugEnabled()) {
@@ -81,13 +81,13 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	@Override
 	public Mono<URI> getRedirectUri(ServerWebExchange exchange) {
 		return exchange.getSession()
-				.flatMap(session -> Mono.justOrEmpty(session.<String>getAttribute(this.sessionAttrName)))
+				.flatMap((session) -> Mono.justOrEmpty(session.<String>getAttribute(this.sessionAttrName)))
 				.map(URI::create);
 	}
 
 	@Override
 	public Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange) {
-		return exchange.getSession().map(WebSession::getAttributes).filter(attributes -> {
+		return exchange.getSession().map(WebSession::getAttributes).filter((attributes) -> {
 			String requestPath = pathInApplication(exchange.getRequest());
 			boolean removed = attributes.remove(this.sessionAttrName, requestPath);
 			if (removed) {
@@ -96,7 +96,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 				}
 			}
 			return removed;
-		}).map(attributes -> exchange.getRequest());
+		}).map((attributes) -> exchange.getRequest());
 	}
 
 	private static String pathInApplication(ServerHttpRequest request) {

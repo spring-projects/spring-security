@@ -581,7 +581,7 @@ public class StrictHttpFirewallTests {
 	@Test
 	public void getFirewalledRequestWhenTrustedDomainThenNoException() {
 		this.request.addHeader("Host", "example.org");
-		this.firewall.setAllowedHostnames(hostname -> hostname.equals("example.org"));
+		this.firewall.setAllowedHostnames((hostname) -> hostname.equals("example.org"));
 
 		assertThatCode(() -> this.firewall.getFirewalledRequest(this.request)).doesNotThrowAnyException();
 	}
@@ -589,14 +589,14 @@ public class StrictHttpFirewallTests {
 	@Test(expected = RequestRejectedException.class)
 	public void getFirewalledRequestWhenUntrustedDomainThenException() {
 		this.request.addHeader("Host", "example.org");
-		this.firewall.setAllowedHostnames(hostname -> hostname.equals("myexample.org"));
+		this.firewall.setAllowedHostnames((hostname) -> hostname.equals("myexample.org"));
 
 		this.firewall.getFirewalledRequest(this.request);
 	}
 
 	@Test(expected = RequestRejectedException.class)
 	public void getFirewalledRequestGetHeaderWhenNotAllowedHeaderNameThenException() {
-		this.firewall.setAllowedHeaderNames(name -> !name.equals("bad name"));
+		this.firewall.setAllowedHeaderNames((name) -> !name.equals("bad name"));
 
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
 		request.getHeader("bad name");
@@ -605,7 +605,7 @@ public class StrictHttpFirewallTests {
 	@Test(expected = RequestRejectedException.class)
 	public void getFirewalledRequestGetHeaderWhenNotAllowedHeaderValueThenException() {
 		this.request.addHeader("good name", "bad value");
-		this.firewall.setAllowedHeaderValues(value -> !value.equals("bad value"));
+		this.firewall.setAllowedHeaderValues((value) -> !value.equals("bad value"));
 
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
 		request.getHeader("good name");
@@ -717,7 +717,7 @@ public class StrictHttpFirewallTests {
 
 	@Test(expected = RequestRejectedException.class)
 	public void getFirewalledRequestGetParameterValuesWhenNotAllowedInParameterValueThenException() {
-		this.firewall.setAllowedParameterValues(value -> !value.equals("bad value"));
+		this.firewall.setAllowedParameterValues((value) -> !value.equals("bad value"));
 
 		this.request.addParameter("Something", "bad value");
 
@@ -727,7 +727,7 @@ public class StrictHttpFirewallTests {
 
 	@Test(expected = RequestRejectedException.class)
 	public void getFirewalledRequestGetParameterValuesWhenNotAllowedInParameterNameThenException() {
-		this.firewall.setAllowedParameterNames(value -> !value.equals("bad name"));
+		this.firewall.setAllowedParameterNames((value) -> !value.equals("bad name"));
 
 		this.request.addParameter("bad name", "good value");
 

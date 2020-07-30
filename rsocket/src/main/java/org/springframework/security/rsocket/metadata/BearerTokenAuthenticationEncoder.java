@@ -55,7 +55,7 @@ public class BearerTokenAuthenticationEncoder extends AbstractEncoder<BearerToke
 	public Flux<DataBuffer> encode(Publisher<? extends BearerTokenMetadata> inputStream,
 			DataBufferFactory bufferFactory, ResolvableType elementType, MimeType mimeType, Map<String, Object> hints) {
 		return Flux.from(inputStream)
-				.map(credentials -> encodeValue(credentials, bufferFactory, elementType, mimeType, hints));
+				.map((credentials) -> encodeValue(credentials, bufferFactory, elementType, mimeType, hints));
 	}
 
 	@Override

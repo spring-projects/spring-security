@@ -28,8 +28,8 @@ public class RelyingPartyRegistrationTests {
 	@Test
 	public void withRelyingPartyRegistrationWorks() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-				.providerDetails(p -> p.binding(Saml2MessageBinding.POST))
-				.providerDetails(p -> p.signAuthNRequest(false))
+				.providerDetails((p) -> p.binding(Saml2MessageBinding.POST))
+				.providerDetails((p) -> p.signAuthNRequest(false))
 				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
 		RelyingPartyRegistration copy = RelyingPartyRegistration.withRelyingPartyRegistration(registration).build();
 		compareRegistrations(registration, copy);
@@ -77,9 +77,9 @@ public class RelyingPartyRegistrationTests {
 	public void buildWhenUsingDefaultsThenAssertionConsumerServiceBindingDefaultsToPost() {
 		RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("id")
 				.entityId("entity-id").assertionConsumerServiceLocation("location")
-				.assertingPartyDetails(
-						assertingParty -> assertingParty.entityId("entity-id").singleSignOnServiceLocation("location"))
-				.credentials(c -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())).build();
+				.assertingPartyDetails((assertingParty) -> assertingParty.entityId("entity-id")
+						.singleSignOnServiceLocation("location"))
+				.credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())).build();
 
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 	}

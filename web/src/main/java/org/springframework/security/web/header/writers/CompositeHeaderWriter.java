@@ -46,7 +46,7 @@ public class CompositeHeaderWriter implements HeaderWriter {
 
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		this.headerWriters.forEach(headerWriter -> headerWriter.writeHeaders(request, response));
+		this.headerWriters.forEach((headerWriter) -> headerWriter.writeHeaders(request, response));
 	}
 
 }

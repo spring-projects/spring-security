@@ -78,7 +78,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	@Before
 	public void setup() {
 		this.manager = new UserDetailsRepositoryReactiveAuthenticationManager(this.userDetailsService);
-		given(this.scheduler.schedule(any())).willAnswer(a -> {
+		given(this.scheduler.schedule(any())).willAnswer((a) -> {
 			Runnable r = a.getArgument(0);
 			return Schedulers.immediate().schedule(r);
 		});

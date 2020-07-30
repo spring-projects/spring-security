@@ -109,14 +109,14 @@ public class Saml2MetadataFilterTests {
 		// given
 		this.request.setPathInfo("/saml2/service-provider-metadata/validRegistration");
 		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails(party -> party.verificationX509Credentials(
-						c -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+				.assertingPartyDetails((party) -> party.verificationX509Credentials(
+						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 				.build();
 
 		String generatedMetadata = "<xml>test</xml>";
 		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
 
-		this.filter = new Saml2MetadataFilter(request -> validRegistration, this.resolver);
+		this.filter = new Saml2MetadataFilter((request) -> validRegistration, this.resolver);
 
 		// when
 		this.filter.doFilter(this.request, this.response, this.chain);

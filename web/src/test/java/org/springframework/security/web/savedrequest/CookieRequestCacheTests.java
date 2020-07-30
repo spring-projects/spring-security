@@ -73,7 +73,7 @@ public class CookieRequestCacheTests {
 	@Test
 	public void getMatchingRequestWhenRequestMatcherDefinedThenReturnsCorrectSubsetOfCachedRequests() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-		cookieRequestCache.setRequestMatcher(request -> request.getRequestURI().equals("/expected-destination"));
+		cookieRequestCache.setRequestMatcher((request) -> request.getRequestURI().equals("/expected-destination"));
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();

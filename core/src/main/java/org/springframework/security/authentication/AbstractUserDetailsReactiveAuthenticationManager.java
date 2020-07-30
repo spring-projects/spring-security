@@ -57,7 +57,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	private Scheduler scheduler = Schedulers.boundedElastic();
 
-	private UserDetailsChecker preAuthenticationChecks = user -> {
+	private UserDetailsChecker preAuthenticationChecks = (user) -> {
 		if (!user.isAccountNonLocked()) {
 			this.logger.debug("User account is locked");
 
@@ -80,7 +80,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 		}
 	};
 
-	private UserDetailsChecker postAuthenticationChecks = user -> {
+	private UserDetailsChecker postAuthenticationChecks = (user) -> {
 		if (!user.isCredentialsNonExpired()) {
 			this.logger.debug("User account credentials have expired");
 
@@ -94,9 +94,9 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 		final String username = authentication.getName();
 		final String presentedPassword = (String) authentication.getCredentials();
 		return retrieveUser(username).doOnNext(this.preAuthenticationChecks::check).publishOn(this.scheduler)
-				.filter(u -> this.passwordEncoder.matches(presentedPassword, u.getPassword()))
+				.filter((u) -> this.passwordEncoder.matches(presentedPassword, u.getPassword()))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Credentials"))))
-				.flatMap(u -> {
+				.flatMap((u) -> {
 					boolean upgradeEncoding = this.userDetailsPasswordService != null
 							&& this.passwordEncoder.upgradeEncoding(u.getPassword());
 					if (upgradeEncoding) {
@@ -105,7 +105,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 					}
 					return Mono.just(u);
 				}).doOnNext(this.postAuthenticationChecks::check)
-				.map(u -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()));
+				.map((u) -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()));
 	}
 
 	/**

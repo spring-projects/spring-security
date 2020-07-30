@@ -122,7 +122,7 @@ public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
 
 		return createAuthorizationContext(authorizeRequest)
-				.flatMap(authorizationContext -> authorize(authorizationContext, authorizeRequest.getPrincipal()));
+				.flatMap((authorizationContext) -> authorize(authorizationContext, authorizeRequest.getPrincipal()));
 	}
 
 	private Mono<OAuth2AuthorizationContext> createAuthorizationContext(OAuth2AuthorizeRequest authorizeRequest) {
@@ -132,18 +132,18 @@ public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 				.map(OAuth2AuthorizationContext::withAuthorizedClient)
 				.switchIfEmpty(Mono.defer(() -> this.clientRegistrationRepository
 						.findByRegistrationId(clientRegistrationId)
-						.flatMap(clientRegistration -> this.authorizedClientService
+						.flatMap((clientRegistration) -> this.authorizedClientService
 								.loadAuthorizedClient(clientRegistrationId, principal.getName())
 								.map(OAuth2AuthorizationContext::withAuthorizedClient)
 								.switchIfEmpty(Mono.fromSupplier(
 										() -> OAuth2AuthorizationContext.withClientRegistration(clientRegistration))))
 						.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(
 								"Could not find ClientRegistration with id '" + clientRegistrationId + "'")))))
-				.flatMap(contextBuilder -> this.contextAttributesMapper.apply(authorizeRequest)
-						.defaultIfEmpty(Collections.emptyMap()).map(contextAttributes -> {
+				.flatMap((contextBuilder) -> this.contextAttributesMapper.apply(authorizeRequest)
+						.defaultIfEmpty(Collections.emptyMap()).map((contextAttributes) -> {
 							OAuth2AuthorizationContext.Builder builder = contextBuilder.principal(principal);
 							if (!contextAttributes.isEmpty()) {
-								builder = builder.attributes(attributes -> attributes.putAll(contextAttributes));
+								builder = builder.attributes((attributes) -> attributes.putAll(contextAttributes));
 							}
 							return builder.build();
 						}));
@@ -165,12 +165,12 @@ public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 		return this.authorizedClientProvider.authorize(authorizationContext)
 				// Delegate to the authorizationSuccessHandler of the successful
 				// authorization
-				.flatMap(authorizedClient -> this.authorizationSuccessHandler
+				.flatMap((authorizedClient) -> this.authorizationSuccessHandler
 						.onAuthorizationSuccess(authorizedClient, principal, Collections.emptyMap())
 						.thenReturn(authorizedClient))
 				// Delegate to the authorizationFailureHandler of the failed authorization
 				.onErrorResume(OAuth2AuthorizationException.class,
-						authorizationException -> this.authorizationFailureHandler
+						(authorizationException) -> this.authorizationFailureHandler
 								.onAuthorizationFailure(authorizationException, principal, Collections.emptyMap())
 								.then(Mono.error(authorizationException)))
 				.switchIfEmpty(Mono.defer(() -> Mono.justOrEmpty(authorizationContext.getAuthorizedClient())));

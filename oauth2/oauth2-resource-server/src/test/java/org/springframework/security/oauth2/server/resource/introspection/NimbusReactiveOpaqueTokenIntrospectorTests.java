@@ -238,8 +238,8 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) {
 				String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-				return Optional.ofNullable(authorization).filter(a -> isAuthorized(authorization, username, password))
-						.map(a -> ok(response)).orElse(unauthorized());
+				return Optional.ofNullable(authorization).filter((a) -> isAuthorized(authorization, username, password))
+						.map((a) -> ok(response)).orElse(unauthorized());
 			}
 		};
 	}

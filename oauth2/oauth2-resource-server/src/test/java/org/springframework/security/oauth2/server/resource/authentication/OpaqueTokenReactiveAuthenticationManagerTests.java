@@ -51,7 +51,7 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
 		OAuth2AuthenticatedPrincipal authority = TestOAuth2AuthenticatedPrincipals
-				.active(attributes -> attributes.put("extension_field", "twenty-seven"));
+				.active((attributes) -> attributes.put("extension_field", "twenty-seven"));
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(Mono.just(authority));
 		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);

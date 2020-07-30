@@ -61,7 +61,7 @@ public class SecurityMockServerConfigurersOAuth2LoginTests extends AbstractMockS
 	@Before
 	public void setup() {
 		this.client = WebTestClient.bindToController(this.controller)
-				.argumentResolvers(c -> c.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(
+				.argumentResolvers((c) -> c.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(
 						this.clientRegistrationRepository, this.authorizedClientRepository)))
 				.webFilter(new SecurityContextServerWebExchangeWebFilter())
 				.apply(SecurityMockServerConfigurers.springSecurity()).configureClient()
@@ -110,7 +110,7 @@ public class SecurityMockServerConfigurersOAuth2LoginTests extends AbstractMockS
 	public void oauth2LoginWhenAttributeSpecifiedThenUserHasAttribute() {
 		this.client
 				.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login()
-						.attributes(a -> a.put("iss", "https://idp.example.org")))
+						.attributes((a) -> a.put("iss", "https://idp.example.org")))
 				.get().uri("/token").exchange().expectStatus().isOk();
 
 		OAuth2AuthenticationToken token = this.controller.token;
@@ -140,14 +140,15 @@ public class SecurityMockServerConfigurersOAuth2LoginTests extends AbstractMockS
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("SCOPE_read"),
 				Collections.singletonMap("sub", "subject"), "sub");
 
-		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login().attributes(a -> a.put("subject", "foo"))
-				.oauth2User(oauth2User)).get().uri("/token").exchange().expectStatus().isOk();
+		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login()
+				.attributes((a) -> a.put("subject", "foo")).oauth2User(oauth2User)).get().uri("/token").exchange()
+				.expectStatus().isOk();
 
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("sub", "subject");
 
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login().oauth2User(oauth2User)
-				.attributes(a -> a.put("sub", "bar"))).get().uri("/token").exchange().expectStatus().isOk();
+				.attributes((a) -> a.put("sub", "bar"))).get().uri("/token").exchange().expectStatus().isOk();
 
 		token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("sub", "bar");

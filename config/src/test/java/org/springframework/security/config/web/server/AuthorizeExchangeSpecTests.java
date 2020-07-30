@@ -64,8 +64,8 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test
 	public void antMatchersWhenPatternsInLambdaThenAnyMethod() {
-		this.http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-				.authorizeExchange(exchanges -> exchanges.pathMatchers("/a", "/b").denyAll().anyExchange().permitAll());
+		this.http.csrf(ServerHttpSecurity.CsrfSpec::disable).authorizeExchange(
+				(exchanges) -> exchanges.pathMatchers("/a", "/b").denyAll().anyExchange().permitAll());
 
 		WebTestClient client = buildClient();
 
@@ -97,7 +97,7 @@ public class AuthorizeExchangeSpecTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void buildWhenMatcherDefinedWithNoAccessInLambdaThenThrowsException() {
-		this.http.authorizeExchange(exchanges -> exchanges.pathMatchers("/incomplete"));
+		this.http.authorizeExchange((exchanges) -> exchanges.pathMatchers("/incomplete"));
 		this.http.build();
 	}
 

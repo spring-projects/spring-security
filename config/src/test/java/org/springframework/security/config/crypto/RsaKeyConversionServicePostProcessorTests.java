@@ -146,7 +146,7 @@ public class RsaKeyConversionServicePostProcessorTests {
 
 		@Bean
 		BeanFactoryPostProcessor conversionServiceCustomizer() {
-			return beanFactory -> beanFactory.getBean(RsaKeyConversionServicePostProcessor.class)
+			return (beanFactory) -> beanFactory.getBean(RsaKeyConversionServicePostProcessor.class)
 					.setResourceLoader(new CustomResourceLoader());
 		}
 
@@ -158,7 +158,7 @@ public class RsaKeyConversionServicePostProcessorTests {
 		@Bean
 		ConversionService conversionService() {
 			GenericConversionService service = new GenericConversionService();
-			service.addConverter(String.class, RSAPublicKey.class, source -> {
+			service.addConverter(String.class, RSAPublicKey.class, (source) -> {
 				throw new IllegalArgumentException("unsupported");
 			});
 			return service;

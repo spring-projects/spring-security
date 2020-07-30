@@ -135,7 +135,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenValidThenReturnsOk() {
 		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
 
@@ -143,7 +143,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenExpiredThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyConfig.class).autowire();
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.expired)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.expired)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
 	}
@@ -152,7 +152,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenUnsignedThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyConfig.class).autowire();
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.unsignedToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.unsignedToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
 	}
@@ -161,7 +161,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenEmptyBearerTokenThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyConfig.class).autowire();
 
-		this.client.get().headers(headers -> headers.add("Authorization", "Bearer ")).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.add("Authorization", "Bearer ")).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
 	}
@@ -170,7 +170,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenValidTokenAndPublicKeyInLambdaThenReturnsOk() {
 		this.spring.register(PublicKeyInLambdaConfig.class, RootController.class).autowire();
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
 
@@ -178,7 +178,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenExpiredTokenAndPublicKeyInLambdaThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyInLambdaConfig.class).autowire();
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.expired)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.expired)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
 	}
@@ -187,7 +187,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenValidUsingPlaceholderThenReturnsOk() {
 		this.spring.register(PlaceholderConfig.class, RootController.class).autowire();
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
 
@@ -198,7 +198,7 @@ public class OAuth2ResourceServerSpecTests {
 		ReactiveJwtDecoder jwtDecoder = this.spring.getContext().getBean(ReactiveJwtDecoder.class);
 		given(jwtDecoder.decode(anyString())).willReturn(Mono.just(this.jwt));
 
-		this.client.get().headers(headers -> headers.setBearerAuth("token")).exchange().expectStatus().isOk();
+		this.client.get().headers((headers) -> headers.setBearerAuth("token")).exchange().expectStatus().isOk();
 
 		verify(jwtDecoder).decode(anyString());
 	}
@@ -210,7 +210,7 @@ public class OAuth2ResourceServerSpecTests {
 		MockWebServer mockWebServer = this.spring.getContext().getBean(MockWebServer.class);
 		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadTokenWithKid)).exchange()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadTokenWithKid)).exchange()
 				.expectStatus().isOk();
 	}
 
@@ -221,7 +221,7 @@ public class OAuth2ResourceServerSpecTests {
 		MockWebServer mockWebServer = this.spring.getContext().getBean(MockWebServer.class);
 		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadTokenWithKid)).exchange()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadTokenWithKid)).exchange()
 				.expectStatus().isOk();
 	}
 
@@ -234,7 +234,7 @@ public class OAuth2ResourceServerSpecTests {
 		given(authenticationManager.authenticate(any(Authentication.class)))
 				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
 	}
@@ -248,7 +248,7 @@ public class OAuth2ResourceServerSpecTests {
 		given(authenticationManager.authenticate(any(Authentication.class)))
 				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
 	}
@@ -268,7 +268,7 @@ public class OAuth2ResourceServerSpecTests {
 		given(authenticationManager.authenticate(any(Authentication.class)))
 				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
 	}
@@ -277,7 +277,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void postWhenSignedThenReturnsOk() {
 		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
 
-		this.client.post().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.post().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
 
@@ -285,7 +285,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenTokenHasInsufficientScopeThenReturnsInsufficientScope() {
 		this.spring.register(DenyAllConfig.class, RootController.class).autowire();
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isForbidden().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"insufficient_scope\""));
 	}
@@ -308,7 +308,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenSignedAndCustomConverterThenConverts() {
 		this.spring.register(CustomJwtAuthenticationConverterConfig.class, RootController.class).autowire();
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
 
@@ -323,7 +323,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenCustomBearerTokenDeniedHandlerThenResponds() {
 		this.spring.register(CustomErrorHandlingConfig.class).autowire();
 
-		this.client.get().uri("/unobtainable").headers(headers -> headers.setBearerAuth(this.messageReadToken))
+		this.client.get().uri("/unobtainable").headers((headers) -> headers.setBearerAuth(this.messageReadToken))
 				.exchange().expectStatus().isEqualTo(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED);
 	}
 
@@ -392,7 +392,7 @@ public class OAuth2ResourceServerSpecTests {
 		this.spring.getContext().getBean(MockWebServer.class)
 				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
 
@@ -402,7 +402,7 @@ public class OAuth2ResourceServerSpecTests {
 		this.spring.getContext().getBean(MockWebServer.class)
 				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
 
-		this.client.get().headers(headers -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
+		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
 
@@ -417,8 +417,8 @@ public class OAuth2ResourceServerSpecTests {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) {
 				String authorization = request.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
-				return Optional.ofNullable(authorization).filter(a -> isAuthorized(authorization, username, password))
-						.map(a -> ok(response)).orElse(unauthorized());
+				return Optional.ofNullable(authorization).filter((a) -> isAuthorized(authorization, username, password))
+						.map((a) -> ok(response)).orElse(unauthorized());
 			}
 		};
 	}
@@ -488,13 +488,13 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.authorizeExchange(exchanges ->
+				.authorizeExchange((exchanges) ->
 					exchanges
 						.anyExchange().hasAuthority("SCOPE_message:read")
 				)
-				.oauth2ResourceServer(oauth2ResourceServer ->
+				.oauth2ResourceServer((oauth2ResourceServer) ->
 					oauth2ResourceServer
-						.jwt(jwt ->
+						.jwt((jwt) ->
 							jwt
 								.publicKey(publicKey())
 						)
@@ -572,9 +572,9 @@ public class OAuth2ResourceServerSpecTests {
 
 			// @formatter:off
 			http
-				.oauth2ResourceServer(oauth2ResourceServer ->
+				.oauth2ResourceServer((oauth2ResourceServer) ->
 					oauth2ResourceServer
-						.jwt(jwt ->
+						.jwt((jwt) ->
 							jwt
 								.jwkSetUri(jwkSetUri)
 						)
@@ -672,9 +672,9 @@ public class OAuth2ResourceServerSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2ResourceServer(oauth2ResourceServer ->
+				.oauth2ResourceServer((oauth2ResourceServer) ->
 					oauth2ResourceServer
-						.jwt(jwt ->
+						.jwt((jwt) ->
 							jwt
 								.authenticationManager(authenticationManager())
 						)
@@ -743,7 +743,7 @@ public class OAuth2ResourceServerSpecTests {
 
 		@Bean
 		ServerAuthenticationConverter bearerTokenAuthenticationConverter() {
-			return exchange -> Mono.justOrEmpty(exchange.getRequest().getCookies().getFirst("TOKEN").getValue())
+			return (exchange) -> Mono.justOrEmpty(exchange.getRequest().getCookies().getFirst("TOKEN").getValue())
 					.map(BearerTokenAuthenticationToken::new);
 		}
 
@@ -773,7 +773,7 @@ public class OAuth2ResourceServerSpecTests {
 		Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
 
 			JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-			converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+			converter.setJwtGrantedAuthoritiesConverter((jwt) -> {
 				String[] claims = ((String) jwt.getClaims().get("scope")).split(" ");
 				return Stream.of(claims).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 			});
@@ -852,9 +852,9 @@ public class OAuth2ResourceServerSpecTests {
 
 			// @formatter:off
 			http
-				.oauth2ResourceServer(oauth2ResourceServer ->
+				.oauth2ResourceServer((oauth2ResourceServer) ->
 					oauth2ResourceServer
-						.opaqueToken(opaqueToken ->
+						.opaqueToken((opaqueToken) ->
 								opaqueToken
 									.introspectionUri(introspectionUri)
 									.introspectionClientCredentials("client", "secret")
