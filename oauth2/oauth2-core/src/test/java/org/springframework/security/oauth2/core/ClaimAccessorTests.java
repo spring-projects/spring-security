@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatObject;
 
 /**
  * Tests for {@link ClaimAccessor}.
@@ -142,12 +142,7 @@ public class ClaimAccessorTests {
 		String expectedClaimValue = "true";
 		String claimName = "boolean";
 		this.claims.put(claimName, expectedClaimValue);
-
-		Throwable thrown = catchThrowable(() -> {
-			boolean actualClaimValue = this.claimAccessor.getClaim(claimName);
-		});
-
-		assertThat(thrown).isInstanceOf(ClassCastException.class);
+		assertThatObject(this.claimAccessor.getClaim(claimName)).isNotInstanceOf(Boolean.class);
 	}
 
 }

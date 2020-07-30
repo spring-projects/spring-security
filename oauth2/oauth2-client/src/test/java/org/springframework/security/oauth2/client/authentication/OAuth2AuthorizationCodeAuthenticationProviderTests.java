@@ -85,10 +85,10 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 
-		assertThatThrownBy(() -> {
-			this.authenticationProvider.authenticate(
-					new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
-		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
+		assertThatThrownBy(() -> this.authenticationProvider.authenticate(
+				new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
+						.isInstanceOf(OAuth2AuthorizationException.class)
+						.hasMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
 	}
 
 	@Test
@@ -98,10 +98,10 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
 
-		assertThatThrownBy(() -> {
-			this.authenticationProvider.authenticate(
-					new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
-		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_state_parameter");
+		assertThatThrownBy(() -> this.authenticationProvider.authenticate(
+				new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
+						.isInstanceOf(OAuth2AuthorizationException.class)
+						.hasMessageContaining("invalid_state_parameter");
 	}
 
 	@Test

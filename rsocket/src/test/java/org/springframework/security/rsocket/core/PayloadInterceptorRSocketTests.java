@@ -94,9 +94,8 @@ public class PayloadInterceptorRSocketTests {
 	public void constructorWhenNullDelegateThenException() {
 		this.delegate = null;
 		List<PayloadInterceptor> interceptors = Arrays.asList(this.interceptor);
-		assertThatCode(() -> {
-			new PayloadInterceptorRSocket(this.delegate, interceptors, this.metadataMimeType, this.dataMimeType);
-		}).isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> new PayloadInterceptorRSocket(this.delegate, interceptors, this.metadataMimeType,
+				this.dataMimeType)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

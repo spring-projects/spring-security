@@ -186,9 +186,7 @@ final class HtmlUnitWebTestClient {
 		}
 
 		private ClientRequest withClientCookies(ClientRequest request) {
-			return ClientRequest.from(request).cookies((c) -> {
-				c.addAll(clientCookies());
-			}).build();
+			return ClientRequest.from(request).cookies((c) -> c.addAll(clientCookies())).build();
 		}
 
 		private MultiValueMap<String, String> clientCookies() {
