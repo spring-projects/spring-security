@@ -129,7 +129,7 @@ public class DefaultAuthenticationEventPublisher
 	private Constructor<? extends AbstractAuthenticationEvent> getEventConstructor(AuthenticationException exception) {
 		Constructor<? extends AbstractAuthenticationEvent> eventConstructor = this.exceptionMappings
 				.get(exception.getClass().getName());
-		return (eventConstructor == null ? this.defaultAuthenticationFailureEventConstructor : eventConstructor);
+		return (eventConstructor != null) ? eventConstructor : this.defaultAuthenticationFailureEventConstructor;
 	}
 
 	@Override

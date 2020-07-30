@@ -80,10 +80,10 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 			return null;
 		}
 
-		String errorCode = bearerTokenError.getCode() != null ? bearerTokenError.getCode()
+		String errorCode = (bearerTokenError.getCode() != null) ? bearerTokenError.getCode()
 				: OAuth2ErrorCodes.SERVER_ERROR;
 		String errorDescription = bearerTokenError.getDescription();
-		String errorUri = bearerTokenError.getURI() != null ? bearerTokenError.getURI().toString() : null;
+		String errorUri = (bearerTokenError.getURI() != null) ? bearerTokenError.getURI().toString() : null;
 
 		return new OAuth2Error(errorCode, errorDescription, errorUri);
 	}

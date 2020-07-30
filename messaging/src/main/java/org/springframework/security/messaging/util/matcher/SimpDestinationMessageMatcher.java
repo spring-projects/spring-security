@@ -113,7 +113,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		}
 
 		this.matcher = pathMatcher;
-		this.messageTypeMatcher = type == null ? ANY_MESSAGE : new SimpMessageTypeMatcher(type);
+		this.messageTypeMatcher = (type != null) ? new SimpMessageTypeMatcher(type) : ANY_MESSAGE;
 		this.pattern = pattern;
 	}
 
@@ -129,7 +129,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 
 	public Map<String, String> extractPathVariables(Message<?> message) {
 		final String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
-		return destination != null ? this.matcher.extractUriTemplateVariables(this.pattern, destination)
+		return (destination != null) ? this.matcher.extractUriTemplateVariables(this.pattern, destination)
 				: Collections.emptyMap();
 	}
 

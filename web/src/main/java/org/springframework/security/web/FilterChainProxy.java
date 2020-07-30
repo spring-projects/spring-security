@@ -202,7 +202,7 @@ public class FilterChainProxy extends GenericFilterBean {
 		if (filters == null || filters.size() == 0) {
 			if (logger.isDebugEnabled()) {
 				logger.debug(UrlUtils.buildRequestUrl(fwRequest)
-						+ (filters == null ? " has no matching filters" : " has an empty filter list"));
+						+ ((filters != null) ? " has an empty filter list" : " has no matching filters"));
 			}
 
 			fwRequest.reset();

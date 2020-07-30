@@ -536,11 +536,11 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		}
 		if (xmlObject instanceof XSBoolean) {
 			XSBooleanValue xsBooleanValue = ((XSBoolean) xmlObject).getValue();
-			return xsBooleanValue != null ? xsBooleanValue.getValue() : null;
+			return (xsBooleanValue != null) ? xsBooleanValue.getValue() : null;
 		}
 		if (xmlObject instanceof XSDateTime) {
 			DateTime dateTime = ((XSDateTime) xmlObject).getValue();
-			return dateTime != null ? Instant.ofEpochMilli(dateTime.getMillis()) : null;
+			return (dateTime != null) ? Instant.ofEpochMilli(dateTime.getMillis()) : null;
 		}
 		return null;
 	}

@@ -49,10 +49,10 @@ public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocat
 		try {
 			// TODO: Optimization of permitAll
 			ExpressionParser parser = getParser();
-			Expression preAuthorizeExpression = preAuthorizeAttribute == null ? parser.parseExpression("permitAll")
-					: parser.parseExpression(preAuthorizeAttribute);
-			Expression preFilterExpression = preFilterAttribute == null ? null
-					: parser.parseExpression(preFilterAttribute);
+			Expression preAuthorizeExpression = (preAuthorizeAttribute != null)
+					? parser.parseExpression(preAuthorizeAttribute) : parser.parseExpression("permitAll");
+			Expression preFilterExpression = (preFilterAttribute != null) ? parser.parseExpression(preFilterAttribute)
+					: null;
 			return new PreInvocationExpressionAttribute(preFilterExpression, filterObject, preAuthorizeExpression);
 		}
 		catch (ParseException ex) {
@@ -65,11 +65,10 @@ public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocat
 			String postAuthorizeAttribute) {
 		try {
 			ExpressionParser parser = getParser();
-			Expression postAuthorizeExpression = postAuthorizeAttribute == null ? null
-					: parser.parseExpression(postAuthorizeAttribute);
-			Expression postFilterExpression = postFilterAttribute == null ? null
-					: parser.parseExpression(postFilterAttribute);
-
+			Expression postAuthorizeExpression = (postAuthorizeAttribute != null)
+					? parser.parseExpression(postAuthorizeAttribute) : null;
+			Expression postFilterExpression = (postFilterAttribute != null)
+					? parser.parseExpression(postFilterAttribute) : null;
 			if (postFilterExpression != null || postAuthorizeExpression != null) {
 				return new PostInvocationExpressionAttribute(postFilterExpression, postAuthorizeExpression);
 			}

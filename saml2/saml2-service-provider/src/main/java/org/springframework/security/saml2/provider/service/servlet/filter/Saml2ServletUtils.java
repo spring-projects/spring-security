@@ -48,19 +48,19 @@ final class Saml2ServletUtils {
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl).replaceQuery(null).fragment(null)
 				.build();
 		String scheme = uriComponents.getScheme();
-		uriVariables.put("baseScheme", scheme == null ? "" : scheme);
+		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
 		String host = uriComponents.getHost();
-		uriVariables.put("baseHost", host == null ? "" : host);
+		uriVariables.put("baseHost", (host != null) ? host : "");
 		// following logic is based on HierarchicalUriComponents#toUriString()
 		int port = uriComponents.getPort();
-		uriVariables.put("basePort", port == -1 ? "" : ":" + port);
+		uriVariables.put("basePort", (port != -1) ? ":" + port : "");
 		String path = uriComponents.getPath();
 		if (StringUtils.hasLength(path)) {
 			if (path.charAt(0) != PATH_DELIMITER) {
 				path = PATH_DELIMITER + path;
 			}
 		}
-		uriVariables.put("basePath", path == null ? "" : path);
+		uriVariables.put("basePath", (path != null) ? path : "");
 		uriVariables.put("baseUrl", uriComponents.toUriString());
 		uriVariables.put("entityId", StringUtils.hasText(entityId) ? entityId : "");
 		uriVariables.put("registrationId", StringUtils.hasText(registrationId) ? registrationId : "");

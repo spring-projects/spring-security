@@ -59,7 +59,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String queryString = request.getQueryString();
-		String redirectUrl = request.getRequestURI() + ((queryString == null) ? "" : ("?" + queryString));
+		String redirectUrl = request.getRequestURI() + ((queryString != null) ? ("?" + queryString) : "");
 
 		Integer currentPort = this.portResolver.getServerPort(request);
 		Integer redirectPort = getMappedPort(currentPort);

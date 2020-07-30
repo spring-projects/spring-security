@@ -247,7 +247,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
 		static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
-			String method = httpMethod == null ? null : httpMethod.toString();
+			String method = (httpMethod != null) ? httpMethod.toString() : null;
 			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : antPatterns) {
 				matchers.add(new AntPathRequestMatcher(pattern, method));
@@ -275,7 +275,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * @return a {@link List} of {@link RegexRequestMatcher} instances
 		 */
 		static List<RequestMatcher> regexMatchers(HttpMethod httpMethod, String... regexPatterns) {
-			String method = httpMethod == null ? null : httpMethod.toString();
+			String method = (httpMethod != null) ? httpMethod.toString() : null;
 			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : regexPatterns) {
 				matchers.add(new RegexRequestMatcher(pattern, method));

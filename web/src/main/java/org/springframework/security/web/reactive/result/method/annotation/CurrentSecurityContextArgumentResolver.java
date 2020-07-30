@@ -87,7 +87,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		return reactiveSecurityContext.flatMap((a) -> {
 			Object p = resolveSecurityContext(parameter, a);
 			Mono<Object> o = Mono.justOrEmpty(p);
-			return adapter == null ? o : Mono.just(adapter.fromPublisher(o));
+			return (adapter != null) ? Mono.just(adapter.fromPublisher(o)) : o;
 		});
 
 	}

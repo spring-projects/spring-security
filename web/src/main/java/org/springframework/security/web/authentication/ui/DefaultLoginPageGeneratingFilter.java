@@ -242,7 +242,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			if (session != null) {
 				AuthenticationException ex = (AuthenticationException) session
 						.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-				errorMsg = ex != null ? ex.getMessage() : "Invalid credentials";
+				errorMsg = (ex != null) ? ex.getMessage() : "Invalid credentials";
 			}
 		}
 

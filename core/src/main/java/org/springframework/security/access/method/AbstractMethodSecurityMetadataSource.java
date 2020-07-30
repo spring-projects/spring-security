@@ -44,7 +44,7 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 			Class<?> targetClass = null;
 
 			if (target != null) {
-				targetClass = target instanceof Class<?> ? (Class<?>) target
+				targetClass = (target instanceof Class<?>) ? (Class<?>) target
 						: AopProxyUtils.ultimateTargetClass(target);
 			}
 			Collection<ConfigAttribute> attrs = getAttributes(mi.getMethod(), targetClass);

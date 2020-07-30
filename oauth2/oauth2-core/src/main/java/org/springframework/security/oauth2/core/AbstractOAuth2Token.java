@@ -98,23 +98,24 @@ public abstract class AbstractOAuth2Token implements Serializable {
 			return false;
 		}
 
-		AbstractOAuth2Token that = (AbstractOAuth2Token) obj;
+		AbstractOAuth2Token other = (AbstractOAuth2Token) obj;
 
-		if (!this.getTokenValue().equals(that.getTokenValue())) {
+		if (!this.getTokenValue().equals(other.getTokenValue())) {
 			return false;
 		}
-		if (this.getIssuedAt() != null ? !this.getIssuedAt().equals(that.getIssuedAt()) : that.getIssuedAt() != null) {
+		if ((this.getIssuedAt() != null) ? !this.getIssuedAt().equals(other.getIssuedAt())
+				: other.getIssuedAt() != null) {
 			return false;
 		}
-		return this.getExpiresAt() != null ? this.getExpiresAt().equals(that.getExpiresAt())
-				: that.getExpiresAt() == null;
+		return (this.getExpiresAt() != null) ? this.getExpiresAt().equals(other.getExpiresAt())
+				: other.getExpiresAt() == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = this.getTokenValue().hashCode();
-		result = 31 * result + (this.getIssuedAt() != null ? this.getIssuedAt().hashCode() : 0);
-		result = 31 * result + (this.getExpiresAt() != null ? this.getExpiresAt().hashCode() : 0);
+		result = 31 * result + ((this.getIssuedAt() != null) ? this.getIssuedAt().hashCode() : 0);
+		result = 31 * result + ((this.getExpiresAt() != null) ? this.getExpiresAt().hashCode() : 0);
 		return result;
 	}
 

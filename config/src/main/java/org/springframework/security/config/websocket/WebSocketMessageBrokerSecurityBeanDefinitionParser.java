@@ -121,7 +121,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		String id = element.getAttribute(ID_ATTR);
 		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
-		String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
+		String expressionHandlerRef = (expressionHandlerElt != null) ? expressionHandlerElt.getAttribute("ref") : null;
 		boolean expressionHandlerDefined = StringUtils.hasText(expressionHandlerRef);
 
 		boolean sameOriginDisabled = Boolean.parseBoolean(element.getAttribute(DISABLED_ATTR));
@@ -252,7 +252,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 					if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
 						PropertyValue pathMatcherProp = bd.getPropertyValues().getPropertyValue("pathMatcher");
-						Object pathMatcher = pathMatcherProp == null ? null : pathMatcherProp.getValue();
+						Object pathMatcher = (pathMatcherProp != null) ? pathMatcherProp.getValue() : null;
 						if (pathMatcher instanceof BeanReference) {
 							registry.registerAlias(((BeanReference) pathMatcher).getBeanName(), PATH_MATCHER_BEAN_NAME);
 						}

@@ -45,7 +45,7 @@ class WebExpressionConfigAttribute implements ConfigAttribute, EvaluationContext
 
 	@Override
 	public EvaluationContext postProcess(EvaluationContext context, FilterInvocation fi) {
-		return this.postProcessor == null ? context : this.postProcessor.postProcess(context, fi);
+		return (this.postProcessor != null) ? this.postProcessor.postProcess(context, fi) : context;
 	}
 
 	@Override

@@ -122,12 +122,12 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 
 		@Override
 		public int hashCode() {
-			return this.method.hashCode() * 21 + (this.targetClass != null ? this.targetClass.hashCode() : 0);
+			return this.method.hashCode() * 21 + ((this.targetClass != null) ? this.targetClass.hashCode() : 0);
 		}
 
 		@Override
 		public String toString() {
-			return "CacheKey[" + (this.targetClass == null ? "-" : this.targetClass.getName()) + "; " + this.method
+			return "CacheKey[" + ((this.targetClass != null) ? this.targetClass.getName() : "-") + "; " + this.method
 					+ "]";
 		}
 

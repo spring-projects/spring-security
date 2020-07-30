@@ -177,8 +177,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void parseCacheControlElement(boolean addIfNotPresent, Element element) {
-		Element cacheControlElement = element == null ? null
-				: DomUtils.getChildElementByTagName(element, CACHE_CONTROL_ELEMENT);
+		Element cacheControlElement = (element != null)
+				? DomUtils.getChildElementByTagName(element, CACHE_CONTROL_ELEMENT) : null;
 		boolean disabled = "true".equals(getAttribute(cacheControlElement, ATT_DISABLED, "false"));
 		if (disabled) {
 			return;
@@ -195,7 +195,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void parseHstsElement(boolean addIfNotPresent, Element element, ParserContext context) {
-		Element hstsElement = element == null ? null : DomUtils.getChildElementByTagName(element, HSTS_ELEMENT);
+		Element hstsElement = (element != null) ? DomUtils.getChildElementByTagName(element, HSTS_ELEMENT) : null;
 		if (addIfNotPresent || hstsElement != null) {
 			addHsts(addIfNotPresent, hstsElement, context);
 		}
@@ -244,7 +244,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void parseHpkpElement(boolean addIfNotPresent, Element element, ParserContext context) {
-		Element hpkpElement = element == null ? null : DomUtils.getChildElementByTagName(element, HPKP_ELEMENT);
+		Element hpkpElement = (element != null) ? DomUtils.getChildElementByTagName(element, HPKP_ELEMENT) : null;
 		if (addIfNotPresent || hpkpElement != null) {
 			addHpkp(addIfNotPresent, hpkpElement, context);
 		}
@@ -342,8 +342,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void parseReferrerPolicyElement(Element element, ParserContext context) {
-		Element referrerPolicyElement = (element == null) ? null
-				: DomUtils.getChildElementByTagName(element, REFERRER_POLICY_ELEMENT);
+		Element referrerPolicyElement = (element != null)
+				? DomUtils.getChildElementByTagName(element, REFERRER_POLICY_ELEMENT) : null;
 		if (referrerPolicyElement != null) {
 			addReferrerPolicy(referrerPolicyElement, context);
 		}
@@ -361,8 +361,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void parseFeaturePolicyElement(Element element, ParserContext context) {
-		Element featurePolicyElement = (element == null) ? null
-				: DomUtils.getChildElementByTagName(element, FEATURE_POLICY_ELEMENT);
+		Element featurePolicyElement = (element != null)
+				? DomUtils.getChildElementByTagName(element, FEATURE_POLICY_ELEMENT) : null;
 		if (featurePolicyElement != null) {
 			addFeaturePolicy(featurePolicyElement, context);
 		}
@@ -390,8 +390,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void parseHeaderElements(Element element) {
-		List<Element> headerElts = element == null ? Collections.<Element>emptyList()
-				: DomUtils.getChildElementsByTagName(element, GENERIC_HEADER_ELEMENT);
+		List<Element> headerElts = (element != null)
+				? DomUtils.getChildElementsByTagName(element, GENERIC_HEADER_ELEMENT) : Collections.emptyList();
 		for (Element headerElt : headerElts) {
 			String headerFactoryRef = headerElt.getAttribute(ATT_REF);
 			if (StringUtils.hasText(headerFactoryRef)) {
@@ -407,8 +407,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void parseContentTypeOptionsElement(boolean addIfNotPresent, Element element) {
-		Element contentTypeElt = element == null ? null
-				: DomUtils.getChildElementByTagName(element, CONTENT_TYPE_ELEMENT);
+		Element contentTypeElt = (element != null) ? DomUtils.getChildElementByTagName(element, CONTENT_TYPE_ELEMENT)
+				: null;
 		boolean disabled = "true".equals(getAttribute(contentTypeElt, ATT_DISABLED, "false"));
 		if (disabled) {
 			return;
@@ -504,7 +504,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private void parseXssElement(boolean addIfNotPresent, Element element, ParserContext parserContext) {
-		Element xssElt = element == null ? null : DomUtils.getChildElementByTagName(element, XSS_ELEMENT);
+		Element xssElt = (element != null) ? DomUtils.getChildElementByTagName(element, XSS_ELEMENT) : null;
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XXssProtectionHeaderWriter.class);
 		if (xssElt != null) {
 			boolean disabled = "true".equals(getAttribute(xssElt, ATT_DISABLED, "false"));

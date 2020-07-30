@@ -146,7 +146,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	 */
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		return matches(rawPassword == null ? null : rawPassword.toString(), encodedPassword);
+		return matches((rawPassword != null) ? rawPassword.toString() : null, encodedPassword);
 	}
 
 	private boolean matches(String rawPassword, String encodedPassword) {

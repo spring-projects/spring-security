@@ -120,8 +120,8 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response) {
 				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-				SecurityMockMvcRequestPostProcessorsDigestTests.this.username = authentication == null ? null
-						: authentication.getName();
+				SecurityMockMvcRequestPostProcessorsDigestTests.this.username = (authentication != null)
+						? authentication.getName() : null;
 			}
 		});
 		return this.username;

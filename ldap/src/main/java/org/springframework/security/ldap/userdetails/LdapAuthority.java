@@ -140,7 +140,7 @@ public class LdapAuthority implements GrantedAuthority {
 	@Override
 	public int hashCode() {
 		int result = this.dn.hashCode();
-		result = 31 * result + (this.role != null ? this.role.hashCode() : 0);
+		result = 31 * result + ((this.role != null) ? this.role.hashCode() : 0);
 		return result;
 	}
 

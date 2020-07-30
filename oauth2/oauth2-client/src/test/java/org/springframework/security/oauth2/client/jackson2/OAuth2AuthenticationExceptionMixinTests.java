@@ -129,7 +129,7 @@ public class OAuth2AuthenticationExceptionMixinTests {
 	}
 
 	private String jsonStringOrNull(String input) {
-		return input != null ? "\"" + input + "\"" : "null";
+		return (input != null) ? "\"" + input + "\"" : "null";
 	}
 
 }

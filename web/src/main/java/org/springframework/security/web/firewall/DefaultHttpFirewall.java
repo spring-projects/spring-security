@@ -54,7 +54,7 @@ public class DefaultHttpFirewall implements HttpFirewall {
 
 		if (!isNormalized(fwr.getServletPath()) || !isNormalized(fwr.getPathInfo())) {
 			throw new RequestRejectedException("Un-normalized paths are not supported: " + fwr.getServletPath()
-					+ (fwr.getPathInfo() != null ? fwr.getPathInfo() : ""));
+					+ ((fwr.getPathInfo() != null) ? fwr.getPathInfo() : ""));
 		}
 
 		String requestURI = fwr.getRequestURI();

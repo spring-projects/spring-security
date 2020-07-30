@@ -107,8 +107,8 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
 		if (useExpressions) {
 			Element expressionHandlerElt = DomUtils.getChildElementByTagName(httpElt, Elements.EXPRESSION_HANDLER);
-			String expressionHandlerRef = expressionHandlerElt == null ? null
-					: expressionHandlerElt.getAttribute("ref");
+			String expressionHandlerRef = (expressionHandlerElt != null) ? expressionHandlerElt.getAttribute("ref")
+					: null;
 
 			if (StringUtils.hasText(expressionHandlerRef)) {
 				logger.info(

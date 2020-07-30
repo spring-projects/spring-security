@@ -81,7 +81,9 @@ public interface PayloadExchangeMatcher {
 		 * @return
 		 */
 		public static Mono<MatchResult> match(Map<String, ? extends Object> variables) {
-			return Mono.just(new MatchResult(true, variables == null ? null : new HashMap<String, Object>(variables)));
+			MatchResult result = new MatchResult(true,
+					(variables != null) ? new HashMap<String, Object>(variables) : null);
+			return Mono.just(result);
 		}
 
 		/**

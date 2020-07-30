@@ -114,7 +114,7 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 
 	@Override
 	public Object getCredentials() {
-		return this.accessToken != null ? this.accessToken.getTokenValue()
+		return (this.accessToken != null) ? this.accessToken.getTokenValue()
 				: this.authorizationExchange.getAuthorizationResponse().getCode();
 	}
 

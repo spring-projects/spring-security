@@ -237,7 +237,7 @@ public class OAuth2ClientConfigurationTests {
 			@GetMapping("/authorized-client")
 			String authorizedClient(
 					@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
-				return authorizedClient != null ? "resolved" : "not-resolved";
+				return (authorizedClient != null) ? "resolved" : "not-resolved";
 			}
 
 		}
@@ -405,7 +405,7 @@ public class OAuth2ClientConfigurationTests {
 			@GetMapping("/authorized-client")
 			String authorizedClient(
 					@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
-				return authorizedClient != null ? "resolved" : "not-resolved";
+				return (authorizedClient != null) ? "resolved" : "not-resolved";
 			}
 
 		}

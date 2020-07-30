@@ -67,7 +67,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	@Override
 	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
-		String tokenValue = token == null ? "" : token.getToken();
+		String tokenValue = (token != null) ? token.getToken() : "";
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
 		if (this.secure == null) {
 			cookie.setSecure(request.isSecure());
@@ -151,7 +151,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private String getRequestContext(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
-		return contextPath.length() > 0 ? contextPath : "/";
+		return (contextPath.length() > 0) ? contextPath : "/";
 	}
 
 	/**

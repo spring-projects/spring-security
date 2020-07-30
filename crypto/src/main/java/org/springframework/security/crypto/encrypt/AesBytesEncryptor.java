@@ -71,7 +71,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		}
 
 		public AlgorithmParameterSpec getParameterSpec(byte[] iv) {
-			return this == CBC ? new IvParameterSpec(iv) : new GCMParameterSpec(128, iv);
+			return (this != CBC) ? new GCMParameterSpec(128, iv) : new IvParameterSpec(iv);
 		}
 
 		public Cipher createCipher() {
@@ -110,7 +110,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		this.alg = alg;
 		this.encryptor = alg.createCipher();
 		this.decryptor = alg.createCipher();
-		this.ivGenerator = ivGenerator != null ? ivGenerator : alg.defaultIvGenerator();
+		this.ivGenerator = (ivGenerator != null) ? ivGenerator : alg.defaultIvGenerator();
 	}
 
 	@Override
@@ -119,7 +119,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 			byte[] iv = this.ivGenerator.generateKey();
 			CipherUtils.initCipher(this.encryptor, Cipher.ENCRYPT_MODE, this.secretKey, this.alg.getParameterSpec(iv));
 			byte[] encrypted = CipherUtils.doFinal(this.encryptor, bytes);
-			return this.ivGenerator != NULL_IV_GENERATOR ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
+			return (this.ivGenerator != NULL_IV_GENERATOR) ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 		}
 	}
 
@@ -129,12 +129,12 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 			byte[] iv = iv(encryptedBytes);
 			CipherUtils.initCipher(this.decryptor, Cipher.DECRYPT_MODE, this.secretKey, this.alg.getParameterSpec(iv));
 			return CipherUtils.doFinal(this.decryptor,
-					this.ivGenerator != NULL_IV_GENERATOR ? encrypted(encryptedBytes, iv.length) : encryptedBytes);
+					(this.ivGenerator != NULL_IV_GENERATOR) ? encrypted(encryptedBytes, iv.length) : encryptedBytes);
 		}
 	}
 
 	private byte[] iv(byte[] encrypted) {
-		return this.ivGenerator != NULL_IV_GENERATOR
+		return (this.ivGenerator != NULL_IV_GENERATOR)
 				? EncodingUtils.subArray(encrypted, 0, this.ivGenerator.getKeyLength())
 				: NULL_IV_GENERATOR.generateKey();
 	}

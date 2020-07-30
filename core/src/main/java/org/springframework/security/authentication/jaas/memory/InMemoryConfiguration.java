@@ -80,7 +80,7 @@ public class InMemoryConfiguration extends Configuration {
 	@Override
 	public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
 		AppConfigurationEntry[] mappedResult = this.mappedConfigurations.get(name);
-		return mappedResult == null ? this.defaultConfiguration : mappedResult;
+		return (mappedResult != null) ? mappedResult : this.defaultConfiguration;
 	}
 
 	/**

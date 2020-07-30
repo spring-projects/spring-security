@@ -98,7 +98,7 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private String getAuthorizationRequestBaseUri() {
-		return this.authorizationRequestBaseUri != null ? this.authorizationRequestBaseUri
+		return (this.authorizationRequestBaseUri != null) ? this.authorizationRequestBaseUri
 				: OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 	}
 

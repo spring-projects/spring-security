@@ -93,7 +93,7 @@ final class HtmlUnitWebTestClient {
 				contentType = encodingType.getName();
 			}
 		}
-		MediaType mediaType = contentType == null ? MediaType.ALL : MediaType.parseMediaType(contentType);
+		MediaType mediaType = (contentType != null) ? MediaType.parseMediaType(contentType) : MediaType.ALL;
 		request.contentType(mediaType);
 	}
 

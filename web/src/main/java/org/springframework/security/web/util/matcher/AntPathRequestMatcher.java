@@ -220,8 +220,8 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 
 	@Override
 	public int hashCode() {
-		int result = this.pattern != null ? this.pattern.hashCode() : 0;
-		result = 31 * result + (this.httpMethod != null ? this.httpMethod.hashCode() : 0);
+		int result = (this.pattern != null) ? this.pattern.hashCode() : 0;
+		result = 31 * result + ((this.httpMethod != null) ? this.httpMethod.hashCode() : 0);
 		result = 31 * result + (this.caseSensitive ? 1231 : 1237);
 		return result;
 	}

@@ -333,9 +333,9 @@ public final class Base64 {
 		// significant bytes passed in the array.
 		// We have to shift left 24 in order to flush out the 1's that appear
 		// when Java treats a value as negative that is cast from a byte to an int.
-		int inBuff = (numSigBytes > 0 ? ((source[srcOffset] << 24) >>> 8) : 0)
-				| (numSigBytes > 1 ? ((source[srcOffset + 1] << 24) >>> 16) : 0)
-				| (numSigBytes > 2 ? ((source[srcOffset + 2] << 24) >>> 24) : 0);
+		int inBuff = ((numSigBytes > 0) ? ((source[srcOffset] << 24) >>> 8) : 0)
+				| ((numSigBytes > 1) ? ((source[srcOffset + 1] << 24) >>> 16) : 0)
+				| ((numSigBytes > 2) ? ((source[srcOffset + 2] << 24) >>> 24) : 0);
 
 		switch (numSigBytes) {
 		case 3:
@@ -404,8 +404,10 @@ public final class Base64 {
 		// Try to determine more precisely how big the array needs to be.
 		// If we get it right, we don't have to do an array copy, and
 		// we save a bunch of memory.
-		int encLen = (len / 3) * 4 + (len % 3 > 0 ? 4 : 0); // Bytes needed for actual
-															// encoding
+
+		// Bytes needed for actual encoding
+		int encLen = (len / 3) * 4 + ((len % 3 > 0) ? 4 : 0);
+
 		if (breakLines) {
 			encLen += encLen / MAX_LINE_LENGTH; // Plus extra newline characters
 		}

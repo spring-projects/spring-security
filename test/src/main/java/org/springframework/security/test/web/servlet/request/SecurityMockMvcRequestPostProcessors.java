@@ -770,7 +770,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 				// remember the SecurityContextRepository is used in many different
 				// locations
 				SecurityContext delegateResult = this.delegate.loadContext(requestResponseHolder);
-				return result == null ? delegateResult : result;
+				return (result != null) ? result : delegateResult;
 			}
 
 			@Override

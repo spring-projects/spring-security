@@ -89,7 +89,7 @@ public class FilterInvocation {
 		}
 		request.setContextPath(contextPath);
 		request.setServletPath(servletPath);
-		request.setRequestURI(contextPath + servletPath + (pathInfo == null ? "" : pathInfo));
+		request.setRequestURI(contextPath + servletPath + ((pathInfo != null) ? pathInfo : ""));
 		request.setPathInfo(pathInfo);
 		request.setQueryString(query);
 		request.setMethod(method);
@@ -268,7 +268,7 @@ public class FilterInvocation {
 		@Override
 		public String getParameter(String name) {
 			String[] arr = this.parameters.get(name);
-			return (arr != null && arr.length > 0 ? arr[0] : null);
+			return (arr != null && arr.length > 0) ? arr[0] : null;
 		}
 
 		@Override

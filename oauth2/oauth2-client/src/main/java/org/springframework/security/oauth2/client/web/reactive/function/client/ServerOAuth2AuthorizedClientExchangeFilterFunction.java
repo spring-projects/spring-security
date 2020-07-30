@@ -572,7 +572,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 							.build()).flatMap((authorizationContext) -> authorize(authorizationContext, principal))
 							// Default to the existing authorizedClient if the client
 							// was not re-authorized
-							.defaultIfEmpty(authorizeRequest.getAuthorizedClient() != null
+							.defaultIfEmpty((authorizeRequest.getAuthorizedClient() != null)
 									? authorizeRequest.getAuthorizedClient() : authorizedClient))
 					.switchIfEmpty(Mono.defer(() ->
 					// Authorize

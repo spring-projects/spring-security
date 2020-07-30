@@ -216,7 +216,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 				// this prevents a forever loop for a misconfigured ldap directory
 				circular = circular | (!authorities.add(new LdapAuthority(role, dn, record)));
 			}
-			String roleName = roles.size() > 0 ? roles.iterator().next() : dn;
+			String roleName = (roles.size() > 0) ? roles.iterator().next() : dn;
 			if (!circular) {
 				performNestedSearch(dn, roleName, authorities, (depth - 1));
 			}

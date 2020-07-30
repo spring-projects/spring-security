@@ -26,6 +26,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Represents a successful CAS <code>Authentication</code>.
@@ -141,7 +142,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		result = 31 * result + this.principal.hashCode();
 		result = 31 * result + this.userDetails.hashCode();
 		result = 31 * result + this.keyHash;
-		result = 31 * result + (this.assertion != null ? this.assertion.hashCode() : 0);
+		result = 31 * result + ObjectUtils.nullSafeHashCode(this.assertion);
 		return result;
 	}
 

@@ -71,7 +71,7 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notNull(tokenType, "tokenType cannot be null");
 		this.tokenType = tokenType;
-		this.scopes = Collections.unmodifiableSet(scopes != null ? scopes : Collections.emptySet());
+		this.scopes = Collections.unmodifiableSet((scopes != null) ? scopes : Collections.emptySet());
 	}
 
 	/**

@@ -73,9 +73,9 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	@Override
 	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
 		return Mono.fromRunnable(() -> {
-			String tokenValue = token != null ? token.getToken() : "";
+			String tokenValue = (token != null) ? token.getToken() : "";
 			int maxAge = !tokenValue.isEmpty() ? -1 : 0;
-			String path = this.cookiePath != null ? this.cookiePath : getRequestContext(exchange.getRequest());
+			String path = (this.cookiePath != null) ? this.cookiePath : getRequestContext(exchange.getRequest());
 			boolean secure = exchange.getRequest().getSslInfo() != null;
 
 			ResponseCookie cookie = ResponseCookie.from(this.cookieName, tokenValue).domain(this.cookieDomain)

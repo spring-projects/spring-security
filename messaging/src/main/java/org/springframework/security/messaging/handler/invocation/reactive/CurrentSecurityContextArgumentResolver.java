@@ -127,7 +127,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 		return ReactiveSecurityContextHolder.getContext().flatMap((securityContext) -> {
 			Object sc = resolveSecurityContext(parameter, securityContext);
 			Mono<Object> result = Mono.justOrEmpty(sc);
-			return adapter == null ? result : Mono.just(adapter.fromPublisher(result));
+			return (adapter != null) ? Mono.just(adapter.fromPublisher(result)) : result;
 		});
 	}
 

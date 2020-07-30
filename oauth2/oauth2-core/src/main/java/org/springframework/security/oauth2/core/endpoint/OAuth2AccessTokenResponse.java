@@ -120,7 +120,8 @@ public final class OAuth2AccessTokenResponse {
 			this.issuedAt = accessToken.getIssuedAt();
 			this.expiresAt = accessToken.getExpiresAt();
 			this.scopes = accessToken.getScopes();
-			this.refreshToken = response.getRefreshToken() == null ? null : response.getRefreshToken().getTokenValue();
+			this.refreshToken = (response.getRefreshToken() != null) ? response.getRefreshToken().getTokenValue()
+					: null;
 			this.additionalParameters = response.getAdditionalParameters();
 		}
 
@@ -217,7 +218,7 @@ public final class OAuth2AccessTokenResponse {
 		private Instant getExpiresAt() {
 			if (this.expiresAt == null) {
 				Instant issuedAt = getIssuedAt();
-				this.expiresAt = this.expiresIn > 0 ? issuedAt.plusSeconds(this.expiresIn) : issuedAt.plusSeconds(1);
+				this.expiresAt = (this.expiresIn > 0) ? issuedAt.plusSeconds(this.expiresIn) : issuedAt.plusSeconds(1);
 			}
 			return this.expiresAt;
 		}
