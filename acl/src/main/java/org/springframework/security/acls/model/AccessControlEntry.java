@@ -27,7 +27,6 @@ import java.io.Serializable;
  * </p>
  *
  * @author Ben Alex
- *
  */
 public interface AccessControlEntry extends Serializable {
 

@@ -86,32 +86,15 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 				|| !SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
 			throw new AccessDeniedException("Authenticated principal required to operate with ACLs");
 		}
-
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
 		// Check if authorized by virtue of ACL ownership
 		Sid currentUser = createCurrentUser(authentication);
-
 		if (currentUser.equals(acl.getOwner())
 				&& ((changeType == CHANGE_GENERAL) || (changeType == CHANGE_OWNERSHIP))) {
 			return;
 		}
-
 		// Not authorized by ACL ownership; try via adminstrative permissions
-		GrantedAuthority requiredAuthority;
-
-		if (changeType == CHANGE_AUDITING) {
-			requiredAuthority = this.gaModifyAuditing;
-		}
-		else if (changeType == CHANGE_GENERAL) {
-			requiredAuthority = this.gaGeneralChanges;
-		}
-		else if (changeType == CHANGE_OWNERSHIP) {
-			requiredAuthority = this.gaTakeOwnership;
-		}
-		else {
-			throw new IllegalArgumentException("Unknown change type");
-		}
+		GrantedAuthority requiredAuthority = getRequiredAuthority(changeType);
 
 		// Iterate this principal's authorities to determine right
 		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
@@ -121,13 +104,25 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 
 		// Try to get permission via ACEs within the ACL
 		List<Sid> sids = this.sidRetrievalStrategy.getSids(authentication);
-
 		if (acl.isGranted(Arrays.asList(BasePermission.ADMINISTRATION), sids, false)) {
 			return;
 		}
 
 		throw new AccessDeniedException(
 				"Principal does not have required ACL permissions to perform requested operation");
+	}
+
+	private GrantedAuthority getRequiredAuthority(int changeType) {
+		if (changeType == CHANGE_AUDITING) {
+			return this.gaModifyAuditing;
+		}
+		if (changeType == CHANGE_GENERAL) {
+			return this.gaGeneralChanges;
+		}
+		if (changeType == CHANGE_OWNERSHIP) {
+			return this.gaTakeOwnership;
+		}
+		throw new IllegalArgumentException("Unknown change type");
 	}
 
 	/**

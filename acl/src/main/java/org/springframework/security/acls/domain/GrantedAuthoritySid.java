@@ -51,7 +51,6 @@ public class GrantedAuthoritySid implements Sid {
 		if ((object == null) || !(object instanceof GrantedAuthoritySid)) {
 			return false;
 		}
-
 		// Delegate to getGrantedAuthority() to perform actual comparison (both should be
 		// identical)
 		return ((GrantedAuthoritySid) object).getGrantedAuthority().equals(this.getGrantedAuthority());

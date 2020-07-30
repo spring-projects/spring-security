@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.access.ConfigAttribute;
@@ -75,10 +76,8 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
 	@SuppressWarnings("unchecked")
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 			Object returnedObject) throws AccessDeniedException {
-
 		if (returnedObject == null) {
 			logger.debug("Return object is null, skipping");
-
 			return null;
 		}
 
@@ -88,18 +87,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
 			}
 
 			// Need to process the Collection for this invocation
-			Filterer filterer;
-
-			if (returnedObject instanceof Collection) {
-				filterer = new CollectionFilterer((Collection) returnedObject);
-			}
-			else if (returnedObject.getClass().isArray()) {
-				filterer = new ArrayFilterer((Object[]) returnedObject);
-			}
-			else {
-				throw new AuthorizationServiceException("A Collection or an array (or null) was required as the "
-						+ "returnedObject, but the returnedObject was: " + returnedObject);
-			}
+			Filterer filterer = getFilterer(returnedObject);
 
 			// Locate unauthorised Collection elements
 			for (Object domainObject : filterer) {
@@ -108,20 +96,25 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
 				if (domainObject == null || !getProcessDomainObjectClass().isAssignableFrom(domainObject.getClass())) {
 					continue;
 				}
-
 				if (!hasPermission(authentication, domainObject)) {
 					filterer.remove(domainObject);
-
-					if (logger.isDebugEnabled()) {
-						logger.debug("Principal is NOT authorised for element: " + domainObject);
-					}
+					logger.debug(LogMessage.of(() -> "Principal is NOT authorised for element: " + domainObject));
 				}
 			}
-
 			return filterer.getFilteredObject();
 		}
-
 		return returnedObject;
+	}
+
+	private Filterer getFilterer(Object returnedObject) {
+		if (returnedObject instanceof Collection) {
+			return new CollectionFilterer((Collection) returnedObject);
+		}
+		if (returnedObject.getClass().isArray()) {
+			return new ArrayFilterer((Object[]) returnedObject);
+		}
+		throw new AuthorizationServiceException("A Collection or an array (or null) was required as the "
+				+ "returnedObject, but the returnedObject was: " + returnedObject);
 	}
 
 }

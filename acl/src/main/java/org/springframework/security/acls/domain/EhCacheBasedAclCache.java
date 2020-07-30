@@ -59,9 +59,7 @@ public class EhCacheBasedAclCache implements AclCache {
 	@Override
 	public void evictFromCache(Serializable pk) {
 		Assert.notNull(pk, "Primary key (identifier) required");
-
 		MutableAcl acl = getFromCache(pk);
-
 		if (acl != null) {
 			this.cache.remove(acl.getId());
 			this.cache.remove(acl.getObjectIdentity());
@@ -71,9 +69,7 @@ public class EhCacheBasedAclCache implements AclCache {
 	@Override
 	public void evictFromCache(ObjectIdentity objectIdentity) {
 		Assert.notNull(objectIdentity, "ObjectIdentity required");
-
 		MutableAcl acl = getFromCache(objectIdentity);
-
 		if (acl != null) {
 			this.cache.remove(acl.getId());
 			this.cache.remove(acl.getObjectIdentity());
@@ -83,39 +79,25 @@ public class EhCacheBasedAclCache implements AclCache {
 	@Override
 	public MutableAcl getFromCache(ObjectIdentity objectIdentity) {
 		Assert.notNull(objectIdentity, "ObjectIdentity required");
-
-		Element element = null;
-
 		try {
-			element = this.cache.get(objectIdentity);
+			Element element = this.cache.get(objectIdentity);
+			return (element != null) ? initializeTransientFields((MutableAcl) element.getValue()) : null;
 		}
-		catch (CacheException ignored) {
-		}
-
-		if (element == null) {
+		catch (CacheException ex) {
 			return null;
 		}
-
-		return initializeTransientFields((MutableAcl) element.getValue());
 	}
 
 	@Override
 	public MutableAcl getFromCache(Serializable pk) {
 		Assert.notNull(pk, "Primary key (identifier) required");
-
-		Element element = null;
-
 		try {
-			element = this.cache.get(pk);
+			Element element = this.cache.get(pk);
+			return (element != null) ? initializeTransientFields((MutableAcl) element.getValue()) : null;
 		}
-		catch (CacheException ignored) {
-		}
-
-		if (element == null) {
+		catch (CacheException ex) {
 			return null;
 		}
-
-		return initializeTransientFields((MutableAcl) element.getValue());
 	}
 
 	@Override
@@ -123,7 +105,6 @@ public class EhCacheBasedAclCache implements AclCache {
 		Assert.notNull(acl, "Acl required");
 		Assert.notNull(acl.getObjectIdentity(), "ObjectIdentity required");
 		Assert.notNull(acl.getId(), "ID required");
-
 		if (this.aclAuthorizationStrategy == null) {
 			if (acl instanceof AclImpl) {
 				this.aclAuthorizationStrategy = (AclAuthorizationStrategy) FieldUtils
@@ -132,11 +113,9 @@ public class EhCacheBasedAclCache implements AclCache {
 						.getProtectedFieldValue("permissionGrantingStrategy", acl);
 			}
 		}
-
 		if ((acl.getParentAcl() != null) && (acl.getParentAcl() instanceof MutableAcl)) {
 			putInCache((MutableAcl) acl.getParentAcl());
 		}
-
 		this.cache.put(new Element(acl.getObjectIdentity(), acl));
 		this.cache.put(new Element(acl.getId(), acl));
 	}
@@ -146,7 +125,6 @@ public class EhCacheBasedAclCache implements AclCache {
 			FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
 			FieldUtils.setProtectedFieldValue("permissionGrantingStrategy", value, this.permissionGrantingStrategy);
 		}
-
 		if (value.getParentAcl() != null) {
 			initializeTransientFields((MutableAcl) value.getParentAcl());
 		}

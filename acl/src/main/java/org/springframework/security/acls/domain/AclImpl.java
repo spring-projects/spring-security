@@ -53,10 +53,11 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 	private Serializable id;
 
-	private Sid owner; // OwnershipAcl
+	// OwnershipAcl
+	private Sid owner;
 
-	private List<Sid> loadedSids = null; // includes all SIDs the WHERE clause covered,
-											// even if there was no ACE for a SID
+	// includes all SIDs the WHERE clause covered, even if there was no ACE for a SID
+	private List<Sid> loadedSids = null;
 
 	private boolean entriesInheriting = true;
 
@@ -102,7 +103,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		Assert.notNull(id, "Id required");
 		Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
 		Assert.notNull(owner, "Owner required");
-
 		this.objectIdentity = objectIdentity;
 		this.id = id;
 		this.aclAuthorizationStrategy = aclAuthorizationStrategy;
@@ -125,7 +125,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	public void deleteAce(int aceIndex) throws NotFoundException {
 		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
 		verifyAceIndexExists(aceIndex);
-
 		synchronized (this.aces) {
 			this.aces.remove(aceIndex);
 		}
@@ -154,9 +153,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 			throw new NotFoundException(
 					"atIndexLocation must be less than or equal to the size of the AccessControlEntry collection");
 		}
-
 		AccessControlEntryImpl ace = new AccessControlEntryImpl(null, this, sid, permission, granting, false, false);
-
 		synchronized (this.aces) {
 			this.aces.add(atIndexLocation, ace);
 		}
@@ -195,11 +192,9 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 			throws NotFoundException, UnloadedSidException {
 		Assert.notEmpty(permission, "Permissions required");
 		Assert.notEmpty(sids, "SIDs required");
-
 		if (!this.isSidLoaded(sids)) {
 			throw new UnloadedSidException("ACL was not loaded for one or more SID");
 		}
-
 		return this.permissionGrantingStrategy.isGranted(this, permission, sids, administrativeMode);
 	}
 
@@ -214,16 +209,13 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		// This ACL applies to a SID subset only. Iterate to check it applies.
 		for (Sid sid : sids) {
 			boolean found = false;
-
 			for (Sid loadedSid : this.loadedSids) {
 				if (sid.equals(loadedSid)) {
 					// this SID is OK
 					found = true;
-
 					break; // out of loadedSids for loop
 				}
 			}
-
 			if (!found) {
 				return false;
 			}
@@ -266,7 +258,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	public void updateAce(int aceIndex, Permission permission) throws NotFoundException {
 		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
 		verifyAceIndexExists(aceIndex);
-
 		synchronized (this.aces) {
 			AccessControlEntryImpl ace = (AccessControlEntryImpl) this.aces.get(aceIndex);
 			ace.setPermission(permission);
@@ -277,7 +268,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	public void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure) {
 		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_AUDITING);
 		verifyAceIndexExists(aceIndex);
-
 		synchronized (this.aces) {
 			AccessControlEntryImpl ace = (AccessControlEntryImpl) this.aces.get(aceIndex);
 			ace.setAuditSuccess(auditSuccess);
@@ -327,30 +317,23 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 		sb.append("id: ").append(this.id).append("; ");
 		sb.append("objectIdentity: ").append(this.objectIdentity).append("; ");
 		sb.append("owner: ").append(this.owner).append("; ");
-
 		int count = 0;
-
 		for (AccessControlEntry ace : this.aces) {
 			count++;
-
 			if (count == 1) {
 				sb.append("\n");
 			}
-
 			sb.append(ace).append("\n");
 		}
-
 		if (count == 0) {
 			sb.append("no ACEs; ");
 		}
-
 		sb.append("inheriting: ").append(this.entriesInheriting).append("; ");
 		sb.append("parent: ").append((this.parentAcl == null) ? "Null" : this.parentAcl.getObjectIdentity().toString());
 		sb.append("; ");
 		sb.append("aclAuthorizationStrategy: ").append(this.aclAuthorizationStrategy).append("; ");
 		sb.append("permissionGrantingStrategy: ").append(this.permissionGrantingStrategy);
 		sb.append("]");
-
 		return sb.toString();
 	}
 

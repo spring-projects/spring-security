@@ -65,60 +65,54 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 		if (!(arg0 instanceof AccessControlEntryImpl)) {
 			return false;
 		}
-
-		AccessControlEntryImpl rhs = (AccessControlEntryImpl) arg0;
-
+		AccessControlEntryImpl other = (AccessControlEntryImpl) arg0;
 		if (this.acl == null) {
-			if (rhs.getAcl() != null) {
+			if (other.getAcl() != null) {
 				return false;
 			}
 			// Both this.acl and rhs.acl are null and thus equal
 		}
 		else {
 			// this.acl is non-null
-			if (rhs.getAcl() == null) {
+			if (other.getAcl() == null) {
 				return false;
 			}
 
 			// Both this.acl and rhs.acl are non-null, so do a comparison
 			if (this.acl.getObjectIdentity() == null) {
-				if (rhs.acl.getObjectIdentity() != null) {
+				if (other.acl.getObjectIdentity() != null) {
 					return false;
 				}
 				// Both this.acl and rhs.acl are null and thus equal
 			}
 			else {
 				// Both this.acl.objectIdentity and rhs.acl.objectIdentity are non-null
-				if (!this.acl.getObjectIdentity().equals(rhs.getAcl().getObjectIdentity())) {
+				if (!this.acl.getObjectIdentity().equals(other.getAcl().getObjectIdentity())) {
 					return false;
 				}
 			}
 		}
-
 		if (this.id == null) {
-			if (rhs.id != null) {
+			if (other.id != null) {
 				return false;
 			}
 			// Both this.id and rhs.id are null and thus equal
 		}
 		else {
 			// this.id is non-null
-			if (rhs.id == null) {
+			if (other.id == null) {
 				return false;
 			}
-
 			// Both this.id and rhs.id are non-null
-			if (!this.id.equals(rhs.id)) {
+			if (!this.id.equals(other.id)) {
 				return false;
 			}
 		}
-
-		if ((this.auditFailure != rhs.isAuditFailure()) || (this.auditSuccess != rhs.isAuditSuccess())
-				|| (this.granting != rhs.isGranting()) || !this.permission.equals(rhs.getPermission())
-				|| !this.sid.equals(rhs.getSid())) {
+		if ((this.auditFailure != other.isAuditFailure()) || (this.auditSuccess != other.isAuditSuccess())
+				|| (this.granting != other.isGranting()) || !this.permission.equals(other.getPermission())
+				|| !this.sid.equals(other.getSid())) {
 			return false;
 		}
-
 		return true;
 	}
 
@@ -192,7 +186,6 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 		sb.append("auditSuccess: ").append(this.auditSuccess).append("; ");
 		sb.append("auditFailure: ").append(this.auditFailure);
 		sb.append("]");
-
 		return sb.toString();
 	}
 

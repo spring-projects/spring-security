@@ -77,22 +77,18 @@ public class DefaultPermissionFactory implements PermissionFactory {
 	 */
 	protected void registerPublicPermissions(Class<? extends Permission> clazz) {
 		Assert.notNull(clazz, "Class required");
-
 		Field[] fields = clazz.getFields();
-
 		for (Field field : fields) {
 			try {
 				Object fieldValue = field.get(null);
-
 				if (Permission.class.isAssignableFrom(fieldValue.getClass())) {
 					// Found a Permission static field
 					Permission perm = (Permission) fieldValue;
 					String permissionName = field.getName();
-
 					registerPermission(perm, permissionName);
 				}
 			}
-			catch (Exception ignore) {
+			catch (Exception ex) {
 			}
 		}
 	}
@@ -100,7 +96,6 @@ public class DefaultPermissionFactory implements PermissionFactory {
 	protected void registerPermission(Permission perm, String permissionName) {
 		Assert.notNull(perm, "Permission required");
 		Assert.hasText(permissionName, "Permission name required");
-
 		Integer mask = perm.getMask();
 
 		// Ensure no existing Permission uses this integer or code
@@ -124,32 +119,22 @@ public class DefaultPermissionFactory implements PermissionFactory {
 
 		// To get this far, we have to use a CumulativePermission
 		CumulativePermission permission = new CumulativePermission();
-
 		for (int i = 0; i < 32; i++) {
 			int permissionToCheck = 1 << i;
-
 			if ((mask & permissionToCheck) == permissionToCheck) {
 				Permission p = this.registeredPermissionsByInteger.get(permissionToCheck);
-
-				if (p == null) {
-					throw new IllegalStateException(
-							"Mask '" + permissionToCheck + "' does not have a corresponding static Permission");
-				}
+				Assert.state(p != null,
+						() -> "Mask '" + permissionToCheck + "' does not have a corresponding static Permission");
 				permission.set(p);
 			}
 		}
-
 		return permission;
 	}
 
 	@Override
 	public Permission buildFromName(String name) {
 		Permission p = this.registeredPermissionsByName.get(name);
-
-		if (p == null) {
-			throw new IllegalArgumentException("Unknown permission '" + name + "'");
-		}
-
+		Assert.notNull(p, "Unknown permission '" + name + "'");
 		return p;
 	}
 
@@ -158,13 +143,10 @@ public class DefaultPermissionFactory implements PermissionFactory {
 		if ((names == null) || (names.size() == 0)) {
 			return Collections.emptyList();
 		}
-
 		List<Permission> permissions = new ArrayList<>(names.size());
-
 		for (String name : names) {
 			permissions.add(buildFromName(name));
 		}
-
 		return permissions;
 	}
 

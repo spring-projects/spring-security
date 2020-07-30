@@ -24,6 +24,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
+
 /**
  * A filter used to filter Collections.
  *
@@ -40,7 +42,6 @@ class CollectionFilterer<T> implements Filterer<T> {
 
 	CollectionFilterer(Collection<T> collection) {
 		this.collection = collection;
-
 		// We create a Set of objects to be removed from the Collection,
 		// as ConcurrentModificationException prevents removal during
 		// iteration, and making a new Collection to be returned is
@@ -51,42 +52,24 @@ class CollectionFilterer<T> implements Filterer<T> {
 		this.removeList = new HashSet<>();
 	}
 
-	/**
-	 *
-	 * @see org.springframework.security.acls.afterinvocation.Filterer#getFilteredObject()
-	 */
 	@Override
 	public Object getFilteredObject() {
 		// Now the Iterator has ended, remove Objects from Collection
 		Iterator<T> removeIter = this.removeList.iterator();
-
 		int originalSize = this.collection.size();
-
 		while (removeIter.hasNext()) {
 			this.collection.remove(removeIter.next());
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Original collection contained " + originalSize + " elements; now contains "
-					+ this.collection.size() + " elements");
-		}
-
+		logger.debug(LogMessage.of(() -> "Original collection contained " + originalSize + " elements; now contains "
+				+ this.collection.size() + " elements"));
 		return this.collection;
 	}
 
-	/**
-	 *
-	 * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
-	 */
 	@Override
 	public Iterator<T> iterator() {
 		return this.collection.iterator();
 	}
 
-	/**
-	 *
-	 * @see org.springframework.security.acls.afterinvocation.Filterer#remove(java.lang.Object)
-	 */
 	@Override
 	public void remove(T object) {
 		this.removeList.add(object);

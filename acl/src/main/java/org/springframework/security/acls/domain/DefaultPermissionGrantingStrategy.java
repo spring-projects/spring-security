@@ -74,18 +74,13 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 	@Override
 	public boolean isGranted(Acl acl, List<Permission> permission, List<Sid> sids, boolean administrativeMode)
 			throws NotFoundException {
-
-		final List<AccessControlEntry> aces = acl.getEntries();
-
+		List<AccessControlEntry> aces = acl.getEntries();
 		AccessControlEntry firstRejection = null;
-
 		for (Permission p : permission) {
 			for (Sid sid : sids) {
 				// Attempt to find exact match for this permission mask and SID
 				boolean scanNextSid = true;
-
 				for (AccessControlEntry ace : aces) {
-
 					if (isGranted(ace, p) && ace.getSid().equals(sid)) {
 						// Found a matching ACE, so its authorization decision will
 						// prevail
@@ -94,7 +89,6 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 							if (!administrativeMode) {
 								this.auditLogger.logIfNeeded(true, ace);
 							}
-
 							return true;
 						}
 
@@ -105,13 +99,11 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 							// Store first rejection for auditing reasons
 							firstRejection = ace;
 						}
-
 						scanNextSid = false; // helps break the loop
 
 						break; // exit aces loop
 					}
 				}
-
 				if (!scanNextSid) {
 					break; // exit SID for loop (now try next permission)
 				}
@@ -124,7 +116,6 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 			if (!administrativeMode) {
 				this.auditLogger.logIfNeeded(false, firstRejection);
 			}
-
 			return false;
 		}
 
@@ -133,10 +124,9 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 			// We have a parent, so let them try to find a matching ACE
 			return acl.getParentAcl().isGranted(permission, sids, false);
 		}
-		else {
-			// We either have no parent, or we're the uppermost parent
-			throw new NotFoundException("Unable to locate a matching ACE for passed permissions and SIDs");
-		}
+
+		// We either have no parent, or we're the uppermost parent
+		throw new NotFoundException("Unable to locate a matching ACE for passed permissions and SIDs");
 	}
 
 	/**
