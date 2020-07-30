@@ -70,26 +70,20 @@ class AclClassIdUtils {
 	Serializable identifierFrom(Serializable identifier, ResultSet resultSet) throws SQLException {
 		if (isString(identifier) && hasValidClassIdType(resultSet)
 				&& canConvertFromStringTo(classIdTypeFrom(resultSet))) {
-
-			identifier = convertFromStringTo((String) identifier, classIdTypeFrom(resultSet));
+			return convertFromStringTo((String) identifier, classIdTypeFrom(resultSet));
 		}
-		else {
-			// Assume it should be a Long type
-			identifier = convertToLong(identifier);
-		}
-
-		return identifier;
+		// Assume it should be a Long type
+		return convertToLong(identifier);
 	}
 
 	private boolean hasValidClassIdType(ResultSet resultSet) {
-		boolean hasClassIdType = false;
 		try {
-			hasClassIdType = classIdTypeFrom(resultSet) != null;
+			return classIdTypeFrom(resultSet) != null;
 		}
 		catch (SQLException ex) {
 			log.debug("Unable to obtain the class id type", ex);
+			return false;
 		}
-		return hasClassIdType;
 	}
 
 	private <T extends Serializable> Class<T> classIdTypeFrom(ResultSet resultSet) throws SQLException {
@@ -97,16 +91,16 @@ class AclClassIdUtils {
 	}
 
 	private <T extends Serializable> Class<T> classIdTypeFrom(String className) {
-		Class targetType = null;
-		if (className != null) {
-			try {
-				targetType = Class.forName(className);
-			}
-			catch (ClassNotFoundException ex) {
-				log.debug("Unable to find class id type on classpath", ex);
-			}
+		if (className == null) {
+			return null;
 		}
-		return targetType;
+		try {
+			return (Class) Class.forName(className);
+		}
+		catch (ClassNotFoundException ex) {
+			log.debug("Unable to find class id type on classpath", ex);
+			return null;
+		}
 	}
 
 	private <T> boolean canConvertFromStringTo(Class<T> targetType) {
@@ -128,14 +122,10 @@ class AclClassIdUtils {
 	 * @throws IllegalArgumentException if targetType is null
 	 */
 	private Long convertToLong(Serializable identifier) {
-		Long idAsLong;
 		if (this.conversionService.canConvert(identifier.getClass(), Long.class)) {
-			idAsLong = this.conversionService.convert(identifier, Long.class);
+			return this.conversionService.convert(identifier, Long.class);
 		}
-		else {
-			idAsLong = Long.valueOf(identifier.toString());
-		}
-		return idAsLong;
+		return Long.valueOf(identifier.toString());
 	}
 
 	private boolean isString(Serializable object) {

@@ -18,6 +18,7 @@ package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -167,26 +168,19 @@ public class BasicLookupStrategy implements LookupStrategy {
 	}
 
 	private String computeRepeatingSql(String repeatingSql, int requiredRepetitions) {
-		assert requiredRepetitions > 0 : "requiredRepetitions must be > 0";
-
-		final String startSql = this.selectClause;
-
-		final String endSql = this.orderByClause;
-
+		Assert.isTrue(requiredRepetitions > 0, "requiredRepetitions must be > 0");
+		String startSql = this.selectClause;
+		String endSql = this.orderByClause;
 		StringBuilder sqlStringBldr = new StringBuilder(
 				startSql.length() + endSql.length() + requiredRepetitions * (repeatingSql.length() + 4));
 		sqlStringBldr.append(startSql);
-
 		for (int i = 1; i <= requiredRepetitions; i++) {
 			sqlStringBldr.append(repeatingSql);
-
 			if (i != requiredRepetitions) {
 				sqlStringBldr.append(" or ");
 			}
 		}
-
 		sqlStringBldr.append(endSql);
-
 		return sqlStringBldr.toString();
 	}
 
@@ -228,22 +222,21 @@ public class BasicLookupStrategy implements LookupStrategy {
 	private void lookupPrimaryKeys(final Map<Serializable, Acl> acls, final Set<Long> findNow, final List<Sid> sids) {
 		Assert.notNull(acls, "ACLs are required");
 		Assert.notEmpty(findNow, "Items to find now required");
-
 		String sql = computeRepeatingSql(this.lookupPrimaryKeysWhereClause, findNow.size());
-
-		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, (ps) -> {
-			int i = 0;
-
-			for (Long toFind : findNow) {
-				i++;
-				ps.setLong(i, toFind);
-			}
-		}, new ProcessResultSet(acls, sids));
-
+		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, (ps) -> setKeys(ps, findNow),
+				new ProcessResultSet(acls, sids));
 		// Lookup the parents, now that our JdbcTemplate has released the database
 		// connection (SEC-547)
 		if (parentsToLookup.size() > 0) {
 			lookupPrimaryKeys(acls, parentsToLookup, sids);
+		}
+	}
+
+	private void setKeys(PreparedStatement ps, Set<Long> findNow) throws SQLException {
+		int i = 0;
+		for (Long toFind : findNow) {
+			i++;
+			ps.setLong(i, toFind);
 		}
 	}
 
@@ -269,68 +262,48 @@ public class BasicLookupStrategy implements LookupStrategy {
 	public final Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) {
 		Assert.isTrue(this.batchSize >= 1, "BatchSize must be >= 1");
 		Assert.notEmpty(objects, "Objects to lookup required");
-
 		// Map<ObjectIdentity,Acl>
-		Map<ObjectIdentity, Acl> result = new HashMap<>(); // contains
-															// FULLY
-															// loaded
-															// Acl
-															// objects
-
+		// contains FULLY loaded Acl objects
+		Map<ObjectIdentity, Acl> result = new HashMap<>();
 		Set<ObjectIdentity> currentBatchToLoad = new HashSet<>();
-
 		for (int i = 0; i < objects.size(); i++) {
 			final ObjectIdentity oid = objects.get(i);
 			boolean aclFound = false;
-
 			// Check we don't already have this ACL in the results
 			if (result.containsKey(oid)) {
 				aclFound = true;
 			}
-
 			// Check cache for the present ACL entry
 			if (!aclFound) {
 				Acl acl = this.aclCache.getFromCache(oid);
-
 				// Ensure any cached element supports all the requested SIDs
 				// (they should always, as our base impl doesn't filter on SID)
 				if (acl != null) {
-					if (acl.isSidLoaded(sids)) {
-						result.put(acl.getObjectIdentity(), acl);
-						aclFound = true;
-					}
-					else {
-						throw new IllegalStateException(
-								"Error: SID-filtered element detected when implementation does not perform SID filtering "
-										+ "- have you added something to the cache manually?");
-					}
+					Assert.state(acl.isSidLoaded(sids),
+							"Error: SID-filtered element detected when implementation does not perform SID filtering "
+									+ "- have you added something to the cache manually?");
+					result.put(acl.getObjectIdentity(), acl);
+					aclFound = true;
 				}
 			}
-
 			// Load the ACL from the database
 			if (!aclFound) {
 				currentBatchToLoad.add(oid);
 			}
-
 			// Is it time to load from JDBC the currentBatchToLoad?
 			if ((currentBatchToLoad.size() == this.batchSize) || ((i + 1) == objects.size())) {
 				if (currentBatchToLoad.size() > 0) {
 					Map<ObjectIdentity, Acl> loadedBatch = lookupObjectIdentities(currentBatchToLoad, sids);
-
 					// Add loaded batch (all elements 100% initialized) to results
 					result.putAll(loadedBatch);
-
 					// Add the loaded batch to the cache
-
 					for (Acl loadedAcl : loadedBatch.values()) {
 						this.aclCache.putInCache((AclImpl) loadedAcl);
 					}
-
 					currentBatchToLoad.clear();
 				}
 			}
 		}
-
 		return result;
 	}
 
@@ -343,37 +316,20 @@ public class BasicLookupStrategy implements LookupStrategy {
 	 * <p>
 	 * This subclass is required to return fully valid <code>Acl</code>s, including
 	 * properly-configured parent ACLs.
-	 *
 	 */
 	private Map<ObjectIdentity, Acl> lookupObjectIdentities(final Collection<ObjectIdentity> objectIdentities,
 			List<Sid> sids) {
 		Assert.notEmpty(objectIdentities, "Must provide identities to lookup");
 
-		final Map<Serializable, Acl> acls = new HashMap<>(); // contains
-																// Acls
-																// with
-																// StubAclParents
+		// contains Acls with StubAclParents
+		Map<Serializable, Acl> acls = new HashMap<>();
 
 		// Make the "acls" map contain all requested objectIdentities
 		// (including markers to each parent in the hierarchy)
 		String sql = computeRepeatingSql(this.lookupObjectIdentitiesWhereClause, objectIdentities.size());
 
-		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, (ps) -> {
-			int i = 0;
-			for (ObjectIdentity oid : objectIdentities) {
-				// Determine prepared statement values for this iteration
-				String type = oid.getType();
-
-				// No need to check for nulls, as guaranteed non-null by
-				// ObjectIdentity.getIdentifier() interface contract
-				String identifier = oid.getIdentifier().toString();
-
-				// Inject values
-				ps.setString((2 * i) + 1, identifier);
-				ps.setString((2 * i) + 2, type);
-				i++;
-			}
-		}, new ProcessResultSet(acls, sids));
+		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql,
+				(ps) -> setupLookupObjectIdentitiesStatement(ps, objectIdentities), new ProcessResultSet(acls, sids));
 
 		// Lookup the parents, now that our JdbcTemplate has released the database
 		// connection (SEC-547)
@@ -383,16 +339,32 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 		// Finally, convert our "acls" containing StubAclParents into true Acls
 		Map<ObjectIdentity, Acl> resultMap = new HashMap<>();
-
 		for (Acl inputAcl : acls.values()) {
 			Assert.isInstanceOf(AclImpl.class, inputAcl, "Map should have contained an AclImpl");
 			Assert.isInstanceOf(Long.class, ((AclImpl) inputAcl).getId(), "Acl.getId() must be Long");
-
 			Acl result = convert(acls, (Long) ((AclImpl) inputAcl).getId());
 			resultMap.put(result.getObjectIdentity(), result);
 		}
 
 		return resultMap;
+	}
+
+	private void setupLookupObjectIdentitiesStatement(PreparedStatement ps, Collection<ObjectIdentity> objectIdentities)
+			throws SQLException {
+		int i = 0;
+		for (ObjectIdentity oid : objectIdentities) {
+			// Determine prepared statement values for this iteration
+			String type = oid.getType();
+
+			// No need to check for nulls, as guaranteed non-null by
+			// ObjectIdentity.getIdentifier() interface contract
+			String identifier = oid.getIdentifier().toString();
+
+			// Inject values
+			ps.setString((2 * i) + 1, identifier);
+			ps.setString((2 * i) + 2, type);
+			i++;
+		}
 	}
 
 	/**
@@ -402,7 +374,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 	 * @param inputMap the unconverted <code>AclImpl</code>s
 	 * @param currentIdentity the current<code>Acl</code> that we wish to convert (this
 	 * may be
-	 *
 	 */
 	private AclImpl convert(Map<Serializable, Acl> inputMap, Long currentIdentity) {
 		Assert.notEmpty(inputMap, "InputMap required");
@@ -460,9 +431,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		if (isPrincipal) {
 			return new PrincipalSid(sid);
 		}
-		else {
-			return new GrantedAuthoritySid(sid);
-		}
+		return new GrantedAuthoritySid(sid);
 	}
 
 	/**
@@ -564,7 +533,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 					// Now try to find it in the cache
 					MutableAcl cached = BasicLookupStrategy.this.aclCache.getFromCache(parentId);
-
 					if ((cached == null) || !cached.isSidLoaded(this.sids)) {
 						parentIdsToLookup.add(parentId);
 					}

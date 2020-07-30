@@ -42,7 +42,6 @@ public class PrincipalSid implements Sid {
 	public PrincipalSid(Authentication authentication) {
 		Assert.notNull(authentication, "Authentication required");
 		Assert.notNull(authentication.getPrincipal(), "Principal required");
-
 		this.principal = authentication.getName();
 	}
 
@@ -51,7 +50,6 @@ public class PrincipalSid implements Sid {
 		if ((object == null) || !(object instanceof PrincipalSid)) {
 			return false;
 		}
-
 		// Delegate to getPrincipal() to perform actual comparison (both should be
 		// identical)
 		return ((PrincipalSid) object).getPrincipal().equals(this.getPrincipal());

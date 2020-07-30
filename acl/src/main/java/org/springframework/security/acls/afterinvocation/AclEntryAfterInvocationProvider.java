@@ -83,13 +83,11 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 			// AclManager interface contract prohibits nulls
 			// As they have permission to null/nothing, grant access
 			logger.debug("Return object is null, skipping");
-
 			return null;
 		}
 
 		if (!getProcessDomainObjectClass().isAssignableFrom(returnedObject.getClass())) {
 			logger.debug("Return object is not applicable for this provider, skipping");
-
 			return returnedObject;
 		}
 
@@ -97,14 +95,13 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 			if (!this.supports(attr)) {
 				continue;
 			}
-			// Need to make an access decision on this invocation
 
+			// Need to make an access decision on this invocation
 			if (hasPermission(authentication, returnedObject)) {
 				return returnedObject;
 			}
 
 			logger.debug("Denying access");
-
 			throw new AccessDeniedException(this.messages.getMessage("AclEntryAfterInvocationProvider.noPermission",
 					new Object[] { authentication.getName(), returnedObject },
 					"Authentication {0} has NO permissions to the domain object {1}"));

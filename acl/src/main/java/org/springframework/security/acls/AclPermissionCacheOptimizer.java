@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.PermissionCacheOptimizer;
 import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
@@ -58,23 +59,15 @@ public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
 		if (objects.isEmpty()) {
 			return;
 		}
-
 		List<ObjectIdentity> oidsToCache = new ArrayList<>(objects.size());
-
 		for (Object domainObject : objects) {
-			if (domainObject == null) {
-				continue;
+			if (domainObject != null) {
+				ObjectIdentity oid = this.oidRetrievalStrategy.getObjectIdentity(domainObject);
+				oidsToCache.add(oid);
 			}
-			ObjectIdentity oid = this.oidRetrievalStrategy.getObjectIdentity(domainObject);
-			oidsToCache.add(oid);
 		}
-
 		List<Sid> sids = this.sidRetrievalStrategy.getSids(authentication);
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Eagerly loading Acls for " + oidsToCache.size() + " objects");
-		}
-
+		this.logger.debug(LogMessage.of(() -> "Eagerly loading Acls for " + oidsToCache.size() + " objects"));
 		this.aclService.readAclsById(oidsToCache, sids);
 	}
 

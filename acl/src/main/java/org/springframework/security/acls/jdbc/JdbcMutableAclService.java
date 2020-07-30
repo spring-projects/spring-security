@@ -139,6 +139,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 			return;
 		}
 		this.jdbcOperations.batchUpdate(this.insertEntry, new BatchPreparedStatementSetter() {
+
 			@Override
 			public int getBatchSize() {
 				return acl.getEntries().size();
@@ -158,6 +159,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 				stmt.setBoolean(6, entry.isAuditSuccess());
 				stmt.setBoolean(7, entry.isAuditFailure());
 			}
+
 		});
 	}
 
@@ -216,22 +218,15 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 */
 	protected Long createOrRetrieveSidPrimaryKey(Sid sid, boolean allowCreate) {
 		Assert.notNull(sid, "Sid required");
-
-		String sidName;
-		boolean sidIsPrincipal = true;
-
 		if (sid instanceof PrincipalSid) {
-			sidName = ((PrincipalSid) sid).getPrincipal();
+			String sidName = ((PrincipalSid) sid).getPrincipal();
+			return createOrRetrieveSidPrimaryKey(sidName, true, allowCreate);
 		}
-		else if (sid instanceof GrantedAuthoritySid) {
-			sidName = ((GrantedAuthoritySid) sid).getGrantedAuthority();
-			sidIsPrincipal = false;
+		if (sid instanceof GrantedAuthoritySid) {
+			String sidName = ((GrantedAuthoritySid) sid).getGrantedAuthority();
+			return createOrRetrieveSidPrimaryKey(sidName, false, allowCreate);
 		}
-		else {
-			throw new IllegalArgumentException("Unsupported implementation of Sid");
-		}
-
-		return createOrRetrieveSidPrimaryKey(sidName, sidIsPrincipal, allowCreate);
+		throw new IllegalArgumentException("Unsupported implementation of Sid");
 	}
 
 	/**
@@ -243,20 +238,16 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @return the primary key or null if not found
 	 */
 	protected Long createOrRetrieveSidPrimaryKey(String sidName, boolean sidIsPrincipal, boolean allowCreate) {
-
 		List<Long> sidIds = this.jdbcOperations.queryForList(this.selectSidPrimaryKey,
 				new Object[] { sidIsPrincipal, sidName }, Long.class);
-
 		if (!sidIds.isEmpty()) {
 			return sidIds.get(0);
 		}
-
 		if (allowCreate) {
 			this.jdbcOperations.update(this.insertSid, sidIsPrincipal, sidName);
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(), "Transaction must be running");
 			return this.jdbcOperations.queryForObject(this.sidIdentityQuery, Long.class);
 		}
-
 		return null;
 	}
 
@@ -264,7 +255,6 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	public void deleteAcl(ObjectIdentity objectIdentity, boolean deleteChildren) throws ChildrenExistException {
 		Assert.notNull(objectIdentity, "Object Identity required");
 		Assert.notNull(objectIdentity.getIdentifier(), "Object Identity doesn't provide an identifier");
-
 		if (deleteChildren) {
 			List<ObjectIdentity> children = findChildren(objectIdentity);
 			if (children != null) {
@@ -276,8 +266,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		else {
 			if (!this.foreignKeysInDatabase) {
 				// We need to perform a manual verification for what a FK would normally
-				// do
-				// We generally don't do this, in the interests of deadlock management
+				// do. We generally don't do this, in the interests of deadlock management
 				List<ObjectIdentity> children = findChildren(objectIdentity);
 				if (children != null) {
 					throw new ChildrenExistException(
@@ -384,21 +373,16 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 */
 	protected void updateObjectIdentity(MutableAcl acl) {
 		Long parentId = null;
-
 		if (acl.getParentAcl() != null) {
 			Assert.isInstanceOf(ObjectIdentityImpl.class, acl.getParentAcl().getObjectIdentity(),
 					"Implementation only supports ObjectIdentityImpl");
-
 			ObjectIdentityImpl oii = (ObjectIdentityImpl) acl.getParentAcl().getObjectIdentity();
 			parentId = retrieveObjectIdentityPrimaryKey(oii);
 		}
-
 		Assert.notNull(acl.getOwner(), "Owner is required in this implementation");
-
 		Long ownerSid = createOrRetrieveSidPrimaryKey(acl.getOwner(), true);
 		int count = this.jdbcOperations.update(this.updateObjectIdentity, parentId, ownerSid, acl.isEntriesInheriting(),
 				acl.getId());
-
 		if (count != 1) {
 			throw new NotFoundException("Unable to locate ACL to update");
 		}

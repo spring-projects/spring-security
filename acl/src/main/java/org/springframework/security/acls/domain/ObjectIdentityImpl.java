@@ -40,7 +40,6 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	public ObjectIdentityImpl(String type, Serializable identifier) {
 		Assert.hasText(type, "Type required");
 		Assert.notNull(identifier, "identifier required");
-
 		this.identifier = identifier;
 		this.type = type;
 	}
@@ -68,23 +67,22 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 */
 	public ObjectIdentityImpl(Object object) throws IdentityUnavailableException {
 		Assert.notNull(object, "object cannot be null");
-
 		Class<?> typeClass = ClassUtils.getUserClass(object.getClass());
 		this.type = typeClass.getName();
+		Object result = invokeGetIdMethod(object, typeClass);
+		Assert.notNull(result, "getId() is required to return a non-null value");
+		Assert.isInstanceOf(Serializable.class, result, "Getter must provide a return value of type Serializable");
+		this.identifier = (Serializable) result;
+	}
 
-		Object result;
-
+	private Object invokeGetIdMethod(Object object, Class<?> typeClass) {
 		try {
 			Method method = typeClass.getMethod("getId", new Class[] {});
-			result = method.invoke(object);
+			return method.invoke(object);
 		}
 		catch (Exception ex) {
 			throw new IdentityUnavailableException("Could not extract identity from object " + object, ex);
 		}
-
-		Assert.notNull(result, "getId() is required to return a non-null value");
-		Assert.isInstanceOf(Serializable.class, result, "Getter must provide a return value of type Serializable");
-		this.identifier = (Serializable) result;
 	}
 
 	/**
@@ -95,17 +93,15 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 * <p>
 	 * Numeric identities (Integer and Long values) are considered equal if they are
 	 * numerically equal. Other serializable types are evaluated using a simple equality.
-	 * @param arg0 object to compare
+	 * @param obj object to compare
 	 * @return <code>true</code> if the presented object matches this object
 	 */
 	@Override
-	public boolean equals(Object arg0) {
-		if (arg0 == null || !(arg0 instanceof ObjectIdentityImpl)) {
+	public boolean equals(Object obj) {
+		if (obj == null || !(obj instanceof ObjectIdentityImpl)) {
 			return false;
 		}
-
-		ObjectIdentityImpl other = (ObjectIdentityImpl) arg0;
-
+		ObjectIdentityImpl other = (ObjectIdentityImpl) obj;
 		if (this.identifier instanceof Number && other.identifier instanceof Number) {
 			// Integers and Longs with same value should be considered equal
 			if (((Number) this.identifier).longValue() != ((Number) other.identifier).longValue()) {
@@ -118,7 +114,6 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 				return false;
 			}
 		}
-
 		return this.type.equals(other.type);
 	}
 
@@ -149,7 +144,6 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 		sb.append(this.getClass().getName()).append("[");
 		sb.append("Type: ").append(this.type);
 		sb.append("; Identifier: ").append(this.identifier).append("]");
-
 		return sb.toString();
 	}
 

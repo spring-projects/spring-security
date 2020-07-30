@@ -24,7 +24,6 @@ import org.springframework.security.acls.jdbc.JdbcAclService;
  * A caching layer for {@link JdbcAclService}.
  *
  * @author Ben Alex
- *
  */
 public interface AclCache {
 

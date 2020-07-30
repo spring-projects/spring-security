@@ -32,6 +32,7 @@ import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Abstract {@link AfterInvocationProvider} which provides commonly-used ACL-related
@@ -43,13 +44,13 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 
 	protected final AclService aclService;
 
+	protected String processConfigAttribute;
+
 	protected Class<?> processDomainObjectClass = Object.class;
 
 	protected ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
 
 	protected SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
-
-	protected String processConfigAttribute;
 
 	protected final List<Permission> requirePermission;
 
@@ -57,11 +58,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 			List<Permission> requirePermission) {
 		Assert.hasText(processConfigAttribute, "A processConfigAttribute is mandatory");
 		Assert.notNull(aclService, "An AclService is mandatory");
-
-		if (requirePermission == null || requirePermission.isEmpty()) {
-			throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
-		}
-
+		Assert.isTrue(!ObjectUtils.isEmpty(requirePermission), "One or more requirePermission entries is mandatory");
 		this.aclService = aclService;
 		this.processConfigAttribute = processConfigAttribute;
 		this.requirePermission = requirePermission;
@@ -81,10 +78,9 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 		try {
 			// Lookup only ACLs for SIDs we're interested in
 			Acl acl = this.aclService.readAclById(objectIdentity, sids);
-
 			return acl.isGranted(this.requirePermission, sids, false);
 		}
-		catch (NotFoundException ignore) {
+		catch (NotFoundException ex) {
 			return false;
 		}
 	}

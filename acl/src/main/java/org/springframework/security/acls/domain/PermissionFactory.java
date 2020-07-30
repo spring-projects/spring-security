@@ -26,7 +26,6 @@ import org.springframework.security.acls.model.Permission;
  *
  * @author Ben Alex
  * @since 2.0.3
- *
  */
 public interface PermissionFactory {
 

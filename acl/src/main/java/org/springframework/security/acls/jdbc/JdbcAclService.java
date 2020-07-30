@@ -17,6 +17,8 @@
 package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -94,18 +96,16 @@ public class JdbcAclService implements AclService {
 	@Override
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
 		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
-		List<ObjectIdentity> objects = this.jdbcOperations.query(this.findChildrenSql, args, (rs, rowNum) -> {
-			String javaType = rs.getString("class");
-			Serializable identifier = (Serializable) rs.getObject("obj_id");
-			identifier = this.aclClassIdUtils.identifierFrom(identifier, rs);
-			return new ObjectIdentityImpl(javaType, identifier);
-		});
+		List<ObjectIdentity> objects = this.jdbcOperations.query(this.findChildrenSql, args,
+				(rs, rowNum) -> mapObjectIdentityRow(rs));
+		return (!objects.isEmpty()) ? objects : null;
+	}
 
-		if (objects.isEmpty()) {
-			return null;
-		}
-
-		return objects;
+	private ObjectIdentity mapObjectIdentityRow(ResultSet rs) throws SQLException {
+		String javaType = rs.getString("class");
+		Serializable identifier = (Serializable) rs.getObject("obj_id");
+		identifier = this.aclClassIdUtils.identifierFrom(identifier, rs);
+		return new ObjectIdentityImpl(javaType, identifier);
 	}
 
 	@Override
@@ -113,7 +113,6 @@ public class JdbcAclService implements AclService {
 		Map<ObjectIdentity, Acl> map = readAclsById(Collections.singletonList(object), sids);
 		Assert.isTrue(map.containsKey(object),
 				() -> "There should have been an Acl entry for ObjectIdentity " + object);
-
 		return map.get(object);
 	}
 
@@ -131,7 +130,6 @@ public class JdbcAclService implements AclService {
 	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids)
 			throws NotFoundException {
 		Map<ObjectIdentity, Acl> result = this.lookupStrategy.readAclsById(objects, sids);
-
 		// Check every requested object identity was found (throw NotFoundException if
 		// needed)
 		for (ObjectIdentity oid : objects) {
@@ -139,7 +137,6 @@ public class JdbcAclService implements AclService {
 				throw new NotFoundException("Unable to find ACL information for object identity '" + oid + "'");
 			}
 		}
-
 		return result;
 	}
 

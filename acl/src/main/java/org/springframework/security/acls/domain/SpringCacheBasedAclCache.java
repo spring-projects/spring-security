@@ -60,9 +60,7 @@ public class SpringCacheBasedAclCache implements AclCache {
 	@Override
 	public void evictFromCache(Serializable pk) {
 		Assert.notNull(pk, "Primary key (identifier) required");
-
 		MutableAcl acl = getFromCache(pk);
-
 		if (acl != null) {
 			this.cache.evict(acl.getId());
 			this.cache.evict(acl.getObjectIdentity());
@@ -72,9 +70,7 @@ public class SpringCacheBasedAclCache implements AclCache {
 	@Override
 	public void evictFromCache(ObjectIdentity objectIdentity) {
 		Assert.notNull(objectIdentity, "ObjectIdentity required");
-
 		MutableAcl acl = getFromCache(objectIdentity);
-
 		if (acl != null) {
 			this.cache.evict(acl.getId());
 			this.cache.evict(acl.getObjectIdentity());
@@ -98,22 +94,18 @@ public class SpringCacheBasedAclCache implements AclCache {
 		Assert.notNull(acl, "Acl required");
 		Assert.notNull(acl.getObjectIdentity(), "ObjectIdentity required");
 		Assert.notNull(acl.getId(), "ID required");
-
 		if ((acl.getParentAcl() != null) && (acl.getParentAcl() instanceof MutableAcl)) {
 			putInCache((MutableAcl) acl.getParentAcl());
 		}
-
 		this.cache.put(acl.getObjectIdentity(), acl);
 		this.cache.put(acl.getId(), acl);
 	}
 
 	private MutableAcl getFromCache(Object key) {
 		Cache.ValueWrapper element = this.cache.get(key);
-
 		if (element == null) {
 			return null;
 		}
-
 		return initializeTransientFields((MutableAcl) element.get());
 	}
 
@@ -122,7 +114,6 @@ public class SpringCacheBasedAclCache implements AclCache {
 			FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
 			FieldUtils.setProtectedFieldValue("permissionGrantingStrategy", value, this.permissionGrantingStrategy);
 		}
-
 		if (value.getParentAcl() != null) {
 			initializeTransientFields((MutableAcl) value.getParentAcl());
 		}
