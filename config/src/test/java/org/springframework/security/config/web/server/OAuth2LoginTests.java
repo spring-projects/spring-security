@@ -566,7 +566,7 @@ public class OAuth2LoginTests {
 		ServerAuthenticationFailureHandler failureHandler = mock(ServerAuthenticationFailureHandler.class);
 
 		@Bean
-		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.authorizeExchange()
@@ -599,7 +599,7 @@ public class OAuth2LoginTests {
 		ServerAuthenticationSuccessHandler successHandler = mock(ServerAuthenticationSuccessHandler.class);
 
 		@Bean
-		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.authorizeExchange((exchanges) ->
@@ -635,7 +635,7 @@ public class OAuth2LoginTests {
 		ServerSecurityContextRepository securityContextRepository = mock(ServerSecurityContextRepository.class);
 
 		@Bean
-		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.authorizeExchange()
@@ -657,12 +657,12 @@ public class OAuth2LoginTests {
 		}
 
 		@Bean
-		public ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
+		ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
 			return this.jwtDecoderFactory;
 		}
 
 		@Bean
-		public ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
+		ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
 			return this.tokenResponseClient;
 		}
 
@@ -700,7 +700,7 @@ public class OAuth2LoginTests {
 				.build();
 
 		@Bean
-		public SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.csrf().disable()

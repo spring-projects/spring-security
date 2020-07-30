@@ -93,11 +93,11 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 		return StringUtils.hasText(str) ? MimeTypeUtils.parseMimeType(str) : defaultMimeType;
 	}
 
-	public void setDefaultDataMimeType(@Nullable MimeType defaultDataMimeType) {
+	void setDefaultDataMimeType(@Nullable MimeType defaultDataMimeType) {
 		this.defaultDataMimeType = defaultDataMimeType;
 	}
 
-	public void setDefaultMetadataMimeType(MimeType defaultMetadataMimeType) {
+	void setDefaultMetadataMimeType(MimeType defaultMetadataMimeType) {
 		Assert.notNull(defaultMetadataMimeType, "defaultMetadataMimeType cannot be null");
 		this.defaultMetadataMimeType = defaultMetadataMimeType;
 	}

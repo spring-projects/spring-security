@@ -46,7 +46,7 @@ public class UserDetailsManagerResourceFactoryBeanStringITests {
 	static class Config {
 
 		@Bean
-		public UserDetailsManagerResourceFactoryBean userDetailsService() {
+		UserDetailsManagerResourceFactoryBean userDetailsService() {
 			return UserDetailsManagerResourceFactoryBean.fromString("user=password,ROLE_USER");
 		}
 

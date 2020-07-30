@@ -113,7 +113,7 @@ public class SecurityMockMvcResultMatchersTests {
 		static class Controller {
 
 			@RequestMapping("/")
-			public String ok() {
+			String ok() {
 				return "ok";
 			}
 

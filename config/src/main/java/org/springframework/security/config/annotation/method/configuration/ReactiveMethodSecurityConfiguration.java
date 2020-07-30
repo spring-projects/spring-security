@@ -51,7 +51,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source) {
+	MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source) {
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
 				"securityMethodInterceptor", source, "methodMetadataSource");
 		advisor.setOrder(this.advisorOrder);
@@ -60,7 +60,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public DelegatingMethodSecurityMetadataSource methodMetadataSource(
+	DelegatingMethodSecurityMetadataSource methodMetadataSource(
 			MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
 		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
 				methodSecurityExpressionHandler);
@@ -70,7 +70,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
-	public PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source,
+	PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source,
 			MethodSecurityExpressionHandler handler) {
 
 		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(handler);
@@ -82,7 +82,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
 		if (this.grantedAuthorityDefaults != null) {
 			handler.setDefaultRolePrefix(this.grantedAuthorityDefaults.getRolePrefix());

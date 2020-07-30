@@ -85,7 +85,7 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests {
 		}
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication();
@@ -96,7 +96,7 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests {
 		static class Controller {
 
 			@RequestMapping
-			public String hello() {
+			String hello() {
 				return "Hello";
 			}
 

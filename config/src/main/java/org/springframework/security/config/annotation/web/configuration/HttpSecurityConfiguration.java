@@ -56,7 +56,7 @@ class HttpSecurityConfiguration {
 	private ApplicationContext context;
 
 	@Autowired
-	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
+	void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
 	}
 
@@ -66,18 +66,18 @@ class HttpSecurityConfiguration {
 	}
 
 	@Autowired
-	public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
+	void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
 		this.authenticationConfiguration = authenticationConfiguration;
 	}
 
 	@Autowired
-	public void setApplicationContext(ApplicationContext context) {
+	void setApplicationContext(ApplicationContext context) {
 		this.context = context;
 	}
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
-	public HttpSecurity httpSecurity() throws Exception {
+	HttpSecurity httpSecurity() throws Exception {
 		WebSecurityConfigurerAdapter.LazyPasswordEncoder passwordEncoder = new WebSecurityConfigurerAdapter.LazyPasswordEncoder(
 				this.context);
 

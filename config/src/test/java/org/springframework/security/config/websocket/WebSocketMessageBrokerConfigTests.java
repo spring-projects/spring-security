@@ -444,7 +444,7 @@ public class WebSocketMessageBrokerConfigTests {
 		String username;
 
 		@MessageMapping("/message")
-		public void authentication(@AuthenticationPrincipal String username) {
+		void authentication(@AuthenticationPrincipal String username) {
 			this.username = username;
 		}
 
@@ -456,7 +456,7 @@ public class WebSocketMessageBrokerConfigTests {
 		MessageArgument messageArgument;
 
 		@MessageMapping("/message-with-argument")
-		public void myCustom(MessageArgument messageArgument) {
+		void myCustom(MessageArgument messageArgument) {
 			this.messageArgument = messageArgument;
 		}
 
@@ -531,10 +531,12 @@ public class WebSocketMessageBrokerConfigTests {
 				Message<Object> invocation) {
 
 			return new MessageSecurityExpressionRoot(authentication, invocation) {
+
 				public boolean denyNile() {
 					Authentication auth = getAuthentication();
 					return auth != null && !"nile".equals(auth.getName());
 				}
+
 			};
 		}
 

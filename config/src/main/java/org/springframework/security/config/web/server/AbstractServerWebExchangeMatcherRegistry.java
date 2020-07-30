@@ -28,7 +28,10 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
  * @author Rob Winch
  * @since 5.0
  */
-abstract class AbstractServerWebExchangeMatcherRegistry<T> {
+public abstract class AbstractServerWebExchangeMatcherRegistry<T> {
+
+	AbstractServerWebExchangeMatcherRegistry() {
+	}
 
 	/**
 	 * Maps any request.

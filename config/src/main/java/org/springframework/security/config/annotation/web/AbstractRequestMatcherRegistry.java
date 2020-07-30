@@ -235,6 +235,9 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 */
 	private static final class RequestMatchers {
 
+		private RequestMatchers() {
+		}
+
 		/**
 		 * Create a {@link List} of {@link AntPathRequestMatcher} instances.
 		 * @param httpMethod the {@link HttpMethod} to use or {@code null} for any
@@ -243,7 +246,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * from
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
+		static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
 			String method = httpMethod == null ? null : httpMethod.toString();
 			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : antPatterns) {
@@ -259,7 +262,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * from
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> antMatchers(String... antPatterns) {
+		static List<RequestMatcher> antMatchers(String... antPatterns) {
 			return antMatchers(null, antPatterns);
 		}
 
@@ -271,7 +274,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * {@link RegexRequestMatcher} from
 		 * @return a {@link List} of {@link RegexRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> regexMatchers(HttpMethod httpMethod, String... regexPatterns) {
+		static List<RequestMatcher> regexMatchers(HttpMethod httpMethod, String... regexPatterns) {
 			String method = httpMethod == null ? null : httpMethod.toString();
 			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : regexPatterns) {
@@ -287,11 +290,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * {@link RegexRequestMatcher} from
 		 * @return a {@link List} of {@link RegexRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> regexMatchers(String... regexPatterns) {
+		static List<RequestMatcher> regexMatchers(String... regexPatterns) {
 			return regexMatchers(null, regexPatterns);
-		}
-
-		private RequestMatchers() {
 		}
 
 	}

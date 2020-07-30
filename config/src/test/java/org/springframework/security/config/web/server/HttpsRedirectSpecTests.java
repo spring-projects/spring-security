@@ -201,7 +201,7 @@ public class HttpsRedirectSpecTests {
 		}
 
 		@Bean
-		public PortMapper portMapper() {
+		PortMapper portMapper() {
 			return mock(PortMapper.class);
 		}
 
@@ -225,7 +225,7 @@ public class HttpsRedirectSpecTests {
 		}
 
 		@Bean
-		public PortMapper portMapper() {
+		PortMapper portMapper() {
 			return mock(PortMapper.class);
 		}
 

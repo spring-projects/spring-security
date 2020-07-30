@@ -150,7 +150,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	static class Config {
 
 		@Bean
-		public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
+		ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
 			return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
 		}
 
@@ -162,7 +162,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 		SmartInitializingSingleton toTest = mock(SmartInitializingSingleton.class);
 
 		@Autowired
-		public void configure(ObjectPostProcessor<Object> p) {
+		void configure(ObjectPostProcessor<Object> p) {
 			p.postProcess(this.toTest);
 		}
 
@@ -172,12 +172,12 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	static class WithBeanNameAutoProxyCreatorConfig {
 
 		@Bean
-		public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
+		ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
 			return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
 		}
 
 		@Autowired
-		public void configure(ObjectPostProcessor<Object> p) {
+		void configure(ObjectPostProcessor<Object> p) {
 			p.postProcess(new Object());
 		}
 

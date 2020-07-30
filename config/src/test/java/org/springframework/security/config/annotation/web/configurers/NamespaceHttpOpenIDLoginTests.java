@@ -293,15 +293,9 @@ public class NamespaceHttpOpenIDLoginTests {
 	static class UserDetailsServiceConfig {
 
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-			// @formatter:off
-					User.withDefaultPasswordEncoder()
-							.username("user")
-							.password("password")
-							.roles("USER")
-							.build());
-					// @formatter:on
+					User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build());
 		}
 
 	}

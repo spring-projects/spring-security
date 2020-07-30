@@ -235,19 +235,19 @@ public class AuthenticationManagerBuilderTests {
 		Resource users;
 
 		@Bean
-		public AuthenticationManager authenticationManager() throws Exception {
+		AuthenticationManager authenticationManager() throws Exception {
 			return new ProviderManager(Arrays.asList(authenticationProvider()));
 		}
 
 		@Bean
-		public AuthenticationProvider authenticationProvider() throws Exception {
+		AuthenticationProvider authenticationProvider() throws Exception {
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(userDetailsService());
 			return provider;
 		}
 
 		@Bean
-		public UserDetailsService userDetailsService() throws Exception {
+		UserDetailsService userDetailsService() throws Exception {
 			Properties properties = new Properties();
 			properties.load(this.users.getInputStream());
 			return new InMemoryUserDetailsManager(properties);

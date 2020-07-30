@@ -178,7 +178,7 @@ public class NamespaceHttpFormLoginTests {
 	static class UserDetailsServiceConfig {
 
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
 					User.withDefaultPasswordEncoder()

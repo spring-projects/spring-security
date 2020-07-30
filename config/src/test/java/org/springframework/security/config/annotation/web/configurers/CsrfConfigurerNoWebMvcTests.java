@@ -90,7 +90,7 @@ public class CsrfConfigurerNoWebMvcTests {
 
 		@Bean
 		@Primary
-		public RequestDataValueProcessor requestDataValueProcessor() {
+		RequestDataValueProcessor requestDataValueProcessor() {
 			return mock(RequestDataValueProcessor.class);
 		}
 

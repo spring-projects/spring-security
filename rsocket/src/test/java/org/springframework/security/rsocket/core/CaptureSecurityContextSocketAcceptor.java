@@ -46,7 +46,7 @@ class CaptureSecurityContextSocketAcceptor implements SocketAcceptor {
 				.doOnNext((securityContext) -> this.securityContext = securityContext).thenReturn(this.accept);
 	}
 
-	public SecurityContext getSecurityContext() {
+	SecurityContext getSecurityContext() {
 		return this.securityContext;
 	}
 

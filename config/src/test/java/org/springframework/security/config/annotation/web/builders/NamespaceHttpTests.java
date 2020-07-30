@@ -613,7 +613,7 @@ public class NamespaceHttpTests {
 		static Class<? extends HttpServletRequest> HTTP_SERVLET_REQUEST_TYPE;
 
 		@GetMapping("/")
-		public String index(HttpServletRequest request) {
+		String index(HttpServletRequest request) {
 			HTTP_SERVLET_REQUEST_TYPE = request.getClass();
 			return "index";
 		}

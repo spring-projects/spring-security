@@ -247,7 +247,7 @@ public class HttpSecurityRequestMatchersTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -285,7 +285,7 @@ public class HttpSecurityRequestMatchersTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -318,7 +318,7 @@ public class HttpSecurityRequestMatchersTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -357,7 +357,7 @@ public class HttpSecurityRequestMatchersTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -391,7 +391,7 @@ public class HttpSecurityRequestMatchersTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 

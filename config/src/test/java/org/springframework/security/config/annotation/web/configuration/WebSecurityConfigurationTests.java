@@ -516,7 +516,7 @@ public class WebSecurityConfigurationTests {
 		};
 
 		@Bean
-		public PermissionEvaluator permissionEvaluator() {
+		PermissionEvaluator permissionEvaluator() {
 			return PERMIT_ALL_PERMISSION_EVALUATOR;
 		}
 
@@ -564,10 +564,10 @@ public class WebSecurityConfigurationTests {
 		}
 
 		@RestController
-		public class HomeController {
+		class HomeController {
 
 			@GetMapping("/")
-			public String home() {
+			String home() {
 				return "home";
 			}
 
@@ -591,7 +591,7 @@ public class WebSecurityConfigurationTests {
 	static class ParentConfig extends WebSecurityConfigurerAdapter {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication();
 		}
 

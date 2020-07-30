@@ -36,7 +36,7 @@ import org.springframework.web.util.WebUtils;
  * @author Rob Winch
  * @since 3.2
  */
-abstract class AbstractSessionFixationProtectionStrategy
+public abstract class AbstractSessionFixationProtectionStrategy
 		implements SessionAuthenticationStrategy, ApplicationEventPublisherAware {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
@@ -52,6 +52,9 @@ abstract class AbstractSessionFixationProtectionStrategy
 	 * at the start of the request. Defaults to {@code false}.
 	 */
 	private boolean alwaysCreateSession;
+
+	AbstractSessionFixationProtectionStrategy() {
+	}
 
 	/**
 	 * Called when a user is newly authenticated.

@@ -217,25 +217,25 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository() {
+		ClientRegistrationRepository clientRegistrationRepository() {
 			return CLIENT_REGISTRATION_REPOSITORY;
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return AUTHORIZED_CLIENT_REPOSITORY;
 		}
 
 		@Bean
-		public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient() {
+		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient() {
 			return ACCESS_TOKEN_RESPONSE_CLIENT;
 		}
 
 		@RestController
-		public class Controller {
+		class Controller {
 
 			@GetMapping("/authorized-client")
-			public String authorizedClient(
+			String authorizedClient(
 					@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient != null ? "resolved" : "not-resolved";
 			}
@@ -260,22 +260,22 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository() {
+		ClientRegistrationRepository clientRegistrationRepository() {
 			return mock(ClientRegistrationRepository.class);
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientRepository authorizedClientRepository1() {
+		OAuth2AuthorizedClientRepository authorizedClientRepository1() {
 			return mock(OAuth2AuthorizedClientRepository.class);
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientRepository authorizedClientRepository2() {
+		OAuth2AuthorizedClientRepository authorizedClientRepository2() {
 			return mock(OAuth2AuthorizedClientRepository.class);
 		}
 
 		@Bean
-		public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient() {
+		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient() {
 			return mock(OAuth2AccessTokenResponseClient.class);
 		}
 
@@ -314,22 +314,22 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository1() {
+		ClientRegistrationRepository clientRegistrationRepository1() {
 			return mock(ClientRegistrationRepository.class);
 		}
 
 		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository2() {
+		ClientRegistrationRepository clientRegistrationRepository2() {
 			return mock(ClientRegistrationRepository.class);
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return mock(OAuth2AuthorizedClientRepository.class);
 		}
 
 		@Bean
-		public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient() {
+		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient() {
 			return mock(OAuth2AccessTokenResponseClient.class);
 		}
 
@@ -351,22 +351,22 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository() {
+		ClientRegistrationRepository clientRegistrationRepository() {
 			return mock(ClientRegistrationRepository.class);
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return mock(OAuth2AuthorizedClientRepository.class);
 		}
 
 		@Bean
-		public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient1() {
+		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient1() {
 			return mock(OAuth2AccessTokenResponseClient.class);
 		}
 
 		@Bean
-		public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient2() {
+		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient2() {
 			return mock(OAuth2AccessTokenResponseClient.class);
 		}
 
@@ -385,25 +385,25 @@ public class OAuth2ClientConfigurationTests {
 		}
 
 		@Bean
-		public ClientRegistrationRepository clientRegistrationRepository() {
+		ClientRegistrationRepository clientRegistrationRepository() {
 			return CLIENT_REGISTRATION_REPOSITORY;
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return AUTHORIZED_CLIENT_REPOSITORY;
 		}
 
 		@Bean
-		public OAuth2AuthorizedClientManager authorizedClientManager() {
+		OAuth2AuthorizedClientManager authorizedClientManager() {
 			return AUTHORIZED_CLIENT_MANAGER;
 		}
 
 		@RestController
-		public class Controller {
+		class Controller {
 
 			@GetMapping("/authorized-client")
-			public String authorizedClient(
+			String authorizedClient(
 					@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient != null ? "resolved" : "not-resolved";
 			}

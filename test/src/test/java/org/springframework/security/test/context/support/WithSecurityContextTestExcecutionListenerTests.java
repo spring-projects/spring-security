@@ -163,12 +163,11 @@ public class WithSecurityContextTestExcecutionListenerTests {
 
 	static class FakeTest {
 
-		public void testNoAnnotation() {
+		void testNoAnnotation() {
 		}
 
 		@WithMockUser
-		public void testWithMockUser() {
-
+		void testWithMockUser() {
 		}
 
 	}

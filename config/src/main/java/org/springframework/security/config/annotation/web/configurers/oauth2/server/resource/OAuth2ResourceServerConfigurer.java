@@ -511,7 +511,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			}
 		}
 
-		public void setBearerTokenResolver(BearerTokenResolver tokenResolver) {
+		void setBearerTokenResolver(BearerTokenResolver tokenResolver) {
 			Assert.notNull(tokenResolver, "resolver cannot be null");
 			this.bearerTokenResolver = tokenResolver;
 		}

@@ -89,18 +89,20 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Bean
-	public WebFluxConfigurer authenticationPrincipalArgumentResolverConfigurer(
+	WebFluxConfigurer authenticationPrincipalArgumentResolverConfigurer(
 			ObjectProvider<AuthenticationPrincipalArgumentResolver> authenticationPrincipalArgumentResolver) {
 		return new WebFluxConfigurer() {
+
 			@Override
 			public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
 				configurer.addCustomResolver(authenticationPrincipalArgumentResolver.getObject());
 			}
+
 		};
 	}
 
 	@Bean
-	public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
+	AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
 		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver(
 				this.adapterRegistry);
 		if (this.beanFactory != null) {
@@ -110,7 +112,7 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Bean
-	public CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver() {
+	CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver() {
 		CurrentSecurityContextArgumentResolver resolver = new CurrentSecurityContextArgumentResolver(
 				this.adapterRegistry);
 		if (this.beanFactory != null) {
@@ -121,7 +123,7 @@ class ServerHttpSecurityConfiguration {
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
-	public ServerHttpSecurity httpSecurity() {
+	ServerHttpSecurity httpSecurity() {
 		ContextAwareServerHttpSecurity http = new ContextAwareServerHttpSecurity();
 		return http.authenticationManager(authenticationManager()).headers().and().logout().and();
 	}

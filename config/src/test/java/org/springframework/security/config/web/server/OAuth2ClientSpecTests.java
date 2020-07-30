@@ -256,7 +256,7 @@ public class OAuth2ClientSpecTests {
 		ServerRequestCache requestCache = mock(ServerRequestCache.class);
 
 		@Bean
-		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.oauth2Client()
@@ -284,7 +284,7 @@ public class OAuth2ClientSpecTests {
 		ServerRequestCache requestCache = mock(ServerRequestCache.class);
 
 		@Bean
-		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.oauth2Client((oauth2Client) ->

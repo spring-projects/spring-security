@@ -120,7 +120,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 	static class MyController {
 
 		@MessageMapping("/authentication")
-		public void authentication(@AuthenticationPrincipal String un) {
+		void authentication(@AuthenticationPrincipal String un) {
 			// ... do something ...
 		}
 
@@ -161,7 +161,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 		}
 
 		@Bean
-		public MyController myController() {
+		MyController myController() {
 			return new MyController();
 		}
 
@@ -171,7 +171,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 	static class SyncExecutorConfig {
 
 		@Bean
-		public static SyncExecutorSubscribableChannelPostProcessor postProcessor() {
+		static SyncExecutorSubscribableChannelPostProcessor postProcessor() {
 			return new SyncExecutorSubscribableChannelPostProcessor();
 		}
 

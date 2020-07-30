@@ -78,17 +78,17 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 		}
 
 		@Autowired(required = false)
-		public void setClientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+		void setClientRegistrationRepository(ReactiveClientRegistrationRepository clientRegistrationRepository) {
 			this.clientRegistrationRepository = clientRegistrationRepository;
 		}
 
 		@Autowired(required = false)
-		public void setAuthorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+		void setAuthorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 			this.authorizedClientRepository = authorizedClientRepository;
 		}
 
 		@Autowired(required = false)
-		public void setAuthorizedClientService(List<ReactiveOAuth2AuthorizedClientService> authorizedClientService) {
+		void setAuthorizedClientService(List<ReactiveOAuth2AuthorizedClientService> authorizedClientService) {
 			if (authorizedClientService.size() == 1) {
 				this.authorizedClientService = authorizedClientService.get(0);
 			}

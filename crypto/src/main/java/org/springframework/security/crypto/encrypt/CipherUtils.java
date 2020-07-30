@@ -45,14 +45,14 @@ final class CipherUtils {
 	/**
 	 * Generates a SecretKey.
 	 */
-	public static SecretKey newSecretKey(String algorithm, String password) {
+	static SecretKey newSecretKey(String algorithm, String password) {
 		return newSecretKey(algorithm, new PBEKeySpec(password.toCharArray()));
 	}
 
 	/**
 	 * Generates a SecretKey.
 	 */
-	public static SecretKey newSecretKey(String algorithm, PBEKeySpec keySpec) {
+	static SecretKey newSecretKey(String algorithm, PBEKeySpec keySpec) {
 		try {
 			SecretKeyFactory factory = SecretKeyFactory.getInstance(algorithm);
 			return factory.generateSecret(keySpec);
@@ -68,7 +68,7 @@ final class CipherUtils {
 	/**
 	 * Constructs a new Cipher.
 	 */
-	public static Cipher newCipher(String algorithm) {
+	static Cipher newCipher(String algorithm) {
 		try {
 			return Cipher.getInstance(algorithm);
 		}
@@ -83,7 +83,7 @@ final class CipherUtils {
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static <T extends AlgorithmParameterSpec> T getParameterSpec(Cipher cipher, Class<T> parameterSpecClass) {
+	static <T extends AlgorithmParameterSpec> T getParameterSpec(Cipher cipher, Class<T> parameterSpecClass) {
 		try {
 			return cipher.getParameters().getParameterSpec(parameterSpecClass);
 		}
@@ -95,21 +95,21 @@ final class CipherUtils {
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey) {
+	static void initCipher(Cipher cipher, int mode, SecretKey secretKey) {
 		initCipher(cipher, mode, secretKey, null);
 	}
 
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey, byte[] salt, int iterationCount) {
+	static void initCipher(Cipher cipher, int mode, SecretKey secretKey, byte[] salt, int iterationCount) {
 		initCipher(cipher, mode, secretKey, new PBEParameterSpec(salt, iterationCount));
 	}
 
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey, AlgorithmParameterSpec parameterSpec) {
+	static void initCipher(Cipher cipher, int mode, SecretKey secretKey, AlgorithmParameterSpec parameterSpec) {
 		try {
 			if (parameterSpec != null) {
 				cipher.init(mode, secretKey, parameterSpec);
@@ -130,7 +130,7 @@ final class CipherUtils {
 	 * Invokes the Cipher to perform encryption or decryption (depending on the
 	 * initialized mode).
 	 */
-	public static byte[] doFinal(Cipher cipher, byte[] input) {
+	static byte[] doFinal(Cipher cipher, byte[] input) {
 		try {
 			return cipher.doFinal(input);
 		}

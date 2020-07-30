@@ -35,7 +35,7 @@ import org.springframework.util.ClassUtils;
  * @author Luke Taylor
  * @since 3.0
  */
-class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ordered {
+public class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ordered {
 
 	private static final String REQUIRED_CONTEXT_SOURCE_CLASS_NAME = "org.springframework.ldap.core.support.BaseLdapPathContextSource";
 
@@ -44,6 +44,9 @@ class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ord
 	 * needs to be set
 	 */
 	private boolean defaultNameRequired;
+
+	ContextSourceSettingPostProcessor() {
+	}
 
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory bf) throws BeansException {

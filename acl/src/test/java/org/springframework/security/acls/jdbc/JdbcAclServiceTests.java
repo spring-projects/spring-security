@@ -175,29 +175,29 @@ public class JdbcAclServiceTests {
 				.isEqualTo(UUID.fromString("25d93b3f-c3aa-4814-9d5e-c7c96ced7762"));
 	}
 
-	private class MockLongIdDomainObject {
+	class MockLongIdDomainObject {
 
 		private Object id;
 
-		public Object getId() {
+		Object getId() {
 			return this.id;
 		}
 
-		public void setId(Object id) {
+		void setId(Object id) {
 			this.id = id;
 		}
 
 	}
 
-	private class MockUntypedIdDomainObject {
+	class MockUntypedIdDomainObject {
 
 		private Object id;
 
-		public Object getId() {
+		Object getId() {
 			return this.id;
 		}
 
-		public void setId(Object id) {
+		void setId(Object id) {
 			this.id = id;
 		}
 

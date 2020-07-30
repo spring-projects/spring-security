@@ -111,7 +111,7 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 	static class BasicController {
 
 		@GetMapping("/")
-		public String root() {
+		String root() {
 			return "ok";
 		}
 

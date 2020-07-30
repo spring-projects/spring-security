@@ -394,7 +394,7 @@ public class CsrfFilterTests {
 			super(actual, CsrfTokenAssert.class);
 		}
 
-		public CsrfTokenAssert isEqualTo(CsrfToken expected) {
+		CsrfTokenAssert isEqualTo(CsrfToken expected) {
 			assertThat(this.actual.getHeaderName()).isEqualTo(expected.getHeaderName());
 			assertThat(this.actual.getParameterName()).isEqualTo(expected.getParameterName());
 			assertThat(this.actual.getToken()).isEqualTo(expected.getToken());

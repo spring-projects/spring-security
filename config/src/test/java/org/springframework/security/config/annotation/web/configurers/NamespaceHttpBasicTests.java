@@ -162,7 +162,7 @@ public class NamespaceHttpBasicTests {
 	static class UserConfig {
 
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
 				User.withDefaultPasswordEncoder()

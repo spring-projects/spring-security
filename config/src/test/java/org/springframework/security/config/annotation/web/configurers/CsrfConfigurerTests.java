@@ -738,11 +738,11 @@ public class CsrfConfigurerTests {
 	static class BasicController {
 
 		@GetMapping("/")
-		public void rootGet() {
+		void rootGet() {
 		}
 
 		@PostMapping("/")
-		public void rootPost() {
+		void rootPost() {
 		}
 
 	}

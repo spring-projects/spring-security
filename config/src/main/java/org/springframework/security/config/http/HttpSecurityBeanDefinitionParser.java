@@ -459,7 +459,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		 * cannot determine if it should be on or off).
 		 * @return
 		 */
-		public boolean isEraseCredentialsAfterAuthentication() {
+		boolean isEraseCredentialsAfterAuthentication() {
 			return false;
 		}
 

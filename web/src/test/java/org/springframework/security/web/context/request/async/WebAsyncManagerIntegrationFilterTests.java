@@ -137,7 +137,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 			return this.t;
 		}
 
-		public void join() throws InterruptedException {
+		void join() throws InterruptedException {
 			this.t.join();
 		}
 

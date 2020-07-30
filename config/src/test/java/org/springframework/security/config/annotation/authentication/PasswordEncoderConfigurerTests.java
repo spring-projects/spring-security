@@ -74,7 +74,7 @@ public class PasswordEncoderConfigurerTests {
 		}
 
 		@Bean
-		public BCryptPasswordEncoder passwordEncoder() {
+		BCryptPasswordEncoder passwordEncoder() {
 			return new BCryptPasswordEncoder();
 		}
 
@@ -95,7 +95,7 @@ public class PasswordEncoderConfigurerTests {
 		}
 
 		@Bean
-		public BCryptPasswordEncoder passwordEncoder() {
+		BCryptPasswordEncoder passwordEncoder() {
 			return new BCryptPasswordEncoder();
 		}
 

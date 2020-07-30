@@ -655,13 +655,13 @@ public class BasicLookupStrategy implements LookupStrategy {
 			this.id = id;
 		}
 
+		Long getId() {
+			return this.id;
+		}
+
 		@Override
 		public List<AccessControlEntry> getEntries() {
 			throw new UnsupportedOperationException("Stub only");
-		}
-
-		public Long getId() {
-			return this.id;
 		}
 
 		@Override

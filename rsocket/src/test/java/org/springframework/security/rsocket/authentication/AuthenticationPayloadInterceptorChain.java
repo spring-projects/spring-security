@@ -37,11 +37,11 @@ class AuthenticationPayloadInterceptorChain implements PayloadInterceptorChain {
 				.doOnNext((a) -> this.setAuthentication(a)).then();
 	}
 
-	public Authentication getAuthentication() {
+	Authentication getAuthentication() {
 		return this.authentication;
 	}
 
-	public void setAuthentication(Authentication authentication) {
+	void setAuthentication(Authentication authentication) {
 		this.authentication = authentication;
 	}
 

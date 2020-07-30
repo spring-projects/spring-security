@@ -35,9 +35,8 @@ import org.springframework.util.Assert;
  * {@link ApplicationContext} but ignoring the parent.
  *
  * @author Rob Winch
- *
  */
-final class AutowiredWebSecurityConfigurersIgnoreParents {
+public final class AutowiredWebSecurityConfigurersIgnoreParents {
 
 	private final ConfigurableListableBeanFactory beanFactory;
 

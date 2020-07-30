@@ -338,7 +338,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			return mvcMatchers(null, mvcPatterns);
 		}
 
-		public CsrfConfigurer<H> and() {
+		CsrfConfigurer<H> and() {
 			return CsrfConfigurer.this;
 		}
 
@@ -366,7 +366,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			this.mvcMatchers = mvcMatchers;
 		}
 
-		public IgnoreCsrfProtectionRegistry servletPath(String servletPath) {
+		IgnoreCsrfProtectionRegistry servletPath(String servletPath) {
 			for (MvcRequestMatcher matcher : this.mvcMatchers) {
 				matcher.setServletPath(servletPath);
 			}

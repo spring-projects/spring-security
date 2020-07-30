@@ -51,7 +51,7 @@ public class WithMockUserParentTests extends WithMockUserParent {
 	static class Config {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()

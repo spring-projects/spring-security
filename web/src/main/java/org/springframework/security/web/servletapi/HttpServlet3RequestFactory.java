@@ -107,7 +107,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * is not authenticated.
 	 */
 
-	public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
+	void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
@@ -125,7 +125,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * @param authenticationManager the {@link AuthenticationManager} to use when invoking
 	 * {@link HttpServletRequest#login(String, String)}
 	 */
-	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+	void setAuthenticationManager(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
 
@@ -144,7 +144,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * @param logoutHandlers the {@code List<LogoutHandler>}s when invoking
 	 * {@link HttpServletRequest#logout()}.
 	 */
-	public void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {
+	void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {
 		this.logoutHandlers = logoutHandlers;
 	}
 
@@ -154,7 +154,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
 	 */
-	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+	void setTrustResolver(AuthenticationTrustResolver trustResolver) {
 		Assert.notNull(trustResolver, "trustResolver cannot be null");
 		this.trustResolver = trustResolver;
 	}

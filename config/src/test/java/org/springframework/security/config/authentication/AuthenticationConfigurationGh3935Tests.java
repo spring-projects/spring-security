@@ -113,7 +113,7 @@ public class AuthenticationConfigurationGh3935Tests {
 		}
 
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return mock(UserDetailsService.class);
 		}
 

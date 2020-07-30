@@ -73,7 +73,7 @@ public class NamespaceAuthenticationProviderTests {
 		}
 
 		@Bean
-		public DaoAuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider authenticationProvider() {
 			DaoAuthenticationProvider result = new DaoAuthenticationProvider();
 			result.setUserDetailsService(new InMemoryUserDetailsManager(PasswordEncodedUser.user()));
 			return result;

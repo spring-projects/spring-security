@@ -273,7 +273,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	abstract static class BaseLdapServerConfig extends BaseLdapProviderConfig {
 
 		@Bean
-		public ApacheDSContainer ldapServer() throws Exception {
+		ApacheDSContainer ldapServer() throws Exception {
 			ApacheDSContainer apacheDSContainer = new ApacheDSContainer("dc=springframework,dc=org",
 					"classpath:/test-server.ldif");
 			apacheDSContainer.setPort(getPort());
@@ -288,7 +288,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	abstract static class BaseLdapProviderConfig extends WebSecurityConfigurerAdapter {
 
 		@Bean
-		public BaseLdapPathContextSource contextSource() throws Exception {
+		BaseLdapPathContextSource contextSource() throws Exception {
 			DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
 					"ldap://127.0.0.1:" + getPort() + "/dc=springframework,dc=org");
 			contextSource.setUserDn("uid=admin,ou=system");
@@ -298,7 +298,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		}
 
 		@Bean
-		public AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) throws Exception {
+		AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) throws Exception {
 			configure(auth);
 			return auth.build();
 		}

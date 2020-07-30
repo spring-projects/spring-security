@@ -31,7 +31,10 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 final class PermitAllSupport {
 
-	public static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
+	private PermitAllSupport() {
+	}
+
+	static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
 		for (String url : urls) {
 			if (url != null) {
 				permitAll(http, new ExactUrlRequestMatcher(url));
@@ -40,7 +43,7 @@ final class PermitAllSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
+	static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
 			RequestMatcher... requestMatchers) {
 		ExpressionUrlAuthorizationConfigurer<?> configurer = http
 				.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
@@ -88,9 +91,6 @@ final class PermitAllSupport {
 			return sb.toString();
 		}
 
-	}
-
-	private PermitAllSupport() {
 	}
 
 }

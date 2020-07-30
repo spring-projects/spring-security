@@ -183,7 +183,7 @@ public class WebSecurityTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -228,7 +228,7 @@ public class WebSecurityTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 

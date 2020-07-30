@@ -142,7 +142,7 @@ class AclClassIdUtils {
 		return object.getClass().isAssignableFrom(String.class);
 	}
 
-	public void setConversionService(ConversionService conversionService) {
+	void setConversionService(ConversionService conversionService) {
 		Assert.notNull(conversionService, "conversionService must not be null");
 		this.conversionService = conversionService;
 	}

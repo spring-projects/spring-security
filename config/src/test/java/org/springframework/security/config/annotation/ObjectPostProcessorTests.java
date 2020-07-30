@@ -47,7 +47,7 @@ public class ObjectPostProcessorTests {
 
 	static class PerformConversion {
 
-		public static List<?> perform(ArrayList<?> l) {
+		static List<?> perform(ArrayList<?> l) {
 			return new ListToLinkedListObjectPostProcessor().postProcess(l);
 		}
 

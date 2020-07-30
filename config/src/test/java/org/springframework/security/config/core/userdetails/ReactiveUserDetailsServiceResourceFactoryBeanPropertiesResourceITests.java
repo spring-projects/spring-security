@@ -47,7 +47,7 @@ public class ReactiveUserDetailsServiceResourceFactoryBeanPropertiesResourceITes
 	static class Config {
 
 		@Bean
-		public ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
+		ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
 			return ReactiveUserDetailsServiceResourceFactoryBean
 					.fromResource(new InMemoryResource("user=password,ROLE_USER"));
 		}

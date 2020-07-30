@@ -99,7 +99,7 @@ public class Sec2758Tests {
 		}
 
 		@Bean
-		public Service service() {
+		Service service() {
 			return new Service();
 		}
 
@@ -112,7 +112,7 @@ public class Sec2758Tests {
 		static class RootController {
 
 			@GetMapping("/")
-			public String ok() {
+			String ok() {
 				return "ok";
 			}
 
@@ -123,11 +123,11 @@ public class Sec2758Tests {
 	static class Service {
 
 		@PreAuthorize("hasRole('CUSTOM')")
-		public void doPreAuthorize() {
+		void doPreAuthorize() {
 		}
 
 		@RolesAllowed("CUSTOM")
-		public void doJsr250() {
+		void doJsr250() {
 		}
 
 	}

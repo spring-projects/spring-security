@@ -125,7 +125,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 * @param filter
 	 * @return
 	 */
-	public boolean isRegistered(Class<? extends Filter> filter) {
+	boolean isRegistered(Class<? extends Filter> filter) {
 		return getOrder(filter) != null;
 	}
 
@@ -136,7 +136,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 * @param afterFilter the {@link Filter} that is already registered and that
 	 * {@code filter} should be placed after.
 	 */
-	public void registerAfter(Class<? extends Filter> filter, Class<? extends Filter> afterFilter) {
+	void registerAfter(Class<? extends Filter> filter, Class<? extends Filter> afterFilter) {
 		Integer position = getOrder(afterFilter);
 		if (position == null) {
 			throw new IllegalArgumentException("Cannot register after unregistered Filter " + afterFilter);
@@ -151,7 +151,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 * @param atFilter the {@link Filter} that is already registered and that
 	 * {@code filter} should be placed at.
 	 */
-	public void registerAt(Class<? extends Filter> filter, Class<? extends Filter> atFilter) {
+	void registerAt(Class<? extends Filter> filter, Class<? extends Filter> atFilter) {
 		Integer position = getOrder(atFilter);
 		if (position == null) {
 			throw new IllegalArgumentException("Cannot register after unregistered Filter " + atFilter);
@@ -167,7 +167,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 * @param beforeFilter the {@link Filter} that is already registered and that
 	 * {@code filter} should be placed before.
 	 */
-	public void registerBefore(Class<? extends Filter> filter, Class<? extends Filter> beforeFilter) {
+	void registerBefore(Class<? extends Filter> filter, Class<? extends Filter> beforeFilter) {
 		Integer position = getOrder(beforeFilter);
 		if (position == null) {
 			throw new IllegalArgumentException("Cannot register after unregistered Filter " + beforeFilter);

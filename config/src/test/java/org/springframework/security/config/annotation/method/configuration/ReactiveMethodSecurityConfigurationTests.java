@@ -109,7 +109,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 
 	}
 
-	private static class Foo {
+	static class Foo {
 
 		public void bar(String param) {
 		}

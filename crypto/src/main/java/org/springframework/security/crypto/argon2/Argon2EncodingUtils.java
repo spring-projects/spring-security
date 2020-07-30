@@ -56,7 +56,7 @@ final class Argon2EncodingUtils {
 	 * @return the encoded Argon2-hash-string as described above
 	 * @throws IllegalArgumentException if the Argon2Parameters are invalid
 	 */
-	public static String encode(byte[] hash, Argon2Parameters parameters) throws IllegalArgumentException {
+	static String encode(byte[] hash, Argon2Parameters parameters) throws IllegalArgumentException {
 		StringBuilder stringBuilder = new StringBuilder();
 
 		switch (parameters.getType()) {
@@ -104,7 +104,7 @@ final class Argon2EncodingUtils {
 	 * {@link Argon2Parameters}.
 	 * @throws IllegalArgumentException if the encoded hash is malformed
 	 */
-	public static Argon2Hash decode(String encodedHash) throws IllegalArgumentException {
+	static Argon2Hash decode(String encodedHash) throws IllegalArgumentException {
 		Argon2Parameters.Builder paramsBuilder;
 
 		String[] parts = encodedHash.split("\\$");

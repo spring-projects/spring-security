@@ -86,7 +86,7 @@ public class CustomCsrfShowcaseTests {
 		}
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()
@@ -95,7 +95,7 @@ public class CustomCsrfShowcaseTests {
 		}
 
 		@Bean
-		public CsrfTokenRepository repo() {
+		CsrfTokenRepository repo() {
 			HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
 			repo.setParameterName("custom_csrf");
 			return repo;

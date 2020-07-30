@@ -186,11 +186,11 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 			this.testExecutionEvent = testExecutionEvent;
 		}
 
-		public Supplier<SecurityContext> getSecurityContextSupplier() {
+		Supplier<SecurityContext> getSecurityContextSupplier() {
 			return this.securityContextSupplier;
 		}
 
-		public TestExecutionEvent getTestExecutionEvent() {
+		TestExecutionEvent getTestExecutionEvent() {
 			return this.testExecutionEvent;
 		}
 

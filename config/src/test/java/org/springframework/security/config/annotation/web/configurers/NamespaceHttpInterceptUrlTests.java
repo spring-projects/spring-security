@@ -152,27 +152,27 @@ public class NamespaceHttpInterceptUrlTests {
 	static class BaseController {
 
 		@GetMapping("/users")
-		public String users() {
+		String users() {
 			return "ok";
 		}
 
 		@GetMapping("/sessions")
-		public String sessions() {
+		String sessions() {
 			return "sessions";
 		}
 
 		@RequestMapping("/admin/post")
-		public String adminPost() {
+		String adminPost() {
 			return "adminPost";
 		}
 
 		@GetMapping("/admin/another-post")
-		public String adminAnotherPost() {
+		String adminAnotherPost() {
 			return "adminAnotherPost";
 		}
 
 		@GetMapping("/signup")
-		public String signup() {
+		String signup() {
 			return "signup";
 		}
 

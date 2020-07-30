@@ -81,7 +81,7 @@ public class NamespaceAuthenticationManagerTests {
 	static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()
@@ -110,7 +110,7 @@ public class NamespaceAuthenticationManagerTests {
 	static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.eraseCredentials(false)

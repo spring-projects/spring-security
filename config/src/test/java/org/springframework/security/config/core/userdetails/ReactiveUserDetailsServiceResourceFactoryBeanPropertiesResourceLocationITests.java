@@ -46,7 +46,7 @@ public class ReactiveUserDetailsServiceResourceFactoryBeanPropertiesResourceLoca
 	static class Config {
 
 		@Bean
-		public ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
+		ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
 			return ReactiveUserDetailsServiceResourceFactoryBean.fromResourceLocation("classpath:users.properties");
 		}
 

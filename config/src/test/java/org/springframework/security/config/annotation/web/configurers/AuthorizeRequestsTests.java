@@ -480,7 +480,7 @@ public class AuthorizeRequestsTests {
 		}
 
 		@Bean
-		public RoleHierarchy roleHiearchy() {
+		RoleHierarchy roleHiearchy() {
 			RoleHierarchyImpl result = new RoleHierarchyImpl();
 			result.setHierarchy("ROLE_USER > ROLE_ADMIN");
 			return result;
@@ -515,7 +515,7 @@ public class AuthorizeRequestsTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -552,7 +552,7 @@ public class AuthorizeRequestsTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -587,7 +587,7 @@ public class AuthorizeRequestsTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -624,7 +624,7 @@ public class AuthorizeRequestsTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -659,7 +659,7 @@ public class AuthorizeRequestsTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -696,7 +696,7 @@ public class AuthorizeRequestsTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -731,7 +731,7 @@ public class AuthorizeRequestsTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 

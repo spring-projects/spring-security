@@ -178,9 +178,9 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		verify(upstream).close();
 	}
 
-	private static class Foo {
+	static class Foo {
 
-		public void bar() {
+		void bar() {
 		}
 
 	}

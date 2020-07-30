@@ -214,7 +214,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 			return null;
 		}
 
-		public String getClaimedIdentityFieldName() {
+		String getClaimedIdentityFieldName() {
 			return "unused";
 		}
 

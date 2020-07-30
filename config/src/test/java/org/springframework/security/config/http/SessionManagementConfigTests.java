@@ -534,12 +534,12 @@ public class SessionManagementConfigTests {
 	static class BasicController {
 
 		@GetMapping("/")
-		public String ok() {
+		String ok() {
 			return "ok";
 		}
 
 		@GetMapping("/auth")
-		public String auth(Principal principal) {
+		String auth(Principal principal) {
 			return principal.getName();
 		}
 
@@ -553,17 +553,17 @@ public class SessionManagementConfigTests {
 
 		private Boolean exists = true;
 
-		public ResultMatcher exists(boolean exists) {
+		ResultMatcher exists(boolean exists) {
 			this.exists = exists;
 			return this;
 		}
 
-		public ResultMatcher valid(boolean valid) {
+		ResultMatcher valid(boolean valid) {
 			this.valid = valid;
 			return this.exists(true);
 		}
 
-		public ResultMatcher id(String id) {
+		ResultMatcher id(String id) {
 			this.id = id;
 			return this.exists(true);
 		}

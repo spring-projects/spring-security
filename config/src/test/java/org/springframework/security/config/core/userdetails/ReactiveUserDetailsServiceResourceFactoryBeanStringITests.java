@@ -46,7 +46,7 @@ public class ReactiveUserDetailsServiceResourceFactoryBeanStringITests {
 	static class Config {
 
 		@Bean
-		public ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
+		ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
 			return ReactiveUserDetailsServiceResourceFactoryBean.fromString("user=password,ROLE_USER");
 		}
 

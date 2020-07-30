@@ -97,7 +97,7 @@ public class MultiHttpBlockConfigTests {
 	static class BasicController {
 
 		@GetMapping("/first")
-		public String first() {
+		String first() {
 			return "ok";
 		}
 

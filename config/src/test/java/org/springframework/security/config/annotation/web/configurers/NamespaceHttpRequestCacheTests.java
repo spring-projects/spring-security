@@ -106,7 +106,7 @@ public class NamespaceHttpRequestCacheTests {
 		}
 
 		@Bean
-		public RequestCache requestCache() {
+		RequestCache requestCache() {
 			return mock(RequestCache.class);
 		}
 

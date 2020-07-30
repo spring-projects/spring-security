@@ -147,12 +147,12 @@ public class NamespaceHttpJeeTests {
 	static class BaseController {
 
 		@GetMapping("/authenticated")
-		public String authenticated(Authentication authentication) {
+		String authenticated(Authentication authentication) {
 			return authentication.getName();
 		}
 
 		@GetMapping("/roles")
-		public String roles(Authentication authentication) {
+		String roles(Authentication authentication) {
 			return authentication.getAuthorities().stream().map(Object::toString).collect(Collectors.joining(","));
 		}
 

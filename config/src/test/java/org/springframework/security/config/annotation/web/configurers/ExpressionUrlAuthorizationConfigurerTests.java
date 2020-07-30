@@ -805,7 +805,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		}
 
 		@Bean
-		public ApplicationListener<AuthorizedEvent> applicationListener() {
+		ApplicationListener<AuthorizedEvent> applicationListener() {
 			return AL;
 		}
 
@@ -827,7 +827,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		}
 
 		@Bean
-		public Checker permission() {
+		Checker permission() {
 			return new Checker();
 		}
 
@@ -858,7 +858,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		}
 
 		@Bean
-		public CustomExpressionHandler expressionHandler() {
+		CustomExpressionHandler expressionHandler() {
 			return new CustomExpressionHandler();
 		}
 
@@ -937,8 +937,9 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		}
 
 		@Bean
-		public PermissionEvaluator permissionEvaluator() {
+		PermissionEvaluator permissionEvaluator() {
 			return new PermissionEvaluator() {
+
 				@Override
 				public boolean hasPermission(Authentication authentication, Object targetDomainObject,
 						Object permission) {
@@ -950,6 +951,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 						Object permission) {
 					return "ID".equals(targetId) && "TYPE".equals(targetType) && "PERMISSION".equals(permission);
 				}
+
 			};
 		}
 
@@ -970,7 +972,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		}
 
 		@Bean
-		public RoleHierarchy roleHierarchy() {
+		RoleHierarchy roleHierarchy() {
 			RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
 			roleHierarchy.setHierarchy("ROLE_USER > ROLE_MEMBER");
 			return roleHierarchy;
@@ -982,11 +984,11 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	static class BasicController {
 
 		@GetMapping("/")
-		public void rootGet() {
+		void rootGet() {
 		}
 
 		@PostMapping("/")
-		public void rootPost() {
+		void rootPost() {
 		}
 
 	}
@@ -995,7 +997,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	static class WildcardController {
 
 		@GetMapping("/{path}")
-		public void wildcard(@PathVariable String path) {
+		void wildcard(@PathVariable String path) {
 		}
 
 	}

@@ -183,7 +183,7 @@ public class UrlAuthorizationConfigurerTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 
@@ -218,7 +218,7 @@ public class UrlAuthorizationConfigurerTests {
 		static class PathController {
 
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
 

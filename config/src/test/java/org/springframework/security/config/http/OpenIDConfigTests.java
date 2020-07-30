@@ -194,7 +194,7 @@ public class OpenIDConfigTests {
 	static class CustomLoginController {
 
 		@GetMapping("/login")
-		public String custom() {
+		String custom() {
 			return "a custom login page";
 		}
 

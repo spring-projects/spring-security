@@ -441,7 +441,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		}
 
 		@Bean
-		public TestHandshakeHandler testHandshakeHandler() {
+		TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
 
@@ -480,7 +480,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		}
 
 		@Bean
-		public TestHandshakeHandler testHandshakeHandler() {
+		TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
 
@@ -516,7 +516,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		}
 
 		@Bean
-		public TestHandshakeHandler testHandshakeHandler() {
+		TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
 
@@ -545,18 +545,22 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 		// @formatter:on
 
 		@Bean
-		public static SecurityExpressionHandler<Message<Object>> messageSecurityExpressionHandler() {
+		static SecurityExpressionHandler<Message<Object>> messageSecurityExpressionHandler() {
 			return new DefaultMessageSecurityExpressionHandler<Object>() {
+
 				@Override
 				protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 						Message<Object> invocation) {
 					return new MessageSecurityExpressionRoot(authentication, invocation) {
+
 						public boolean denyRob() {
 							Authentication auth = getAuthentication();
 							return auth != null && !"rob".equals(auth.getName());
 						}
+
 					};
 				}
+
 			};
 		}
 

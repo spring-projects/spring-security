@@ -144,7 +144,7 @@ public class AuthenticationTagTests {
 
 		String lastMessage = null;
 
-		public String getLastMessage() {
+		String getLastMessage() {
 			return this.lastMessage;
 		}
 

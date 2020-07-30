@@ -42,7 +42,7 @@ class Md4 {
 		reset();
 	}
 
-	public void reset() {
+	void reset() {
 		this.bufferOffset = 0;
 		this.byteCount = 0;
 		this.state[0] = 0x67452301;
@@ -51,7 +51,7 @@ class Md4 {
 		this.state[3] = 0x10325476;
 	}
 
-	public byte[] digest() {
+	byte[] digest() {
 		byte[] resBuf = new byte[HASH_SIZE];
 		digest(resBuf, 0, HASH_SIZE);
 		return resBuf;
@@ -90,7 +90,7 @@ class Md4 {
 		digest(buffer, offset);
 	}
 
-	public void update(byte[] input, int offset, int length) {
+	void update(byte[] input, int offset, int length) {
 		this.byteCount += length;
 		int todo;
 		while (length >= (todo = BLOCK_SIZE - this.bufferOffset)) {

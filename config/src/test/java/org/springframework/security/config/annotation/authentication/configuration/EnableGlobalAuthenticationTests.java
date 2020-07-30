@@ -71,7 +71,7 @@ public class EnableGlobalAuthenticationTests {
 	static class Config {
 
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication().withUser("user").password("password").roles("USER");
 		}
 
@@ -81,12 +81,12 @@ public class EnableGlobalAuthenticationTests {
 	static class BeanProxyEnabledByDefaultConfig {
 
 		@Bean
-		public Child child() {
+		Child child() {
 			return new Child();
 		}
 
 		@Bean
-		public Parent parent() {
+		Parent parent() {
 			return new Parent(child());
 		}
 
@@ -97,12 +97,12 @@ public class EnableGlobalAuthenticationTests {
 	static class BeanProxyDisabledConfig {
 
 		@Bean
-		public Child child() {
+		Child child() {
 			return new Child();
 		}
 
 		@Bean
-		public Parent parent() {
+		Parent parent() {
 			return new Parent(child());
 		}
 
@@ -116,7 +116,7 @@ public class EnableGlobalAuthenticationTests {
 			this.child = child;
 		}
 
-		public Child getChild() {
+		Child getChild() {
 			return this.child;
 		}
 

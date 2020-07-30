@@ -95,7 +95,7 @@ final class LdapEncoder {
 	 * @param value the value to escape.
 	 * @return a properly escaped representation of the supplied value.
 	 */
-	public static String filterEncode(String value) {
+	static String filterEncode(String value) {
 
 		if (value == null) {
 			return null;
@@ -140,7 +140,7 @@ final class LdapEncoder {
 	 * @param value the value to escape.
 	 * @return The escaped value.
 	 */
-	public static String nameEncode(String value) {
+	static String nameEncode(String value) {
 
 		if (value == null) {
 			return null;
@@ -187,7 +187,7 @@ final class LdapEncoder {
 	 * @return The decoded value as a string.
 	 * @throws BadLdapGrammarException
 	 */
-	public static String nameDecode(String value) throws BadLdapGrammarException {
+	static String nameDecode(String value) throws BadLdapGrammarException {
 
 		if (value == null) {
 			return null;

@@ -387,7 +387,7 @@ public class RequestCacheConfigurerTests {
 	static class DefaultSecurityConfig {
 
 		@Bean
-		public InMemoryUserDetailsManager userDetailsManager() {
+		InMemoryUserDetailsManager userDetailsManager() {
 			// @formatter:off
 			return new InMemoryUserDetailsManager(User.withDefaultPasswordEncoder()
 					.username("user")

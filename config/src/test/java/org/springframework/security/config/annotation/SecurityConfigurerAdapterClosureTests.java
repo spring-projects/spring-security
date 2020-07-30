@@ -59,7 +59,7 @@ public class SecurityConfigurerAdapterClosureTests {
 			this.list = postProcess(this.list);
 		}
 
-		public ConcereteSecurityConfigurerAdapter list(List<Object> l) {
+		ConcereteSecurityConfigurerAdapter list(List<Object> l) {
 			this.list = l;
 			return this;
 		}

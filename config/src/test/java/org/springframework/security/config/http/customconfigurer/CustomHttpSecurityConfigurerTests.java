@@ -132,7 +132,7 @@ public class CustomHttpSecurityConfigurerTests {
 		}
 
 		@Bean
-		public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+		static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
 			// Typically externalize this as a properties file
 			Properties properties = new Properties();
 			properties.setProperty("permitAllPattern", "/public/**");
@@ -160,7 +160,7 @@ public class CustomHttpSecurityConfigurerTests {
 		}
 
 		@Bean
-		public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+		static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
 			// Typically externalize this as a properties file
 			Properties properties = new Properties();
 			properties.setProperty("permitAllPattern", "/public/**");

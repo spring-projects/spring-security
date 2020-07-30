@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
  *
  * @since 4.0
  */
-abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
+public abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 
 	protected final Log LOGGER = LogFactory.getLog(getClass());
 

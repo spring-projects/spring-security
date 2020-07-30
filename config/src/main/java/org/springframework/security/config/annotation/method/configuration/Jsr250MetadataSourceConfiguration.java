@@ -28,7 +28,7 @@ class Jsr250MetadataSourceConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource() {
+	Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource() {
 		return new Jsr250MethodSecurityMetadataSource();
 	}
 

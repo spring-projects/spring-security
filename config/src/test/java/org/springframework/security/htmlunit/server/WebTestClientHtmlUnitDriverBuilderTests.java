@@ -71,7 +71,7 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 
 		@ResponseBody
 		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
-		public String index() {
+		String index() {
 			return "<html>\n" + "<head>\n" + "<title>Hello World</title>\n" + "</head>\n" + "<body>\n"
 					+ "<h1>Hello World</h1>\n" + "</body>\n" + "</html>";
 		}
@@ -83,13 +83,13 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 	class CookieController {
 
 		@GetMapping(path = "/", produces = MediaType.TEXT_HTML_VALUE)
-		public String view(@CookieValue(required = false) String cookieName) {
+		String view(@CookieValue(required = false) String cookieName) {
 			return "<html>\n" + "<head>\n" + "<title>Hello World</title>\n" + "</head>\n" + "<body>\n" + "<h1>"
 					+ TextEscapeUtils.escapeEntities(cookieName) + "</h1>\n" + "</body>\n" + "</html>";
 		}
 
 		@GetMapping("/cookie")
-		public Mono<Void> setCookie(ServerHttpResponse response) {
+		Mono<Void> setCookie(ServerHttpResponse response) {
 			response.addCookie(ResponseCookie.from("cookieName", "theCookie").build());
 			return redirect(response);
 		}
@@ -101,7 +101,7 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 		}
 
 		@GetMapping("/cookie/delete")
-		public Mono<Void> deleteCookie(ServerHttpResponse response) {
+		Mono<Void> deleteCookie(ServerHttpResponse response) {
 			response.addCookie(ResponseCookie.from("cookieName", "").maxAge(Duration.ofSeconds(0)).build());
 			return redirect(response);
 		}

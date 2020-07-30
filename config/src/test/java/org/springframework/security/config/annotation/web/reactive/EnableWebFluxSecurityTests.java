@@ -270,13 +270,13 @@ public class EnableWebFluxSecurityTests {
 	static class CustomPasswordEncoderConfig {
 
 		@Bean
-		public ReactiveUserDetailsService userDetailsService(PasswordEncoder encoder) {
+		ReactiveUserDetailsService userDetailsService(PasswordEncoder encoder) {
 			return new MapReactiveUserDetailsService(
 					User.withUsername("user").password(encoder.encode("password")).roles("USER").build());
 		}
 
 		@Bean
-		public static PasswordEncoder passwordEncoder() {
+		static PasswordEncoder passwordEncoder() {
 			return new BCryptPasswordEncoder();
 		}
 
@@ -286,7 +286,7 @@ public class EnableWebFluxSecurityTests {
 	static class MapReactiveUserDetailsServiceConfig {
 
 		@Bean
-		public MapReactiveUserDetailsService userDetailsService() {
+		MapReactiveUserDetailsService userDetailsService() {
 			// @formatter:off
 			return new MapReactiveUserDetailsService(User.withUsername("user")
 					.password("{noop}password")
@@ -304,14 +304,14 @@ public class EnableWebFluxSecurityTests {
 
 		@Order(Ordered.HIGHEST_PRECEDENCE)
 		@Bean
-		public SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
+		SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
 			http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/api/**")).authorizeExchange()
 					.anyExchange().denyAll();
 			return http.build();
 		}
 
 		@Bean
-		public SecurityWebFilterChain httpSecurity(ServerHttpSecurity http) {
+		SecurityWebFilterChain httpSecurity(ServerHttpSecurity http) {
 			return http.build();
 		}
 
@@ -323,7 +323,7 @@ public class EnableWebFluxSecurityTests {
 	static class AuthenticationPrincipalConfig {
 
 		@Bean
-		public PrincipalBean principalBean() {
+		PrincipalBean principalBean() {
 			return new PrincipalBean();
 		}
 
@@ -336,7 +336,7 @@ public class EnableWebFluxSecurityTests {
 		}
 
 		@RestController
-		public static class AuthenticationPrincipalResolver {
+		static class AuthenticationPrincipalResolver {
 
 			@GetMapping("/spel")
 			String username(@AuthenticationPrincipal(expression = "@principalBean.username(#this)") String username) {
@@ -352,12 +352,12 @@ public class EnableWebFluxSecurityTests {
 	static class BeanProxyEnabledByDefaultConfig {
 
 		@Bean
-		public Child child() {
+		Child child() {
 			return new Child();
 		}
 
 		@Bean
-		public Parent parent() {
+		Parent parent() {
 			return new Parent(child());
 		}
 
@@ -369,12 +369,12 @@ public class EnableWebFluxSecurityTests {
 	static class BeanProxyDisabledConfig {
 
 		@Bean
-		public Child child() {
+		Child child() {
 			return new Child();
 		}
 
 		@Bean
-		public Parent parent() {
+		Parent parent() {
 			return new Parent(child());
 		}
 
@@ -388,7 +388,7 @@ public class EnableWebFluxSecurityTests {
 			this.child = child;
 		}
 
-		public Child getChild() {
+		Child getChild() {
 			return this.child;
 		}
 
