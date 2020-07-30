@@ -111,9 +111,8 @@ public class CurrentSecurityContextArgumentResolverTests {
 		SecurityContext context = SecurityContextHolder.getContext();
 		Authentication authentication = context.getAuthentication();
 		context.setAuthentication(null);
-		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() -> {
-			this.resolver.resolveArgument(showSecurityContextAuthenticationWithPrincipal(), null, null, null);
-		});
+		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() -> this.resolver
+				.resolveArgument(showSecurityContextAuthenticationWithPrincipal(), null, null, null));
 		context.setAuthentication(authentication);
 	}
 

@@ -221,9 +221,9 @@ public class RSocketMessageHandlerITests {
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket.authorizePayload((authorize) -> {
-				authorize.route("secure.*").authenticated().anyExchange().permitAll();
-			}).basicAuthentication(Customizer.withDefaults());
+			rsocket.authorizePayload(
+					(authorize) -> authorize.route("secure.*").authenticated().anyExchange().permitAll())
+					.basicAuthentication(Customizer.withDefaults());
 			return rsocket.build();
 		}
 
@@ -247,9 +247,8 @@ public class RSocketMessageHandlerITests {
 
 		@MessageMapping({ "secure.send", "send" })
 		Mono<Void> send(Mono<String> payload) {
-			return payload.doOnNext(this::add).then(Mono.fromRunnable(() -> {
-				doNotifyAll();
-			}));
+			return payload.doOnNext(this::add).then(Mono.fromRunnable(() -> doNotifyAll()));
+
 		}
 
 		private synchronized void doNotifyAll() {

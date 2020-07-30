@@ -146,16 +146,14 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 				.flatMap((serverWebExchange) -> Mono.justOrEmpty(authorizeRequest.getAuthorizedClient())
 						.switchIfEmpty(Mono
 								.defer(() -> loadAuthorizedClient(clientRegistrationId, principal, serverWebExchange)))
-						.flatMap((authorizedClient) -> {
-							// Re-authorize
-							return authorizationContext(authorizeRequest, authorizedClient)
-									.flatMap((authorizationContext) -> authorize(authorizationContext, principal,
-											serverWebExchange))
-									// Default to the existing authorizedClient if the
-									// client was not re-authorized
-									.defaultIfEmpty(authorizeRequest.getAuthorizedClient() != null
-											? authorizeRequest.getAuthorizedClient() : authorizedClient);
-						}).switchIfEmpty(Mono.defer(() ->
+						.flatMap((authorizedClient) -> // Re-authorize
+						authorizationContext(authorizeRequest, authorizedClient).flatMap(
+								(authorizationContext) -> authorize(authorizationContext, principal, serverWebExchange))
+								// Default to the existing authorizedClient if the
+								// client was not re-authorized
+								.defaultIfEmpty(authorizeRequest.getAuthorizedClient() != null
+										? authorizeRequest.getAuthorizedClient() : authorizedClient))
+						.switchIfEmpty(Mono.defer(() ->
 						// Authorize
 						this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
 								.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(

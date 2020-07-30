@@ -43,9 +43,7 @@ public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		boolean containsOneHeaderToAdd = Collections.disjoint(headers.keySet(), this.headersToAdd.keySet());
 		if (containsOneHeaderToAdd) {
-			this.headersToAdd.forEach((name, values) -> {
-				headers.put(name, values);
-			});
+			this.headersToAdd.forEach(headers::put);
 		}
 		return Mono.empty();
 	}

@@ -336,12 +336,10 @@ public class HeaderSpecTests {
 	@Test
 	public void headersWhenCustomHeadersWriter() {
 		this.expectedHeaders.add(CUSTOM_HEADER, CUSTOM_VALUE);
-		this.http.headers((headers) -> headers.writer((exchange) -> {
-			return Mono.just(exchange).doOnNext((it) -> {
-				it.getResponse().getHeaders().add(CUSTOM_HEADER, CUSTOM_VALUE);
-			}).then();
+		this.http.headers((headers) -> headers.writer((exchange) -> Mono.just(exchange)
+				.doOnNext((it) -> it.getResponse().getHeaders().add(CUSTOM_HEADER, CUSTOM_VALUE)).then()
 
-		}));
+		));
 
 		assertHeaders();
 	}

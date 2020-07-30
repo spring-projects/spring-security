@@ -38,16 +38,14 @@ public class HeaderBearerTokenResolverTests {
 
 	@Test
 	public void constructorWhenHeaderNullThenThrowIllegalArgumentException() {
-		assertThatCode(() -> {
-			new HeaderBearerTokenResolver(null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessage("header cannot be empty");
+		assertThatCode(() -> new HeaderBearerTokenResolver(null)).isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("header cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenHeaderEmptyThenThrowIllegalArgumentException() {
-		assertThatCode(() -> {
-			new HeaderBearerTokenResolver("");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessage("header cannot be empty");
+		assertThatCode(() -> new HeaderBearerTokenResolver("")).isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("header cannot be empty");
 	}
 
 	@Test
