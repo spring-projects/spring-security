@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -30,6 +32,7 @@ import java.util.function.Predicate;
  * @since 5.3
  */
 public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private final String claim;
 	private final Predicate<T> test;
@@ -61,6 +64,7 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 		if (test.test(claimValue)) {
 			return OAuth2TokenValidatorResult.success();
 		} else {
+			logger.debug(error.getDescription());
 			return OAuth2TokenValidatorResult.failure(error);
 		}
 	}
