@@ -66,7 +66,7 @@ public class Saml2Error implements Serializable {
 
 	@Override
 	public String toString() {
-		return "[" + this.getErrorCode() + "] " + (this.getDescription() != null ? this.getDescription() : "");
+		return "[" + this.getErrorCode() + "] " + ((this.getDescription() != null) ? this.getDescription() : "");
 	}
 
 }

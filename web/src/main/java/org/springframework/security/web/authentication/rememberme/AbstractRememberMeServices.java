@@ -417,7 +417,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
 	private String getCookiePath(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
-		return contextPath.length() > 0 ? contextPath : "/";
+		return (contextPath.length() > 0) ? contextPath : "/";
 	}
 
 	/**
@@ -427,7 +427,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Logout of user " + (authentication == null ? "Unknown" : authentication.getName()));
+			this.logger.debug("Logout of user " + ((authentication != null) ? authentication.getName() : "Unknown"));
 		}
 		cancelCookie(request, response);
 	}

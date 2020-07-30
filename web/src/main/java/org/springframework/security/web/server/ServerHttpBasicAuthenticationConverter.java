@@ -53,7 +53,7 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 			return Mono.empty();
 		}
 
-		String credentials = authorization.length() <= BASIC.length() ? ""
+		String credentials = (authorization.length() <= BASIC.length()) ? ""
 				: authorization.substring(BASIC.length(), authorization.length());
 		byte[] decodedCredentials = base64Decode(credentials);
 		String decodedAuthz = new String(decodedCredentials);

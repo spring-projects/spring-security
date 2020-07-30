@@ -99,7 +99,7 @@ public class CookieServerRequestCache implements ServerRequestCache {
 	private static ResponseCookie createRedirectUriCookie(ServerHttpRequest request) {
 		String path = request.getPath().pathWithinApplication().value();
 		String query = request.getURI().getRawQuery();
-		String redirectUri = path + (query != null ? "?" + query : "");
+		String redirectUri = path + ((query != null) ? "?" + query : "");
 
 		return createResponseCookie(request, encodeCookie(redirectUri), COOKIE_MAX_AGE);
 	}

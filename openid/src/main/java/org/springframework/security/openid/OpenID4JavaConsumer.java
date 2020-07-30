@@ -164,7 +164,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		if (verified == null) {
 			Identifier id = discovered.getClaimedIdentifier();
 			return new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE,
-					id == null ? "Unknown" : id.getIdentifier(),
+					(id != null) ? id.getIdentifier() : "Unknown",
 					"Verification status message: [" + verification.getStatusMsg() + "]",
 					Collections.<OpenIDAttribute>emptyList());
 		}

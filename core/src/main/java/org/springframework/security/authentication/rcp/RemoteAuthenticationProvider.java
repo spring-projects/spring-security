@@ -63,7 +63,7 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider, Ini
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String username = authentication.getPrincipal().toString();
 		Object credentials = authentication.getCredentials();
-		String password = credentials == null ? null : credentials.toString();
+		String password = (credentials != null) ? credentials.toString() : null;
 		Collection<? extends GrantedAuthority> authorities = this.remoteAuthenticationManager
 				.attemptAuthentication(username, password);
 

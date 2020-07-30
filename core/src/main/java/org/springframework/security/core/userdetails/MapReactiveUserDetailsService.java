@@ -67,7 +67,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	public Mono<UserDetails> findByUsername(String username) {
 		String key = getKey(username);
 		UserDetails result = this.users.get(key);
-		return result == null ? Mono.empty() : Mono.just(User.withUserDetails(result).build());
+		return (result != null) ? Mono.just(User.withUserDetails(result).build()) : Mono.empty();
 	}
 
 	@Override

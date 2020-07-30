@@ -37,7 +37,7 @@ public class SimpleMethodInvocation implements MethodInvocation {
 	public SimpleMethodInvocation(Object targetObject, Method method, Object... arguments) {
 		this.targetObject = targetObject;
 		this.method = method;
-		this.arguments = arguments == null ? new Object[0] : arguments;
+		this.arguments = (arguments != null) ? arguments : new Object[0];
 	}
 
 	public SimpleMethodInvocation() {

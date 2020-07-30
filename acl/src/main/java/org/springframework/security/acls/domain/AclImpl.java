@@ -307,15 +307,15 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
 	@Override
 	public int hashCode() {
-		int result = this.parentAcl != null ? this.parentAcl.hashCode() : 0;
+		int result = (this.parentAcl != null) ? this.parentAcl.hashCode() : 0;
 		result = 31 * result + this.aclAuthorizationStrategy.hashCode();
 		result = 31 * result
-				+ (this.permissionGrantingStrategy != null ? this.permissionGrantingStrategy.hashCode() : 0);
-		result = 31 * result + (this.aces != null ? this.aces.hashCode() : 0);
+				+ ((this.permissionGrantingStrategy != null) ? this.permissionGrantingStrategy.hashCode() : 0);
+		result = 31 * result + ((this.aces != null) ? this.aces.hashCode() : 0);
 		result = 31 * result + this.objectIdentity.hashCode();
 		result = 31 * result + this.id.hashCode();
-		result = 31 * result + (this.owner != null ? this.owner.hashCode() : 0);
-		result = 31 * result + (this.loadedSids != null ? this.loadedSids.hashCode() : 0);
+		result = 31 * result + ((this.owner != null) ? this.owner.hashCode() : 0);
+		result = 31 * result + ((this.loadedSids != null) ? this.loadedSids.hashCode() : 0);
 		result = 31 * result + (this.entriesInheriting ? 1 : 0);
 		return result;
 	}

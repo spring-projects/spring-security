@@ -500,7 +500,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return Collections.emptyMap();
 		}
 
-		String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri != null
+		String authorizationRequestBaseUri = (this.authorizationEndpointConfig.authorizationRequestBaseUri != null)
 				? this.authorizationEndpointConfig.authorizationRequestBaseUri
 				: OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 		Map<String, String> loginUrlToClientName = new HashMap<>();

@@ -451,7 +451,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		SessionCreationPolicy sessionPolicy = getBuilder().getSharedObject(SessionCreationPolicy.class);
-		return sessionPolicy == null ? SessionCreationPolicy.IF_REQUIRED : sessionPolicy;
+		return (sessionPolicy != null) ? sessionPolicy : SessionCreationPolicy.IF_REQUIRED;
 	}
 
 	/**

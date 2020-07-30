@@ -128,7 +128,7 @@ public class FilterChainPerformanceTests {
 	public void provideDataOnScalingWithNumberOfAuthoritiesUserHas() throws Exception {
 		StopWatch sw = new StopWatch("Scaling with nAuthorities");
 		for (int user = 0; user < N_AUTHORITIES / 10; user++) {
-			int nAuthorities = user == 0 ? 1 : user * 10;
+			int nAuthorities = (user != 0) ? user * 10 : 1;
 			SecurityContextHolder.getContext().setAuthentication(
 					new UsernamePasswordAuthenticationToken("bob", "bobspassword", createRoles(nAuthorities)));
 			this.session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,

@@ -100,7 +100,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 			return this.defaultMatcher.matcher(request);
 		}
 		RequestMatchResult result = mapping.match(request, this.pattern);
-		return result == null ? MatchResult.notMatch() : MatchResult.match(result.extractUriTemplateVariables());
+		return (result != null) ? MatchResult.match(result.extractUriTemplateVariables()) : MatchResult.notMatch();
 	}
 
 	/**

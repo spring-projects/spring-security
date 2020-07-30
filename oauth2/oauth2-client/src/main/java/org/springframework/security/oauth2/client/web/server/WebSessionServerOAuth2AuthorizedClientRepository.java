@@ -85,8 +85,8 @@ public final class WebSessionServerOAuth2AuthorizedClientRepository implements S
 
 	@SuppressWarnings("unchecked")
 	private Map<String, OAuth2AuthorizedClient> getAuthorizedClients(WebSession session) {
-		Map<String, OAuth2AuthorizedClient> authorizedClients = session == null ? null
-				: (Map<String, OAuth2AuthorizedClient>) session.getAttribute(this.sessionAttributeName);
+		Map<String, OAuth2AuthorizedClient> authorizedClients = (session != null)
+				? (Map<String, OAuth2AuthorizedClient>) session.getAttribute(this.sessionAttributeName) : null;
 		if (authorizedClients == null) {
 			authorizedClients = new HashMap<>();
 		}

@@ -102,7 +102,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	private static String pathInApplication(ServerHttpRequest request) {
 		String path = request.getPath().pathWithinApplication().value();
 		String query = request.getURI().getRawQuery();
-		return path + (query != null ? "?" + query : "");
+		return path + ((query != null) ? "?" + query : "");
 	}
 
 	private static ServerWebExchangeMatcher createDefaultRequestMacher() {

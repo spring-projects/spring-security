@@ -48,8 +48,8 @@ public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
 		}
 
 		Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor.getSessionAttributes(message.getHeaders());
-		CsrfToken expectedToken = sessionAttributes == null ? null
-				: (CsrfToken) sessionAttributes.get(CsrfToken.class.getName());
+		CsrfToken expectedToken = (sessionAttributes != null)
+				? (CsrfToken) sessionAttributes.get(CsrfToken.class.getName()) : null;
 
 		if (expectedToken == null) {
 			throw new MissingCsrfTokenException(null);

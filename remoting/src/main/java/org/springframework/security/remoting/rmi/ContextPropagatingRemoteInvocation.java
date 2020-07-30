@@ -65,7 +65,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 		if (currentUser != null) {
 			this.principal = currentUser.getName();
 			Object userCredentials = currentUser.getCredentials();
-			this.credentials = userCredentials == null ? null : userCredentials.toString();
+			this.credentials = (userCredentials != null) ? userCredentials.toString() : null;
 		}
 		else {
 			this.credentials = null;

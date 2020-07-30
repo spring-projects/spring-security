@@ -99,9 +99,9 @@ class OAuth2AccessTokenResponseBodyExtractor
 		}
 		else {
 			oauth2Error = new OAuth2Error(
-					errorObject.getCode() != null ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
+					(errorObject.getCode() != null) ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
 					errorObject.getDescription(),
-					errorObject.getURI() != null ? errorObject.getURI().toString() : null);
+					(errorObject.getURI() != null) ? errorObject.getURI().toString() : null);
 		}
 		return Mono.error(new OAuth2AuthorizationException(oauth2Error));
 	}
@@ -114,8 +114,8 @@ class OAuth2AccessTokenResponseBodyExtractor
 		}
 		long expiresIn = accessToken.getLifetime();
 
-		Set<String> scopes = accessToken.getScope() == null ? Collections.emptySet()
-				: new LinkedHashSet<>(accessToken.getScope().toStringList());
+		Set<String> scopes = (accessToken.getScope() != null)
+				? new LinkedHashSet<>(accessToken.getScope().toStringList()) : Collections.emptySet();
 
 		String refreshToken = null;
 		if (accessTokenResponse.getTokens().getRefreshToken() != null) {

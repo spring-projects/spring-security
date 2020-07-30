@@ -97,7 +97,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 			throw new IllegalArgumentException("Bad strength");
 		}
 		this.version = version;
-		this.strength = strength == -1 ? 10 : strength;
+		this.strength = (strength == -1) ? 10 : strength;
 		this.random = random;
 	}
 

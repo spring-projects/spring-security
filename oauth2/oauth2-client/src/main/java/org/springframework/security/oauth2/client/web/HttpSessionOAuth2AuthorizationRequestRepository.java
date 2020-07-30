@@ -115,8 +115,8 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	 */
 	private Map<String, OAuth2AuthorizationRequest> getAuthorizationRequests(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-		Map<String, OAuth2AuthorizationRequest> authorizationRequests = session == null ? null
-				: (Map<String, OAuth2AuthorizationRequest>) session.getAttribute(this.sessionAttributeName);
+		Map<String, OAuth2AuthorizationRequest> authorizationRequests = (session != null)
+				? (Map<String, OAuth2AuthorizationRequest>) session.getAttribute(this.sessionAttributeName) : null;
 		if (authorizationRequests == null) {
 			return new HashMap<>();
 		}

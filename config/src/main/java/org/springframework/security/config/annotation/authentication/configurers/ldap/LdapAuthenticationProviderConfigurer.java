@@ -187,8 +187,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @return the {@link LdapAuthenticator} to use
 	 */
 	private LdapAuthenticator createLdapAuthenticator(BaseLdapPathContextSource contextSource) {
-		AbstractLdapAuthenticator ldapAuthenticator = this.passwordEncoder == null
-				? createBindAuthenticator(contextSource) : createPasswordCompareAuthenticator(contextSource);
+		AbstractLdapAuthenticator ldapAuthenticator = (this.passwordEncoder != null)
+				? createPasswordCompareAuthenticator(contextSource) : createBindAuthenticator(contextSource);
 		LdapUserSearch userSearch = createUserSearch();
 		if (userSearch != null) {
 			ldapAuthenticator.setUserSearch(userSearch);

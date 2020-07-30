@@ -80,11 +80,11 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		this.securityContextRequestFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
 		ExceptionHandlingConfigurer<H> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
-		AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null
-				: exceptionConf.getAuthenticationEntryPoint(http);
+		AuthenticationEntryPoint authenticationEntryPoint = (exceptionConf != null)
+				? exceptionConf.getAuthenticationEntryPoint(http) : null;
 		this.securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
 		LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
-		List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf.getLogoutHandlers();
+		List<LogoutHandler> logoutHandlers = (logoutConf != null) ? logoutConf.getLogoutHandlers() : null;
 		this.securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
 		AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {

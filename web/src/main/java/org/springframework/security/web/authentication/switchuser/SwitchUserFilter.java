@@ -151,8 +151,9 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		}
 
 		if (this.failureHandler == null) {
-			this.failureHandler = this.switchFailureUrl == null ? new SimpleUrlAuthenticationFailureHandler()
-					: new SimpleUrlAuthenticationFailureHandler(this.switchFailureUrl);
+			this.failureHandler = (this.switchFailureUrl != null)
+					? new SimpleUrlAuthenticationFailureHandler(this.switchFailureUrl)
+					: new SimpleUrlAuthenticationFailureHandler();
 		}
 		else {
 			Assert.isNull(this.switchFailureUrl, "You cannot set both a switchFailureUrl and a failureHandler");

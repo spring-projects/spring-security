@@ -128,9 +128,9 @@ public class NimbusAuthorizationCodeTokenResponseClient
 			}
 			else {
 				oauth2Error = new OAuth2Error(
-						errorObject.getCode() != null ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
+						(errorObject.getCode() != null) ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
 						errorObject.getDescription(),
-						errorObject.getURI() != null ? errorObject.getURI().toString() : null);
+						(errorObject.getURI() != null) ? errorObject.getURI().toString() : null);
 			}
 			throw new OAuth2AuthorizationException(oauth2Error);
 		}

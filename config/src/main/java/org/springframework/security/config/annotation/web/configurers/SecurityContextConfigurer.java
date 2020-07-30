@@ -90,8 +90,8 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 		SecurityContextPersistenceFilter securityContextFilter = new SecurityContextPersistenceFilter(
 				securityContextRepository);
 		SessionManagementConfigurer<?> sessionManagement = http.getConfigurer(SessionManagementConfigurer.class);
-		SessionCreationPolicy sessionCreationPolicy = sessionManagement == null ? null
-				: sessionManagement.getSessionCreationPolicy();
+		SessionCreationPolicy sessionCreationPolicy = (sessionManagement != null)
+				? sessionManagement.getSessionCreationPolicy() : null;
 		if (SessionCreationPolicy.ALWAYS == sessionCreationPolicy) {
 			securityContextFilter.setForceEagerSessionCreation(true);
 		}

@@ -1467,8 +1467,8 @@ public class ServerHttpSecurity {
 	}
 
 	private WebFilter securityContextRepositoryWebFilter() {
-		ServerSecurityContextRepository repository = this.securityContextRepository == null
-				? new WebSessionServerSecurityContextRepository() : this.securityContextRepository;
+		ServerSecurityContextRepository repository = (this.securityContextRepository != null)
+				? this.securityContextRepository : new WebSessionServerSecurityContextRepository();
 		WebFilter result = new ReactorContextWebFilter(repository);
 		return new OrderedWebFilter(result, SecurityWebFiltersOrder.REACTOR_CONTEXT.getOrder());
 	}

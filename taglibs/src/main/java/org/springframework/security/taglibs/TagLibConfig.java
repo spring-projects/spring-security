@@ -41,8 +41,8 @@ public final class TagLibConfig {
 		String prefix = System.getProperty("spring.security.securedUIPrefix");
 		String suffix = System.getProperty("spring.security.securedUISuffix");
 
-		SECURED_UI_PREFIX = prefix == null ? "<span class=\"securityHiddenUI\">" : prefix;
-		SECURED_UI_SUFFIX = suffix == null ? "</span>" : suffix;
+		SECURED_UI_PREFIX = (prefix != null) ? prefix : "<span class=\"securityHiddenUI\">";
+		SECURED_UI_SUFFIX = (suffix != null) ? suffix : "</span>";
 
 		DISABLE_UI_SECURITY = "true".equals(db);
 

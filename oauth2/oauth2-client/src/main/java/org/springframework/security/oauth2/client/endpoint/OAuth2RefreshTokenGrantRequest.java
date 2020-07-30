@@ -75,7 +75,7 @@ public class OAuth2RefreshTokenGrantRequest extends AbstractOAuth2AuthorizationG
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.scopes = Collections
-				.unmodifiableSet(scopes != null ? new LinkedHashSet<>(scopes) : Collections.emptySet());
+				.unmodifiableSet((scopes != null) ? new LinkedHashSet<>(scopes) : Collections.emptySet());
 	}
 
 	/**

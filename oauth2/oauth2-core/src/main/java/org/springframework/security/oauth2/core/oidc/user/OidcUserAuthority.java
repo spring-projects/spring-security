@@ -104,14 +104,15 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		if (!this.getIdToken().equals(that.getIdToken())) {
 			return false;
 		}
-		return this.getUserInfo() != null ? this.getUserInfo().equals(that.getUserInfo()) : that.getUserInfo() == null;
+		return (this.getUserInfo() != null) ? this.getUserInfo().equals(that.getUserInfo())
+				: that.getUserInfo() == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
 		result = 31 * result + this.getIdToken().hashCode();
-		result = 31 * result + (this.getUserInfo() != null ? this.getUserInfo().hashCode() : 0);
+		result = 31 * result + ((this.getUserInfo() != null) ? this.getUserInfo().hashCode() : 0);
 		return result;
 	}
 

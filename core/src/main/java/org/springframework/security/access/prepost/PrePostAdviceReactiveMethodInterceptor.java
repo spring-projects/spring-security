@@ -93,17 +93,17 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 		if (Mono.class.isAssignableFrom(returnType)) {
 			return toInvoke.flatMap((auth) -> PrePostAdviceReactiveMethodInterceptor.<Mono<?>>proceed(invocation)
-					.map((r) -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r)));
+					.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 		}
 
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return toInvoke.flatMapMany((auth) -> PrePostAdviceReactiveMethodInterceptor.<Flux<?>>proceed(invocation)
-					.map((r) -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r)));
+					.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 		}
 
 		return toInvoke.flatMapMany(
 				(auth) -> Flux.from(PrePostAdviceReactiveMethodInterceptor.<Publisher<?>>proceed(invocation))
-						.map((r) -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r)));
+						.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 	}
 
 	private static <T extends Publisher<?>> T proceed(final MethodInvocation invocation) {

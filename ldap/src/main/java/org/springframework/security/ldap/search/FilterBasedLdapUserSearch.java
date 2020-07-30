@@ -165,7 +165,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 		sb.append("[ searchFilter: '").append(this.searchFilter).append("', ");
 		sb.append("searchBase: '").append(this.searchBase).append("'");
 		sb.append(", scope: ").append(
-				this.searchControls.getSearchScope() == SearchControls.SUBTREE_SCOPE ? "subtree" : "single-level, ");
+				(this.searchControls.getSearchScope() != SearchControls.SUBTREE_SCOPE) ? "single-level, " : "subtree");
 		sb.append(", searchTimeLimit: ").append(this.searchControls.getTimeLimit());
 		sb.append(", derefLinkFlag: ").append(this.searchControls.getDerefLinkFlag()).append(" ]");
 		return sb.toString();

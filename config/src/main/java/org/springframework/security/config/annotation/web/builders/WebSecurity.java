@@ -242,8 +242,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		if (this.privilegeEvaluator != null) {
 			return this.privilegeEvaluator;
 		}
-		return this.filterSecurityInterceptor == null ? null
-				: new DefaultWebInvocationPrivilegeEvaluator(this.filterSecurityInterceptor);
+		return (this.filterSecurityInterceptor != null)
+				? new DefaultWebInvocationPrivilegeEvaluator(this.filterSecurityInterceptor) : null;
 	}
 
 	/**

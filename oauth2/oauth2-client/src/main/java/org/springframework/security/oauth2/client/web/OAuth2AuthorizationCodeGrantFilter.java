@@ -244,7 +244,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		}
 
 		Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
-		String principalName = currentAuthentication != null ? currentAuthentication.getName() : "anonymousUser";
+		String principalName = (currentAuthentication != null) ? currentAuthentication.getName() : "anonymousUser";
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				authenticationResult.getClientRegistration(), principalName, authenticationResult.getAccessToken(),

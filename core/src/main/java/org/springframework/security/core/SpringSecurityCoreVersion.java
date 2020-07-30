@@ -55,7 +55,7 @@ public final class SpringSecurityCoreVersion {
 
 	public static String getVersion() {
 		Package pkg = SpringSecurityCoreVersion.class.getPackage();
-		return (pkg != null ? pkg.getImplementationVersion() : null);
+		return (pkg != null) ? pkg.getImplementationVersion() : null;
 	}
 
 	/**

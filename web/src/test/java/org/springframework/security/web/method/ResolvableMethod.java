@@ -215,7 +215,7 @@ public final class ResolvableMethod {
 
 	private String formatParameter(Parameter param) {
 		Annotation[] annot = param.getAnnotations();
-		return annot.length > 0
+		return (annot.length > 0)
 				? Arrays.stream(annot).map(this::formatAnnotation).collect(Collectors.joining(",", "[", "]")) + " "
 						+ param
 				: param.toString();

@@ -84,8 +84,8 @@ public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2
 	@SuppressWarnings("unchecked")
 	private Map<String, OAuth2AuthorizedClient> getAuthorizedClients(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-		Map<String, OAuth2AuthorizedClient> authorizedClients = session == null ? null
-				: (Map<String, OAuth2AuthorizedClient>) session.getAttribute(this.sessionAttributeName);
+		Map<String, OAuth2AuthorizedClient> authorizedClients = (session != null)
+				? (Map<String, OAuth2AuthorizedClient>) session.getAttribute(this.sessionAttributeName) : null;
 		if (authorizedClients == null) {
 			authorizedClients = new HashMap<>();
 		}

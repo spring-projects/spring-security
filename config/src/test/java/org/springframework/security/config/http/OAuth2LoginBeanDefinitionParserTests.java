@@ -523,7 +523,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		@GetMapping("/authorized-client")
 		String authorizedClient(Model model,
 				@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
-			return authorizedClient != null ? "resolved" : "not-resolved";
+			return (authorizedClient != null) ? "resolved" : "not-resolved";
 		}
 
 	}

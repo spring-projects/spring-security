@@ -109,7 +109,7 @@ public class SimpleAttributes2GrantedAuthoritiesMapper
 	}
 
 	private String getAttributePrefix() {
-		return this.attributePrefix == null ? "" : this.attributePrefix;
+		return (this.attributePrefix != null) ? this.attributePrefix : "";
 	}
 
 	public void setAttributePrefix(String string) {

@@ -54,7 +54,7 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 				new CBCBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine()), new PKCS7Padding());
 		blockCipher.init(true, new ParametersWithIV(this.secretKey, iv));
 		byte[] encrypted = process(blockCipher, bytes);
-		return iv != null ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
+		return (iv != null) ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 	}
 
 	@Override

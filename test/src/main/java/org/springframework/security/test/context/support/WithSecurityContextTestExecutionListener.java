@@ -100,8 +100,8 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 	private TestSecurityContext createTestSecurityContext(Class<?> annotated, TestContext context) {
 		MetaAnnotationUtils.AnnotationDescriptor<WithSecurityContext> withSecurityContextDescriptor = MetaAnnotationUtils
 				.findAnnotationDescriptor(annotated, WithSecurityContext.class);
-		WithSecurityContext withSecurityContext = withSecurityContextDescriptor == null ? null
-				: withSecurityContextDescriptor.getAnnotation();
+		WithSecurityContext withSecurityContext = (withSecurityContextDescriptor != null)
+				? withSecurityContextDescriptor.getAnnotation() : null;
 		return createTestSecurityContext(annotated, withSecurityContext, context);
 	}
 

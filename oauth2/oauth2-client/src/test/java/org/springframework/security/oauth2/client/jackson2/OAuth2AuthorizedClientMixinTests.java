@@ -241,14 +241,14 @@ public class OAuth2AuthorizedClientMixinTests {
 				"      \"tokenUri\": \"" + providerDetails.getTokenUri() + "\",\n" +
 				"      \"userInfoEndpoint\": {\n" +
 				"        \"@class\": \"org.springframework.security.oauth2.client.registration.ClientRegistration$ProviderDetails$UserInfoEndpoint\",\n" +
-				"        \"uri\": " + (userInfoEndpoint.getUri() != null ? "\"" + userInfoEndpoint.getUri() + "\"" : null) + ",\n" +
+				"        \"uri\": " + ((userInfoEndpoint.getUri() != null) ? "\"" + userInfoEndpoint.getUri() + "\"" : null) + ",\n" +
 				"        \"authenticationMethod\": {\n" +
 				"          \"value\": \"" + userInfoEndpoint.getAuthenticationMethod().getValue() + "\"\n" +
 				"        },\n" +
-				"        \"userNameAttributeName\": " + (userInfoEndpoint.getUserNameAttributeName() != null ? "\"" + userInfoEndpoint.getUserNameAttributeName() + "\"" : null) + "\n" +
+				"        \"userNameAttributeName\": " + ((userInfoEndpoint.getUserNameAttributeName() != null) ? "\"" + userInfoEndpoint.getUserNameAttributeName() + "\"" : null) + "\n" +
 				"      },\n" +
-				"      \"jwkSetUri\": " + (providerDetails.getJwkSetUri() != null ? "\"" + providerDetails.getJwkSetUri() + "\"" : null) + ",\n" +
-				"      \"issuerUri\": " + (providerDetails.getIssuerUri() != null ? "\"" + providerDetails.getIssuerUri() + "\"" : null) + ",\n" +
+				"      \"jwkSetUri\": " + ((providerDetails.getJwkSetUri() != null) ? "\"" + providerDetails.getJwkSetUri() + "\"" : null) + ",\n" +
+				"      \"issuerUri\": " + ((providerDetails.getIssuerUri() != null) ? "\"" + providerDetails.getIssuerUri() + "\"" : null) + ",\n" +
 				"      \"configurationMetadata\": {\n" +
 				"        " + configurationMetadata + "\n" +
 				"      }\n" +

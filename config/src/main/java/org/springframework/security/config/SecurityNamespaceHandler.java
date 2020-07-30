@@ -151,7 +151,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
 	private void reportUnsupportedNodeType(String name, ParserContext pc, Node node) {
 		pc.getReaderContext().fatal("Security namespace does not support decoration of "
-				+ (node instanceof Element ? "element" : "attribute") + " [" + name + "]", node);
+				+ ((node instanceof Element) ? "element" : "attribute") + " [" + name + "]", node);
 	}
 
 	private void reportMissingWebClasses(String nodeName, ParserContext pc, Node node) {

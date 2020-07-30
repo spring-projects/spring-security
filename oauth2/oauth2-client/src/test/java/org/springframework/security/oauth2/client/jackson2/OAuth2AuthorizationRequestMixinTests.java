@@ -165,7 +165,7 @@ public class OAuth2AuthorizationRequestMixinTests {
 				"    \"java.util.Collections$UnmodifiableSet\",\n" +
 				"    [" + scopes + "]\n" +
 				"  ],\n" +
-				"  \"state\": " + (authorizationRequest.getState() != null ? "\"" + authorizationRequest.getState() + "\"" : "null") + ",\n" +
+				"  \"state\": " + ((authorizationRequest.getState() != null) ? "\"" + authorizationRequest.getState() + "\"" : "null") + ",\n" +
 				"  \"additionalParameters\": {\n" +
 				"    " + additionalParameters + "\n" +
 				"  },\n" +

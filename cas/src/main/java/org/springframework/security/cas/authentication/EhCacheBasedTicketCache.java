@@ -49,7 +49,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 			logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
 		}
 
-		return element == null ? null : (CasAuthenticationToken) element.getValue();
+		return (element != null) ? (CasAuthenticationToken) element.getValue() : null;
 	}
 
 	public Ehcache getCache() {

@@ -169,7 +169,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 	}
 
 	private static String asJson(OAuth2AuthenticationToken authentication) {
-		String principalJson = authentication.getPrincipal() instanceof DefaultOidcUser
+		String principalJson = (authentication.getPrincipal() instanceof DefaultOidcUser)
 				? asJson((DefaultOidcUser) authentication.getPrincipal())
 				: asJson((DefaultOAuth2User) authentication.getPrincipal());
 		// @formatter:off
@@ -224,8 +224,8 @@ public class OAuth2AuthenticationTokenMixinTests {
 				simpleAuthorities.add((SimpleGrantedAuthority) authority);
 			}
 		}
-		String authoritiesJson = oidcUserAuthority != null ? asJson(oidcUserAuthority)
-				: oauth2UserAuthority != null ? asJson(oauth2UserAuthority) : "";
+		String authoritiesJson = (oidcUserAuthority != null) ? asJson(oidcUserAuthority)
+				: (oauth2UserAuthority != null) ? asJson(oauth2UserAuthority) : "";
 		if (!simpleAuthorities.isEmpty()) {
 			if (!StringUtils.isEmpty(authoritiesJson)) {
 				authoritiesJson += ",";

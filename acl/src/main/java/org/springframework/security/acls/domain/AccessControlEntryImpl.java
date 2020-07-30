@@ -125,7 +125,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 	@Override
 	public int hashCode() {
 		int result = this.permission.hashCode();
-		result = 31 * result + (this.id != null ? this.id.hashCode() : 0);
+		result = 31 * result + ((this.id != null) ? this.id.hashCode() : 0);
 		result = 31 * result + (this.sid.hashCode());
 		result = 31 * result + (this.auditFailure ? 1 : 0);
 		result = 31 * result + (this.auditSuccess ? 1 : 0);

@@ -47,16 +47,16 @@ abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAtt
 		Assert.isTrue(filterExpression != null || authorizeExpression != null,
 				"Filter and authorization Expressions cannot both be null");
 		SpelExpressionParser parser = new SpelExpressionParser();
-		this.filterExpression = filterExpression == null ? null : parser.parseExpression(filterExpression);
-		this.authorizeExpression = authorizeExpression == null ? null : parser.parseExpression(authorizeExpression);
+		this.filterExpression = (filterExpression != null) ? parser.parseExpression(filterExpression) : null;
+		this.authorizeExpression = (authorizeExpression != null) ? parser.parseExpression(authorizeExpression) : null;
 	}
 
 	AbstractExpressionBasedMethodConfigAttribute(Expression filterExpression, Expression authorizeExpression)
 			throws ParseException {
 		Assert.isTrue(filterExpression != null || authorizeExpression != null,
 				"Filter and authorization Expressions cannot both be null");
-		this.filterExpression = filterExpression == null ? null : filterExpression;
-		this.authorizeExpression = authorizeExpression == null ? null : authorizeExpression;
+		this.filterExpression = (filterExpression != null) ? filterExpression : null;
+		this.authorizeExpression = (authorizeExpression != null) ? authorizeExpression : null;
 	}
 
 	Expression getFilterExpression() {

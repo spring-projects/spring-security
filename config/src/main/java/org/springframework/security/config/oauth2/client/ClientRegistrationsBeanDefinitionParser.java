@@ -168,7 +168,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 
 	private static ClientRegistration.Builder getBuilderFromIssuerIfPossible(String registrationId,
 			String configuredProviderId, Map<String, Map<String, String>> providers) {
-		String providerId = configuredProviderId != null ? configuredProviderId : registrationId;
+		String providerId = (configuredProviderId != null) ? configuredProviderId : registrationId;
 		if (providers.containsKey(providerId)) {
 			Map<String, String> provider = providers.get(providerId);
 			String issuer = provider.get(ATT_ISSUER_URI);
@@ -188,7 +188,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 		if (provider == null && !providers.containsKey(providerId)) {
 			return null;
 		}
-		ClientRegistration.Builder builder = provider != null ? provider.getBuilder(registrationId)
+		ClientRegistration.Builder builder = (provider != null) ? provider.getBuilder(registrationId)
 				: ClientRegistration.withRegistrationId(registrationId);
 		if (providers.containsKey(providerId)) {
 			return getBuilder(builder, providers.get(providerId));
@@ -251,7 +251,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 	}
 
 	private static String getErrorMessage(String configuredProviderId, String registrationId) {
-		return configuredProviderId != null ? "Unknown provider ID '" + configuredProviderId + "'"
+		return (configuredProviderId != null) ? "Unknown provider ID '" + configuredProviderId + "'"
 				: "Provider ID must be specified for client registration '" + registrationId + "'";
 	}
 
