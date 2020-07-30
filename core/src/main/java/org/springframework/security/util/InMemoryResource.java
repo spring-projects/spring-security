@@ -63,17 +63,16 @@ public class InMemoryResource extends AbstractResource {
 	}
 
 	@Override
-	public int hashCode() {
-		return 1;
-	}
-
-	@Override
 	public boolean equals(Object res) {
 		if (!(res instanceof InMemoryResource)) {
 			return false;
 		}
-
 		return Arrays.equals(this.source, ((InMemoryResource) res).source);
+	}
+
+	@Override
+	public int hashCode() {
+		return 1;
 	}
 
 }

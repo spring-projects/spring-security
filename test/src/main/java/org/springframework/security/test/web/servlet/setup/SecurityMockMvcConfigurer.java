@@ -143,13 +143,13 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		}
 
 		@Override
-		public int hashCode() {
-			return getDelegate().hashCode();
+		public boolean equals(Object obj) {
+			return getDelegate().equals(obj);
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			return getDelegate().equals(obj);
+		public int hashCode() {
+			return getDelegate().hashCode();
 		}
 
 		@Override

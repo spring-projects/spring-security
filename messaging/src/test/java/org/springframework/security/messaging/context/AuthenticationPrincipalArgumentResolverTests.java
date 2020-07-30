@@ -276,14 +276,6 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		}
 
 		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((this.property == null) ? 0 : this.property.hashCode());
-			return result;
-		}
-
-		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
 				return true;
@@ -304,6 +296,14 @@ public class AuthenticationPrincipalArgumentResolverTests {
 				return false;
 			}
 			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((this.property == null) ? 0 : this.property.hashCode());
+			return result;
 		}
 
 	}

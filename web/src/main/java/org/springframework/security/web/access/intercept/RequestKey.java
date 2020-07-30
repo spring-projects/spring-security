@@ -47,29 +47,25 @@ public class RequestKey {
 	}
 
 	@Override
-	public int hashCode() {
-		int result = this.url.hashCode();
-		result = 31 * result + (this.method != null ? this.method.hashCode() : 0);
-		return result;
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof RequestKey)) {
 			return false;
 		}
-
 		RequestKey key = (RequestKey) obj;
-
 		if (!this.url.equals(key.url)) {
 			return false;
 		}
-
 		if (this.method == null) {
 			return key.method == null;
 		}
-
 		return this.method.equals(key.method);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.url.hashCode();
+		result = 31 * result + (this.method != null ? this.method.hashCode() : 0);
+		return result;
 	}
 
 	@Override

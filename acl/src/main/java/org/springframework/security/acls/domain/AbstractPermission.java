@@ -52,18 +52,25 @@ public abstract class AbstractPermission implements Permission {
 	}
 
 	@Override
-	public final boolean equals(Object arg0) {
-		if (arg0 == null) {
+	public final boolean equals(Object obj) {
+		if (obj == null) {
 			return false;
 		}
-
-		if (!(arg0 instanceof Permission)) {
+		if (!(obj instanceof Permission)) {
 			return false;
 		}
+		Permission other = (Permission) obj;
+		return (this.mask == other.getMask());
+	}
 
-		Permission rhs = (Permission) arg0;
+	@Override
+	public final int hashCode() {
+		return this.mask;
+	}
 
-		return (this.mask == rhs.getMask());
+	@Override
+	public final String toString() {
+		return this.getClass().getSimpleName() + "[" + getPattern() + "=" + this.mask + "]";
 	}
 
 	@Override
@@ -74,16 +81,6 @@ public abstract class AbstractPermission implements Permission {
 	@Override
 	public String getPattern() {
 		return AclFormattingUtils.printBinary(this.mask, this.code);
-	}
-
-	@Override
-	public final String toString() {
-		return this.getClass().getSimpleName() + "[" + getPattern() + "=" + this.mask + "]";
-	}
-
-	@Override
-	public final int hashCode() {
-		return this.mask;
 	}
 
 }

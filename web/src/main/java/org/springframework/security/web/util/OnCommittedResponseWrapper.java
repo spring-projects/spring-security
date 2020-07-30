@@ -283,13 +283,13 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public int hashCode() {
-			return this.delegate.hashCode();
+		public boolean equals(Object obj) {
+			return this.delegate.equals(obj);
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			return this.delegate.equals(obj);
+		public int hashCode() {
+			return this.delegate.hashCode();
 		}
 
 		@Override
@@ -530,16 +530,6 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public int hashCode() {
-			return this.delegate.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return this.delegate.equals(obj);
-		}
-
-		@Override
 		public void print(boolean b) throws IOException {
 			trackContentLength(b);
 			this.delegate.print(b);
@@ -656,6 +646,16 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		@Override
 		public void setWriteListener(WriteListener writeListener) {
 			this.delegate.setWriteListener(writeListener);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this.delegate.equals(obj);
+		}
+
+		@Override
+		public int hashCode() {
+			return this.delegate.hashCode();
 		}
 
 		@Override

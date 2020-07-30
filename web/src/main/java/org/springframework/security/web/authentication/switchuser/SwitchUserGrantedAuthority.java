@@ -60,24 +60,22 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	}
 
 	@Override
-	public int hashCode() {
-		int result = this.role.hashCode();
-		result = 31 * result + this.source.hashCode();
-		return result;
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
-
 		if (obj instanceof SwitchUserGrantedAuthority) {
 			SwitchUserGrantedAuthority swa = (SwitchUserGrantedAuthority) obj;
 			return this.role.equals(swa.role) && this.source.equals(swa.source);
 		}
-
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.role.hashCode();
+		result = 31 * result + this.source.hashCode();
+		return result;
 	}
 
 	@Override
