@@ -58,7 +58,7 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 	// @formatter:off
 	private static final String REQUEST_JSON = "{" +
 		"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
-		+ "\"cookies\": "+ COOKIES_JSON +","
+		+ "\"cookies\": " + COOKIES_JSON + ","
 		+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
 		+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
 		+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
