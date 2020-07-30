@@ -56,12 +56,10 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 			if (!BeanIds.AUTHENTICATION_MANAGER.equals(ex.getBeanName())) {
 				throw ex;
 			}
-
 			UserDetailsService uds = getBeanOrNull(UserDetailsService.class);
 			if (uds == null) {
 				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER, MISSING_BEAN_ERROR_MESSAGE);
 			}
-
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(uds);
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);

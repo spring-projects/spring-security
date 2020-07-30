@@ -58,7 +58,6 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 			if (authenticationProvider == null) {
 				return;
 			}
-
 			auth.authenticationProvider(authenticationProvider);
 		}
 
@@ -72,7 +71,6 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 			if (beanNames.length != 1) {
 				return null;
 			}
-
 			return InitializeAuthenticationProviderBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
 		}
 

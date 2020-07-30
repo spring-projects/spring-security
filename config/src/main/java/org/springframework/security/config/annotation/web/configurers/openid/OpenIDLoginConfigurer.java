@@ -280,12 +280,10 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	@Override
 	public void init(H http) throws Exception {
 		super.init(http);
-
 		OpenIDAuthenticationProvider authenticationProvider = new OpenIDAuthenticationProvider();
 		authenticationProvider.setAuthenticationUserDetailsService(getAuthenticationUserDetailsService(http));
 		authenticationProvider = postProcess(authenticationProvider);
 		http.authenticationProvider(authenticationProvider);
-
 		initDefaultLoginFilter(http);
 	}
 

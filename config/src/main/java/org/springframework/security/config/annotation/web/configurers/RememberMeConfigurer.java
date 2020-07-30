@@ -35,6 +35,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.util.Assert;
 
 /**
  * Configures Remember Me authentication. This typically involves the user checking a box
@@ -275,11 +276,9 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		if (logoutConfigurer != null && this.logoutHandler != null) {
 			logoutConfigurer.addLogoutHandler(this.logoutHandler);
 		}
-
 		RememberMeAuthenticationProvider authenticationProvider = new RememberMeAuthenticationProvider(key);
 		authenticationProvider = postProcess(authenticationProvider);
 		http.authenticationProvider(authenticationProvider);
-
 		initDefaultLoginFilter(http);
 	}
 
@@ -299,8 +298,8 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * time.
 	 */
 	private void validateInput() {
-		if (this.rememberMeServices != null && this.rememberMeCookieName != DEFAULT_REMEMBER_ME_NAME) {
-			throw new IllegalArgumentException("Can not set rememberMeCookieName " + "and custom rememberMeServices.");
+		if (this.rememberMeServices != null && !DEFAULT_REMEMBER_ME_NAME.equals(this.rememberMeCookieName)) {
+			throw new IllegalArgumentException("Can not set rememberMeCookieName and custom rememberMeServices.");
 		}
 	}
 
@@ -406,11 +405,9 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.userDetailsService == null) {
 			this.userDetailsService = http.getSharedObject(UserDetailsService.class);
 		}
-		if (this.userDetailsService == null) {
-			throw new IllegalStateException(
-					"userDetailsService cannot be null. Invoke " + RememberMeConfigurer.class.getSimpleName()
-							+ "#userDetailsService(UserDetailsService) or see its javadoc for alternative approaches.");
-		}
+		Assert.state(this.userDetailsService != null,
+				() -> "userDetailsService cannot be null. Invoke " + RememberMeConfigurer.class.getSimpleName()
+						+ "#userDetailsService(UserDetailsService) or see its javadoc for alternative approaches.");
 		return this.userDetailsService;
 	}
 

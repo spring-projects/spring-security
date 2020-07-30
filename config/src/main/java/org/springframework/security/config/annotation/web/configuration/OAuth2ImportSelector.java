@@ -22,6 +22,7 @@ import java.util.Set;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Used by {@link EnableWebSecurity} to conditionally import:
@@ -45,29 +46,25 @@ final class OAuth2ImportSelector implements ImportSelector {
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		Set<String> imports = new LinkedHashSet<>();
-
-		boolean oauth2ClientPresent = ClassUtils.isPresent(
-				"org.springframework.security.oauth2.client.registration.ClientRegistration",
-				getClass().getClassLoader());
+		ClassLoader classLoader = getClass().getClassLoader();
+		boolean oauth2ClientPresent = ClassUtils
+				.isPresent("org.springframework.security.oauth2.client.registration.ClientRegistration", classLoader);
+		boolean webfluxPresent = ClassUtils
+				.isPresent("org.springframework.web.reactive.function.client.ExchangeFilterFunction", classLoader);
+		boolean oauth2ResourceServerPresent = ClassUtils
+				.isPresent("org.springframework.security.oauth2.server.resource.BearerTokenError", classLoader);
 		if (oauth2ClientPresent) {
 			imports.add("org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration");
 		}
-
-		boolean webfluxPresent = ClassUtils.isPresent(
-				"org.springframework.web.reactive.function.client.ExchangeFilterFunction", getClass().getClassLoader());
 		if (webfluxPresent && oauth2ClientPresent) {
 			imports.add(
 					"org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
 		}
-
-		boolean oauth2ResourceServerPresent = ClassUtils.isPresent(
-				"org.springframework.security.oauth2.server.resource.BearerTokenError", getClass().getClassLoader());
 		if (webfluxPresent && oauth2ResourceServerPresent) {
 			imports.add(
 					"org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
 		}
-
-		return imports.toArray(new String[0]);
+		return StringUtils.toStringArray(imports);
 	}
 
 }

@@ -43,15 +43,12 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
 		authProvider.setSource(pc.extractSource(element));
-
 		Element passwordEncoderElt = DomUtils.getChildElementByTagName(element, Elements.PASSWORD_ENCODER);
-
 		PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElt, pc);
 		BeanMetadataElement passwordEncoder = pep.getPasswordEncoder();
 		if (passwordEncoder != null) {
 			authProvider.getPropertyValues().addPropertyValue("passwordEncoder", passwordEncoder);
 		}
-
 		Element userServiceElt = DomUtils.getChildElementByTagName(element, Elements.USER_SERVICE);
 		if (userServiceElt == null) {
 			userServiceElt = DomUtils.getChildElementByTagName(element, Elements.JDBC_USER_SERVICE);
@@ -59,9 +56,7 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 		if (userServiceElt == null) {
 			userServiceElt = DomUtils.getChildElementByTagName(element, Elements.LDAP_USER_SERVICE);
 		}
-
 		String ref = element.getAttribute(ATT_USER_DETAILS_REF);
-
 		if (StringUtils.hasText(ref)) {
 			if (userServiceElt != null) {
 				pc.getReaderContext()
@@ -69,7 +64,6 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 								+ "elements '" + Elements.USER_SERVICE + "', '" + Elements.JDBC_USER_SERVICE + "' or '"
 								+ Elements.LDAP_USER_SERVICE + "'", element);
 			}
-
 			authProvider.getPropertyValues().add("userDetailsService", new RuntimeBeanReference(ref));
 		}
 		else {
@@ -80,7 +74,6 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 			else {
 				pc.getReaderContext().error("A user-service is required", element);
 			}
-
 			// Pinch the cache-ref from the UserDetailService element, if set.
 			String cacheRef = userServiceElt.getAttribute(AbstractUserDetailsServiceBeanDefinitionParser.CACHE_REF);
 
@@ -88,7 +81,6 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 				authProvider.getPropertyValues().addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
 			}
 		}
-
 		return authProvider;
 	}
 

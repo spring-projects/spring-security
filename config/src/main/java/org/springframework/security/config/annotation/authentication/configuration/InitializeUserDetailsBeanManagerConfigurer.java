@@ -63,10 +63,8 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			if (userDetailsService == null) {
 				return;
 			}
-
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
 			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
-
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(userDetailsService);
 			if (passwordEncoder != null) {
@@ -76,7 +74,6 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 				provider.setUserDetailsPasswordService(passwordManager);
 			}
 			provider.afterPropertiesSet();
-
 			auth.authenticationProvider(provider);
 		}
 
@@ -89,7 +86,6 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			if (beanNames.length != 1) {
 				return null;
 			}
-
 			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(beanNames[0], type);
 		}
 

@@ -139,44 +139,40 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	@Override
 	ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(H http) {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = this.REGISTRY.createRequestMap();
-		if (requestMap.isEmpty()) {
-			throw new IllegalStateException(
-					"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
-		}
+		Assert.state(!requestMap.isEmpty(),
+				"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
 		return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, getExpressionHandler(http));
 	}
 
 	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler(H http) {
-		if (this.expressionHandler == null) {
-			DefaultWebSecurityExpressionHandler defaultHandler = new DefaultWebSecurityExpressionHandler();
-			AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
-			if (trustResolver != null) {
-				defaultHandler.setTrustResolver(trustResolver);
-			}
-			ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-			if (context != null) {
-				String[] roleHiearchyBeanNames = context.getBeanNamesForType(RoleHierarchy.class);
-				if (roleHiearchyBeanNames.length == 1) {
-					defaultHandler.setRoleHierarchy(context.getBean(roleHiearchyBeanNames[0], RoleHierarchy.class));
-				}
-				String[] grantedAuthorityDefaultsBeanNames = context
-						.getBeanNamesForType(GrantedAuthorityDefaults.class);
-				if (grantedAuthorityDefaultsBeanNames.length == 1) {
-					GrantedAuthorityDefaults grantedAuthorityDefaults = context
-							.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
-					defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
-				}
-				String[] permissionEvaluatorBeanNames = context.getBeanNamesForType(PermissionEvaluator.class);
-				if (permissionEvaluatorBeanNames.length == 1) {
-					PermissionEvaluator permissionEvaluator = context.getBean(permissionEvaluatorBeanNames[0],
-							PermissionEvaluator.class);
-					defaultHandler.setPermissionEvaluator(permissionEvaluator);
-				}
-			}
-
-			this.expressionHandler = postProcess(defaultHandler);
+		if (this.expressionHandler != null) {
+			return this.expressionHandler;
 		}
-
+		DefaultWebSecurityExpressionHandler defaultHandler = new DefaultWebSecurityExpressionHandler();
+		AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
+		if (trustResolver != null) {
+			defaultHandler.setTrustResolver(trustResolver);
+		}
+		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
+		if (context != null) {
+			String[] roleHiearchyBeanNames = context.getBeanNamesForType(RoleHierarchy.class);
+			if (roleHiearchyBeanNames.length == 1) {
+				defaultHandler.setRoleHierarchy(context.getBean(roleHiearchyBeanNames[0], RoleHierarchy.class));
+			}
+			String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+			if (grantedAuthorityDefaultsBeanNames.length == 1) {
+				GrantedAuthorityDefaults grantedAuthorityDefaults = context
+						.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+				defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+			}
+			String[] permissionEvaluatorBeanNames = context.getBeanNamesForType(PermissionEvaluator.class);
+			if (permissionEvaluatorBeanNames.length == 1) {
+				PermissionEvaluator permissionEvaluator = context.getBean(permissionEvaluatorBeanNames[0],
+						PermissionEvaluator.class);
+				defaultHandler.setPermissionEvaluator(permissionEvaluator);
+			}
+		}
+		this.expressionHandler = postProcess(defaultHandler);
 		return this.expressionHandler;
 	}
 
@@ -187,10 +183,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	private static String hasRole(String role) {
 		Assert.notNull(role, "role cannot be null");
-		if (role.startsWith("ROLE_")) {
-			throw new IllegalArgumentException(
-					"role should not start with 'ROLE_' since it is automatically inserted. Got '" + role + "'");
-		}
+		Assert.isTrue(!role.startsWith("ROLE_"),
+				() -> "role should not start with 'ROLE_' since it is automatically inserted. Got '" + role + "'");
 		return "hasRole('ROLE_" + role + "')";
 	}
 
@@ -210,9 +204,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	public final class ExpressionInterceptUrlRegistry extends
 			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry, AuthorizedUrl> {
 
-		/**
-		 * @param context
-		 */
 		private ExpressionInterceptUrlRegistry(ApplicationContext context) {
 			setApplicationContext(context);
 		}

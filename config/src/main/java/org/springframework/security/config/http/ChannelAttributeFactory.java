@@ -43,7 +43,6 @@ public final class ChannelAttributeFactory {
 
 	public static List<ConfigAttribute> createChannelAttributes(String requiredChannel) {
 		String channelConfigAttribute;
-
 		if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
 			channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";
 		}
@@ -56,7 +55,6 @@ public final class ChannelAttributeFactory {
 		else {
 			throw new BeanCreationException("Unknown channel attribute " + requiredChannel);
 		}
-
 		return SecurityConfig.createList(channelConfigAttribute);
 	}
 

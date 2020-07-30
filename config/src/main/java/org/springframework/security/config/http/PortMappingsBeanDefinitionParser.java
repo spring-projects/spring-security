@@ -48,33 +48,25 @@ class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		RootBeanDefinition portMapper = new RootBeanDefinition(PortMapperImpl.class);
 		portMapper.setSource(parserContext.extractSource(element));
-
 		if (element != null) {
 			List<Element> mappingElts = DomUtils.getChildElementsByTagName(element, Elements.PORT_MAPPING);
 			if (mappingElts.isEmpty()) {
 				parserContext.getReaderContext().error("No port-mapping child elements specified", element);
 			}
-
 			Map mappings = new ManagedMap();
-
 			for (Element elt : mappingElts) {
 				String httpPort = elt.getAttribute(ATT_HTTP_PORT);
 				String httpsPort = elt.getAttribute(ATT_HTTPS_PORT);
-
 				if (!StringUtils.hasText(httpPort)) {
 					parserContext.getReaderContext().error("No http port supplied in port mapping", elt);
 				}
-
 				if (!StringUtils.hasText(httpsPort)) {
 					parserContext.getReaderContext().error("No https port supplied in port mapping", elt);
 				}
-
 				mappings.put(httpPort, httpsPort);
 			}
-
 			portMapper.getPropertyValues().addPropertyValue("portMappings", mappings);
 		}
-
 		return portMapper;
 	}
 

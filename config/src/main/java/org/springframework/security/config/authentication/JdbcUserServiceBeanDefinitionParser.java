@@ -42,7 +42,6 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String dataSource = element.getAttribute(ATT_DATA_SOURCE);
-
 		if (dataSource != null) {
 			builder.addPropertyReference("dataSource", dataSource);
 		}
@@ -50,24 +49,19 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 			parserContext.getReaderContext().error(ATT_DATA_SOURCE + " is required for " + Elements.JDBC_USER_SERVICE,
 					parserContext.extractSource(element));
 		}
-
 		String usersQuery = element.getAttribute(ATT_USERS_BY_USERNAME_QUERY);
 		String authoritiesQuery = element.getAttribute(ATT_AUTHORITIES_BY_USERNAME_QUERY);
 		String groupAuthoritiesQuery = element.getAttribute(ATT_GROUP_AUTHORITIES_QUERY);
 		String rolePrefix = element.getAttribute(ATT_ROLE_PREFIX);
-
 		if (StringUtils.hasText(rolePrefix)) {
 			builder.addPropertyValue("rolePrefix", rolePrefix);
 		}
-
 		if (StringUtils.hasText(usersQuery)) {
 			builder.addPropertyValue("usersByUsernameQuery", usersQuery);
 		}
-
 		if (StringUtils.hasText(authoritiesQuery)) {
 			builder.addPropertyValue("authoritiesByUsernameQuery", authoritiesQuery);
 		}
-
 		if (StringUtils.hasText(groupAuthoritiesQuery)) {
 			builder.addPropertyValue("enableGroups", Boolean.TRUE);
 			builder.addPropertyValue("groupAuthoritiesByUsernameQuery", groupAuthoritiesQuery);

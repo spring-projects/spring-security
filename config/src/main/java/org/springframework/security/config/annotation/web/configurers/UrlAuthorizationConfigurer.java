@@ -89,10 +89,10 @@ import org.springframework.util.Assert;
 public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractInterceptUrlConfigurer<UrlAuthorizationConfigurer<H>, H> {
 
-	private final StandardInterceptUrlRegistry REGISTRY;
+	private final StandardInterceptUrlRegistry registry;
 
 	public UrlAuthorizationConfigurer(ApplicationContext context) {
-		this.REGISTRY = new StandardInterceptUrlRegistry(context);
+		this.registry = new StandardInterceptUrlRegistry(context);
 	}
 
 	/**
@@ -101,7 +101,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 */
 	public StandardInterceptUrlRegistry getRegistry() {
-		return this.REGISTRY;
+		return this.registry;
 	}
 
 	/**
@@ -136,7 +136,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	@Override
 	FilterInvocationSecurityMetadataSource createMetadataSource(H http) {
-		return new DefaultFilterInvocationSecurityMetadataSource(this.REGISTRY.createRequestMap());
+		return new DefaultFilterInvocationSecurityMetadataSource(this.registry.createRequestMap());
 	}
 
 	/**
@@ -151,10 +151,10 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 	private StandardInterceptUrlRegistry addMapping(Iterable<? extends RequestMatcher> requestMatchers,
 			Collection<ConfigAttribute> configAttributes) {
 		for (RequestMatcher requestMatcher : requestMatchers) {
-			this.REGISTRY.addMapping(
+			this.registry.addMapping(
 					new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(requestMatcher, configAttributes));
 		}
-		return this.REGISTRY;
+		return this.registry;
 	}
 
 	/**
@@ -196,9 +196,6 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 	public final class StandardInterceptUrlRegistry extends
 			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
 
-		/**
-		 * @param context
-		 */
 		private StandardInterceptUrlRegistry(ApplicationContext context) {
 			setApplicationContext(context);
 		}
@@ -337,7 +334,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		 */
 		public StandardInterceptUrlRegistry access(String... attributes) {
 			addMapping(this.requestMatchers, SecurityConfig.createList(attributes));
-			return UrlAuthorizationConfigurer.this.REGISTRY;
+			return UrlAuthorizationConfigurer.this.registry;
 		}
 
 		protected List<? extends RequestMatcher> getMatchers() {

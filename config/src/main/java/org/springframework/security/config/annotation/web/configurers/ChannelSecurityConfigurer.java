@@ -105,13 +105,10 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		ChannelDecisionManagerImpl channelDecisionManager = new ChannelDecisionManagerImpl();
 		channelDecisionManager.setChannelProcessors(getChannelProcessors(http));
 		channelDecisionManager = postProcess(channelDecisionManager);
-
 		this.channelFilter.setChannelDecisionManager(channelDecisionManager);
-
 		DefaultFilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource = new DefaultFilterInvocationSecurityMetadataSource(
 				this.requestMap);
 		this.channelFilter.setSecurityMetadataSource(filterInvocationSecurityMetadataSource);
-
 		this.channelFilter = postProcess(this.channelFilter);
 		http.addFilter(this.channelFilter);
 	}
@@ -120,28 +117,25 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.channelProcessors != null) {
 			return this.channelProcessors;
 		}
-
 		InsecureChannelProcessor insecureChannelProcessor = new InsecureChannelProcessor();
 		SecureChannelProcessor secureChannelProcessor = new SecureChannelProcessor();
-
 		PortMapper portMapper = http.getSharedObject(PortMapper.class);
 		if (portMapper != null) {
 			RetryWithHttpEntryPoint httpEntryPoint = new RetryWithHttpEntryPoint();
 			httpEntryPoint.setPortMapper(portMapper);
 			insecureChannelProcessor.setEntryPoint(httpEntryPoint);
-
 			RetryWithHttpsEntryPoint httpsEntryPoint = new RetryWithHttpsEntryPoint();
 			httpsEntryPoint.setPortMapper(portMapper);
 			secureChannelProcessor.setEntryPoint(httpsEntryPoint);
 		}
 		insecureChannelProcessor = postProcess(insecureChannelProcessor);
 		secureChannelProcessor = postProcess(secureChannelProcessor);
-		return Arrays.<ChannelProcessor>asList(insecureChannelProcessor, secureChannelProcessor);
+		return Arrays.asList(insecureChannelProcessor, secureChannelProcessor);
 	}
 
 	private ChannelRequestMatcherRegistry addAttribute(String attribute, List<? extends RequestMatcher> matchers) {
 		for (RequestMatcher matcher : matchers) {
-			Collection<ConfigAttribute> attrs = Arrays.<ConfigAttribute>asList(new SecurityConfig(attribute));
+			Collection<ConfigAttribute> attrs = Arrays.asList(new SecurityConfig(attribute));
 			this.requestMap.put(matcher, attrs);
 		}
 		return this.REGISTRY;

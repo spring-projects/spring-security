@@ -36,16 +36,13 @@ public class HttpFirewallBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		String ref = element.getAttribute("ref");
-
 		if (!StringUtils.hasText(ref)) {
 			pc.getReaderContext().error("ref attribute is required", pc.extractSource(element));
 		}
-
 		// Ensure the FCP is registered.
 		HttpSecurityBeanDefinitionParser.registerFilterChainProxyIfNecessary(pc, pc.extractSource(element));
 		BeanDefinition filterChainProxy = pc.getRegistry().getBeanDefinition(BeanIds.FILTER_CHAIN_PROXY);
 		filterChainProxy.getPropertyValues().addPropertyValue("firewall", new RuntimeBeanReference(ref));
-
 		return null;
 	}
 

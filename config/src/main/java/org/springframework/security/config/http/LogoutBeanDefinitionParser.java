@@ -44,8 +44,11 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 	static final String ATT_INVALIDATE_SESSION = "invalidate-session";
 
 	static final String ATT_LOGOUT_URL = "logout-url";
+
 	static final String DEF_LOGOUT_URL = "/logout";
+
 	static final String ATT_LOGOUT_HANDLER = "success-handler-ref";
+
 	static final String ATT_DELETE_COOKIES = "delete-cookies";
 
 	final String rememberMeServices;
@@ -72,9 +75,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		String logoutSuccessUrl = null;
 		String invalidateSession = null;
 		String deleteCookies = null;
-
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class);
-
 		if (element != null) {
 			Object source = pc.extractSource(element);
 			builder.getRawBeanDefinition().setSource(source);
@@ -86,13 +87,10 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 			invalidateSession = element.getAttribute(ATT_INVALIDATE_SESSION);
 			deleteCookies = element.getAttribute(ATT_DELETE_COOKIES);
 		}
-
 		if (!StringUtils.hasText(logoutUrl)) {
 			logoutUrl = DEF_LOGOUT_URL;
 		}
-
 		builder.addPropertyValue("logoutRequestMatcher", getLogoutRequestMatcher(logoutUrl));
-
 		if (StringUtils.hasText(successHandlerRef)) {
 			if (StringUtils.hasText(logoutSuccessUrl)) {
 				pc.getReaderContext().error(
@@ -108,26 +106,20 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 			}
 			builder.addConstructorArgValue(logoutSuccessUrl);
 		}
-
 		BeanDefinition sclh = new RootBeanDefinition(SecurityContextLogoutHandler.class);
 		sclh.getPropertyValues().addPropertyValue("invalidateHttpSession", !"false".equals(invalidateSession));
 		this.logoutHandlers.add(sclh);
-
 		if (this.rememberMeServices != null) {
 			this.logoutHandlers.add(new RuntimeBeanReference(this.rememberMeServices));
 		}
-
 		if (StringUtils.hasText(deleteCookies)) {
 			BeanDefinition cookieDeleter = new RootBeanDefinition(CookieClearingLogoutHandler.class);
 			String[] names = StringUtils.tokenizeToStringArray(deleteCookies, ",");
 			cookieDeleter.getConstructorArgumentValues().addGenericArgumentValue(names);
 			this.logoutHandlers.add(cookieDeleter);
 		}
-
 		this.logoutHandlers.add(new RootBeanDefinition(LogoutSuccessEventPublishingLogoutHandler.class));
-
 		builder.addConstructorArgValue(this.logoutHandlers);
-
 		return builder.getBeanDefinition();
 	}
 
@@ -138,7 +130,6 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		if (this.csrfEnabled) {
 			matcherBuilder.addConstructorArgValue("POST");
 		}
-
 		return matcherBuilder.getBeanDefinition();
 	}
 

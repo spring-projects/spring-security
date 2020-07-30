@@ -82,7 +82,6 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 	@Override
 	@SuppressWarnings("unchecked")
 	public void configure(H http) {
-
 		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
 		if (securityContextRepository == null) {
 			securityContextRepository = new HttpSessionSecurityContextRepository();

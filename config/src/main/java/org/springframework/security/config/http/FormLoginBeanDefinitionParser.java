@@ -123,9 +123,7 @@ public class FormLoginBeanDefinitionParser {
 		String authDetailsSourceRef = null;
 		String authenticationFailureForwardUrl = null;
 		String authenticationSuccessForwardUrl = null;
-
 		Object source = null;
-
 		if (elt != null) {
 			source = pc.extractSource(elt);
 			loginUrl = elt.getAttribute(ATT_LOGIN_URL);
@@ -143,7 +141,6 @@ public class FormLoginBeanDefinitionParser {
 			WebConfigUtils.validateHttpRedirect(authenticationFailureForwardUrl, pc, source);
 			authenticationSuccessForwardUrl = elt.getAttribute(ATT_FORM_LOGIN_AUTHENTICATION_SUCCESS_FORWARD_URL);
 			WebConfigUtils.validateHttpRedirect(authenticationSuccessForwardUrl, pc, source);
-
 			if (!StringUtils.hasText(this.loginPage)) {
 				this.loginPage = null;
 			}
@@ -151,20 +148,16 @@ public class FormLoginBeanDefinitionParser {
 			usernameParameter = elt.getAttribute(ATT_USERNAME_PARAMETER);
 			passwordParameter = elt.getAttribute(ATT_PASSWORD_PARAMETER);
 		}
-
 		this.filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, this.loginPage,
 				authenticationFailureUrl, successHandlerRef, failureHandlerRef, authDetailsSourceRef,
 				authenticationFailureForwardUrl, authenticationSuccessForwardUrl);
-
 		if (StringUtils.hasText(usernameParameter)) {
 			this.filterBean.getPropertyValues().addPropertyValue("usernameParameter", usernameParameter);
 		}
 		if (StringUtils.hasText(passwordParameter)) {
 			this.filterBean.getPropertyValues().addPropertyValue("passwordParameter", passwordParameter);
 		}
-
 		this.filterBean.setSource(source);
-
 		BeanDefinitionBuilder entryPointBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class);
 		entryPointBuilder.getRawBeanDefinition().setSource(source);
@@ -172,7 +165,6 @@ public class FormLoginBeanDefinitionParser {
 		entryPointBuilder.addPropertyValue("portMapper", this.portMapper);
 		entryPointBuilder.addPropertyValue("portResolver", this.portResolver);
 		this.entryPointBean = (RootBeanDefinition) entryPointBuilder.getBeanDefinition();
-
 		return null;
 	}
 
@@ -180,24 +172,18 @@ public class FormLoginBeanDefinitionParser {
 			String loginPage, String authenticationFailureUrl, String successHandlerRef, String failureHandlerRef,
 			String authDetailsSourceRef, String authenticationFailureForwardUrl,
 			String authenticationSuccessForwardUrl) {
-
 		BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(this.filterClassName);
-
 		if (!StringUtils.hasText(loginUrl)) {
 			loginUrl = this.defaultLoginProcessingUrl;
 		}
-
 		this.loginProcessingUrl = loginUrl;
-
 		BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
 		matcherBuilder.addConstructorArgValue(loginUrl);
 		if (this.loginMethod != null) {
 			matcherBuilder.addConstructorArgValue("POST");
 		}
-
 		filterBuilder.addPropertyValue("requiresAuthenticationRequestMatcher", matcherBuilder.getBeanDefinition());
-
 		if (StringUtils.hasText(successHandlerRef)) {
 			filterBuilder.addPropertyReference("authenticationSuccessHandler", successHandlerRef);
 		}
@@ -218,15 +204,12 @@ public class FormLoginBeanDefinitionParser {
 					StringUtils.hasText(defaultTargetUrl) ? defaultTargetUrl : DEF_FORM_LOGIN_TARGET_URL);
 			filterBuilder.addPropertyValue("authenticationSuccessHandler", successHandler.getBeanDefinition());
 		}
-
 		if (StringUtils.hasText(authDetailsSourceRef)) {
 			filterBuilder.addPropertyReference("authenticationDetailsSource", authDetailsSourceRef);
 		}
-
 		if (this.sessionStrategy != null) {
 			filterBuilder.addPropertyValue("sessionAuthenticationStrategy", this.sessionStrategy);
 		}
-
 		if (StringUtils.hasText(failureHandlerRef)) {
 			filterBuilder.addPropertyReference("authenticationFailureHandler", failureHandlerRef);
 		}
@@ -252,7 +235,6 @@ public class FormLoginBeanDefinitionParser {
 			failureHandler.addPropertyValue("allowSessionCreation", this.allowSessionCreation);
 			filterBuilder.addPropertyValue("authenticationFailureHandler", failureHandler.getBeanDefinition());
 		}
-
 		return (RootBeanDefinition) filterBuilder.getBeanDefinition();
 	}
 

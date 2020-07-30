@@ -20,6 +20,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -63,12 +64,9 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 	@Override
 	public void configure(H http) {
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-
 		CorsFilter corsFilter = getCorsFilter(context);
-		if (corsFilter == null) {
-			throw new IllegalStateException("Please configure either a " + CORS_FILTER_BEAN_NAME + " bean or a "
-					+ CORS_CONFIGURATION_SOURCE_BEAN_NAME + "bean.");
-		}
+		Assert.state(corsFilter != null, () -> "Please configure either a " + CORS_FILTER_BEAN_NAME + " bean or a "
+				+ CORS_CONFIGURATION_SOURCE_BEAN_NAME + "bean.");
 		http.addFilter(corsFilter);
 	}
 
@@ -76,19 +74,16 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 		if (this.configurationSource != null) {
 			return new CorsFilter(this.configurationSource);
 		}
-
 		boolean containsCorsFilter = context.containsBeanDefinition(CORS_FILTER_BEAN_NAME);
 		if (containsCorsFilter) {
 			return context.getBean(CORS_FILTER_BEAN_NAME, CorsFilter.class);
 		}
-
 		boolean containsCorsSource = context.containsBean(CORS_CONFIGURATION_SOURCE_BEAN_NAME);
 		if (containsCorsSource) {
 			CorsConfigurationSource configurationSource = context.getBean(CORS_CONFIGURATION_SOURCE_BEAN_NAME,
 					CorsConfigurationSource.class);
 			return new CorsFilter(configurationSource);
 		}
-
 		boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, context.getClassLoader());
 		if (mvcPresent) {
 			return MvcCorsFilter.getMvcCorsFilter(context);

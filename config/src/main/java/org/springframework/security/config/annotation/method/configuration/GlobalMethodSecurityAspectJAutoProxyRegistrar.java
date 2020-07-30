@@ -46,15 +46,12 @@ class GlobalMethodSecurityAspectJAutoProxyRegistrar implements ImportBeanDefinit
 	 */
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-
 		BeanDefinition interceptor = registry.getBeanDefinition("methodSecurityInterceptor");
-
 		BeanDefinitionBuilder aspect = BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect");
 		aspect.setFactoryMethod("aspectOf");
 		aspect.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		aspect.addPropertyValue("securityInterceptor", interceptor);
-
 		registry.registerBeanDefinition("annotationSecurityAspect$0", aspect.getBeanDefinition());
 	}
 

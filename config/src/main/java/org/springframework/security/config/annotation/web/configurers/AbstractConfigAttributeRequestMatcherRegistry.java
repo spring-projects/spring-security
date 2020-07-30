@@ -24,6 +24,7 @@ import java.util.List;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
 
 /**
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for
@@ -102,11 +103,8 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends A
 	 * {@link ConfigAttribute} instances. Cannot be null.
 	 */
 	final LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> createRequestMap() {
-		if (this.unmappedMatchers != null) {
-			throw new IllegalStateException("An incomplete mapping was found for " + this.unmappedMatchers
-					+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
-		}
-
+		Assert.state(this.unmappedMatchers == null, () -> "An incomplete mapping was found for " + this.unmappedMatchers
+				+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		for (UrlMapping mapping : getUrlMappings()) {
 			RequestMatcher matcher = mapping.getRequestMatcher();

@@ -62,43 +62,33 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String userProperties = element.getAttribute(ATT_PROPERTIES);
 		List<Element> userElts = DomUtils.getChildElementsByTagName(element, ELT_USER);
-
 		if (StringUtils.hasText(userProperties)) {
-
 			if (!CollectionUtils.isEmpty(userElts)) {
 				throw new BeanDefinitionStoreException(
 						"Use of a properties file and user elements are mutually exclusive");
 			}
-
 			BeanDefinition bd = new RootBeanDefinition(PropertiesFactoryBean.class);
 			bd.getPropertyValues().addPropertyValue("location", userProperties);
 			builder.addConstructorArgValue(bd);
-
 			return;
 		}
-
 		if (CollectionUtils.isEmpty(userElts)) {
 			throw new BeanDefinitionStoreException("You must supply user definitions, either with <" + ELT_USER
 					+ "> child elements or a " + "properties file (using the '" + ATT_PROPERTIES + "' attribute)");
 		}
-
 		ManagedList<BeanDefinition> users = new ManagedList<>();
-
 		for (Object elt : userElts) {
 			Element userElt = (Element) elt;
 			String userName = userElt.getAttribute(ATT_NAME);
 			String password = userElt.getAttribute(ATT_PASSWORD);
-
 			if (!StringUtils.hasLength(password)) {
 				password = generateRandomPassword();
 			}
-
 			boolean locked = "true".equals(userElt.getAttribute(ATT_LOCKED));
 			boolean disabled = "true".equals(userElt.getAttribute(ATT_DISABLED));
 			BeanDefinitionBuilder authorities = BeanDefinitionBuilder.rootBeanDefinition(AuthorityUtils.class);
 			authorities.addConstructorArgValue(userElt.getAttribute(ATT_AUTHORITIES));
 			authorities.setFactoryMethod("commaSeparatedStringToAuthorityList");
-
 			BeanDefinitionBuilder user = BeanDefinitionBuilder.rootBeanDefinition(User.class);
 			user.addConstructorArgValue(userName);
 			user.addConstructorArgValue(password);
@@ -107,10 +97,8 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 			user.addConstructorArgValue(true);
 			user.addConstructorArgValue(!locked);
 			user.addConstructorArgValue(authorities.getBeanDefinition());
-
 			users.add(user.getBeanDefinition());
 		}
-
 		builder.addConstructorArgValue(users);
 	}
 

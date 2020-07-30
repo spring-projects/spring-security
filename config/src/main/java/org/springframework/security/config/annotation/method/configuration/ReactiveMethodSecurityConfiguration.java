@@ -72,11 +72,9 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	@Bean
 	PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source,
 			MethodSecurityExpressionHandler handler) {
-
 		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(handler);
 		ExpressionBasedPreInvocationAdvice preAdvice = new ExpressionBasedPreInvocationAdvice();
 		preAdvice.setExpressionHandler(handler);
-
 		return new PrePostAdviceReactiveMethodInterceptor(source, preAdvice, postAdvice);
 	}
 

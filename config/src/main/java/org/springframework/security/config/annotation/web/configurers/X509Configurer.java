@@ -171,12 +171,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	public void init(H http) {
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
-
-		// @formatter:off
-		http
-			.authenticationProvider(authenticationProvider)
-			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
-		// @formatter:on
+		http.authenticationProvider(authenticationProvider).setSharedObject(AuthenticationEntryPoint.class,
+				new Http403ForbiddenEntryPoint());
 	}
 
 	@Override

@@ -54,9 +54,13 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 	public static final String DEF_GROUP_SEARCH_BASE = "";
 
 	static final String ATT_ROLE_PREFIX = "role-prefix";
+
 	static final String ATT_USER_CLASS = "user-details-class";
+
 	static final String ATT_USER_CONTEXT_MAPPER_REF = "user-context-mapper-ref";
+
 	static final String OPT_PERSON = "person";
+
 	static final String OPT_INETORGPERSON = "inetOrgPerson";
 
 	public static final String LDAP_SEARCH_CLASS = "org.springframework.security.ldap.search.FilterBasedLdapUserSearch";
@@ -76,11 +80,9 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 
 	@Override
 	protected void doParse(Element elt, ParserContext parserContext, BeanDefinitionBuilder builder) {
-
 		if (!StringUtils.hasText(elt.getAttribute(ATT_USER_SEARCH_FILTER))) {
 			parserContext.getReaderContext().error("User search filter must be supplied", elt);
 		}
-
 		builder.addConstructorArgValue(parseSearchBean(elt, parserContext));
 		builder.getRawBeanDefinition().setSource(parserContext.extractSource(elt));
 		builder.addConstructorArgValue(parseAuthoritiesPopulator(elt, parserContext));
@@ -91,7 +93,6 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 		String userSearchFilter = elt.getAttribute(ATT_USER_SEARCH_FILTER);
 		String userSearchBase = elt.getAttribute(ATT_USER_SEARCH_BASE);
 		Object source = parserContext.extractSource(elt);
-
 		if (StringUtils.hasText(userSearchBase)) {
 			if (!StringUtils.hasText(userSearchFilter)) {
 				parserContext.getReaderContext()
@@ -101,33 +102,27 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 		else {
 			userSearchBase = DEF_USER_SEARCH_BASE;
 		}
-
 		if (!StringUtils.hasText(userSearchFilter)) {
 			return null;
 		}
-
 		BeanDefinitionBuilder searchBuilder = BeanDefinitionBuilder.rootBeanDefinition(LDAP_SEARCH_CLASS);
 		searchBuilder.getRawBeanDefinition().setSource(source);
 		searchBuilder.addConstructorArgValue(userSearchBase);
 		searchBuilder.addConstructorArgValue(userSearchFilter);
 		searchBuilder.addConstructorArgValue(parseServerReference(elt, parserContext));
-
 		return (RootBeanDefinition) searchBuilder.getBeanDefinition();
 	}
 
 	static RuntimeBeanReference parseServerReference(Element elt, ParserContext parserContext) {
 		String server = elt.getAttribute(ATT_SERVER);
 		boolean requiresDefaultName = false;
-
 		if (!StringUtils.hasText(server)) {
 			server = BeanIds.CONTEXT_SOURCE;
 			requiresDefaultName = true;
 		}
-
 		RuntimeBeanReference contextSource = new RuntimeBeanReference(server);
 		contextSource.setSource(parserContext.extractSource(elt));
 		registerPostProcessorIfNecessary(parserContext.getRegistry(), requiresDefaultName);
-
 		return contextSource;
 	}
 
@@ -139,7 +134,6 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 			}
 			return;
 		}
-
 		BeanDefinitionBuilder bdb = BeanDefinitionBuilder.rootBeanDefinition(ContextSourceSettingPostProcessor.class);
 		bdb.addPropertyValue("defaultNameRequired", defaultNameRequired);
 		registry.registerBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR, bdb.getBeanDefinition());
@@ -148,31 +142,26 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 	static BeanMetadataElement parseUserDetailsClassOrUserMapperRef(Element elt, ParserContext parserContext) {
 		String userDetailsClass = elt.getAttribute(ATT_USER_CLASS);
 		String userMapperRef = elt.getAttribute(ATT_USER_CONTEXT_MAPPER_REF);
-
 		if (StringUtils.hasText(userDetailsClass) && StringUtils.hasText(userMapperRef)) {
 			parserContext.getReaderContext().error("Attributes " + ATT_USER_CLASS + " and "
 					+ ATT_USER_CONTEXT_MAPPER_REF + " cannot be used together.", parserContext.extractSource(elt));
 		}
-
 		if (StringUtils.hasText(userMapperRef)) {
 			return new RuntimeBeanReference(userMapperRef);
 		}
-
-		RootBeanDefinition mapper;
-
-		if (OPT_PERSON.equals(userDetailsClass)) {
-			mapper = new RootBeanDefinition(PERSON_MAPPER_CLASS, null, null);
-		}
-		else if (OPT_INETORGPERSON.equals(userDetailsClass)) {
-			mapper = new RootBeanDefinition(INET_ORG_PERSON_MAPPER_CLASS, null, null);
-		}
-		else {
-			mapper = new RootBeanDefinition(LDAP_USER_MAPPER_CLASS, null, null);
-		}
-
+		RootBeanDefinition mapper = getMapper(userDetailsClass);
 		mapper.setSource(parserContext.extractSource(elt));
-
 		return mapper;
+	}
+
+	private static RootBeanDefinition getMapper(String userDetailsClass) {
+		if (OPT_PERSON.equals(userDetailsClass)) {
+			return new RootBeanDefinition(PERSON_MAPPER_CLASS, null, null);
+		}
+		if (OPT_INETORGPERSON.equals(userDetailsClass)) {
+			return new RootBeanDefinition(INET_ORG_PERSON_MAPPER_CLASS, null, null);
+		}
+		return new RootBeanDefinition(LDAP_USER_MAPPER_CLASS, null, null);
 	}
 
 	static RootBeanDefinition parseAuthoritiesPopulator(Element elt, ParserContext parserContext) {
@@ -180,33 +169,27 @@ public class LdapUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
 		String groupSearchBase = elt.getAttribute(ATT_GROUP_SEARCH_BASE);
 		String groupRoleAttribute = elt.getAttribute(ATT_GROUP_ROLE_ATTRIBUTE);
 		String rolePrefix = elt.getAttribute(ATT_ROLE_PREFIX);
-
 		if (!StringUtils.hasText(groupSearchFilter)) {
 			groupSearchFilter = DEF_GROUP_SEARCH_FILTER;
 		}
-
 		if (!StringUtils.hasText(groupSearchBase)) {
 			groupSearchBase = DEF_GROUP_SEARCH_BASE;
 		}
-
 		BeanDefinitionBuilder populator = BeanDefinitionBuilder.rootBeanDefinition(LDAP_AUTHORITIES_POPULATOR_CLASS);
 		populator.getRawBeanDefinition().setSource(parserContext.extractSource(elt));
 		populator.addConstructorArgValue(parseServerReference(elt, parserContext));
 		populator.addConstructorArgValue(groupSearchBase);
 		populator.addPropertyValue("groupSearchFilter", groupSearchFilter);
 		populator.addPropertyValue("searchSubtree", Boolean.TRUE);
-
 		if (StringUtils.hasText(rolePrefix)) {
 			if ("none".equals(rolePrefix)) {
 				rolePrefix = "";
 			}
 			populator.addPropertyValue("rolePrefix", rolePrefix);
 		}
-
 		if (StringUtils.hasLength(groupRoleAttribute)) {
 			populator.addPropertyValue("groupRoleAttribute", groupRoleAttribute);
 		}
-
 		return (RootBeanDefinition) populator.getBeanDefinition();
 	}
 

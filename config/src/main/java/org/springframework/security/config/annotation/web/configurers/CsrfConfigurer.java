@@ -289,7 +289,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		if (invalidSessionStrategy == null) {
 			return defaultAccessDeniedHandler;
 		}
-
 		InvalidSessionAccessDeniedHandler invalidSessionDeniedHandler = new InvalidSessionAccessDeniedHandler(
 				invalidSessionStrategy);
 		LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers = new LinkedHashMap<>();
@@ -307,9 +306,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.sessionAuthenticationStrategy != null) {
 			return this.sessionAuthenticationStrategy;
 		}
-		else {
-			return new CsrfAuthenticationStrategy(this.csrfTokenRepository);
-		}
+		return new CsrfAuthenticationStrategy(this.csrfTokenRepository);
 	}
 
 	/**

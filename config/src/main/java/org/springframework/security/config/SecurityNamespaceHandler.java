@@ -75,17 +75,13 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
 	public SecurityNamespaceHandler() {
 		String coreVersion = SpringSecurityCoreVersion.getVersion();
-
 		Package pkg = SpringSecurityCoreVersion.class.getPackage();
-
 		if (pkg == null || coreVersion == null) {
 			this.logger.info("Couldn't determine package version information.");
 			return;
 		}
-
 		String version = pkg.getImplementationVersion();
 		this.logger.info("Spring Security 'config' module version is " + version);
-
 		if (version.compareTo(coreVersion) != 0) {
 			this.logger.error(
 					"You are running with different versions of the Spring Security 'core' and 'config' modules");
@@ -95,44 +91,37 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		if (!namespaceMatchesVersion(element)) {
-			pc.getReaderContext().fatal(
-					"You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd or spring-security-3.1.xsd schema or spring-security-3.2.xsd schema or spring-security-4.0.xsd schema "
-							+ "with Spring Security 5.4. Please update your schema declarations to the 5.4 schema.",
-					element);
+			pc.getReaderContext().fatal("You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd or "
+					+ "spring-security-3.1.xsd schema or spring-security-3.2.xsd schema or spring-security-4.0.xsd schema "
+					+ "with Spring Security 5.4. Please update your schema declarations to the 5.4 schema.", element);
 		}
 		String name = pc.getDelegate().getLocalName(element);
 		BeanDefinitionParser parser = this.parsers.get(name);
-
 		if (parser == null) {
 			// SEC-1455. Load parsers when required, not just on init().
 			loadParsers();
 		}
-
-		if (parser == null) {
-			if (Elements.HTTP.equals(name) || Elements.FILTER_SECURITY_METADATA_SOURCE.equals(name)
-					|| Elements.FILTER_CHAIN_MAP.equals(name) || Elements.FILTER_CHAIN.equals(name)) {
-				reportMissingWebClasses(name, pc, element);
-			}
-			else {
-				reportUnsupportedNodeType(name, pc, element);
-			}
-
-			return null;
+		if (parser != null) {
+			return parser.parse(element, pc);
 		}
-
-		return parser.parse(element, pc);
+		if (Elements.HTTP.equals(name) || Elements.FILTER_SECURITY_METADATA_SOURCE.equals(name)
+				|| Elements.FILTER_CHAIN_MAP.equals(name) || Elements.FILTER_CHAIN.equals(name)) {
+			reportMissingWebClasses(name, pc, element);
+		}
+		else {
+			reportUnsupportedNodeType(name, pc, element);
+		}
+		return null;
 	}
 
 	@Override
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext pc) {
 		String name = pc.getDelegate().getLocalName(node);
-
-		// We only handle elements
 		if (node instanceof Element) {
+			// We only handle elements
 			if (Elements.INTERCEPT_METHODS.equals(name)) {
 				return this.interceptMethodsBDD.decorate(node, definition, pc);
 			}
-
 			if (Elements.FILTER_CHAIN_MAP.equals(name)) {
 				if (this.filterChainMapBDD == null) {
 					loadParsers();
@@ -143,9 +132,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 				return this.filterChainMapBDD.decorate(node, definition, pc);
 			}
 		}
-
 		reportUnsupportedNodeType(name, pc, node);
-
 		return null;
 	}
 
@@ -162,9 +149,9 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 			// no details available
 			pc.getReaderContext().fatal(errorMessage, node);
 		}
-		catch (Throwable cause) {
+		catch (Throwable ex) {
 			// provide details on why it could not be loaded
-			pc.getReaderContext().fatal(errorMessage, node, cause);
+			pc.getReaderContext().fatal(errorMessage, node, ex);
 		}
 	}
 
@@ -185,23 +172,26 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		this.parsers.put(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
 		this.parsers.put(Elements.METHOD_SECURITY_METADATA_SOURCE,
 				new MethodSecurityMetadataSourceBeanDefinitionParser());
-
-		// Only load the web-namespace parsers if the web classes are available
 		if (ClassUtils.isPresent(FILTER_CHAIN_PROXY_CLASSNAME, getClass().getClassLoader())) {
-			this.parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
-			this.parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
-			this.parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
-			this.parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE,
-					new FilterInvocationSecurityMetadataSourceParser());
-			this.parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
-			this.filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
-			this.parsers.put(Elements.CLIENT_REGISTRATIONS, new ClientRegistrationsBeanDefinitionParser());
+			loadWebParsers();
 		}
-
 		if (ClassUtils.isPresent(MESSAGE_CLASSNAME, getClass().getClassLoader())) {
-			this.parsers.put(Elements.WEBSOCKET_MESSAGE_BROKER,
-					new WebSocketMessageBrokerSecurityBeanDefinitionParser());
+			loadWebSocketParsers();
 		}
+	}
+
+	private void loadWebParsers() {
+		this.parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
+		this.parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
+		this.parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
+		this.parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
+		this.parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
+		this.filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
+		this.parsers.put(Elements.CLIENT_REGISTRATIONS, new ClientRegistrationsBeanDefinitionParser());
+	}
+
+	private void loadWebSocketParsers() {
+		this.parsers.put(Elements.WEBSOCKET_MESSAGE_BROKER, new WebSocketMessageBrokerSecurityBeanDefinitionParser());
 	}
 
 	/**

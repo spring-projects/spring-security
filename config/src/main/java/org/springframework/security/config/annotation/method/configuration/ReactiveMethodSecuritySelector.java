@@ -31,12 +31,10 @@ class ReactiveMethodSecuritySelector extends AdviceModeImportSelector<EnableReac
 
 	@Override
 	protected String[] selectImports(AdviceMode adviceMode) {
-		switch (adviceMode) {
-		case PROXY:
+		if (adviceMode == AdviceMode.PROXY) {
 			return getProxyImports();
-		default:
-			throw new IllegalStateException("AdviceMode " + adviceMode + " is not supported");
 		}
+		throw new IllegalStateException("AdviceMode " + adviceMode + " is not supported");
 	}
 
 	/**

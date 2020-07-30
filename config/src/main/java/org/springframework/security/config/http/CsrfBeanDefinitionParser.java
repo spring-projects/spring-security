@@ -92,14 +92,11 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 				pc.registerBeanComponent(componentDefinition);
 			}
 		}
-
 		if (element != null) {
 			this.csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
 			this.requestMatcherRef = element.getAttribute(ATT_MATCHER);
 		}
-
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
-
 			RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(HttpSessionCsrfTokenRepository.class);
 			BeanDefinitionBuilder lazyTokenRepository = BeanDefinitionBuilder
 					.rootBeanDefinition(LazyCsrfTokenRepository.class);
@@ -108,14 +105,11 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 			pc.registerBeanComponent(
 					new BeanComponentDefinition(lazyTokenRepository.getBeanDefinition(), this.csrfRepositoryRef));
 		}
-
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(CsrfFilter.class);
 		builder.addConstructorArgReference(this.csrfRepositoryRef);
-
 		if (StringUtils.hasText(this.requestMatcherRef)) {
 			builder.addPropertyReference("requireCsrfProtectionMatcher", this.requestMatcherRef);
 		}
-
 		this.csrfFilter = builder.getBeanDefinition();
 		return this.csrfFilter;
 	}
@@ -155,12 +149,10 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 				.rootBeanDefinition(InvalidSessionAccessDeniedHandler.class);
 		invalidSessionHandlerBldr.addConstructorArgValue(invalidSessionStrategy);
 		handlers.put(MissingCsrfTokenException.class, invalidSessionHandlerBldr.getBeanDefinition());
-
 		BeanDefinitionBuilder deniedBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(DelegatingAccessDeniedHandler.class);
 		deniedBldr.addConstructorArgValue(handlers);
 		deniedBldr.addConstructorArgValue(defaultDeniedHandler);
-
 		return deniedBldr.getBeanDefinition();
 	}
 
@@ -180,13 +172,9 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	void setIgnoreCsrfRequestMatchers(List<BeanDefinition> requestMatchers) {
 		if (!requestMatchers.isEmpty()) {
-			BeanMetadataElement requestMatcher;
-			if (StringUtils.hasText(this.requestMatcherRef)) {
-				requestMatcher = new RuntimeBeanReference(this.requestMatcherRef);
-			}
-			else {
-				requestMatcher = new RootBeanDefinition(DefaultRequiresCsrfMatcher.class);
-			}
+			BeanMetadataElement requestMatcher = (!StringUtils.hasText(this.requestMatcherRef))
+					? new RootBeanDefinition(DefaultRequiresCsrfMatcher.class)
+					: new RuntimeBeanReference(this.requestMatcherRef);
 			BeanDefinitionBuilder and = BeanDefinitionBuilder.rootBeanDefinition(AndRequestMatcher.class);
 			BeanDefinitionBuilder negated = BeanDefinitionBuilder.rootBeanDefinition(NegatedRequestMatcher.class);
 			BeanDefinitionBuilder or = BeanDefinitionBuilder.rootBeanDefinition(OrRequestMatcher.class);

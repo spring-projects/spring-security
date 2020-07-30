@@ -57,18 +57,13 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 		this.resourceLoader = resourceLoader;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		if (hasUserDefinedConversionService(beanFactory)) {
 			return;
 		}
-
 		Converter<String, RSAPrivateKey> pkcs8 = pkcs8();
 		Converter<String, RSAPublicKey> x509 = x509();
-
 		ConversionService service = beanFactory.getConversionService();
 		if (service instanceof ConverterRegistry) {
 			ConverterRegistry registry = (ConverterRegistry) service;

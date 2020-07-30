@@ -54,12 +54,12 @@ final class OAuth2ClientConfiguration {
 
 		@Override
 		public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-			boolean webmvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet",
-					getClass().getClassLoader());
-
-			return webmvcPresent ? new String[] {
-					"org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration.OAuth2ClientWebMvcSecurityConfiguration" }
-					: new String[] {};
+			if (!ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet",
+					getClass().getClassLoader())) {
+				return new String[0];
+			}
+			return new String[] { "org.springframework.security.config.annotation.web.configuration."
+					+ "OAuth2ClientConfiguration.OAuth2ClientWebMvcSecurityConfiguration" };
 		}
 
 	}
@@ -114,7 +114,6 @@ final class OAuth2ClientConfiguration {
 			if (this.authorizedClientManager != null) {
 				return this.authorizedClientManager;
 			}
-
 			OAuth2AuthorizedClientManager authorizedClientManager = null;
 			if (this.clientRegistrationRepository != null && this.authorizedClientRepository != null) {
 				if (this.accessTokenResponseClient != null) {

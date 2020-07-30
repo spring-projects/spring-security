@@ -47,13 +47,12 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		boolean oauth2ClientPresent = ClassUtils.isPresent(
-				"org.springframework.security.oauth2.client.registration.ClientRegistration",
-				getClass().getClassLoader());
-
-		return oauth2ClientPresent ? new String[] {
-				"org.springframework.security.config.annotation.web.reactive.ReactiveOAuth2ClientImportSelector$OAuth2ClientWebFluxSecurityConfiguration" }
-				: new String[] {};
+		if (!ClassUtils.isPresent("org.springframework.security.oauth2.client.registration.ClientRegistration",
+				getClass().getClassLoader())) {
+			return new String[0];
+		}
+		return new String[] { "org.springframework.security.config.annotation.web.reactive."
+				+ "ReactiveOAuth2ClientImportSelector$OAuth2ClientWebFluxSecurityConfiguration" };
 	}
 
 	@Configuration(proxyBeanMethods = false)

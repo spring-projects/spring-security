@@ -202,7 +202,6 @@ public class RSocketSecurity {
 
 	private List<PayloadInterceptor> payloadInterceptors() {
 		List<PayloadInterceptor> result = new ArrayList<>(this.payloadInterceptors);
-
 		if (this.basicAuthSpec != null) {
 			result.add(this.basicAuthSpec.build());
 		}
@@ -213,7 +212,6 @@ public class RSocketSecurity {
 			result.addAll(this.jwtSpec.build());
 		}
 		result.add(anonymous());
-
 		if (this.authorizePayload != null) {
 			result.add(this.authorizePayload.build());
 		}
@@ -260,6 +258,9 @@ public class RSocketSecurity {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
+		private SimpleAuthenticationSpec() {
+		}
+
 		public SimpleAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
 			return this;
@@ -280,14 +281,14 @@ public class RSocketSecurity {
 			return result;
 		}
 
-		private SimpleAuthenticationSpec() {
-		}
-
 	}
 
 	public final class BasicAuthenticationSpec {
 
 		private ReactiveAuthenticationManager authenticationManager;
+
+		private BasicAuthenticationSpec() {
+		}
 
 		public BasicAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
@@ -308,14 +309,14 @@ public class RSocketSecurity {
 			return result;
 		}
 
-		private BasicAuthenticationSpec() {
-		}
-
 	}
 
 	public final class JwtSpec {
 
 		private ReactiveAuthenticationManager authenticationManager;
+
+		private JwtSpec() {
+		}
 
 		public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
@@ -339,15 +340,10 @@ public class RSocketSecurity {
 			AuthenticationPayloadInterceptor legacy = new AuthenticationPayloadInterceptor(manager);
 			legacy.setAuthenticationConverter(new BearerPayloadExchangeConverter());
 			legacy.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-
 			AuthenticationPayloadInterceptor standard = new AuthenticationPayloadInterceptor(manager);
 			standard.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
 			standard.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-
 			return Arrays.asList(standard, legacy);
-		}
-
-		private JwtSpec() {
 		}
 
 	}

@@ -42,21 +42,18 @@ class MethodSecurityMetadataSourceAdvisorRegistrar implements ImportBeanDefiniti
 	 */
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-
 		BeanDefinitionBuilder advisor = BeanDefinitionBuilder
 				.rootBeanDefinition(MethodSecurityMetadataSourceAdvisor.class);
 		advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		advisor.addConstructorArgValue("methodSecurityInterceptor");
 		advisor.addConstructorArgReference("methodSecurityMetadataSource");
 		advisor.addConstructorArgValue("methodSecurityMetadataSource");
-
 		MultiValueMap<String, Object> attributes = importingClassMetadata
 				.getAllAnnotationAttributes(EnableGlobalMethodSecurity.class.getName());
 		Integer order = (Integer) attributes.getFirst("order");
 		if (order != null) {
 			advisor.addPropertyValue("order", order);
 		}
-
 		registry.registerBeanDefinition("metaDataSourceAdvisor", advisor.getBeanDefinition());
 	}
 

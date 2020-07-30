@@ -33,7 +33,6 @@ public class DebugBeanDefinitionParser implements BeanDefinitionParser {
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		RootBeanDefinition debugPP = new RootBeanDefinition(SecurityDebugBeanFactoryPostProcessor.class);
 		parserContext.getReaderContext().registerWithGeneratedName(debugPP);
-
 		return null;
 	}
 

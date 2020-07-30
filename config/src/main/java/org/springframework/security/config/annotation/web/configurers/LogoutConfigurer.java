@@ -276,7 +276,6 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			PermitAllSupport.permitAll(http, this.logoutSuccessUrl);
 			PermitAllSupport.permitAll(http, this.getLogoutRequestMatcher(http));
 		}
-
 		DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http
 				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
 		if (loginPageGeneratingFilter != null && !isCustomLogoutSuccess()) {
@@ -334,20 +333,28 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	private RequestMatcher getLogoutRequestMatcher(H http) {
 		if (this.logoutRequestMatcher != null) {
 			return this.logoutRequestMatcher;
 		}
-		if (http.getConfigurer(CsrfConfigurer.class) != null) {
-			this.logoutRequestMatcher = new AntPathRequestMatcher(this.logoutUrl, "POST");
-		}
-		else {
-			this.logoutRequestMatcher = new OrRequestMatcher(new AntPathRequestMatcher(this.logoutUrl, "GET"),
-					new AntPathRequestMatcher(this.logoutUrl, "POST"), new AntPathRequestMatcher(this.logoutUrl, "PUT"),
-					new AntPathRequestMatcher(this.logoutUrl, "DELETE"));
-		}
+		this.logoutRequestMatcher = createLogoutRequestMatcher(http);
 		return this.logoutRequestMatcher;
+	}
+
+	@SuppressWarnings("unchecked")
+	private RequestMatcher createLogoutRequestMatcher(H http) {
+		RequestMatcher post = createLogoutRequestMatcher("POST");
+		if (http.getConfigurer(CsrfConfigurer.class) != null) {
+			return post;
+		}
+		RequestMatcher get = createLogoutRequestMatcher("GET");
+		RequestMatcher put = createLogoutRequestMatcher("PUT");
+		RequestMatcher delete = createLogoutRequestMatcher("DELETE");
+		return new OrRequestMatcher(get, post, put, delete);
+	}
+
+	private RequestMatcher createLogoutRequestMatcher(String httpMethod) {
+		return new AntPathRequestMatcher(this.logoutUrl, httpMethod);
 	}
 
 }

@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -76,16 +75,15 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	public void init(H http) {
-		Function<HttpServletRequest, Map<String, String>> hiddenInputs = (request) -> {
-			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-			if (token == null) {
-				return Collections.emptyMap();
-			}
-			return Collections.singletonMap(token.getParameterName(), token.getToken());
-		};
-		this.loginPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
-		this.logoutPageGeneratingFilter.setResolveHiddenInputs(hiddenInputs);
+		this.loginPageGeneratingFilter.setResolveHiddenInputs(DefaultLoginPageConfigurer.this::hiddenInputs);
+		this.logoutPageGeneratingFilter.setResolveHiddenInputs(DefaultLoginPageConfigurer.this::hiddenInputs);
 		http.setSharedObject(DefaultLoginPageGeneratingFilter.class, this.loginPageGeneratingFilter);
+	}
+
+	private Map<String, String> hiddenInputs(HttpServletRequest request) {
+		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+		return (token != null) ? Collections.singletonMap(token.getParameterName(), token.getToken())
+				: Collections.emptyMap();
 	}
 
 	@Override
@@ -96,7 +94,6 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 		if (exceptionConf != null) {
 			authenticationEntryPoint = exceptionConf.getAuthenticationEntryPoint();
 		}
-
 		if (this.loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
 			this.loginPageGeneratingFilter = postProcess(this.loginPageGeneratingFilter);
 			http.addFilter(this.loginPageGeneratingFilter);

@@ -99,17 +99,15 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * while building, returns null.
 	 */
 	public O getOrBuild() {
-		if (isUnbuilt()) {
-			try {
-				return build();
-			}
-			catch (Exception ex) {
-				this.logger.debug("Failed to perform build. Returning null", ex);
-				return null;
-			}
-		}
-		else {
+		if (!isUnbuilt()) {
 			return getObject();
+		}
+		try {
+			return build();
+		}
+		catch (Exception ex) {
+			this.logger.debug("Failed to perform build. Returning null", ex);
+			return null;
 		}
 	}
 
@@ -177,18 +175,17 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	@SuppressWarnings("unchecked")
 	private <C extends SecurityConfigurer<O, B>> void add(C configurer) {
 		Assert.notNull(configurer, "configurer cannot be null");
-
 		Class<? extends SecurityConfigurer<O, B>> clazz = (Class<? extends SecurityConfigurer<O, B>>) configurer
 				.getClass();
 		synchronized (this.configurers) {
 			if (this.buildState.isConfigured()) {
 				throw new IllegalStateException("Cannot apply " + configurer + " to already built object");
 			}
-			List<SecurityConfigurer<O, B>> configs = this.allowConfigurersOfSameType ? this.configurers.get(clazz)
-					: null;
-			if (configs == null) {
-				configs = new ArrayList<>(1);
+			List<SecurityConfigurer<O, B>> configs = null;
+			if (this.allowConfigurersOfSameType) {
+				configs = this.configurers.get(clazz);
 			}
+			configs = (configs != null) ? configs : new ArrayList<>(1);
 			configs.add(configurer);
 			this.configurers.put(clazz, configs);
 			if (this.buildState.isInitializing()) {
@@ -239,9 +236,8 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		if (configs == null) {
 			return null;
 		}
-		if (configs.size() != 1) {
-			throw new IllegalStateException("Only one configurer expected for type " + clazz + ", but got " + configs);
-		}
+		Assert.state(configs.size() == 1,
+				() -> "Only one configurer expected for type " + clazz + ", but got " + configs);
 		return (C) configs.get(0);
 	}
 
@@ -257,9 +253,8 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		if (configs == null) {
 			return null;
 		}
-		if (configs.size() != 1) {
-			throw new IllegalStateException("Only one configurer expected for type " + clazz + ", but got " + configs);
-		}
+		Assert.state(configs.size() == 1,
+				() -> "Only one configurer expected for type " + clazz + ", but got " + configs);
 		return (C) configs.get(0);
 	}
 
@@ -301,21 +296,14 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	protected final O doBuild() throws Exception {
 		synchronized (this.configurers) {
 			this.buildState = BuildState.INITIALIZING;
-
 			beforeInit();
 			init();
-
 			this.buildState = BuildState.CONFIGURING;
-
 			beforeConfigure();
 			configure();
-
 			this.buildState = BuildState.BUILDING;
-
 			O result = performBuild();
-
 			this.buildState = BuildState.BUILT;
-
 			return result;
 		}
 	}
@@ -346,11 +334,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	@SuppressWarnings("unchecked")
 	private void init() throws Exception {
 		Collection<SecurityConfigurer<O, B>> configurers = getConfigurers();
-
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.init((B) this);
 		}
-
 		for (SecurityConfigurer<O, B> configurer : this.configurersAddedInInitializing) {
 			configurer.init((B) this);
 		}
@@ -359,7 +345,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	@SuppressWarnings("unchecked")
 	private void configure() throws Exception {
 		Collection<SecurityConfigurer<O, B>> configurers = getConfigurers();
-
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.configure((B) this);
 		}

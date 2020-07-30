@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.util.Assert;
 
 /**
  * A base class for {@link SecurityConfigurer} that allows subclasses to only implement
@@ -63,9 +64,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	 * @throws IllegalStateException if {@link SecurityBuilder} is null
 	 */
 	protected final B getBuilder() {
-		if (this.securityBuilder == null) {
-			throw new IllegalStateException("securityBuilder cannot be null");
-		}
+		Assert.state(this.securityBuilder != null, "securityBuilder cannot be null");
 		return this.securityBuilder;
 	}
 

@@ -47,6 +47,7 @@ import org.springframework.security.messaging.context.SecurityContextChannelInte
 import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
@@ -160,10 +161,8 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 				messageSecurityMetadataSource);
 		MessageExpressionVoter<Object> voter = new MessageExpressionVoter<>();
 		voter.setExpressionHandler(getMessageExpressionHandler());
-
 		List<AccessDecisionVoter<?>> voters = new ArrayList<>();
 		voters.add(voter);
-
 		AffirmativeBased manager = new AffirmativeBased(voters);
 		channelSecurityInterceptor.setAccessDecisionManager(manager);
 		return channelSecurityInterceptor;
@@ -221,48 +220,45 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 		if (sameOriginDisabled()) {
 			return;
 		}
-
 		String beanName = "stompWebSocketHandlerMapping";
 		SimpleUrlHandlerMapping mapping = this.context.getBean(beanName, SimpleUrlHandlerMapping.class);
 		Map<String, Object> mappings = mapping.getHandlerMap();
 		for (Object object : mappings.values()) {
 			if (object instanceof SockJsHttpRequestHandler) {
-				SockJsHttpRequestHandler sockjsHandler = (SockJsHttpRequestHandler) object;
-				SockJsService sockJsService = sockjsHandler.getSockJsService();
-				if (!(sockJsService instanceof TransportHandlingSockJsService)) {
-					throw new IllegalStateException(
-							"sockJsService must be instance of TransportHandlingSockJsService got " + sockJsService);
-				}
-
-				TransportHandlingSockJsService transportHandlingSockJsService = (TransportHandlingSockJsService) sockJsService;
-				List<HandshakeInterceptor> handshakeInterceptors = transportHandlingSockJsService
-						.getHandshakeInterceptors();
-				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(handshakeInterceptors.size() + 1);
-				interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
-				interceptorsToSet.addAll(handshakeInterceptors);
-
-				transportHandlingSockJsService.setHandshakeInterceptors(interceptorsToSet);
+				setHandshakeInterceptors((SockJsHttpRequestHandler) object);
 			}
 			else if (object instanceof WebSocketHttpRequestHandler) {
-				WebSocketHttpRequestHandler handler = (WebSocketHttpRequestHandler) object;
-				List<HandshakeInterceptor> handshakeInterceptors = handler.getHandshakeInterceptors();
-				List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(handshakeInterceptors.size() + 1);
-				interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
-				interceptorsToSet.addAll(handshakeInterceptors);
-
-				handler.setHandshakeInterceptors(interceptorsToSet);
+				setHandshakeInterceptors((WebSocketHttpRequestHandler) object);
 			}
 			else {
-				throw new IllegalStateException("Bean " + beanName
-						+ " is expected to contain mappings to either a SockJsHttpRequestHandler or a WebSocketHttpRequestHandler but got "
-						+ object);
+				throw new IllegalStateException("Bean " + beanName + " is expected to contain mappings to either a "
+						+ "SockJsHttpRequestHandler or a WebSocketHttpRequestHandler but got " + object);
 			}
 		}
-
 		if (this.inboundRegistry.containsMapping() && !this.inboundRegistry.isSimpDestPathMatcherConfigured()) {
 			PathMatcher pathMatcher = getDefaultPathMatcher();
 			this.inboundRegistry.simpDestPathMatcher(pathMatcher);
 		}
+	}
+
+	private void setHandshakeInterceptors(SockJsHttpRequestHandler handler) {
+		SockJsService sockJsService = handler.getSockJsService();
+		Assert.state(sockJsService instanceof TransportHandlingSockJsService,
+				() -> "sockJsService must be instance of TransportHandlingSockJsService got " + sockJsService);
+		TransportHandlingSockJsService transportHandlingSockJsService = (TransportHandlingSockJsService) sockJsService;
+		List<HandshakeInterceptor> handshakeInterceptors = transportHandlingSockJsService.getHandshakeInterceptors();
+		List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(handshakeInterceptors.size() + 1);
+		interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
+		interceptorsToSet.addAll(handshakeInterceptors);
+		transportHandlingSockJsService.setHandshakeInterceptors(interceptorsToSet);
+	}
+
+	private void setHandshakeInterceptors(WebSocketHttpRequestHandler handler) {
+		List<HandshakeInterceptor> handshakeInterceptors = handler.getHandshakeInterceptors();
+		List<HandshakeInterceptor> interceptorsToSet = new ArrayList<>(handshakeInterceptors.size() + 1);
+		interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
+		interceptorsToSet.addAll(handshakeInterceptors);
+		handler.setHandshakeInterceptors(interceptorsToSet);
 	}
 
 	private static class WebSocketMessageSecurityMetadataSourceRegistry extends MessageSecurityMetadataSourceRegistry {

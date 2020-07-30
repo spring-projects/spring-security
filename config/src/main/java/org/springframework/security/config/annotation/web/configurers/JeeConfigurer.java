@@ -192,12 +192,8 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getUserDetailsService());
 		authenticationProvider = postProcess(authenticationProvider);
-
-		// @formatter:off
-		http
-			.authenticationProvider(authenticationProvider)
-			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
-		// @formatter:on
+		http.authenticationProvider(authenticationProvider).setSharedObject(AuthenticationEntryPoint.class,
+				new Http403ForbiddenEntryPoint());
 	}
 
 	@Override
@@ -245,7 +241,6 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 		SimpleMappableAttributesRetriever rolesRetriever = new SimpleMappableAttributesRetriever();
 		rolesRetriever.setMappableAttributes(this.mappableRoles);
 		detailsSource.setMappableRolesRetriever(rolesRetriever);
-
 		detailsSource = postProcess(detailsSource);
 		return detailsSource;
 	}

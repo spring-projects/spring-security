@@ -93,9 +93,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	private LdapAuthenticationProvider build() throws Exception {
 		BaseLdapPathContextSource contextSource = getContextSource();
 		LdapAuthenticator ldapAuthenticator = createLdapAuthenticator(contextSource);
-
 		LdapAuthoritiesPopulator authoritiesPopulator = getLdapAuthoritiesPopulator();
-
 		LdapAuthenticationProvider ldapAuthenticationProvider = new LdapAuthenticationProvider(ldapAuthenticator,
 				authoritiesPopulator);
 		ldapAuthenticationProvider.setAuthoritiesMapper(getAuthoritiesMapper());
@@ -136,14 +134,12 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		if (this.ldapAuthoritiesPopulator != null) {
 			return this.ldapAuthoritiesPopulator;
 		}
-
 		DefaultLdapAuthoritiesPopulator defaultAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(
 				this.contextSource, this.groupSearchBase);
 		defaultAuthoritiesPopulator.setGroupRoleAttribute(this.groupRoleAttribute);
 		defaultAuthoritiesPopulator.setGroupSearchFilter(this.groupSearchFilter);
 		defaultAuthoritiesPopulator.setSearchSubtree(this.groupSearchSubtree);
 		defaultAuthoritiesPopulator.setRolePrefix(this.rolePrefix);
-
 		this.ldapAuthoritiesPopulator = defaultAuthoritiesPopulator;
 		return defaultAuthoritiesPopulator;
 	}
@@ -173,7 +169,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		if (this.authoritiesMapper != null) {
 			return this.authoritiesMapper;
 		}
-
 		SimpleAuthorityMapper simpleAuthorityMapper = new SimpleAuthorityMapper();
 		simpleAuthorityMapper.setPrefix(this.rolePrefix);
 		simpleAuthorityMapper.afterPropertiesSet();
@@ -554,7 +549,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 			if (this.url == null) {
 				startEmbeddedLdapServer();
 			}
-
 			DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(getProviderUrl());
 			if (this.managerDn != null) {
 				contextSource.setUserDn(this.managerDn);

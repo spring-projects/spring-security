@@ -71,7 +71,6 @@ class SecurityReactorContextConfiguration {
 		public void afterPropertiesSet() throws Exception {
 			Function<? super Publisher<Object>, ? extends Publisher<Object>> lifter = Operators
 					.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
-
 			Hooks.onLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY, (pub) -> {
 				if (!contextAttributesAvailable()) {
 					// No need to decorate so return original Publisher
@@ -112,7 +111,6 @@ class SecurityReactorContextConfiguration {
 			if (authentication == null && servletRequest == null) {
 				return Collections.emptyMap();
 			}
-
 			Map<Object, Object> contextAttributes = new HashMap<>();
 			if (servletRequest != null) {
 				contextAttributes.put(HttpServletRequest.class, servletRequest);
@@ -139,15 +137,15 @@ class SecurityReactorContextConfiguration {
 
 		SecurityReactorContextSubscriber(CoreSubscriber<T> delegate, Map<Object, Object> attributes) {
 			this.delegate = delegate;
-			Context currentContext = this.delegate.currentContext();
-			Context context;
-			if (currentContext.hasKey(SECURITY_CONTEXT_ATTRIBUTES)) {
-				context = currentContext;
-			}
-			else {
-				context = currentContext.put(SECURITY_CONTEXT_ATTRIBUTES, attributes);
-			}
+			Context context = getOrPutContext(attributes, this.delegate.currentContext());
 			this.context = context;
+		}
+
+		private Context getOrPutContext(Map<Object, Object> attributes, Context currentContext) {
+			if (currentContext.hasKey(SECURITY_CONTEXT_ATTRIBUTES)) {
+				return currentContext;
+			}
+			return currentContext.put(SECURITY_CONTEXT_ATTRIBUTES, attributes);
 		}
 
 		@Override

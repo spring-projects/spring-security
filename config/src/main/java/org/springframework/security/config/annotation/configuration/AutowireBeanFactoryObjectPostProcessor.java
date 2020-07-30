@@ -91,8 +91,8 @@ final class AutowireBeanFactoryObjectPostProcessor
 			try {
 				disposable.destroy();
 			}
-			catch (Exception error) {
-				this.logger.error(error);
+			catch (Exception ex) {
+				this.logger.error(ex);
 			}
 		}
 	}
