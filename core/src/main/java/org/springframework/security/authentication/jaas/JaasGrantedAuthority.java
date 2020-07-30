@@ -54,24 +54,22 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 	}
 
 	@Override
-	public int hashCode() {
-		int result = this.principal.hashCode();
-		result = 31 * result + this.role.hashCode();
-		return result;
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
-
 		if (obj instanceof JaasGrantedAuthority) {
 			JaasGrantedAuthority jga = (JaasGrantedAuthority) obj;
 			return this.role.equals(jga.role) && this.principal.equals(jga.principal);
 		}
-
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.principal.hashCode();
+		result = 31 * result + this.role.hashCode();
+		return result;
 	}
 
 	@Override

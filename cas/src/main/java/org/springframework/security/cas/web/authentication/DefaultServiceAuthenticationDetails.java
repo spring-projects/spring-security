@@ -68,14 +68,6 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + this.serviceUrl.hashCode();
-		return result;
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -85,6 +77,14 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		}
 		ServiceAuthenticationDetails that = (ServiceAuthenticationDetails) obj;
 		return this.serviceUrl.equals(that.getServiceUrl());
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + this.serviceUrl.hashCode();
+		return result;
 	}
 
 	@Override
