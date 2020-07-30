@@ -20,11 +20,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 /**
@@ -42,6 +44,8 @@ import org.springframework.util.Assert;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
  */
 public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
+	private final Log logger = LogFactory.getLog(getClass());
+
 	private static final Duration DEFAULT_MAX_CLOCK_SKEW = Duration.of(60, ChronoUnit.SECONDS);
 
 	private final Duration maxClockSkew;
@@ -72,11 +76,8 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 		if (expiry != null) {
 			if (Instant.now(this.clock).minus(maxClockSkew).isAfter(expiry)) {
-				OAuth2Error error = new OAuth2Error(
-						OAuth2ErrorCodes.INVALID_REQUEST,
-						String.format("Jwt expired at %s", jwt.getExpiresAt()),
-						"https://tools.ietf.org/html/rfc6750#section-3.1");
-				return OAuth2TokenValidatorResult.failure(error);
+				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt expired at %s", jwt.getExpiresAt()));
+				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
 		}
 
@@ -84,15 +85,20 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 		if (notBefore != null) {
 			if (Instant.now(this.clock).plus(maxClockSkew).isBefore(notBefore)) {
-				OAuth2Error error = new OAuth2Error(
-						OAuth2ErrorCodes.INVALID_REQUEST,
-						String.format("Jwt used before %s", jwt.getNotBefore()),
-						"https://tools.ietf.org/html/rfc6750#section-3.1");
-				return OAuth2TokenValidatorResult.failure(error);
+				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt used before %s", jwt.getNotBefore()));
+				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
 		}
 
 		return OAuth2TokenValidatorResult.success();
+	}
+
+	private OAuth2Error createOAuth2Error(String reason) {
+		logger.debug(reason);
+		return new OAuth2Error(
+				OAuth2ErrorCodes.INVALID_REQUEST,
+				reason,
+				"https://tools.ietf.org/html/rfc6750#section-3.1");
 	}
 
 	/**

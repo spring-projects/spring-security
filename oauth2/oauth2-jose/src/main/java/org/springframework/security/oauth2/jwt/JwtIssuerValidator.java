@@ -15,6 +15,9 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -28,6 +31,8 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
+	private final Log logger = LogFactory.getLog(getClass());
+
 	private static OAuth2Error INVALID_ISSUER =
 			new OAuth2Error(
 					OAuth2ErrorCodes.INVALID_REQUEST,
@@ -57,6 +62,7 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 		if (this.issuer.equals(tokenIssuer)) {
 			return OAuth2TokenValidatorResult.success();
 		} else {
+			logger.debug(INVALID_ISSUER.getDescription());
 			return OAuth2TokenValidatorResult.failure(INVALID_ISSUER);
 		}
 	}
