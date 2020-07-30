@@ -45,14 +45,23 @@ import org.springframework.util.StringUtils;
 class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
 	static final String ATT_DATA_SOURCE = "data-source-ref";
+
 	static final String ATT_SERVICES_REF = "services-ref";
+
 	static final String ATT_SERVICES_ALIAS = "services-alias";
+
 	static final String ATT_TOKEN_REPOSITORY = "token-repository-ref";
+
 	static final String ATT_USER_SERVICE_REF = "user-service-ref";
+
 	static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
+
 	static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
+
 	static final String ATT_SECURE_COOKIE = "use-secure-cookie";
+
 	static final String ATT_FORM_REMEMBERME_PARAMETER = "remember-me-parameter";
+
 	static final String ATT_REMEMBERME_COOKIE = "remember-me-cookie";
 
 	protected final Log logger = LogFactory.getLog(getClass());
@@ -73,7 +82,6 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(),
 				pc.extractSource(element));
 		pc.pushContainingComponent(compositeDef);
-
 		String tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
 		String dataSource = element.getAttribute(ATT_DATA_SOURCE);
 		String userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
@@ -84,9 +92,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		String remembermeParameter = element.getAttribute(ATT_FORM_REMEMBERME_PARAMETER);
 		String remembermeCookie = element.getAttribute(ATT_REMEMBERME_COOKIE);
 		Object source = pc.extractSource(element);
-
 		RootBeanDefinition services = null;
-
 		boolean dataSourceSet = StringUtils.hasText(dataSource);
 		boolean tokenRepoSet = StringUtils.hasText(tokenRepository);
 		boolean servicesRefSet = StringUtils.hasText(rememberMeServicesRef);
@@ -95,7 +101,6 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		boolean tokenValiditySet = StringUtils.hasText(tokenValiditySeconds);
 		boolean remembermeParameterSet = StringUtils.hasText(remembermeParameter);
 		boolean remembermeCookieSet = StringUtils.hasText(remembermeCookie);
-
 		if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet || useSecureCookieSet
 				|| remembermeParameterSet || remembermeCookieSet)) {
 			pc.getReaderContext()
@@ -104,18 +109,14 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 							+ ATT_SECURE_COOKIE + ", " + ATT_FORM_REMEMBERME_PARAMETER + " or " + ATT_REMEMBERME_COOKIE,
 							source);
 		}
-
 		if (dataSourceSet && tokenRepoSet) {
 			pc.getReaderContext().error("Specify " + ATT_TOKEN_REPOSITORY + " or " + ATT_DATA_SOURCE + " but not both",
 					source);
 		}
-
 		boolean isPersistent = dataSourceSet | tokenRepoSet;
-
 		if (isPersistent) {
 			Object tokenRepo;
 			services = new RootBeanDefinition(PersistentTokenBasedRememberMeServices.class);
-
 			if (tokenRepoSet) {
 				tokenRepo = new RuntimeBeanReference(tokenRepository);
 			}
@@ -129,24 +130,19 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		else if (!servicesRefSet) {
 			services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
 		}
-
 		String servicesName;
-
 		if (services != null) {
 			RootBeanDefinition uds = new RootBeanDefinition();
 			uds.setFactoryBeanName(BeanIds.USER_DETAILS_SERVICE_FACTORY);
 			uds.setFactoryMethodName("cachingUserDetailsService");
 			uds.getConstructorArgumentValues().addGenericArgumentValue(userServiceRef);
-
 			services.getConstructorArgumentValues().addGenericArgumentValue(this.key);
 			services.getConstructorArgumentValues().addGenericArgumentValue(uds);
 			// tokenRepo is already added if it is a
 			// PersistentTokenBasedRememberMeServices
-
 			if (useSecureCookieSet) {
 				services.getPropertyValues().addPropertyValue("useSecureCookie", Boolean.valueOf(useSecureCookie));
 			}
-
 			if (tokenValiditySet) {
 				boolean isTokenValidityNegative = tokenValiditySeconds.startsWith("-");
 				if (isTokenValidityNegative && isPersistent) {
@@ -155,15 +151,12 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 				}
 				services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValiditySeconds);
 			}
-
 			if (remembermeParameterSet) {
 				services.getPropertyValues().addPropertyValue("parameter", remembermeParameter);
 			}
-
 			if (remembermeCookieSet) {
 				services.getPropertyValues().addPropertyValue("cookieName", remembermeCookie);
 			}
-
 			services.setSource(source);
 			servicesName = pc.getReaderContext().generateBeanName(services);
 			pc.registerBeanComponent(new BeanComponentDefinition(services, servicesName));
@@ -171,25 +164,18 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		else {
 			servicesName = rememberMeServicesRef;
 		}
-
 		if (StringUtils.hasText(element.getAttribute(ATT_SERVICES_ALIAS))) {
 			pc.getRegistry().registerAlias(servicesName, element.getAttribute(ATT_SERVICES_ALIAS));
 		}
-
 		this.rememberMeServicesId = servicesName;
-
 		BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(RememberMeAuthenticationFilter.class);
 		filter.getRawBeanDefinition().setSource(source);
-
 		if (StringUtils.hasText(successHandlerRef)) {
 			filter.addPropertyReference("authenticationSuccessHandler", successHandlerRef);
 		}
-
 		filter.addConstructorArgValue(this.authenticationManager);
 		filter.addConstructorArgReference(servicesName);
-
 		pc.popAndRegisterContainingComponent();
-
 		return filter.getBeanDefinition();
 	}
 

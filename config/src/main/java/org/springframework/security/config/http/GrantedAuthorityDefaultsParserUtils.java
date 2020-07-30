@@ -37,7 +37,6 @@ final class GrantedAuthorityDefaultsParserUtils {
 		RootBeanDefinition beanFactoryDefinition = new RootBeanDefinition(beanFactoryClass);
 		String beanFactoryRef = pc.getReaderContext().generateBeanName(beanFactoryDefinition);
 		pc.getRegistry().registerBeanDefinition(beanFactoryRef, beanFactoryDefinition);
-
 		RootBeanDefinition bean = new RootBeanDefinition();
 		bean.setFactoryBeanName(beanFactoryRef);
 		bean.setFactoryMethodName("getBean");

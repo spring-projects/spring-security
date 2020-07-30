@@ -22,6 +22,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry.UrlMapping;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
 
 /**
  * Configures non-null URL's to grant access to every URL
@@ -47,11 +48,7 @@ final class PermitAllSupport {
 			RequestMatcher... requestMatchers) {
 		ExpressionUrlAuthorizationConfigurer<?> configurer = http
 				.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
-
-		if (configurer == null) {
-			throw new IllegalStateException("permitAll only works with HttpSecurity.authorizeRequests()");
-		}
-
+		Assert.state(configurer != null, "permitAll only works with HttpSecurity.authorizeRequests()");
 		for (RequestMatcher matcher : requestMatchers) {
 			if (matcher != null) {
 				configurer.getRegistry().addMapping(0, new UrlMapping(matcher,
@@ -72,15 +69,12 @@ final class PermitAllSupport {
 		public boolean matches(HttpServletRequest request) {
 			String uri = request.getRequestURI();
 			String query = request.getQueryString();
-
 			if (query != null) {
 				uri += "?" + query;
 			}
-
 			if ("".equals(request.getContextPath())) {
 				return uri.equals(this.processUrl);
 			}
-
 			return uri.equals(request.getContextPath() + this.processUrl);
 		}
 

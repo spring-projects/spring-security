@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -80,7 +81,6 @@ public class AuthenticationConfiguration {
 		LazyPasswordEncoder defaultPasswordEncoder = new LazyPasswordEncoder(context);
 		AuthenticationEventPublisher authenticationEventPublisher = getBeanOrNull(context,
 				AuthenticationEventPublisher.class);
-
 		DefaultPasswordEncoderAuthenticationManagerBuilder result = new DefaultPasswordEncoderAuthenticationManagerBuilder(
 				objectPostProcessor, defaultPasswordEncoder);
 		if (authenticationEventPublisher != null) {
@@ -115,17 +115,13 @@ public class AuthenticationConfiguration {
 		if (this.buildingAuthenticationManager.getAndSet(true)) {
 			return new AuthenticationManagerDelegator(authBuilder);
 		}
-
 		for (GlobalAuthenticationConfigurerAdapter config : this.globalAuthConfigurers) {
 			authBuilder.apply(config);
 		}
-
 		this.authenticationManager = authBuilder.build();
-
 		if (this.authenticationManager == null) {
 			this.authenticationManager = getAuthenticationManagerBean();
 		}
-
 		this.authenticationManagerInitialized = true;
 		return this.authenticationManager;
 	}
@@ -154,26 +150,25 @@ public class AuthenticationConfiguration {
 		if (beanNamesForType.length == 0) {
 			return null;
 		}
-		String beanName;
-		if (beanNamesForType.length > 1) {
-			List<String> primaryBeanNames = getPrimaryBeanNames(beanNamesForType);
-
-			Assert.isTrue(primaryBeanNames.size() != 0, () -> "Found " + beanNamesForType.length + " beans for type "
-					+ interfaceName + ", but none marked as primary");
-			Assert.isTrue(primaryBeanNames.size() == 1, () -> "Found " + primaryBeanNames.size() + " beans for type "
-					+ interfaceName + " marked as primary");
-			beanName = primaryBeanNames.get(0);
-		}
-		else {
-			beanName = beanNamesForType[0];
-		}
-
+		String beanName = getBeanName(interfaceName, beanNamesForType);
 		lazyTargetSource.setTargetBeanName(beanName);
 		lazyTargetSource.setBeanFactory(this.applicationContext);
 		ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
 		proxyFactory = this.objectPostProcessor.postProcess(proxyFactory);
 		proxyFactory.setTargetSource(lazyTargetSource);
 		return (T) proxyFactory.getObject();
+	}
+
+	private <T> String getBeanName(Class<T> interfaceName, String[] beanNamesForType) {
+		if (beanNamesForType.length == 1) {
+			return beanNamesForType[0];
+		}
+		List<String> primaryBeanNames = getPrimaryBeanNames(beanNamesForType);
+		Assert.isTrue(primaryBeanNames.size() != 0, () -> "Found " + beanNamesForType.length + " beans for type "
+				+ interfaceName + ", but none marked as primary");
+		Assert.isTrue(primaryBeanNames.size() == 1,
+				() -> "Found " + primaryBeanNames.size() + " beans for type " + interfaceName + " marked as primary");
+		return primaryBeanNames.get(0);
 	}
 
 	private List<String> getPrimaryBeanNames(String[] beanNamesForType) {
@@ -217,9 +212,7 @@ public class AuthenticationConfiguration {
 		public void init(AuthenticationManagerBuilder auth) {
 			Map<String, Object> beansWithAnnotation = this.context
 					.getBeansWithAnnotation(EnableGlobalAuthentication.class);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Eagerly initializing " + beansWithAnnotation);
-			}
+			logger.debug(LogMessage.format("Eagerly initializing %s", beansWithAnnotation));
 		}
 
 	}
@@ -249,14 +242,12 @@ public class AuthenticationConfiguration {
 			if (this.delegate != null) {
 				return this.delegate.authenticate(authentication);
 			}
-
 			synchronized (this.delegateMonitor) {
 				if (this.delegate == null) {
 					this.delegate = this.delegateBuilder.getObject();
 					this.delegateBuilder = null;
 				}
 			}
-
 			return this.delegate.authenticate(authentication);
 		}
 

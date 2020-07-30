@@ -80,27 +80,27 @@ class HttpSecurityConfiguration {
 	HttpSecurity httpSecurity() throws Exception {
 		WebSecurityConfigurerAdapter.LazyPasswordEncoder passwordEncoder = new WebSecurityConfigurerAdapter.LazyPasswordEncoder(
 				this.context);
-
 		AuthenticationManagerBuilder authenticationBuilder = new WebSecurityConfigurerAdapter.DefaultPasswordEncoderAuthenticationManagerBuilder(
 				this.objectPostProcessor, passwordEncoder);
 		authenticationBuilder.parentAuthenticationManager(authenticationManager());
-
 		HttpSecurity http = new HttpSecurity(this.objectPostProcessor, authenticationBuilder, createSharedObjects());
-		http.csrf(withDefaults()).addFilter(new WebAsyncManagerIntegrationFilter()).exceptionHandling(withDefaults())
-				.headers(withDefaults()).sessionManagement(withDefaults()).securityContext(withDefaults())
-				.requestCache(withDefaults()).anonymous(withDefaults()).servletApi(withDefaults())
-				.logout(withDefaults()).apply(new DefaultLoginPageConfigurer<>());
-
+		http.csrf(withDefaults());
+		http.addFilter(new WebAsyncManagerIntegrationFilter());
+		http.exceptionHandling(withDefaults());
+		http.headers(withDefaults());
+		http.sessionManagement(withDefaults());
+		http.securityContext(withDefaults());
+		http.requestCache(withDefaults());
+		http.anonymous(withDefaults());
+		http.servletApi(withDefaults());
+		http.logout(withDefaults());
+		http.apply(new DefaultLoginPageConfigurer<>());
 		return http;
 	}
 
 	private AuthenticationManager authenticationManager() throws Exception {
-		if (this.authenticationManager != null) {
-			return this.authenticationManager;
-		}
-		else {
-			return this.authenticationConfiguration.getAuthenticationManager();
-		}
+		return (this.authenticationManager != null) ? this.authenticationManager
+				: this.authenticationConfiguration.getAuthenticationManager();
 	}
 
 	private Map<Class<?>, Object> createSharedObjects() {

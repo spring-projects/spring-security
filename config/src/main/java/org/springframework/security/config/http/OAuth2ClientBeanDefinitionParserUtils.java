@@ -41,15 +41,11 @@ final class OAuth2ClientBeanDefinitionParserUtils {
 	}
 
 	static BeanMetadataElement getClientRegistrationRepository(Element element) {
-		BeanMetadataElement clientRegistrationRepository;
 		String clientRegistrationRepositoryRef = element.getAttribute(ATT_CLIENT_REGISTRATION_REPOSITORY_REF);
 		if (!StringUtils.isEmpty(clientRegistrationRepositoryRef)) {
-			clientRegistrationRepository = new RuntimeBeanReference(clientRegistrationRepositoryRef);
+			return new RuntimeBeanReference(clientRegistrationRepositoryRef);
 		}
-		else {
-			clientRegistrationRepository = new RuntimeBeanReference(ClientRegistrationRepository.class);
-		}
-		return clientRegistrationRepository;
+		return new RuntimeBeanReference(ClientRegistrationRepository.class);
 	}
 
 	static BeanMetadataElement getAuthorizedClientRepository(Element element) {

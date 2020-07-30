@@ -329,7 +329,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
 		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter();
 		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
-
 		return HeadersConfigurer.this;
 	}
 

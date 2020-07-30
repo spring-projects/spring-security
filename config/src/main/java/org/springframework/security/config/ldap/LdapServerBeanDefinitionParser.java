@@ -89,9 +89,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	public BeanDefinition parse(Element elt, ParserContext parserContext) {
 		String url = elt.getAttribute(ATT_URL);
-
 		RootBeanDefinition contextSource;
-
 		if (!StringUtils.hasText(url)) {
 			contextSource = createEmbeddedServer(elt, parserContext);
 		}
@@ -100,28 +98,20 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 			contextSource.setBeanClassName(CONTEXT_SOURCE_CLASS);
 			contextSource.getConstructorArgumentValues().addIndexedArgumentValue(0, url);
 		}
-
 		contextSource.setSource(parserContext.extractSource(elt));
-
 		String managerDn = elt.getAttribute(ATT_PRINCIPAL);
 		String managerPassword = elt.getAttribute(ATT_PASSWORD);
-
 		if (StringUtils.hasText(managerDn)) {
 			if (!StringUtils.hasText(managerPassword)) {
 				parserContext.getReaderContext()
 						.error("You must specify the " + ATT_PASSWORD + " if you supply a " + managerDn, elt);
 			}
-
 			contextSource.getPropertyValues().addPropertyValue("userDn", managerDn);
 			contextSource.getPropertyValues().addPropertyValue("password", managerPassword);
 		}
-
 		String id = elt.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
-
 		String contextSourceId = StringUtils.hasText(id) ? id : BeanIds.CONTEXT_SOURCE;
-
 		parserContext.getRegistry().registerBeanDefinition(contextSourceId, contextSource);
-
 		return null;
 	}
 
@@ -136,52 +126,40 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	 */
 	private RootBeanDefinition createEmbeddedServer(Element element, ParserContext parserContext) {
 		Object source = parserContext.extractSource(element);
-
 		String suffix = element.getAttribute(ATT_ROOT_SUFFIX);
-
 		if (!StringUtils.hasText(suffix)) {
 			suffix = OPT_DEFAULT_ROOT_SUFFIX;
 		}
-
 		BeanDefinitionBuilder contextSource = BeanDefinitionBuilder.rootBeanDefinition(CONTEXT_SOURCE_CLASS);
 		contextSource.addConstructorArgValue(suffix);
 		contextSource.addPropertyValue("userDn", "uid=admin,ou=system");
 		contextSource.addPropertyValue("password", "secret");
-
 		BeanDefinition embeddedLdapServerConfigBean = BeanDefinitionBuilder
 				.rootBeanDefinition(EmbeddedLdapServerConfigBean.class).getBeanDefinition();
 		String embeddedLdapServerConfigBeanName = parserContext.getReaderContext()
 				.generateBeanName(embeddedLdapServerConfigBean);
-
 		parserContext.registerBeanComponent(
 				new BeanComponentDefinition(embeddedLdapServerConfigBean, embeddedLdapServerConfigBeanName));
-
 		contextSource.setFactoryMethodOnBean("createEmbeddedContextSource", embeddedLdapServerConfigBeanName);
-
 		String mode = element.getAttribute("mode");
 		RootBeanDefinition ldapContainer = getRootBeanDefinition(mode);
 		ldapContainer.setSource(source);
 		ldapContainer.getConstructorArgumentValues().addGenericArgumentValue(suffix);
-
 		String ldifs = element.getAttribute(ATT_LDIF_FILE);
 		if (!StringUtils.hasText(ldifs)) {
 			ldifs = OPT_DEFAULT_LDIF_FILE;
 		}
-
 		ldapContainer.getConstructorArgumentValues().addGenericArgumentValue(ldifs);
 		ldapContainer.getPropertyValues().addPropertyValue("port", getPort(element));
-
 		if (parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_APACHE_DS)
 				|| parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_UNBOUNDID)) {
 			parserContext.getReaderContext().error("Only one embedded server bean is allowed per application context",
 					element);
 		}
-
 		String beanId = resolveBeanId(mode);
 		if (beanId != null) {
 			parserContext.getRegistry().registerBeanDefinition(beanId, ldapContainer);
 		}
-
 		return (RootBeanDefinition) contextSource.getBeanDefinition();
 	}
 
@@ -189,7 +167,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		if (isApacheDsEnabled(mode)) {
 			return new RootBeanDefinition(APACHEDS_CONTAINER_CLASSNAME, null, null);
 		}
-		else if (isUnboundidEnabled(mode)) {
+		if (isUnboundidEnabled(mode)) {
 			return new RootBeanDefinition(UNBOUNDID_CONTAINER_CLASSNAME, null, null);
 		}
 		throw new IllegalStateException("Embedded LDAP server is not provided");
@@ -199,7 +177,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		if (isApacheDsEnabled(mode)) {
 			return BeanIds.EMBEDDED_APACHE_DS;
 		}
-		else if (isUnboundidEnabled(mode)) {
+		if (isUnboundidEnabled(mode)) {
 			return BeanIds.EMBEDDED_UNBOUNDID;
 		}
 		return null;
@@ -238,22 +216,21 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 		@SuppressWarnings("unused")
 		private DefaultSpringSecurityContextSource createEmbeddedContextSource(String suffix) {
-			int port;
+			int port = getPort();
+			String providerUrl = "ldap://127.0.0.1:" + port + "/" + suffix;
+			return new DefaultSpringSecurityContextSource(providerUrl);
+		}
+
+		private int getPort() {
 			if (ClassUtils.isPresent(APACHEDS_CLASSNAME, getClass().getClassLoader())) {
 				ApacheDSContainer apacheDSContainer = this.applicationContext.getBean(ApacheDSContainer.class);
-				port = apacheDSContainer.getLocalPort();
+				return apacheDSContainer.getLocalPort();
 			}
-			else if (ClassUtils.isPresent(UNBOUNID_CLASSNAME, getClass().getClassLoader())) {
+			if (ClassUtils.isPresent(UNBOUNID_CLASSNAME, getClass().getClassLoader())) {
 				UnboundIdContainer unboundIdContainer = this.applicationContext.getBean(UnboundIdContainer.class);
-				port = unboundIdContainer.getPort();
+				return unboundIdContainer.getPort();
 			}
-			else {
-				throw new IllegalStateException("Embedded LDAP server is not provided");
-			}
-
-			String providerUrl = "ldap://127.0.0.1:" + port + "/" + suffix;
-
-			return new DefaultSpringSecurityContextSource(providerUrl);
+			throw new IllegalStateException("Embedded LDAP server is not provided");
 		}
 
 	}

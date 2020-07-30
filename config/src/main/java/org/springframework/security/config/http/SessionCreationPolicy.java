@@ -28,15 +28,22 @@ import org.springframework.security.core.context.SecurityContext;
  */
 public enum SessionCreationPolicy {
 
-	/** Always create an {@link HttpSession} */
+	/**
+	 * Always create an {@link HttpSession}
+	 */
 	ALWAYS,
+
 	/**
 	 * Spring Security will never create an {@link HttpSession}, but will use the
 	 * {@link HttpSession} if it already exists
 	 */
 	NEVER,
-	/** Spring Security will only create an {@link HttpSession} if required */
+
+	/**
+	 * Spring Security will only create an {@link HttpSession} if required
+	 */
 	IF_REQUIRED,
+
 	/**
 	 * Spring Security will never create an {@link HttpSession} and it will never use it
 	 * to obtain the {@link SecurityContext}

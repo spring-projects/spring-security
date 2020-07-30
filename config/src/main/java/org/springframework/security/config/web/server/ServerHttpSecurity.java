@@ -1536,22 +1536,17 @@ public class ServerHttpSecurity {
 
 		@Override
 		protected Access registerMatcher(ServerWebExchangeMatcher matcher) {
-			if (this.anyExchangeRegistered) {
-				throw new IllegalStateException("Cannot register " + matcher
-						+ " which would be unreachable because anyExchange() has already been registered.");
-			}
-			if (this.matcher != null) {
-				throw new IllegalStateException("The matcher " + matcher + " does not have an access rule defined");
-			}
+			Assert.state(!this.anyExchangeRegistered, () -> "Cannot register " + matcher
+					+ " which would be unreachable because anyExchange() has already been registered.");
+			Assert.state(this.matcher == null,
+					() -> "The matcher " + matcher + " does not have an access rule defined");
 			this.matcher = matcher;
 			return new Access();
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			if (this.matcher != null) {
-				throw new IllegalStateException(
-						"The matcher " + this.matcher + " does not have an access rule defined");
-			}
+			Assert.state(this.matcher == null,
+					() -> "The matcher " + this.matcher + " does not have an access rule defined");
 			AuthorizationWebFilter result = new AuthorizationWebFilter(this.managerBldr.build());
 			http.addFilterAt(result, SecurityWebFiltersOrder.AUTHORIZATION);
 		}
@@ -1722,6 +1717,9 @@ public class ServerHttpSecurity {
 	 */
 	public final class CsrfSpec {
 
+		private CsrfSpec() {
+		}
+
 		private CsrfWebFilter filter = new CsrfWebFilter();
 
 		private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
@@ -1805,9 +1803,6 @@ public class ServerHttpSecurity {
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
 		}
 
-		private CsrfSpec() {
-		}
-
 	}
 
 	/**
@@ -1818,6 +1813,9 @@ public class ServerHttpSecurity {
 	 * @see #exceptionHandling()
 	 */
 	public final class ExceptionHandlingSpec {
+
+		private ExceptionHandlingSpec() {
+		}
 
 		/**
 		 * Configures what to do when the application request authentication
@@ -1850,9 +1848,6 @@ public class ServerHttpSecurity {
 			return ServerHttpSecurity.this;
 		}
 
-		private ExceptionHandlingSpec() {
-		}
-
 	}
 
 	/**
@@ -1866,6 +1861,9 @@ public class ServerHttpSecurity {
 	public final class RequestCacheSpec {
 
 		private ServerRequestCache requestCache = new WebSessionServerRequestCache();
+
+		private RequestCacheSpec() {
+		}
 
 		/**
 		 * Configures the cache used
@@ -1901,9 +1899,6 @@ public class ServerHttpSecurity {
 			return and();
 		}
 
-		private RequestCacheSpec() {
-		}
-
 	}
 
 	/**
@@ -1920,6 +1915,9 @@ public class ServerHttpSecurity {
 		private ServerSecurityContextRepository securityContextRepository;
 
 		private ServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
+
+		private HttpBasicSpec() {
+		}
 
 		/**
 		 * The {@link ReactiveAuthenticationManager} used to authenticate. Defaults to
@@ -1992,9 +1990,6 @@ public class ServerHttpSecurity {
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
 
-		private HttpBasicSpec() {
-		}
-
 	}
 
 	/**
@@ -2024,6 +2019,9 @@ public class ServerHttpSecurity {
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
 		private ServerAuthenticationSuccessHandler authenticationSuccessHandler = this.defaultSuccessHandler;
+
+		private FormLoginSpec() {
+		}
 
 		/**
 		 * The {@link ReactiveAuthenticationManager} used to authenticate. Defaults to
@@ -2177,12 +2175,12 @@ public class ServerHttpSecurity {
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.FORM_LOGIN);
 		}
 
-		private FormLoginSpec() {
-		}
-
 	}
 
 	private final class LoginPageSpec {
+
+		private LoginPageSpec() {
+		}
 
 		protected void configure(ServerHttpSecurity http) {
 			if (http.authenticationEntryPoint != null) {
@@ -2207,9 +2205,6 @@ public class ServerHttpSecurity {
 				http.addFilterAt(loginPage, SecurityWebFiltersOrder.LOGIN_PAGE_GENERATING);
 				http.addFilterAt(new LogoutPageGeneratingWebFilter(), SecurityWebFiltersOrder.LOGOUT_PAGE_GENERATING);
 			}
-		}
-
-		private LoginPageSpec() {
 		}
 
 	}
@@ -2240,6 +2235,11 @@ public class ServerHttpSecurity {
 		private ContentSecurityPolicyServerHttpHeadersWriter contentSecurityPolicy = new ContentSecurityPolicyServerHttpHeadersWriter();
 
 		private ReferrerPolicyServerHttpHeadersWriter referrerPolicy = new ReferrerPolicyServerHttpHeadersWriter();
+
+		private HeaderSpec() {
+			this.writers = new ArrayList<>(Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
+					this.frameOptions, this.xss, this.featurePolicy, this.contentSecurityPolicy, this.referrerPolicy));
+		}
 
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
@@ -2437,6 +2437,9 @@ public class ServerHttpSecurity {
 		 */
 		public final class CacheSpec {
 
+			private CacheSpec() {
+			}
+
 			/**
 			 * Disables cache control response headers
 			 * @return the {@link HeaderSpec} to configure
@@ -2444,9 +2447,6 @@ public class ServerHttpSecurity {
 			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.cacheControl);
 				return HeaderSpec.this;
-			}
-
-			private CacheSpec() {
 			}
 
 		}
@@ -2458,6 +2458,9 @@ public class ServerHttpSecurity {
 		 */
 		public final class ContentTypeOptionsSpec {
 
+			private ContentTypeOptionsSpec() {
+			}
+
 			/**
 			 * Disables the content type options response header
 			 * @return the {@link HeaderSpec} to configure
@@ -2465,9 +2468,6 @@ public class ServerHttpSecurity {
 			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.contentTypeOptions);
 				return HeaderSpec.this;
-			}
-
-			private ContentTypeOptionsSpec() {
 			}
 
 		}
@@ -2478,6 +2478,9 @@ public class ServerHttpSecurity {
 		 * @see #frameOptions()
 		 */
 		public final class FrameOptionsSpec {
+
+			private FrameOptionsSpec() {
+			}
 
 			/**
 			 * The mode to configure. Default is
@@ -2508,9 +2511,6 @@ public class ServerHttpSecurity {
 				return and();
 			}
 
-			private FrameOptionsSpec() {
-			}
-
 		}
 
 		/**
@@ -2519,6 +2519,9 @@ public class ServerHttpSecurity {
 		 * @see #hsts()
 		 */
 		public final class HstsSpec {
+
+			private HstsSpec() {
+			}
 
 			/**
 			 * Configures the max age. Default is one year.
@@ -2577,9 +2580,6 @@ public class ServerHttpSecurity {
 				return HeaderSpec.this;
 			}
 
-			private HstsSpec() {
-			}
-
 		}
 
 		/**
@@ -2612,6 +2612,10 @@ public class ServerHttpSecurity {
 		public final class ContentSecurityPolicySpec {
 
 			private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
+
+			private ContentSecurityPolicySpec() {
+				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+			}
 
 			/**
 			 * Whether to include the {@code Content-Security-Policy-Report-Only} header
@@ -2648,10 +2652,6 @@ public class ServerHttpSecurity {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
 			}
 
-			private ContentSecurityPolicySpec() {
-				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
-			}
-
 		}
 
 		/**
@@ -2662,6 +2662,10 @@ public class ServerHttpSecurity {
 		 */
 		public final class FeaturePolicySpec {
 
+			private FeaturePolicySpec(String policyDirectives) {
+				HeaderSpec.this.featurePolicy.setPolicyDirectives(policyDirectives);
+			}
+
 			/**
 			 * Allows method chaining to continue configuring the
 			 * {@link ServerHttpSecurity}.
@@ -2669,10 +2673,6 @@ public class ServerHttpSecurity {
 			 */
 			public HeaderSpec and() {
 				return HeaderSpec.this;
-			}
-
-			private FeaturePolicySpec(String policyDirectives) {
-				HeaderSpec.this.featurePolicy.setPolicyDirectives(policyDirectives);
 			}
 
 		}
@@ -2685,6 +2685,9 @@ public class ServerHttpSecurity {
 		 * @see #referrerPolicy(ReferrerPolicy)
 		 */
 		public final class ReferrerPolicySpec {
+
+			private ReferrerPolicySpec() {
+			}
 
 			private ReferrerPolicySpec(ReferrerPolicy referrerPolicy) {
 				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
@@ -2709,14 +2712,6 @@ public class ServerHttpSecurity {
 				return HeaderSpec.this;
 			}
 
-			private ReferrerPolicySpec() {
-			}
-
-		}
-
-		private HeaderSpec() {
-			this.writers = new ArrayList<>(Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
-					this.frameOptions, this.xss, this.featurePolicy, this.contentSecurityPolicy, this.referrerPolicy));
 		}
 
 	}
@@ -2735,6 +2730,9 @@ public class ServerHttpSecurity {
 		private final SecurityContextServerLogoutHandler DEFAULT_LOGOUT_HANDLER = new SecurityContextServerLogoutHandler();
 
 		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(this.DEFAULT_LOGOUT_HANDLER));
+
+		private LogoutSpec() {
+		}
 
 		/**
 		 * Configures the logout handler. Default is
@@ -2807,12 +2805,10 @@ public class ServerHttpSecurity {
 			if (this.logoutHandlers.isEmpty()) {
 				return null;
 			}
-			else if (this.logoutHandlers.size() == 1) {
+			if (this.logoutHandlers.size() == 1) {
 				return this.logoutHandlers.get(0);
 			}
-			else {
-				return new DelegatingServerLogoutHandler(this.logoutHandlers);
-			}
+			return new DelegatingServerLogoutHandler(this.logoutHandlers);
 		}
 
 		protected void configure(ServerHttpSecurity http) {
@@ -2821,9 +2817,6 @@ public class ServerHttpSecurity {
 				this.logoutWebFilter.setLogoutHandler(logoutHandler);
 			}
 			http.addFilterAt(this.logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
-		}
-
-		private LogoutSpec() {
 		}
 
 	}
@@ -2917,7 +2910,6 @@ public class ServerHttpSecurity {
 			if (this.corsFilter != null) {
 				return this.corsFilter;
 			}
-
 			CorsConfigurationSource source = getBeanOrNull(CorsConfigurationSource.class);
 			if (source == null) {
 				return null;
@@ -2965,7 +2957,6 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 			X509PrincipalExtractor principalExtractor = getPrincipalExtractor();
-
 			AuthenticationWebFilter filter = new AuthenticationWebFilter(authenticationManager);
 			filter.setServerAuthenticationConverter(new ServerX509AuthenticationConverter(principalExtractor));
 			http.addFilterAt(filter, SecurityWebFiltersOrder.AUTHENTICATION);
@@ -2975,7 +2966,6 @@ public class ServerHttpSecurity {
 			if (this.principalExtractor != null) {
 				return this.principalExtractor;
 			}
-
 			return new SubjectDnX509PrincipalExtractor();
 		}
 
@@ -2983,12 +2973,8 @@ public class ServerHttpSecurity {
 			if (this.authenticationManager != null) {
 				return this.authenticationManager;
 			}
-
 			ReactiveUserDetailsService userDetailsService = getBean(ReactiveUserDetailsService.class);
-			ReactivePreAuthenticatedAuthenticationManager authenticationManager = new ReactivePreAuthenticatedAuthenticationManager(
-					userDetailsService);
-
-			return authenticationManager;
+			return new ReactivePreAuthenticatedAuthenticationManager(userDetailsService);
 		}
 
 	}
@@ -3095,21 +3081,21 @@ public class ServerHttpSecurity {
 			}
 			boolean oidcAuthenticationProviderEnabled = ClassUtils
 					.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
-			if (oidcAuthenticationProviderEnabled) {
-				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(
-						client, getOidcUserService());
-				ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveJwtDecoderFactory.class,
-						ClientRegistration.class);
-				ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = getBeanOrNull(type);
-				if (jwtDecoderFactory != null) {
-					oidc.setJwtDecoderFactory(jwtDecoderFactory);
-				}
-				if (authoritiesMapper != null) {
-					oidc.setAuthoritiesMapper(authoritiesMapper);
-				}
-				return new DelegatingReactiveAuthenticationManager(oidc, oauth2Manager);
+			if (!oidcAuthenticationProviderEnabled) {
+				return oauth2Manager;
 			}
-			return oauth2Manager;
+			OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(
+					client, getOidcUserService());
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveJwtDecoderFactory.class,
+					ClientRegistration.class);
+			ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = getBeanOrNull(type);
+			if (jwtDecoderFactory != null) {
+				oidc.setJwtDecoderFactory(jwtDecoderFactory);
+			}
+			if (authoritiesMapper != null) {
+				oidc.setAuthoritiesMapper(authoritiesMapper);
+			}
+			return new DelegatingReactiveAuthenticationManager(oidc, oauth2Manager);
 		}
 
 		/**
@@ -3124,17 +3110,17 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationConverter getAuthenticationConverter(
 				ReactiveClientRegistrationRepository clientRegistrationRepository) {
-			if (this.authenticationConverter == null) {
-				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter delegate = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
-						clientRegistrationRepository);
-				delegate.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
-				ServerAuthenticationConverter authenticationConverter = (exchange) -> delegate.convert(exchange)
-						.onErrorMap(OAuth2AuthorizationException.class,
-								(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
-				this.authenticationConverter = authenticationConverter;
-				return authenticationConverter;
+			if (this.authenticationConverter != null) {
+				return this.authenticationConverter;
 			}
-			return this.authenticationConverter;
+			ServerOAuth2AuthorizationCodeAuthenticationTokenConverter delegate = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
+					clientRegistrationRepository);
+			delegate.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+			ServerAuthenticationConverter authenticationConverter = (exchange) -> delegate.convert(exchange).onErrorMap(
+					OAuth2AuthorizationException.class,
+					(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
+			this.authenticationConverter = authenticationConverter;
+			return authenticationConverter;
 		}
 
 		public OAuth2LoginSpec clientRegistrationRepository(
@@ -3216,21 +3202,16 @@ public class ServerHttpSecurity {
 			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = getAuthorizationRequestRepository();
 			oauthRedirectFilter.setAuthorizationRequestRepository(authorizationRequestRepository);
 			oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
-
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
-
 			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager,
 					authorizedClientRepository);
 			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
 			authenticationFilter
 					.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
-
 			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
 			authenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
-
 			setDefaultEntryPoints(http);
-
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 		}
@@ -3242,12 +3223,10 @@ public class ServerHttpSecurity {
 			if (urlToText.size() == 1) {
 				providerLoginPage = urlToText.keySet().iterator().next();
 			}
-
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 					MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
 					MediaType.TEXT_PLAIN);
 			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
 			ServerWebExchangeMatcher xhrMatcher = (exchange) -> {
 				if (exchange.getRequest().getHeaders().getOrEmpty("X-Requested-With").contains("XMLHttpRequest")) {
 					return ServerWebExchangeMatcher.MatchResult.match();
@@ -3255,10 +3234,8 @@ public class ServerHttpSecurity {
 				return ServerWebExchangeMatcher.MatchResult.notMatch();
 			};
 			ServerWebExchangeMatcher notXhrMatcher = new NegatedServerWebExchangeMatcher(xhrMatcher);
-
 			ServerWebExchangeMatcher defaultEntryPointMatcher = new AndServerWebExchangeMatcher(notXhrMatcher,
 					htmlMatcher);
-
 			if (providerLoginPage != null) {
 				ServerWebExchangeMatcher loginPageMatcher = new PathPatternParserServerWebExchangeMatcher(
 						defaultLoginPage);
@@ -3273,7 +3250,6 @@ public class ServerHttpSecurity {
 				entryPoint.setRequestCache(http.requestCache.requestCache);
 				http.defaultEntryPoints.add(new DelegateEntry(matcher, entryPoint));
 			}
-
 			RedirectServerAuthenticationEntryPoint defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(
 					defaultLoginPage);
 			defaultEntryPoint.setRequestCache(http.requestCache.requestCache);
@@ -3304,22 +3280,20 @@ public class ServerHttpSecurity {
 			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2UserService.class,
 					OidcUserRequest.class, OidcUser.class);
 			ReactiveOAuth2UserService<OidcUserRequest, OidcUser> bean = getBeanOrNull(type);
-			if (bean == null) {
-				return new OidcReactiveOAuth2UserService();
+			if (bean != null) {
+				return bean;
 			}
-
-			return bean;
+			return new OidcReactiveOAuth2UserService();
 		}
 
 		private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> getOauth2UserService() {
 			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2UserService.class,
 					OAuth2UserRequest.class, OAuth2User.class);
 			ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> bean = getBeanOrNull(type);
-			if (bean == null) {
-				return new DefaultReactiveOAuth2UserService();
+			if (bean != null) {
+				return bean;
 			}
-
-			return bean;
+			return new DefaultReactiveOAuth2UserService();
 		}
 
 		private Map<String, String> getLinks() {
@@ -3338,10 +3312,10 @@ public class ServerHttpSecurity {
 			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2AccessTokenResponseClient.class,
 					OAuth2AuthorizationCodeGrantRequest.class);
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(type);
-			if (bean == null) {
-				return new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			if (bean != null) {
+				return bean;
 			}
-			return bean;
+			return new WebClientReactiveAuthorizationCodeTokenResponseClient();
 		}
 
 		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
@@ -3353,15 +3327,10 @@ public class ServerHttpSecurity {
 
 		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter;
-			if (this.authorizationRequestResolver == null) {
-				oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
-						getClientRegistrationRepository());
+			if (this.authorizationRequestResolver != null) {
+				return new OAuth2AuthorizationRequestRedirectWebFilter(this.authorizationRequestResolver);
 			}
-			else {
-				oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
-						this.authorizationRequestResolver);
-			}
-			return oauthRedirectFilter;
+			return new OAuth2AuthorizationRequestRedirectWebFilter(getClientRegistrationRepository());
 		}
 
 		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
@@ -3386,11 +3355,11 @@ public class ServerHttpSecurity {
 		}
 
 		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
-			ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
-			if (service == null) {
-				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
+			ReactiveOAuth2AuthorizedClientService bean = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			if (bean != null) {
+				return bean;
 			}
-			return service;
+			return new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
 		}
 
 	}
@@ -3518,14 +3487,12 @@ public class ServerHttpSecurity {
 			if (http.requestCache != null) {
 				codeGrantWebFilter.setRequestCache(http.requestCache.requestCache);
 			}
-
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
 					clientRegistrationRepository);
 			oauthRedirectFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
 			if (http.requestCache != null) {
 				oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
 			}
-
 			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.OAUTH2_AUTHORIZATION_CODE);
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
@@ -3542,21 +3509,22 @@ public class ServerHttpSecurity {
 				return this.authorizedClientRepository;
 			}
 			ServerOAuth2AuthorizedClientRepository result = getBeanOrNull(ServerOAuth2AuthorizedClientRepository.class);
-			if (result == null) {
-				ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
-				if (authorizedClientService != null) {
-					result = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService);
-				}
+			if (result != null) {
+				return result;
 			}
-			return result;
+			ReactiveOAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientService();
+			if (authorizedClientService != null) {
+				return new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(authorizedClientService);
+			}
+			return null;
 		}
 
 		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
-			ReactiveOAuth2AuthorizedClientService service = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
-			if (service == null) {
-				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
+			ReactiveOAuth2AuthorizedClientService bean = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
+			if (bean != null) {
+				return bean;
 			}
-			return service;
+			return new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
 		}
 
 	}
@@ -3692,13 +3660,10 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			this.authenticationConverterServerWebExchangeMatcher = new AuthenticationConverterServerWebExchangeMatcher(
 					this.bearerTokenConverter);
-
 			registerDefaultAccessDeniedHandler(http);
 			registerDefaultAuthenticationEntryPoint(http);
 			registerDefaultCsrfOverride(http);
-
 			validateConfiguration();
-
 			if (this.authenticationManagerResolver != null) {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
 				oauth2.setServerAuthenticationConverter(this.bearerTokenConverter);
@@ -3716,25 +3681,18 @@ public class ServerHttpSecurity {
 
 		private void validateConfiguration() {
 			if (this.authenticationManagerResolver == null) {
-				if (this.jwt == null && this.opaqueToken == null) {
-					throw new IllegalStateException(
-							"Jwt and Opaque Token are the only supported formats for bearer tokens "
-									+ "in Spring Security and neither was found. Make sure to configure JWT "
-									+ "via http.oauth2ResourceServer().jwt() or Opaque Tokens via "
-									+ "http.oauth2ResourceServer().opaqueToken().");
-				}
-
-				if (this.jwt != null && this.opaqueToken != null) {
-					throw new IllegalStateException(
-							"Spring Security only supports JWTs or Opaque Tokens, not both at the " + "same time.");
-				}
+				Assert.state(this.jwt != null || this.opaqueToken != null,
+						"Jwt and Opaque Token are the only supported formats for bearer tokens "
+								+ "in Spring Security and neither was found. Make sure to configure JWT "
+								+ "via http.oauth2ResourceServer().jwt() or Opaque Tokens via "
+								+ "http.oauth2ResourceServer().opaqueToken().");
+				Assert.state(this.jwt == null || this.opaqueToken == null,
+						"Spring Security only supports JWTs or Opaque Tokens, not both at the " + "same time.");
 			}
 			else {
-				if (this.jwt != null || this.opaqueToken != null) {
-					throw new IllegalStateException(
-							"If an authenticationManagerResolver() is configured, then it takes "
-									+ "precedence over any jwt() or opaqueToken() configuration.");
-				}
+				Assert.state(this.jwt == null && this.opaqueToken == null,
+						"If an authenticationManagerResolver() is configured, then it takes "
+								+ "precedence over any jwt() or opaqueToken() configuration.");
 			}
 		}
 
@@ -3756,15 +3714,10 @@ public class ServerHttpSecurity {
 
 		private void registerDefaultCsrfOverride(ServerHttpSecurity http) {
 			if (http.csrf != null && !http.csrf.specifiedRequireCsrfProtectionMatcher) {
-				// @formatter:off
-				http
-					.csrf()
-					.requireCsrfProtectionMatcher(
-							new AndServerWebExchangeMatcher(
-									CsrfWebFilter.DEFAULT_CSRF_MATCHER,
-									new NegatedServerWebExchangeMatcher(
-											this.authenticationConverterServerWebExchangeMatcher)));
-				// @formatter:on
+				AndServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(
+						CsrfWebFilter.DEFAULT_CSRF_MATCHER,
+						new NegatedServerWebExchangeMatcher(this.authenticationConverterServerWebExchangeMatcher));
+				http.csrf().requireCsrfProtectionMatcher(matcher);
 			}
 		}
 
@@ -3876,21 +3829,14 @@ public class ServerHttpSecurity {
 				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(
 						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
-				// @formatter:off
-				http
-					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
-				// @formatter:on
+				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 
 			protected ReactiveJwtDecoder getJwtDecoder() {
-				if (this.jwtDecoder == null) {
-					return getBean(ReactiveJwtDecoder.class);
-				}
-				return this.jwtDecoder;
+				return (this.jwtDecoder != null) ? this.jwtDecoder : getBean(ReactiveJwtDecoder.class);
 			}
 
 			protected Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> getJwtAuthenticationConverter() {
-
 				return this.jwtAuthenticationConverter;
 			}
 
@@ -3898,13 +3844,11 @@ public class ServerHttpSecurity {
 				if (this.authenticationManager != null) {
 					return this.authenticationManager;
 				}
-
 				ReactiveJwtDecoder jwtDecoder = getJwtDecoder();
 				Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter = getJwtAuthenticationConverter();
 				JwtReactiveAuthenticationManager authenticationManager = new JwtReactiveAuthenticationManager(
 						jwtDecoder);
 				authenticationManager.setJwtAuthenticationConverter(jwtAuthenticationConverter);
-
 				return authenticationManager;
 			}
 

@@ -16,11 +16,9 @@
 
 package org.springframework.security.config.authentication;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
@@ -42,17 +40,13 @@ public class PasswordEncoderParser {
 	static final String ATT_REF = "ref";
 
 	public static final String ATT_HASH = "hash";
+
 	static final String ATT_BASE_64 = "base64";
+
 	static final String OPT_HASH_BCRYPT = "bcrypt";
 
-	private static final Map<String, Class<?>> ENCODER_CLASSES;
-
-	static {
-		ENCODER_CLASSES = new HashMap<>();
-		ENCODER_CLASSES.put(OPT_HASH_BCRYPT, BCryptPasswordEncoder.class);
-	}
-
-	private static final Log logger = LogFactory.getLog(PasswordEncoderParser.class);
+	private static final Map<String, Class<?>> ENCODER_CLASSES = Collections.singletonMap(OPT_HASH_BCRYPT,
+			BCryptPasswordEncoder.class);
 
 	private BeanMetadataElement passwordEncoder;
 
@@ -68,14 +62,9 @@ public class PasswordEncoderParser {
 			return;
 		}
 		String hash = element.getAttribute(ATT_HASH);
-		boolean useBase64 = false;
-
-		if (StringUtils.hasText(element.getAttribute(ATT_BASE_64))) {
-			useBase64 = Boolean.parseBoolean(element.getAttribute(ATT_BASE_64));
-		}
-
+		boolean useBase64 = StringUtils.hasText(element.getAttribute(ATT_BASE_64))
+				&& Boolean.parseBoolean(element.getAttribute(ATT_BASE_64));
 		String ref = element.getAttribute(ATT_REF);
-
 		if (StringUtils.hasText(ref)) {
 			this.passwordEncoder = new RuntimeBeanReference(ref);
 		}

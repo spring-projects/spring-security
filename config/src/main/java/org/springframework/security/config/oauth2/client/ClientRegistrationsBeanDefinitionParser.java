@@ -87,10 +87,8 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 		CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(),
 				parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compositeDef);
-
 		Map<String, Map<String, String>> providers = getProviders(element);
 		List<ClientRegistration> clientRegistrations = getClientRegistrations(element, parserContext, providers);
-
 		BeanDefinition clientRegistrationRepositoryBean = BeanDefinitionBuilder
 				.rootBeanDefinition(InMemoryClientRegistrationRepository.class)
 				.addConstructorArgValue(clientRegistrations).getBeanDefinition();
@@ -98,7 +96,6 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 				.generateBeanName(clientRegistrationRepositoryBean);
 		parserContext.registerBeanComponent(
 				new BeanComponentDefinition(clientRegistrationRepositoryBean, clientRegistrationRepositoryId));
-
 		parserContext.popAndRegisterContainingComponent();
 		return null;
 	}
@@ -107,7 +104,6 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			Map<String, Map<String, String>> providers) {
 		List<Element> clientRegistrationElts = DomUtils.getChildElementsByTagName(element, ELT_CLIENT_REGISTRATION);
 		List<ClientRegistration> clientRegistrations = new ArrayList<>();
-
 		for (Element clientRegistrationElt : clientRegistrationElts) {
 			String registrationId = clientRegistrationElt.getAttribute(ATT_REGISTRATION_ID);
 			String providerId = clientRegistrationElt.getAttribute(ATT_PROVIDER_ID);
@@ -134,14 +130,12 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_NAME)).ifPresent(builder::clientName);
 			clientRegistrations.add(builder.build());
 		}
-
 		return clientRegistrations;
 	}
 
 	private Map<String, Map<String, String>> getProviders(Element element) {
 		List<Element> providerElts = DomUtils.getChildElementsByTagName(element, ELT_PROVIDER);
 		Map<String, Map<String, String>> providers = new HashMap<>();
-
 		for (Element providerElt : providerElts) {
 			Map<String, String> provider = new HashMap<>();
 			String providerId = providerElt.getAttribute(ATT_PROVIDER_ID);
@@ -162,7 +156,6 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 					.ifPresent((value) -> provider.put(ATT_ISSUER_URI, value));
 			providers.put(providerId, provider);
 		}
-
 		return providers;
 	}
 

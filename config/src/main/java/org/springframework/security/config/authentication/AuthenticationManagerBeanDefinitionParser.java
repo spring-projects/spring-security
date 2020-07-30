@@ -60,7 +60,6 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		String id = element.getAttribute("id");
-
 		if (!StringUtils.hasText(id)) {
 			if (pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
 				pc.getReaderContext().warning("Overriding globally registered AuthenticationManager",
@@ -69,65 +68,30 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 			id = BeanIds.AUTHENTICATION_MANAGER;
 		}
 		pc.pushContainingComponent(new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element)));
-
 		BeanDefinitionBuilder providerManagerBldr = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
-
 		String alias = element.getAttribute(ATT_ALIAS);
-
 		List<BeanMetadataElement> providers = new ManagedList<>();
 		NamespaceHandlerResolver resolver = pc.getReaderContext().getNamespaceHandlerResolver();
-
 		NodeList children = element.getChildNodes();
-
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
 			if (node instanceof Element) {
-				Element providerElt = (Element) node;
-				if (StringUtils.hasText(providerElt.getAttribute(ATT_REF))) {
-					if (providerElt.getAttributes().getLength() > 1) {
-						pc.getReaderContext()
-								.error("authentication-provider element cannot be used with other attributes "
-										+ "when using 'ref' attribute", pc.extractSource(element));
-					}
-					NodeList providerChildren = providerElt.getChildNodes();
-					for (int j = 0; j < providerChildren.getLength(); j++) {
-						if (providerChildren.item(j) instanceof Element) {
-							pc.getReaderContext()
-									.error("authentication-provider element cannot have child elements when used "
-											+ "with 'ref' attribute", pc.extractSource(element));
-						}
-					}
-					providers.add(new RuntimeBeanReference(providerElt.getAttribute(ATT_REF)));
-				}
-				else {
-					BeanDefinition provider = resolver.resolve(providerElt.getNamespaceURI()).parse(providerElt, pc);
-					Assert.notNull(provider,
-							() -> "Parser for " + providerElt.getNodeName() + " returned a null bean definition");
-					String providerId = pc.getReaderContext().generateBeanName(provider);
-					pc.registerBeanComponent(new BeanComponentDefinition(provider, providerId));
-					providers.add(new RuntimeBeanReference(providerId));
-				}
+				providers.add(extracted(element, pc, resolver, (Element) node));
 			}
 		}
-
 		if (providers.isEmpty()) {
 			providers.add(new RootBeanDefinition(NullAuthenticationProvider.class));
 		}
-
 		providerManagerBldr.addConstructorArgValue(providers);
-
 		if ("false".equals(element.getAttribute(ATT_ERASE_CREDENTIALS))) {
 			providerManagerBldr.addPropertyValue("eraseCredentialsAfterAuthentication", false);
 		}
-
 		// Add the default event publisher
 		BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
 		String pubId = pc.getReaderContext().generateBeanName(publisher);
 		pc.registerBeanComponent(new BeanComponentDefinition(publisher, pubId));
 		providerManagerBldr.addPropertyReference("authenticationEventPublisher", pubId);
-
 		pc.registerBeanComponent(new BeanComponentDefinition(providerManagerBldr.getBeanDefinition(), id));
-
 		if (StringUtils.hasText(alias)) {
 			pc.getRegistry().registerAlias(id, alias);
 			pc.getReaderContext().fireAliasRegistered(id, alias, pc.extractSource(element));
@@ -136,10 +100,33 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 			pc.getRegistry().registerAlias(id, BeanIds.AUTHENTICATION_MANAGER);
 			pc.getReaderContext().fireAliasRegistered(id, BeanIds.AUTHENTICATION_MANAGER, pc.extractSource(element));
 		}
-
 		pc.popAndRegisterContainingComponent();
-
 		return null;
+	}
+
+	private BeanMetadataElement extracted(Element element, ParserContext pc, NamespaceHandlerResolver resolver,
+			Element providerElement) {
+		String ref = providerElement.getAttribute(ATT_REF);
+		if (!StringUtils.hasText(ref)) {
+			BeanDefinition provider = resolver.resolve(providerElement.getNamespaceURI()).parse(providerElement, pc);
+			Assert.notNull(provider,
+					() -> "Parser for " + providerElement.getNodeName() + " returned a null bean definition");
+			String providerId = pc.getReaderContext().generateBeanName(provider);
+			pc.registerBeanComponent(new BeanComponentDefinition(provider, providerId));
+			return new RuntimeBeanReference(providerId);
+		}
+		if (providerElement.getAttributes().getLength() > 1) {
+			pc.getReaderContext().error("authentication-provider element cannot be used with other attributes "
+					+ "when using 'ref' attribute", pc.extractSource(element));
+		}
+		NodeList providerChildren = providerElement.getChildNodes();
+		for (int i = 0; i < providerChildren.getLength(); i++) {
+			if (providerChildren.item(i) instanceof Element) {
+				pc.getReaderContext().error("authentication-provider element cannot have child elements when used "
+						+ "with 'ref' attribute", pc.extractSource(element));
+			}
+		}
+		return new RuntimeBeanReference(ref);
 	}
 
 	/**

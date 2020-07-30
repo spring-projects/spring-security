@@ -50,34 +50,31 @@ public class ContextSourceSettingPostProcessor implements BeanFactoryPostProcess
 
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory bf) throws BeansException {
-		Class<?> contextSourceClass;
-
-		try {
-			contextSourceClass = ClassUtils.forName(REQUIRED_CONTEXT_SOURCE_CLASS_NAME,
-					ClassUtils.getDefaultClassLoader());
-		}
-		catch (ClassNotFoundException ex) {
-			throw new ApplicationContextException("Couldn't locate: " + REQUIRED_CONTEXT_SOURCE_CLASS_NAME + ". "
-					+ " If you are using LDAP with Spring Security, please ensure that you include the spring-ldap "
-					+ "jar file in your application", ex);
-		}
-
+		Class<?> contextSourceClass = getContextSourceClass();
 		String[] sources = bf.getBeanNamesForType(contextSourceClass, false, false);
-
 		if (sources.length == 0) {
 			throw new ApplicationContextException("No BaseLdapPathContextSource instances found. Have you "
 					+ "added an <" + Elements.LDAP_SERVER + " /> element to your application context? If you have "
 					+ "declared an explicit bean, do not use lazy-init");
 		}
-
 		if (!bf.containsBean(BeanIds.CONTEXT_SOURCE) && this.defaultNameRequired) {
 			if (sources.length > 1) {
 				throw new ApplicationContextException("More than one BaseLdapPathContextSource instance found. "
 						+ "Please specify a specific server id using the 'server-ref' attribute when configuring your <"
 						+ Elements.LDAP_PROVIDER + "> " + "or <" + Elements.LDAP_USER_SERVICE + ">.");
 			}
-
 			bf.registerAlias(sources[0], BeanIds.CONTEXT_SOURCE);
+		}
+	}
+
+	private Class<?> getContextSourceClass() throws LinkageError {
+		try {
+			return ClassUtils.forName(REQUIRED_CONTEXT_SOURCE_CLASS_NAME, ClassUtils.getDefaultClassLoader());
+		}
+		catch (ClassNotFoundException ex) {
+			throw new ApplicationContextException("Couldn't locate: " + REQUIRED_CONTEXT_SOURCE_CLASS_NAME + ". "
+					+ " If you are using LDAP with Spring Security, please ensure that you include the spring-ldap "
+					+ "jar file in your application", ex);
 		}
 	}
 

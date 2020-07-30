@@ -316,7 +316,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	public void init(H http) {
 		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
 		boolean stateless = isStateless();
-
 		if (securityContextRepository == null) {
 			if (stateless) {
 				http.setSharedObject(SecurityContextRepository.class, new NullSecurityContextRepository());
@@ -332,7 +331,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 				http.setSharedObject(SecurityContextRepository.class, httpSecurityRepository);
 			}
 		}
-
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache == null) {
 			if (stateless) {
@@ -365,7 +363,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			sessionManagementFilter.setTrustResolver(trustResolver);
 		}
 		sessionManagementFilter = postProcess(sessionManagementFilter);
-
 		http.addFilter(sessionManagementFilter);
 		if (isConcurrentSessionControlEnabled()) {
 			ConcurrentSessionFilter concurrentSessionFilter = createConcurrencyFilter(http);
@@ -378,13 +375,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private ConcurrentSessionFilter createConcurrencyFilter(H http) {
 		SessionInformationExpiredStrategy expireStrategy = getExpiredSessionStrategy();
 		SessionRegistry sessionRegistry = getSessionRegistry(http);
-		ConcurrentSessionFilter concurrentSessionFilter;
-		if (expireStrategy == null) {
-			concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry);
-		}
-		else {
-			concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry, expireStrategy);
-		}
+		ConcurrentSessionFilter concurrentSessionFilter = (expireStrategy != null)
+				? new ConcurrentSessionFilter(sessionRegistry, expireStrategy)
+				: new ConcurrentSessionFilter(sessionRegistry);
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null) {
 			List<LogoutHandler> logoutHandlers = logoutConfigurer.getLogoutHandlers();
@@ -405,11 +398,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.invalidSessionStrategy != null) {
 			return this.invalidSessionStrategy;
 		}
-
 		if (this.invalidSessionUrl == null) {
 			return null;
 		}
-
 		this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(this.invalidSessionUrl);
 		return this.invalidSessionStrategy;
 	}
@@ -418,11 +409,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.expiredSessionStrategy != null) {
 			return this.expiredSessionStrategy;
 		}
-
 		if (this.expiredUrl == null) {
 			return null;
 		}
-
 		this.expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(this.expiredUrl);
 		return this.expiredSessionStrategy;
 	}
@@ -431,11 +420,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.sessionAuthenticationFailureHandler != null) {
 			return this.sessionAuthenticationFailureHandler;
 		}
-
 		if (this.sessionAuthenticationErrorUrl == null) {
 			return null;
 		}
-
 		this.sessionAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler(
 				this.sessionAuthenticationErrorUrl);
 		return this.sessionAuthenticationFailureHandler;
@@ -449,7 +436,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.sessionPolicy != null) {
 			return this.sessionPolicy;
 		}
-
 		SessionCreationPolicy sessionPolicy = getBuilder().getSharedObject(SessionCreationPolicy.class);
 		return (sessionPolicy != null) ? sessionPolicy : SessionCreationPolicy.IF_REQUIRED;
 	}
@@ -628,6 +614,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public final class ConcurrencyControlConfigurer {
 
+		private ConcurrencyControlConfigurer() {
+		}
+
 		/**
 		 * Controls the maximum number of sessions for a user. The default is to allow any
 		 * number of users.
@@ -697,9 +686,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		 */
 		public SessionManagementConfigurer<H> and() {
 			return SessionManagementConfigurer.this;
-		}
-
-		private ConcurrencyControlConfigurer() {
 		}
 
 	}

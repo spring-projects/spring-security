@@ -308,20 +308,17 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.defaultWebSecurityExpressionHandler.setApplicationContext(applicationContext);
-
 		try {
 			this.defaultWebSecurityExpressionHandler.setRoleHierarchy(applicationContext.getBean(RoleHierarchy.class));
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
-
 		try {
 			this.defaultWebSecurityExpressionHandler
 					.setPermissionEvaluator(applicationContext.getBean(PermissionEvaluator.class));
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
-
 		this.ignoredRequestRegistry = new IgnoredRequestConfigurer(applicationContext);
 		try {
 			this.httpFirewall = applicationContext.getBean(HttpFirewall.class);

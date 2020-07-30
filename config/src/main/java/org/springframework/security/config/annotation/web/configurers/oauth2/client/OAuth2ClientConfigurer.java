@@ -197,7 +197,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 		 */
 		public AuthorizationCodeGrantConfigurer authorizationRequestRepository(
 				AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
-
 			Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 			this.authorizationRequestRepository = authorizationRequestRepository;
 			return this;
@@ -212,7 +211,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 		 */
 		public AuthorizationCodeGrantConfigurer accessTokenResponseClient(
 				OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
-
 			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 			this.accessTokenResponseClient = accessTokenResponseClient;
 			return this;
@@ -245,7 +243,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			OAuth2AuthorizationRequestResolver resolver = getAuthorizationRequestResolver();
 			OAuth2AuthorizationRequestRedirectFilter authorizationRequestRedirectFilter = new OAuth2AuthorizationRequestRedirectFilter(
 					resolver);
-
 			if (this.authorizationRequestRepository != null) {
 				authorizationRequestRedirectFilter
 						.setAuthorizationRequestRepository(this.authorizationRequestRepository);
@@ -272,7 +269,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			OAuth2AuthorizationCodeGrantFilter authorizationCodeGrantFilter = new OAuth2AuthorizationCodeGrantFilter(
 					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(builder),
 					OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(builder), authenticationManager);
-
 			if (this.authorizationRequestRepository != null) {
 				authorizationCodeGrantFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 			}

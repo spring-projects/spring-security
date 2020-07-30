@@ -170,7 +170,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		for (String mvcPattern : mvcPatterns) {
 			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
 			opp.postProcess(matcher);
-
 			if (method != null) {
 				matcher.setMethod(method);
 			}

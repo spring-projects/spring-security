@@ -145,12 +145,9 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 	@SuppressWarnings("unchecked")
 	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
 		RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher("/**/favicon.*"));
-
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
-
 		boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
-
 		List<RequestMatcher> matchers = new ArrayList<>();
 		if (isCsrfEnabled) {
 			RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
@@ -161,7 +158,6 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		matchers.add(notXRequestedWith);
 		matchers.add(notMatchingMediaType(http, MediaType.MULTIPART_FORM_DATA));
 		matchers.add(notMatchingMediaType(http, MediaType.TEXT_EVENT_STREAM));
-
 		return new AndRequestMatcher(matchers);
 	}
 
@@ -170,7 +166,6 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		if (contentNegotiationStrategy == null) {
 			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 		}
-
 		MediaTypeRequestMatcher mediaRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, mediaType);
 		mediaRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		return new NegatedRequestMatcher(mediaRequest);

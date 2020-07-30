@@ -45,48 +45,36 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 	@SuppressWarnings("unchecked")
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
 		BeanDefinition filterChainProxy = holder.getBeanDefinition();
-
 		ManagedList<BeanMetadataElement> securityFilterChains = new ManagedList<>();
 		Element elt = (Element) node;
-
 		MatcherType matcherType = MatcherType.fromElement(elt);
-
 		List<Element> filterChainElts = DomUtils.getChildElementsByTagName(elt, Elements.FILTER_CHAIN);
-
 		for (Element chain : filterChainElts) {
 			String path = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
 			String filters = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
-
 			if (!StringUtils.hasText(path)) {
 				parserContext.getReaderContext().error(
 						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN + "' must not be empty",
 						elt);
 			}
-
 			if (!StringUtils.hasText(filters)) {
 				parserContext.getReaderContext().error(
 						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS + "'must not be empty", elt);
 			}
-
 			BeanDefinition matcher = matcherType.createMatcher(parserContext, path, null);
-
 			if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
 				securityFilterChains.add(createSecurityFilterChain(matcher, new ManagedList(0)));
 			}
 			else {
 				String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
 				ManagedList filterChain = new ManagedList(filterBeanNames.length);
-
 				for (String name : filterBeanNames) {
 					filterChain.add(new RuntimeBeanReference(name));
 				}
-
 				securityFilterChains.add(createSecurityFilterChain(matcher, filterChain));
 			}
 		}
-
 		filterChainProxy.getConstructorArgumentValues().addGenericArgumentValue(securityFilterChains);
-
 		return holder;
 	}
 

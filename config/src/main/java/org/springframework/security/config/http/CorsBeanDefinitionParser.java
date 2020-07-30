@@ -46,17 +46,14 @@ public class CorsBeanDefinitionParser {
 		if (element == null) {
 			return null;
 		}
-
 		String filterRef = element.getAttribute(ATT_REF);
 		if (StringUtils.hasText(filterRef)) {
 			return new RuntimeBeanReference(filterRef);
 		}
-
 		BeanMetadataElement configurationSource = getSource(element, parserContext);
 		if (configurationSource == null) {
 			throw new BeanCreationException("Could not create CorsFilter");
 		}
-
 		BeanDefinitionBuilder filterBldr = BeanDefinitionBuilder.rootBeanDefinition(CorsFilter.class);
 		filterBldr.addConstructorArgValue(configurationSource);
 		return filterBldr.getBeanDefinition();
@@ -67,12 +64,10 @@ public class CorsBeanDefinitionParser {
 		if (StringUtils.hasText(configurationSourceRef)) {
 			return new RuntimeBeanReference(configurationSourceRef);
 		}
-
 		boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, getClass().getClassLoader());
 		if (!mvcPresent) {
 			return null;
 		}
-
 		return new RootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class);
 	}
 

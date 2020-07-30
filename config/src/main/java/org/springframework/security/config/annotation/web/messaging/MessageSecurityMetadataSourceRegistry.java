@@ -442,11 +442,11 @@ public class MessageSecurityMetadataSourceRegistry {
 				return new SimpDestinationMessageMatcher(this.pattern,
 						MessageSecurityMetadataSourceRegistry.this.pathMatcher);
 			}
-			else if (SimpMessageType.MESSAGE == this.type) {
+			if (SimpMessageType.MESSAGE == this.type) {
 				return SimpDestinationMessageMatcher.createMessageMatcher(this.pattern,
 						MessageSecurityMetadataSourceRegistry.this.pathMatcher);
 			}
-			else if (SimpMessageType.SUBSCRIBE == this.type) {
+			if (SimpMessageType.SUBSCRIBE == this.type) {
 				return SimpDestinationMessageMatcher.createSubscribeMatcher(this.pattern,
 						MessageSecurityMetadataSourceRegistry.this.pathMatcher);
 			}

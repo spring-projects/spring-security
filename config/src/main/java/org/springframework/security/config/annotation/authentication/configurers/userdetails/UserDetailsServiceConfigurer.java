@@ -45,7 +45,6 @@ public class UserDetailsServiceConfigurer<B extends ProviderManagerBuilder<B>, C
 	@Override
 	public void configure(B builder) throws Exception {
 		initUserDetailsService();
-
 		super.configure(builder);
 	}
 

@@ -58,13 +58,10 @@ public enum MatcherType {
 		if (("/**".equals(path) || "**".equals(path)) && method == null) {
 			return new RootBeanDefinition(AnyRequestMatcher.class);
 		}
-
 		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(this.type);
-
 		if (this == mvc) {
 			matcherBldr.addConstructorArgValue(new RootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class));
 		}
-
 		matcherBldr.addConstructorArgValue(path);
 		if (this == mvc) {
 			matcherBldr.addPropertyValue("method", method);
@@ -73,11 +70,9 @@ public enum MatcherType {
 		else {
 			matcherBldr.addConstructorArgValue(method);
 		}
-
 		if (this == ciRegex) {
 			matcherBldr.addConstructorArgValue(true);
 		}
-
 		return matcherBldr.getBeanDefinition();
 	}
 

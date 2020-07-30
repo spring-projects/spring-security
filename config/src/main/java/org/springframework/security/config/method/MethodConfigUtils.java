@@ -46,11 +46,9 @@ abstract class MethodConfigUtils {
 	@SuppressWarnings("unchecked")
 	private static RootBeanDefinition createAccessManagerBean(Class<? extends AccessDecisionVoter>... voters) {
 		ManagedList defaultVoters = new ManagedList(voters.length);
-
 		for (Class<? extends AccessDecisionVoter> voter : voters) {
 			defaultVoters.add(new RootBeanDefinition(voter));
 		}
-
 		BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
 		accessMgrBuilder.addConstructorArgValue(defaultVoters);
 		return (RootBeanDefinition) accessMgrBuilder.getBeanDefinition();

@@ -46,6 +46,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.CorsFilter;
 
 /**
@@ -138,10 +139,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 */
 	void registerAfter(Class<? extends Filter> filter, Class<? extends Filter> afterFilter) {
 		Integer position = getOrder(afterFilter);
-		if (position == null) {
-			throw new IllegalArgumentException("Cannot register after unregistered Filter " + afterFilter);
-		}
-
+		Assert.notNull(position, () -> "Cannot register after unregistered Filter " + afterFilter);
 		put(filter, position + 1);
 	}
 
@@ -153,10 +151,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 */
 	void registerAt(Class<? extends Filter> filter, Class<? extends Filter> atFilter) {
 		Integer position = getOrder(atFilter);
-		if (position == null) {
-			throw new IllegalArgumentException("Cannot register after unregistered Filter " + atFilter);
-		}
-
+		Assert.notNull(position, () -> "Cannot register after unregistered Filter " + atFilter);
 		put(filter, position);
 	}
 
@@ -169,10 +164,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 */
 	void registerBefore(Class<? extends Filter> filter, Class<? extends Filter> beforeFilter) {
 		Integer position = getOrder(beforeFilter);
-		if (position == null) {
-			throw new IllegalArgumentException("Cannot register after unregistered Filter " + beforeFilter);
-		}
-
+		Assert.notNull(position, () -> "Cannot register after unregistered Filter " + beforeFilter);
 		put(filter, position - 1);
 	}
 

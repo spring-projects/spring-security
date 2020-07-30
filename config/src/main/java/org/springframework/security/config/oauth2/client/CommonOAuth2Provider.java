@@ -48,6 +48,7 @@ public enum CommonOAuth2Provider {
 			builder.clientName("Google");
 			return builder;
 		}
+
 	},
 
 	GITHUB {
@@ -64,6 +65,7 @@ public enum CommonOAuth2Provider {
 			builder.clientName("GitHub");
 			return builder;
 		}
+
 	},
 
 	FACEBOOK {
@@ -80,6 +82,7 @@ public enum CommonOAuth2Provider {
 			builder.clientName("Facebook");
 			return builder;
 		}
+
 	},
 
 	OKTA {
@@ -93,6 +96,7 @@ public enum CommonOAuth2Provider {
 			builder.clientName("Okta");
 			return builder;
 		}
+
 	};
 
 	private static final String DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}";

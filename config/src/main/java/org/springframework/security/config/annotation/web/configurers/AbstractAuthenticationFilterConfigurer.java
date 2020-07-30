@@ -253,15 +253,12 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (contentNegotiationStrategy == null) {
 			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 		}
-
 		MediaTypeRequestMatcher mediaMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy,
 				MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
 				MediaType.TEXT_PLAIN);
 		mediaMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
-
 		return new AndRequestMatcher(Arrays.asList(notXRequestedWith, mediaMatcher));
 	}
 
@@ -271,12 +268,10 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (portMapper != null) {
 			this.authenticationEntryPoint.setPortMapper(portMapper);
 		}
-
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache != null) {
 			this.defaultSuccessHandler.setRequestCache(requestCache);
 		}
-
 		this.authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
 		this.authFilter.setAuthenticationSuccessHandler(this.successHandler);
 		this.authFilter.setAuthenticationFailureHandler(this.failureHandler);
@@ -383,8 +378,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (this.failureHandler == null) {
 			failureUrl(this.loginPage + "?error");
 		}
-
-		final LogoutConfigurer<B> logoutConfigurer = getBuilder().getConfigurer(LogoutConfigurer.class);
+		LogoutConfigurer<B> logoutConfigurer = getBuilder().getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null && !logoutConfigurer.isCustomLogoutSuccess()) {
 			logoutConfigurer.logoutSuccessUrl(this.loginPage + "?logout");
 		}

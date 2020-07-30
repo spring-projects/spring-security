@@ -66,7 +66,6 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		Element authorizationCodeGrantElt = DomUtils.getChildElementByTagName(element, ELT_AUTHORIZATION_CODE_GRANT);
-
 		BeanMetadataElement clientRegistrationRepository = OAuth2ClientBeanDefinitionParserUtils
 				.getClientRegistrationRepository(element);
 		BeanMetadataElement authorizedClientRepository = OAuth2ClientBeanDefinitionParserUtils
@@ -80,7 +79,6 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		BeanMetadataElement authorizationRequestRepository = getAuthorizationRequestRepository(
 				authorizationCodeGrantElt);
-
 		BeanDefinitionBuilder authorizationRequestRedirectFilterBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationRequestRedirectFilter.class);
 		String authorizationRequestResolverRef = (authorizationCodeGrantElt != null)
@@ -94,7 +92,6 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 		this.authorizationRequestRedirectFilter = authorizationRequestRedirectFilterBuilder
 				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository)
 				.addPropertyValue("requestCache", this.requestCache).getBeanDefinition();
-
 		this.authorizationCodeGrantFilter = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationCodeGrantFilter.class)
 				.addConstructorArgValue(clientRegistrationRepository).addConstructorArgValue(authorizedClientRepository)
@@ -102,7 +99,6 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository).getBeanDefinition();
 
 		BeanMetadataElement accessTokenResponseClient = getAccessTokenResponseClient(authorizationCodeGrantElt);
-
 		this.authorizationCodeAuthenticationProvider = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationCodeAuthenticationProvider.class)
 				.addConstructorArgValue(accessTokenResponseClient).getBeanDefinition();
@@ -111,33 +107,25 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private BeanMetadataElement getAuthorizationRequestRepository(Element element) {
-		BeanMetadataElement authorizationRequestRepository;
 		String authorizationRequestRepositoryRef = (element != null)
 				? element.getAttribute(ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF) : null;
 		if (!StringUtils.isEmpty(authorizationRequestRepositoryRef)) {
-			authorizationRequestRepository = new RuntimeBeanReference(authorizationRequestRepositoryRef);
+			return new RuntimeBeanReference(authorizationRequestRepositoryRef);
 		}
-		else {
-			authorizationRequestRepository = BeanDefinitionBuilder.rootBeanDefinition(
-					"org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository")
-					.getBeanDefinition();
-		}
-		return authorizationRequestRepository;
+		return BeanDefinitionBuilder.rootBeanDefinition(
+				"org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository")
+				.getBeanDefinition();
 	}
 
 	private BeanMetadataElement getAccessTokenResponseClient(Element element) {
-		BeanMetadataElement accessTokenResponseClient;
 		String accessTokenResponseClientRef = (element != null)
 				? element.getAttribute(ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF) : null;
 		if (!StringUtils.isEmpty(accessTokenResponseClientRef)) {
-			accessTokenResponseClient = new RuntimeBeanReference(accessTokenResponseClientRef);
+			return new RuntimeBeanReference(accessTokenResponseClientRef);
 		}
-		else {
-			accessTokenResponseClient = BeanDefinitionBuilder.rootBeanDefinition(
-					"org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient")
-					.getBeanDefinition();
-		}
-		return accessTokenResponseClient;
+		return BeanDefinitionBuilder.rootBeanDefinition(
+				"org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient")
+				.getBeanDefinition();
 	}
 
 	BeanDefinition getDefaultAuthorizedClientRepository() {

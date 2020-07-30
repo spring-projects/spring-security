@@ -18,9 +18,11 @@ package org.springframework.security.config.core.userdetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
@@ -58,27 +60,19 @@ public class UserDetailsMapFactoryBean implements FactoryBean<Collection<UserDet
 	@Override
 	public Collection<UserDetails> getObject() {
 		Collection<UserDetails> users = new ArrayList<>(this.userProperties.size());
-
 		UserAttributeEditor editor = new UserAttributeEditor();
-		for (Map.Entry<String, String> entry : this.userProperties.entrySet()) {
-			String name = entry.getKey();
-			String property = entry.getValue();
+		this.userProperties.forEach((name, property) -> {
 			editor.setAsText(property);
 			UserAttribute attr = (UserAttribute) editor.getValue();
-			if (attr == null) {
-				throw new IllegalStateException("The entry with username '" + name + "' and value '" + property
-						+ "' could not be converted to a UserDetails.");
-			}
-			// @formatter:off
-			UserDetails user = User.withUsername(name)
-				.password(attr.getPassword())
-				.disabled(!attr.isEnabled())
-				.authorities(attr.getAuthorities())
-				.build();
-			users.add(user);
-			// @formatter:on
-		}
+			Assert.state(attr != null, () -> "The entry with username '" + name + "' and value '" + property
+					+ "' could not be converted to a UserDetails.");
+			String password = attr.getPassword();
+			boolean disabled = !attr.isEnabled();
+			List<GrantedAuthority> authorities = attr.getAuthorities();
+			users.add(User.withUsername(name).password(password).disabled(disabled).authorities(authorities).build());
+		});
 		return users;
+
 	}
 
 	@Override

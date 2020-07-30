@@ -125,32 +125,22 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-
 		this.headerWriters = new ManagedList<>();
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeaderWriterFilter.class);
-
 		boolean disabled = element != null && "true".equals(resolveAttribute(parserContext, element, "disabled"));
 		boolean defaultsDisabled = element != null
 				&& "true".equals(resolveAttribute(parserContext, element, "defaults-disabled"));
-
 		boolean addIfNotPresent = element == null || !disabled && !defaultsDisabled;
-
 		parseCacheControlElement(addIfNotPresent, element);
 		parseHstsElement(addIfNotPresent, element, parserContext);
 		parseXssElement(addIfNotPresent, element, parserContext);
 		parseFrameOptionsElement(addIfNotPresent, element, parserContext);
 		parseContentTypeOptionsElement(addIfNotPresent, element);
-
 		parseHpkpElement(element == null || !disabled, element, parserContext);
-
 		parseContentSecurityPolicyElement(disabled, element, parserContext);
-
 		parseReferrerPolicyElement(element, parserContext);
-
 		parseFeaturePolicyElement(element, parserContext);
-
 		parseHeaderElements(element);
-
 		boolean noWriters = this.headerWriters.isEmpty();
 		if (disabled && !noWriters) {
 			parserContext.getReaderContext().error("Cannot specify <headers disabled=\"true\"> with child elements.",
@@ -159,13 +149,11 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		else if (noWriters) {
 			return null;
 		}
-
 		builder.addConstructorArgValue(this.headerWriters);
 		return builder.getBeanDefinition();
 	}
 
 	/**
-	 *
 	 * Resolve the placeholder for a given attribute on a element.
 	 * @param pc
 	 * @param element
@@ -233,7 +221,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 				}
 				headersWriter.addPropertyValue("preload", preload);
 			}
-
 			if (disabled) {
 				return;
 			}
@@ -253,59 +240,45 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private void addHpkp(boolean addIfNotPresent, Element hpkpElement, ParserContext context) {
 		if (hpkpElement != null) {
 			boolean disabled = "true".equals(getAttribute(hpkpElement, ATT_DISABLED, "false"));
-
 			if (disabled) {
 				return;
 			}
-
 			BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(HpkpHeaderWriter.class);
-
 			Element pinsElement = DomUtils.getChildElementByTagName(hpkpElement, PINS_ELEMENT);
 			if (pinsElement != null) {
 				List<Element> pinElements = DomUtils.getChildElements(pinsElement);
-
 				Map<String, String> pins = new LinkedHashMap<>();
-
 				for (Element pinElement : pinElements) {
 					String hash = pinElement.getAttribute(ATT_ALGORITHM);
 					if (!StringUtils.hasText(hash)) {
 						hash = "sha256";
 					}
-
 					Node pinValueNode = pinElement.getFirstChild();
 					if (pinValueNode == null) {
 						context.getReaderContext().warning("Missing value for pin entry.", hpkpElement);
 						continue;
 					}
-
 					String fingerprint = pinElement.getFirstChild().getTextContent();
-
 					pins.put(fingerprint, hash);
 				}
-
 				headersWriter.addPropertyValue("pins", pins);
 			}
-
 			String includeSubDomains = hpkpElement.getAttribute(ATT_INCLUDE_SUBDOMAINS);
 			if (StringUtils.hasText(includeSubDomains)) {
 				headersWriter.addPropertyValue("includeSubDomains", includeSubDomains);
 			}
-
 			String maxAgeSeconds = hpkpElement.getAttribute(ATT_MAX_AGE_SECONDS);
 			if (StringUtils.hasText(maxAgeSeconds)) {
 				headersWriter.addPropertyValue("maxAgeInSeconds", maxAgeSeconds);
 			}
-
 			String reportOnly = hpkpElement.getAttribute(ATT_REPORT_ONLY);
 			if (StringUtils.hasText(reportOnly)) {
 				headersWriter.addPropertyValue("reportOnly", reportOnly);
 			}
-
 			String reportUri = hpkpElement.getAttribute(ATT_REPORT_URI);
 			if (StringUtils.hasText(reportUri)) {
 				headersWriter.addPropertyValue("reportUri", reportUri);
 			}
-
 			if (addIfNotPresent) {
 				this.headerWriters.add(headersWriter.getBeanDefinition());
 			}
@@ -323,7 +296,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private void addContentSecurityPolicy(Element contentSecurityPolicyElement, ParserContext context) {
 		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder
 				.genericBeanDefinition(ContentSecurityPolicyHeaderWriter.class);
-
 		String policyDirectives = contentSecurityPolicyElement.getAttribute(ATT_POLICY_DIRECTIVES);
 		if (!StringUtils.hasText(policyDirectives)) {
 			context.getReaderContext().error(ATT_POLICY_DIRECTIVES + " requires a 'value' to be set.",
@@ -332,12 +304,10 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		else {
 			headersWriter.addConstructorArgValue(policyDirectives);
 		}
-
 		String reportOnly = contentSecurityPolicyElement.getAttribute(ATT_REPORT_ONLY);
 		if (StringUtils.hasText(reportOnly)) {
 			headersWriter.addPropertyValue("reportOnly", reportOnly);
 		}
-
 		this.headerWriters.add(headersWriter.getBeanDefinition());
 	}
 
@@ -352,7 +322,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private void addReferrerPolicy(Element referrerPolicyElement, ParserContext context) {
 		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder
 				.genericBeanDefinition(ReferrerPolicyHeaderWriter.class);
-
 		String policy = referrerPolicyElement.getAttribute(ATT_POLICY);
 		if (StringUtils.hasLength(policy)) {
 			headersWriter.addConstructorArgValue(ReferrerPolicy.get(policy));
@@ -371,7 +340,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private void addFeaturePolicy(Element featurePolicyElement, ParserContext context) {
 		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder
 				.genericBeanDefinition(FeaturePolicyHeaderWriter.class);
-
 		String policyDirectives = featurePolicyElement.getAttribute(ATT_POLICY_DIRECTIVES);
 		if (!StringUtils.hasText(policyDirectives)) {
 			context.getReaderContext().error(ATT_POLICY_DIRECTIVES + " requires a 'value' to be set.",
@@ -380,7 +348,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		else {
 			headersWriter.addConstructorArgValue(policyDirectives);
 		}
-
 		this.headerWriters.add(headersWriter.getBeanDefinition());
 	}
 
@@ -508,7 +475,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XXssProtectionHeaderWriter.class);
 		if (xssElt != null) {
 			boolean disabled = "true".equals(getAttribute(xssElt, ATT_DISABLED, "false"));
-
 			String enabled = xssElt.getAttribute(ATT_ENABLED);
 			if (StringUtils.hasText(enabled)) {
 				if (disabled) {
@@ -516,7 +482,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 				}
 				builder.addPropertyValue("enabled", enabled);
 			}
-
 			String block = xssElt.getAttribute(ATT_BLOCK);
 			if (StringUtils.hasText(block)) {
 				if (disabled) {
@@ -524,7 +489,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 				}
 				builder.addPropertyValue("block", block);
 			}
-
 			if (disabled) {
 				return;
 			}
@@ -542,9 +506,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasText(value)) {
 			return value;
 		}
-		else {
-			return defaultValue;
-		}
+		return defaultValue;
 	}
 
 }

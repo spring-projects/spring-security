@@ -50,6 +50,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+import org.springframework.util.Assert;
 
 /**
  * Uses a {@link WebSecurity} to create the {@link FilterChainProxy} that performs the web
@@ -101,10 +102,8 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	public Filter springSecurityFilterChain() throws Exception {
 		boolean hasConfigurers = this.webSecurityConfigurers != null && !this.webSecurityConfigurers.isEmpty();
 		boolean hasFilterChain = !this.securityFilterChains.isEmpty();
-		if (hasConfigurers && hasFilterChain) {
-			throw new IllegalStateException(
-					"Found WebSecurityConfigurerAdapter as well as SecurityFilterChain." + "Please select just one.");
-		}
+		Assert.state(!(hasConfigurers && hasFilterChain),
+				"Found WebSecurityConfigurerAdapter as well as SecurityFilterChain. Please select just one.");
 		if (!hasConfigurers && !hasFilterChain) {
 			WebSecurityConfigurerAdapter adapter = this.objectObjectPostProcessor
 					.postProcess(new WebSecurityConfigurerAdapter() {
@@ -152,9 +151,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		if (this.debugEnabled != null) {
 			this.webSecurity.debug(this.debugEnabled);
 		}
-
 		webSecurityConfigurers.sort(AnnotationAwareOrderComparator.INSTANCE);
-
 		Integer previousOrder = null;
 		Object previousConfig = null;
 		for (SecurityConfigurer<Filter, WebSecurity> config : webSecurityConfigurers) {

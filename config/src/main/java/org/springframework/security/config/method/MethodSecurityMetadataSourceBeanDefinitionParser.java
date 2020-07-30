@@ -40,6 +40,7 @@ import org.springframework.util.xml.DomUtils;
 public class MethodSecurityMetadataSourceBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
 	static final String ATT_METHOD = "method";
+
 	static final String ATT_ACCESS = "access";
 
 	@Override
@@ -47,17 +48,13 @@ public class MethodSecurityMetadataSourceBeanDefinitionParser extends AbstractBe
 		// Parse the included methods
 		List<Element> methods = DomUtils.getChildElementsByTagName(elt, Elements.PROTECT);
 		Map<String, List<ConfigAttribute>> mappings = new LinkedHashMap<>();
-
 		for (Element protectmethodElt : methods) {
 			String[] tokens = StringUtils.commaDelimitedListToStringArray(protectmethodElt.getAttribute(ATT_ACCESS));
 			String methodName = protectmethodElt.getAttribute(ATT_METHOD);
-
 			mappings.put(methodName, SecurityConfig.createList(tokens));
 		}
-
 		RootBeanDefinition metadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
 		metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
-
 		return metadataSource;
 	}
 

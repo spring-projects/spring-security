@@ -160,9 +160,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Saml2LoginConfigurer<B> loginPage(String loginPage) {
 		Assert.hasText(loginPage, "loginPage cannot be empty");
@@ -170,9 +167,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Saml2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
@@ -181,9 +175,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return new AntPathRequestMatcher(loginProcessingUrl);
@@ -208,28 +199,24 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (this.relyingPartyRegistrationRepository == null) {
 			this.relyingPartyRegistrationRepository = getSharedOrBean(http, RelyingPartyRegistrationRepository.class);
 		}
-
 		this.saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http),
 				this.loginProcessingUrl);
 		setAuthenticationFilter(this.saml2WebSsoAuthenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
-
 		if (StringUtils.hasText(this.loginPage)) {
 			// Set custom login page
 			super.loginPage(this.loginPage);
 			super.init(http);
 		}
 		else {
-			final Map<String, String> providerUrlMap = getIdentityProviderUrlMap(
+			Map<String, String> providerUrlMap = getIdentityProviderUrlMap(
 					this.authenticationRequestEndpoint.filterProcessingUrl, this.relyingPartyRegistrationRepository);
-
 			boolean singleProvider = providerUrlMap.size() == 1;
 			if (singleProvider) {
 				// Setup auto-redirect to provider login page
 				// when only 1 IDP is configured
 				this.updateAuthenticationDefaults();
 				this.updateAccessDefaults(http);
-
 				String loginUrl = providerUrlMap.entrySet().iterator().next().getKey();
 				final LoginUrlAuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint(loginUrl);
 				registerAuthenticationEntryPoint(http, entryPoint);
@@ -238,7 +225,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				super.init(http);
 			}
 		}
-
 		this.initDefaultLoginFilter(http);
 	}
 
@@ -279,7 +265,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (csrf == null) {
 			return;
 		}
-
 		csrf.ignoringRequestMatchers(new AntPathRequestMatcher(this.loginProcessingUrl));
 	}
 
@@ -289,7 +274,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (loginPageGeneratingFilter == null || this.isCustomLoginPage()) {
 			return;
 		}
-
 		loginPageGeneratingFilter.setSaml2LoginEnabled(true);
 		loginPageGeneratingFilter.setSaml2AuthenticationUrlToProviderName(this.getIdentityProviderUrlMap(
 				this.authenticationRequestEndpoint.filterProcessingUrl, this.relyingPartyRegistrationRepository));
@@ -326,8 +310,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return context.getBean(clazz);
 		}
 		catch (NoSuchBeanDefinitionException ex) {
+			return null;
 		}
-		return null;
 	}
 
 	private <C> void setSharedObject(B http, Class<C> clazz, C object) {
@@ -346,7 +330,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		private Filter build(B http) {
 			Saml2AuthenticationRequestFactory authenticationRequestResolver = getResolver(http);
 			Saml2AuthenticationRequestContextResolver contextResolver = getContextResolver(http);
-
 			return postProcess(
 					new Saml2WebSsoAuthenticationRequestFilter(contextResolver, authenticationRequestResolver));
 		}

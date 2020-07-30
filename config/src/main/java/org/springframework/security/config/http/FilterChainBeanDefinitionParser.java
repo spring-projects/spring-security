@@ -43,9 +43,7 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 		String path = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
 		String requestMatcher = elt.getAttribute(ATT_REQUEST_MATCHER_REF);
 		String filters = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
-
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityFilterChain.class);
-
 		if (StringUtils.hasText(path)) {
 			Assert.isTrue(!StringUtils.hasText(requestMatcher), "");
 			builder.addConstructorArgValue(matcherType.createMatcher(pc, path, null));
@@ -54,21 +52,17 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 			Assert.isTrue(StringUtils.hasText(requestMatcher), "");
 			builder.addConstructorArgReference(requestMatcher);
 		}
-
 		if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
 			builder.addConstructorArgValue(Collections.EMPTY_LIST);
 		}
 		else {
 			String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
 			ManagedList<RuntimeBeanReference> filterChain = new ManagedList<>(filterBeanNames.length);
-
 			for (String name : filterBeanNames) {
 				filterChain.add(new RuntimeBeanReference(name));
 			}
-
 			builder.addConstructorArgValue(filterChain);
 		}
-
 		return builder.getBeanDefinition();
 	}
 

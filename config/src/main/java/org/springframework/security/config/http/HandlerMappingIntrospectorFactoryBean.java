@@ -41,9 +41,11 @@ class HandlerMappingIntrospectorFactoryBean
 	@Override
 	public HandlerMappingIntrospector getObject() {
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
-			throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, "A Bean named "
-					+ HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + " of type " + HandlerMappingIntrospector.class.getName()
-					+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+			throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
+					"A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + " of type "
+							+ HandlerMappingIntrospector.class.getName()
+							+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring "
+							+ "MVC are configured in a shared ApplicationContext.");
 		}
 		return this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector.class);
 	}

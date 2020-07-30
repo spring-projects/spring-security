@@ -48,6 +48,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
@@ -122,36 +123,28 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(),
 				pc.extractSource(element));
 		pc.pushContainingComponent(compositeDef);
-
 		Object source = pc.extractSource(element);
 		// The list of method metadata delegates
 		ManagedList<BeanMetadataElement> delegates = new ManagedList<>();
-
 		boolean jsr250Enabled = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
 		boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
 		boolean prePostAnnotationsEnabled = "enabled".equals(element.getAttribute(ATT_USE_PREPOST));
 		boolean useAspectJ = "aspectj".equals(element.getAttribute(ATT_MODE));
-
 		BeanDefinition preInvocationVoter = null;
 		ManagedList<BeanMetadataElement> afterInvocationProviders = new ManagedList<>();
-
 		// Check for an external SecurityMetadataSource, which takes priority over other
 		// sources
 		String metaDataSourceId = element.getAttribute(ATT_META_DATA_SOURCE_REF);
-
 		if (StringUtils.hasText(metaDataSourceId)) {
 			delegates.add(new RuntimeBeanReference(metaDataSourceId));
 		}
-
 		if (prePostAnnotationsEnabled) {
 			Element prePostElt = DomUtils.getChildElementByTagName(element, Elements.INVOCATION_HANDLING);
 			Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
-
 			if (prePostElt != null && expressionHandlerElt != null) {
 				pc.getReaderContext().error(Elements.INVOCATION_HANDLING + " and " + Elements.EXPRESSION_HANDLER
 						+ " cannot be used together ", source);
 			}
-
 			BeanDefinitionBuilder preInvocationVoterBldr = BeanDefinitionBuilder
 					.rootBeanDefinition(PreInvocationAuthorizationAdviceVoter.class);
 			// After-invocation provider to handle post-invocation filtering and
@@ -161,7 +154,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 			// The metadata source for the security interceptor
 			BeanDefinitionBuilder mds = BeanDefinitionBuilder
 					.rootBeanDefinition(PrePostAnnotationSecurityMetadataSource.class);
-
 			if (prePostElt != null) {
 				// Customized override of expression handling system
 				String attributeFactoryRef = DomUtils
@@ -171,7 +163,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 						.getAttribute("ref");
 				String postAdviceRef = DomUtils.getChildElementByTagName(prePostElt, Elements.POST_INVOCATION_ADVICE)
 						.getAttribute("ref");
-
 				mds.addConstructorArgReference(attributeFactoryRef);
 				preInvocationVoterBldr.addConstructorArgReference(preAdviceRef);
 				afterInvocationBldr.addConstructorArgReference(postAdviceRef);
@@ -180,80 +171,65 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 				// The default expression-based system
 				String expressionHandlerRef = (expressionHandlerElt != null) ? expressionHandlerElt.getAttribute("ref")
 						: null;
-
 				if (StringUtils.hasText(expressionHandlerRef)) {
-					this.logger.info(
-							"Using bean '" + expressionHandlerRef + "' as method ExpressionHandler implementation");
+					this.logger.info(LogMessage.format("Using bean '%s' as method ExpressionHandler implementation",
+							expressionHandlerRef));
 					RootBeanDefinition lazyInitPP = new RootBeanDefinition(
 							LazyInitBeanDefinitionRegistryPostProcessor.class);
 					lazyInitPP.getConstructorArgumentValues().addGenericArgumentValue(expressionHandlerRef);
 					pc.getReaderContext().registerWithGeneratedName(lazyInitPP);
-
 					BeanDefinitionBuilder lazyMethodSecurityExpressionHandlerBldr = BeanDefinitionBuilder
 							.rootBeanDefinition(LazyInitTargetSource.class);
 					lazyMethodSecurityExpressionHandlerBldr.addPropertyValue("targetBeanName", expressionHandlerRef);
-
 					BeanDefinitionBuilder expressionHandlerProxyBldr = BeanDefinitionBuilder
 							.rootBeanDefinition(ProxyFactoryBean.class);
 					expressionHandlerProxyBldr.addPropertyValue("targetSource",
 							lazyMethodSecurityExpressionHandlerBldr.getBeanDefinition());
 					expressionHandlerProxyBldr.addPropertyValue("proxyInterfaces",
 							MethodSecurityExpressionHandler.class);
-
 					expressionHandlerRef = pc.getReaderContext()
 							.generateBeanName(expressionHandlerProxyBldr.getBeanDefinition());
-
 					pc.registerBeanComponent(new BeanComponentDefinition(expressionHandlerProxyBldr.getBeanDefinition(),
 							expressionHandlerRef));
 				}
 				else {
 					RootBeanDefinition expressionHandler = registerWithDefaultRolePrefix(pc,
 							DefaultMethodSecurityExpressionHandlerBeanFactory.class);
-
 					expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandler);
 					pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
-					this.logger.info(
-							"Expressions were enabled for method security but no SecurityExpressionHandler was configured. "
-									+ "All hasPermission() expressions will evaluate to false.");
+					this.logger.info("Expressions were enabled for method security but no SecurityExpressionHandler "
+							+ "was configured. All hasPermission() expressions will evaluate to false.");
 				}
-
 				BeanDefinitionBuilder expressionPreAdviceBldr = BeanDefinitionBuilder
 						.rootBeanDefinition(ExpressionBasedPreInvocationAdvice.class);
 				expressionPreAdviceBldr.addPropertyReference("expressionHandler", expressionHandlerRef);
 				preInvocationVoterBldr.addConstructorArgValue(expressionPreAdviceBldr.getBeanDefinition());
-
 				BeanDefinitionBuilder expressionPostAdviceBldr = BeanDefinitionBuilder
 						.rootBeanDefinition(ExpressionBasedPostInvocationAdvice.class);
 				expressionPostAdviceBldr.addConstructorArgReference(expressionHandlerRef);
 				afterInvocationBldr.addConstructorArgValue(expressionPostAdviceBldr.getBeanDefinition());
-
 				BeanDefinitionBuilder annotationInvocationFactory = BeanDefinitionBuilder
 						.rootBeanDefinition(ExpressionBasedAnnotationAttributeFactory.class);
 				annotationInvocationFactory.addConstructorArgReference(expressionHandlerRef);
 				mds.addConstructorArgValue(annotationInvocationFactory.getBeanDefinition());
 			}
-
 			preInvocationVoter = preInvocationVoterBldr.getBeanDefinition();
 			afterInvocationProviders.add(afterInvocationBldr.getBeanDefinition());
 			delegates.add(mds.getBeanDefinition());
 		}
-
 		if (useSecured) {
 			delegates.add(BeanDefinitionBuilder.rootBeanDefinition(SecuredAnnotationSecurityMetadataSource.class)
 					.getBeanDefinition());
 		}
-
 		if (jsr250Enabled) {
 			RootBeanDefinition jsrMetadataSource = registerWithDefaultRolePrefix(pc,
 					Jsr250MethodSecurityMetadataSourceBeanFactory.class);
 			delegates.add(jsrMetadataSource);
 		}
-
 		// Now create a Map<String, ConfigAttribute> for each <protect-pointcut>
 		// sub-element
 		Map<String, List<ConfigAttribute>> pointcutMap = parseProtectPointcuts(pc,
 				DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT));
-
 		if (pointcutMap.size() > 0) {
 			if (useAspectJ) {
 				pc.getReaderContext().error("You can't use AspectJ mode with protect-pointcut definitions", source);
@@ -262,34 +238,25 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 			BeanDefinition mapBasedMetadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
 			BeanReference ref = new RuntimeBeanReference(
 					pc.getReaderContext().generateBeanName(mapBasedMetadataSource));
-
 			delegates.add(ref);
 			pc.registerBeanComponent(new BeanComponentDefinition(mapBasedMetadataSource, ref.getBeanName()));
 			registerProtectPointcutPostProcessor(pc, pointcutMap, ref, source);
 		}
-
 		BeanReference metadataSource = registerDelegatingMethodSecurityMetadataSource(pc, delegates, source);
-
 		// Check for additional after-invocation-providers..
 		List<Element> afterInvocationElts = DomUtils.getChildElementsByTagName(element,
 				Elements.AFTER_INVOCATION_PROVIDER);
-
 		for (Element elt : afterInvocationElts) {
 			afterInvocationProviders.add(new RuntimeBeanReference(elt.getAttribute(ATT_REF)));
 		}
-
 		String accessManagerId = element.getAttribute(ATT_ACCESS_MGR);
-
 		if (!StringUtils.hasText(accessManagerId)) {
 			accessManagerId = registerAccessManager(pc, jsr250Enabled, preInvocationVoter);
 		}
-
 		String authMgrRef = element.getAttribute(ATT_AUTHENTICATION_MANAGER_REF);
-
 		String runAsManagerId = element.getAttribute(ATT_RUN_AS_MGR);
 		BeanReference interceptor = registerMethodSecurityInterceptor(pc, authMgrRef, accessManagerId, runAsManagerId,
 				metadataSource, afterInvocationProviders, source, useAspectJ);
-
 		if (useAspectJ) {
 			BeanDefinitionBuilder aspect = BeanDefinitionBuilder.rootBeanDefinition(
 					"org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect");
@@ -303,9 +270,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 			registerAdvisor(pc, interceptor, metadataSource, source, element.getAttribute(ATT_ADVICE_ORDER));
 			AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
 		}
-
 		pc.popAndRegisterContainingComponent();
-
 		return null;
 	}
 
@@ -316,26 +281,20 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private String registerAccessManager(ParserContext pc, boolean jsr250Enabled, BeanDefinition expressionVoter) {
-
 		BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
 		ManagedList voters = new ManagedList(4);
-
 		if (expressionVoter != null) {
 			voters.add(expressionVoter);
 		}
 		voters.add(new RootBeanDefinition(RoleVoter.class));
 		voters.add(new RootBeanDefinition(AuthenticatedVoter.class));
-
 		if (jsr250Enabled) {
 			voters.add(new RootBeanDefinition(Jsr250Voter.class));
 		}
-
 		accessMgrBuilder.addConstructorArgValue(voters);
-
 		BeanDefinition accessManager = accessMgrBuilder.getBeanDefinition();
 		String id = pc.getReaderContext().generateBeanName(accessManager);
 		pc.registerBeanComponent(new BeanComponentDefinition(accessManager, id));
-
 		return id;
 	}
 
@@ -346,7 +305,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 				DelegatingMethodSecurityMetadataSource.class);
 		delegatingMethodSecurityMetadataSource.setSource(source);
 		delegatingMethodSecurityMetadataSource.getConstructorArgumentValues().addGenericArgumentValue(delegates);
-
 		String id = pc.getReaderContext().generateBeanName(delegatingMethodSecurityMetadataSource);
 		pc.registerBeanComponent(new BeanComponentDefinition(delegatingMethodSecurityMetadataSource, id));
 
@@ -367,31 +325,24 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 	private Map<String, List<ConfigAttribute>> parseProtectPointcuts(ParserContext parserContext,
 			List<Element> protectPointcutElts) {
 		Map<String, List<ConfigAttribute>> pointcutMap = new LinkedHashMap<>();
-
 		for (Element childElt : protectPointcutElts) {
 			String accessConfig = childElt.getAttribute(ATT_ACCESS);
 			String expression = childElt.getAttribute(ATT_EXPRESSION);
-
 			if (!StringUtils.hasText(accessConfig)) {
 				parserContext.getReaderContext().error("Access configuration required",
 						parserContext.extractSource(childElt));
 			}
-
 			if (!StringUtils.hasText(expression)) {
 				parserContext.getReaderContext().error("Pointcut expression required",
 						parserContext.extractSource(childElt));
 			}
-
 			String[] attributeTokens = StringUtils.commaDelimitedListToStringArray(accessConfig);
 			List<ConfigAttribute> attributes = new ArrayList<>(attributeTokens.length);
-
 			for (String token : attributeTokens) {
 				attributes.add(new SecurityConfig(token));
 			}
-
 			pointcutMap.put(expression, attributes);
 		}
-
 		return pointcutMap;
 	}
 
@@ -406,22 +357,18 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		authMgr.getConstructorArgumentValues().addGenericArgumentValue(authMgrRef);
 		bldr.addPropertyValue("authenticationManager", authMgr);
 		bldr.addPropertyValue("securityMetadataSource", metadataSource);
-
 		if (StringUtils.hasText(runAsManagerId)) {
 			bldr.addPropertyReference("runAsManager", runAsManagerId);
 		}
-
 		if (!afterInvocationProviders.isEmpty()) {
 			BeanDefinition afterInvocationManager;
 			afterInvocationManager = new RootBeanDefinition(AfterInvocationProviderManager.class);
 			afterInvocationManager.getPropertyValues().addPropertyValue("providers", afterInvocationProviders);
 			bldr.addPropertyValue("afterInvocationManager", afterInvocationManager);
 		}
-
 		BeanDefinition bean = bldr.getBeanDefinition();
 		String id = pc.getReaderContext().generateBeanName(bean);
 		pc.registerBeanComponent(new BeanComponentDefinition(bean, id));
-
 		return new RuntimeBeanReference(id);
 	}
 
@@ -431,11 +378,9 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 			parserContext.getReaderContext().error("Duplicate <global-method-security> detected.", source);
 		}
 		RootBeanDefinition advisor = new RootBeanDefinition(MethodSecurityMetadataSourceAdvisor.class);
-
 		if (StringUtils.hasText(adviceOrder)) {
 			advisor.getPropertyValues().addPropertyValue("order", adviceOrder);
 		}
-
 		// advisor must be an infrastructure bean as Spring's
 		// InfrastructureAdvisorAutoProxyCreator will ignore it
 		// otherwise
@@ -444,7 +389,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		advisor.getConstructorArgumentValues().addGenericArgumentValue(interceptor.getBeanName());
 		advisor.getConstructorArgumentValues().addGenericArgumentValue(metadataSource);
 		advisor.getConstructorArgumentValues().addGenericArgumentValue(metadataSource.getBeanName());
-
 		parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_METADATA_SOURCE_ADVISOR, advisor);
 	}
 
@@ -453,7 +397,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 		RootBeanDefinition beanFactoryDefinition = new RootBeanDefinition(beanFactoryClass);
 		String beanFactoryRef = pc.getReaderContext().generateBeanName(beanFactoryDefinition);
 		pc.getRegistry().registerBeanDefinition(beanFactoryRef, beanFactoryDefinition);
-
 		RootBeanDefinition bean = new RootBeanDefinition();
 		bean.setFactoryBeanName(beanFactoryRef);
 		bean.setFactoryMethodName("getBean");
@@ -499,7 +442,6 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 					}
 				}
 			}
-
 			return this.delegate.authenticate(authentication);
 		}
 

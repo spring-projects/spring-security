@@ -35,7 +35,9 @@ public abstract class BeanIds {
 	 */
 	public static final String AUTHENTICATION_MANAGER = PREFIX + "authenticationManager";
 
-	/** External alias for FilterChainProxy bean, for use in web.xml files */
+	/**
+	 * External alias for FilterChainProxy bean, for use in web.xml files
+	 */
 	public static final String SPRING_SECURITY_FILTER_CHAIN = "springSecurityFilterChain";
 
 	public static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = PREFIX + "contextSettingPostProcessor";

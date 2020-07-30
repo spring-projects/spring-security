@@ -97,10 +97,8 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 	 */
 	public HttpBasicConfigurer() {
 		realmName(DEFAULT_REALM);
-
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
 		entryPoints.put(X_REQUESTED_WITH, new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-
 		DelegatingAuthenticationEntryPoint defaultEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
 		defaultEntryPoint.setDefaultEntryPoint(this.basicAuthEntryPoint);
 		this.authenticationEntryPoint = defaultEntryPoint;
@@ -154,24 +152,19 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 		if (contentNegotiationStrategy == null) {
 			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 		}
-
 		MediaTypeRequestMatcher restMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy,
 				MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON,
 				MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.MULTIPART_FORM_DATA,
 				MediaType.TEXT_XML);
 		restMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
 		MediaTypeRequestMatcher allMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.ALL);
 		allMatcher.setUseEquals(true);
-
 		RequestMatcher notHtmlMatcher = new NegatedRequestMatcher(
 				new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.TEXT_HTML));
 		RequestMatcher restNotHtmlMatcher = new AndRequestMatcher(
 				Arrays.<RequestMatcher>asList(notHtmlMatcher, restMatcher));
-
 		RequestMatcher preferredMatcher = new OrRequestMatcher(
 				Arrays.asList(X_REQUESTED_WITH, restNotHtmlMatcher, allMatcher));
-
 		registerDefaultEntryPoint(http, preferredMatcher);
 		registerDefaultLogoutSuccessHandler(http, preferredMatcher);
 	}
