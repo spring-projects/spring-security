@@ -98,7 +98,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	}
 
 	private Converter<String, RequestEntity<?>> defaultRequestEntityConverter(URI introspectionUri) {
-		return token -> {
+		return (token) -> {
 			HttpHeaders headers = requestHeaders();
 			MultiValueMap<String, String> body = requestBody(token);
 			return new RequestEntity<>(body, headers, HttpMethod.POST, introspectionUri);

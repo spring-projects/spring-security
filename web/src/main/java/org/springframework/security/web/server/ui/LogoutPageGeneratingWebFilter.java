@@ -46,7 +46,7 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.matcher.matches(exchange).filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).flatMap(matchResult -> render(exchange));
+				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).flatMap((matchResult) -> render(exchange));
 	}
 
 	private Mono<Void> render(ServerWebExchange exchange) {
@@ -54,12 +54,12 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 		result.setStatusCode(HttpStatus.OK);
 		result.getHeaders().setContentType(MediaType.TEXT_HTML);
 		return result.writeWith(createBuffer(exchange));
-		// .doOnError( error -> DataBufferUtils.release(buffer));
+		// .doOnError( (error) -> DataBufferUtils.release(buffer));
 	}
 
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
 		Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
-		return token.map(LogoutPageGeneratingWebFilter::csrfToken).defaultIfEmpty("").map(csrfTokenHtmlInput -> {
+		return token.map(LogoutPageGeneratingWebFilter::csrfToken).defaultIfEmpty("").map((csrfTokenHtmlInput) -> {
 			byte[] bytes = createPage(csrfTokenHtmlInput);
 			DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
 			return bufferFactory.wrap(bytes);

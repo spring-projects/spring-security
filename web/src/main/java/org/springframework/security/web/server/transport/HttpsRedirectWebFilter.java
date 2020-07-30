@@ -57,9 +57,9 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return Mono.just(exchange).filter(this::isInsecure).flatMap(this.requiresHttpsRedirectMatcher::matches)
-				.filter(matchResult -> matchResult.isMatch()).switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-				.map(matchResult -> createRedirectUri(exchange))
-				.flatMap(uri -> this.redirectStrategy.sendRedirect(exchange, uri));
+				.filter((matchResult) -> matchResult.isMatch()).switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
+				.map((matchResult) -> createRedirectUri(exchange))
+				.flatMap((uri) -> this.redirectStrategy.sendRedirect(exchange, uri));
 	}
 
 	/**

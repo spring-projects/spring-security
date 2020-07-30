@@ -105,7 +105,7 @@ public class JwtBuilderTests {
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
 		Jwt.Builder jwtBuilder = Jwt.withTokenValue("token").claim("needs", "a claim").header("needs", "a header");
 
-		Jwt jwt = jwtBuilder.subject("sub").claims(claims -> claims.remove(JwtClaimNames.SUB)).build();
+		Jwt jwt = jwtBuilder.subject("sub").claims((claims) -> claims.remove(JwtClaimNames.SUB)).build();
 		assertThat(jwt.getSubject()).isNull();
 	}
 
@@ -115,7 +115,7 @@ public class JwtBuilderTests {
 
 		String name = new String("name");
 		String value = new String("value");
-		Jwt jwt = jwtBuilder.claims(claims -> claims.put(name, value)).build();
+		Jwt jwt = jwtBuilder.claims((claims) -> claims.put(name, value)).build();
 
 		assertThat(jwt.getClaims()).hasSize(1);
 		assertThat(jwt.getClaims().get(name)).isSameAs(value);
@@ -125,7 +125,7 @@ public class JwtBuilderTests {
 	public void headersWhenRemovingAClaimThenIsNotPresent() {
 		Jwt.Builder jwtBuilder = Jwt.withTokenValue("token").claim("needs", "a claim").header("needs", "a header");
 
-		Jwt jwt = jwtBuilder.header("alg", "none").headers(headers -> headers.remove("alg")).build();
+		Jwt jwt = jwtBuilder.header("alg", "none").headers((headers) -> headers.remove("alg")).build();
 		assertThat(jwt.getHeaders().get("alg")).isNull();
 	}
 
@@ -135,7 +135,7 @@ public class JwtBuilderTests {
 
 		String name = new String("name");
 		String value = new String("value");
-		Jwt jwt = jwtBuilder.headers(headers -> headers.put(name, value)).build();
+		Jwt jwt = jwtBuilder.headers((headers) -> headers.put(name, value)).build();
 
 		assertThat(jwt.getHeaders()).hasSize(1);
 		assertThat(jwt.getHeaders().get(name)).isSameAs(value);

@@ -96,7 +96,7 @@ public class NamespaceSessionManagementTests {
 	public void authenticateWhenUsingInvalidSessionUrlThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomSessionManagementConfig.class).autowire();
 
-		this.mvc.perform(get("/auth").with(request -> {
+		this.mvc.perform(get("/auth").with((request) -> {
 			request.setRequestedSessionIdValid(false);
 			request.setRequestedSessionId("id");
 			return request;
@@ -137,7 +137,7 @@ public class NamespaceSessionManagementTests {
 		given(mock.changeSessionId()).willThrow(SessionAuthenticationException.class);
 		mock.setMethod("GET");
 
-		this.mvc.perform(get("/auth").with(request -> mock).with(httpBasic("user", "password")))
+		this.mvc.perform(get("/auth").with((request) -> mock).with(httpBasic("user", "password")))
 				.andExpect(redirectedUrl("/session-auth-error"));
 	}
 
@@ -158,7 +158,7 @@ public class NamespaceSessionManagementTests {
 	public void authenticateWhenUsingCustomInvalidSessionStrategyThenMatchesNamespace() throws Exception {
 		this.spring.register(InvalidSessionStrategyConfig.class).autowire();
 
-		this.mvc.perform(get("/auth").with(request -> {
+		this.mvc.perform(get("/auth").with((request) -> {
 			request.setRequestedSessionIdValid(false);
 			request.setRequestedSessionId("id");
 			return request;

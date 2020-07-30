@@ -80,7 +80,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 			Map<String, Object> tokenResponseParameters = (Map<String, Object>) this.jsonMessageConverter
 					.read(PARAMETERIZED_RESPONSE_TYPE.getType(), null, inputMessage);
 			return this.tokenResponseConverter.convert(tokenResponseParameters.entrySet().stream()
-					.collect(Collectors.toMap(Map.Entry::getKey, entry -> String.valueOf(entry.getValue()))));
+					.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotReadableException(

@@ -98,7 +98,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void loadUserWhenUserInfoUriIsNullThenThrowOAuth2AuthenticationException() {
 		this.clientRegistration.userInfoUri(null);
 
-		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies(t -> assertThat(t)
+		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies((t) -> assertThat(t)
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("missing_user_info_uri"))
 				.verify();
 	}
@@ -107,7 +107,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() {
 		this.clientRegistration.userNameAttributeName(null);
 
-		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies(t -> assertThat(t)
+		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies((t) -> assertThat(t)
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("missing_user_name_attribute"))
 				.verify();
 	}

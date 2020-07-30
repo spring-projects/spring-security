@@ -469,7 +469,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 			String authorizationRequestBaseUri = DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 			Map<String, String> loginUrlToClientName = new HashMap<>();
-			clientRegistrations.forEach(registration -> loginUrlToClientName.put(
+			clientRegistrations.forEach((registration) -> loginUrlToClientName.put(
 					authorizationRequestBaseUri + "/" + registration.getRegistrationId(),
 					registration.getClientName()));
 

@@ -81,9 +81,11 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = new DefaultOidcIdTokenValidatorFactory();
 
-	private Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver = clientRegistration -> SignatureAlgorithm.RS256;
+	private Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver = (
+			clientRegistration) -> SignatureAlgorithm.RS256;
 
-	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
+	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
+			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -115,13 +117,14 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
-		return source -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor, targetDescriptor);
+		return (source) -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor,
+				targetDescriptor);
 	}
 
 	@Override
 	public ReactiveJwtDecoder createDecoder(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), key -> {
+		return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), (key) -> {
 			NimbusReactiveJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
 			jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
 			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory

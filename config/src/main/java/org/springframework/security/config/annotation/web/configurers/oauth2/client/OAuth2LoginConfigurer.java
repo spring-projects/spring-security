@@ -504,7 +504,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				? this.authorizationEndpointConfig.authorizationRequestBaseUri
 				: OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 		Map<String, String> loginUrlToClientName = new HashMap<>();
-		clientRegistrations.forEach(registration -> loginUrlToClientName.put(
+		clientRegistrations.forEach((registration) -> loginUrlToClientName.put(
 				authorizationRequestBaseUri + "/" + registration.getRegistrationId(), registration.getClientName()));
 
 		return loginUrlToClientName;

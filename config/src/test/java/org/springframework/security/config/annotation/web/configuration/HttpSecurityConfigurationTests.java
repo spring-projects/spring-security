@@ -189,7 +189,7 @@ public class HttpSecurityConfigurationTests {
 
 		@Bean
 		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.authorizeRequests(authorize -> authorize.anyRequest().permitAll()).build();
+			return http.authorizeRequests((authorize) -> authorize.anyRequest().permitAll()).build();
 		}
 
 	}
@@ -199,8 +199,8 @@ public class HttpSecurityConfigurationTests {
 
 		@Bean
 		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http.authorizeRequests(authorize -> authorize.anyRequest().authenticated()).formLogin(withDefaults())
-					.build();
+			return http.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+					.formLogin(withDefaults()).build();
 		}
 
 	}

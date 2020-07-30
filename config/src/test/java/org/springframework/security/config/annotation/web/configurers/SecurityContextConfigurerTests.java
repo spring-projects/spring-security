@@ -252,7 +252,7 @@ public class SecurityContextConfigurerTests {
 			// @formatter:off
 			http
 				.formLogin(withDefaults())
-				.securityContext(securityContext ->
+				.securityContext((securityContext) ->
 					securityContext
 						.securityContextRepository(new NullSecurityContextRepository())
 				);

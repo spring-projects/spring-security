@@ -79,7 +79,7 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 			Map<String, Object> errorParameters = (Map<String, Object>) this.jsonMessageConverter
 					.read(PARAMETERIZED_RESPONSE_TYPE.getType(), null, inputMessage);
 			return this.errorConverter.convert(errorParameters.entrySet().stream()
-					.collect(Collectors.toMap(Map.Entry::getKey, entry -> String.valueOf(entry.getValue()))));
+					.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotReadableException(

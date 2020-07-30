@@ -343,7 +343,7 @@ public class ServletApiConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.servletApi(servletApi ->
+				.servletApi((servletApi) ->
 					servletApi
 						.rolePrefix("PERMISSION_")
 				);

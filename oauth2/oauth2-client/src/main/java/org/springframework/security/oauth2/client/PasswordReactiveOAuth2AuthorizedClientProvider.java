@@ -111,8 +111,9 @@ public final class PasswordReactiveOAuth2AuthorizedClientProvider implements Rea
 
 		return Mono.just(passwordGrantRequest).flatMap(this.accessTokenResponseClient::getTokenResponse)
 				.onErrorMap(OAuth2AuthorizationException.class,
-						e -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(), e))
-				.map(tokenResponse -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
+						(e) -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(),
+								e))
+				.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
 						tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()));
 	}
 

@@ -162,10 +162,12 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void setup() {
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
 				.builder().authorizationCode()
-				.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
+				.refreshToken(
+						(configurer) -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 				.clientCredentials(
-						configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
-				.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient)).build();
+						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
+				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
+				.build();
 		this.authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
@@ -445,7 +447,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
 					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 					assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token");
 					assertThat(e).hasNoCause();
@@ -474,7 +476,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		WebClientResponseException exception = WebClientResponseException.create(HttpStatus.UNAUTHORIZED.value(),
 				HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8);
 
-		ExchangeFunction throwingExchangeFunction = r -> Mono.error(exception);
+		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
 
 		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
 				.subscriberContext(serverWebExchange()).block()).isEqualTo(exception);
@@ -485,7 +487,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
 					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 					assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token");
 					assertThat(e).hasCause(exception);
@@ -521,7 +523,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
 					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 					assertThat(e.getError().getErrorCode()).isEqualTo("insufficient_scope");
 					assertThat(e).hasNoCause();
@@ -550,7 +552,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		WebClientResponseException exception = WebClientResponseException.create(HttpStatus.FORBIDDEN.value(),
 				HttpStatus.FORBIDDEN.getReasonPhrase(), HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8);
 
-		ExchangeFunction throwingExchangeFunction = r -> Mono.error(exception);
+		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
 
 		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
 				.subscriberContext(serverWebExchange()).block()).isEqualTo(exception);
@@ -561,7 +563,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
 					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 					assertThat(e.getError().getErrorCode()).isEqualTo("insufficient_scope");
 					assertThat(e).hasCause(exception);
@@ -603,7 +605,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
 					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 					assertThat(e.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 					assertThat(e.getError().getDescription())
@@ -635,7 +637,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizationException exception = new OAuth2AuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, null, null));
 
-		ExchangeFunction throwingExchangeFunction = r -> Mono.error(exception);
+		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
 
 		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
 				.subscriberContext(serverWebExchange()).block()).isEqualTo(exception);
@@ -684,9 +686,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				eq(authentication), any())).willReturn(Mono.empty());
 
 		// Set custom contextAttributesMapper capable of mapping the form parameters
-		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest -> {
+		this.authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> {
 			ServerWebExchange serverWebExchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
-			return Mono.just(serverWebExchange).flatMap(ServerWebExchange::getFormData).map(formData -> {
+			return Mono.just(serverWebExchange).flatMap(ServerWebExchange::getFormData).map((formData) -> {
 				Map<String, Object> contextAttributes = new HashMap<>();
 				String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
 				String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);

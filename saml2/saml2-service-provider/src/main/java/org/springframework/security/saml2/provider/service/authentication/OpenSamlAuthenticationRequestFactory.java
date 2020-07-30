@@ -79,15 +79,16 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	private IssuerBuilder issuerBuilder;
 
-	private Converter<Saml2AuthenticationRequestContext, String> protocolBindingResolver = context -> {
+	private Converter<Saml2AuthenticationRequestContext, String> protocolBindingResolver = (context) -> {
 		if (context == null) {
 			return SAMLConstants.SAML2_POST_BINDING_URI;
 		}
 		return context.getRelyingPartyRegistration().getAssertionConsumerServiceBinding().getUrn();
 	};
 
-	private Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = context -> authnRequest -> {
-	};
+	private Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = (
+			context) -> (authnRequest) -> {
+			};
 
 	/**
 	 * Creates an {@link OpenSamlAuthenticationRequestFactory}
@@ -220,7 +221,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		if (!isAllowedBinding) {
 			throw new IllegalArgumentException("Invalid protocol binding: " + protocolBinding);
 		}
-		this.protocolBindingResolver = context -> protocolBinding;
+		this.protocolBindingResolver = (context) -> protocolBinding;
 	}
 
 	private AuthnRequest sign(AuthnRequest authnRequest, RelyingPartyRegistration relyingPartyRegistration) {

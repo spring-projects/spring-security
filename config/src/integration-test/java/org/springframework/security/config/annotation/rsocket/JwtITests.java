@@ -155,7 +155,7 @@ public class JwtITests {
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket.authorizePayload(authorize -> authorize.anyRequest().authenticated().anyExchange().permitAll())
+			rsocket.authorizePayload((authorize) -> authorize.anyRequest().authenticated().anyExchange().permitAll())
 					.jwt(Customizer.withDefaults());
 			return rsocket.build();
 		}

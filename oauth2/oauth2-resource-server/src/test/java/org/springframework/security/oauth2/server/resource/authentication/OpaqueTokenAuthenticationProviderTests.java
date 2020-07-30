@@ -50,7 +50,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
 		OAuth2AuthenticatedPrincipal principal = TestOAuth2AuthenticatedPrincipals
-				.active(attributes -> attributes.put("extension_field", "twenty-seven"));
+				.active((attributes) -> attributes.put("extension_field", "twenty-seven"));
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);

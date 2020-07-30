@@ -97,7 +97,7 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverThenUses() {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
-				issuer -> authenticationManager);
+				(issuer) -> authenticationManager);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.jwt);
 

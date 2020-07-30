@@ -120,13 +120,13 @@ public class NamespaceHttpOpenIDLoginTests {
 					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);
 			List<OpenIDAttribute> attributeList = (List<OpenIDAttribute>) attributeObject;
-			assertThat(attributeList.stream().anyMatch(attribute -> "firstname".equals(attribute.getName())
+			assertThat(attributeList.stream().anyMatch((attribute) -> "firstname".equals(attribute.getName())
 					&& "https://axschema.org/namePerson/first".equals(attribute.getType()) && attribute.isRequired()))
 							.isTrue();
-			assertThat(attributeList.stream().anyMatch(attribute -> "lastname".equals(attribute.getName())
+			assertThat(attributeList.stream().anyMatch((attribute) -> "lastname".equals(attribute.getName())
 					&& "https://axschema.org/namePerson/last".equals(attribute.getType()) && attribute.isRequired()))
 							.isTrue();
-			assertThat(attributeList.stream().anyMatch(attribute -> "email".equals(attribute.getName())
+			assertThat(attributeList.stream().anyMatch((attribute) -> "email".equals(attribute.getName())
 					&& "https://axschema.org/contact/email".equals(attribute.getType()) && attribute.isRequired()))
 							.isTrue();
 		}

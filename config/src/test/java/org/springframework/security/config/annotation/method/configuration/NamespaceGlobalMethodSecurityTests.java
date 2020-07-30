@@ -241,7 +241,7 @@ public class NamespaceGlobalMethodSecurityTests {
 		this.spring.register(CustomRunAsManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
 
 		assertThat(this.service.runAs().getAuthorities())
-				.anyMatch(authority -> "ROLE_RUN_AS_SUPER".equals(authority.getAuthority()));
+				.anyMatch((authority) -> "ROLE_RUN_AS_SUPER".equals(authority.getAuthority()));
 	}
 
 	@Test

@@ -101,7 +101,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	@Test
 	public void buildWhenRefreshTokenProviderThenProviderReauthorizes() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
-				.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
+				.refreshToken(
+						(configurer) -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 				.build();
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
@@ -120,7 +121,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	public void buildWhenClientCredentialsProviderThenProviderAuthorizes() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 				.clientCredentials(
-						configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
+						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 				.build();
 
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
@@ -135,7 +136,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	@Test
 	public void buildWhenPasswordProviderThenProviderAuthorizes() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
-				.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient)).build();
+				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
+				.build();
 
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(TestClientRegistrations.password().build()).principal(this.principal)
@@ -151,10 +153,12 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	public void buildWhenAllProvidersThenProvidersAuthorize() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 				.authorizationCode()
-				.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
+				.refreshToken(
+						(configurer) -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 				.clientCredentials(
-						configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
-				.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient)).build();
+						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
+				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
+				.build();
 
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 

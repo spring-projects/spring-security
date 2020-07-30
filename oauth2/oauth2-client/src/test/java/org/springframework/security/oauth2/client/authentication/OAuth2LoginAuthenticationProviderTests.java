@@ -167,7 +167,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 		OAuth2User principal = mock(OAuth2User.class);
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-		given(principal.getAuthorities()).willAnswer((Answer<List<GrantedAuthority>>) invocation -> authorities);
+		given(principal.getAuthorities()).willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> authorities);
 		given(this.userService.loadUser(any())).willReturn(principal);
 
 		OAuth2LoginAuthenticationToken authentication = (OAuth2LoginAuthenticationToken) this.authenticationProvider
@@ -190,13 +190,13 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 		OAuth2User principal = mock(OAuth2User.class);
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-		given(principal.getAuthorities()).willAnswer((Answer<List<GrantedAuthority>>) invocation -> authorities);
+		given(principal.getAuthorities()).willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> authorities);
 		given(this.userService.loadUser(any())).willReturn(principal);
 
 		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OAUTH2_USER");
 		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
 		given(authoritiesMapper.mapAuthorities(anyCollection()))
-				.willAnswer((Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
+				.willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> mappedAuthorities);
 		this.authenticationProvider.setAuthoritiesMapper(authoritiesMapper);
 
 		OAuth2LoginAuthenticationToken authentication = (OAuth2LoginAuthenticationToken) this.authenticationProvider
@@ -213,7 +213,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 		OAuth2User principal = mock(OAuth2User.class);
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-		given(principal.getAuthorities()).willAnswer((Answer<List<GrantedAuthority>>) invocation -> authorities);
+		given(principal.getAuthorities()).willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> authorities);
 		ArgumentCaptor<OAuth2UserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OAuth2UserRequest.class);
 		given(this.userService.loadUser(userRequestArgCaptor.capture())).willReturn(principal);
 

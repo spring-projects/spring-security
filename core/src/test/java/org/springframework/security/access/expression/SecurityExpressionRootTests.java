@@ -63,7 +63,7 @@ public class SecurityExpressionRootTests {
 
 	@Test
 	public void roleHierarchySupportIsCorrectlyUsedInEvaluatingRoles() {
-		this.root.setRoleHierarchy(authorities -> AuthorityUtils.createAuthorityList("ROLE_C"));
+		this.root.setRoleHierarchy((authorities) -> AuthorityUtils.createAuthorityList("ROLE_C"));
 
 		assertThat(this.root.hasRole("C")).isTrue();
 		assertThat(this.root.hasAuthority("ROLE_C")).isTrue();

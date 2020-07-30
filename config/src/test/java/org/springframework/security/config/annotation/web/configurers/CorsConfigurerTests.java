@@ -244,7 +244,7 @@ public class CorsConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().authenticated()
 				)
@@ -298,7 +298,7 @@ public class CorsConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().authenticated()
 				)
@@ -351,7 +351,7 @@ public class CorsConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().authenticated()
 				)

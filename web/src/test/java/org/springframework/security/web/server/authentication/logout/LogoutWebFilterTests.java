@@ -68,7 +68,7 @@ public class LogoutWebFilterTests {
 				.setLogoutHandler(new DelegatingServerLogoutHandler(this.handler1, this.handler2, this.handler3));
 
 		assertThat(getLogoutHandler()).isNotNull().isExactlyInstanceOf(DelegatingServerLogoutHandler.class)
-				.extracting(delegatingLogoutHandler -> ((Collection<ServerLogoutHandler>) ReflectionTestUtils
+				.extracting((delegatingLogoutHandler) -> ((Collection<ServerLogoutHandler>) ReflectionTestUtils
 						.getField(delegatingLogoutHandler, DelegatingServerLogoutHandler.class, "delegates")).stream()
 								.map(ServerLogoutHandler::getClass).collect(Collectors.toList()))
 				.isEqualTo(Arrays.asList(this.handler1.getClass(), this.handler2.getClass(), this.handler3.getClass()));

@@ -74,7 +74,7 @@ public class OAuth2AuthorizeRequestTests {
 	public void withClientRegistrationIdWhenAllValuesProvidedThenAllValuesAreSet() {
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
-				.attributes(attrs -> {
+				.attributes((attrs) -> {
 					attrs.put("name1", "value1");
 					attrs.put("name2", "value2");
 				}).build();
@@ -88,7 +88,7 @@ public class OAuth2AuthorizeRequestTests {
 	@Test
 	public void withAuthorizedClientWhenAllValuesProvidedThenAllValuesAreSet() {
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
-				.principal(this.principal).attributes(attrs -> {
+				.principal(this.principal).attributes((attrs) -> {
 					attrs.put("name1", "value1");
 					attrs.put("name2", "value2");
 				}).build();

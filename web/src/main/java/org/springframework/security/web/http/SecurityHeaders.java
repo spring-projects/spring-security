@@ -37,7 +37,7 @@ public final class SecurityHeaders {
 	 */
 	public static Consumer<HttpHeaders> bearerToken(String bearerTokenValue) {
 		Assert.hasText(bearerTokenValue, "bearerTokenValue cannot be null");
-		return headers -> headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + bearerTokenValue);
+		return (headers) -> headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + bearerTokenValue);
 	}
 
 	private SecurityHeaders() {

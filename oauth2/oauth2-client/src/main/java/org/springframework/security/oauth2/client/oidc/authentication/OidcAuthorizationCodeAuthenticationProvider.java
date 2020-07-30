@@ -97,7 +97,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new OidcIdTokenDecoderFactory();
 
-	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
+	private GrantedAuthoritiesMapper authoritiesMapper = ((authorities) -> authorities);
 
 	/**
 	 * Constructs an {@code OidcAuthorizationCodeAuthenticationProvider} using the

@@ -97,7 +97,7 @@ public class OidcIdTokenBuilderTests {
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
 		OidcIdToken.Builder idTokenBuilder = OidcIdToken.withTokenValue("token").claim("needs", "a claim");
 
-		OidcIdToken idToken = idTokenBuilder.subject("sub").claims(claims -> claims.remove(IdTokenClaimNames.SUB))
+		OidcIdToken idToken = idTokenBuilder.subject("sub").claims((claims) -> claims.remove(IdTokenClaimNames.SUB))
 				.build();
 		assertThat(idToken.getSubject()).isNull();
 	}
@@ -108,7 +108,7 @@ public class OidcIdTokenBuilderTests {
 
 		String name = new String("name");
 		String value = new String("value");
-		OidcIdToken idToken = idTokenBuilder.claims(claims -> claims.put(name, value)).build();
+		OidcIdToken idToken = idTokenBuilder.claims((claims) -> claims.put(name, value)).build();
 
 		assertThat(idToken.getClaims()).hasSize(1);
 		assertThat(idToken.getClaims().get(name)).isSameAs(value);

@@ -165,7 +165,7 @@ public class OAuth2AuthorizationRequestTests {
 	public void buildWhenAuthorizationRequestUriFunctionSetThenOverridesDefault() {
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
-				.state(STATE).authorizationRequestUri(uriBuilder -> URI.create(AUTHORIZATION_URI)).build();
+				.state(STATE).authorizationRequestUri((uriBuilder) -> URI.create(AUTHORIZATION_URI)).build();
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(AUTHORIZATION_URI);
 	}
 

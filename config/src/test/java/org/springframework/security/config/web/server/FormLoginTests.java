@@ -92,7 +92,7 @@ public class FormLoginTests {
 	@Test
 	public void formLoginWhenDefaultsInLambdaThenCreatesDefaultLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange(exchanges -> exchanges.anyExchange().authenticated()).formLogin(withDefaults())
+				.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated()).formLogin(withDefaults())
 				.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
@@ -135,8 +135,8 @@ public class FormLoginTests {
 	public void formLoginWhenCustomLoginPageInLambdaThenUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
 				.authorizeExchange(
-						exchanges -> exchanges.pathMatchers("/login").permitAll().anyExchange().authenticated())
-				.formLogin(formLogin -> formLogin.loginPage("/login")).build();
+						(exchanges) -> exchanges.pathMatchers("/login").permitAll().anyExchange().authenticated())
+				.formLogin((formLogin) -> formLogin.loginPage("/login")).build();
 
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new CustomLoginPageController(), new WebTestClientBuilder.Http200RestController())
@@ -479,7 +479,7 @@ public class FormLoginTests {
 		@GetMapping("/login")
 		public Mono<String> login(ServerWebExchange exchange) {
 			Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
-			return token.map(t -> "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
+			return token.map((t) -> "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 					+ "    <meta charset=\"utf-8\">\n"
 					+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
 					+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"

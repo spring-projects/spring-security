@@ -126,7 +126,7 @@ public class HttpCorsConfigTests {
 	}
 
 	private ResultMatcher corsResponseHeaders() {
-		return result -> {
+		return (result) -> {
 			header().exists("Access-Control-Allow-Origin").match(result);
 			header().exists("X-Content-Type-Options").match(result);
 		};

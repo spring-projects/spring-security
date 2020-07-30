@@ -50,7 +50,7 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 	private RelyingPartyRegistration.Builder relyingPartyBuilder;
 
 	private Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver = new DefaultSaml2AuthenticationRequestContextResolver(
-			new DefaultRelyingPartyRegistrationResolver(id -> this.relyingPartyBuilder.build()));
+			new DefaultRelyingPartyRegistrationResolver((id) -> this.relyingPartyBuilder.build()));
 
 	@Before
 	public void setup() {
@@ -58,10 +58,10 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 		this.request.setPathInfo("/saml2/authenticate/registration-id");
 		this.relyingPartyBuilder = RelyingPartyRegistration.withRegistrationId(REGISTRATION_ID)
 				.localEntityIdTemplate(RELYING_PARTY_ENTITY_ID)
-				.providerDetails(c -> c.entityId(ASSERTING_PARTY_ENTITY_ID))
-				.providerDetails(c -> c.webSsoUrl(ASSERTING_PARTY_SSO_URL))
+				.providerDetails((c) -> c.entityId(ASSERTING_PARTY_ENTITY_ID))
+				.providerDetails((c) -> c.webSsoUrl(ASSERTING_PARTY_SSO_URL))
 				.assertionConsumerServiceUrlTemplate(RELYING_PARTY_SSO_URL)
-				.credentials(c -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential()));
+				.credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential()));
 	}
 
 	@Test

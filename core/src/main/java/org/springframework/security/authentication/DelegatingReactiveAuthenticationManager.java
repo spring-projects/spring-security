@@ -48,7 +48,7 @@ public class DelegatingReactiveAuthenticationManager implements ReactiveAuthenti
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
-		return Flux.fromIterable(this.delegates).concatMap(m -> m.authenticate(authentication)).next();
+		return Flux.fromIterable(this.delegates).concatMap((m) -> m.authenticate(authentication)).next();
 	}
 
 }

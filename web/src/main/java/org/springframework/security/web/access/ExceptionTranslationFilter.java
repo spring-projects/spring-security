@@ -233,7 +233,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		protected void initExtractorMap() {
 			super.initExtractorMap();
 
-			registerExtractor(ServletException.class, throwable -> {
+			registerExtractor(ServletException.class, (throwable) -> {
 				ThrowableAnalyzer.verifyThrowableHierarchy(throwable, ServletException.class);
 				return ((ServletException) throwable).getRootCause();
 			});

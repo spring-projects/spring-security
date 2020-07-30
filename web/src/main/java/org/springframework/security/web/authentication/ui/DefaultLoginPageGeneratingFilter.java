@@ -87,7 +87,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private Map<String, String> saml2AuthenticationUrlToProviderName;
 
-	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = request -> Collections.emptyMap();
+	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = (request) -> Collections.emptyMap();
 
 	public DefaultLoginPageGeneratingFilter() {
 	}

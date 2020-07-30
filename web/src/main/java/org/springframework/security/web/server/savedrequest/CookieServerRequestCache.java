@@ -71,8 +71,8 @@ public class CookieServerRequestCache implements ServerRequestCache {
 
 	@Override
 	public Mono<Void> saveRequest(ServerWebExchange exchange) {
-		return this.saveRequestMatcher.matches(exchange).filter(m -> m.isMatch()).map(m -> exchange.getResponse())
-				.map(ServerHttpResponse::getCookies).doOnNext(cookies -> {
+		return this.saveRequestMatcher.matches(exchange).filter((m) -> m.isMatch()).map((m) -> exchange.getResponse())
+				.map(ServerHttpResponse::getCookies).doOnNext((cookies) -> {
 					ResponseCookie redirectUriCookie = createRedirectUriCookie(exchange.getRequest());
 					cookies.add(REDIRECT_URI_COOKIE_NAME, redirectUriCookie);
 					if (logger.isDebugEnabled()) {
@@ -86,13 +86,13 @@ public class CookieServerRequestCache implements ServerRequestCache {
 		MultiValueMap<String, HttpCookie> cookieMap = exchange.getRequest().getCookies();
 		return Mono.justOrEmpty(cookieMap.getFirst(REDIRECT_URI_COOKIE_NAME)).map(HttpCookie::getValue)
 				.map(CookieServerRequestCache::decodeCookie)
-				.onErrorResume(IllegalArgumentException.class, e -> Mono.empty()).map(URI::create);
+				.onErrorResume(IllegalArgumentException.class, (e) -> Mono.empty()).map(URI::create);
 	}
 
 	@Override
 	public Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange) {
 		return Mono.just(exchange.getResponse()).map(ServerHttpResponse::getCookies).doOnNext(
-				cookies -> cookies.add(REDIRECT_URI_COOKIE_NAME, invalidateRedirectUriCookie(exchange.getRequest())))
+				(cookies) -> cookies.add(REDIRECT_URI_COOKIE_NAME, invalidateRedirectUriCookie(exchange.getRequest())))
 				.thenReturn(exchange.getRequest());
 	}
 

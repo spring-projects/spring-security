@@ -146,8 +146,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
 
 		this.resolver.setAuthorizationRequestCustomizer(
-				customizer -> customizer.additionalParameters(params -> params.remove(OidcParameterNames.NONCE))
-						.attributes(attrs -> attrs.remove(OidcParameterNames.NONCE)));
+				(customizer) -> customizer.additionalParameters((params) -> params.remove(OidcParameterNames.NONCE))
+						.attributes((attrs) -> attrs.remove(OidcParameterNames.NONCE)));
 
 		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id");
 
@@ -164,10 +164,11 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
 
-		this.resolver.setAuthorizationRequestCustomizer(customizer -> customizer.authorizationRequestUri(uriBuilder -> {
-			uriBuilder.queryParam("param1", "value1");
-			return uriBuilder.build();
-		}));
+		this.resolver
+				.setAuthorizationRequestCustomizer((customizer) -> customizer.authorizationRequestUri((uriBuilder) -> {
+					uriBuilder.queryParam("param1", "value1");
+					return uriBuilder.build();
+				}));
 
 		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id");
 
@@ -182,7 +183,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
 
-		this.resolver.setAuthorizationRequestCustomizer(customizer -> customizer.parameters(params -> {
+		this.resolver.setAuthorizationRequestCustomizer((customizer) -> customizer.parameters((params) -> {
 			params.put("appid", params.get("client_id"));
 			params.remove("client_id");
 		}));

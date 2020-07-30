@@ -190,7 +190,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
 				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						e -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
 				.hasMessageContaining("unauthorized_client");
 	}
 

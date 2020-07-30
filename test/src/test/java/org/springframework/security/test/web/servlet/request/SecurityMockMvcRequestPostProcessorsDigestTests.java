@@ -61,7 +61,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		this.entryPoint.setRealmName("Spring Security");
 		this.filter = new DigestAuthenticationFilter();
 		this.filter.setUserDetailsService(
-				username -> new User(username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER")));
+				(username) -> new User(username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER")));
 		this.filter.setAuthenticationEntryPoint(this.entryPoint);
 		this.filter.afterPropertiesSet();
 	}

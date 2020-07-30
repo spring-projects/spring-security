@@ -107,7 +107,7 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManager implements Rea
 
 	private Function<OAuth2AccessTokenResponse, OAuth2AuthorizationCodeAuthenticationToken> onSuccess(
 			OAuth2AuthorizationCodeAuthenticationToken token) {
-		return accessTokenResponse -> {
+		return (accessTokenResponse) -> {
 			ClientRegistration registration = token.getClientRegistration();
 			OAuth2AuthorizationExchange exchange = token.getAuthorizationExchange();
 			OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();

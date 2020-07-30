@@ -91,7 +91,7 @@ public class CookieServerRequestCacheTests {
 
 	@Test
 	public void saveRequestWhenPostRequestAndCustomMatcherThenRequestUriInCookie() {
-		this.cache.setSaveRequestMatcher(e -> ServerWebExchangeMatcher.MatchResult.match());
+		this.cache.setSaveRequestMatcher((e) -> ServerWebExchangeMatcher.MatchResult.match());
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();
 

@@ -59,11 +59,11 @@ import org.springframework.util.Assert;
  *	RelyingPartyRegistration rp = RelyingPartyRegistration.withRegistrationId(registrationId)
  * 			.entityId(relyingPartyEntityId)
  * 			.assertionConsumerServiceLocation(assertingConsumerServiceLocation)
- * 		 	.signingX509Credentials(c -> c.add(relyingPartySigningCredential))
- * 			.assertingPartyDetails(details -> details
+ * 		 	.signingX509Credentials((c) -> c.add(relyingPartySigningCredential))
+ * 			.assertingPartyDetails((details) -> details
  * 				.entityId(assertingPartyEntityId));
  * 				.singleSignOnServiceLocation(singleSignOnServiceLocation))
- * 				.verifyingX509Credentials(c -> c.add(assertingPartyVerificationCredential))
+ * 				.verifyingX509Credentials((c) -> c.add(assertingPartyVerificationCredential))
  * 			.build();
  * </pre>
  *
@@ -362,17 +362,17 @@ public final class RelyingPartyRegistration {
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
 		Assert.notNull(registration, "registration cannot be null");
 		return withRegistrationId(registration.getRegistrationId()).entityId(registration.getEntityId())
-				.signingX509Credentials(c -> c.addAll(registration.getSigningX509Credentials()))
-				.decryptionX509Credentials(c -> c.addAll(registration.getDecryptionX509Credentials()))
+				.signingX509Credentials((c) -> c.addAll(registration.getSigningX509Credentials()))
+				.decryptionX509Credentials((c) -> c.addAll(registration.getDecryptionX509Credentials()))
 				.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
 				.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
-				.assertingPartyDetails(assertingParty -> assertingParty
+				.assertingPartyDetails((assertingParty) -> assertingParty
 						.entityId(registration.getAssertingPartyDetails().getEntityId())
 						.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
-						.verificationX509Credentials(
-								c -> c.addAll(registration.getAssertingPartyDetails().getVerificationX509Credentials()))
+						.verificationX509Credentials((c) -> c
+								.addAll(registration.getAssertingPartyDetails().getVerificationX509Credentials()))
 						.encryptionX509Credentials(
-								c -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
+								(c) -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
 						.singleSignOnServiceLocation(
 								registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
 						.singleSignOnServiceBinding(
@@ -913,7 +913,7 @@ public final class RelyingPartyRegistration {
 		 * communication between IDP and SP For example: <code>
 		 *     Saml2X509Credential credential = ...;
 		 *     return RelyingPartyRegistration.withRegistrationId("id")
-		 *             .credentials(c -> c.add(credential))
+		 *             .credentials((c) -> c.add(credential))
 		 *             ...
 		 *             .build();
 		 * </code>
@@ -959,7 +959,7 @@ public final class RelyingPartyRegistration {
 		 */
 		@Deprecated
 		public Builder remoteIdpEntityId(String entityId) {
-			assertingPartyDetails(idp -> idp.entityId(entityId));
+			assertingPartyDetails((idp) -> idp.entityId(entityId));
 			return this;
 		}
 
@@ -973,7 +973,7 @@ public final class RelyingPartyRegistration {
 		 */
 		@Deprecated
 		public Builder idpWebSsoUrl(String url) {
-			assertingPartyDetails(config -> config.singleSignOnServiceLocation(url));
+			assertingPartyDetails((config) -> config.singleSignOnServiceLocation(url));
 			return this;
 		}
 
@@ -1013,16 +1013,16 @@ public final class RelyingPartyRegistration {
 			for (org.springframework.security.saml2.credentials.Saml2X509Credential credential : this.credentials) {
 				Saml2X509Credential mapped = fromDeprecated(credential);
 				if (credential.isSigningCredential()) {
-					signingX509Credentials(c -> c.add(mapped));
+					signingX509Credentials((c) -> c.add(mapped));
 				}
 				if (credential.isDecryptionCredential()) {
-					decryptionX509Credentials(c -> c.add(mapped));
+					decryptionX509Credentials((c) -> c.add(mapped));
 				}
 				if (credential.isSignatureVerficationCredential()) {
-					this.providerDetails.assertingPartyDetailsBuilder.verificationX509Credentials(c -> c.add(mapped));
+					this.providerDetails.assertingPartyDetailsBuilder.verificationX509Credentials((c) -> c.add(mapped));
 				}
 				if (credential.isEncryptionCredential()) {
-					this.providerDetails.assertingPartyDetailsBuilder.encryptionX509Credentials(c -> c.add(mapped));
+					this.providerDetails.assertingPartyDetailsBuilder.encryptionX509Credentials((c) -> c.add(mapped));
 				}
 			}
 

@@ -70,11 +70,11 @@ public class HelloWebfluxMethodApplicationITests {
 	}
 
 	private Consumer<HttpHeaders> robsCredentials() {
-		return httpHeaders -> httpHeaders.setBasicAuth("rob", "rob");
+		return (httpHeaders) -> httpHeaders.setBasicAuth("rob", "rob");
 	}
 
 	private Consumer<HttpHeaders> adminCredentials() {
-		return httpHeaders -> httpHeaders.setBasicAuth("admin", "admin");
+		return (httpHeaders) -> httpHeaders.setBasicAuth("admin", "admin");
 	}
 }
 

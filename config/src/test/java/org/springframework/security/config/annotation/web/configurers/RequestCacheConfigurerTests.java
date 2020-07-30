@@ -333,7 +333,7 @@ public class RequestCacheConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().authenticated()
 				)
@@ -351,7 +351,7 @@ public class RequestCacheConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().authenticated()
 				)
@@ -369,12 +369,12 @@ public class RequestCacheConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
-				.requestCache(requestCache ->
+				.requestCache((requestCache) ->
 					requestCache
 						.requestCache(new NullRequestCache())
 				);

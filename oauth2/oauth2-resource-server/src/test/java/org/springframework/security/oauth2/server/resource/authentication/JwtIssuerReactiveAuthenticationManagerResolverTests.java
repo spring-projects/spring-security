@@ -98,7 +98,7 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverThenUses() {
 		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-				issuer -> Mono.just(authenticationManager));
+				(issuer) -> Mono.just(authenticationManager));
 		MockServerWebExchange exchange = withBearerToken(this.jwt);
 
 		assertThat(authenticationManagerResolver.resolve(exchange).block()).isSameAs(authenticationManager);
@@ -110,7 +110,7 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 
 		Map<String, ReactiveAuthenticationManager> authenticationManagers = new HashMap<>();
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-				issuer -> Mono.justOrEmpty(authenticationManagers.get(issuer)));
+				(issuer) -> Mono.justOrEmpty(authenticationManagers.get(issuer)));
 		assertThatCode(() -> authenticationManagerResolver.resolve(exchange).block())
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
 

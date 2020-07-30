@@ -151,7 +151,7 @@ public class ChannelSecurityConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel(requiresChannel ->
+				.requiresChannel((requiresChannel) ->
 					requiresChannel
 						.anyRequest().requiresSecure()
 			);

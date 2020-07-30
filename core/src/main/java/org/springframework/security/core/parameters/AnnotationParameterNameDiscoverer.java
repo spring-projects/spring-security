@@ -162,10 +162,10 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 		return null;
 	}
 
-	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = constructor -> constructor
-			.getParameterAnnotations();
+	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = (
+			constructor) -> constructor.getParameterAnnotations();
 
-	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = method -> method
+	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = (method) -> method
 			.getParameterAnnotations();
 
 	/**

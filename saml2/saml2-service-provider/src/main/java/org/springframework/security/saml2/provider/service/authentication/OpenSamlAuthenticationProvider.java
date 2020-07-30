@@ -175,20 +175,22 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 	private final ParserPool parserPool;
 
-	private Converter<Assertion, Collection<? extends GrantedAuthority>> authoritiesExtractor = (a -> Collections
+	private Converter<Assertion, Collection<? extends GrantedAuthority>> authoritiesExtractor = ((a) -> Collections
 			.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
-	private GrantedAuthoritiesMapper authoritiesMapper = (a -> a);
+	private GrantedAuthoritiesMapper authoritiesMapper = ((a) -> a);
 
 	private Duration responseTimeValidationSkew = Duration.ofMinutes(5);
 
-	private Function<Saml2AuthenticationToken, Converter<Response, AbstractAuthenticationToken>> authenticationConverter = token -> response -> {
-		Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
-		String username = assertion.getSubject().getNameID().getValue();
-		Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
-		return new Saml2Authentication(new DefaultSaml2AuthenticatedPrincipal(username, attributes),
-				token.getSaml2Response(), this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
-	};
+	private Function<Saml2AuthenticationToken, Converter<Response, AbstractAuthenticationToken>> authenticationConverter = (
+			token) -> (response) -> {
+				Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
+				String username = assertion.getSubject().getNameID().getValue();
+				Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
+				return new Saml2Authentication(new DefaultSaml2AuthenticatedPrincipal(username, attributes),
+						token.getSaml2Response(),
+						this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
+			};
 
 	private Converter<Saml2AuthenticationToken, SignatureTrustEngine> signatureTrustEngineConverter = new SignatureTrustEngineConverter();
 

@@ -121,7 +121,7 @@ public class DigestAuthenticationFilterTests {
 		SecurityContextHolder.clearContext();
 
 		// Create User Details Service
-		UserDetailsService uds = username -> new User("rod,ok", "koala",
+		UserDetailsService uds = (username) -> new User("rod,ok", "koala",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();

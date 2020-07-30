@@ -498,8 +498,8 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 				.willReturn(Mono.just(this.authorizedClient));
 
 		// Set custom contextAttributesMapper capable of mapping the form parameters
-		this.authorizedClientManager.setContextAttributesMapper(
-				authorizeRequest -> currentServerWebExchange().flatMap(ServerWebExchange::getFormData).map(formData -> {
+		this.authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> currentServerWebExchange()
+				.flatMap(ServerWebExchange::getFormData).map((formData) -> {
 					Map<String, Object> contextAttributes = new HashMap<>();
 					String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
 					contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
@@ -605,8 +605,8 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 	}
 
 	private Mono<ServerWebExchange> currentServerWebExchange() {
-		return Mono.subscriberContext().filter(c -> c.hasKey(ServerWebExchange.class))
-				.map(c -> c.get(ServerWebExchange.class));
+		return Mono.subscriberContext().filter((c) -> c.hasKey(ServerWebExchange.class))
+				.map((c) -> c.get(ServerWebExchange.class));
 	}
 
 }

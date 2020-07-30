@@ -41,7 +41,7 @@ public class WebFilterChainProxyTests {
 	@Test
 	public void filterWhenNoMatchThenContinuesChainAnd404() {
 		List<WebFilter> filters = Arrays.asList(new Http200WebFilter());
-		ServerWebExchangeMatcher notMatch = exchange -> MatchResult.notMatch();
+		ServerWebExchangeMatcher notMatch = (exchange) -> MatchResult.notMatch();
 		MatcherSecurityWebFilterChain chain = new MatcherSecurityWebFilterChain(notMatch, filters);
 		WebFilterChainProxy filter = new WebFilterChainProxy(chain);
 

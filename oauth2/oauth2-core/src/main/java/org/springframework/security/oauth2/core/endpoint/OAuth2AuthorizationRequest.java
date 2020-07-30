@@ -245,14 +245,14 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		private Map<String, Object> additionalParameters = new LinkedHashMap<>();
 
-		private Consumer<Map<String, Object>> parametersConsumer = params -> {
+		private Consumer<Map<String, Object>> parametersConsumer = (params) -> {
 		};
 
 		private Map<String, Object> attributes = new LinkedHashMap<>();
 
 		private String authorizationRequestUri;
 
-		private Function<UriBuilder, URI> authorizationRequestUriFunction = builder -> builder.build();
+		private Function<UriBuilder, URI> authorizationRequestUriFunction = (builder) -> builder.build();
 
 		private final DefaultUriBuilderFactory uriBuilderFactory;
 

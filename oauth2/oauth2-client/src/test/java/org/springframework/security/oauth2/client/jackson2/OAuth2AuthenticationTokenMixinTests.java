@@ -267,7 +267,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 	private static String asJson(List<SimpleGrantedAuthority> simpleAuthorities) {
 		// @formatter:off
 		return simpleAuthorities.stream()
-				.map(authority -> "{\n" +
+				.map((authority) -> "{\n" +
 						"        \"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\",\n" +
 						"        \"authority\": \"" + authority.getAuthority() + "\"\n" +
 						"      }")

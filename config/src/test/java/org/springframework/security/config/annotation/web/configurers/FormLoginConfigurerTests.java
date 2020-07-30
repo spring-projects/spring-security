@@ -392,7 +392,7 @@ public class FormLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().hasRole("USER")
 				)
@@ -456,11 +456,11 @@ public class FormLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().hasRole("USER")
 				)
-				.formLogin(formLogin ->
+				.formLogin((formLogin) ->
 					formLogin
 						.loginPage("/authenticate")
 						.permitAll()
@@ -514,18 +514,18 @@ public class FormLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().authenticated()
 				)
-				.formLogin(formLogin ->
+				.formLogin((formLogin) ->
 					formLogin
 						.loginProcessingUrl("/loginCheck")
 						.loginPage("/login")
 						.defaultSuccessUrl("/", true)
 						.permitAll()
 				)
-				.logout(logout ->
+				.logout((logout) ->
 					logout
 						.logoutSuccessUrl("/login")
 						.logoutUrl("/logout")

@@ -101,7 +101,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 *     authenticationManagers.put("https://issuerOne.example.org", managerOne);
 	 *     authenticationManagers.put("https://issuerTwo.example.org", managerTwo);
 	 *     JwtIssuerReactiveAuthenticationManagerResolver resolver = new JwtIssuerReactiveAuthenticationManagerResolver
-	 *     	(issuer -> Mono.justOrEmpty(authenticationManagers.get(issuer));
+	 *     	((issuer) -> Mono.justOrEmpty(authenticationManagers.get(issuer));
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the trusted issuers.
@@ -124,7 +124,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	@Override
 	public Mono<ReactiveAuthenticationManager> resolve(ServerWebExchange exchange) {
 		return this.issuerConverter.convert(exchange)
-				.flatMap(issuer -> this.issuerAuthenticationManagerResolver.resolve(issuer)
+				.flatMap((issuer) -> this.issuerAuthenticationManagerResolver.resolve(issuer)
 						.switchIfEmpty(Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer))));
 	}
 
@@ -134,7 +134,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 		@Override
 		public Mono<String> convert(@NonNull ServerWebExchange exchange) {
-			return this.converter.convert(exchange).map(convertedToken -> {
+			return this.converter.convert(exchange).map((convertedToken) -> {
 				BearerTokenAuthenticationToken token = (BearerTokenAuthenticationToken) convertedToken;
 				try {
 					String issuer = JWTParser.parse(token.getToken()).getJWTClaimsSet().getIssuer();
@@ -170,7 +170,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 				return Mono.empty();
 			}
 			return this.authenticationManagers.computeIfAbsent(issuer,
-					k -> Mono.<ReactiveAuthenticationManager>fromCallable(
+					(k) -> Mono.<ReactiveAuthenticationManager>fromCallable(
 							() -> new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k)))
 							.subscribeOn(Schedulers.boundedElastic()).cache());
 		}

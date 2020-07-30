@@ -72,37 +72,37 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 	@Override
 	public Mono<Void> fireAndForget(Payload payload) {
 		return intercept(PayloadExchangeType.FIRE_AND_FORGET, payload)
-				.flatMap(context -> this.source.fireAndForget(payload).subscriberContext(context));
+				.flatMap((context) -> this.source.fireAndForget(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Mono<Payload> requestResponse(Payload payload) {
 		return intercept(PayloadExchangeType.REQUEST_RESPONSE, payload)
-				.flatMap(context -> this.source.requestResponse(payload).subscriberContext(context));
+				.flatMap((context) -> this.source.requestResponse(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Flux<Payload> requestStream(Payload payload) {
 		return intercept(PayloadExchangeType.REQUEST_STREAM, payload)
-				.flatMapMany(context -> this.source.requestStream(payload).subscriberContext(context));
+				.flatMapMany((context) -> this.source.requestStream(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Flux<Payload> requestChannel(Publisher<Payload> payloads) {
 		return Flux.from(payloads).switchOnFirst((signal, innerFlux) -> {
 			Payload firstPayload = signal.get();
-			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany(
-					context -> innerFlux.skip(1).flatMap(p -> intercept(PayloadExchangeType.PAYLOAD, p).thenReturn(p))
-							.transform(securedPayloads -> Flux.concat(Flux.just(firstPayload), securedPayloads))
-							.transform(securedPayloads -> this.source.requestChannel(securedPayloads))
-							.subscriberContext(context));
+			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany((context) -> innerFlux
+					.skip(1).flatMap((p) -> intercept(PayloadExchangeType.PAYLOAD, p).thenReturn(p))
+					.transform((securedPayloads) -> Flux.concat(Flux.just(firstPayload), securedPayloads))
+					.transform((securedPayloads) -> this.source.requestChannel(securedPayloads))
+					.subscriberContext(context));
 		});
 	}
 
 	@Override
 	public Mono<Void> metadataPush(Payload payload) {
 		return intercept(PayloadExchangeType.METADATA_PUSH, payload)
-				.flatMap(c -> this.source.metadataPush(payload).subscriberContext(c));
+				.flatMap((c) -> this.source.metadataPush(payload).subscriberContext(c));
 	}
 
 	private Mono<Context> intercept(PayloadExchangeType type, Payload payload) {

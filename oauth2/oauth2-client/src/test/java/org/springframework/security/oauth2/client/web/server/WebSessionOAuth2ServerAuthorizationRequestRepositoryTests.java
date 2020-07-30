@@ -75,7 +75,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 	@Test
 	public void loadAuthorizationRequestWhenSessionAndNoRequestThenEmpty() {
 		Mono<OAuth2AuthorizationRequest> setAttrThenLoad = this.exchange.getSession().map(WebSession::getAttributes)
-				.doOnNext(attrs -> attrs.put("foo", "bar"))
+				.doOnNext((attrs) -> attrs.put("foo", "bar"))
 				.then(this.repository.loadAuthorizationRequest(this.exchange));
 
 		StepVerifier.create(setAttrThenLoad).verifyComplete();
@@ -109,7 +109,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 				.authorizationUri("https://example.com/oauth2/authorize").clientId("client-id")
 				.redirectUri("http://localhost/client-1").state(oldState).build();
 
-		WebSessionManager sessionManager = e -> this.exchange.getSession();
+		WebSessionManager sessionManager = (e) -> this.exchange.getSession();
 
 		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(),
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
@@ -192,7 +192,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 				.authorizationUri("https://example.com/oauth2/authorize").clientId("client-id")
 				.redirectUri("http://localhost/client-1").state(oldState).build();
 
-		WebSessionManager sessionManager = e -> this.exchange.getSession();
+		WebSessionManager sessionManager = (e) -> this.exchange.getSession();
 
 		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(),
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
@@ -226,7 +226,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 		Map<String, Object> sessionAttrs = spy(new HashMap<>());
 		WebSession session = mock(WebSession.class);
 		given(session.getAttributes()).willReturn(sessionAttrs);
-		WebSessionManager sessionManager = e -> Mono.just(session);
+		WebSessionManager sessionManager = (e) -> Mono.just(session);
 
 		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(),
 				sessionManager, ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());

@@ -32,14 +32,14 @@ public class Saml2AuthenticationRequestFactoryTests {
 
 	private RelyingPartyRegistration registration = RelyingPartyRegistration.withRegistrationId("id")
 			.assertionConsumerServiceUrlTemplate("template")
-			.providerDetails(c -> c.webSsoUrl("https://example.com/destination"))
-			.providerDetails(c -> c.entityId("remote-entity-id")).localEntityIdTemplate("local-entity-id")
-			.credentials(c -> c.add(TestSaml2X509Credentials.relyingPartySigningCredential())).build();
+			.providerDetails((c) -> c.webSsoUrl("https://example.com/destination"))
+			.providerDetails((c) -> c.entityId("remote-entity-id")).localEntityIdTemplate("local-entity-id")
+			.credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartySigningCredential())).build();
 
 	@Test
 	public void createAuthenticationRequestParametersWhenRedirectDefaultIsUsedMessageIsDeflatedAndEncoded() {
 		final String value = "Test String: " + UUID.randomUUID().toString();
-		Saml2AuthenticationRequestFactory factory = request -> value;
+		Saml2AuthenticationRequestFactory factory = (request) -> value;
 		Saml2AuthenticationRequestContext request = Saml2AuthenticationRequestContext.builder()
 				.relyingPartyRegistration(this.registration).issuer("https://example.com/issuer")
 				.assertionConsumerServiceUrl("https://example.com/acs-url").build();
@@ -53,7 +53,7 @@ public class Saml2AuthenticationRequestFactoryTests {
 	@Test
 	public void createAuthenticationRequestParametersWhenPostDefaultIsUsedMessageIsEncoded() {
 		final String value = "Test String: " + UUID.randomUUID().toString();
-		Saml2AuthenticationRequestFactory factory = request -> value;
+		Saml2AuthenticationRequestFactory factory = (request) -> value;
 		Saml2AuthenticationRequestContext request = Saml2AuthenticationRequestContext.builder()
 				.relyingPartyRegistration(this.registration).issuer("https://example.com/issuer")
 				.assertionConsumerServiceUrl("https://example.com/acs-url").build();

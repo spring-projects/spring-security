@@ -41,8 +41,8 @@ public final class ReactiveSecurityContextHolder {
 	 * @return the {@code Mono<SecurityContext>}
 	 */
 	public static Mono<SecurityContext> getContext() {
-		return Mono.subscriberContext().filter(c -> c.hasKey(SECURITY_CONTEXT_KEY))
-				.flatMap(c -> c.<Mono<SecurityContext>>get(SECURITY_CONTEXT_KEY));
+		return Mono.subscriberContext().filter((c) -> c.hasKey(SECURITY_CONTEXT_KEY))
+				.flatMap((c) -> c.<Mono<SecurityContext>>get(SECURITY_CONTEXT_KEY));
 	}
 
 	/**
@@ -51,7 +51,7 @@ public final class ReactiveSecurityContextHolder {
 	 * from clearing the context.
 	 */
 	public static Function<Context, Context> clearContext() {
-		return context -> context.delete(SECURITY_CONTEXT_KEY);
+		return (context) -> context.delete(SECURITY_CONTEXT_KEY);
 	}
 
 	/**

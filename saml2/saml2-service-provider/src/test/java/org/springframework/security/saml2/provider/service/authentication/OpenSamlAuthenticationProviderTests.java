@@ -210,7 +210,7 @@ public class OpenSamlAuthenticationProviderTests {
 		Response response = TestOpenSamlObjects.response();
 		Assertion assertion = TestOpenSamlObjects.assertion();
 		assertion.getSubject().getSubjectConfirmations()
-				.forEach(sc -> sc.getSubjectConfirmationData().setAddress("10.10.10.10"));
+				.forEach((sc) -> sc.getSubjectConfirmationData().setAddress("10.10.10.10"));
 		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
 				RELYING_PARTY_ENTITY_ID);
 		response.getAssertions().add(assertion);
@@ -401,7 +401,7 @@ public class OpenSamlAuthenticationProviderTests {
 		ValidationContext context = mock(ValidationContext.class);
 		given(context.getStaticParameters()).willReturn(parameters);
 		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-		provider.setValidationContextConverter(tuple -> context);
+		provider.setValidationContextConverter((tuple) -> context);
 		Response response = TestOpenSamlObjects.response();
 		Assertion assertion = TestOpenSamlObjects.assertion();
 		response.getAssertions().add(assertion);

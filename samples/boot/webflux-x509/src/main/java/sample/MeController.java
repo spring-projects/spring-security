@@ -35,6 +35,6 @@ public class MeController {
 	public Mono<String> me() {
 		return ReactiveSecurityContextHolder.getContext()
 				.map(SecurityContext::getAuthentication)
-				.map(authentication -> "Hello, " + authentication.getName());
+				.map((authentication) -> "Hello, " + authentication.getName());
 	}
 }

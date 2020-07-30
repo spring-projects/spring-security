@@ -70,9 +70,9 @@ public class XsdDocumentedTests {
 		XmlNode root = this.xml.parse(this.schemaDocumentLocation);
 
 		List<String> nodes = root.child("schema").map(XmlNode::children).orElse(Stream.empty())
-				.filter(node -> "simpleType".equals(node.simpleName())
+				.filter((node) -> "simpleType".equals(node.simpleName())
 						&& "named-security-filter".equals(node.attribute("name")))
-				.flatMap(XmlNode::children).flatMap(XmlNode::children).map(node -> node.attribute("value"))
+				.flatMap(XmlNode::children).flatMap(XmlNode::children).map((node) -> node.attribute("value"))
 				.filter(StringUtils::isNotEmpty).collect(Collectors.toList());
 
 		SecurityFiltersAssertions.assertEquals(nodes);
@@ -91,9 +91,9 @@ public class XsdDocumentedTests {
 		XmlNode root = this.xml.parse(this.schema31xDocumentLocation);
 
 		List<String> nodes = root.child("schema").map(XmlNode::children).orElse(Stream.empty())
-				.filter(node -> "simpleType".equals(node.simpleName())
+				.filter((node) -> "simpleType".equals(node.simpleName())
 						&& "named-security-filter".equals(node.attribute("name")))
-				.flatMap(XmlNode::children).flatMap(XmlNode::children).map(node -> node.attribute("value"))
+				.flatMap(XmlNode::children).flatMap(XmlNode::children).map((node) -> node.attribute("value"))
 				.filter(StringUtils::isNotEmpty).collect(Collectors.toList());
 
 		assertThat(nodes).isEqualTo(expected);
@@ -129,11 +129,11 @@ public class XsdDocumentedTests {
 		Map<String, Element> elementsByElementName = this.xml.elementsByElementName(this.schemaDocumentLocation);
 
 		List<String> documentIds = Files.lines(Paths.get(this.referenceLocation))
-				.filter(line -> line.matches("\\[\\[(nsa-.*)\\]\\]")).map(line -> line.substring(2, line.length() - 2))
-				.collect(Collectors.toList());
+				.filter((line) -> line.matches("\\[\\[(nsa-.*)\\]\\]"))
+				.map((line) -> line.substring(2, line.length() - 2)).collect(Collectors.toList());
 
-		Set<String> expectedIds = elementsByElementName.values().stream().flatMap(element -> element.getIds().stream())
-				.collect(Collectors.toSet());
+		Set<String> expectedIds = elementsByElementName.values().stream()
+				.flatMap((element) -> element.getIds().stream()).collect(Collectors.toSet());
 
 		documentIds.removeAll(this.ignoredIds);
 		expectedIds.removeAll(this.ignoredIds);
@@ -179,7 +179,7 @@ public class XsdDocumentedTests {
 				String expression = "^\\* <<(nsa-.*),.*>>$";
 				if (line.matches(expression)) {
 					String elmtId = line.replaceAll(expression, "$1");
-					currentDocAttrNameToElmt.computeIfAbsent(docAttrName, key -> new ArrayList<>()).add(elmtId);
+					currentDocAttrNameToElmt.computeIfAbsent(docAttrName, (key) -> new ArrayList<>()).add(elmtId);
 				}
 			}
 		}
@@ -189,21 +189,21 @@ public class XsdDocumentedTests {
 		Map<String, List<String>> schemaAttrNameToChildren = new HashMap<>();
 		Map<String, List<String>> schemaAttrNameToParents = new HashMap<>();
 
-		elementNameToElement.entrySet().stream().forEach(entry -> {
+		elementNameToElement.entrySet().stream().forEach((entry) -> {
 			String key = "nsa-" + entry.getKey();
 			if (this.ignoredIds.contains(key)) {
 				return;
 			}
 
 			List<String> parentIds = entry.getValue().getAllParentElmts().values().stream()
-					.filter(element -> !this.ignoredIds.contains(element.getId())).map(element -> element.getId())
+					.filter((element) -> !this.ignoredIds.contains(element.getId())).map((element) -> element.getId())
 					.sorted().collect(Collectors.toList());
 			if (!parentIds.isEmpty()) {
 				schemaAttrNameToParents.put(key, parentIds);
 			}
 
 			List<String> childIds = entry.getValue().getAllChildElmts().values().stream()
-					.filter(element -> !this.ignoredIds.contains(element.getId())).map(element -> element.getId())
+					.filter((element) -> !this.ignoredIds.contains(element.getId())).map((element) -> element.getId())
 					.sorted().collect(Collectors.toList());
 			if (!childIds.isEmpty()) {
 				schemaAttrNameToChildren.put(key, childIds);
@@ -224,12 +224,14 @@ public class XsdDocumentedTests {
 		Map<String, Element> elementNameToElement = this.xml.elementsByElementName(this.schemaDocumentLocation);
 
 		String notDocElmtIds = elementNameToElement.values().stream()
-				.filter(element -> StringUtils.isEmpty(element.getDesc()) && !this.ignoredIds.contains(element.getId()))
-				.map(element -> element.getId()).sorted().collect(Collectors.joining("\n"));
+				.filter((element) -> StringUtils.isEmpty(element.getDesc())
+						&& !this.ignoredIds.contains(element.getId()))
+				.map((element) -> element.getId()).sorted().collect(Collectors.joining("\n"));
 
-		String notDocAttrIds = elementNameToElement.values().stream().flatMap(element -> element.getAttrs().stream())
-				.filter(element -> StringUtils.isEmpty(element.getDesc()) && !this.ignoredIds.contains(element.getId()))
-				.map(element -> element.getId()).sorted().collect(Collectors.joining("\n"));
+		String notDocAttrIds = elementNameToElement.values().stream().flatMap((element) -> element.getAttrs().stream())
+				.filter((element) -> StringUtils.isEmpty(element.getDesc())
+						&& !this.ignoredIds.contains(element.getId()))
+				.map((element) -> element.getId()).sorted().collect(Collectors.joining("\n"));
 
 		assertThat(notDocElmtIds).isEmpty();
 		assertThat(notDocAttrIds).isEmpty();

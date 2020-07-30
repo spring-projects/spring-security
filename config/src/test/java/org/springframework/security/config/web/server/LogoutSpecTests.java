@@ -91,9 +91,9 @@ public class LogoutSpecTests {
 	@Test
 	public void logoutWhenCustomLogoutInLambdaThenCustomLogoutUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
-				.authorizeExchange(authorizeExchange -> authorizeExchange.anyExchange().authenticated())
+				.authorizeExchange((authorizeExchange) -> authorizeExchange.anyExchange().authenticated())
 				.formLogin(withDefaults())
-				.logout(logout -> logout.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout")))
+				.logout((logout) -> logout.requiresLogout(ServerWebExchangeMatchers.pathMatchers("/custom-logout")))
 				.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();

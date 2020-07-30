@@ -59,7 +59,7 @@ public class OidcUserInfoBuilderTests {
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
 		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder().claim("needs", "a claim");
 
-		OidcUserInfo userInfo = userInfoBuilder.subject("sub").claims(claims -> claims.remove(IdTokenClaimNames.SUB))
+		OidcUserInfo userInfo = userInfoBuilder.subject("sub").claims((claims) -> claims.remove(IdTokenClaimNames.SUB))
 				.build();
 		assertThat(userInfo.getSubject()).isNull();
 	}
@@ -70,7 +70,7 @@ public class OidcUserInfoBuilderTests {
 
 		String name = new String("name");
 		String value = new String("value");
-		OidcUserInfo userInfo = userInfoBuilder.claims(claims -> claims.put(name, value)).build();
+		OidcUserInfo userInfo = userInfoBuilder.claims((claims) -> claims.put(name, value)).build();
 
 		assertThat(userInfo.getClaims()).hasSize(1);
 		assertThat(userInfo.getClaims().get(name)).isSameAs(value);

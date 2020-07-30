@@ -100,7 +100,7 @@ public class ReactorContextWebFilterTests {
 		given(this.repository.load(any())).willReturn(Mono.just(context));
 		this.handler = WebTestHandler.bindToWebFilters(this.filter,
 				(e, c) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
-						.doOnSuccess(p -> assertThat(p).isSameAs(this.principal)).flatMap(p -> c.filter(e)));
+						.doOnSuccess((p) -> assertThat(p).isSameAs(this.principal)).flatMap((p) -> c.filter(e)));
 
 		WebTestHandler.WebHandlerResult result = this.handler.exchange(this.exchange);
 
@@ -113,7 +113,7 @@ public class ReactorContextWebFilterTests {
 		String contextKey = "main";
 		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).subscriberContext(Context.of(contextKey, true));
 
-		WebFilterChain chain = new DefaultWebFilterChain(e -> Mono.empty(), mainContextWebFilter, this.filter);
+		WebFilterChain chain = new DefaultWebFilterChain((e) -> Mono.empty(), mainContextWebFilter, this.filter);
 		Mono<Void> filter = chain.filter(MockServerWebExchange.from(this.exchange.build()));
 		StepVerifier.create(filter).expectAccessibleContext().hasKey(contextKey).then().verifyComplete();
 	}

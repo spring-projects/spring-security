@@ -57,9 +57,9 @@ public class LogoutWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.requiresLogout.matches(exchange).filter(result -> result.isMatch())
-				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).map(result -> exchange)
-				.flatMap(this::flatMapAuthentication).flatMap(authentication -> {
+		return this.requiresLogout.matches(exchange).filter((result) -> result.isMatch())
+				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).map((result) -> exchange)
+				.flatMap(this::flatMapAuthentication).flatMap((authentication) -> {
 					WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 					return logout(webFilterExchange, authentication);
 				});

@@ -224,7 +224,7 @@ public class EnableReactiveMethodSecurityTests {
 
 		Flux<String> findById = this.messageService.fluxPreAuthorizeHasRoleFindById(1L)
 				.subscriberContext(this.withAdmin);
-		StepVerifier.create(findById).consumeNextWith(s -> AssertionsForClassTypes.assertThat(s).isEqualTo("result"))
+		StepVerifier.create(findById).consumeNextWith((s) -> AssertionsForClassTypes.assertThat(s).isEqualTo("result"))
 				.verifyComplete();
 	}
 
@@ -349,7 +349,7 @@ public class EnableReactiveMethodSecurityTests {
 
 		Publisher<String> findById = Flux.from(this.messageService.publisherPreAuthorizeHasRoleFindById(1L))
 				.subscriberContext(this.withAdmin);
-		StepVerifier.create(findById).consumeNextWith(s -> AssertionsForClassTypes.assertThat(s).isEqualTo("result"))
+		StepVerifier.create(findById).consumeNextWith((s) -> AssertionsForClassTypes.assertThat(s).isEqualTo("result"))
 				.verifyComplete();
 	}
 
@@ -457,7 +457,7 @@ public class EnableReactiveMethodSecurityTests {
 	}
 
 	static <T> Publisher<T> publisher(Flux<T> flux) {
-		return subscriber -> flux.subscribe(subscriber);
+		return (subscriber) -> flux.subscribe(subscriber);
 	}
 
 	static <T> Publisher<T> publisherJust(T... data) {

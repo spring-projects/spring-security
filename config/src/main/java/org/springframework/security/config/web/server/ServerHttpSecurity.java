@@ -396,7 +396,7 @@ public class ServerHttpSecurity {
 	 * 	    http
 	 * 	        // ...
 	 * 	        .redirectToHttps()
-	 * 	            .httpsRedirectWhen(serverWebExchange ->
+	 * 	            .httpsRedirectWhen((serverWebExchange) ->
 	 * 	            	serverWebExchange.getRequest().getHeaders().containsKey("X-Requires-Https"))
 	 * 	    return http.build();
 	 * 	}
@@ -431,9 +431,9 @@ public class ServerHttpSecurity {
 	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 * 	    http
 	 * 	        // ...
-	 * 	        .redirectToHttps(redirectToHttps ->
+	 * 	        .redirectToHttps((redirectToHttps) ->
 	 * 	        	redirectToHttps
-	 * 	            	.httpsRedirectWhen(serverWebExchange ->
+	 * 	            	.httpsRedirectWhen((serverWebExchange) ->
 	 * 	            		serverWebExchange.getRequest().getHeaders().containsKey("X-Requires-Https"))
 	 * 	            );
 	 * 	    return http.build();
@@ -501,7 +501,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .csrf(csrf ->
+	 *          .csrf((csrf) ->
 	 *              csrf.disabled()
 	 *          );
 	 *      return http.build();
@@ -516,7 +516,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .csrf(csrf ->
+	 *          .csrf((csrf) ->
 	 *              csrf
 	 *                  // Handle CSRF failures
 	 *                  .accessDeniedHandler(accessDeniedHandler)
@@ -607,7 +607,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .anonymous(anonymous ->
+	 *          .anonymous((anonymous) ->
 	 *              anonymous
 	 *                  .key("key")
 	 *                  .authorities("ROLE_ANONYMOUS")
@@ -660,7 +660,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .httpBasic(httpBasic ->
+	 *          .httpBasic((httpBasic) ->
 	 *              httpBasic
 	 *                  // used for authenticating the credentials
 	 *                  .authenticationManager(authenticationManager)
@@ -719,7 +719,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .formLogin(formLogin ->
+	 *          .formLogin((formLogin) ->
 	 *              formLogin
 	 *              	// used for authenticating the credentials
 	 *              	.authenticationManager(authenticationManager)
@@ -781,7 +781,7 @@ public class ServerHttpSecurity {
 	 *  &#064;Bean
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
-	 *          .x509(x509 ->
+	 *          .x509((x509) ->
 	 *              x509
 	 *          	    .authenticationManager(authenticationManager)
 	 *                  .principalExtractor(principalExtractor)
@@ -839,7 +839,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .oauth2Login(oauth2Login ->
+	 *          .oauth2Login((oauth2Login) ->
 	 *              oauth2Login
 	 *                  .authenticationConverter(authenticationConverter)
 	 *                  .authenticationManager(manager)
@@ -890,7 +890,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .oauth2Client(oauth2Client ->
+	 *          .oauth2Client((oauth2Client) ->
 	 *              oauth2Client
 	 *                  .clientRegistrationRepository(clientRegistrationRepository)
 	 *                  .authorizedClientRepository(authorizedClientRepository)
@@ -941,9 +941,9 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .oauth2ResourceServer(oauth2ResourceServer ->
+	 *          .oauth2ResourceServer((oauth2ResourceServer) ->
 	 *              oauth2ResourceServer
-	 *                  .jwt(jwt ->
+	 *                  .jwt((jwt) ->
 	 *                      jwt
 	 *                          .publicKey(publicKey())
 	 *                  )
@@ -1027,15 +1027,15 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .headers(headers ->
+	 *          .headers((headers) ->
 	 *              headers
 	 *                  // customize frame options to be same origin
-	 *                  .frameOptions(frameOptions ->
+	 *                  .frameOptions((frameOptions) ->
 	 *                      frameOptions
 	 *                          .mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN)
 	 *                   )
 	 *                  // disable cache control
-	 *                  .cache(cache ->
+	 *                  .cache((cache) ->
 	 *                      cache
 	 *                          .disable()
 	 *                  )
@@ -1088,7 +1088,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .exceptionHandling(exceptionHandling ->
+	 *          .exceptionHandling((exceptionHandling) ->
 	 *              exceptionHandling
 	 *                  // customize how to request for authentication
 	 *                  .authenticationEntryPoint(entryPoint)
@@ -1126,7 +1126,7 @@ public class ServerHttpSecurity {
 	 *              .pathMatchers("/users/{username}").access((authentication, context) ->
 	 *                  authentication
 	 *                      .map(Authentication::getName)
-	 *                      .map(username -> username.equals(context.getVariables().get("username")))
+	 *                      .map((username) -> username.equals(context.getVariables().get("username")))
 	 *                      .map(AuthorizationDecision::new)
 	 *              )
 	 *              // allows providing a custom matching strategy that requires the role "ROLE_CUSTOM"
@@ -1153,7 +1153,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .authorizeExchange(exchanges ->
+	 *          .authorizeExchange((exchanges) ->
 	 *              exchanges
 	 *                  // any URL that starts with /admin/ requires the role "ROLE_ADMIN"
 	 *                  .pathMatchers("/admin/**").hasRole("ADMIN")
@@ -1164,7 +1164,7 @@ public class ServerHttpSecurity {
 	 *                  .pathMatchers("/users/{username}").access((authentication, context) ->
 	 *                      authentication
 	 *                          .map(Authentication::getName)
-	 *                          .map(username -> username.equals(context.getVariables().get("username")))
+	 *                          .map((username) -> username.equals(context.getVariables().get("username")))
 	 *                          .map(AuthorizationDecision::new)
 	 *                  )
 	 *                  // allows providing a custom matching strategy that requires the role "ROLE_CUSTOM"
@@ -1222,7 +1222,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .logout(logout ->
+	 *          .logout((logout) ->
 	 *              logout
 	 *                  // configures how log out is done
 	 *                  .logoutHandler(logoutHandler)
@@ -1278,7 +1278,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .requestCache(requestCache ->
+	 *          .requestCache((requestCache) ->
 	 *              requestCache
 	 *                  // configures how the request is cached
 	 *                  .requestCache(customRequestCache)
@@ -1405,7 +1405,7 @@ public class ServerHttpSecurity {
 		}
 		AnnotationAwareOrderComparator.sort(this.webFilters);
 		List<WebFilter> sortedWebFilters = new ArrayList<>();
-		this.webFilters.forEach(f -> {
+		this.webFilters.forEach((f) -> {
 			if (f instanceof OrderedWebFilter) {
 				f = ((OrderedWebFilter) f).webFilter;
 			}
@@ -1675,7 +1675,7 @@ public class ServerHttpSecurity {
 		 * @return the {@link HttpsRedirectSpec} for additional configuration
 		 */
 		public HttpsRedirectSpec httpsRedirectWhen(Function<ServerWebExchange, Boolean> when) {
-			ServerWebExchangeMatcher matcher = e -> when.apply(e) ? ServerWebExchangeMatcher.MatchResult.match()
+			ServerWebExchangeMatcher matcher = (e) -> when.apply(e) ? ServerWebExchangeMatcher.MatchResult.match()
 					: ServerWebExchangeMatcher.MatchResult.notMatch();
 			return httpsRedirectWhen(matcher);
 		}
@@ -3128,9 +3128,9 @@ public class ServerHttpSecurity {
 				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter delegate = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(
 						clientRegistrationRepository);
 				delegate.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
-				ServerAuthenticationConverter authenticationConverter = exchange -> delegate.convert(exchange)
+				ServerAuthenticationConverter authenticationConverter = (exchange) -> delegate.convert(exchange)
 						.onErrorMap(OAuth2AuthorizationException.class,
-								e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
+								(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
 				this.authenticationConverter = authenticationConverter;
 				return authenticationConverter;
 			}
@@ -3248,7 +3248,7 @@ public class ServerHttpSecurity {
 					MediaType.TEXT_PLAIN);
 			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 
-			ServerWebExchangeMatcher xhrMatcher = exchange -> {
+			ServerWebExchangeMatcher xhrMatcher = (exchange) -> {
 				if (exchange.getRequest().getHeaders().getOrEmpty("X-Requested-With").contains("XMLHttpRequest")) {
 					return ServerWebExchangeMatcher.MatchResult.match();
 				}
@@ -3330,7 +3330,7 @@ public class ServerHttpSecurity {
 			}
 			Map<String, String> result = new HashMap<>();
 			registrations.iterator().forEachRemaining(
-					r -> result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName()));
+					(r) -> result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName()));
 			return result;
 		}
 
@@ -3784,7 +3784,7 @@ public class ServerHttpSecurity {
 			public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 				return super.filter(exchange, chain).onErrorResume(AuthenticationException.class,
-						e -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
+						(e) -> this.authenticationFailureHandler.onAuthenticationFailure(webFilterExchange, e));
 			}
 
 			@Override

@@ -1094,7 +1094,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		public JwtRequestPostProcessor authorities(Collection<GrantedAuthority> authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
-			this.authoritiesConverter = jwt -> authorities;
+			this.authoritiesConverter = (jwt) -> authorities;
 			return this;
 		}
 
@@ -1105,7 +1105,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		public JwtRequestPostProcessor authorities(GrantedAuthority... authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
-			this.authoritiesConverter = jwt -> Arrays.asList(authorities);
+			this.authoritiesConverter = (jwt) -> Arrays.asList(authorities);
 			return this;
 		}
 
@@ -1237,7 +1237,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private Collection<GrantedAuthority> getAuthorities(Collection<?> scopes) {
-			return scopes.stream().map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope))
+			return scopes.stream().map((scope) -> new SimpleGrantedAuthority("SCOPE_" + scope))
 					.collect(Collectors.toList());
 		}
 
@@ -1556,7 +1556,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private OAuth2ClientRequestPostProcessor(String registrationId) {
 			this.registrationId = registrationId;
-			clientRegistration(c -> {
+			clientRegistration((c) -> {
 			});
 		}
 
@@ -1686,7 +1686,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 				OAuth2AuthorizedClientArgumentResolver resolver = findResolver(request,
 						OAuth2AuthorizedClientArgumentResolver.class);
 				if (resolver == null) {
-					return authorizeRequest -> DEFAULT_CLIENT_REPO.loadAuthorizedClient(
+					return (authorizeRequest) -> DEFAULT_CLIENT_REPO.loadAuthorizedClient(
 							authorizeRequest.getClientRegistrationId(), authorizeRequest.getPrincipal(), request);
 				}
 				return (OAuth2AuthorizedClientManager) ReflectionTestUtils.getField(resolver,

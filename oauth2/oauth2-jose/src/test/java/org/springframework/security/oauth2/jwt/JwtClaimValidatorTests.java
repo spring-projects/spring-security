@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class JwtClaimValidatorTests {
 
-	private static final Predicate<String> test = claim -> claim.equals("http://test");
+	private static final Predicate<String> test = (claim) -> claim.equals("http://test");
 
 	private final JwtClaimValidator<String> validator = new JwtClaimValidator<>(JwtClaimNames.ISS, test);
 

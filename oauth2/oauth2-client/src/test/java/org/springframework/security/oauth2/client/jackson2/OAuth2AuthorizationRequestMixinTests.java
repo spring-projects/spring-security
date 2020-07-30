@@ -139,14 +139,14 @@ public class OAuth2AuthorizationRequestMixinTests {
 		}
 		String additionalParameters = "\"@class\": \"java.util.Collections$UnmodifiableMap\"";
 		if (!CollectionUtils.isEmpty(authorizationRequest.getAdditionalParameters())) {
-			additionalParameters += "," + authorizationRequest.getAdditionalParameters().keySet().stream()
-					.map(key -> "\"" + key + "\": \"" + authorizationRequest.getAdditionalParameters().get(key) + "\"")
+			additionalParameters += "," + authorizationRequest.getAdditionalParameters().keySet().stream().map(
+					(key) -> "\"" + key + "\": \"" + authorizationRequest.getAdditionalParameters().get(key) + "\"")
 					.collect(Collectors.joining(","));
 		}
 		String attributes = "\"@class\": \"java.util.Collections$UnmodifiableMap\"";
 		if (!CollectionUtils.isEmpty(authorizationRequest.getAttributes())) {
 			attributes += "," + authorizationRequest.getAttributes().keySet().stream()
-					.map(key -> "\"" + key + "\": \"" + authorizationRequest.getAttributes().get(key) + "\"")
+					.map((key) -> "\"" + key + "\": \"" + authorizationRequest.getAttributes().get(key) + "\"")
 					.collect(Collectors.joining(","));
 		}
 		// @formatter:off

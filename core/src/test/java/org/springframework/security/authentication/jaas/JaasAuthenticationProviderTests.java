@@ -236,7 +236,7 @@ public class JaasAuthenticationProviderTests {
 	@Test
 	public void testLoginExceptionResolver() {
 		assertThat(this.jaasProvider.getLoginExceptionResolver()).isNotNull();
-		this.jaasProvider.setLoginExceptionResolver(e -> new LockedException("This is just a test!"));
+		this.jaasProvider.setLoginExceptionResolver((e) -> new LockedException("This is just a test!"));
 
 		try {
 			this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));

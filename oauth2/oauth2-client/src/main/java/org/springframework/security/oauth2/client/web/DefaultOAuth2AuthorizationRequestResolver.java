@@ -79,7 +79,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(
 			Base64.getUrlEncoder().withoutPadding(), 96);
 
-	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = customizer -> {
+	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = (customizer) -> {
 	};
 
 	/**

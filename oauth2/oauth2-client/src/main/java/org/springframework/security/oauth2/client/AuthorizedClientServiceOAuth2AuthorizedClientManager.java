@@ -138,12 +138,13 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 				contextBuilder = OAuth2AuthorizationContext.withClientRegistration(clientRegistration);
 			}
 		}
-		OAuth2AuthorizationContext authorizationContext = contextBuilder.principal(principal).attributes(attributes -> {
-			Map<String, Object> contextAttributes = this.contextAttributesMapper.apply(authorizeRequest);
-			if (!CollectionUtils.isEmpty(contextAttributes)) {
-				attributes.putAll(contextAttributes);
-			}
-		}).build();
+		OAuth2AuthorizationContext authorizationContext = contextBuilder.principal(principal)
+				.attributes((attributes) -> {
+					Map<String, Object> contextAttributes = this.contextAttributesMapper.apply(authorizeRequest);
+					if (!CollectionUtils.isEmpty(contextAttributes)) {
+						attributes.putAll(contextAttributes);
+					}
+				}).build();
 
 		try {
 			authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);

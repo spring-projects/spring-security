@@ -198,7 +198,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	public void createUser(final UserDetails user) {
 		validateUserDetails(user);
 
-		getJdbcTemplate().update(this.createUserSql, ps -> {
+		getJdbcTemplate().update(this.createUserSql, (ps) -> {
 			ps.setString(1, user.getUsername());
 			ps.setString(2, user.getPassword());
 			ps.setBoolean(3, user.isEnabled());
@@ -221,7 +221,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	public void updateUser(final UserDetails user) {
 		validateUserDetails(user);
 
-		getJdbcTemplate().update(this.updateUserSql, ps -> {
+		getJdbcTemplate().update(this.updateUserSql, (ps) -> {
 			ps.setString(1, user.getPassword());
 			ps.setBoolean(2, user.isEnabled());
 
@@ -347,7 +347,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		for (GrantedAuthority a : authorities) {
 			final String authority = a.getAuthority();
-			getJdbcTemplate().update(this.insertGroupAuthoritySql, ps -> {
+			getJdbcTemplate().update(this.insertGroupAuthoritySql, (ps) -> {
 				ps.setInt(1, groupId);
 				ps.setString(2, authority);
 			});
@@ -360,7 +360,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(groupName, "groupName should have text");
 
 		final int id = findGroupId(groupName);
-		PreparedStatementSetter groupIdPSS = ps -> ps.setInt(1, id);
+		PreparedStatementSetter groupIdPSS = (ps) -> ps.setInt(1, id);
 		getJdbcTemplate().update(this.deleteGroupMembersSql, groupIdPSS);
 		getJdbcTemplate().update(this.deleteGroupAuthoritiesSql, groupIdPSS);
 		getJdbcTemplate().update(this.deleteGroupSql, groupIdPSS);
@@ -382,7 +382,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(groupName, "groupName should have text");
 
 		final int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.insertGroupMemberSql, ps -> {
+		getJdbcTemplate().update(this.insertGroupMemberSql, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, username);
 		});
@@ -398,7 +398,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		final int id = findGroupId(groupName);
 
-		getJdbcTemplate().update(this.deleteGroupMemberSql, ps -> {
+		getJdbcTemplate().update(this.deleteGroupMemberSql, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, username);
 		});
@@ -426,7 +426,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		final int id = findGroupId(groupName);
 
-		getJdbcTemplate().update(this.deleteGroupAuthoritySql, ps -> {
+		getJdbcTemplate().update(this.deleteGroupAuthoritySql, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, authority.getAuthority());
 		});
@@ -439,7 +439,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.notNull(authority, "authority cannot be null");
 
 		final int id = findGroupId(groupName);
-		getJdbcTemplate().update(this.insertGroupAuthoritySql, ps -> {
+		getJdbcTemplate().update(this.insertGroupAuthoritySql, (ps) -> {
 			ps.setInt(1, id);
 			ps.setString(2, authority.getAuthority());
 		});

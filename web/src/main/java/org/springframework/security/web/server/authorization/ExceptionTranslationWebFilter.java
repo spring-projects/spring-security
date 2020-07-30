@@ -42,8 +42,8 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return chain.filter(exchange).onErrorResume(AccessDeniedException.class,
-				denied -> exchange.getPrincipal().switchIfEmpty(commenceAuthentication(exchange, denied))
-						.flatMap(principal -> this.accessDeniedHandler.handle(exchange, denied)));
+				(denied) -> exchange.getPrincipal().switchIfEmpty(commenceAuthentication(exchange, denied))
+						.flatMap((principal) -> this.accessDeniedHandler.handle(exchange, denied)));
 	}
 
 	/**

@@ -170,7 +170,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	private void addHeader(String name, String value) {
-		List<String> values = this.headers.computeIfAbsent(name, k -> new ArrayList<>());
+		List<String> values = this.headers.computeIfAbsent(name, (k) -> new ArrayList<>());
 
 		values.add(value);
 	}

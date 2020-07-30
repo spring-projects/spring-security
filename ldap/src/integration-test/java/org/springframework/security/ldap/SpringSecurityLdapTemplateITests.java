@@ -91,7 +91,7 @@ public class SpringSecurityLdapTemplateITests {
 	@Test
 	public void namingExceptionIsTranslatedCorrectly() {
 		try {
-			this.template.executeReadOnly((ContextExecutor) dirContext -> {
+			this.template.executeReadOnly((ContextExecutor) (dirContext) -> {
 				throw new NamingException();
 			});
 			fail("Expected UncategorizedLdapException on NamingException");

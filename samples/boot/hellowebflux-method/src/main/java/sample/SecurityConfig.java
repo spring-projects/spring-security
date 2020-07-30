@@ -40,7 +40,7 @@ public class SecurityConfig {
 		return http
 			// Demonstrate that method security works
 			// Best practice to use both for defense in depth
-			.authorizeExchange(exchanges -> exchanges
+			.authorizeExchange((exchanges) -> exchanges
 				.anyExchange().permitAll()
 			)
 			.httpBasic(withDefaults())

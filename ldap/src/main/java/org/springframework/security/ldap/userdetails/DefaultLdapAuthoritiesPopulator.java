@@ -169,7 +169,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 			logger.info("groupSearchBase is empty. Searches will be performed from the context source base");
 		}
 
-		this.authorityMapper = record -> {
+		this.authorityMapper = (record) -> {
 			String role = record.get(this.groupRoleAttribute).get(0);
 
 			if (this.convertToUpperCase) {

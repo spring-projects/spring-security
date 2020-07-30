@@ -362,9 +362,9 @@ public class SessionManagementConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement(sessionManagement ->
+				.sessionManagement((sessionManagement) ->
 					sessionManagement
-						.sessionFixation(sessionFixation ->
+						.sessionFixation((sessionFixation) ->
 							sessionFixation.newSession()
 						)
 				)
@@ -417,9 +417,9 @@ public class SessionManagementConfigurerTests {
 			// @formatter:off
 			http
 				.formLogin(withDefaults())
-				.sessionManagement(sessionManagement ->
+				.sessionManagement((sessionManagement) ->
 					sessionManagement
-						.sessionConcurrency(sessionConcurrency ->
+						.sessionConcurrency((sessionConcurrency) ->
 							sessionConcurrency
 								.maximumSessions(1)
 								.maxSessionsPreventsLogin(true)
@@ -446,7 +446,7 @@ public class SessionManagementConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement(sessionManagement ->
+				.sessionManagement((sessionManagement) ->
 					sessionManagement
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				);

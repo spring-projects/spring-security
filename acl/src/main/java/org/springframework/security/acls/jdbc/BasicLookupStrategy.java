@@ -231,7 +231,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 		String sql = computeRepeatingSql(this.lookupPrimaryKeysWhereClause, findNow.size());
 
-		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, ps -> {
+		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, (ps) -> {
 			int i = 0;
 
 			for (Long toFind : findNow) {
@@ -358,7 +358,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		// (including markers to each parent in the hierarchy)
 		String sql = computeRepeatingSql(this.lookupObjectIdentitiesWhereClause, objectIdentities.size());
 
-		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, ps -> {
+		Set<Long> parentsToLookup = this.jdbcTemplate.query(sql, (ps) -> {
 			int i = 0;
 			for (ObjectIdentity oid : objectIdentities) {
 				// Determine prepared statement values for this iteration

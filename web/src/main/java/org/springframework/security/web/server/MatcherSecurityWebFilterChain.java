@@ -48,7 +48,7 @@ public class MatcherSecurityWebFilterChain implements SecurityWebFilterChain {
 
 	@Override
 	public Mono<Boolean> matches(ServerWebExchange exchange) {
-		return this.matcher.matches(exchange).map(m -> m.isMatch());
+		return this.matcher.matches(exchange).map((m) -> m.isMatch());
 	}
 
 	@Override

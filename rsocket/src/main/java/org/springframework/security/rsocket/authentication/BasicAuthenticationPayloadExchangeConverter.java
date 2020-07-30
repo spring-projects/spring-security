@@ -47,10 +47,10 @@ public class BasicAuthenticationPayloadExchangeConverter implements PayloadExcha
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
 		return Mono.fromCallable(() -> this.metadataExtractor.extract(exchange.getPayload(), this.metadataMimetype))
-				.flatMap(metadata -> Mono
+				.flatMap((metadata) -> Mono
 						.justOrEmpty(metadata.get(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE.toString())))
 				.cast(UsernamePasswordMetadata.class)
-				.map(credentials -> new UsernamePasswordAuthenticationToken(credentials.getUsername(),
+				.map((credentials) -> new UsernamePasswordAuthenticationToken(credentials.getUsername(),
 						credentials.getPassword()));
 	}
 

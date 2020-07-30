@@ -64,7 +64,7 @@ public class OpenIDAuthenticationFilterTests {
 		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 		this.filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
 		successHandler.setDefaultTargetUrl(DEFAULT_TARGET_URL);
-		this.filter.setAuthenticationManager(a -> a);
+		this.filter.setAuthenticationManager((a) -> a);
 		this.filter.afterPropertiesSet();
 	}
 

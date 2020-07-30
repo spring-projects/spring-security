@@ -182,7 +182,7 @@ public class X509ConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.x509(x509 ->
+				.x509((x509) ->
 					x509
 						.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)")
 				);

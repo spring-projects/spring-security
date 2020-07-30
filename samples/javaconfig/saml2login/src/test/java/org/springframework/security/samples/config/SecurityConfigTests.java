@@ -52,7 +52,7 @@ public class SecurityConfigTests {
 		Saml2WebSsoAuthenticationFilter filter = (Saml2WebSsoAuthenticationFilter) filters
 				.stream()
 				.filter(
-						f -> f instanceof Saml2WebSsoAuthenticationFilter
+						(f) -> f instanceof Saml2WebSsoAuthenticationFilter
 				)
 				.findFirst()
 				.get();

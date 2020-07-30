@@ -56,11 +56,11 @@ public class AuthorizationPayloadInterceptor implements PayloadInterceptor, Orde
 
 	@Override
 	public Mono<Void> intercept(PayloadExchange exchange, PayloadInterceptorChain chain) {
-		return ReactiveSecurityContextHolder.getContext().filter(c -> c.getAuthentication() != null)
+		return ReactiveSecurityContextHolder.getContext().filter((c) -> c.getAuthentication() != null)
 				.map(SecurityContext::getAuthentication)
 				.switchIfEmpty(Mono.error(() -> new AuthenticationCredentialsNotFoundException(
 						"An Authentication (possibly AnonymousAuthenticationToken) is required.")))
-				.as(authentication -> this.authorizationManager.verify(authentication, exchange))
+				.as((authentication) -> this.authorizationManager.verify(authentication, exchange))
 				.then(chain.next(exchange));
 	}
 

@@ -93,7 +93,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 	@EnableWebSecurity
 	static class IgnoringRequestMatchers extends WebSecurityConfigurerAdapter {
 
-		RequestMatcher requestMatcher = request -> HttpMethod.POST.name().equals(request.getMethod());
+		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -110,13 +110,13 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 	@EnableWebSecurity
 	static class IgnoringRequestInLambdaMatchers extends WebSecurityConfigurerAdapter {
 
-		RequestMatcher requestMatcher = request -> HttpMethod.POST.name().equals(request.getMethod());
+		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf(csrf ->
+				.csrf((csrf) ->
 					csrf
 						.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/path"))
 						.ignoringRequestMatchers(this.requestMatcher)
@@ -129,7 +129,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 	@EnableWebSecurity
 	static class IgnoringPathsAndMatchers extends WebSecurityConfigurerAdapter {
 
-		RequestMatcher requestMatcher = request -> HttpMethod.POST.name().equals(request.getMethod());
+		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -146,13 +146,13 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 	@EnableWebSecurity
 	static class IgnoringPathsAndMatchersInLambdaConfig extends WebSecurityConfigurerAdapter {
 
-		RequestMatcher requestMatcher = request -> HttpMethod.POST.name().equals(request.getMethod());
+		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf(csrf ->
+				.csrf((csrf) ->
 					csrf
 						.ignoringAntMatchers("/no-csrf")
 						.ignoringRequestMatchers(this.requestMatcher)

@@ -64,7 +64,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.matcher.matches(exchange).filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).flatMap(matchResult -> render(exchange));
+				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).flatMap((matchResult) -> render(exchange));
 	}
 
 	private Mono<Void> render(ServerWebExchange exchange) {
@@ -77,7 +77,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
 
 		Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
-		return token.map(LoginPageGeneratingWebFilter::csrfToken).defaultIfEmpty("").map(csrfTokenHtmlInput -> {
+		return token.map(LoginPageGeneratingWebFilter::csrfToken).defaultIfEmpty("").map((csrfTokenHtmlInput) -> {
 			byte[] bytes = createPage(exchange, csrfTokenHtmlInput);
 			DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
 			return bufferFactory.wrap(bytes);

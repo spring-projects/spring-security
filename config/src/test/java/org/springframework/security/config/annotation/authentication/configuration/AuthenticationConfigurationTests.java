@@ -197,7 +197,7 @@ public class AuthenticationConfigurationTests {
 	public void getAuthenticationManagerWhenPostProcessThenUsesBeanClassLoaderOnProxyFactoryBean() throws Exception {
 		this.spring.register(Sec2531Config.class).autowire();
 		ObjectPostProcessor<Object> opp = this.spring.getContext().getBean(ObjectPostProcessor.class);
-		given(opp.postProcess(any())).willAnswer(a -> a.getArgument(0));
+		given(opp.postProcess(any())).willAnswer((a) -> a.getArgument(0));
 
 		AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
 		config.getAuthenticationManager();

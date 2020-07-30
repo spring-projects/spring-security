@@ -303,7 +303,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		Map<String, String> idps = new LinkedHashMap<>();
 		if (idpRepo instanceof Iterable) {
 			Iterable<RelyingPartyRegistration> repo = (Iterable<RelyingPartyRegistration>) idpRepo;
-			repo.forEach(p -> idps.put(authRequestPrefixUrl.replace("{registrationId}", p.getRegistrationId()),
+			repo.forEach((p) -> idps.put(authRequestPrefixUrl.replace("{registrationId}", p.getRegistrationId()),
 					p.getRegistrationId()));
 		}
 		return idps;

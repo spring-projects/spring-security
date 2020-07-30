@@ -73,7 +73,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
 
 		this.introspectionUri = URI.create(introspectionUri);
-		this.webClient = WebClient.builder().defaultHeaders(h -> h.setBasicAuth(clientId, clientSecret)).build();
+		this.webClient = WebClient.builder().defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret)).build();
 	}
 
 	/**
@@ -97,8 +97,8 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
 		return Mono.just(token).flatMap(this::makeRequest).flatMap(this::adaptToNimbusResponse)
 				.map(this::parseNimbusResponse).map(this::castToNimbusSuccess)
-				.doOnNext(response -> validate(token, response)).map(this::convertClaimsSet)
-				.onErrorMap(e -> !(e instanceof OAuth2IntrospectionException), this::onError);
+				.doOnNext((response) -> validate(token, response)).map(this::convertClaimsSet)
+				.onErrorMap((e) -> !(e instanceof OAuth2IntrospectionException), this::onError);
 	}
 
 	private Mono<ClientResponse> makeRequest(String token) {
@@ -115,7 +115,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 					.then(Mono.error(new OAuth2IntrospectionException(
 							"Introspection endpoint responded with " + response.getStatusCode())));
 		}
-		return responseEntity.bodyToMono(String.class).doOnNext(response::setContent).map(body -> response);
+		return responseEntity.bodyToMono(String.class).doOnNext(response::setContent).map((body) -> response);
 	}
 
 	private TokenIntrospectionResponse parseNimbusResponse(HTTPResponse response) {

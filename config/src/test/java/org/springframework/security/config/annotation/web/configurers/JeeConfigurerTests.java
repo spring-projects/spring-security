@@ -81,7 +81,7 @@ public class JeeConfigurerTests {
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
 
-		this.mvc.perform(get("/").principal(user).with(request -> {
+		this.mvc.perform(get("/").principal(user).with((request) -> {
 			request.addUserRole("ROLE_ADMIN");
 			request.addUserRole("ROLE_USER");
 			return request;
@@ -94,7 +94,7 @@ public class JeeConfigurerTests {
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
 
-		this.mvc.perform(get("/").principal(user).with(request -> {
+		this.mvc.perform(get("/").principal(user).with((request) -> {
 			request.addUserRole("ROLE_ADMIN");
 			request.addUserRole("ROLE_USER");
 			return request;
@@ -107,7 +107,7 @@ public class JeeConfigurerTests {
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
 
-		this.mvc.perform(get("/").principal(user).with(request -> {
+		this.mvc.perform(get("/").principal(user).with((request) -> {
 			request.addUserRole("ROLE_ADMIN");
 			request.addUserRole("ROLE_USER");
 			return request;
@@ -125,7 +125,7 @@ public class JeeConfigurerTests {
 		given(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
 				.willReturn(userDetails);
 
-		this.mvc.perform(get("/").principal(user).with(request -> {
+		this.mvc.perform(get("/").principal(user).with((request) -> {
 			request.addUserRole("ROLE_ADMIN");
 			request.addUserRole("ROLE_USER");
 			return request;
@@ -184,11 +184,11 @@ public class JeeConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().hasRole("USER")
 				)
-				.jee(jee ->
+				.jee((jee) ->
 					jee
 						.mappableRoles("USER")
 				);
@@ -204,11 +204,11 @@ public class JeeConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().hasRole("USER")
 				)
-				.jee(jee ->
+				.jee((jee) ->
 					jee
 						.mappableAuthorities("ROLE_USER")
 				);
@@ -227,11 +227,11 @@ public class JeeConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().hasRole("USER")
 				)
-				.jee(jee ->
+				.jee((jee) ->
 					jee
 						.authenticatedUserDetailsService(authenticationUserDetailsService)
 				);

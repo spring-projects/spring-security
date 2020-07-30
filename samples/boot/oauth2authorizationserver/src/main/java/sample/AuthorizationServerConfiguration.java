@@ -167,7 +167,7 @@ class UserConfig extends WebSecurityConfigurerAdapter {
 				.and()
 			.httpBasic()
 				.and()
-			.csrf().ignoringRequestMatchers(request -> "/introspect".equals(request.getRequestURI()));
+			.csrf().ignoringRequestMatchers((request) -> "/introspect".equals(request.getRequestURI()));
 	}
 
 	@Bean

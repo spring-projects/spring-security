@@ -303,7 +303,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		authorizedClientManager.setAuthorizedClientProvider(passwordAuthorizedClientProvider);
 
 		// Set custom contextAttributesMapper
-		authorizedClientManager.setContextAttributesMapper(authorizeRequest -> {
+		authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> {
 			Map<String, Object> contextAttributes = new HashMap<>();
 			HttpServletRequest servletRequest = authorizeRequest.getAttribute(HttpServletRequest.class.getName());
 			String username = servletRequest.getParameter(OAuth2ParameterNames.USERNAME);

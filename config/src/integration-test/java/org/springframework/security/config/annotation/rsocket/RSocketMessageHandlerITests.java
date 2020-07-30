@@ -81,7 +81,7 @@ public class RSocketMessageHandlerITests {
 				.transport(TcpServerTransport.create("localhost", 0)).start().block();
 
 		this.requester = RSocketRequester.builder()
-				// .rsocketFactory(factory ->
+				// .rsocketFactory((factory) ->
 				// factory.addRequesterPlugin(payloadInterceptor))
 				.rsocketStrategies(this.handler.getRSocketStrategies())
 				.connectTcp("localhost", this.server.address().getPort()).block();
@@ -221,7 +221,7 @@ public class RSocketMessageHandlerITests {
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket.authorizePayload(authorize -> {
+			rsocket.authorizePayload((authorize) -> {
 				authorize.route("secure.*").authenticated().anyExchange().permitAll();
 			}).basicAuthentication(Customizer.withDefaults());
 			return rsocket.build();
@@ -242,7 +242,7 @@ public class RSocketMessageHandlerITests {
 
 		@MessageMapping({ "secure.retrieve-flux", "retrieve-flux" })
 		Flux<String> retrieveFlux(Flux<String> payload) {
-			return payload.doOnNext(this::add).map(p -> "hello " + p);
+			return payload.doOnNext(this::add).map((p) -> "hello " + p);
 		}
 
 		@MessageMapping({ "secure.send", "send" })

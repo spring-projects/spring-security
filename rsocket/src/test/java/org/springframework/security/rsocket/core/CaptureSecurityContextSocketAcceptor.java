@@ -43,7 +43,7 @@ class CaptureSecurityContextSocketAcceptor implements SocketAcceptor {
 	@Override
 	public Mono<RSocket> accept(ConnectionSetupPayload setup, RSocket sendingSocket) {
 		return ReactiveSecurityContextHolder.getContext()
-				.doOnNext(securityContext -> this.securityContext = securityContext).thenReturn(this.accept);
+				.doOnNext((securityContext) -> this.securityContext = securityContext).thenReturn(this.accept);
 	}
 
 	public SecurityContext getSecurityContext() {

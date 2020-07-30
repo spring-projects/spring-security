@@ -486,7 +486,7 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.contentTypeOptions(withDefaults())
@@ -548,7 +548,7 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.cacheControl(withDefaults())
@@ -580,7 +580,7 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.xssProtection(withDefaults())
@@ -611,9 +611,9 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
-						.frameOptions(frameOptionsConfig -> frameOptionsConfig.sameOrigin())
+						.frameOptions((frameOptionsConfig) -> frameOptionsConfig.sameOrigin())
 				);
 			// @formatter:on
 		}
@@ -763,10 +763,10 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.httpPublicKeyPinning(hpkp ->
+						.httpPublicKeyPinning((hpkp) ->
 							hpkp
 								.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
 								.reportUri("https://example.net/pkp-report")
@@ -815,10 +815,10 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.contentSecurityPolicy(csp ->
+						.contentSecurityPolicy((csp) ->
 							csp
 								.policyDirectives("default-src 'self'; script-src trustedscripts.example.com")
 								.reportOnly()
@@ -851,10 +851,10 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.contentSecurityPolicy(csp ->
+						.contentSecurityPolicy((csp) ->
 								csp.policyDirectives("")
 						)
 				);
@@ -870,7 +870,7 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.contentSecurityPolicy(withDefaults())
@@ -902,7 +902,7 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.referrerPolicy()
@@ -934,10 +934,10 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.referrerPolicy(referrerPolicy ->
+						.referrerPolicy((referrerPolicy) ->
 								referrerPolicy.policy(ReferrerPolicy.SAME_ORIGIN)
 						)
 				);
@@ -999,10 +999,10 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.httpStrictTransportSecurity(hstsConfig -> hstsConfig.preload(true))
+						.httpStrictTransportSecurity((hstsConfig) -> hstsConfig.preload(true))
 				);
 			// @formatter:on
 		}

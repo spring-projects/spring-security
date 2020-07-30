@@ -50,16 +50,16 @@ public class XmlNode {
 	}
 
 	public Optional<XmlNode> child(String name) {
-		return this.children().filter(child -> name.equals(child.simpleName())).findFirst();
+		return this.children().filter((child) -> name.equals(child.simpleName())).findFirst();
 	}
 
 	public Optional<XmlNode> parent() {
-		return Optional.ofNullable(this.node.getParentNode()).map(parent -> new XmlNode(parent));
+		return Optional.ofNullable(this.node.getParentNode()).map((parent) -> new XmlNode(parent));
 	}
 
 	public String attribute(String name) {
-		return Optional.ofNullable(this.node.getAttributes()).map(attrs -> attrs.getNamedItem(name))
-				.map(attr -> attr.getTextContent()).orElse(null);
+		return Optional.ofNullable(this.node.getAttributes()).map((attrs) -> attrs.getNamedItem(name))
+				.map((attr) -> attr.getTextContent()).orElse(null);
 	}
 
 	public Node node() {

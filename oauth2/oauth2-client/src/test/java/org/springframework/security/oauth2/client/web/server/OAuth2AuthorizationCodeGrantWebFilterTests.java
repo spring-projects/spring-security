@@ -119,7 +119,7 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	@Test
 	public void filterWhenNotMatchThenAuthenticationManagerNotCalled() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
-		DefaultWebFilterChain chain = new DefaultWebFilterChain(e -> e.getResponse().setComplete(),
+		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
 
 		this.filter.filter(exchange, chain).block();
@@ -146,7 +146,7 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
-		DefaultWebFilterChain chain = new DefaultWebFilterChain(e -> e.getResponse().setComplete(),
+		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
 
 		this.filter.filter(exchange, chain).block();
@@ -178,7 +178,7 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
-		DefaultWebFilterChain chain = new DefaultWebFilterChain(e -> e.getResponse().setComplete(),
+		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
 
 		this.filter.filter(exchange, chain).block();
@@ -216,7 +216,7 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(
 				createAuthorizationRequest(requestUri, parametersNotMatch));
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
-		DefaultWebFilterChain chain = new DefaultWebFilterChain(e -> e.getResponse().setComplete(),
+		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
 
 		this.filter.filter(exchange, chain).block();
@@ -260,7 +260,7 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
-		DefaultWebFilterChain chain = new DefaultWebFilterChain(e -> e.getResponse().setComplete(),
+		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
 
 		ServerRequestCache requestCache = mock(ServerRequestCache.class);
@@ -291,12 +291,12 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
-		DefaultWebFilterChain chain = new DefaultWebFilterChain(e -> e.getResponse().setComplete(),
+		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
 
 		assertThatThrownBy(() -> this.filter.filter(exchange, chain).block())
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.extracting(ex -> ((OAuth2AuthenticationException) ex).getError()).extracting("errorCode")
+				.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError()).extracting("errorCode")
 				.isEqualTo("client_registration_not_found");
 		verifyNoInteractions(this.authenticationManager);
 	}
@@ -320,12 +320,12 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
-		DefaultWebFilterChain chain = new DefaultWebFilterChain(e -> e.getResponse().setComplete(),
+		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
 
 		assertThatThrownBy(() -> this.filter.filter(exchange, chain).block())
 				.isInstanceOf(OAuth2AuthenticationException.class)
-				.extracting(ex -> ((OAuth2AuthenticationException) ex).getError()).extracting("errorCode")
+				.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError()).extracting("errorCode")
 				.isEqualTo("authorization_error");
 	}
 

@@ -124,11 +124,11 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().denyAll()
 				)
-				.exceptionHandling(exceptionHandling ->
+				.exceptionHandling((exceptionHandling) ->
 					exceptionHandling.accessDeniedPage("/AccessDeniedPageConfig")
 				);
 			// @formatter:on
@@ -167,11 +167,11 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().denyAll()
 				)
-				.exceptionHandling(exceptionHandling ->
+				.exceptionHandling((exceptionHandling) ->
 						exceptionHandling.accessDeniedHandler(accessDeniedHandler())
 				);
 			// @formatter:on

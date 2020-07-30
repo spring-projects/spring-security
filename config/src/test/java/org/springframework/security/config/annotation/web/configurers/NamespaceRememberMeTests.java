@@ -244,7 +244,7 @@ public class NamespaceRememberMeTests {
 	}
 
 	static RequestPostProcessor rememberMeLogin(String parameterName, boolean parameterValue) {
-		return request -> {
+		return (request) -> {
 			csrf().postProcessRequest(request);
 			request.setParameter("username", "user");
 			request.setParameter("password", "password");

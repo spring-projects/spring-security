@@ -41,14 +41,14 @@ public class ThrowableAnalyzer {
 	 *
 	 * @see Throwable#getCause()
 	 */
-	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = throwable -> throwable.getCause();
+	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = (throwable) -> throwable.getCause();
 
 	/**
 	 * Default extractor for {@link InvocationTargetException} instances.
 	 *
 	 * @see InvocationTargetException#getTargetException()
 	 */
-	public static final ThrowableCauseExtractor INVOCATIONTARGET_EXTRACTOR = throwable -> {
+	public static final ThrowableCauseExtractor INVOCATIONTARGET_EXTRACTOR = (throwable) -> {
 		verifyThrowableHierarchy(throwable, InvocationTargetException.class);
 		return ((InvocationTargetException) throwable).getTargetException();
 	};

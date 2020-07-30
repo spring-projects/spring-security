@@ -49,7 +49,7 @@ public class UserDetailsByNameServiceWrapperTests {
 	public final void testGetUserDetails() throws Exception {
 		UserDetailsByNameServiceWrapper svc = new UserDetailsByNameServiceWrapper();
 		final User user = new User("dummy", "dummy", true, true, true, true, AuthorityUtils.NO_AUTHORITIES);
-		svc.setUserDetailsService(name -> {
+		svc.setUserDetailsService((name) -> {
 			if (user != null && user.getUsername().equals(name)) {
 				return user;
 			}

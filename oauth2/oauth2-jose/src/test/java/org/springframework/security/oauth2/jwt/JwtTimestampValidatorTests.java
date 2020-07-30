@@ -129,7 +129,7 @@ public class JwtTimestampValidatorTests {
 
 	@Test
 	public void validateWhenNeitherExpiryNorNotBeforeIsSpecifiedThenReturnsSuccessfulResult() {
-		Jwt jwt = TestJwts.jwt().claims(c -> c.remove(JwtClaimNames.EXP)).build();
+		Jwt jwt = TestJwts.jwt().claims((c) -> c.remove(JwtClaimNames.EXP)).build();
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 		assertThat(jwtValidator.validate(jwt).hasErrors()).isFalse();
@@ -137,7 +137,7 @@ public class JwtTimestampValidatorTests {
 
 	@Test
 	public void validateWhenNotBeforeIsValidAndExpiryIsNotSpecifiedThenReturnsSuccessfulResult() {
-		Jwt jwt = TestJwts.jwt().claims(c -> c.remove(JwtClaimNames.EXP)).notBefore(Instant.MIN).build();
+		Jwt jwt = TestJwts.jwt().claims((c) -> c.remove(JwtClaimNames.EXP)).notBefore(Instant.MIN).build();
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 		assertThat(jwtValidator.validate(jwt).hasErrors()).isFalse();

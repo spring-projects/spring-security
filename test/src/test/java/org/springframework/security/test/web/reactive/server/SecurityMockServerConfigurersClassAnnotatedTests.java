@@ -50,7 +50,7 @@ public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMo
 	@Test
 	public void wheMockUserWhenClassAnnotatedThenSuccess() {
 		this.client.get().exchange().expectStatus().isOk().expectBody(String.class)
-				.consumeWith(response -> assertThat(response.getResponseBody()).contains("\"username\":\"user\""));
+				.consumeWith((response) -> assertThat(response.getResponseBody()).contains("\"username\":\"user\""));
 
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
 		this.controller.assertPrincipalIsEqualTo(authentication);
@@ -60,7 +60,7 @@ public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMo
 	@WithMockUser("method-user")
 	public void withMockUserWhenClassAndMethodAnnotationThenMethodOverrides() {
 		this.client.get().exchange().expectStatus().isOk().expectBody(String.class).consumeWith(
-				response -> assertThat(response.getResponseBody()).contains("\"username\":\"method-user\""));
+				(response) -> assertThat(response.getResponseBody()).contains("\"username\":\"method-user\""));
 
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
 		this.controller.assertPrincipalIsEqualTo(authentication);
@@ -70,7 +70,7 @@ public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMo
 	public void withMockUserWhenMutateWithThenMustateWithOverrides() {
 		this.client.mutateWith(SecurityMockServerConfigurers.mockUser("mutateWith-mockUser")).get().exchange()
 				.expectStatus().isOk().expectBody(String.class)
-				.consumeWith(response -> assertThat(response.getResponseBody())
+				.consumeWith((response) -> assertThat(response.getResponseBody())
 						.contains("\"username\":\"mutateWith-mockUser\""));
 
 		Principal principal = this.controller.removePrincipal();

@@ -121,7 +121,7 @@ public class RememberMeConfigurerTests {
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 
 		this.mvc.perform(get("/abc").cookie(rememberMeCookie)).andExpect(authenticated()
-				.withAuthentication(auth -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
+				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
 	}
 
 	@Test
@@ -196,7 +196,7 @@ public class RememberMeConfigurerTests {
 		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
 
 		this.mvc.perform(get("/abc").cookie(rememberMeCookie)).andExpect(authenticated()
-				.withAuthentication(auth -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
+				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class)));
 	}
 
 	@EnableWebSecurity
@@ -334,7 +334,7 @@ public class RememberMeConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().hasRole("USER")
 				)
@@ -389,12 +389,12 @@ public class RememberMeConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults())
-				.rememberMe(rememberMe ->
+				.rememberMe((rememberMe) ->
 					rememberMe
 						.rememberMeCookieDomain("spring.io")
 				);

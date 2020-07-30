@@ -221,7 +221,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	public void globalSecurityProxiesSecurity() {
 		this.spring.register(Sec3005Config.class).autowire();
 
-		assertThat(this.service.getClass()).matches(c -> !Proxy.isProxyClass(c), "is not proxy class");
+		assertThat(this.service.getClass()).matches((c) -> !Proxy.isProxyClass(c), "is not proxy class");
 	}
 	//
 	// // gh-3797

@@ -70,9 +70,9 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	public void setUp() {
 		this.relyingPartyRegistrationBuilder = RelyingPartyRegistration.withRegistrationId("id")
 				.assertionConsumerServiceLocation("template")
-				.providerDetails(c -> c.webSsoUrl("https://destination/sso"))
-				.providerDetails(c -> c.entityId("remote-entity-id")).localEntityIdTemplate("local-entity-id")
-				.credentials(c -> c.add(TestSaml2X509Credentials.relyingPartySigningCredential()));
+				.providerDetails((c) -> c.webSsoUrl("https://destination/sso"))
+				.providerDetails((c) -> c.entityId("remote-entity-id")).localEntityIdTemplate("local-entity-id")
+				.credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartySigningCredential()));
 		this.relyingPartyRegistration = this.relyingPartyRegistrationBuilder.build();
 		this.contextBuilder = Saml2AuthenticationRequestContext.builder().issuer("https://issuer")
 				.relyingPartyRegistration(this.relyingPartyRegistration)
@@ -107,7 +107,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		this.context = this.contextBuilder.relayState("Relay State Value")
 				.relyingPartyRegistration(
 						RelyingPartyRegistration.withRelyingPartyRegistration(this.relyingPartyRegistration)
-								.providerDetails(c -> c.signAuthNRequest(false)).build())
+								.providerDetails((c) -> c.signAuthNRequest(false)).build())
 				.build();
 		Saml2RedirectAuthenticationRequest result = this.factory.createRedirectAuthenticationRequest(this.context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
@@ -122,7 +122,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		this.context = this.contextBuilder.relayState("Relay State Value")
 				.relyingPartyRegistration(
 						RelyingPartyRegistration.withRelyingPartyRegistration(this.relyingPartyRegistration)
-								.providerDetails(c -> c.signAuthNRequest(false)).build())
+								.providerDetails((c) -> c.signAuthNRequest(false)).build())
 				.build();
 		Saml2PostAuthenticationRequest result = this.factory.createPostAuthenticationRequest(this.context);
 		assertThat(result.getSamlRequest()).isNotEmpty();
@@ -170,7 +170,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	public void createPostAuthenticationRequestWhenAuthnRequestConsumerThenUses() {
 		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = mock(
 				Function.class);
-		given(authnRequestConsumerResolver.apply(this.context)).willReturn(authnRequest -> {
+		given(authnRequestConsumerResolver.apply(this.context)).willReturn((authnRequest) -> {
 		});
 		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
 
@@ -182,7 +182,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	public void createRedirectAuthenticationRequestWhenAuthnRequestConsumerThenUses() {
 		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = mock(
 				Function.class);
-		given(authnRequestConsumerResolver.apply(this.context)).willReturn(authnRequest -> {
+		given(authnRequestConsumerResolver.apply(this.context)).willReturn((authnRequest) -> {
 		});
 		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
 

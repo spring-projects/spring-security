@@ -359,7 +359,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 		private boolean disabled;
 
-		private Function<String, String> passwordEncoder = password -> password;
+		private Function<String, String> passwordEncoder = (password) -> password;
 
 		/**
 		 * Creates a new instance

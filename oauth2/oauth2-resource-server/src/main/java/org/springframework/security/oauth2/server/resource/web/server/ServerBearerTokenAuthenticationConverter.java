@@ -54,7 +54,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 
 	@Override
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
-		return Mono.fromCallable(() -> token(exchange.getRequest())).map(token -> {
+		return Mono.fromCallable(() -> token(exchange.getRequest())).map((token) -> {
 			if (token.isEmpty()) {
 				BearerTokenError error = invalidTokenError();
 				throw new OAuth2AuthenticationException(error);

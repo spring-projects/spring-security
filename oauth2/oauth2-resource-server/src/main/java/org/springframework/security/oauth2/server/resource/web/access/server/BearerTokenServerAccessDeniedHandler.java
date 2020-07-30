@@ -63,8 +63,8 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 		}
 
 		return exchange.getPrincipal().filter(AbstractOAuth2TokenAuthenticationToken.class::isInstance)
-				.map(token -> errorMessageParameters(parameters)).switchIfEmpty(Mono.just(parameters))
-				.flatMap(params -> respond(exchange, params));
+				.map((token) -> errorMessageParameters(parameters)).switchIfEmpty(Mono.just(parameters))
+				.flatMap((params) -> respond(exchange, params));
 	}
 
 	/**

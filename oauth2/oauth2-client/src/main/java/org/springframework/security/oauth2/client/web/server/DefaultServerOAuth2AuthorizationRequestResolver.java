@@ -87,7 +87,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(
 			Base64.getUrlEncoder().withoutPadding(), 96);
 
-	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = customizer -> {
+	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = (customizer) -> {
 	};
 
 	/**
@@ -120,16 +120,16 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 
 	@Override
 	public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange) {
-		return this.authorizationRequestMatcher.matches(exchange).filter(matchResult -> matchResult.isMatch())
+		return this.authorizationRequestMatcher.matches(exchange).filter((matchResult) -> matchResult.isMatch())
 				.map(ServerWebExchangeMatcher.MatchResult::getVariables)
-				.map(variables -> variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME)).cast(String.class)
-				.flatMap(clientRegistrationId -> resolve(exchange, clientRegistrationId));
+				.map((variables) -> variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME)).cast(String.class)
+				.flatMap((clientRegistrationId) -> resolve(exchange, clientRegistrationId));
 	}
 
 	@Override
 	public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange, String clientRegistrationId) {
 		return this.findByRegistrationId(exchange, clientRegistrationId)
-				.map(clientRegistration -> authorizationRequest(exchange, clientRegistration));
+				.map((clientRegistration) -> authorizationRequest(exchange, clientRegistration));
 	}
 
 	/**

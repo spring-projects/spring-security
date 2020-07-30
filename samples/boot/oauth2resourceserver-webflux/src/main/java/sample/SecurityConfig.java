@@ -34,13 +34,13 @@ public class SecurityConfig {
 	@Bean
 	SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(exchanges ->
+			.authorizeExchange((exchanges) -> 
 				exchanges
 					.pathMatchers(HttpMethod.GET, "/message/**").hasAuthority("SCOPE_message:read")
 					.pathMatchers(HttpMethod.POST, "/message/**").hasAuthority("SCOPE_message:write")
 					.anyExchange().authenticated()
 			)
-			.oauth2ResourceServer(oauth2ResourceServer ->
+			.oauth2ResourceServer((oauth2ResourceServer) -> 
 				oauth2ResourceServer
 					.jwt(withDefaults())
 			);

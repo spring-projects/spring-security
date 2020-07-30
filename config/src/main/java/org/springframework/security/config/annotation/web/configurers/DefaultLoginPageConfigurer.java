@@ -76,7 +76,7 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	public void init(H http) {
-		Function<HttpServletRequest, Map<String, String>> hiddenInputs = request -> {
+		Function<HttpServletRequest, Map<String, String>> hiddenInputs = (request) -> {
 			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 			if (token == null) {
 				return Collections.emptyMap();

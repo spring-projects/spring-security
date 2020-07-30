@@ -56,7 +56,7 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 
 	@Override
 	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
-		return exchange.getSession().doOnNext(session -> {
+		return exchange.getSession().doOnNext((session) -> {
 			if (context == null) {
 				session.getAttributes().remove(this.springSecurityContextAttrName);
 				if (logger.isDebugEnabled()) {
@@ -69,12 +69,12 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 					logger.debug("Saved SecurityContext '" + context + "' in WebSession: '" + session + "'");
 				}
 			}
-		}).flatMap(session -> session.changeSessionId());
+		}).flatMap((session) -> session.changeSessionId());
 	}
 
 	@Override
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
-		return exchange.getSession().flatMap(session -> {
+		return exchange.getSession().flatMap((session) -> {
 			SecurityContext context = (SecurityContext) session.getAttribute(this.springSecurityContextAttrName);
 			if (logger.isDebugEnabled()) {
 				if (context == null) {

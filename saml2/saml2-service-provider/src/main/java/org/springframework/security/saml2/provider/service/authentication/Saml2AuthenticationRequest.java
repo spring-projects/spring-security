@@ -113,7 +113,7 @@ public final class Saml2AuthenticationRequest {
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
 		return new Builder().assertionConsumerServiceUrl(context.getAssertionConsumerServiceUrl())
 				.issuer(context.getIssuer()).destination(context.getDestination())
-				.credentials(c -> c.addAll(context.getRelyingPartyRegistration().getCredentials()));
+				.credentials((c) -> c.addAll(context.getRelyingPartyRegistration().getCredentials()));
 	}
 
 	/**
@@ -148,7 +148,7 @@ public final class Saml2AuthenticationRequest {
 		 * request. For example: <code>
 		 *     Saml2X509Credential credential = ...;
 		 *     return Saml2AuthenticationRequest.withLocalSpEntityId("id")
-		 *             .credentials(c -> c.add(credential))
+		 *             .credentials((c) -> c.add(credential))
 		 *             ...
 		 *             .build();
 		 * </code>

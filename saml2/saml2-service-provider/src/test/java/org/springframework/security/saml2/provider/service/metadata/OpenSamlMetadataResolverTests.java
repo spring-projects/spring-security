@@ -53,8 +53,8 @@ public class OpenSamlMetadataResolverTests {
 	public void resolveWhenRelyingPartyNoCredentialsThenMetadataMatches() {
 		// given
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails(party -> party.verificationX509Credentials(
-						c -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+				.assertingPartyDetails((party) -> party.verificationX509Credentials(
+						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 				.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 

@@ -76,9 +76,9 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		this.filterChain = new MockFilterChain();
 
 		this.rpBuilder = RelyingPartyRegistration.withRegistrationId("registration-id")
-				.providerDetails(c -> c.entityId("idp-entity-id")).providerDetails(c -> c.webSsoUrl(IDP_SSO_URL))
+				.providerDetails((c) -> c.entityId("idp-entity-id")).providerDetails((c) -> c.webSsoUrl(IDP_SSO_URL))
 				.assertionConsumerServiceUrlTemplate("template")
-				.credentials(c -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()));
+				.credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()));
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	@Test
 	public void doFilterWhenSignatureIsDisabledThenSignatureParametersAreNotInTheRedirectURL() throws Exception {
 		given(this.repository.findByRegistrationId("registration-id"))
-				.willReturn(this.rpBuilder.providerDetails(c -> c.signAuthNRequest(false)).build());
+				.willReturn(this.rpBuilder.providerDetails((c) -> c.signAuthNRequest(false)).build());
 		final String relayStateValue = "https://my-relay-state.example.com?with=param&other=param";
 		final String relayStateEncoded = UriUtils.encode(relayStateValue, StandardCharsets.ISO_8859_1);
 		this.request.setParameter("RelayState", relayStateValue);
@@ -133,7 +133,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	@Test
 	public void doFilterWhenPostFormDataIsPresent() throws Exception {
 		given(this.repository.findByRegistrationId("registration-id"))
-				.willReturn(this.rpBuilder.providerDetails(c -> c.binding(Saml2MessageBinding.POST)).build());
+				.willReturn(this.rpBuilder.providerDetails((c) -> c.binding(Saml2MessageBinding.POST)).build());
 		final String relayStateValue = "https://my-relay-state.example.com?with=param&other=param&javascript{alert('1');}";
 		final String relayStateEncoded = HtmlUtils.htmlEscape(relayStateValue);
 		this.request.setParameter("RelayState", relayStateValue);
@@ -147,8 +147,8 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	@Test
 	public void doFilterWhenSetAuthenticationRequestFactoryThenUses() throws Exception {
-		RelyingPartyRegistration relyingParty = this.rpBuilder.providerDetails(c -> c.binding(Saml2MessageBinding.POST))
-				.build();
+		RelyingPartyRegistration relyingParty = this.rpBuilder
+				.providerDetails((c) -> c.binding(Saml2MessageBinding.POST)).build();
 		Saml2PostAuthenticationRequest authenticationRequest = mock(Saml2PostAuthenticationRequest.class);
 		given(authenticationRequest.getAuthenticationRequestUri()).willReturn("uri");
 		given(authenticationRequest.getRelayState()).willReturn("relay");
@@ -167,8 +167,8 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	@Test
 	public void doFilterWhenCustomAuthenticationRequestFactoryThenUses() throws Exception {
-		RelyingPartyRegistration relyingParty = this.rpBuilder.providerDetails(c -> c.binding(Saml2MessageBinding.POST))
-				.build();
+		RelyingPartyRegistration relyingParty = this.rpBuilder
+				.providerDetails((c) -> c.binding(Saml2MessageBinding.POST)).build();
 		Saml2PostAuthenticationRequest authenticationRequest = mock(Saml2PostAuthenticationRequest.class);
 		given(authenticationRequest.getAuthenticationRequestUri()).willReturn("uri");
 		given(authenticationRequest.getRelayState()).willReturn("relay");
@@ -201,7 +201,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	@Test
 	public void doFilterWhenRequestMatcherFailsThenSkipsFilter() throws Exception {
 		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.repository);
-		filter.setRedirectMatcher(request -> false);
+		filter.setRedirectMatcher((request) -> false);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		verifyNoInteractions(this.repository);
 	}
