@@ -177,6 +177,23 @@ public class NimbusReactiveJwtDecoderTests {
 				.hasMessageContaining("mock-description");
 	}
 
+
+	@Test
+	public void decodeWhenReadingErrorPickTheFirstErrorMessage() {
+		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
+		this.decoder.setJwtValidator(jwtValidator);
+
+		OAuth2Error errorEmpty = new OAuth2Error("mock-error", "", "mock-uri");
+		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
+		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
+		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+
+		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
+				.isInstanceOf(JwtValidationException.class)
+				.hasMessageContaining("mock-description");
+	}
+
 	@Test
 	public void setJwtValidatorWhenGivenNullThrowsIllegalArgumentException() {
 		assertThatCode(() -> this.decoder.setJwtValidator(null))

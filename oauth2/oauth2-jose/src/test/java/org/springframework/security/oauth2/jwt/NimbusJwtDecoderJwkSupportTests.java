@@ -33,6 +33,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -239,6 +240,22 @@ public class NimbusJwtDecoderJwkSupportTests {
 					.hasMessageContaining("mock-description")
 					.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure));
 		}
+	}
+
+	@Test
+	public void decodeWhenReadingErrorPickTheFirstErrorMessage() {
+		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
+		this.jwtDecoder.setJwtValidator(jwtValidator);
+
+		OAuth2Error errorEmpty = new OAuth2Error("mock-error", "", "mock-uri");
+		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
+		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
+		Mockito.when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+
+		Assertions.assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT))
+				.isInstanceOf(JwtValidationException.class)
+				.hasMessageContaining("mock-description");
 	}
 
 	@Test

@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.jwt;
 
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +41,12 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
@@ -184,9 +187,16 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	private Jwt validateJwt(Jwt jwt) {
 		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
 
-		if ( result.hasErrors() ) {
-			String message = result.getErrors().iterator().next().getDescription();
-			throw new JwtValidationException(message, result.getErrors());
+		if (result.hasErrors()) {
+			Collection<OAuth2Error> errors = result.getErrors();
+			String validationErrorString = "Unable to validate Jwt";
+			for (OAuth2Error oAuth2Error : errors) {
+				if (!StringUtils.isEmpty(oAuth2Error.getDescription())) {
+					validationErrorString = oAuth2Error.getDescription();
+					break;
+				}
+			}
+			throw new JwtValidationException(validationErrorString, errors);
 		}
 
 		return jwt;
