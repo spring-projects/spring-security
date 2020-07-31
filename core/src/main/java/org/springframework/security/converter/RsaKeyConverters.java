@@ -72,7 +72,7 @@ public final class RsaKeyConverters {
 		return (source) -> {
 			List<String> lines = readAllLines(source);
 			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(PKCS8_PEM_HEADER),
-					"Key is not in PEM-encoded PKCS#8 format, " + "please check that the header begins with -----"
+					"Key is not in PEM-encoded PKCS#8 format, please check that the header begins with -----"
 							+ PKCS8_PEM_HEADER + "-----");
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
@@ -81,7 +81,6 @@ public final class RsaKeyConverters {
 				}
 			}
 			byte[] pkcs8 = Base64.getDecoder().decode(base64Encoded.toString());
-
 			try {
 				return (RSAPrivateKey) keyFactory.generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
 			}
@@ -105,7 +104,7 @@ public final class RsaKeyConverters {
 		return (source) -> {
 			List<String> lines = readAllLines(source);
 			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(X509_PEM_HEADER),
-					"Key is not in PEM-encoded X.509 format, " + "please check that the header begins with -----"
+					"Key is not in PEM-encoded X.509 format, please check that the header begins with -----"
 							+ X509_PEM_HEADER + "-----");
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
@@ -114,7 +113,6 @@ public final class RsaKeyConverters {
 				}
 			}
 			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
-
 			try {
 				return (RSAPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(x509));
 			}

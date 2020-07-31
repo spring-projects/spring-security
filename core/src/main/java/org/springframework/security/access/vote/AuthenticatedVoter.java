@@ -87,24 +87,20 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		int result = ACCESS_ABSTAIN;
-
 		for (ConfigAttribute attribute : attributes) {
 			if (this.supports(attribute)) {
 				result = ACCESS_DENIED;
-
 				if (IS_AUTHENTICATED_FULLY.equals(attribute.getAttribute())) {
 					if (isFullyAuthenticated(authentication)) {
 						return ACCESS_GRANTED;
 					}
 				}
-
 				if (IS_AUTHENTICATED_REMEMBERED.equals(attribute.getAttribute())) {
 					if (this.authenticationTrustResolver.isRememberMe(authentication)
 							|| isFullyAuthenticated(authentication)) {
 						return ACCESS_GRANTED;
 					}
 				}
-
 				if (IS_AUTHENTICATED_ANONYMOUSLY.equals(attribute.getAttribute())) {
 					if (this.authenticationTrustResolver.isAnonymous(authentication)
 							|| isFullyAuthenticated(authentication)
@@ -114,7 +110,6 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 				}
 			}
 		}
-
 		return result;
 	}
 

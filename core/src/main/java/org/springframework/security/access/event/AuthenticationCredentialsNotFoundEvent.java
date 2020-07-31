@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.util.Assert;
 
 /**
  * Indicates a secure object invocation failed because the <code>Authentication</code>
@@ -29,9 +30,9 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
  */
 public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizationEvent {
 
-	private AuthenticationCredentialsNotFoundException credentialsNotFoundException;
+	private final AuthenticationCredentialsNotFoundException credentialsNotFoundException;
 
-	private Collection<ConfigAttribute> configAttribs;
+	private final Collection<ConfigAttribute> configAttribs;
 
 	/**
 	 * Construct the event.
@@ -44,11 +45,8 @@ public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizatio
 	public AuthenticationCredentialsNotFoundEvent(Object secureObject, Collection<ConfigAttribute> attributes,
 			AuthenticationCredentialsNotFoundException credentialsNotFoundException) {
 		super(secureObject);
-
-		if ((attributes == null) || (credentialsNotFoundException == null)) {
-			throw new IllegalArgumentException("All parameters are required and cannot be null");
-		}
-
+		Assert.isTrue(attributes != null && credentialsNotFoundException != null,
+				"All parameters are required and cannot be null");
 		this.configAttribs = attributes;
 		this.credentialsNotFoundException = credentialsNotFoundException;
 	}

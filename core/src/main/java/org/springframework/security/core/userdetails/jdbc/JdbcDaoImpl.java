@@ -171,37 +171,26 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		List<UserDetails> users = loadUsersByUsername(username);
-
 		if (users.size() == 0) {
 			this.logger.debug("Query returned no results for user '" + username + "'");
-
 			throw new UsernameNotFoundException(this.messages.getMessage("JdbcDaoImpl.notFound",
 					new Object[] { username }, "Username {0} not found"));
 		}
-
 		UserDetails user = users.get(0); // contains no GrantedAuthority[]
-
 		Set<GrantedAuthority> dbAuthsSet = new HashSet<>();
-
 		if (this.enableAuthorities) {
 			dbAuthsSet.addAll(loadUserAuthorities(user.getUsername()));
 		}
-
 		if (this.enableGroups) {
 			dbAuthsSet.addAll(loadGroupAuthorities(user.getUsername()));
 		}
-
 		List<GrantedAuthority> dbAuths = new ArrayList<>(dbAuthsSet);
-
 		addCustomAuthorities(user.getUsername(), dbAuths);
-
 		if (dbAuths.size() == 0) {
 			this.logger.debug("User '" + username + "' has no authorities and will be treated as 'not found'");
-
 			throw new UsernameNotFoundException(this.messages.getMessage("JdbcDaoImpl.noAuthority",
 					new Object[] { username }, "User {0} has no GrantedAuthority"));
 		}
-
 		return createUserDetails(username, user, dbAuths);
 	}
 
@@ -225,7 +214,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	protected List<GrantedAuthority> loadUserAuthorities(String username) {
 		return getJdbcTemplate().query(this.authoritiesByUsernameQuery, new String[] { username }, (rs, rowNum) -> {
 			String roleName = JdbcDaoImpl.this.rolePrefix + rs.getString(2);
-
 			return new SimpleGrantedAuthority(roleName);
 		});
 	}
@@ -239,7 +227,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 		return getJdbcTemplate().query(this.groupAuthoritiesByUsernameQuery, new String[] { username },
 				(rs, rowNum) -> {
 					String roleName = getRolePrefix() + rs.getString(3);
-
 					return new SimpleGrantedAuthority(roleName);
 				});
 	}
@@ -256,11 +243,9 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	protected UserDetails createUserDetails(String username, UserDetails userFromUserQuery,
 			List<GrantedAuthority> combinedAuthorities) {
 		String returnUsername = userFromUserQuery.getUsername();
-
 		if (!this.usernameBasedPrimaryKey) {
 			returnUsername = username;
 		}
-
 		return new User(returnUsername, userFromUserQuery.getPassword(), userFromUserQuery.isEnabled(),
 				userFromUserQuery.isAccountNonExpired(), userFromUserQuery.isCredentialsNonExpired(),
 				userFromUserQuery.isAccountNonLocked(), combinedAuthorities);

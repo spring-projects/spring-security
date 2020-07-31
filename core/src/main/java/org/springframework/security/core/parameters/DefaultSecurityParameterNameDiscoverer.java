@@ -21,9 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -52,8 +49,6 @@ import org.springframework.util.ClassUtils;
  */
 public class DefaultSecurityParameterNameDiscoverer extends PrioritizedParameterNameDiscoverer {
 
-	private final Log logger = LogFactory.getLog(getClass());
-
 	private static final String DATA_PARAM_CLASSNAME = "org.springframework.data.repository.query.Param";
 
 	private static final boolean DATA_PARAM_PRESENT = ClassUtils.isPresent(DATA_PARAM_CLASSNAME,
@@ -79,14 +74,12 @@ public class DefaultSecurityParameterNameDiscoverer extends PrioritizedParameter
 		for (ParameterNameDiscoverer discover : parameterNameDiscovers) {
 			addDiscoverer(discover);
 		}
-
 		Set<String> annotationClassesToUse = new HashSet<>(2);
 		annotationClassesToUse.add("org.springframework.security.access.method.P");
 		annotationClassesToUse.add(P.class.getName());
 		if (DATA_PARAM_PRESENT) {
 			annotationClassesToUse.add(DATA_PARAM_CLASSNAME);
 		}
-
 		addDiscoverer(new AnnotationParameterNameDiscoverer(annotationClassesToUse));
 		addDiscoverer(new DefaultParameterNameDiscoverer());
 	}

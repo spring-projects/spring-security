@@ -107,11 +107,8 @@ public class User implements UserDetails, CredentialsContainer {
 	public User(String username, String password, boolean enabled, boolean accountNonExpired,
 			boolean credentialsNonExpired, boolean accountNonLocked,
 			Collection<? extends GrantedAuthority> authorities) {
-
-		if (((username == null) || "".equals(username)) || (password == null)) {
-			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
-		}
-
+		Assert.isTrue(username != null && !"".equals(username) && password != null,
+				"Cannot pass null or empty values to constructor");
 		this.username = username;
 		this.password = password;
 		this.enabled = enabled;
@@ -166,12 +163,10 @@ public class User implements UserDetails, CredentialsContainer {
 		// Ensure array iteration order is predictable (as per
 		// UserDetails.getAuthorities() contract and SEC-717)
 		SortedSet<GrantedAuthority> sortedAuthorities = new TreeSet<>(new AuthorityComparator());
-
 		for (GrantedAuthority grantedAuthority : authorities) {
 			Assert.notNull(grantedAuthority, "GrantedAuthority list cannot contain any null elements");
 			sortedAuthorities.add(grantedAuthority);
 		}
-
 		return sortedAuthorities;
 	}
 
@@ -183,9 +178,9 @@ public class User implements UserDetails, CredentialsContainer {
 	 * the same principal.
 	 */
 	@Override
-	public boolean equals(Object rhs) {
-		if (rhs instanceof User) {
-			return this.username.equals(((User) rhs).username);
+	public boolean equals(Object obj) {
+		if (obj instanceof User) {
+			return this.username.equals(((User) obj).username);
 		}
 		return false;
 	}
@@ -208,24 +203,20 @@ public class User implements UserDetails, CredentialsContainer {
 		sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
 		sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
 		sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
-
 		if (!this.authorities.isEmpty()) {
 			sb.append("Granted Authorities: ");
-
 			boolean first = true;
 			for (GrantedAuthority auth : this.authorities) {
 				if (!first) {
 					sb.append(",");
 				}
 				first = false;
-
 				sb.append(auth);
 			}
 		}
 		else {
 			sb.append("Not granted any authorities");
 		}
-
 		return sb.toString();
 	}
 
@@ -303,8 +294,8 @@ public class User implements UserDetails, CredentialsContainer {
 	 */
 	@Deprecated
 	public static UserBuilder withDefaultPasswordEncoder() {
-		logger.warn(
-				"User.withDefaultPasswordEncoder() is considered unsafe for production and is only intended for sample applications.");
+		logger.warn("User.withDefaultPasswordEncoder() is considered unsafe for production "
+				+ "and is only intended for sample applications.");
 		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 		return builder().passwordEncoder(encoder::encode);
 	}
@@ -323,17 +314,14 @@ public class User implements UserDetails, CredentialsContainer {
 		@Override
 		public int compare(GrantedAuthority g1, GrantedAuthority g2) {
 			// Neither should ever be null as each entry is checked before adding it to
-			// the set.
-			// If the authority is null, it is a custom authority and should precede
-			// others.
+			// the set. If the authority is null, it is a custom authority and should
+			// precede others.
 			if (g2.getAuthority() == null) {
 				return -1;
 			}
-
 			if (g1.getAuthority() == null) {
 				return 1;
 			}
-
 			return g1.getAuthority().compareTo(g2.getAuthority());
 		}
 

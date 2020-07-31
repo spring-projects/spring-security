@@ -50,19 +50,15 @@ public final class MethodInvocationUtils {
 	 */
 	public static MethodInvocation create(Object object, String methodName, Object... args) {
 		Assert.notNull(object, "Object required");
-
 		Class<?>[] classArgs = null;
-
 		if (args != null) {
 			classArgs = new Class<?>[args.length];
-
 			for (int i = 0; i < args.length; i++) {
 				classArgs[i] = args[i].getClass();
 			}
 		}
-
-		// Determine the type that declares the requested method, taking into account
-		// proxies
+		// Determine the type that declares the requested method,
+		// taking into account proxies
 		Class<?> target = AopUtils.getTargetClass(object);
 		if (object instanceof Advised) {
 			Advised a = (Advised) object;
@@ -75,13 +71,12 @@ public final class MethodInvocationUtils {
 						target = possibleInterface;
 						break;
 					}
-					catch (Exception ignored) {
+					catch (Exception ex) {
 						// try the next one
 					}
 				}
 			}
 		}
-
 		return createFromClass(object, target, methodName, classArgs, args);
 	}
 
@@ -100,21 +95,17 @@ public final class MethodInvocationUtils {
 	 * problem
 	 */
 	public static MethodInvocation createFromClass(Class<?> clazz, String methodName) {
-		MethodInvocation mi = createFromClass(null, clazz, methodName, null, null);
-
-		if (mi == null) {
-			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.getName().equals(methodName)) {
-					if (mi != null) {
-						throw new IllegalArgumentException(
-								"The class " + clazz + " has more than one method named" + " '" + methodName + "'");
-					}
-					mi = new SimpleMethodInvocation(null, m);
+		MethodInvocation invocation = createFromClass(null, clazz, methodName, null, null);
+		if (invocation == null) {
+			for (Method method : clazz.getDeclaredMethods()) {
+				if (method.getName().equals(methodName)) {
+					Assert.isTrue(invocation == null,
+							() -> "The class " + clazz + " has more than one method named" + " '" + methodName + "'");
+					invocation = new SimpleMethodInvocation(null, method);
 				}
 			}
 		}
-
-		return mi;
+		return invocation;
 	}
 
 	/**
@@ -134,17 +125,13 @@ public final class MethodInvocationUtils {
 			Class<?>[] classArgs, Object[] args) {
 		Assert.notNull(clazz, "Class required");
 		Assert.hasText(methodName, "MethodName required");
-
-		Method method;
-
 		try {
-			method = clazz.getMethod(methodName, classArgs);
+			Method method = clazz.getMethod(methodName, classArgs);
+			return new SimpleMethodInvocation(targetObject, method, args);
 		}
 		catch (NoSuchMethodException ex) {
 			return null;
 		}
-
-		return new SimpleMethodInvocation(targetObject, method, args);
 	}
 
 }

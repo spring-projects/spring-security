@@ -69,7 +69,6 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 	public Authentication buildRunAs(Authentication authentication, Object object,
 			Collection<ConfigAttribute> attributes) {
 		List<GrantedAuthority> newAuthorities = new ArrayList<>();
-
 		for (ConfigAttribute attribute : attributes) {
 			if (this.supports(attribute)) {
 				GrantedAuthority extraAuthority = new SimpleGrantedAuthority(
@@ -77,14 +76,11 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 				newAuthorities.add(extraAuthority);
 			}
 		}
-
 		if (newAuthorities.size() == 0) {
 			return null;
 		}
-
 		// Add existing authorities
 		newAuthorities.addAll(authentication.getAuthorities());
-
 		return new RunAsUserToken(this.key, authentication.getPrincipal(), authentication.getCredentials(),
 				newAuthorities, authentication.getClass());
 	}

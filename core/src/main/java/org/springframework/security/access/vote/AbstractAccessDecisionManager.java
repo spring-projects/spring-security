@@ -88,12 +88,11 @@ public abstract class AbstractAccessDecisionManager
 
 	@Override
 	public boolean supports(ConfigAttribute attribute) {
-		for (AccessDecisionVoter voter : this.decisionVoters) {
+		for (AccessDecisionVoter<?> voter : this.decisionVoters) {
 			if (voter.supports(attribute)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -108,12 +107,11 @@ public abstract class AbstractAccessDecisionManager
 	 */
 	@Override
 	public boolean supports(Class<?> clazz) {
-		for (AccessDecisionVoter voter : this.decisionVoters) {
+		for (AccessDecisionVoter<?> voter : this.decisionVoters) {
 			if (!voter.supports(clazz)) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 

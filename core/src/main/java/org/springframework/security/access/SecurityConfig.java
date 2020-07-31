@@ -40,10 +40,8 @@ public class SecurityConfig implements ConfigAttribute {
 	public boolean equals(Object obj) {
 		if (obj instanceof ConfigAttribute) {
 			ConfigAttribute attr = (ConfigAttribute) obj;
-
 			return this.attrib.equals(attr.getAttribute());
 		}
-
 		return false;
 	}
 
@@ -69,11 +67,9 @@ public class SecurityConfig implements ConfigAttribute {
 	public static List<ConfigAttribute> createList(String... attributeNames) {
 		Assert.notNull(attributeNames, "You must supply an array of attribute names");
 		List<ConfigAttribute> attributes = new ArrayList<>(attributeNames.length);
-
 		for (String attribute : attributeNames) {
 			attributes.add(new SecurityConfig(attribute.trim()));
 		}
-
 		return attributes;
 	}
 

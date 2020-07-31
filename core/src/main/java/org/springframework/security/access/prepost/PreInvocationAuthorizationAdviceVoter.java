@@ -61,21 +61,14 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
 
 	@Override
 	public int vote(Authentication authentication, MethodInvocation method, Collection<ConfigAttribute> attributes) {
-
 		// Find prefilter and preauth (or combined) attributes
-		// if both null, abstain
-		// else call advice with them
-
+		// if both null, abstain else call advice with them
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
-
 		if (preAttr == null) {
 			// No expression based metadata, so abstain
 			return ACCESS_ABSTAIN;
 		}
-
-		boolean allowed = this.preAdvice.before(authentication, method, preAttr);
-
-		return allowed ? ACCESS_GRANTED : ACCESS_DENIED;
+		return this.preAdvice.before(authentication, method, preAttr) ? ACCESS_GRANTED : ACCESS_DENIED;
 	}
 
 	private PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
@@ -84,7 +77,6 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
 				return (PreInvocationAttribute) attribute;
 			}
 		}
-
 		return null;
 	}
 

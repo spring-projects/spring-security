@@ -43,28 +43,19 @@ public final class RoleHierarchyUtils {
 	 * @return a string representation of a role hierarchy
 	 * @throws IllegalArgumentException if roleHierarchyMap is null or empty or if a role
 	 * name is null or empty or if an implied role name(s) is null or empty
-	 *
 	 */
 	public static String roleHierarchyFromMap(Map<String, List<String>> roleHierarchyMap) {
 		Assert.notEmpty(roleHierarchyMap, "roleHierarchyMap cannot be empty");
-
-		StringWriter roleHierarchyBuffer = new StringWriter();
-		PrintWriter roleHierarchyWriter = new PrintWriter(roleHierarchyBuffer);
-
-		for (Map.Entry<String, List<String>> roleHierarchyEntry : roleHierarchyMap.entrySet()) {
-			String role = roleHierarchyEntry.getKey();
-			List<String> impliedRoles = roleHierarchyEntry.getValue();
-
+		StringWriter result = new StringWriter();
+		PrintWriter writer = new PrintWriter(result);
+		roleHierarchyMap.forEach((role, impliedRoles) -> {
 			Assert.hasLength(role, "role name must be supplied");
 			Assert.notEmpty(impliedRoles, "implied role name(s) cannot be empty");
-
 			for (String impliedRole : impliedRoles) {
-				String roleMapping = role + " > " + impliedRole;
-				roleHierarchyWriter.println(roleMapping);
+				writer.println(role + " > " + impliedRole);
 			}
-		}
-
-		return roleHierarchyBuffer.toString();
+		});
+		return result.toString();
 	}
 
 }

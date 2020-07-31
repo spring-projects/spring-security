@@ -49,14 +49,12 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 	@Override
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 			Object returnedObject) throws AccessDeniedException {
-
-		PostInvocationAttribute pia = findPostInvocationAttribute(config);
-
-		if (pia == null) {
+		PostInvocationAttribute postInvocationAttribute = findPostInvocationAttribute(config);
+		if (postInvocationAttribute == null) {
 			return returnedObject;
 		}
-
-		return this.postAdvice.after(authentication, (MethodInvocation) object, pia, returnedObject);
+		return this.postAdvice.after(authentication, (MethodInvocation) object, postInvocationAttribute,
+				returnedObject);
 	}
 
 	private PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {
@@ -65,7 +63,6 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 				return (PostInvocationAttribute) attribute;
 			}
 		}
-
 		return null;
 	}
 

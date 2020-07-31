@@ -56,7 +56,6 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		InterceptorStatusToken token = super.beforeInvocation(mi);
-
 		Object result;
 		try {
 			result = mi.proceed();

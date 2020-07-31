@@ -32,14 +32,12 @@ class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConf
 	PreInvocationExpressionAttribute(String filterExpression, String filterTarget, String authorizeExpression)
 			throws ParseException {
 		super(filterExpression, authorizeExpression);
-
 		this.filterTarget = filterTarget;
 	}
 
 	PreInvocationExpressionAttribute(Expression filterExpression, String filterTarget, Expression authorizeExpression)
 			throws ParseException {
 		super(filterExpression, authorizeExpression);
-
 		this.filterTarget = filterTarget;
 	}
 

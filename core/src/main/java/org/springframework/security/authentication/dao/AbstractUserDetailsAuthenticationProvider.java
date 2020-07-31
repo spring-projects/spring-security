@@ -124,65 +124,52 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
 				() -> this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
 						"Only UsernamePasswordAuthenticationToken is supported"));
-
-		// Determine username
-		String username = (authentication.getPrincipal() == null) ? "NONE_PROVIDED" : authentication.getName();
-
+		String username = determineUsername(authentication);
 		boolean cacheWasUsed = true;
 		UserDetails user = this.userCache.getUserFromCache(username);
-
 		if (user == null) {
 			cacheWasUsed = false;
-
 			try {
 				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
 			}
-			catch (UsernameNotFoundException notFound) {
+			catch (UsernameNotFoundException ex) {
 				this.logger.debug("User '" + username + "' not found");
-
-				if (this.hideUserNotFoundExceptions) {
-					throw new BadCredentialsException(this.messages
-							.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+				if (!this.hideUserNotFoundExceptions) {
+					throw ex;
 				}
-				else {
-					throw notFound;
-				}
+				throw new BadCredentialsException(this.messages
+						.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 			}
-
 			Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
 		}
-
 		try {
 			this.preAuthenticationChecks.check(user);
 			additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
 		}
-		catch (AuthenticationException exception) {
-			if (cacheWasUsed) {
-				// There was a problem, so try again after checking
-				// we're using latest data (i.e. not from the cache)
-				cacheWasUsed = false;
-				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
-				this.preAuthenticationChecks.check(user);
-				additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+		catch (AuthenticationException ex) {
+			if (!cacheWasUsed) {
+				throw ex;
 			}
-			else {
-				throw exception;
-			}
+			// There was a problem, so try again after checking
+			// we're using latest data (i.e. not from the cache)
+			cacheWasUsed = false;
+			user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
+			this.preAuthenticationChecks.check(user);
+			additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
 		}
-
 		this.postAuthenticationChecks.check(user);
-
 		if (!cacheWasUsed) {
 			this.userCache.putUserInCache(user);
 		}
-
 		Object principalToReturn = user;
-
 		if (this.forcePrincipalAsString) {
 			principalToReturn = user.getUsername();
 		}
-
 		return createSuccessAuthentication(principalToReturn, authentication, user);
+	}
+
+	private String determineUsername(Authentication authentication) {
+		return (authentication.getPrincipal() == null) ? "NONE_PROVIDED" : authentication.getName();
 	}
 
 	/**
@@ -209,7 +196,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
 				authentication.getCredentials(), this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		result.setDetails(authentication.getDetails());
-
 		return result;
 	}
 
@@ -333,21 +319,16 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		public void check(UserDetails user) {
 			if (!user.isAccountNonLocked()) {
 				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is locked");
-
 				throw new LockedException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
 			}
-
 			if (!user.isEnabled()) {
 				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is disabled");
-
 				throw new DisabledException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
 			}
-
 			if (!user.isAccountNonExpired()) {
 				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is expired");
-
 				throw new AccountExpiredException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
 			}
@@ -361,7 +342,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		public void check(UserDetails user) {
 			if (!user.isCredentialsNonExpired()) {
 				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account credentials have expired");
-
 				throw new CredentialsExpiredException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired",
 								"User credentials have expired"));

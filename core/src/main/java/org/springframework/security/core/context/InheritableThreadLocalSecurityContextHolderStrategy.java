@@ -37,12 +37,10 @@ final class InheritableThreadLocalSecurityContextHolderStrategy implements Secur
 	@Override
 	public SecurityContext getContext() {
 		SecurityContext ctx = contextHolder.get();
-
 		if (ctx == null) {
 			ctx = createEmptyContext();
 			contextHolder.set(ctx);
 		}
-
 		return ctx;
 	}
 

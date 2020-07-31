@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -47,10 +48,14 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 
 	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-	/** Map from RegisteredMethod to ConfigAttribute list */
+	/**
+	 * Map from RegisteredMethod to ConfigAttribute list
+	 */
 	protected final Map<RegisteredMethod, List<ConfigAttribute>> methodMap = new HashMap<>();
 
-	/** Map from RegisteredMethod to name pattern used for registration */
+	/**
+	 * Map from RegisteredMethod to name pattern used for registration
+	 */
 	private final Map<RegisteredMethod, String> nameMap = new HashMap<>();
 
 	public MapBasedMethodSecurityMetadataSource() {
@@ -83,7 +88,6 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 		if (targetClass == null) {
 			return null;
 		}
-
 		return findAttributesSpecifiedAgainst(method, targetClass);
 	}
 
@@ -107,17 +111,11 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	 */
 	private void addSecureMethod(String name, List<ConfigAttribute> attr) {
 		int lastDotIndex = name.lastIndexOf(".");
-
-		if (lastDotIndex == -1) {
-			throw new IllegalArgumentException("'" + name + "' is not a valid method name: format is FQN.methodName");
-		}
-
+		Assert.isTrue(lastDotIndex != -1, () -> "'" + name + "' is not a valid method name: format is FQN.methodName");
 		String methodName = name.substring(lastDotIndex + 1);
 		Assert.hasText(methodName, () -> "Method not found for '" + name + "'");
-
 		String typeName = name.substring(0, lastDotIndex);
 		Class<?> type = ClassUtils.resolveClassName(typeName, this.beanClassLoader);
-
 		addSecureMethod(type, methodName, attr);
 	}
 
@@ -131,43 +129,38 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	 */
 	public void addSecureMethod(Class<?> javaType, String mappedName, List<ConfigAttribute> attr) {
 		String name = javaType.getName() + '.' + mappedName;
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Request to add secure method [" + name + "] with attributes [" + attr + "]");
-		}
-
+		this.logger.debug(LogMessage.format("Request to add secure method [%s] with attributes [%s]", name, attr));
 		Method[] methods = javaType.getMethods();
 		List<Method> matchingMethods = new ArrayList<>();
-
-		for (Method m : methods) {
-			if (m.getName().equals(mappedName) || isMatch(m.getName(), mappedName)) {
-				matchingMethods.add(m);
+		for (Method method : methods) {
+			if (method.getName().equals(mappedName) || isMatch(method.getName(), mappedName)) {
+				matchingMethods.add(method);
 			}
 		}
+		Assert.notEmpty(matchingMethods, () -> "Couldn't find method '" + mappedName + "' on '" + javaType + "'");
+		registerAllMatchingMethods(javaType, attr, name, matchingMethods);
+	}
 
-		if (matchingMethods.isEmpty()) {
-			throw new IllegalArgumentException("Couldn't find method '" + mappedName + "' on '" + javaType + "'");
-		}
-
-		// register all matching methods
+	private void registerAllMatchingMethods(Class<?> javaType, List<ConfigAttribute> attr, String name,
+			List<Method> matchingMethods) {
 		for (Method method : matchingMethods) {
 			RegisteredMethod registeredMethod = new RegisteredMethod(method, javaType);
 			String regMethodName = this.nameMap.get(registeredMethod);
-
 			if ((regMethodName == null) || (!regMethodName.equals(name) && (regMethodName.length() <= name.length()))) {
 				// no already registered method name, or more specific
 				// method name specification (now) -> (re-)register method
 				if (regMethodName != null) {
-					this.logger.debug("Replacing attributes for secure method [" + method + "]: current name [" + name
-							+ "] is more specific than [" + regMethodName + "]");
+					this.logger.debug(LogMessage.format(
+							"Replacing attributes for secure method [%s]: current name [%s] is more specific than [%s]",
+							method, name, regMethodName));
 				}
-
 				this.nameMap.put(registeredMethod, name);
 				addSecureMethod(registeredMethod, attr);
 			}
 			else {
-				this.logger.debug("Keeping attributes for secure method [" + method + "]: current name [" + name
-						+ "] is not more specific than [" + regMethodName + "]");
+				this.logger.debug(LogMessage.format(
+						"Keeping attributes for secure method [%s]: current name [%s] is not more specific than [%s]",
+						method, name, regMethodName));
 			}
 		}
 	}
@@ -183,13 +176,11 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	 */
 	public void addSecureMethod(Class<?> javaType, Method method, List<ConfigAttribute> attr) {
 		RegisteredMethod key = new RegisteredMethod(method, javaType);
-
 		if (this.methodMap.containsKey(key)) {
-			this.logger.debug(
-					"Method [" + method + "] is already registered with attributes [" + this.methodMap.get(key) + "]");
+			this.logger.debug(LogMessage.format("Method [%s] is already registered with attributes [%s]", method,
+					this.methodMap.get(key)));
 			return;
 		}
-
 		this.methodMap.put(key, attr);
 	}
 
@@ -201,9 +192,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	private void addSecureMethod(RegisteredMethod method, List<ConfigAttribute> attr) {
 		Assert.notNull(method, "RegisteredMethod required");
 		Assert.notNull(attr, "Configuration attribute required");
-		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Adding secure method [" + method + "] with attributes [" + attr + "]");
-		}
+		this.logger.info(LogMessage.format("Adding secure method [%s] with attributes [%s]", method, attr));
 		this.methodMap.put(method, attr);
 	}
 
@@ -214,11 +203,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
-
-		for (List<ConfigAttribute> attributeList : this.methodMap.values()) {
-			allAttributes.addAll(attributeList);
-		}
-
+		this.methodMap.values().forEach(allAttributes::addAll);
 		return allAttributes;
 	}
 

@@ -61,20 +61,17 @@ public class DelegatingSecurityContextAsyncTaskExecutor extends DelegatingSecuri
 
 	@Override
 	public final void execute(Runnable task, long startTimeout) {
-		task = wrap(task);
-		getDelegate().execute(task, startTimeout);
+		getDelegate().execute(wrap(task), startTimeout);
 	}
 
 	@Override
 	public final Future<?> submit(Runnable task) {
-		task = wrap(task);
-		return getDelegate().submit(task);
+		return getDelegate().submit(wrap(task));
 	}
 
 	@Override
 	public final <T> Future<T> submit(Callable<T> task) {
-		task = wrap(task);
-		return getDelegate().submit(task);
+		return getDelegate().submit(wrap(task));
 	}
 
 	private AsyncTaskExecutor getDelegate() {

@@ -22,6 +22,7 @@ import java.util.List;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 /**
@@ -42,9 +43,8 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
-		return authentication.filter((a) -> a.isAuthenticated()).flatMapIterable((a) -> a.getAuthorities())
-				.map((g) -> g.getAuthority()).any((a) -> this.authorities.contains(a))
-				.map((hasAuthority) -> new AuthorizationDecision(hasAuthority))
+		return authentication.filter((a) -> a.isAuthenticated()).flatMapIterable(Authentication::getAuthorities)
+				.map(GrantedAuthority::getAuthority).any(this.authorities::contains).map(AuthorizationDecision::new)
 				.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
@@ -74,7 +74,6 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 		for (String authority : authorities) {
 			Assert.notNull(authority, "authority cannot be null");
 		}
-
 		return new AuthorityReactiveAuthorizationManager<>(authorities);
 	}
 
@@ -104,7 +103,6 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 		for (String role : roles) {
 			Assert.notNull(role, "role cannot be null");
 		}
-
 		return hasAnyAuthority(toNamedRolesArray(roles));
 	}
 

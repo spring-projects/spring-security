@@ -24,11 +24,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AfterInvocationProvider;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Provider-based implementation of {@link AfterInvocationManager}.
@@ -57,22 +59,13 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 		checkIfValidList(this.providers);
 	}
 
-	private void checkIfValidList(List<?> listToCheck) {
-		if ((listToCheck == null) || (listToCheck.size() == 0)) {
-			throw new IllegalArgumentException("A list of AfterInvocationProviders is required");
-		}
-	}
-
 	@Override
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 			Object returnedObject) throws AccessDeniedException {
-
 		Object result = returnedObject;
-
 		for (AfterInvocationProvider provider : this.providers) {
 			result = provider.decide(authentication, object, config, result);
 		}
-
 		return result;
 	}
 
@@ -83,7 +76,6 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 	public void setProviders(List<?> newList) {
 		checkIfValidList(newList);
 		this.providers = new ArrayList<>(newList.size());
-
 		for (Object currentObject : newList) {
 			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject, () -> "AfterInvocationProvider "
 					+ currentObject.getClass().getName() + " must implement AfterInvocationProvider");
@@ -91,18 +83,18 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 		}
 	}
 
+	private void checkIfValidList(List<?> listToCheck) {
+		Assert.isTrue(!CollectionUtils.isEmpty(listToCheck), "A list of AfterInvocationProviders is required");
+	}
+
 	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		for (AfterInvocationProvider provider : this.providers) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Evaluating " + attribute + " against " + provider);
-			}
-
+			logger.debug(LogMessage.format("Evaluating %s against %s", attribute, provider));
 			if (provider.supports(attribute)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -124,7 +116,6 @@ public class AfterInvocationProviderManager implements AfterInvocationManager, I
 				return false;
 			}
 		}
-
 		return true;
 	}
 

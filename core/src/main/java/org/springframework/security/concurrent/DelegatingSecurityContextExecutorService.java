@@ -90,20 +90,17 @@ public class DelegatingSecurityContextExecutorService extends DelegatingSecurity
 
 	@Override
 	public final <T> Future<T> submit(Callable<T> task) {
-		task = wrap(task);
-		return getDelegate().submit(task);
+		return getDelegate().submit(wrap(task));
 	}
 
 	@Override
 	public final <T> Future<T> submit(Runnable task, T result) {
-		task = wrap(task);
-		return getDelegate().submit(task, result);
+		return getDelegate().submit(wrap(task), result);
 	}
 
 	@Override
 	public final Future<?> submit(Runnable task) {
-		task = wrap(task);
-		return getDelegate().submit(task);
+		return getDelegate().submit(wrap(task));
 	}
 
 	@Override

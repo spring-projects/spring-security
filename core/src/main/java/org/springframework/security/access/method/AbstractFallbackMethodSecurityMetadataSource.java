@@ -57,13 +57,11 @@ public abstract class AbstractFallbackMethodSecurityMetadataSource extends Abstr
 		if (attr != null) {
 			return attr;
 		}
-
 		// Second try is the config attribute on the target class.
 		attr = findAttributes(specificMethod.getDeclaringClass());
 		if (attr != null) {
 			return attr;
 		}
-
 		if (specificMethod != method || targetClass == null) {
 			// Fallback is to look at the original method.
 			attr = findAttributes(method, method.getDeclaringClass());

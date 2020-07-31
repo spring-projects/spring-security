@@ -26,6 +26,7 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdvice;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * Method pre-invocation handling based on expressions.
@@ -43,50 +44,34 @@ public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthoriz
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, mi);
 		Expression preFilter = preAttr.getFilterExpression();
 		Expression preAuthorize = preAttr.getAuthorizeExpression();
-
 		if (preFilter != null) {
 			Object filterTarget = findFilterTarget(preAttr.getFilterTarget(), ctx, mi);
-
 			this.expressionHandler.filter(filterTarget, preFilter, ctx);
 		}
-
-		if (preAuthorize == null) {
-			return true;
-		}
-
-		return ExpressionUtils.evaluateAsBoolean(preAuthorize, ctx);
+		return (preAuthorize != null) ? ExpressionUtils.evaluateAsBoolean(preAuthorize, ctx) : true;
 	}
 
-	private Object findFilterTarget(String filterTargetName, EvaluationContext ctx, MethodInvocation mi) {
+	private Object findFilterTarget(String filterTargetName, EvaluationContext ctx, MethodInvocation invocation) {
 		Object filterTarget = null;
-
 		if (filterTargetName.length() > 0) {
 			filterTarget = ctx.lookupVariable(filterTargetName);
-			if (filterTarget == null) {
-				throw new IllegalArgumentException(
-						"Filter target was null, or no argument with name " + filterTargetName + " found in method");
-			}
+			Assert.notNull(filterTarget,
+					() -> "Filter target was null, or no argument with name " + filterTargetName + " found in method");
 		}
-		else if (mi.getArguments().length == 1) {
-			Object arg = mi.getArguments()[0];
+		else if (invocation.getArguments().length == 1) {
+			Object arg = invocation.getArguments()[0];
 			if (arg.getClass().isArray() || arg instanceof Collection<?>) {
 				filterTarget = arg;
 			}
-			if (filterTarget == null) {
-				throw new IllegalArgumentException("A PreFilter expression was set but the method argument type"
-						+ arg.getClass() + " is not filterable");
-			}
+			Assert.notNull(filterTarget, () -> "A PreFilter expression was set but the method argument type"
+					+ arg.getClass() + " is not filterable");
 		}
-		else if (mi.getArguments().length > 1) {
+		else if (invocation.getArguments().length > 1) {
 			throw new IllegalArgumentException(
 					"Unable to determine the method argument for filtering. Specify the filter target.");
 		}
-
-		if (filterTarget.getClass().isArray()) {
-			throw new IllegalArgumentException(
-					"Pre-filtering on array types is not supported. " + "Using a Collection will solve this problem");
-		}
-
+		Assert.isTrue(!filterTarget.getClass().isArray(),
+				"Pre-filtering on array types is not supported. Using a Collection will solve this problem");
 		return filterTarget;
 	}
 

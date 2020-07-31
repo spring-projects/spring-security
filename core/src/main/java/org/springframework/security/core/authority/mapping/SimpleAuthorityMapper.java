@@ -63,11 +63,9 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 		for (GrantedAuthority authority : authorities) {
 			mapped.add(mapAuthority(authority.getAuthority()));
 		}
-
 		if (this.defaultAuthority != null) {
 			mapped.add(this.defaultAuthority);
 		}
-
 		return mapped;
 	}
 
@@ -78,11 +76,9 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 		else if (this.convertToLowerCase) {
 			name = name.toLowerCase();
 		}
-
 		if (this.prefix.length() > 0 && !name.startsWith(this.prefix)) {
 			name = this.prefix + name;
 		}
-
 		return new SimpleGrantedAuthority(name);
 	}
 

@@ -72,10 +72,15 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 
 	@Override
 	public Mono<UserDetails> updatePassword(UserDetails user, String newPassword) {
-		return Mono.just(user).map((u) -> User.withUserDetails(u).password(newPassword).build()).doOnNext((u) -> {
-			String key = getKey(user.getUsername());
-			this.users.put(key, u);
-		});
+		return Mono.just(user).map((userDetails) -> withNewPassword(userDetails, newPassword))
+				.doOnNext((userDetails) -> {
+					String key = getKey(user.getUsername());
+					this.users.put(key, userDetails);
+				});
+	}
+
+	private UserDetails withNewPassword(UserDetails userDetails, String newPassword) {
+		return User.withUserDetails(userDetails).password(newPassword).build();
 	}
 
 	private String getKey(String username) {

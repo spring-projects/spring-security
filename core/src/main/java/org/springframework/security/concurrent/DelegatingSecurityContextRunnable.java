@@ -77,7 +77,6 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	@Override
 	public void run() {
 		this.originalSecurityContext = SecurityContextHolder.getContext();
-
 		try {
 			SecurityContextHolder.setContext(this.delegateSecurityContext);
 			this.delegate.run();

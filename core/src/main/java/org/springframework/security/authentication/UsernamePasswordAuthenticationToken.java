@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.util.Assert;
 
 /**
  * An {@link org.springframework.security.core.Authentication} implementation that is
@@ -82,11 +83,8 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 
 	@Override
 	public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-		if (isAuthenticated) {
-			throw new IllegalArgumentException(
-					"Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
-		}
-
+		Assert.isTrue(!isAuthenticated,
+				"Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
 		super.setAuthenticated(false);
 	}
 

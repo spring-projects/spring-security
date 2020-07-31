@@ -42,7 +42,6 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 			MethodInvocation mi = (MethodInvocation) object;
 			Object target = mi.getThis();
 			Class<?> targetClass = null;
-
 			if (target != null) {
 				targetClass = (target instanceof Class<?>) ? (Class<?>) target
 						: AopProxyUtils.ultimateTargetClass(target);
@@ -56,7 +55,6 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 			}
 			return attrs;
 		}
-
 		throw new IllegalArgumentException("Object must be a non-null MethodInvocation");
 	}
 

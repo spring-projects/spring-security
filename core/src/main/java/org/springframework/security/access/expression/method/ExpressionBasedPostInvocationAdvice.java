@@ -20,6 +20,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.AccessDeniedException;
@@ -49,31 +50,20 @@ public class ExpressionBasedPostInvocationAdvice implements PostInvocationAuthor
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, mi);
 		Expression postFilter = pia.getFilterExpression();
 		Expression postAuthorize = pia.getAuthorizeExpression();
-
 		if (postFilter != null) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Applying PostFilter expression " + postFilter);
-			}
-
+			this.logger.debug(LogMessage.format("Applying PostFilter expression %s", postFilter));
 			if (returnedObject != null) {
 				returnedObject = this.expressionHandler.filter(returnedObject, postFilter, ctx);
 			}
 			else {
-				if (this.logger.isDebugEnabled()) {
-					this.logger.debug("Return object is null, filtering will be skipped");
-				}
+				this.logger.debug("Return object is null, filtering will be skipped");
 			}
 		}
-
 		this.expressionHandler.setReturnObject(returnedObject, ctx);
-
 		if (postAuthorize != null && !ExpressionUtils.evaluateAsBoolean(postAuthorize, ctx)) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("PostAuthorize expression rejected access");
-			}
+			this.logger.debug("PostAuthorize expression rejected access");
 			throw new AccessDeniedException("Access is denied");
 		}
-
 		return returnedObject;
 	}
 

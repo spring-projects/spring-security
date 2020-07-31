@@ -79,7 +79,6 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	@Override
 	public V call() throws Exception {
 		this.originalSecurityContext = SecurityContextHolder.getContext();
-
 		try {
 			SecurityContextHolder.setContext(this.delegateSecurityContext);
 			return this.delegate.call();

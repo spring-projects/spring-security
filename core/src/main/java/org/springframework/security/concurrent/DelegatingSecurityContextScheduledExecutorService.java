@@ -61,26 +61,22 @@ public final class DelegatingSecurityContextScheduledExecutorService extends Del
 
 	@Override
 	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-		command = wrap(command);
-		return getDelegate().schedule(command, delay, unit);
+		return getDelegate().schedule(wrap(command), delay, unit);
 	}
 
 	@Override
 	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
-		callable = wrap(callable);
-		return getDelegate().schedule(callable, delay, unit);
+		return getDelegate().schedule(wrap(callable), delay, unit);
 	}
 
 	@Override
 	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
-		command = wrap(command);
-		return getDelegate().scheduleAtFixedRate(command, initialDelay, period, unit);
+		return getDelegate().scheduleAtFixedRate(wrap(command), initialDelay, period, unit);
 	}
 
 	@Override
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-		command = wrap(command);
-		return getDelegate().scheduleWithFixedDelay(command, initialDelay, delay, unit);
+		return getDelegate().scheduleWithFixedDelay(wrap(command), initialDelay, delay, unit);
 	}
 
 	private ScheduledExecutorService getDelegate() {

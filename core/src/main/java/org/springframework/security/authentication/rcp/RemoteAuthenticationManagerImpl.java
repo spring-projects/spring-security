@@ -46,12 +46,11 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
 	public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
 			throws RemoteAuthenticationException {
 		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
-
 		try {
 			return this.authenticationManager.authenticate(request).getAuthorities();
 		}
-		catch (AuthenticationException authEx) {
-			throw new RemoteAuthenticationException(authEx.getMessage());
+		catch (AuthenticationException ex) {
+			throw new RemoteAuthenticationException(ex.getMessage());
 		}
 	}
 

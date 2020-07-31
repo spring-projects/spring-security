@@ -19,6 +19,7 @@ package org.springframework.security.access.vote;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -52,36 +53,27 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
 	 * @throws AccessDeniedException if access is denied
 	 */
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
 			throws AccessDeniedException {
 		int deny = 0;
-
 		for (AccessDecisionVoter voter : getDecisionVoters()) {
 			int result = voter.vote(authentication, object, configAttributes);
-
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Voter: " + voter + ", returned: " + result);
-			}
-
+			this.logger.debug(LogMessage.format("Voter: %s, returned: %s", voter, result));
 			switch (result) {
 			case AccessDecisionVoter.ACCESS_GRANTED:
 				return;
-
 			case AccessDecisionVoter.ACCESS_DENIED:
 				deny++;
-
 				break;
-
 			default:
 				break;
 			}
 		}
-
 		if (deny > 0) {
 			throw new AccessDeniedException(
 					this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 		}
-
 		// To get this far, every AccessDecisionVoter abstained
 		checkAllowIfAllAbstainDecisions();
 	}

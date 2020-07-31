@@ -45,10 +45,14 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 
 	private String defaultRolePrefix = "ROLE_";
 
-	/** Allows "permitAll" expression */
+	/**
+	 * Allows "permitAll" expression
+	 */
 	public final boolean permitAll = true;
 
-	/** Allows "denyAll" expression */
+	/**
+	 * Allows "denyAll" expression
+	 */
 	public final boolean denyAll = false;
 
 	private PermissionEvaluator permissionEvaluator;
@@ -96,14 +100,12 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 
 	private boolean hasAnyAuthorityName(String prefix, String... roles) {
 		Set<String> roleSet = getAuthoritySet();
-
 		for (String role : roles) {
 			String defaultedRole = getRoleWithDefaultPrefix(prefix, role);
 			if (roleSet.contains(defaultedRole)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -180,14 +182,11 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	private Set<String> getAuthoritySet() {
 		if (this.roles == null) {
 			Collection<? extends GrantedAuthority> userAuthorities = this.authentication.getAuthorities();
-
 			if (this.roleHierarchy != null) {
 				userAuthorities = this.roleHierarchy.getReachableGrantedAuthorities(userAuthorities);
 			}
-
 			this.roles = AuthorityUtils.authorityListToSet(userAuthorities);
 		}
-
 		return this.roles;
 	}
 

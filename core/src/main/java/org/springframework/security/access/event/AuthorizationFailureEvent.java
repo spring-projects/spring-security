@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * Indicates a secure object invocation failed because the principal could not be
@@ -36,11 +37,11 @@ import org.springframework.security.core.Authentication;
  */
 public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 
-	private AccessDeniedException accessDeniedException;
+	private final AccessDeniedException accessDeniedException;
 
-	private Authentication authentication;
+	private final Authentication authentication;
 
-	private Collection<ConfigAttribute> configAttributes;
+	private final Collection<ConfigAttribute> configAttributes;
 
 	/**
 	 * Construct the event.
@@ -54,11 +55,8 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 	public AuthorizationFailureEvent(Object secureObject, Collection<ConfigAttribute> attributes,
 			Authentication authentication, AccessDeniedException accessDeniedException) {
 		super(secureObject);
-
-		if ((attributes == null) || (authentication == null) || (accessDeniedException == null)) {
-			throw new IllegalArgumentException("All parameters are required and cannot be null");
-		}
-
+		Assert.isTrue(attributes != null && authentication != null && accessDeniedException != null,
+				"All parameters are required and cannot be null");
 		this.configAttributes = attributes;
 		this.authentication = authentication;
 		this.accessDeniedException = accessDeniedException;

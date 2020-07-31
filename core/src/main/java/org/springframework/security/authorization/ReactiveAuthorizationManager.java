@@ -47,9 +47,9 @@ public interface ReactiveAuthorizationManager<T> {
 	 * denied
 	 */
 	default Mono<Void> verify(Mono<Authentication> authentication, T object) {
-		return check(authentication, object).filter((d) -> d.isGranted())
+		return check(authentication, object).filter(AuthorizationDecision::isGranted)
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Access Denied"))))
-				.flatMap((d) -> Mono.empty());
+				.flatMap((decision) -> Mono.empty());
 	}
 
 }

@@ -36,6 +36,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
@@ -46,6 +47,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -161,56 +163,51 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 		if (!(auth instanceof UsernamePasswordAuthenticationToken)) {
 			return null;
 		}
-
 		UsernamePasswordAuthenticationToken request = (UsernamePasswordAuthenticationToken) auth;
 		Set<GrantedAuthority> authorities;
-
 		try {
 			// Create the LoginContext object, and pass our InternallCallbackHandler
 			LoginContext loginContext = createLoginContext(new InternalCallbackHandler(auth));
-
 			// Attempt to login the user, the LoginContext will call our
 			// InternalCallbackHandler at this point.
 			loginContext.login();
-
-			// Create a set to hold the authorities, and add any that have already been
-			// applied.
-			authorities = new HashSet<>();
-
 			// Get the subject principals and pass them to each of the AuthorityGranters
 			Set<Principal> principals = loginContext.getSubject().getPrincipals();
-
-			for (Principal principal : principals) {
-				for (AuthorityGranter granter : this.authorityGranters) {
-					Set<String> roles = granter.grant(principal);
-
-					// If the granter doesn't wish to grant any authorities, it should
-					// return null.
-					if ((roles != null) && !roles.isEmpty()) {
-						for (String role : roles) {
-							authorities.add(new JaasGrantedAuthority(role, principal));
-						}
-					}
-				}
-			}
-
+			// Create a set to hold the authorities, and add any that have already been
+			// applied.
+			authorities = getAuthorities(principals);
 			// Convert the authorities set back to an array and apply it to the token.
 			JaasAuthenticationToken result = new JaasAuthenticationToken(request.getPrincipal(),
 					request.getCredentials(), new ArrayList<>(authorities), loginContext);
-
 			// Publish the success event
 			publishSuccessEvent(result);
-
 			// we're done, return the token.
 			return result;
 
 		}
-		catch (LoginException loginException) {
-			AuthenticationException ase = this.loginExceptionResolver.resolveException(loginException);
-
-			publishFailureEvent(request, ase);
-			throw ase;
+		catch (LoginException ex) {
+			AuthenticationException resolvedException = this.loginExceptionResolver.resolveException(ex);
+			publishFailureEvent(request, resolvedException);
+			throw resolvedException;
 		}
+	}
+
+	private Set<GrantedAuthority> getAuthorities(Set<Principal> principals) {
+		Set<GrantedAuthority> authorities;
+		authorities = new HashSet<>();
+		for (Principal principal : principals) {
+			for (AuthorityGranter granter : this.authorityGranters) {
+				Set<String> roles = granter.grant(principal);
+				// If the granter doesn't wish to grant any authorities,
+				// it should return null.
+				if (!CollectionUtils.isEmpty(roles)) {
+					for (String role : roles) {
+						authorities.add(new JaasGrantedAuthority(role, principal));
+					}
+				}
+			}
+		}
+		return authorities;
 	}
 
 	/**
@@ -230,38 +227,34 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	 */
 	protected void handleLogout(SessionDestroyedEvent event) {
 		List<SecurityContext> contexts = event.getSecurityContexts();
-
 		if (contexts.isEmpty()) {
 			this.log.debug("The destroyed session has no SecurityContexts");
-
 			return;
 		}
-
 		for (SecurityContext context : contexts) {
 			Authentication auth = context.getAuthentication();
-
 			if ((auth != null) && (auth instanceof JaasAuthenticationToken)) {
 				JaasAuthenticationToken token = (JaasAuthenticationToken) auth;
-
 				try {
 					LoginContext loginContext = token.getLoginContext();
-					boolean debug = this.log.isDebugEnabled();
-					if (loginContext != null) {
-						if (debug) {
-							this.log.debug("Logging principal: [" + token.getPrincipal() + "] out of LoginContext");
-						}
-						loginContext.logout();
-					}
-					else if (debug) {
-						this.log.debug("Cannot logout principal: [" + token.getPrincipal() + "] from LoginContext. "
-								+ "The LoginContext is unavailable");
-					}
+					logout(token, loginContext);
 				}
 				catch (LoginException ex) {
 					this.log.warn("Error error logging out of LoginContext", ex);
 				}
 			}
 		}
+	}
+
+	private void logout(JaasAuthenticationToken token, LoginContext loginContext) throws LoginException {
+		if (loginContext != null) {
+			this.log.debug(
+					LogMessage.of(() -> "Logging principal: [" + token.getPrincipal() + "] out of LoginContext"));
+			loginContext.logout();
+			return;
+		}
+		this.log.debug(LogMessage.of(() -> "Cannot logout principal: [" + token.getPrincipal()
+				+ "] from LoginContext. The LoginContext is unavailable"));
 	}
 
 	@Override

@@ -27,6 +27,7 @@ import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 
 /**
  * Base class for <code>Authentication</code> objects.
@@ -54,15 +55,10 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 			this.authorities = AuthorityUtils.NO_AUTHORITIES;
 			return;
 		}
-
 		for (GrantedAuthority a : authorities) {
-			if (a == null) {
-				throw new IllegalArgumentException("Authorities collection cannot contain any null elements");
-			}
+			Assert.notNull(a, "Authorities collection cannot contain any null elements");
 		}
-		ArrayList<GrantedAuthority> temp = new ArrayList<>(authorities.size());
-		temp.addAll(authorities);
-		this.authorities = Collections.unmodifiableList(temp);
+		this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
 	}
 
 	@Override
@@ -81,7 +77,6 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		if (this.getPrincipal() instanceof Principal) {
 			return ((Principal) this.getPrincipal()).getName();
 		}
-
 		return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
 	}
 
@@ -127,68 +122,52 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		if (!(obj instanceof AbstractAuthenticationToken)) {
 			return false;
 		}
-
 		AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
-
 		if (!this.authorities.equals(test.authorities)) {
 			return false;
 		}
-
 		if ((this.details == null) && (test.getDetails() != null)) {
 			return false;
 		}
-
 		if ((this.details != null) && (test.getDetails() == null)) {
 			return false;
 		}
-
 		if ((this.details != null) && (!this.details.equals(test.getDetails()))) {
 			return false;
 		}
-
 		if ((this.getCredentials() == null) && (test.getCredentials() != null)) {
 			return false;
 		}
-
 		if ((this.getCredentials() != null) && !this.getCredentials().equals(test.getCredentials())) {
 			return false;
 		}
-
 		if (this.getPrincipal() == null && test.getPrincipal() != null) {
 			return false;
 		}
-
 		if (this.getPrincipal() != null && !this.getPrincipal().equals(test.getPrincipal())) {
 			return false;
 		}
-
 		return this.isAuthenticated() == test.isAuthenticated();
 	}
 
 	@Override
 	public int hashCode() {
 		int code = 31;
-
 		for (GrantedAuthority authority : this.authorities) {
 			code ^= authority.hashCode();
 		}
-
 		if (this.getPrincipal() != null) {
 			code ^= this.getPrincipal().hashCode();
 		}
-
 		if (this.getCredentials() != null) {
 			code ^= this.getCredentials().hashCode();
 		}
-
 		if (this.getDetails() != null) {
 			code ^= this.getDetails().hashCode();
 		}
-
 		if (this.isAuthenticated()) {
 			code ^= -37;
 		}
-
 		return code;
 	}
 
@@ -200,23 +179,19 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		sb.append("Credentials: [PROTECTED]; ");
 		sb.append("Authenticated: ").append(this.isAuthenticated()).append("; ");
 		sb.append("Details: ").append(this.getDetails()).append("; ");
-
 		if (!this.authorities.isEmpty()) {
 			sb.append("Granted Authorities: ");
-
 			int i = 0;
 			for (GrantedAuthority authority : this.authorities) {
 				if (i++ > 0) {
 					sb.append(", ");
 				}
-
 				sb.append(authority);
 			}
 		}
 		else {
 			sb.append("Not granted any authorities");
 		}
-
 		return sb.toString();
 	}
 

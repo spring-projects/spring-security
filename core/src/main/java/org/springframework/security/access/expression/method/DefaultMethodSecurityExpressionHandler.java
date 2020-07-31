@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.core.log.LogMessage;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -88,7 +89,6 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		root.setTrustResolver(getTrustResolver());
 		root.setRoleHierarchy(getRoleHierarchy());
 		root.setDefaultRolePrefix(getDefaultRolePrefix());
-
 		return root;
 	}
 
@@ -101,117 +101,89 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * {@code true}. For an array, a new array instance will be returned.
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
 				.getValue();
-		final boolean debug = this.logger.isDebugEnabled();
-		List retainList;
-
-		if (debug) {
-			this.logger.debug("Filtering with expression: " + filterExpression.getExpressionString());
-		}
-
+		this.logger.debug(LogMessage.format("Filtering with expression: %s", filterExpression.getExpressionString()));
 		if (filterTarget instanceof Collection) {
-			Collection collection = (Collection) filterTarget;
-			retainList = new ArrayList(collection.size());
-
-			if (debug) {
-				this.logger.debug("Filtering collection with " + collection.size() + " elements");
-			}
-
-			if (this.permissionCacheOptimizer != null) {
-				this.permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), collection);
-			}
-
-			for (Object filterObject : (Collection) filterTarget) {
-				rootObject.setFilterObject(filterObject);
-
-				if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
-					retainList.add(filterObject);
-				}
-			}
-
-			if (debug) {
-				this.logger.debug("Retaining elements: " + retainList);
-			}
-
-			collection.clear();
-			collection.addAll(retainList);
-
-			return filterTarget;
+			return filterCollection((Collection<?>) filterTarget, filterExpression, ctx, rootObject);
 		}
-
 		if (filterTarget.getClass().isArray()) {
-			Object[] array = (Object[]) filterTarget;
-			retainList = new ArrayList(array.length);
-
-			if (debug) {
-				this.logger.debug("Filtering array with " + array.length + " elements");
-			}
-
-			if (this.permissionCacheOptimizer != null) {
-				this.permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), Arrays.asList(array));
-			}
-
-			for (Object o : array) {
-				rootObject.setFilterObject(o);
-
-				if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
-					retainList.add(o);
-				}
-			}
-
-			if (debug) {
-				this.logger.debug("Retaining elements: " + retainList);
-			}
-
-			Object[] filtered = (Object[]) Array.newInstance(filterTarget.getClass().getComponentType(),
-					retainList.size());
-			for (int i = 0; i < retainList.size(); i++) {
-				filtered[i] = retainList.get(i);
-			}
-
-			return filtered;
+			return filterArray((Object[]) filterTarget, filterExpression, ctx, rootObject);
 		}
-
 		if (filterTarget instanceof Map) {
-			final Map<?, ?> map = (Map<?, ?>) filterTarget;
-			final Map retainMap = new LinkedHashMap(map.size());
-
-			if (debug) {
-				this.logger.debug("Filtering map with " + map.size() + " elements");
-			}
-
-			for (Map.Entry<?, ?> filterObject : map.entrySet()) {
-				rootObject.setFilterObject(filterObject);
-
-				if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
-					retainMap.put(filterObject.getKey(), filterObject.getValue());
-				}
-			}
-
-			if (debug) {
-				this.logger.debug("Retaining elements: " + retainMap);
-			}
-
-			map.clear();
-			map.putAll(retainMap);
-
-			return filterTarget;
+			return filterMap((Map<?, ?>) filterTarget, filterExpression, ctx, rootObject);
 		}
-
 		if (filterTarget instanceof Stream) {
-			final Stream<?> original = (Stream<?>) filterTarget;
-
-			return original.filter((filterObject) -> {
-				rootObject.setFilterObject(filterObject);
-				return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
-			}).onClose(original::close);
+			return filterStream((Stream<?>) filterTarget, filterExpression, ctx, rootObject);
 		}
-
 		throw new IllegalArgumentException(
 				"Filter target must be a collection, array, map or stream type, but was " + filterTarget);
+	}
+
+	private <T> Object filterCollection(Collection<T> filterTarget, Expression filterExpression, EvaluationContext ctx,
+			MethodSecurityExpressionOperations rootObject) {
+		this.logger.debug(LogMessage.format("Filtering collection with %s elements", filterTarget.size()));
+		List<T> retain = new ArrayList<>(filterTarget.size());
+		if (this.permissionCacheOptimizer != null) {
+			this.permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), filterTarget);
+		}
+		for (T filterObject : filterTarget) {
+			rootObject.setFilterObject(filterObject);
+			if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
+				retain.add(filterObject);
+			}
+		}
+		this.logger.debug(LogMessage.format("Retaining elements: %s", retain));
+		filterTarget.clear();
+		filterTarget.addAll(retain);
+		return filterTarget;
+	}
+
+	private Object filterArray(Object[] filterTarget, Expression filterExpression, EvaluationContext ctx,
+			MethodSecurityExpressionOperations rootObject) {
+		List<Object> retain = new ArrayList<>(filterTarget.length);
+		this.logger.debug(LogMessage.format("Filtering array with %s elements", filterTarget.length));
+		if (this.permissionCacheOptimizer != null) {
+			this.permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(),
+					Arrays.asList(filterTarget));
+		}
+		for (Object filterObject : filterTarget) {
+			rootObject.setFilterObject(filterObject);
+			if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
+				retain.add(filterObject);
+			}
+		}
+		this.logger.debug(LogMessage.format("Retaining elements: %s", retain));
+		Object[] filtered = (Object[]) Array.newInstance(filterTarget.getClass().getComponentType(), retain.size());
+		for (int i = 0; i < retain.size(); i++) {
+			filtered[i] = retain.get(i);
+		}
+		return filtered;
+	}
+
+	private <K, V> Object filterMap(final Map<K, V> filterTarget, Expression filterExpression, EvaluationContext ctx,
+			MethodSecurityExpressionOperations rootObject) {
+		Map<K, V> retain = new LinkedHashMap<>(filterTarget.size());
+		this.logger.debug(LogMessage.format("Filtering map with %s elements", filterTarget.size()));
+		for (Map.Entry<K, V> filterObject : filterTarget.entrySet()) {
+			rootObject.setFilterObject(filterObject);
+			if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
+				retain.put(filterObject.getKey(), filterObject.getValue());
+			}
+		}
+		this.logger.debug(LogMessage.format("Retaining elements: %s", retain));
+		filterTarget.clear();
+		filterTarget.putAll(retain);
+		return filterTarget;
+	}
+
+	private Object filterStream(final Stream<?> filterTarget, Expression filterExpression, EvaluationContext ctx,
+			MethodSecurityExpressionOperations rootObject) {
+		return filterTarget.filter((filterObject) -> {
+			rootObject.setFilterObject(filterObject);
+			return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
+		}).onClose(filterTarget::close);
 	}
 
 	/**

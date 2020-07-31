@@ -42,6 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -97,22 +98,17 @@ public final class SecurityJackson2Modules {
 
 	@SuppressWarnings("unchecked")
 	private static Module loadAndGetInstance(String className, ClassLoader loader) {
-		Module instance = null;
 		try {
 			Class<? extends Module> securityModule = (Class<? extends Module>) ClassUtils.forName(className, loader);
 			if (securityModule != null) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Loaded module " + className + ", now registering");
-				}
-				instance = securityModule.newInstance();
+				logger.debug(LogMessage.format("Loaded module %s, now registering", className));
+				return securityModule.newInstance();
 			}
 		}
 		catch (Exception ex) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Cannot load module " + className, ex);
-			}
+			logger.debug(LogMessage.format("Cannot load module %s", className), ex);
 		}
-		return instance;
+		return null;
 	}
 
 	/**
@@ -193,12 +189,23 @@ public final class SecurityJackson2Modules {
 	 */
 	static class AllowlistTypeIdResolver implements TypeIdResolver {
 
-		private static final Set<String> ALLOWLIST_CLASS_NAMES = Collections
-				.unmodifiableSet(new HashSet(Arrays.asList("java.util.ArrayList", "java.util.Collections$EmptyList",
-						"java.util.Collections$EmptyMap", "java.util.Collections$UnmodifiableRandomAccessList",
-						"java.util.Collections$SingletonList", "java.util.Date", "java.time.Instant", "java.net.URL",
-						"java.util.TreeMap", "java.util.HashMap", "java.util.LinkedHashMap",
-						"org.springframework.security.core.context.SecurityContextImpl")));
+		private static final Set<String> ALLOWLIST_CLASS_NAMES;
+		static {
+			Set<String> names = new HashSet<>();
+			names.add("java.util.ArrayList");
+			names.add("java.util.Collections$EmptyList");
+			names.add("java.util.Collections$EmptyMap");
+			names.add("java.util.Collections$UnmodifiableRandomAccessList");
+			names.add("java.util.Collections$SingletonList");
+			names.add("java.util.Date");
+			names.add("java.time.Instant");
+			names.add("java.net.URL");
+			names.add("java.util.TreeMap");
+			names.add("java.util.HashMap");
+			names.add("java.util.LinkedHashMap");
+			names.add("org.springframework.security.core.context.SecurityContextImpl");
+			ALLOWLIST_CLASS_NAMES = Collections.unmodifiableSet(names);
+		}
 
 		private final TypeIdResolver delegate;
 

@@ -41,7 +41,6 @@ final class GlobalSecurityContextHolderStrategy implements SecurityContextHolder
 		if (contextHolder == null) {
 			contextHolder = new SecurityContextImpl();
 		}
-
 		return contextHolder;
 	}
 
