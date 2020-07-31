@@ -243,19 +243,25 @@ public class NimbusJwtDecoderJwkSupportTests {
 	}
 
 	@Test
-	public void decodeWhenReadingErrorPickTheFirstErrorMessage() {
-		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
-		this.jwtDecoder.setJwtValidator(jwtValidator);
+	public void decodeWhenReadingErrorPickTheFirstErrorMessage() throws Exception {
+		try ( MockWebServer server = new MockWebServer() ) {
+			server.enqueue(new MockResponse().setBody(JWK_SET));
+			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 
-		OAuth2Error errorEmpty = new OAuth2Error("mock-error", "", "mock-uri");
-		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
-		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
-		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
-		Mockito.when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+			NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
+			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
+			decoder.setJwtValidator(jwtValidator);
 
-		Assertions.assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT))
-				.isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("mock-description");
+			OAuth2Error errorEmpty = new OAuth2Error("mock-error", "", "mock-uri");
+			OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+			OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
+			OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
+			Mockito.when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
+
+			Assertions.assertThatCode(() -> decoder.decode(SIGNED_JWT))
+					.isInstanceOf(JwtValidationException.class)
+					.hasMessageContaining("mock-description");
+		}
 	}
 
 	@Test
