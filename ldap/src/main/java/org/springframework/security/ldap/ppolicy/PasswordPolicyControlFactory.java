@@ -39,7 +39,6 @@ public class PasswordPolicyControlFactory extends ControlFactory {
 		if (ctl.getID().equals(PasswordPolicyControl.OID)) {
 			return new PasswordPolicyResponseControl(ctl.getEncodedValue());
 		}
-
 		return null;
 	}
 

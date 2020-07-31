@@ -85,20 +85,16 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 		if (isRunning()) {
 			return;
 		}
-
 		try {
 			InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(this.defaultPartitionSuffix);
 			config.addAdditionalBindCredentials("uid=admin,ou=system", "secret");
-
 			config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("LDAP", this.port));
 			config.setEnforceSingleStructuralObjectClass(false);
 			config.setEnforceAttributeSyntaxCompliance(true);
-
 			DN dn = new DN(this.defaultPartitionSuffix);
 			Entry entry = new Entry(dn);
 			entry.addAttribute("objectClass", "top", "domain", "extensibleObject");
 			entry.addAttribute("dc", dn.getRDN().getAttributeValues()[0]);
-
 			InMemoryDirectoryServer directoryServer = new InMemoryDirectoryServer(config);
 			directoryServer.add(entry);
 			importLdif(directoryServer);
@@ -110,7 +106,6 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 		catch (LDAPException ex) {
 			throw new RuntimeException("Server startup failed", ex);
 		}
-
 	}
 
 	private void importLdif(InMemoryDirectoryServer directoryServer) {

@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
@@ -144,19 +145,13 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 		super(contextSource, groupSearchBase);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Set<GrantedAuthority> getGroupMembershipRoles(String userDn, String username) {
 		if (getGroupSearchBase() == null) {
 			return new HashSet<>();
 		}
-
 		Set<GrantedAuthority> authorities = new HashSet<>();
-
 		performNestedSearch(userDn, username, authorities, getMaxSearchDepth());
-
 		return authorities;
 	}
 
@@ -171,34 +166,23 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	private void performNestedSearch(String userDn, String username, Set<GrantedAuthority> authorities, int depth) {
 		if (depth == 0) {
 			// back out of recursion
-			if (logger.isDebugEnabled()) {
-				logger.debug("Search aborted, max depth reached," + " for roles for user '" + username + "', DN = "
-						+ "'" + userDn + "', with filter " + getGroupSearchFilter() + " in search base '"
-						+ getGroupSearchBase() + "'");
-			}
+			logger.debug(LogMessage.of(() -> "Search aborted, max depth reached," + " for roles for user '" + username
+					+ "', DN = " + "'" + userDn + "', with filter " + getGroupSearchFilter() + " in search base '"
+					+ getGroupSearchBase() + "'"));
 			return;
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Searching for roles for user '" + username + "', DN = " + "'" + userDn + "', with filter "
-					+ getGroupSearchFilter() + " in search base '" + getGroupSearchBase() + "'");
-		}
-
+		logger.debug(LogMessage.of(() -> "Searching for roles for user '" + username + "', DN = " + "'" + userDn
+				+ "', with filter " + getGroupSearchFilter() + " in search base '" + getGroupSearchBase() + "'"));
 		if (getAttributeNames() == null) {
 			setAttributeNames(new HashSet<>());
 		}
 		if (StringUtils.hasText(getGroupRoleAttribute()) && !getAttributeNames().contains(getGroupRoleAttribute())) {
 			getAttributeNames().add(getGroupRoleAttribute());
 		}
-
 		Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
 				getGroupSearchBase(), getGroupSearchFilter(), new String[] { userDn, username },
 				getAttributeNames().toArray(new String[0]));
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Roles from search: " + userRoles);
-		}
-
+		logger.debug(LogMessage.format("Roles from search: %s", userRoles));
 		for (Map<String, List<String>> record : userRoles) {
 			boolean circular = false;
 			String dn = record.get(SpringSecurityLdapTemplate.DN_KEY).get(0);
@@ -220,7 +204,6 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 			if (!circular) {
 				performNestedSearch(dn, roleName, authorities, (depth - 1));
 			}
-
 		}
 	}
 

@@ -55,7 +55,6 @@ public class LdapAuthority implements GrantedAuthority {
 	public LdapAuthority(String role, String dn, Map<String, List<String>> attributes) {
 		Assert.notNull(role, "role can not be null");
 		Assert.notNull(dn, "dn can not be null");
-
 		this.role = role;
 		this.dn = dn;
 		this.attributes = attributes;
@@ -87,10 +86,7 @@ public class LdapAuthority implements GrantedAuthority {
 		if (this.attributes != null) {
 			result = this.attributes.get(name);
 		}
-		if (result == null) {
-			result = Collections.emptyList();
-		}
-		return result;
+		return (result != null) ? result : Collections.emptyList();
 	}
 
 	/**
@@ -100,17 +96,9 @@ public class LdapAuthority implements GrantedAuthority {
 	 */
 	public String getFirstAttributeValue(String name) {
 		List<String> result = getAttributeValues(name);
-		if (result.isEmpty()) {
-			return null;
-		}
-		else {
-			return result.get(0);
-		}
+		return (!result.isEmpty()) ? result.get(0) : null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getAuthority() {
 		return this.role;
@@ -118,23 +106,21 @@ public class LdapAuthority implements GrantedAuthority {
 
 	/**
 	 * Compares the LdapAuthority based on {@link #getAuthority()} and {@link #getDn()}
-	 * values {@inheritDoc}
+	 * values.
 	 */
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
-		if (!(o instanceof LdapAuthority)) {
+		if (!(obj instanceof LdapAuthority)) {
 			return false;
 		}
-
-		LdapAuthority that = (LdapAuthority) o;
-
-		if (!this.dn.equals(that.dn)) {
+		LdapAuthority other = (LdapAuthority) obj;
+		if (!this.dn.equals(other.dn)) {
 			return false;
 		}
-		return this.role.equals(that.role);
+		return this.role.equals(other.role);
 	}
 
 	@Override

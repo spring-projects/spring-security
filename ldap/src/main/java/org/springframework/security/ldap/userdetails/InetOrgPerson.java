@@ -27,7 +27,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * <p>
  * The username will be mapped from the <tt>uid</tt> attribute by default.
  *
- * @author Luke
+ * @author Luke Taylor
  */
 public class InetOrgPerson extends Person {
 

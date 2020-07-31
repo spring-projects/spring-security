@@ -91,16 +91,13 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 		if (this.userDnFormat == null) {
 			return Collections.emptyList();
 		}
-
 		List<String> userDns = new ArrayList<>(this.userDnFormat.length);
 		String[] args = new String[] { LdapEncoder.nameEncode(username) };
-
 		synchronized (this.userDnFormat) {
 			for (MessageFormat formatter : this.userDnFormat) {
 				userDns.add(formatter.format(args));
 			}
 		}
-
 		return userDns;
 	}
 
@@ -134,7 +131,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 		Assert.notNull(dnPattern, "The array of DN patterns cannot be set to null");
 		// this.userDnPattern = dnPattern;
 		this.userDnFormat = new MessageFormat[dnPattern.length];
-
 		for (int i = 0; i < dnPattern.length; i++) {
 			this.userDnFormat[i] = new MessageFormat(dnPattern[i]);
 		}

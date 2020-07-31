@@ -76,7 +76,6 @@ public class Person extends LdapUserDetailsImpl {
 		adapter.setAttributeValues("cn", getCn());
 		adapter.setAttributeValue("description", getDescription());
 		adapter.setAttributeValue("telephoneNumber", getTelephoneNumber());
-
 		if (getPassword() != null) {
 			adapter.setAttributeValue("userPassword", getPassword());
 		}
@@ -95,11 +94,9 @@ public class Person extends LdapUserDetailsImpl {
 			setSn(ctx.getStringAttribute("sn"));
 			setDescription(ctx.getStringAttribute("description"));
 			setTelephoneNumber(ctx.getStringAttribute("telephoneNumber"));
-			Object passo = ctx.getObjectAttribute("userPassword");
-
-			if (passo != null) {
-				String password = LdapUtils.convertPasswordToString(passo);
-				setPassword(password);
+			Object password = ctx.getObjectAttribute("userPassword");
+			if (password != null) {
+				setPassword(LdapUtils.convertPasswordToString(password));
 			}
 		}
 

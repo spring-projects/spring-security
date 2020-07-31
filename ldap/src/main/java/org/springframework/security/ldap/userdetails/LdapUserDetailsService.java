@@ -57,7 +57,6 @@ public class LdapUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		DirContextOperations userData = this.userSearch.searchForUser(username);
-
 		return this.userDetailsMapper.mapUserFromContext(userData, username,
 				this.authoritiesPopulator.getGrantedAuthorities(userData, username));
 	}

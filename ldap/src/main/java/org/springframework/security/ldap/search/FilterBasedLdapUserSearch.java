@@ -21,6 +21,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
@@ -73,13 +74,10 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 		Assert.notNull(contextSource, "contextSource must not be null");
 		Assert.notNull(searchFilter, "searchFilter must not be null.");
 		Assert.notNull(searchBase, "searchBase must not be null (an empty string is acceptable).");
-
 		this.searchFilter = searchFilter;
 		this.contextSource = contextSource;
 		this.searchBase = searchBase;
-
 		setSearchSubtree(true);
-
 		if (searchBase.length() == 0) {
 			logger.info(
 					"SearchBase not set. Searches will be performed from the root: " + contextSource.getBaseLdapPath());
@@ -95,26 +93,18 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 */
 	@Override
 	public DirContextOperations searchForUser(String username) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Searching for user '" + username + "', with user search " + this);
-		}
-
+		logger.debug(LogMessage.of(() -> "Searching for user '" + username + "', with user search " + this));
 		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(this.contextSource);
-
 		template.setSearchControls(this.searchControls);
-
 		try {
-
 			return template.searchForSingleEntry(this.searchBase, this.searchFilter, new String[] { username });
-
 		}
-		catch (IncorrectResultSizeDataAccessException notFound) {
-			if (notFound.getActualSize() == 0) {
+		catch (IncorrectResultSizeDataAccessException ex) {
+			if (ex.getActualSize() == 0) {
 				throw new UsernameNotFoundException("User " + username + " not found in directory.");
 			}
-			// Search should never return multiple results if properly configured, so just
-			// rethrow
-			throw notFound;
+			// Search should never return multiple results if properly configured
+			throw ex;
 		}
 	}
 
@@ -161,7 +151,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-
 		sb.append("[ searchFilter: '").append(this.searchFilter).append("', ");
 		sb.append("searchBase: '").append(this.searchBase).append("'");
 		sb.append(", scope: ").append(

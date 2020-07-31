@@ -33,10 +33,8 @@ public class InetOrgPersonContextMapper implements UserDetailsContextMapper {
 	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
 			Collection<? extends GrantedAuthority> authorities) {
 		InetOrgPerson.Essence p = new InetOrgPerson.Essence(ctx);
-
 		p.setUsername(username);
 		p.setAuthorities(authorities);
-
 		return p.createUserDetails();
 
 	}
@@ -44,7 +42,6 @@ public class InetOrgPersonContextMapper implements UserDetailsContextMapper {
 	@Override
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
 		Assert.isInstanceOf(InetOrgPerson.class, user, "UserDetails must be an InetOrgPerson instance");
-
 		InetOrgPerson p = (InetOrgPerson) user;
 		p.populateContext(ctx);
 	}

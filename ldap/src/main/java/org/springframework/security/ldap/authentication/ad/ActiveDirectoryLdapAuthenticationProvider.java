@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +35,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.InitialLdapContext;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextOperations;
@@ -161,7 +163,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		String username = auth.getName();
 		String password = (String) auth.getCredentials();
 		DirContext ctx = null;
-
 		try {
 			ctx = bindAsUser(username, password);
 			return searchForUser(ctx, username);
@@ -186,30 +187,23 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username,
 			String password) {
 		String[] groups = userData.getStringAttributes("memberOf");
-
 		if (groups == null) {
 			this.logger.debug("No values for 'memberOf' attribute.");
-
 			return AuthorityUtils.NO_AUTHORITIES;
 		}
-
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("'memberOf' attribute values: " + Arrays.asList(groups));
 		}
-
-		ArrayList<GrantedAuthority> authorities = new ArrayList<>(groups.length);
-
+		List<GrantedAuthority> authorities = new ArrayList<>(groups.length);
 		for (String group : groups) {
 			authorities.add(new SimpleGrantedAuthority(new DistinguishedName(group).removeLast().getValue()));
 		}
-
 		return authorities;
 	}
 
 	private DirContext bindAsUser(String username, String password) {
 		// TODO. add DNS lookup based on domain
 		final String bindUrl = this.url;
-
 		Hashtable<String, Object> env = new Hashtable<>();
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		String bindPrincipal = createBindPrincipal(username);
@@ -219,7 +213,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
 		env.putAll(this.contextEnvironmentProperties);
-
 		try {
 			return this.contextFactory.createContext(env);
 		}
@@ -228,28 +221,20 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 				handleBindException(bindPrincipal, ex);
 				throw badCredentials(ex);
 			}
-			else {
-				throw LdapUtils.convertLdapException(ex);
-			}
+			throw LdapUtils.convertLdapException(ex);
 		}
 	}
 
 	private void handleBindException(String bindPrincipal, NamingException exception) {
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Authentication for " + bindPrincipal + " failed:" + exception);
-		}
-
+		this.logger.debug(LogMessage.format("Authentication for %s failed:%s", bindPrincipal, exception));
 		handleResolveObj(exception);
-
 		int subErrorCode = parseSubErrorCode(exception.getMessage());
-
 		if (subErrorCode <= 0) {
 			this.logger.debug("Failed to locate AD-specific sub-error code in message");
 			return;
 		}
-
-		this.logger.info("Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode));
-
+		this.logger.info(
+				LogMessage.of(() -> "Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode)));
 		if (this.convertSubErrorCodesToExceptions) {
 			raiseExceptionForErrorCode(subErrorCode, exception);
 		}
@@ -264,12 +249,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	}
 
 	private int parseSubErrorCode(String message) {
-		Matcher m = SUB_ERROR_CODE.matcher(message);
-
-		if (m.matches()) {
-			return Integer.parseInt(m.group(1), 16);
+		Matcher matcher = SUB_ERROR_CODE.matcher(message);
+		if (matcher.matches()) {
+			return Integer.parseInt(matcher.group(1), 16);
 		}
-
 		return -1;
 	}
 
@@ -313,7 +296,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		case ACCOUNT_LOCKED:
 			return "Account locked";
 		}
-
 		return "Unknown (error code " + Integer.toHexString(code) + ")";
 	}
 
@@ -334,7 +316,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	private DirContextOperations searchForUser(DirContext context, String username) throws NamingException {
 		SearchControls searchControls = new SearchControls();
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
 		String bindPrincipal = createBindPrincipal(username);
 		String searchRoot = (this.rootDn != null) ? this.rootDn : searchRootFromPrincipal(bindPrincipal);
 
@@ -342,45 +323,40 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 			return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context, searchControls, searchRoot,
 					this.searchFilter, new Object[] { bindPrincipal, username });
 		}
-		catch (CommunicationException ldapCommunicationException) {
-			throw badLdapConnection(ldapCommunicationException);
+		catch (CommunicationException ex) {
+			throw badLdapConnection(ex);
 		}
-		catch (IncorrectResultSizeDataAccessException incorrectResults) {
-			// Search should never return multiple results if properly configured - just
-			// rethrow
-			if (incorrectResults.getActualSize() != 0) {
-				throw incorrectResults;
+		catch (IncorrectResultSizeDataAccessException ex) {
+			// Search should never return multiple results if properly configured -
+			if (ex.getActualSize() != 0) {
+				throw ex;
 			}
 			// If we found no results, then the username/password did not match
 			UsernameNotFoundException userNameNotFoundException = new UsernameNotFoundException(
-					"User " + username + " not found in directory.", incorrectResults);
+					"User " + username + " not found in directory.", ex);
 			throw badCredentials(userNameNotFoundException);
 		}
 	}
 
 	private String searchRootFromPrincipal(String bindPrincipal) {
 		int atChar = bindPrincipal.lastIndexOf('@');
-
 		if (atChar < 0) {
 			this.logger.debug("User principal '" + bindPrincipal
 					+ "' does not contain the domain, and no domain has been configured");
 			throw badCredentials();
 		}
-
 		return rootDnFromDomain(bindPrincipal.substring(atChar + 1, bindPrincipal.length()));
 	}
 
 	private String rootDnFromDomain(String domain) {
 		String[] tokens = StringUtils.tokenizeToStringArray(domain, ".");
 		StringBuilder root = new StringBuilder();
-
 		for (String token : tokens) {
 			if (root.length() > 0) {
 				root.append(',');
 			}
 			root.append("dc=").append(token);
 		}
-
 		return root.toString();
 	}
 
@@ -388,7 +364,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		if (this.domain == null || username.toLowerCase().endsWith(this.domain)) {
 			return username;
 		}
-
 		return username + "@" + this.domain;
 	}
 

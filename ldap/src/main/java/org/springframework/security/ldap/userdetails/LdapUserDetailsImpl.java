@@ -154,11 +154,9 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
 		sb.append("CredentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
 		sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
-
 		if (this.getAuthorities() != null && !this.getAuthorities().isEmpty()) {
 			sb.append("Granted Authorities: ");
 			boolean first = true;
-
 			for (Object authority : this.getAuthorities()) {
 				if (first) {
 					first = false;
@@ -166,14 +164,12 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 				else {
 					sb.append(", ");
 				}
-
 				sb.append(authority.toString());
 			}
 		}
 		else {
 			sb.append("Not granted any authorities");
 		}
-
 		return sb.toString();
 	}
 
@@ -231,13 +227,9 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			Assert.notNull(this.instance.username, "username must not be null");
 			Assert.notNull(this.instance.getDn(), "Distinguished name must not be null");
-
 			this.instance.authorities = Collections.unmodifiableList(this.mutableAuthorities);
-
 			LdapUserDetails newInstance = this.instance;
-
 			this.instance = null;
-
 			return newInstance;
 		}
 

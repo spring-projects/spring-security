@@ -37,6 +37,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.ldap.core.ContextMapper;
@@ -46,6 +47,7 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Extension of Spring LDAP's LdapTemplate class which adds extra functionality required
@@ -76,7 +78,6 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	public SpringSecurityLdapTemplate(ContextSource contextSource) {
 		Assert.notNull(contextSource, "ContextSource cannot be null");
 		setContextSource(contextSource);
-
 		this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	}
 
@@ -88,31 +89,18 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * @param value the value to be checked against the directory value
 	 * @return true if the supplied value matches that in the directory
 	 */
-	public boolean compare(final String dn, final String attributeName, final Object value) {
-		final String comparisonFilter = "(" + attributeName + "={0})";
-
-		class LdapCompareCallback implements ContextExecutor {
-
-			@Override
-			public Object executeWithContext(DirContext ctx) throws NamingException {
-				SearchControls ctls = new SearchControls();
-				ctls.setReturningAttributes(NO_ATTRS);
-				ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
-
-				NamingEnumeration<SearchResult> results = ctx.search(dn, comparisonFilter, new Object[] { value },
-						ctls);
-
-				Boolean match = results.hasMore();
-				LdapUtils.closeEnumeration(results);
-
-				return match;
-			}
-
-		}
-
-		Boolean matches = (Boolean) executeReadOnly(new LdapCompareCallback());
-
-		return matches;
+	public boolean compare(String dn, String attributeName, Object value) {
+		String comparisonFilter = "(" + attributeName + "={0})";
+		return executeReadOnly((ctx) -> {
+			SearchControls searchControls = new SearchControls();
+			searchControls.setReturningAttributes(NO_ATTRS);
+			searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
+			Object[] params = new Object[] { value };
+			NamingEnumeration<SearchResult> results = ctx.search(dn, comparisonFilter, params, searchControls);
+			Boolean match = results.hasMore();
+			LdapUtils.closeEnumeration(results);
+			return match;
+		});
 	}
 
 	/**
@@ -123,12 +111,8 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * @return the object created by the mapper
 	 */
 	public DirContextOperations retrieveEntry(final String dn, final String[] attributesToRetrieve) {
-
 		return (DirContextOperations) executeReadOnly((ContextExecutor) (ctx) -> {
 			Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
-
-			// Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
-
 			return new DirContextAdapter(attrs, new DistinguishedName(dn),
 					new DistinguishedName(ctx.getNameInNamespace()));
 		});
@@ -174,27 +158,23 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * entries. The attribute name is the key for each set of values. In addition each map
 	 * contains the DN as a String with the key predefined key {@link #DN_KEY}.
 	 */
-	public Set<Map<String, List<String>>> searchForMultipleAttributeValues(final String base, final String filter,
-			final Object[] params, final String[] attributeNames) {
+	public Set<Map<String, List<String>>> searchForMultipleAttributeValues(String base, String filter, Object[] params,
+			String[] attributeNames) {
 		// Escape the params acording to RFC2254
 		Object[] encodedParams = new String[params.length];
-
 		for (int i = 0; i < params.length; i++) {
 			encodedParams[i] = LdapEncoder.filterEncode(params[i].toString());
 		}
-
 		String formattedFilter = MessageFormat.format(filter, encodedParams);
-		logger.debug("Using filter: " + formattedFilter);
-
-		final HashSet<Map<String, List<String>>> set = new HashSet<>();
-
+		logger.debug(LogMessage.format("Using filter: %s", formattedFilter));
+		HashSet<Map<String, List<String>>> result = new HashSet<>();
 		ContextMapper roleMapper = (ctx) -> {
 			DirContextAdapter adapter = (DirContextAdapter) ctx;
 			Map<String, List<String>> record = new HashMap<>();
-			if (attributeNames == null || attributeNames.length == 0) {
+			if (ObjectUtils.isEmpty(attributeNames)) {
 				try {
-					for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae.hasMore();) {
-						Attribute attr = (Attribute) ae.next();
+					for (NamingEnumeration enumeration = adapter.getAttributes().getAll(); enumeration.hasMore();) {
+						Attribute attr = (Attribute) enumeration.next();
 						extractStringAttributeValues(adapter, record, attr.getID());
 					}
 				}
@@ -208,17 +188,14 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 				}
 			}
 			record.put(DN_KEY, Arrays.asList(getAdapterDN(adapter)));
-			set.add(record);
+			result.add(record);
 			return null;
 		};
-
 		SearchControls ctls = new SearchControls();
 		ctls.setSearchScope(this.searchControls.getSearchScope());
 		ctls.setReturningAttributes((attributeNames != null && attributeNames.length > 0) ? attributeNames : null);
-
 		search(base, formattedFilter, ctls, roleMapper);
-
-		return set;
+		return result;
 	}
 
 	/**
@@ -246,27 +223,23 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			String attributeName) {
 		Object[] values = adapter.getObjectAttributes(attributeName);
 		if (values == null || values.length == 0) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No attribute value found for '" + attributeName + "'");
-			}
+			logger.debug(LogMessage.format("No attribute value found for '%s'", attributeName));
 			return;
 		}
-		List<String> svalues = new ArrayList<>();
-		for (Object o : values) {
-			if (o != null) {
-				if (String.class.isAssignableFrom(o.getClass())) {
-					svalues.add((String) o);
+		List<String> stringValues = new ArrayList<>();
+		for (Object value : values) {
+			if (value != null) {
+				if (String.class.isAssignableFrom(value.getClass())) {
+					stringValues.add((String) value);
 				}
 				else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Attribute:" + attributeName + " contains a non string value of type["
-								+ o.getClass() + "]");
-					}
-					svalues.add(o.toString());
+					logger.debug(LogMessage.format("Attribute:%s contains a non string value of type[%s]",
+							attributeName, value.getClass()));
+					stringValues.add(value.toString());
 				}
 			}
 		}
-		record.put(attributeName, svalues);
+		record.put(attributeName, stringValues);
 	}
 
 	/**
@@ -283,8 +256,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * @throws IncorrectResultSizeDataAccessException if no results are found or the
 	 * search returns more than one result.
 	 */
-	public DirContextOperations searchForSingleEntry(final String base, final String filter, final Object[] params) {
-
+	public DirContextOperations searchForSingleEntry(String base, String filter, Object[] params) {
 		return (DirContextOperations) executeReadOnly((ContextExecutor) (ctx) -> searchForSingleEntryInternal(ctx,
 				this.searchControls, base, filter, params));
 	}
@@ -298,22 +270,15 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		final DistinguishedName searchBaseDn = new DistinguishedName(base);
 		final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params,
 				buildControls(searchControls));
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Searching for entry under DN '" + ctxBaseDn + "', base = '" + searchBaseDn + "', filter = '"
-					+ filter + "'");
-		}
-
+		logger.debug(LogMessage.format("Searching for entry under DN '%s', base = '%s', filter = '%s'", ctxBaseDn,
+				searchBaseDn, filter));
 		Set<DirContextOperations> results = new HashSet<>();
 		try {
 			while (resultsEnum.hasMore()) {
 				SearchResult searchResult = resultsEnum.next();
 				DirContextAdapter dca = (DirContextAdapter) searchResult.getObject();
 				Assert.notNull(dca, "No object returned by search, DirContext is not correctly configured");
-
-				if (logger.isDebugEnabled()) {
-					logger.debug("Found DN: " + dca.getDn());
-				}
+				logger.debug(LogMessage.format("Found DN: %s", dca.getDn()));
 				results.add(dca);
 			}
 		}
@@ -321,15 +286,9 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			LdapUtils.closeEnumeration(resultsEnum);
 			logger.info("Ignoring PartialResultException");
 		}
-
-		if (results.size() == 0) {
-			throw new IncorrectResultSizeDataAccessException(1, 0);
-		}
-
-		if (results.size() > 1) {
+		if (results.size() != 1) {
 			throw new IncorrectResultSizeDataAccessException(1, results.size());
 		}
-
 		return results.iterator().next();
 	}
 
