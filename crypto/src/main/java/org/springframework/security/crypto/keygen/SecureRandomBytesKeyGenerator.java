@@ -28,6 +28,8 @@ import java.security.SecureRandom;
  */
 final class SecureRandomBytesKeyGenerator implements BytesKeyGenerator {
 
+	private static final int DEFAULT_KEY_LENGTH = 8;
+
 	private final SecureRandom random;
 
 	private final int keyLength;
@@ -58,7 +60,5 @@ final class SecureRandomBytesKeyGenerator implements BytesKeyGenerator {
 		this.random.nextBytes(bytes);
 		return bytes;
 	}
-
-	private static final int DEFAULT_KEY_LENGTH = 8;
 
 }

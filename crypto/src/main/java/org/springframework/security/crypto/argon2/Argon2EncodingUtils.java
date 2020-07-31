@@ -58,7 +58,6 @@ final class Argon2EncodingUtils {
 	 */
 	static String encode(byte[] hash, Argon2Parameters parameters) throws IllegalArgumentException {
 		StringBuilder stringBuilder = new StringBuilder();
-
 		switch (parameters.getType()) {
 		case Argon2Parameters.ARGON2_d:
 			stringBuilder.append("$argon2d");
@@ -74,13 +73,10 @@ final class Argon2EncodingUtils {
 		}
 		stringBuilder.append("$v=").append(parameters.getVersion()).append("$m=").append(parameters.getMemory())
 				.append(",t=").append(parameters.getIterations()).append(",p=").append(parameters.getLanes());
-
 		if (parameters.getSalt() != null) {
 			stringBuilder.append("$").append(b64encoder.encodeToString(parameters.getSalt()));
 		}
-
 		stringBuilder.append("$").append(b64encoder.encodeToString(hash));
-
 		return stringBuilder.toString();
 	}
 
@@ -106,15 +102,11 @@ final class Argon2EncodingUtils {
 	 */
 	static Argon2Hash decode(String encodedHash) throws IllegalArgumentException {
 		Argon2Parameters.Builder paramsBuilder;
-
 		String[] parts = encodedHash.split("\\$");
-
 		if (parts.length < 4) {
 			throw new IllegalArgumentException("Invalid encoded Argon2-hash");
 		}
-
 		int currentPart = 1;
-
 		switch (parts[currentPart++]) {
 		case "argon2d":
 			paramsBuilder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_d);
@@ -128,41 +120,27 @@ final class Argon2EncodingUtils {
 		default:
 			throw new IllegalArgumentException("Invalid algorithm type: " + parts[0]);
 		}
-
 		if (parts[currentPart].startsWith("v=")) {
 			paramsBuilder.withVersion(Integer.parseInt(parts[currentPart].substring(2)));
 			currentPart++;
 		}
-
 		String[] performanceParams = parts[currentPart++].split(",");
-
 		if (performanceParams.length != 3) {
 			throw new IllegalArgumentException("Amount of performance parameters invalid");
 		}
-
-		if (performanceParams[0].startsWith("m=")) {
-			paramsBuilder.withMemoryAsKB(Integer.parseInt(performanceParams[0].substring(2)));
-		}
-		else {
+		if (!performanceParams[0].startsWith("m=")) {
 			throw new IllegalArgumentException("Invalid memory parameter");
 		}
-
-		if (performanceParams[1].startsWith("t=")) {
-			paramsBuilder.withIterations(Integer.parseInt(performanceParams[1].substring(2)));
-		}
-		else {
+		paramsBuilder.withMemoryAsKB(Integer.parseInt(performanceParams[0].substring(2)));
+		if (!performanceParams[1].startsWith("t=")) {
 			throw new IllegalArgumentException("Invalid iterations parameter");
 		}
-
-		if (performanceParams[2].startsWith("p=")) {
-			paramsBuilder.withParallelism(Integer.parseInt(performanceParams[2].substring(2)));
-		}
-		else {
+		paramsBuilder.withIterations(Integer.parseInt(performanceParams[1].substring(2)));
+		if (!performanceParams[2].startsWith("p=")) {
 			throw new IllegalArgumentException("Invalid parallelity parameter");
 		}
-
+		paramsBuilder.withParallelism(Integer.parseInt(performanceParams[2].substring(2)));
 		paramsBuilder.withSalt(b64decoder.decode(parts[currentPart++]));
-
 		return new Argon2Hash(b64decoder.decode(parts[currentPart]), paramsBuilder.build());
 	}
 

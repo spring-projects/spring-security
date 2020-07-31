@@ -113,12 +113,12 @@ public final class Encryptors {
 	 * environments where working with plain text strings is desired for simplicity.
 	 */
 	public static TextEncryptor noOpText() {
-		return NO_OP_TEXT_INSTANCE;
+		return NoOpTextEncryptor.INSTANCE;
 	}
 
-	private static final TextEncryptor NO_OP_TEXT_INSTANCE = new NoOpTextEncryptor();
-
 	private static final class NoOpTextEncryptor implements TextEncryptor {
+
+		static final TextEncryptor INSTANCE = new NoOpTextEncryptor();
 
 		@Override
 		public String encrypt(String text) {

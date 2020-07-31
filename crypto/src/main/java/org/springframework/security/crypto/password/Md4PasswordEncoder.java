@@ -111,10 +111,8 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 		}
 		String saltedPassword = rawPassword + salt;
 		byte[] saltedPasswordBytes = Utf8.encode(saltedPassword);
-
 		Md4 md4 = new Md4();
 		md4.update(saltedPasswordBytes, 0, saltedPasswordBytes.length);
-
 		byte[] digest = md4.digest();
 		String encoded = encode(digest);
 		return salt + encoded;
@@ -124,9 +122,7 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 		if (this.encodeHashAsBase64) {
 			return Utf8.decode(Base64.getEncoder().encode(digest));
 		}
-		else {
-			return new String(Hex.encode(digest));
-		}
+		return new String(Hex.encode(digest));
 	}
 
 	/**

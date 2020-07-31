@@ -33,6 +33,11 @@ package org.springframework.security.crypto.password;
 @Deprecated
 public final class NoOpPasswordEncoder implements PasswordEncoder {
 
+	private static final PasswordEncoder INSTANCE = new NoOpPasswordEncoder();
+
+	private NoOpPasswordEncoder() {
+	}
+
 	@Override
 	public String encode(CharSequence rawPassword) {
 		return rawPassword.toString();
@@ -48,11 +53,6 @@ public final class NoOpPasswordEncoder implements PasswordEncoder {
 	 */
 	public static PasswordEncoder getInstance() {
 		return INSTANCE;
-	}
-
-	private static final PasswordEncoder INSTANCE = new NoOpPasswordEncoder();
-
-	private NoOpPasswordEncoder() {
 	}
 
 }

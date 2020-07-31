@@ -52,38 +52,6 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 
 	private static final String AES_GCM_ALGORITHM = "AES/GCM/NoPadding";
 
-	public enum CipherAlgorithm {
-
-		CBC(AES_CBC_ALGORITHM, NULL_IV_GENERATOR), GCM(AES_GCM_ALGORITHM, KeyGenerators.secureRandom(16));
-
-		private BytesKeyGenerator ivGenerator;
-
-		private String name;
-
-		CipherAlgorithm(String name, BytesKeyGenerator ivGenerator) {
-			this.name = name;
-			this.ivGenerator = ivGenerator;
-		}
-
-		@Override
-		public String toString() {
-			return this.name;
-		}
-
-		public AlgorithmParameterSpec getParameterSpec(byte[] iv) {
-			return (this != CBC) ? new GCMParameterSpec(128, iv) : new IvParameterSpec(iv);
-		}
-
-		public Cipher createCipher() {
-			return CipherUtils.newCipher(this.toString());
-		}
-
-		public BytesKeyGenerator defaultIvGenerator() {
-			return this.ivGenerator;
-		}
-
-	}
-
 	public AesBytesEncryptor(String password, CharSequence salt) {
 		this(password, salt, null);
 	}
@@ -158,5 +126,39 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		}
 
 	};
+
+	public enum CipherAlgorithm {
+
+		CBC(AES_CBC_ALGORITHM, NULL_IV_GENERATOR),
+
+		GCM(AES_GCM_ALGORITHM, KeyGenerators.secureRandom(16));
+
+		private BytesKeyGenerator ivGenerator;
+
+		private String name;
+
+		CipherAlgorithm(String name, BytesKeyGenerator ivGenerator) {
+			this.name = name;
+			this.ivGenerator = ivGenerator;
+		}
+
+		@Override
+		public String toString() {
+			return this.name;
+		}
+
+		public AlgorithmParameterSpec getParameterSpec(byte[] iv) {
+			return (this != CBC) ? new GCMParameterSpec(128, iv) : new IvParameterSpec(iv);
+		}
+
+		public Cipher createCipher() {
+			return CipherUtils.newCipher(this.toString());
+		}
+
+		public BytesKeyGenerator defaultIvGenerator() {
+			return this.ivGenerator;
+		}
+
+	}
 
 }

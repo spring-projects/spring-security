@@ -68,30 +68,27 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 
 	private final BytesKeyGenerator saltGenerator;
 
+	public Argon2PasswordEncoder() {
+		this(DEFAULT_SALT_LENGTH, DEFAULT_HASH_LENGTH, DEFAULT_PARALLELISM, DEFAULT_MEMORY, DEFAULT_ITERATIONS);
+	}
+
 	public Argon2PasswordEncoder(int saltLength, int hashLength, int parallelism, int memory, int iterations) {
 		this.hashLength = hashLength;
 		this.parallelism = parallelism;
 		this.memory = memory;
 		this.iterations = iterations;
-
 		this.saltGenerator = KeyGenerators.secureRandom(saltLength);
-	}
-
-	public Argon2PasswordEncoder() {
-		this(DEFAULT_SALT_LENGTH, DEFAULT_HASH_LENGTH, DEFAULT_PARALLELISM, DEFAULT_MEMORY, DEFAULT_ITERATIONS);
 	}
 
 	@Override
 	public String encode(CharSequence rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
 		byte[] hash = new byte[this.hashLength];
-
 		Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id).withSalt(salt)
 				.withParallelism(this.parallelism).withMemoryAsKB(this.memory).withIterations(this.iterations).build();
 		Argon2BytesGenerator generator = new Argon2BytesGenerator();
 		generator.init(params);
 		generator.generateBytes(rawPassword.toString().toCharArray(), hash);
-
 		return Argon2EncodingUtils.encode(hash, params);
 	}
 
@@ -101,9 +98,7 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 			this.logger.warn("password hash is null");
 			return false;
 		}
-
 		Argon2EncodingUtils.Argon2Hash decoded;
-
 		try {
 			decoded = Argon2EncodingUtils.decode(encodedPassword);
 		}
@@ -111,13 +106,10 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 			this.logger.warn("Malformed password hash", ex);
 			return false;
 		}
-
 		byte[] hashBytes = new byte[decoded.getHash().length];
-
 		Argon2BytesGenerator generator = new Argon2BytesGenerator();
 		generator.init(decoded.getParameters());
 		generator.generateBytes(rawPassword.toString().toCharArray(), hashBytes);
-
 		return constantTimeArrayEquals(decoded.getHash(), hashBytes);
 	}
 
@@ -127,9 +119,7 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 			this.logger.warn("password hash is null");
 			return false;
 		}
-
 		Argon2Parameters parameters = Argon2EncodingUtils.decode(encodedPassword).getParameters();
-
 		return parameters.getMemory() < this.memory || parameters.getIterations() < this.iterations;
 	}
 
@@ -137,7 +127,6 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 		if (expected.length != actual.length) {
 			return false;
 		}
-
 		int result = 0;
 		for (int i = 0; i < expected.length; i++) {
 			result |= expected[i] ^ actual[i];

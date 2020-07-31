@@ -75,11 +75,9 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		if (salt == null) {
 			return hash;
 		}
-
 		byte[] hashAndSalt = new byte[hash.length + salt.length];
 		System.arraycopy(hash, 0, hashAndSalt, 0, hash.length);
 		System.arraycopy(salt, 0, hashAndSalt, hash.length, salt.length);
-
 		return hashAndSalt;
 	}
 
@@ -98,42 +96,39 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	}
 
 	private String encode(CharSequence rawPassword, byte[] salt) {
-		MessageDigest sha;
+		MessageDigest sha = getSha(rawPassword);
+		if (salt != null) {
+			sha.update(salt);
+		}
+		byte[] hash = combineHashAndSalt(sha.digest(), salt);
+		String prefix = getPrefix(salt);
+		return prefix + Utf8.decode(Base64.getEncoder().encode(hash));
+	}
 
+	private MessageDigest getSha(CharSequence rawPassword) {
 		try {
-			sha = MessageDigest.getInstance("SHA");
+			MessageDigest sha = MessageDigest.getInstance("SHA");
 			sha.update(Utf8.encode(rawPassword));
+			return sha;
 		}
 		catch (java.security.NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No SHA implementation available!");
 		}
+	}
 
-		if (salt != null) {
-			sha.update(salt);
-		}
-
-		byte[] hash = combineHashAndSalt(sha.digest(), salt);
-
-		String prefix;
-
+	private String getPrefix(byte[] salt) {
 		if (salt == null || salt.length == 0) {
-			prefix = this.forceLowerCasePrefix ? SHA_PREFIX_LC : SHA_PREFIX;
+			return this.forceLowerCasePrefix ? SHA_PREFIX_LC : SHA_PREFIX;
 		}
-		else {
-			prefix = this.forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
-		}
-
-		return prefix + Utf8.decode(Base64.getEncoder().encode(hash));
+		return this.forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
 	}
 
 	private byte[] extractSalt(String encPass) {
 		String encPassNoLabel = encPass.substring(6);
-
 		byte[] hashAndSalt = Base64.getDecoder().decode(encPassNoLabel.getBytes());
 		int saltLength = hashAndSalt.length - SHA_LENGTH;
 		byte[] salt = new byte[saltLength];
 		System.arraycopy(hashAndSalt, SHA_LENGTH, salt, 0, saltLength);
-
 		return salt;
 	}
 
@@ -151,28 +146,24 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 
 	private boolean matches(String rawPassword, String encodedPassword) {
 		String prefix = extractPrefix(encodedPassword);
-
 		if (prefix == null) {
 			return PasswordEncoderUtils.equals(encodedPassword, rawPassword);
 		}
+		byte[] salt = getSalt(encodedPassword, prefix);
+		int startOfHash = prefix.length();
+		String encodedRawPass = encode(rawPassword, salt).substring(startOfHash);
+		return PasswordEncoderUtils.equals(encodedRawPass, encodedPassword.substring(startOfHash));
+	}
 
-		byte[] salt;
+	private byte[] getSalt(String encodedPassword, String prefix) {
 		if (prefix.equals(SSHA_PREFIX) || prefix.equals(SSHA_PREFIX_LC)) {
-			salt = extractSalt(encodedPassword);
+			return extractSalt(encodedPassword);
 		}
-		else if (!prefix.equals(SHA_PREFIX) && !prefix.equals(SHA_PREFIX_LC)) {
+		if (!prefix.equals(SHA_PREFIX) && !prefix.equals(SHA_PREFIX_LC)) {
 			throw new IllegalArgumentException("Unsupported password prefix '" + prefix + "'");
 		}
-		else {
-			// Standard SHA
-			salt = null;
-		}
-
-		int startOfHash = prefix.length();
-
-		String encodedRawPass = encode(rawPassword, salt).substring(startOfHash);
-
-		return PasswordEncoderUtils.equals(encodedRawPass, encodedPassword.substring(startOfHash));
+		// Standard SHA
+		return null;
 	}
 
 	/**
@@ -182,13 +173,10 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		if (!encPass.startsWith("{")) {
 			return null;
 		}
-
 		int secondBrace = encPass.lastIndexOf('}');
-
 		if (secondBrace < 0) {
 			throw new IllegalArgumentException("Couldn't find closing brace for SHA prefix");
 		}
-
 		return encPass.substring(0, secondBrace + 1);
 	}
 

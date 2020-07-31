@@ -106,15 +106,15 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 		if (rawPassword == null) {
 			throw new IllegalArgumentException("rawPassword cannot be null");
 		}
-
-		String salt;
-		if (this.random != null) {
-			salt = BCrypt.gensalt(this.version.getVersion(), this.strength, this.random);
-		}
-		else {
-			salt = BCrypt.gensalt(this.version.getVersion(), this.strength);
-		}
+		String salt = getSalt();
 		return BCrypt.hashpw(rawPassword.toString(), salt);
+	}
+
+	private String getSalt() {
+		if (this.random != null) {
+			return BCrypt.gensalt(this.version.getVersion(), this.strength, this.random);
+		}
+		return BCrypt.gensalt(this.version.getVersion(), this.strength);
 	}
 
 	@Override
@@ -122,17 +122,14 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 		if (rawPassword == null) {
 			throw new IllegalArgumentException("rawPassword cannot be null");
 		}
-
 		if (encodedPassword == null || encodedPassword.length() == 0) {
 			this.logger.warn("Empty encoded password");
 			return false;
 		}
-
 		if (!this.BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
 			this.logger.warn("Encoded password does not look like BCrypt");
 			return false;
 		}
-
 		return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
 	}
 
@@ -142,15 +139,12 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 			this.logger.warn("Empty encoded password");
 			return false;
 		}
-
 		Matcher matcher = this.BCRYPT_PATTERN.matcher(encodedPassword);
 		if (!matcher.matches()) {
 			throw new IllegalArgumentException("Encoded password does not look like BCrypt: " + encodedPassword);
 		}
-		else {
-			int strength = Integer.parseInt(matcher.group(2));
-			return strength < this.strength;
-		}
+		int strength = Integer.parseInt(matcher.group(2));
+		return strength < this.strength;
 	}
 
 	/**
@@ -160,7 +154,11 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 */
 	public enum BCryptVersion {
 
-		$2A("$2a"), $2Y("$2y"), $2B("$2b");
+		$2A("$2a"),
+
+		$2Y("$2y"),
+
+		$2B("$2b");
 
 		private final String version;
 
