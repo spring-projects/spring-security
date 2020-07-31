@@ -44,19 +44,15 @@ public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>
 
 	@Override
 	public int vote(Authentication authentication, Message<T> message, Collection<ConfigAttribute> attributes) {
-		assert authentication != null;
-		assert message != null;
-		assert attributes != null;
-
+		Assert.notNull(authentication, "authentication must not be null");
+		Assert.notNull(message, "message must not be null");
+		Assert.notNull(attributes, "attributes must not be null");
 		MessageExpressionConfigAttribute attr = findConfigAttribute(attributes);
-
 		if (attr == null) {
 			return ACCESS_ABSTAIN;
 		}
-
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, message);
 		ctx = attr.postProcess(ctx, message);
-
 		return ExpressionUtils.evaluateAsBoolean(attr.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED : ACCESS_DENIED;
 	}
 

@@ -31,7 +31,13 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 
-	protected final Log LOGGER = LogFactory.getLog(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
+
+	/**
+	 * @deprecated since 5.4 in favor of {@link #logger}
+	 */
+	@Deprecated
+	protected final Log LOGGER = this.logger;
 
 	private final List<MessageMatcher<T>> messageMatchers;
 
@@ -41,9 +47,7 @@ public abstract class AbstractMessageMatcherComposite<T> implements MessageMatch
 	 */
 	AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
 		Assert.notEmpty(messageMatchers, "messageMatchers must contain a value");
-		if (messageMatchers.contains(null)) {
-			throw new IllegalArgumentException("messageMatchers cannot contain null values");
-		}
+		Assert.isTrue(!messageMatchers.contains(null), "messageMatchers cannot contain null values");
 		this.messageMatchers = messageMatchers;
 
 	}

@@ -27,16 +27,10 @@ import org.springframework.messaging.Message;
 public interface MessageMatcher<T> {
 
 	/**
-	 * Returns true if the {@link Message} matches, else false
-	 * @param message the {@link Message} to match on
-	 * @return true if the {@link Message} matches, else false
-	 */
-	boolean matches(Message<? extends T> message);
-
-	/**
 	 * Matches every {@link Message}
 	 */
 	MessageMatcher<Object> ANY_MESSAGE = new MessageMatcher<Object>() {
+
 		@Override
 		public boolean matches(Message<?> message) {
 			return true;
@@ -46,6 +40,14 @@ public interface MessageMatcher<T> {
 		public String toString() {
 			return "ANY_MESSAGE";
 		}
+
 	};
+
+	/**
+	 * Returns true if the {@link Message} matches, else false
+	 * @param message the {@link Message} to match on
+	 * @return true if the {@link Message} matches, else false
+	 */
+	boolean matches(Message<? extends T> message);
 
 }
