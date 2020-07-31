@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
@@ -134,13 +135,10 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	}
 
 	private void checkState() {
-		if (this.parent == null && this.providers.isEmpty()) {
-			throw new IllegalArgumentException(
-					"A parent AuthenticationManager or a list " + "of AuthenticationProviders is required");
-		}
-		else if (CollectionUtils.contains(this.providers.iterator(), null)) {
-			throw new IllegalArgumentException("providers list cannot contain null values");
-		}
+		Assert.isTrue(this.parent != null || !this.providers.isEmpty(),
+				"A parent AuthenticationManager or a list of AuthenticationProviders is required");
+		Assert.isTrue(!CollectionUtils.contains(this.providers.iterator(), null),
+				"providers list cannot contain null values");
 	}
 
 	/**
@@ -170,20 +168,13 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		AuthenticationException parentException = null;
 		Authentication result = null;
 		Authentication parentResult = null;
-		boolean debug = logger.isDebugEnabled();
-
 		for (AuthenticationProvider provider : getProviders()) {
 			if (!provider.supports(toTest)) {
 				continue;
 			}
-
-			if (debug) {
-				logger.debug("Authentication attempt using " + provider.getClass().getName());
-			}
-
+			logger.debug(LogMessage.format("Authentication attempt using %s", provider.getClass().getName()));
 			try {
 				result = provider.authenticate(authentication);
-
 				if (result != null) {
 					copyDetails(authentication, result);
 					break;
@@ -199,7 +190,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				lastException = ex;
 			}
 		}
-
 		if (result == null && this.parent != null) {
 			// Allow the parent to try.
 			try {
@@ -217,14 +207,12 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				lastException = ex;
 			}
 		}
-
 		if (result != null) {
 			if (this.eraseCredentialsAfterAuthentication && (result instanceof CredentialsContainer)) {
 				// Authentication is complete. Remove credentials and other secret data
 				// from authentication
 				((CredentialsContainer) result).eraseCredentials();
 			}
-
 			// If the parent AuthenticationManager was attempted and successful then it
 			// will publish an AuthenticationSuccessEvent
 			// This check prevents a duplicate AuthenticationSuccessEvent if the parent
@@ -236,12 +224,10 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		}
 
 		// Parent was null, or didn't authenticate (or throw an exception).
-
 		if (lastException == null) {
 			lastException = new ProviderNotFoundException(this.messages.getMessage("ProviderManager.providerNotFound",
 					new Object[] { toTest.getName() }, "No AuthenticationProvider found for {0}"));
 		}
-
 		// If the parent AuthenticationManager was attempted and failed then it will
 		// publish an AbstractAuthenticationFailureEvent
 		// This check prevents a duplicate AbstractAuthenticationFailureEvent if the
@@ -249,7 +235,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		if (parentException == null) {
 			prepareException(lastException, authentication);
 		}
-
 		throw lastException;
 	}
 
@@ -267,7 +252,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	private void copyDetails(Authentication source, Authentication dest) {
 		if ((dest instanceof AbstractAuthenticationToken) && (dest.getDetails() == null)) {
 			AbstractAuthenticationToken token = (AbstractAuthenticationToken) dest;
-
 			token.setDetails(source.getDetails());
 		}
 	}

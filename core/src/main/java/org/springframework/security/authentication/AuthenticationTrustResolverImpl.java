@@ -48,7 +48,6 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 		if ((this.anonymousClass == null) || (authentication == null)) {
 			return false;
 		}
-
 		return this.anonymousClass.isAssignableFrom(authentication.getClass());
 	}
 
@@ -57,7 +56,6 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 		if ((this.rememberMeClass == null) || (authentication == null)) {
 			return false;
 		}
-
 		return this.rememberMeClass.isAssignableFrom(authentication.getClass());
 	}
 

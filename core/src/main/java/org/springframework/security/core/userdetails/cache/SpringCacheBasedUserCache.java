@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cache.Cache;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
@@ -44,32 +45,18 @@ public class SpringCacheBasedUserCache implements UserCache {
 	@Override
 	public UserDetails getUserFromCache(String username) {
 		Cache.ValueWrapper element = (username != null) ? this.cache.get(username) : null;
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache hit: " + (element != null) + "; username: " + username);
-		}
-
-		if (element == null) {
-			return null;
-		}
-		else {
-			return (UserDetails) element.get();
-		}
+		logger.debug(LogMessage.of(() -> "Cache hit: " + (element != null) + "; username: " + username));
+		return (element != null) ? (UserDetails) element.get() : null;
 	}
 
 	@Override
 	public void putUserInCache(UserDetails user) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache put: " + user.getUsername());
-		}
+		logger.debug(LogMessage.of(() -> "Cache put: " + user.getUsername()));
 		this.cache.put(user.getUsername(), user);
 	}
 
 	public void removeUserFromCache(UserDetails user) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache remove: " + user.getUsername());
-		}
-
+		logger.debug(LogMessage.of(() -> "Cache remove: " + user.getUsername()));
 		this.removeUserFromCache(user.getUsername());
 	}
 

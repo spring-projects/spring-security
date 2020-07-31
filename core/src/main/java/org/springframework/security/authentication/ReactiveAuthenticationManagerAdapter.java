@@ -47,14 +47,17 @@ public class ReactiveAuthenticationManagerAdapter implements ReactiveAuthenticat
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication token) {
-		return Mono.just(token).publishOn(this.scheduler).flatMap((t) -> {
-			try {
-				return Mono.just(this.authenticationManager.authenticate(t));
-			}
-			catch (Throwable error) {
-				return Mono.error(error);
-			}
-		}).filter((a) -> a.isAuthenticated());
+		return Mono.just(token).publishOn(this.scheduler).flatMap(this::doAuthenticate)
+				.filter(Authentication::isAuthenticated);
+	}
+
+	private Mono<Authentication> doAuthenticate(Authentication authentication) {
+		try {
+			return Mono.just(this.authenticationManager.authenticate(authentication));
+		}
+		catch (Throwable ex) {
+			return Mono.error(ex);
+		}
 	}
 
 	/**

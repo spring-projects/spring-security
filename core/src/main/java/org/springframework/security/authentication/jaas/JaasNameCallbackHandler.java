@@ -46,20 +46,16 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
 	@Override
 	public void handle(Callback callback, Authentication authentication) {
 		if (callback instanceof NameCallback) {
-			NameCallback ncb = (NameCallback) callback;
-			String username;
-
-			Object principal = authentication.getPrincipal();
-
-			if (principal instanceof UserDetails) {
-				username = ((UserDetails) principal).getUsername();
-			}
-			else {
-				username = principal.toString();
-			}
-
-			ncb.setName(username);
+			((NameCallback) callback).setName(getUserName(authentication));
 		}
+	}
+
+	private String getUserName(Authentication authentication) {
+		Object principal = authentication.getPrincipal();
+		if (principal instanceof UserDetails) {
+			return ((UserDetails) principal).getUsername();
+		}
+		return principal.toString();
 	}
 
 }

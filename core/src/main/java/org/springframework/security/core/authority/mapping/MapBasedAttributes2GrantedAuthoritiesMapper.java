@@ -58,16 +58,15 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 */
 	@Override
 	public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes) {
-		ArrayList<GrantedAuthority> gaList = new ArrayList<>();
+		ArrayList<GrantedAuthority> result = new ArrayList<>();
 		for (String attribute : attributes) {
-			Collection<GrantedAuthority> c = this.attributes2grantedAuthoritiesMap.get(attribute);
-			if (c != null) {
-				gaList.addAll(c);
+			Collection<GrantedAuthority> granted = this.attributes2grantedAuthoritiesMap.get(attribute);
+			if (granted != null) {
+				result.addAll(granted);
 			}
 		}
-		gaList.trimToSize();
-
-		return gaList;
+		result.trimToSize();
+		return result;
 	}
 
 	/**
@@ -85,7 +84,6 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 		Assert.notEmpty(attributes2grantedAuthoritiesMap,
 				"A non-empty attributes2grantedAuthoritiesMap must be supplied");
 		this.attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
-
 		this.mappableAttributes = Collections.unmodifiableSet(this.attributes2grantedAuthoritiesMap.keySet());
 	}
 
@@ -96,7 +94,6 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 */
 	private Map<String, Collection<GrantedAuthority>> preProcessMap(Map<?, ?> orgMap) {
 		Map<String, Collection<GrantedAuthority>> result = new HashMap<>(orgMap.size());
-
 		for (Map.Entry<?, ?> entry : orgMap.entrySet()) {
 			Assert.isInstanceOf(String.class, entry.getKey(),
 					"attributes2grantedAuthoritiesMap contains non-String objects as keys");
@@ -156,11 +153,11 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, String value) {
-		StringTokenizer st = new StringTokenizer(value, this.stringSeparator, false);
-		while (st.hasMoreTokens()) {
-			String nextToken = st.nextToken();
-			if (StringUtils.hasText(nextToken)) {
-				result.add(new SimpleGrantedAuthority(nextToken));
+		StringTokenizer tokenizer = new StringTokenizer(value, this.stringSeparator, false);
+		while (tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken();
+			if (StringUtils.hasText(token)) {
+				result.add(new SimpleGrantedAuthority(token));
 			}
 		}
 	}

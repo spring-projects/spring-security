@@ -89,11 +89,9 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 		}
 		int result = ACCESS_ABSTAIN;
 		Collection<? extends GrantedAuthority> authorities = extractAuthorities(authentication);
-
 		for (ConfigAttribute attribute : attributes) {
 			if (this.supports(attribute)) {
 				result = ACCESS_DENIED;
-
 				// Attempt to find a matching granted authority
 				for (GrantedAuthority authority : authorities) {
 					if (attribute.getAttribute().equals(authority.getAuthority())) {
@@ -102,7 +100,6 @@ public class RoleVoter implements AccessDecisionVoter<Object> {
 				}
 			}
 		}
-
 		return result;
 	}
 

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -33,6 +32,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Advisor driven by a {@link MethodSecurityMetadataSource}, used to exclude a
@@ -85,7 +85,6 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 		Assert.notNull(adviceBeanName, "The adviceBeanName cannot be null");
 		Assert.notNull(attributeSource, "The attributeSource cannot be null");
 		Assert.notNull(attributeSourceBeanName, "The attributeSourceBeanName cannot be null");
-
 		this.adviceBeanName = adviceBeanName;
 		this.attributeSource = attributeSource;
 		this.metadataSourceBeanName = attributeSourceBeanName;
@@ -123,11 +122,9 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 	class MethodSecurityMetadataSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
 		@Override
-		@SuppressWarnings("unchecked")
-		public boolean matches(Method m, Class targetClass) {
-			Collection attributes = MethodSecurityMetadataSourceAdvisor.this.attributeSource.getAttributes(m,
-					targetClass);
-			return attributes != null && !attributes.isEmpty();
+		public boolean matches(Method m, Class<?> targetClass) {
+			MethodSecurityMetadataSource source = MethodSecurityMetadataSourceAdvisor.this.attributeSource;
+			return !CollectionUtils.isEmpty(source.getAttributes(m, targetClass));
 		}
 
 	}

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -56,11 +57,9 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 		synchronized (this.attributeCache) {
 			Collection<ConfigAttribute> cached = this.attributeCache.get(cacheKey);
 			// Check for canonical value indicating there is no config attribute,
-
 			if (cached != null) {
 				return cached;
 			}
-
 			// No cached value, so query the sources to find a result
 			Collection<ConfigAttribute> attributes = null;
 			for (MethodSecurityMetadataSource s : this.methodSecurityMetadataSources) {
@@ -69,19 +68,13 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 					break;
 				}
 			}
-
 			// Put it in the cache.
 			if (attributes == null || attributes.isEmpty()) {
 				this.attributeCache.put(cacheKey, NULL_CONFIG_ATTRIBUTE);
 				return NULL_CONFIG_ATTRIBUTE;
 			}
-
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Caching method [" + cacheKey + "] with attributes " + attributes);
-			}
-
+			this.logger.debug(LogMessage.format("Caching method [%s] with attributes %s", cacheKey, attributes));
 			this.attributeCache.put(cacheKey, attributes);
-
 			return attributes;
 		}
 	}
@@ -127,8 +120,8 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 
 		@Override
 		public String toString() {
-			return "CacheKey[" + ((this.targetClass != null) ? this.targetClass.getName() : "-") + "; " + this.method
-					+ "]";
+			String targetClassName = (this.targetClass != null) ? this.targetClass.getName() : "-";
+			return "CacheKey[" + targetClassName + "; " + this.method + "]";
 		}
 
 	}

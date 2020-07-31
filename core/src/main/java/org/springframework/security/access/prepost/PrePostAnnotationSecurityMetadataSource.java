@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.method.AbstractMethodSecurityMetadataSource;
 import org.springframework.util.ClassUtils;
@@ -61,45 +62,35 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		if (method.getDeclaringClass() == Object.class) {
 			return Collections.emptyList();
 		}
-
-		this.logger.trace("Looking for Pre/Post annotations for method '" + method.getName() + "' on target class '"
-				+ targetClass + "'");
+		this.logger.trace(LogMessage.format("Looking for Pre/Post annotations for method '%s' on target class '%s'",
+				method.getName(), targetClass));
 		PreFilter preFilter = findAnnotation(method, targetClass, PreFilter.class);
 		PreAuthorize preAuthorize = findAnnotation(method, targetClass, PreAuthorize.class);
 		PostFilter postFilter = findAnnotation(method, targetClass, PostFilter.class);
 		// TODO: Can we check for void methods and throw an exception here?
 		PostAuthorize postAuthorize = findAnnotation(method, targetClass, PostAuthorize.class);
-
 		if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null) {
 			// There is no meta-data so return
 			this.logger.trace("No expression annotations found");
 			return Collections.emptyList();
 		}
-
 		String preFilterAttribute = (preFilter != null) ? preFilter.value() : null;
 		String filterObject = (preFilter != null) ? preFilter.filterTarget() : null;
 		String preAuthorizeAttribute = (preAuthorize != null) ? preAuthorize.value() : null;
 		String postFilterAttribute = (postFilter != null) ? postFilter.value() : null;
 		String postAuthorizeAttribute = (postAuthorize != null) ? postAuthorize.value() : null;
-
 		ArrayList<ConfigAttribute> attrs = new ArrayList<>(2);
-
 		PreInvocationAttribute pre = this.attributeFactory.createPreInvocationAttribute(preFilterAttribute,
 				filterObject, preAuthorizeAttribute);
-
 		if (pre != null) {
 			attrs.add(pre);
 		}
-
 		PostInvocationAttribute post = this.attributeFactory.createPostInvocationAttribute(postFilterAttribute,
 				postAuthorizeAttribute);
-
 		if (post != null) {
 			attrs.add(post);
 		}
-
 		attrs.trimToSize();
-
 		return attrs;
 	}
 
@@ -120,31 +111,26 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		// If the target class is null, the method will be unchanged.
 		Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
 		A annotation = AnnotationUtils.findAnnotation(specificMethod, annotationClass);
-
 		if (annotation != null) {
-			this.logger.debug(annotation + " found on specific method: " + specificMethod);
+			this.logger.debug(LogMessage.format("%s found on specific method: %s", annotation, specificMethod));
 			return annotation;
 		}
-
 		// Check the original (e.g. interface) method
 		if (specificMethod != method) {
 			annotation = AnnotationUtils.findAnnotation(method, annotationClass);
-
 			if (annotation != null) {
-				this.logger.debug(annotation + " found on: " + method);
+				this.logger.debug(LogMessage.format("%s found on: %s", annotation, method));
 				return annotation;
 			}
 		}
-
 		// Check the class-level (note declaringClass, not targetClass, which may not
 		// actually implement the method)
 		annotation = AnnotationUtils.findAnnotation(specificMethod.getDeclaringClass(), annotationClass);
-
 		if (annotation != null) {
-			this.logger.debug(annotation + " found on: " + specificMethod.getDeclaringClass().getName());
+			this.logger.debug(
+					LogMessage.format("%s found on: %s", annotation, specificMethod.getDeclaringClass().getName()));
 			return annotation;
 		}
-
 		return null;
 	}
 

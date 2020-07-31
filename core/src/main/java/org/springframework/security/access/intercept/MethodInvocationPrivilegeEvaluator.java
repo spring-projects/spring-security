@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -54,36 +55,25 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 		Assert.notNull(this.securityInterceptor, "SecurityInterceptor required");
 	}
 
-	public boolean isAllowed(MethodInvocation mi, Authentication authentication) {
-		Assert.notNull(mi, "MethodInvocation required");
-		Assert.notNull(mi.getMethod(), "MethodInvocation must provide a non-null getMethod()");
-
-		Collection<ConfigAttribute> attrs = this.securityInterceptor.obtainSecurityMetadataSource().getAttributes(mi);
-
+	public boolean isAllowed(MethodInvocation invocation, Authentication authentication) {
+		Assert.notNull(invocation, "MethodInvocation required");
+		Assert.notNull(invocation.getMethod(), "MethodInvocation must provide a non-null getMethod()");
+		Collection<ConfigAttribute> attrs = this.securityInterceptor.obtainSecurityMetadataSource()
+				.getAttributes(invocation);
 		if (attrs == null) {
-			if (this.securityInterceptor.isRejectPublicInvocations()) {
-				return false;
-			}
-
-			return true;
+			return !this.securityInterceptor.isRejectPublicInvocations();
 		}
-
 		if (authentication == null || authentication.getAuthorities().isEmpty()) {
 			return false;
 		}
-
 		try {
-			this.securityInterceptor.getAccessDecisionManager().decide(authentication, mi, attrs);
+			this.securityInterceptor.getAccessDecisionManager().decide(authentication, invocation, attrs);
+			return true;
 		}
 		catch (AccessDeniedException unauthorized) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(mi.toString() + " denied for " + authentication.toString(), unauthorized);
-			}
-
+			logger.debug(LogMessage.format("%s denied for %s", invocation, authentication), unauthorized);
 			return false;
 		}
-
-		return true;
 	}
 
 	public void setSecurityInterceptor(AbstractSecurityInterceptor securityInterceptor) {

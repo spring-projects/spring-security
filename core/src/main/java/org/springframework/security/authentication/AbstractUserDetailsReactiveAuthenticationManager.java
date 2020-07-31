@@ -57,55 +57,60 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	private Scheduler scheduler = Schedulers.boundedElastic();
 
-	private UserDetailsChecker preAuthenticationChecks = (user) -> {
+	private UserDetailsChecker preAuthenticationChecks = this::defaultPreAuthenticationChecks;
+
+	private UserDetailsChecker postAuthenticationChecks = this::defaultPostAuthenticationChecks;
+
+	private void defaultPreAuthenticationChecks(UserDetails user) {
 		if (!user.isAccountNonLocked()) {
 			this.logger.debug("User account is locked");
-
 			throw new LockedException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
 					"User account is locked"));
 		}
-
 		if (!user.isEnabled()) {
 			this.logger.debug("User account is disabled");
-
 			throw new DisabledException(
 					this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
 		}
-
 		if (!user.isAccountNonExpired()) {
 			this.logger.debug("User account is expired");
-
 			throw new AccountExpiredException(this.messages
 					.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
 		}
-	};
+	}
 
-	private UserDetailsChecker postAuthenticationChecks = (user) -> {
+	private void defaultPostAuthenticationChecks(UserDetails user) {
 		if (!user.isCredentialsNonExpired()) {
 			this.logger.debug("User account credentials have expired");
-
 			throw new CredentialsExpiredException(this.messages.getMessage(
 					"AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));
 		}
-	};
+	}
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
-		final String username = authentication.getName();
-		final String presentedPassword = (String) authentication.getCredentials();
+		String username = authentication.getName();
+		String presentedPassword = (String) authentication.getCredentials();
 		return retrieveUser(username).doOnNext(this.preAuthenticationChecks::check).publishOn(this.scheduler)
-				.filter((u) -> this.passwordEncoder.matches(presentedPassword, u.getPassword()))
+				.filter((userDetails) -> this.passwordEncoder.matches(presentedPassword, userDetails.getPassword()))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Credentials"))))
-				.flatMap((u) -> {
-					boolean upgradeEncoding = this.userDetailsPasswordService != null
-							&& this.passwordEncoder.upgradeEncoding(u.getPassword());
-					if (upgradeEncoding) {
-						String newPassword = this.passwordEncoder.encode(presentedPassword);
-						return this.userDetailsPasswordService.updatePassword(u, newPassword);
-					}
-					return Mono.just(u);
-				}).doOnNext(this.postAuthenticationChecks::check)
-				.map((u) -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()));
+				.flatMap((userDetails) -> upgradeEncodingIfNecessary(userDetails, presentedPassword))
+				.doOnNext(this.postAuthenticationChecks::check).map(this::createUsernamePasswordAuthenticationToken);
+	}
+
+	private Mono<UserDetails> upgradeEncodingIfNecessary(UserDetails userDetails, String presentedPassword) {
+		boolean upgradeEncoding = this.userDetailsPasswordService != null
+				&& this.passwordEncoder.upgradeEncoding(userDetails.getPassword());
+		if (upgradeEncoding) {
+			String newPassword = this.passwordEncoder.encode(presentedPassword);
+			return this.userDetailsPasswordService.updatePassword(userDetails, newPassword);
+		}
+		return Mono.just(userDetails);
+	}
+
+	private UsernamePasswordAuthenticationToken createUsernamePasswordAuthenticationToken(UserDetails userDetails) {
+		return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
+				userDetails.getAuthorities());
 	}
 
 	/**

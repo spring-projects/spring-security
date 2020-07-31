@@ -37,17 +37,14 @@ public class AccountStatusUserDetailsChecker implements UserDetailsChecker, Mess
 			throw new LockedException(
 					this.messages.getMessage("AccountStatusUserDetailsChecker.locked", "User account is locked"));
 		}
-
 		if (!user.isEnabled()) {
 			throw new DisabledException(
 					this.messages.getMessage("AccountStatusUserDetailsChecker.disabled", "User is disabled"));
 		}
-
 		if (!user.isAccountNonExpired()) {
 			throw new AccountExpiredException(
 					this.messages.getMessage("AccountStatusUserDetailsChecker.expired", "User account has expired"));
 		}
-
 		if (!user.isCredentialsNonExpired()) {
 			throw new CredentialsExpiredException(this.messages
 					.getMessage("AccountStatusUserDetailsChecker.credentialsExpired", "User credentials have expired"));

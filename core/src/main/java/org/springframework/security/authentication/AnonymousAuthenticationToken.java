@@ -57,12 +57,8 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	private AnonymousAuthenticationToken(Integer keyHash, Object principal,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
-
-		if (principal == null || "".equals(principal)) {
-			throw new IllegalArgumentException("principal cannot be null or empty");
-		}
+		Assert.isTrue(principal != null && !"".equals(principal), "principal cannot be null or empty");
 		Assert.notEmpty(authorities, "authorities cannot be null or empty");
-
 		this.keyHash = keyHash;
 		this.principal = principal;
 		setAuthenticated(true);
@@ -78,17 +74,10 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 		if (!super.equals(obj)) {
 			return false;
 		}
-
 		if (obj instanceof AnonymousAuthenticationToken) {
 			AnonymousAuthenticationToken test = (AnonymousAuthenticationToken) obj;
-
-			if (this.getKeyHash() != test.getKeyHash()) {
-				return false;
-			}
-
-			return true;
+			return (this.getKeyHash() == test.getKeyHash());
 		}
-
 		return false;
 	}
 

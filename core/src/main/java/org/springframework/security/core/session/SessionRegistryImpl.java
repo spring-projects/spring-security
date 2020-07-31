@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -74,33 +75,26 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
 	@Override
 	public List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
-		final Set<String> sessionsUsedByPrincipal = this.principals.get(principal);
-
+		Set<String> sessionsUsedByPrincipal = this.principals.get(principal);
 		if (sessionsUsedByPrincipal == null) {
 			return Collections.emptyList();
 		}
-
 		List<SessionInformation> list = new ArrayList<>(sessionsUsedByPrincipal.size());
-
 		for (String sessionId : sessionsUsedByPrincipal) {
 			SessionInformation sessionInformation = getSessionInformation(sessionId);
-
 			if (sessionInformation == null) {
 				continue;
 			}
-
 			if (includeExpiredSessions || !sessionInformation.isExpired()) {
 				list.add(sessionInformation);
 			}
 		}
-
 		return list;
 	}
 
 	@Override
 	public SessionInformation getSessionInformation(String sessionId) {
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
-
 		return this.sessionIds.get(sessionId);
 	}
 
@@ -123,9 +117,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 	@Override
 	public void refreshLastRequest(String sessionId) {
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
-
 		SessionInformation info = getSessionInformation(sessionId);
-
 		if (info != null) {
 			info.refreshLastRequest();
 		}
@@ -135,26 +127,19 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 	public void registerNewSession(String sessionId, Object principal) {
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
 		Assert.notNull(principal, "Principal required as per interface contract");
-
 		if (getSessionInformation(sessionId) != null) {
 			removeSessionInformation(sessionId);
 		}
-
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Registering session " + sessionId + ", for principal " + principal);
+			this.logger.debug(LogMessage.format("Registering session %s, for principal %s", sessionId, principal));
 		}
-
 		this.sessionIds.put(sessionId, new SessionInformation(principal, sessionId, new Date()));
-
 		this.principals.compute(principal, (key, sessionsUsedByPrincipal) -> {
 			if (sessionsUsedByPrincipal == null) {
 				sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();
 			}
 			sessionsUsedByPrincipal.add(sessionId);
-
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace("Sessions used by '" + principal + "' : " + sessionsUsedByPrincipal);
-			}
+			this.logger.trace(LogMessage.format("Sessions used by '%s' : %s", principal, sessionsUsedByPrincipal));
 			return sessionsUsedByPrincipal;
 		});
 	}
@@ -162,37 +147,25 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 	@Override
 	public void removeSessionInformation(String sessionId) {
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
-
 		SessionInformation info = getSessionInformation(sessionId);
-
 		if (info == null) {
 			return;
 		}
-
 		if (this.logger.isTraceEnabled()) {
 			this.logger.debug("Removing session " + sessionId + " from set of registered sessions");
 		}
-
 		this.sessionIds.remove(sessionId);
-
 		this.principals.computeIfPresent(info.getPrincipal(), (key, sessionsUsedByPrincipal) -> {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Removing session " + sessionId + " from principal's set of registered sessions");
-			}
-
+			this.logger.debug(
+					LogMessage.format("Removing session %s from principal's set of registered sessions", sessionId));
 			sessionsUsedByPrincipal.remove(sessionId);
-
 			if (sessionsUsedByPrincipal.isEmpty()) {
 				// No need to keep object in principals Map anymore
-				if (this.logger.isDebugEnabled()) {
-					this.logger.debug("Removing principal " + info.getPrincipal() + " from registry");
-				}
+				this.logger.debug(LogMessage.format("Removing principal %s from registry", info.getPrincipal()));
 				sessionsUsedByPrincipal = null;
 			}
-
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace("Sessions used by '" + info.getPrincipal() + "' : " + sessionsUsedByPrincipal);
-			}
+			this.logger.trace(
+					LogMessage.format("Sessions used by '%s' : %s", info.getPrincipal(), sessionsUsedByPrincipal));
 			return sessionsUsedByPrincipal;
 		});
 	}

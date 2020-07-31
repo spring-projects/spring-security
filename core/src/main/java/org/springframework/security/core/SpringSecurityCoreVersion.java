@@ -53,14 +53,6 @@ public final class SpringSecurityCoreVersion {
 	private SpringSecurityCoreVersion() {
 	}
 
-	public static String getVersion() {
-		Package pkg = SpringSecurityCoreVersion.class.getPackage();
-		return (pkg != null) ? pkg.getImplementationVersion() : null;
-	}
-
-	/**
-	 * Performs version checks
-	 */
 	private static void performVersionChecks() {
 		performVersionChecks(MIN_SPRING_VERSION);
 	}
@@ -76,16 +68,19 @@ public final class SpringSecurityCoreVersion {
 		// Check Spring Compatibility
 		String springVersion = SpringVersion.getVersion();
 		String version = getVersion();
-
 		if (disableChecks(springVersion, version)) {
 			return;
 		}
-
 		logger.info("You are running with Spring Security Core " + version);
 		if (new ComparableVersion(springVersion).compareTo(new ComparableVersion(minSpringVersion)) < 0) {
 			logger.warn("**** You are advised to use Spring " + minSpringVersion
 					+ " or later with this version. You are running: " + springVersion);
 		}
+	}
+
+	public static String getVersion() {
+		Package pkg = SpringSecurityCoreVersion.class.getPackage();
+		return (pkg != null) ? pkg.getImplementationVersion() : null;
 	}
 
 	/**

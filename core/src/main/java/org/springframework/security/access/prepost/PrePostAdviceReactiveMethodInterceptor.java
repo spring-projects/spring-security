@@ -66,7 +66,6 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		Assert.notNull(attributeSource, "attributeSource cannot be null");
 		Assert.notNull(preInvocationAdvice, "preInvocationAdvice cannot be null");
 		Assert.notNull(postInvocationAdvice, "postInvocationAdvice cannot be null");
-
 		this.attributeSource = attributeSource;
 		this.preInvocationAdvice = preInvocationAdvice;
 		this.postAdvice = postInvocationAdvice;
@@ -76,31 +75,26 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	public Object invoke(final MethodInvocation invocation) {
 		Method method = invocation.getMethod();
 		Class<?> returnType = method.getReturnType();
-		if (!Publisher.class.isAssignableFrom(returnType)) {
-			throw new IllegalStateException("The returnType " + returnType + " on " + method
-					+ " must return an instance of org.reactivestreams.Publisher (i.e. Mono / Flux) in order to support Reactor Context");
-		}
+		Assert.state(Publisher.class.isAssignableFrom(returnType),
+				() -> "The returnType " + returnType + " on " + method
+						+ " must return an instance of org.reactivestreams.Publisher "
+						+ "(i.e. Mono / Flux) in order to support Reactor Context");
 		Class<?> targetClass = invocation.getThis().getClass();
 		Collection<ConfigAttribute> attributes = this.attributeSource.getAttributes(method, targetClass);
-
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
 		Mono<Authentication> toInvoke = ReactiveSecurityContextHolder.getContext()
 				.map(SecurityContext::getAuthentication).defaultIfEmpty(this.anonymous)
 				.filter((auth) -> this.preInvocationAdvice.before(auth, invocation, preAttr))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
-
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
-
 		if (Mono.class.isAssignableFrom(returnType)) {
 			return toInvoke.flatMap((auth) -> PrePostAdviceReactiveMethodInterceptor.<Mono<?>>proceed(invocation)
 					.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 		}
-
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return toInvoke.flatMapMany((auth) -> PrePostAdviceReactiveMethodInterceptor.<Flux<?>>proceed(invocation)
 					.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 		}
-
 		return toInvoke.flatMapMany(
 				(auth) -> Flux.from(PrePostAdviceReactiveMethodInterceptor.<Publisher<?>>proceed(invocation))
 						.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
@@ -121,7 +115,6 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 				return (PostInvocationAttribute) attribute;
 			}
 		}
-
 		return null;
 	}
 
@@ -131,7 +124,6 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 				return (PreInvocationAttribute) attribute;
 			}
 		}
-
 		return null;
 	}
 

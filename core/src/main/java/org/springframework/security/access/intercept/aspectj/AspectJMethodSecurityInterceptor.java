@@ -55,7 +55,6 @@ public final class AspectJMethodSecurityInterceptor extends MethodSecurityInterc
 	 */
 	public Object invoke(JoinPoint jp, AspectJCallback advisorProceed) {
 		InterceptorStatusToken token = super.beforeInvocation(new MethodInvocationAdapter(jp));
-
 		Object result;
 		try {
 			result = advisorProceed.proceedWithObject();
@@ -63,7 +62,6 @@ public final class AspectJMethodSecurityInterceptor extends MethodSecurityInterc
 		finally {
 			super.finallyInvocation(token);
 		}
-
 		return super.afterInvocation(token, result);
 	}
 

@@ -38,19 +38,16 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 
 	@Override
 	public SecureRandom getObject() throws Exception {
-		SecureRandom rnd = SecureRandom.getInstance(this.algorithm);
-
+		SecureRandom random = SecureRandom.getInstance(this.algorithm);
 		// Request the next bytes, thus eagerly incurring the expense of default
 		// seeding and to prevent the see from replacing the entire state
-		rnd.nextBytes(new byte[1]);
-
+		random.nextBytes(new byte[1]);
 		if (this.seed != null) {
 			// Seed specified, so use it
 			byte[] seedBytes = FileCopyUtils.copyToByteArray(this.seed.getInputStream());
-			rnd.setSeed(seedBytes);
+			random.setSeed(seedBytes);
 		}
-
-		return rnd;
+		return random;
 	}
 
 	@Override

@@ -24,6 +24,8 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
 
+import org.springframework.util.Assert;
+
 /**
  * Decorates a JoinPoint to allow it to be used with method-security infrastructure
  * classes which support {@code MethodInvocation} instances.
@@ -51,23 +53,17 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 		String targetMethodName = jp.getStaticPart().getSignature().getName();
 		Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
 		Class<?> declaringType = jp.getStaticPart().getSignature().getDeclaringType();
-
 		this.method = findMethod(targetMethodName, declaringType, types);
-
-		if (this.method == null) {
-			throw new IllegalArgumentException("Could not obtain target method from JoinPoint: '" + jp + "'");
-		}
+		Assert.notNull(this.method, () -> "Could not obtain target method from JoinPoint: '" + jp + "'");
 	}
 
 	private Method findMethod(String name, Class<?> declaringType, Class<?>[] params) {
 		Method method = null;
-
 		try {
 			method = declaringType.getMethod(name, params);
 		}
 		catch (NoSuchMethodException ignored) {
 		}
-
 		if (method == null) {
 			try {
 				method = declaringType.getDeclaredMethod(name, params);
@@ -75,7 +71,6 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 			catch (NoSuchMethodException ignored) {
 			}
 		}
-
 		return method;
 	}
 

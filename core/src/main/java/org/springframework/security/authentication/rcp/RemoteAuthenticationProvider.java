@@ -66,7 +66,6 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider, Ini
 		String password = (credentials != null) ? credentials.toString() : null;
 		Collection<? extends GrantedAuthority> authorities = this.remoteAuthenticationManager
 				.attemptAuthentication(username, password);
-
 		return new UsernamePasswordAuthenticationToken(username, password, authorities);
 	}
 

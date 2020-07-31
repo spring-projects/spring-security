@@ -42,16 +42,14 @@ public final class FieldUtils {
 	public static Field getField(Class<?> clazz, String fieldName) throws IllegalStateException {
 		Assert.notNull(clazz, "Class required");
 		Assert.hasText(fieldName, "Field name required");
-
 		try {
 			return clazz.getDeclaredField(fieldName);
 		}
-		catch (NoSuchFieldException nsf) {
+		catch (NoSuchFieldException ex) {
 			// Try superclass
 			if (clazz.getSuperclass() != null) {
 				return getField(clazz.getSuperclass(), fieldName);
 			}
-
 			throw new IllegalStateException("Could not locate field '" + fieldName + "' on class " + clazz);
 		}
 	}
@@ -68,7 +66,6 @@ public final class FieldUtils {
 		String[] nestedFields = StringUtils.tokenizeToStringArray(fieldName, ".");
 		Class<?> componentClass = bean.getClass();
 		Object value = bean;
-
 		for (String nestedField : nestedFields) {
 			Field field = getField(componentClass, nestedField);
 			field.setAccessible(true);
@@ -77,29 +74,24 @@ public final class FieldUtils {
 				componentClass = value.getClass();
 			}
 		}
-
 		return value;
 
 	}
 
 	public static Object getProtectedFieldValue(String protectedField, Object object) {
 		Field field = FieldUtils.getField(object.getClass(), protectedField);
-
 		try {
 			field.setAccessible(true);
-
 			return field.get(object);
 		}
 		catch (Exception ex) {
 			ReflectionUtils.handleReflectionException(ex);
-
 			return null; // unreachable - previous line throws exception
 		}
 	}
 
 	public static void setProtectedFieldValue(String protectedField, Object object, Object newValue) {
 		Field field = FieldUtils.getField(object.getClass(), protectedField);
-
 		try {
 			field.setAccessible(true);
 			field.set(object, newValue);

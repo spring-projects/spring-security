@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.log.LogMessage;
 
 /**
  * Outputs interceptor-related application events to Commons Logging.
@@ -37,42 +38,41 @@ public class LoggerListener implements ApplicationListener<AbstractAuthorization
 	@Override
 	public void onApplicationEvent(AbstractAuthorizationEvent event) {
 		if (event instanceof AuthenticationCredentialsNotFoundEvent) {
-			AuthenticationCredentialsNotFoundEvent authEvent = (AuthenticationCredentialsNotFoundEvent) event;
-
-			if (logger.isWarnEnabled()) {
-				logger.warn("Security interception failed due to: " + authEvent.getCredentialsNotFoundException()
-						+ "; secure object: " + authEvent.getSource() + "; configuration attributes: "
-						+ authEvent.getConfigAttributes());
-			}
+			onAuthenticationCredentialsNotFoundEvent((AuthenticationCredentialsNotFoundEvent) event);
 		}
-
 		if (event instanceof AuthorizationFailureEvent) {
-			AuthorizationFailureEvent authEvent = (AuthorizationFailureEvent) event;
-
-			if (logger.isWarnEnabled()) {
-				logger.warn("Security authorization failed due to: " + authEvent.getAccessDeniedException()
-						+ "; authenticated principal: " + authEvent.getAuthentication() + "; secure object: "
-						+ authEvent.getSource() + "; configuration attributes: " + authEvent.getConfigAttributes());
-			}
+			onAuthorizationFailureEvent((AuthorizationFailureEvent) event);
 		}
-
 		if (event instanceof AuthorizedEvent) {
-			AuthorizedEvent authEvent = (AuthorizedEvent) event;
-
-			if (logger.isInfoEnabled()) {
-				logger.info("Security authorized for authenticated principal: " + authEvent.getAuthentication()
-						+ "; secure object: " + authEvent.getSource() + "; configuration attributes: "
-						+ authEvent.getConfigAttributes());
-			}
+			onAuthorizedEvent((AuthorizedEvent) event);
 		}
-
 		if (event instanceof PublicInvocationEvent) {
-			PublicInvocationEvent authEvent = (PublicInvocationEvent) event;
-
-			if (logger.isInfoEnabled()) {
-				logger.info("Security interception not required for public secure object: " + authEvent.getSource());
-			}
+			onPublicInvocationEvent((PublicInvocationEvent) event);
 		}
+	}
+
+	private void onAuthenticationCredentialsNotFoundEvent(AuthenticationCredentialsNotFoundEvent authEvent) {
+		logger.warn(LogMessage.format(
+				"Security interception failed due to: %s; secure object: %s; configuration attributes: %s",
+				authEvent.getCredentialsNotFoundException(), authEvent.getSource(), authEvent.getConfigAttributes()));
+	}
+
+	private void onPublicInvocationEvent(PublicInvocationEvent event) {
+		logger.info(LogMessage.format("Security interception not required for public secure object: %s",
+				event.getSource()));
+	}
+
+	private void onAuthorizedEvent(AuthorizedEvent authEvent) {
+		logger.info(LogMessage.format(
+				"Security authorized for authenticated principal: %s; secure object: %s; configuration attributes: %s",
+				authEvent.getAuthentication(), authEvent.getSource(), authEvent.getConfigAttributes()));
+	}
+
+	private void onAuthorizationFailureEvent(AuthorizationFailureEvent authEvent) {
+		logger.warn(LogMessage.format(
+				"Security authorization failed due to: %s; authenticated principal: %s; secure object: %s; configuration attributes: %s",
+				authEvent.getAccessDeniedException(), authEvent.getAuthentication(), authEvent.getSource(),
+				authEvent.getConfigAttributes()));
 	}
 
 }

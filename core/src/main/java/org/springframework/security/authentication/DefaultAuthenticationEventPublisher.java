@@ -79,7 +79,6 @@ public class DefaultAuthenticationEventPublisher
 
 	public DefaultAuthenticationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
-
 		addMapping(BadCredentialsException.class.getName(), AuthenticationFailureBadCredentialsEvent.class);
 		addMapping(UsernameNotFoundException.class.getName(), AuthenticationFailureBadCredentialsEvent.class);
 		addMapping(AccountExpiredException.class.getName(), AuthenticationFailureExpiredEvent.class);
@@ -105,7 +104,6 @@ public class DefaultAuthenticationEventPublisher
 	public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
 		Constructor<? extends AbstractAuthenticationEvent> constructor = getEventConstructor(exception);
 		AbstractAuthenticationEvent event = null;
-
 		if (constructor != null) {
 			try {
 				event = constructor.newInstance(authentication, exception);
@@ -113,7 +111,6 @@ public class DefaultAuthenticationEventPublisher
 			catch (IllegalAccessException | InvocationTargetException | InstantiationException ignored) {
 			}
 		}
-
 		if (event != null) {
 			if (this.applicationEventPublisher != null) {
 				this.applicationEventPublisher.publishEvent(event);

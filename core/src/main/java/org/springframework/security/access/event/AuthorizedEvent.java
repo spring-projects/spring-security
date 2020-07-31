@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * Event indicating a secure object was invoked successfully.
@@ -31,9 +32,9 @@ import org.springframework.security.core.Authentication;
  */
 public class AuthorizedEvent extends AbstractAuthorizationEvent {
 
-	private Authentication authentication;
+	private final Authentication authentication;
 
-	private Collection<ConfigAttribute> configAttributes;
+	private final Collection<ConfigAttribute> configAttributes;
 
 	/**
 	 * Construct the event.
@@ -44,11 +45,7 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
 	 */
 	public AuthorizedEvent(Object secureObject, Collection<ConfigAttribute> attributes, Authentication authentication) {
 		super(secureObject);
-
-		if ((attributes == null) || (authentication == null)) {
-			throw new IllegalArgumentException("All parameters are required and cannot be null");
-		}
-
+		Assert.isTrue(attributes != null && authentication != null, "All parameters are required and cannot be null");
 		this.configAttributes = attributes;
 		this.authentication = authentication;
 	}

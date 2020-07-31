@@ -76,18 +76,17 @@ public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSe
 			return null;
 		}
 		List<ConfigAttribute> attributes = new ArrayList<>();
-
-		for (Annotation a : annotations) {
-			if (a instanceof DenyAll) {
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof DenyAll) {
 				attributes.add(Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE);
 				return attributes;
 			}
-			if (a instanceof PermitAll) {
+			if (annotation instanceof PermitAll) {
 				attributes.add(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
 				return attributes;
 			}
-			if (a instanceof RolesAllowed) {
-				RolesAllowed ra = (RolesAllowed) a;
+			if (annotation instanceof RolesAllowed) {
+				RolesAllowed ra = (RolesAllowed) annotation;
 
 				for (String allowed : ra.value()) {
 					String defaultedAllowed = getRoleWithDefaultPrefix(allowed);

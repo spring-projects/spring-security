@@ -48,11 +48,9 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	public RememberMeAuthenticationToken(String key, Object principal,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
-
 		if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal)) {
 			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
 		}
-
 		this.keyHash = key.hashCode();
 		this.principal = principal;
 		setAuthenticated(true);
@@ -68,7 +66,6 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	private RememberMeAuthenticationToken(Integer keyHash, Object principal,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
-
 		this.keyHash = keyHash;
 		this.principal = principal;
 		setAuthenticated(true);
@@ -97,17 +94,13 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		if (!super.equals(obj)) {
 			return false;
 		}
-
 		if (obj instanceof RememberMeAuthenticationToken) {
-			RememberMeAuthenticationToken test = (RememberMeAuthenticationToken) obj;
-
-			if (this.getKeyHash() != test.getKeyHash()) {
+			RememberMeAuthenticationToken other = (RememberMeAuthenticationToken) obj;
+			if (this.getKeyHash() != other.getKeyHash()) {
 				return false;
 			}
-
 			return true;
 		}
-
 		return false;
 	}
 

@@ -89,13 +89,14 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		String serverSecret = computeServerSecretApplicableAt(creationTime);
 		String pseudoRandomNumber = generatePseudoRandomNumber();
 		String content = creationTime + ":" + pseudoRandomNumber + ":" + extendedInformation;
+		String key = computeKey(serverSecret, content);
+		return new DefaultToken(key, creationTime, extendedInformation);
+	}
 
-		// Compute key
+	private String computeKey(String serverSecret, String content) {
 		String sha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
 		String keyPayload = content + ":" + sha512Hex;
-		String key = Utf8.decode(Base64.getEncoder().encode(Utf8.encode(keyPayload)));
-
-		return new DefaultToken(key, creationTime, extendedInformation);
+		return Utf8.decode(Base64.getEncoder().encode(Utf8.encode(keyPayload)));
 	}
 
 	@Override
@@ -106,18 +107,15 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		String[] tokens = StringUtils
 				.delimitedListToStringArray(Utf8.decode(Base64.getDecoder().decode(Utf8.encode(key))), ":");
 		Assert.isTrue(tokens.length >= 4, () -> "Expected 4 or more tokens but found " + tokens.length);
-
 		long creationTime;
 		try {
 			creationTime = Long.decode(tokens[0]);
 		}
-		catch (NumberFormatException nfe) {
+		catch (NumberFormatException ex) {
 			throw new IllegalArgumentException("Expected number but found " + tokens[0]);
 		}
-
 		String serverSecret = computeServerSecretApplicableAt(creationTime);
 		String pseudoRandomNumber = tokens[1];
-
 		// Permit extendedInfo to itself contain ":" characters
 		StringBuilder extendedInfo = new StringBuilder();
 		for (int i = 2; i < tokens.length - 1; i++) {
@@ -126,14 +124,11 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 			}
 			extendedInfo.append(tokens[i]);
 		}
-
 		String sha1Hex = tokens[tokens.length - 1];
-
 		// Verification
 		String content = creationTime + ":" + pseudoRandomNumber + ":" + extendedInfo.toString();
 		String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
 		Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
-
 		return new DefaultToken(key, creationTime, extendedInfo.toString());
 	}
 

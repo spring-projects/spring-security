@@ -88,6 +88,11 @@ import org.springframework.util.ReflectionUtils;
  */
 public class AnnotationParameterNameDiscoverer implements ParameterNameDiscoverer {
 
+	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = (
+			constructor) -> constructor.getParameterAnnotations();
+
+	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = Method::getParameterAnnotations;
+
 	private final Set<String> annotationClassesToUse;
 
 	public AnnotationParameterNameDiscoverer(String... annotationClassToUse) {
@@ -162,12 +167,6 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 		return null;
 	}
 
-	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = (
-			constructor) -> constructor.getParameterAnnotations();
-
-	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = (method) -> method
-			.getParameterAnnotations();
-
 	/**
 	 * Strategy interface for looking up the parameter names.
 	 *
@@ -175,6 +174,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 * @author Rob Winch
 	 * @since 3.2
 	 */
+	@FunctionalInterface
 	private interface ParameterNameFactory<T extends AccessibleObject> {
 
 		/**

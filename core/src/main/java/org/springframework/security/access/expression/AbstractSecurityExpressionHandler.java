@@ -42,7 +42,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 
 	private ExpressionParser expressionParser = new SpelExpressionParser();
 
-	private BeanResolver br;
+	private BeanResolver beanResolver;
 
 	private RoleHierarchy roleHierarchy;
 
@@ -70,9 +70,8 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	public final EvaluationContext createEvaluationContext(Authentication authentication, T invocation) {
 		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
 		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
-		ctx.setBeanResolver(this.br);
+		ctx.setBeanResolver(this.beanResolver);
 		ctx.setRootObject(root);
-
 		return ctx;
 	}
 
@@ -96,7 +95,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	 * invocation type.
 	 * @param authentication the current authentication object
 	 * @param invocation the invocation (filter, method, channel)
-	 * @return the object wh
+	 * @return the object
 	 */
 	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 			T invocation);
@@ -119,7 +118,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.br = new BeanFactoryResolver(applicationContext);
+		this.beanResolver = new BeanFactoryResolver(applicationContext);
 	}
 
 }

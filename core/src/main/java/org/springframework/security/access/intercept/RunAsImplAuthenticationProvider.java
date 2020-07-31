@@ -54,14 +54,11 @@ public class RunAsImplAuthenticationProvider implements InitializingBean, Authen
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		RunAsUserToken token = (RunAsUserToken) authentication;
-
-		if (token.getKeyHash() == this.key.hashCode()) {
-			return authentication;
-		}
-		else {
+		if (token.getKeyHash() != this.key.hashCode()) {
 			throw new BadCredentialsException(this.messages.getMessage("RunAsImplAuthenticationProvider.incorrectKey",
 					"The presented RunAsUserToken does not contain the expected key"));
 		}
+		return authentication;
 	}
 
 	public String getKey() {

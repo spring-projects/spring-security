@@ -73,9 +73,7 @@ public class SecurityContextLoginModule implements LoginModule {
 		if (this.authen == null) {
 			return false;
 		}
-
 		this.authen = null;
-
 		return true;
 	}
 
@@ -91,9 +89,7 @@ public class SecurityContextLoginModule implements LoginModule {
 		if (this.authen == null) {
 			return false;
 		}
-
 		this.subject.getPrincipals().add(this.authen);
-
 		return true;
 	}
 
@@ -119,7 +115,6 @@ public class SecurityContextLoginModule implements LoginModule {
 	@SuppressWarnings("unchecked")
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 		this.subject = subject;
-
 		if (options != null) {
 			this.ignoreMissingAuthentication = "true".equals(options.get("ignoreMissingAuthentication"));
 		}
@@ -135,21 +130,15 @@ public class SecurityContextLoginModule implements LoginModule {
 	@Override
 	public boolean login() throws LoginException {
 		this.authen = SecurityContextHolder.getContext().getAuthentication();
-
-		if (this.authen == null) {
-			String msg = "Login cannot complete, authentication not found in security context";
-
-			if (this.ignoreMissingAuthentication) {
-				log.warn(msg);
-
-				return false;
-			}
-			else {
-				throw new LoginException(msg);
-			}
+		if (this.authen != null) {
+			return true;
 		}
-
-		return true;
+		String msg = "Login cannot complete, authentication not found in security context";
+		if (!this.ignoreMissingAuthentication) {
+			throw new LoginException(msg);
+		}
+		log.warn(msg);
+		return false;
 	}
 
 	/**
@@ -163,10 +152,8 @@ public class SecurityContextLoginModule implements LoginModule {
 		if (this.authen == null) {
 			return false;
 		}
-
 		this.subject.getPrincipals().remove(this.authen);
 		this.authen = null;
-
 		return true;
 	}
 

@@ -65,16 +65,13 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> definition) {
 		boolean jsr250AttributeFound = false;
-
 		for (ConfigAttribute attribute : definition) {
 			if (Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE.equals(attribute)) {
 				return ACCESS_GRANTED;
 			}
-
 			if (Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE.equals(attribute)) {
 				return ACCESS_DENIED;
 			}
-
 			if (supports(attribute)) {
 				jsr250AttributeFound = true;
 				// Attempt to find a matching granted authority
@@ -85,7 +82,6 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 				}
 			}
 		}
-
 		return jsr250AttributeFound ? ACCESS_DENIED : ACCESS_ABSTAIN;
 	}
 

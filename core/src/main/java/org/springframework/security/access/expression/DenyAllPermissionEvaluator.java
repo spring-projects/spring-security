@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 
@@ -40,8 +41,8 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 	 */
 	@Override
 	public boolean hasPermission(Authentication authentication, Object target, Object permission) {
-		this.logger.warn(
-				"Denying user " + authentication.getName() + " permission '" + permission + "' on object " + target);
+		this.logger.warn(LogMessage.format("Denying user %s permission '%s' on object %s", authentication.getName(),
+				permission, target));
 		return false;
 	}
 
@@ -51,8 +52,8 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 	@Override
 	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
 			Object permission) {
-		this.logger.warn("Denying user " + authentication.getName() + " permission '" + permission
-				+ "' on object with Id '" + targetId);
+		this.logger.warn(LogMessage.format("Denying user %s permission '%s' on object with Id %s",
+				authentication.getName(), permission, targetId));
 		return false;
 	}
 

@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.io.Resource;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
@@ -153,7 +154,6 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 		Assert.hasLength(getLoginContextName(), () -> "loginContextName must be set on " + getClass());
 		Assert.notNull(this.loginConfig, () -> "loginConfig must be set on " + getClass());
 		configureJaas(this.loginConfig);
-
 		Assert.notNull(Configuration.getConfiguration(),
 				"As per https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html "
 						+ "\"If a Configuration object was set via the Configuration.setConfiguration method, then that object is "
@@ -173,7 +173,6 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	 */
 	protected void configureJaas(Resource loginConfig) throws IOException {
 		configureJaasUsingLoop();
-
 		if (this.refreshConfigurationOnStartup) {
 			// Overcome issue in SEC-760
 			Configuration.getConfiguration().refresh();
@@ -189,38 +188,30 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	private void configureJaasUsingLoop() throws IOException {
 		String loginConfigUrl = convertLoginConfigToUrl();
 		boolean alreadySet = false;
-
 		int n = 1;
 		final String prefix = "login.config.url.";
 		String existing;
-
 		while ((existing = Security.getProperty(prefix + n)) != null) {
 			alreadySet = existing.equals(loginConfigUrl);
-
 			if (alreadySet) {
 				break;
 			}
-
 			n++;
 		}
-
 		if (!alreadySet) {
 			String key = prefix + n;
-			log.debug("Setting security property [" + key + "] to: " + loginConfigUrl);
+			log.debug(LogMessage.format("Setting security property [%s] to: %s", key, loginConfigUrl));
 			Security.setProperty(key, loginConfigUrl);
 		}
 	}
 
 	private String convertLoginConfigToUrl() throws IOException {
 		String loginConfigPath;
-
 		try {
 			loginConfigPath = this.loginConfig.getFile().getAbsolutePath().replace(File.separatorChar, '/');
-
 			if (!loginConfigPath.startsWith("/")) {
 				loginConfigPath = "/" + loginConfigPath;
 			}
-
 			return new URL("file", "", loginConfigPath).toString();
 		}
 		catch (IOException ex) {
