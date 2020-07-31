@@ -89,7 +89,7 @@ try {
 							 "GRADLE_ENTERPRISE_CACHE_USERNAME=${GRADLE_ENTERPRISE_CACHE_USERNAME}",
 							 "GRADLE_ENTERPRISE_CACHE_PASSWORD=${GRADLE_ENTERPRISE_CACHE_PASSWORD}",
 							 "GRADLE_ENTERPRISE_ACCESS_KEY=${GRADLE_ENTERPRISE_ACCESS_KEY}"]) {
-							sh "./gradlew test -PforceMavenRepositories=snapshot -PspringVersion='5.+' -PreactorVersion=2020.0.0-M1 -PspringDataVersion=Lovelace-BUILD-SNAPSHOT -PrsocketVersion=1.1.0-SNAPSHOT -PlocksDisabled --stacktrace"
+							sh "./gradlew test -PforceMavenRepositories=snapshot -PspringVersion='5.+' -PreactorVersion=20+ -PspringDataVersion=Lovelace-BUILD-SNAPSHOT -PrsocketVersion=1.1.0-SNAPSHOT -PlocksDisabled --stacktrace"
 						}
 					}
 				} catch(Exception e) {
