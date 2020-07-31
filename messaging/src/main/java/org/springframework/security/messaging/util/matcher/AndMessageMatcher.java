@@ -18,6 +18,7 @@ package org.springframework.security.messaging.util.matcher;
 
 import java.util.List;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.messaging.Message;
 
 /**
@@ -49,15 +50,13 @@ public final class AndMessageMatcher<T> extends AbstractMessageMatcherComposite<
 	@Override
 	public boolean matches(Message<? extends T> message) {
 		for (MessageMatcher<T> matcher : getMessageMatchers()) {
-			if (this.LOGGER.isDebugEnabled()) {
-				this.LOGGER.debug("Trying to match using " + matcher);
-			}
+			this.logger.debug(LogMessage.format("Trying to match using %s", matcher));
 			if (!matcher.matches(message)) {
-				this.LOGGER.debug("Did not match");
+				this.logger.debug("Did not match");
 				return false;
 			}
 		}
-		this.LOGGER.debug("All messageMatchers returned true");
+		this.logger.debug("All messageMatchers returned true");
 		return true;
 	}
 

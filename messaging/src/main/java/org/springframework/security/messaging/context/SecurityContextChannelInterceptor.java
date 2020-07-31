@@ -43,9 +43,9 @@ import org.springframework.util.Assert;
 public final class SecurityContextChannelInterceptor extends ChannelInterceptorAdapter
 		implements ExecutorChannelInterceptor {
 
-	private final SecurityContext EMPTY_CONTEXT = SecurityContextHolder.createEmptyContext();
+	private static final SecurityContext EMPTY_CONTEXT = SecurityContextHolder.createEmptyContext();
 
-	private static final ThreadLocal<Stack<SecurityContext>> ORIGINAL_CONTEXT = new ThreadLocal<>();
+	private static final ThreadLocal<Stack<SecurityContext>> originalContext = new ThreadLocal<>();
 
 	private final String authenticationHeaderName;
 
@@ -110,46 +110,41 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 
 	private void setup(Message<?> message) {
 		SecurityContext currentContext = SecurityContextHolder.getContext();
-
-		Stack<SecurityContext> contextStack = ORIGINAL_CONTEXT.get();
+		Stack<SecurityContext> contextStack = originalContext.get();
 		if (contextStack == null) {
 			contextStack = new Stack<>();
-			ORIGINAL_CONTEXT.set(contextStack);
+			originalContext.set(contextStack);
 		}
 		contextStack.push(currentContext);
-
 		Object user = message.getHeaders().get(this.authenticationHeaderName);
-
-		Authentication authentication;
-		if ((user instanceof Authentication)) {
-			authentication = (Authentication) user;
-		}
-		else {
-			authentication = this.anonymous;
-		}
+		Authentication authentication = getAuthentication(user);
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		SecurityContextHolder.setContext(context);
 	}
 
-	private void cleanup() {
-		Stack<SecurityContext> contextStack = ORIGINAL_CONTEXT.get();
+	private Authentication getAuthentication(Object user) {
+		if ((user instanceof Authentication)) {
+			return (Authentication) user;
+		}
+		return this.anonymous;
+	}
 
+	private void cleanup() {
+		Stack<SecurityContext> contextStack = originalContext.get();
 		if (contextStack == null || contextStack.isEmpty()) {
 			SecurityContextHolder.clearContext();
-			ORIGINAL_CONTEXT.remove();
+			originalContext.remove();
 			return;
 		}
-
-		SecurityContext originalContext = contextStack.pop();
-
+		SecurityContext context = contextStack.pop();
 		try {
-			if (this.EMPTY_CONTEXT.equals(originalContext)) {
+			if (SecurityContextChannelInterceptor.EMPTY_CONTEXT.equals(context)) {
 				SecurityContextHolder.clearContext();
-				ORIGINAL_CONTEXT.remove();
+				originalContext.remove();
 			}
 			else {
-				SecurityContextHolder.setContext(originalContext);
+				SecurityContextHolder.setContext(context);
 			}
 		}
 		catch (Throwable ex) {

@@ -49,7 +49,6 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 	public boolean matches(Message<?> message) {
 		MessageHeaders headers = message.getHeaders();
 		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(headers);
-
 		return this.typeToMatch == messageType;
 	}
 
@@ -63,7 +62,6 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 		}
 		SimpMessageTypeMatcher otherMatcher = (SimpMessageTypeMatcher) other;
 		return ObjectUtils.nullSafeEquals(this.typeToMatch, otherMatcher.typeToMatch);
-
 	}
 
 	@Override

@@ -107,11 +107,8 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	private SimpDestinationMessageMatcher(String pattern, SimpMessageType type, PathMatcher pathMatcher) {
 		Assert.notNull(pattern, "pattern cannot be null");
 		Assert.notNull(pathMatcher, "pathMatcher cannot be null");
-		if (!isTypeWithDestination(type)) {
-			throw new IllegalArgumentException(
-					"SimpMessageType " + type + " does not contain a destination and so cannot be matched on.");
-		}
-
+		Assert.isTrue(isTypeWithDestination(type),
+				() -> "SimpMessageType " + type + " does not contain a destination and so cannot be matched on.");
 		this.matcher = pathMatcher;
 		this.messageTypeMatcher = (type != null) ? new SimpMessageTypeMatcher(type) : ANY_MESSAGE;
 		this.pattern = pattern;
@@ -122,7 +119,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		if (!this.messageTypeMatcher.matches(message)) {
 			return false;
 		}
-
 		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 		return destination != null && this.matcher.match(this.pattern, destination);
 	}
@@ -144,10 +140,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	}
 
 	private boolean isTypeWithDestination(SimpMessageType type) {
-		if (type == null) {
-			return true;
-		}
-		return SimpMessageType.MESSAGE.equals(type) || SimpMessageType.SUBSCRIBE.equals(type);
+		return type == null || SimpMessageType.MESSAGE.equals(type) || SimpMessageType.SUBSCRIBE.equals(type);
 	}
 
 	/**

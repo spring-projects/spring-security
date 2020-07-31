@@ -134,28 +134,21 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 
 	private Object resolvePrincipal(MethodParameter parameter, Object principal) {
 		AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
-
 		String expressionToParse = authPrincipal.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(principal);
 			context.setVariable("this", principal);
 			context.setBeanResolver(this.beanResolver);
-
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			principal = expression.getValue(context);
 		}
-
 		if (isInvalidType(parameter, principal)) {
-
 			if (authPrincipal.errorOnInvalidType()) {
 				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
-
 		return principal;
 	}
 

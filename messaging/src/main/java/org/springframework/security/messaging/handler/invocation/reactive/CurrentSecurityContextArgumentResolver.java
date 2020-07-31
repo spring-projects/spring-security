@@ -133,28 +133,21 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 
 	private Object resolveSecurityContext(MethodParameter parameter, Object securityContext) {
 		CurrentSecurityContext contextAnno = findMethodAnnotation(CurrentSecurityContext.class, parameter);
-
 		String expressionToParse = contextAnno.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
 			context.setBeanResolver(this.beanResolver);
-
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContext = expression.getValue(context);
 		}
-
 		if (isInvalidType(parameter, securityContext)) {
-
 			if (contextAnno.errorOnInvalidType()) {
 				throw new ClassCastException(securityContext + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
-
 		return securityContext;
 	}
 

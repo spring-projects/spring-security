@@ -38,6 +38,9 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
  */
 public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 
+	private ExpressionBasedMessageSecurityMetadataSourceFactory() {
+	}
+
 	/**
 	 * Create a {@link MessageSecurityMetadataSource} that uses {@link MessageMatcher}
 	 * mapped to Spring Expressions. Each entry is considered in order and only the first
@@ -108,9 +111,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	public static MessageSecurityMetadataSource createExpressionMessageMetadataSource(
 			LinkedHashMap<MessageMatcher<?>, String> matcherToExpression,
 			SecurityExpressionHandler<Message<Object>> handler) {
-
 		LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> matcherToAttrs = new LinkedHashMap<>();
-
 		for (Map.Entry<MessageMatcher<?>, String> entry : matcherToExpression.entrySet()) {
 			MessageMatcher<?> matcher = entry.getKey();
 			String rawExpression = entry.getValue();
@@ -119,9 +120,6 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 			matcherToAttrs.put(matcher, Arrays.asList(attribute));
 		}
 		return new DefaultMessageSecurityMetadataSource(matcherToAttrs);
-	}
-
-	private ExpressionBasedMessageSecurityMetadataSourceFactory() {
 	}
 
 }

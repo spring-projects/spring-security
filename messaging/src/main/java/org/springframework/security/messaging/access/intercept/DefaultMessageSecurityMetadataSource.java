@@ -65,11 +65,9 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
 	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
-
 		for (Collection<ConfigAttribute> entry : this.messageMap.values()) {
 			allAttributes.addAll(entry);
 		}
-
 		return allAttributes;
 	}
 

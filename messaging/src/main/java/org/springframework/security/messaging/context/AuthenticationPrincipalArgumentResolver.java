@@ -98,26 +98,20 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
-
 		AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
-
 		String expressionToParse = authPrincipal.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(principal);
 			context.setVariable("this", principal);
-
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			principal = expression.getValue(context);
 		}
-
 		if (principal != null && !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
 			if (authPrincipal.errorOnInvalidType()) {
 				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
 		return principal;
 	}
