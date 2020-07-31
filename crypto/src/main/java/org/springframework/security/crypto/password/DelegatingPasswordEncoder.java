@@ -234,7 +234,8 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	/**
-	 * Default {@link PasswordEncoder} that throws an exception that a id could
+	 * Default {@link PasswordEncoder} that throws an exception telling that a suitable
+	 * {@link PasswordEncoder} for the id could not be found.
 	 */
 	private class UnmappedIdPasswordEncoder implements PasswordEncoder {
 
