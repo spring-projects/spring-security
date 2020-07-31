@@ -40,6 +40,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.AttributesMapperCallbackHandler;
 import org.springframework.ldap.core.ContextExecutor;
@@ -116,12 +117,9 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	/** Default context mapper used to create a set of roles from a list of attributes */
 	private AttributesMapper roleMapper = (attributes) -> {
 		Attribute roleAttr = attributes.get(this.groupRoleAttributeName);
-
 		NamingEnumeration<?> ne = roleAttr.getAll();
-		// assert ne.hasMore();
 		Object group = ne.next();
 		String role = group.toString();
-
 		return new SimpleGrantedAuthority(this.rolePrefix + role.toUpperCase());
 	};
 
@@ -137,11 +135,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	public UserDetails loadUserByUsername(String username) {
 		DistinguishedName dn = this.usernameMapper.buildDn(username);
 		List<GrantedAuthority> authorities = getUserAuthorities(dn, username);
-
-		this.logger.debug("Loading user '" + username + "' with DN '" + dn + "'");
-
+		this.logger.debug(LogMessage.format("Loading user '%s' with DN '%s'", username, dn));
 		DirContextAdapter userCtx = loadUserAsContext(dn, username);
-
 		return this.userDetailsMapper.mapUserFromContext(userCtx, username, authorities);
 	}
 
@@ -151,8 +146,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				Attributes attrs = ctx.getAttributes(dn, this.attributesToRetrieve);
 				return new DirContextAdapter(attrs, LdapUtils.getFullDn(dn, ctx));
 			}
-			catch (NameNotFoundException notFound) {
-				throw new UsernameNotFoundException("User " + username + " not found", notFound);
+			catch (NameNotFoundException ex) {
+				throw new UsernameNotFoundException("User " + username + " not found", ex);
 			}
 		});
 	}
@@ -187,13 +182,9 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Assert.notNull(authentication,
 				"No authentication object found in security context. Can't change current user's password!");
-
 		String username = authentication.getName();
-
-		this.logger.debug("Changing password for user '" + username);
-
+		this.logger.debug(LogMessage.format("Changing password for user '%s'", username));
 		DistinguishedName userDn = this.usernameMapper.buildDn(username);
-
 		if (this.usePasswordModifyExtensionOperation) {
 			changePasswordUsingExtensionOperation(userDn, oldPassword, newPassword);
 		}
@@ -214,13 +205,10 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 			DistinguishedName fullDn = LdapUtils.getFullDn(dn, ctx);
 			SearchControls ctrls = new SearchControls();
 			ctrls.setReturningAttributes(new String[] { this.groupRoleAttributeName });
-
 			return ctx.search(this.groupSearchBase, this.groupSearchFilter, new String[] { fullDn.toUrl(), username },
 					ctrls);
 		};
-
 		AttributesMapperCallbackHandler roleCollector = new AttributesMapperCallbackHandler(this.roleMapper);
-
 		this.template.search(se, roleCollector);
 		return roleCollector.getList();
 	}
@@ -230,38 +218,28 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		DirContextAdapter ctx = new DirContextAdapter();
 		copyToContext(user, ctx);
 		DistinguishedName dn = this.usernameMapper.buildDn(user.getUsername());
-
-		this.logger.debug("Creating new user '" + user.getUsername() + "' with DN '" + dn + "'");
-
+		this.logger.debug(LogMessage.format("Creating new user '%s' with DN '%s'", user.getUsername(), dn));
 		this.template.bind(dn, ctx, null);
-
-		// Check for any existing authorities which might be set for this DN and remove
-		// them
+		// Check for any existing authorities which might be set for this
+		// DN and remove them
 		List<GrantedAuthority> authorities = getUserAuthorities(dn, user.getUsername());
-
 		if (authorities.size() > 0) {
 			removeAuthorities(dn, authorities);
 		}
-
 		addAuthorities(dn, user.getAuthorities());
 	}
 
 	@Override
 	public void updateUser(UserDetails user) {
 		DistinguishedName dn = this.usernameMapper.buildDn(user.getUsername());
-
-		this.logger.debug("Updating user '" + user.getUsername() + "' with DN '" + dn + "'");
-
+		this.logger.debug(LogMessage.format("Updating new user '%s' with DN '%s'", user.getUsername(), dn));
 		List<GrantedAuthority> authorities = getUserAuthorities(dn, user.getUsername());
-
 		DirContextAdapter ctx = loadUserAsContext(dn, user.getUsername());
 		ctx.setUpdateMode(true);
 		copyToContext(user, ctx);
-
 		// Remove the objectclass attribute from the list of mods (if present).
 		List<ModificationItem> mods = new LinkedList<>(Arrays.asList(ctx.getModificationItems()));
 		ListIterator<ModificationItem> modIt = mods.listIterator();
-
 		while (modIt.hasNext()) {
 			ModificationItem mod = modIt.next();
 			Attribute a = mod.getAttribute();
@@ -269,9 +247,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				modIt.remove();
 			}
 		}
-
 		this.template.modifyAttributes(dn, mods.toArray(new ModificationItem[0]));
-
 		// template.rebind(dn, ctx, null);
 		// Remove the old authorities and replace them with the new one
 		removeAuthorities(dn, authorities);
@@ -288,7 +264,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	@Override
 	public boolean userExists(String username) {
 		DistinguishedName dn = this.usernameMapper.buildDn(username);
-
 		try {
 			Object obj = this.template.lookup(dn);
 			if (obj instanceof Context) {
@@ -309,7 +284,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	protected DistinguishedName buildGroupDn(String group) {
 		DistinguishedName dn = new DistinguishedName(this.groupSearchBase);
 		dn.add(this.groupRoleAttributeName, group.toLowerCase());
-
 		return dn;
 	}
 
@@ -333,7 +307,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				DistinguishedName fullDn = LdapUtils.getFullDn(userDn, ctx);
 				ModificationItem addGroup = new ModificationItem(modType,
 						new BasicAttribute(this.groupMemberAttributeName, fullDn.toUrl()));
-
 				ctx.modifyAttributes(buildGroupDn(group), new ModificationItem[] { addGroup });
 			}
 			return null;
@@ -342,11 +315,9 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private String convertAuthorityToGroup(GrantedAuthority authority) {
 		String group = authority.getAuthority();
-
 		if (group.startsWith(this.rolePrefix)) {
 			group = group.substring(this.rolePrefix.length());
 		}
-
 		return group;
 	}
 
@@ -419,15 +390,12 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private void changePasswordUsingAttributeModification(DistinguishedName userDn, String oldPassword,
 			String newPassword) {
-
-		final ModificationItem[] passwordChange = new ModificationItem[] { new ModificationItem(
-				DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(this.passwordAttributeName, newPassword)) };
-
+		ModificationItem[] passwordChange = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+				new BasicAttribute(this.passwordAttributeName, newPassword)) };
 		if (oldPassword == null) {
 			this.template.modifyAttributes(userDn, passwordChange);
 			return;
 		}
-
 		this.template.executeReadWrite((dirCtx) -> {
 			LdapContext ctx = (LdapContext) dirCtx;
 			ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
@@ -440,23 +408,17 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 			catch (javax.naming.AuthenticationException ex) {
 				throw new BadCredentialsException("Authentication for password change failed.");
 			}
-
 			ctx.modifyAttributes(userDn, passwordChange);
-
 			return null;
 		});
-
 	}
 
 	private void changePasswordUsingExtensionOperation(DistinguishedName userDn, String oldPassword,
 			String newPassword) {
-
 		this.template.executeReadWrite((dirCtx) -> {
 			LdapContext ctx = (LdapContext) dirCtx;
-
 			String userIdentity = LdapUtils.getFullDn(userDn, ctx).encode();
 			PasswordModifyRequest request = new PasswordModifyRequest(userIdentity, oldPassword, newPassword);
-
 			try {
 				return ctx.extendedOperation(request);
 			}
@@ -493,19 +455,15 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 		PasswordModifyRequest(String userIdentity, String oldPassword, String newPassword) {
 			ByteArrayOutputStream elements = new ByteArrayOutputStream();
-
 			if (userIdentity != null) {
 				berEncode(USER_IDENTITY_OCTET_TYPE, userIdentity.getBytes(), elements);
 			}
-
 			if (oldPassword != null) {
 				berEncode(OLD_PASSWORD_OCTET_TYPE, oldPassword.getBytes(), elements);
 			}
-
 			if (newPassword != null) {
 				berEncode(NEW_PASSWORD_OCTET_TYPE, newPassword.getBytes(), elements);
 			}
-
 			berEncode(SEQUENCE_TYPE, elements.toByteArray(), this.value);
 		}
 
@@ -532,9 +490,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		 */
 		private void berEncode(byte type, byte[] src, ByteArrayOutputStream dest) {
 			int length = src.length;
-
 			dest.write(type);
-
 			if (length < 128) {
 				dest.write(length);
 			}
@@ -560,7 +516,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				dest.write((byte) ((length >> 8) & 0xFF));
 				dest.write((byte) (length & 0xFF));
 			}
-
 			try {
 				dest.write(src);
 			}

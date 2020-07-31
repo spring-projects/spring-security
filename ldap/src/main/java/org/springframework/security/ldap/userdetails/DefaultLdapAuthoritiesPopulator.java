@@ -29,6 +29,7 @@ import javax.naming.directory.SearchControls;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
@@ -161,21 +162,17 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 		this.ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
 		getLdapTemplate().setSearchControls(getSearchControls());
 		this.groupSearchBase = groupSearchBase;
-
 		if (groupSearchBase == null) {
 			logger.info("groupSearchBase is null. No group search will be performed.");
 		}
 		else if (groupSearchBase.length() == 0) {
 			logger.info("groupSearchBase is empty. Searches will be performed from the context source base");
 		}
-
 		this.authorityMapper = (record) -> {
 			String role = record.get(this.groupRoleAttribute).get(0);
-
 			if (this.convertToUpperCase) {
 				role = role.toUpperCase();
 			}
-
 			return new SimpleGrantedAuthority(this.rolePrefix + role);
 		};
 	}
@@ -202,26 +199,17 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	@Override
 	public final Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations user, String username) {
 		String userDn = user.getNameInNamespace();
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Getting authorities for user " + userDn);
-		}
-
+		logger.debug(LogMessage.format("Getting authorities for user %s", userDn));
 		Set<GrantedAuthority> roles = getGroupMembershipRoles(userDn, username);
-
 		Set<GrantedAuthority> extraRoles = getAdditionalRoles(user, username);
-
 		if (extraRoles != null) {
 			roles.addAll(extraRoles);
 		}
-
 		if (this.defaultRole != null) {
 			roles.add(this.defaultRole);
 		}
-
 		List<GrantedAuthority> result = new ArrayList<>(roles.size());
 		result.addAll(roles);
-
 		return result;
 	}
 
@@ -229,26 +217,16 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 		if (getGroupSearchBase() == null) {
 			return new HashSet<>();
 		}
-
 		Set<GrantedAuthority> authorities = new HashSet<>();
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Searching for roles for user '" + username + "', DN = " + "'" + userDn + "', with filter "
-					+ this.groupSearchFilter + " in search base '" + getGroupSearchBase() + "'");
-		}
-
+		logger.debug(LogMessage.of(() -> "Searching for roles for user '" + username + "', DN = " + "'" + userDn
+				+ "', with filter " + this.groupSearchFilter + " in search base '" + getGroupSearchBase() + "'"));
 		Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
 				getGroupSearchBase(), this.groupSearchFilter, new String[] { userDn, username },
 				new String[] { this.groupRoleAttribute });
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Roles from search: " + userRoles);
-		}
-
+		logger.debug(LogMessage.of(() -> "Roles from search: " + userRoles));
 		for (Map<String, List<String>> role : userRoles) {
 			authorities.add(this.authorityMapper.apply(role));
 		}
-
 		return authorities;
 	}
 

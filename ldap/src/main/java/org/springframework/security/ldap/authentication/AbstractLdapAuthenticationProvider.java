@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -64,33 +65,22 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
 				() -> this.messages.getMessage("LdapAuthenticationProvider.onlySupports",
 						"Only UsernamePasswordAuthenticationToken is supported"));
-
-		final UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken) authentication;
-
+		UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken) authentication;
 		String username = userToken.getName();
 		String password = (String) authentication.getCredentials();
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Processing authentication request for user: " + username);
-		}
-
+		this.logger.debug(LogMessage.format("Processing authentication request for user: %s", username));
 		if (!StringUtils.hasLength(username)) {
 			throw new BadCredentialsException(
 					this.messages.getMessage("LdapAuthenticationProvider.emptyUsername", "Empty Username"));
 		}
-
 		if (!StringUtils.hasLength(password)) {
 			throw new BadCredentialsException(
 					this.messages.getMessage("AbstractLdapAuthenticationProvider.emptyPassword", "Empty Password"));
 		}
-
 		Assert.notNull(password, "Null password was supplied in authentication token");
-
 		DirContextOperations userData = doAuthentication(userToken);
-
 		UserDetails user = this.userDetailsContextMapper.mapUserFromContext(userData, authentication.getName(),
 				loadUserAuthorities(userData, authentication.getName(), (String) authentication.getCredentials()));
-
 		return createSuccessfulAuthentication(userToken, user);
 	}
 
@@ -111,11 +101,9 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 			UserDetails user) {
 		Object password = this.useAuthenticationRequestCredentials ? authentication.getCredentials()
 				: user.getPassword();
-
 		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user, password,
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		result.setDetails(authentication.getDetails());
-
 		return result;
 	}
 

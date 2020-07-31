@@ -173,23 +173,21 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 		try {
 			return getAuthenticator().authenticate(authentication);
 		}
-		catch (PasswordPolicyException ppe) {
+		catch (PasswordPolicyException ex) {
 			// The only reason a ppolicy exception can occur during a bind is that the
 			// account is locked.
 			throw new LockedException(
-					this.messages.getMessage(ppe.getStatus().getErrorCode(), ppe.getStatus().getDefaultMessage()));
+					this.messages.getMessage(ex.getStatus().getErrorCode(), ex.getStatus().getDefaultMessage()));
 		}
-		catch (UsernameNotFoundException notFound) {
+		catch (UsernameNotFoundException ex) {
 			if (this.hideUserNotFoundExceptions) {
 				throw new BadCredentialsException(
 						this.messages.getMessage("LdapAuthenticationProvider.badCredentials", "Bad credentials"));
 			}
-			else {
-				throw notFound;
-			}
+			throw ex;
 		}
-		catch (NamingException ldapAccessFailure) {
-			throw new InternalAuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
+		catch (NamingException ex) {
+			throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
 		}
 	}
 

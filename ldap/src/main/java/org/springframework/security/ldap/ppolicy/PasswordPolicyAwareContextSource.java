@@ -23,6 +23,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 
@@ -49,45 +50,30 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 		if (principal.equals(this.userDn)) {
 			return super.getContext(principal, credentials);
 		}
-
-		final boolean debug = this.logger.isDebugEnabled();
-
-		if (debug) {
-			this.logger.debug("Binding as '" + this.userDn + "', prior to reconnect as user '" + principal + "'");
-		}
-
+		this.logger
+				.debug(LogMessage.format("Binding as '%s', prior to reconnect as user '%s'", this.userDn, principal));
 		// First bind as manager user before rebinding as the specific principal.
 		LdapContext ctx = (LdapContext) super.getContext(this.userDn, this.password);
-
 		Control[] rctls = { new PasswordPolicyControl(false) };
-
 		try {
 			ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, principal);
 			ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, credentials);
 			ctx.reconnect(rctls);
 		}
-		catch (javax.naming.NamingException ne) {
+		catch (javax.naming.NamingException ex) {
 			PasswordPolicyResponseControl ctrl = PasswordPolicyControlExtractor.extractControl(ctx);
-			if (debug) {
-				this.logger.debug("Failed to obtain context", ne);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Failed to obtain context", ex);
 				this.logger.debug("Password policy response: " + ctrl);
 			}
-
 			LdapUtils.closeContext(ctx);
-
-			if (ctrl != null) {
-				if (ctrl.isLocked()) {
-					throw new PasswordPolicyException(ctrl.getErrorStatus());
-				}
+			if (ctrl != null && ctrl.isLocked()) {
+				throw new PasswordPolicyException(ctrl.getErrorStatus());
 			}
-
-			throw LdapUtils.convertLdapException(ne);
+			throw LdapUtils.convertLdapException(ex);
 		}
-
-		if (debug) {
-			this.logger.debug("PPolicy control returned: " + PasswordPolicyControlExtractor.extractControl(ctx));
-		}
-
+		this.logger.debug(
+				LogMessage.of(() -> "PPolicy control returned: " + PasswordPolicyControlExtractor.extractControl(ctx)));
 		return ctx;
 	}
 
@@ -95,9 +81,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 	@SuppressWarnings("unchecked")
 	protected Hashtable getAuthenticatedEnv(String principal, String credentials) {
 		Hashtable env = super.getAuthenticatedEnv(principal, credentials);
-
 		env.put(LdapContext.CONTROL_FACTORIES, PasswordPolicyControlFactory.class.getName());
-
 		return env;
 	}
 

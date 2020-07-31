@@ -19,6 +19,7 @@ package org.springframework.security.ldap.authentication;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.NameNotFoundException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
@@ -66,13 +67,10 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
 				"Can only process UsernamePasswordAuthenticationToken objects");
 		// locate the user and check the password
-
 		DirContextOperations user = null;
 		String username = authentication.getName();
 		String password = (String) authentication.getCredentials();
-
 		SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(getContextSource());
-
 		for (String userDn : getUserDns(username)) {
 			try {
 				user = ldapTemplate.retrieveEntry(userDn, getUserAttributes());
@@ -83,24 +81,20 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 				break;
 			}
 		}
-
 		if (user == null && getUserSearch() != null) {
 			user = getUserSearch().searchForUser(username);
 		}
-
 		if (user == null) {
 			throw new UsernameNotFoundException("User not found: " + username);
 		}
-
 		if (logger.isDebugEnabled()) {
-			logger.debug("Performing LDAP compare of password attribute '" + this.passwordAttributeName + "' for user '"
-					+ user.getDn() + "'");
+			logger.debug(LogMessage.format("Performing LDAP compare of password attribute '%s' for user '%s'",
+					this.passwordAttributeName, user.getDn()));
 		}
-
 		if (this.usePasswordAttrCompare && isPasswordAttrCompare(user, password)) {
 			return user;
 		}
-		else if (isLdapPasswordCompare(user, ldapTemplate, password)) {
+		if (isLdapPasswordCompare(user, ldapTemplate, password)) {
 			return user;
 		}
 		throw new BadCredentialsException(

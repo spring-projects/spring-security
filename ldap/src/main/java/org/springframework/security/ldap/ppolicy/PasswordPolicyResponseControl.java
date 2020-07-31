@@ -77,10 +77,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 */
 	public PasswordPolicyResponseControl(byte[] encodedValue) {
 		this.encodedValue = encodedValue;
-
-		// PPolicyDecoder decoder = new JLdapDecoder();
 		PPolicyDecoder decoder = new NetscapeDecoder();
-
 		try {
 			decoder.decode();
 		}
@@ -162,23 +159,18 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("PasswordPolicyResponseControl");
-
 		if (hasError()) {
 			sb.append(", error: ").append(this.errorStatus.getDefaultMessage());
 		}
-
 		if (this.graceLoginsRemaining != Integer.MAX_VALUE) {
 			sb.append(", warning: ").append(this.graceLoginsRemaining).append(" grace logins remain");
 		}
-
 		if (this.timeBeforeExpiration != Integer.MAX_VALUE) {
 			sb.append(", warning: time before expiration is ").append(this.timeBeforeExpiration);
 		}
-
 		if (!hasError() && !hasWarning()) {
 			sb.append(" (no error, no warning)");
 		}
-
 		return sb.toString();
 	}
 
@@ -198,24 +190,17 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 			int[] bread = { 0 };
 			BERSequence seq = (BERSequence) BERElement.getElement(new SpecificTagDecoder(),
 					new ByteArrayInputStream(PasswordPolicyResponseControl.this.encodedValue), bread);
-
 			int size = seq.size();
-
 			if (logger.isDebugEnabled()) {
 				logger.debug("PasswordPolicyResponse, ASN.1 sequence has " + size + " elements");
 			}
-
 			for (int i = 0; i < seq.size(); i++) {
 				BERTag elt = (BERTag) seq.elementAt(i);
-
 				int tag = elt.getTag() & 0x1F;
-
 				if (tag == 0) {
 					BERChoice warning = (BERChoice) elt.getValue();
-
 					BERTag content = (BERTag) warning.getValue();
 					int value = ((BERInteger) content.getValue()).getValue();
-
 					if ((content.getTag() & 0x1F) == 0) {
 						PasswordPolicyResponseControl.this.timeBeforeExpiration = value;
 					}
@@ -241,19 +226,15 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 					boolean[] implicit) throws IOException {
 				tag &= 0x1F;
 				implicit[0] = false;
-
 				if (tag == 0) {
 					// Either the choice or the time before expiry within it
 					if (this.inChoice == null) {
 						setInChoice(true);
-
 						// Read the choice length from the stream (ignored)
 						BERElement.readLengthOctets(stream, bytesRead);
-
 						int[] componentLength = new int[1];
 						BERElement choice = new BERChoice(decoder, stream, componentLength);
 						bytesRead[0] += componentLength[0];
-
 						// inChoice = null;
 						return choice;
 					}
@@ -267,7 +248,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 					if (this.inChoice == null) {
 						// The enumeration
 						setInChoice(false);
-
 						return new BEREnumerated(stream, bytesRead);
 					}
 					else {
@@ -277,7 +257,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 						}
 					}
 				}
-
 				throw new DataRetrievalFailureException("Unexpected tag " + tag);
 			}
 
@@ -288,68 +267,5 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 		}
 
 	}
-
-	/** Decoder based on the OpenLDAP/Novell JLDAP library */
-
-	// private class JLdapDecoder implements PPolicyDecoder {
-	//
-	// public void decode() throws IOException {
-	//
-	// LBERDecoder decoder = new LBERDecoder();
-	//
-	// ASN1Sequence seq = (ASN1Sequence)decoder.decode(encodedValue);
-	//
-	// if(seq == null) {
-	//
-	// }
-	//
-	// int size = seq.size();
-	//
-	// if(logger.isDebugEnabled()) {
-	// logger.debug("PasswordPolicyResponse, ASN.1 sequence has " +
-	// size + " elements");
-	// }
-	//
-	// for(int i=0; i < size; i++) {
-	//
-	// ASN1Tagged taggedObject = (ASN1Tagged)seq.get(i);
-	//
-	// int tag = taggedObject.getIdentifier().getTag();
-	//
-	// ASN1OctetString value = (ASN1OctetString)taggedObject.taggedValue();
-	// byte[] content = value.byteValue();
-	//
-	// if(tag == 0) {
-	// parseWarning(content, decoder);
-	//
-	// } else if(tag == 1) {
-	// // Error: set the code to the value
-	// errorCode = content[0];
-	// }
-	// }
-	// }
-	//
-	// private void parseWarning(byte[] content, LBERDecoder decoder) {
-	// // It's the warning (choice). Parse the number and set either the
-	// // expiry time or number of logins remaining.
-	// ASN1Tagged taggedObject = (ASN1Tagged)decoder.decode(content);
-	// int contentTag = taggedObject.getIdentifier().getTag();
-	// content = ((ASN1OctetString)taggedObject.taggedValue()).byteValue();
-	// int number;
-	//
-	// try {
-	// number = ((Long)decoder.decodeNumeric(new ByteArrayInputStream(content),
-	// content.length)).intValue();
-	// } catch(IOException ex) {
-	// throw new LdapDataAccessException("Failed to parse number ", ex);
-	// }
-	//
-	// if(contentTag == 0) {
-	// timeBeforeExpiration = number;
-	// } else if (contentTag == 1) {
-	// graceLoginsRemaining = number;
-	// }
-	// }
-	// }
 
 }

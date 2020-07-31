@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
@@ -53,56 +54,41 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
 			Collection<? extends GrantedAuthority> authorities) {
 		String dn = ctx.getNameInNamespace();
-
-		this.logger.debug("Mapping user details from context with DN: " + dn);
-
+		this.logger.debug(LogMessage.format("Mapping user details from context with DN: %s", dn));
 		LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
 		essence.setDn(dn);
-
 		Object passwordValue = ctx.getObjectAttribute(this.passwordAttributeName);
-
 		if (passwordValue != null) {
 			essence.setPassword(mapPassword(passwordValue));
 		}
-
 		essence.setUsername(username);
-
 		// Map the roles
 		for (int i = 0; (this.roleAttributes != null) && (i < this.roleAttributes.length); i++) {
 			String[] rolesForAttribute = ctx.getStringAttributes(this.roleAttributes[i]);
-
 			if (rolesForAttribute == null) {
-				this.logger.debug("Couldn't read role attribute '" + this.roleAttributes[i] + "' for user " + dn);
+				this.logger.debug(
+						LogMessage.format("Couldn't read role attribute '%s' for user $s", this.roleAttributes[i], dn));
 				continue;
 			}
-
 			for (String role : rolesForAttribute) {
 				GrantedAuthority authority = createAuthority(role);
-
 				if (authority != null) {
 					essence.addAuthority(authority);
 				}
 			}
 		}
-
 		// Add the supplied authorities
-
 		for (GrantedAuthority authority : authorities) {
 			essence.addAuthority(authority);
 		}
-
 		// Check for PPolicy data
-
 		PasswordPolicyResponseControl ppolicy = (PasswordPolicyResponseControl) ctx
 				.getObjectAttribute(PasswordPolicyControl.OID);
-
 		if (ppolicy != null) {
 			essence.setTimeBeforeExpiration(ppolicy.getTimeBeforeExpiration());
 			essence.setGraceLoginsRemaining(ppolicy.getGraceLoginsRemaining());
 		}
-
 		return essence.createUserDetails();
-
 	}
 
 	@Override
@@ -118,12 +104,10 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * @return a String representation of the password.
 	 */
 	protected String mapPassword(Object passwordValue) {
-
 		if (!(passwordValue instanceof String)) {
 			// Assume it's binary
 			passwordValue = new String((byte[]) passwordValue);
 		}
-
 		return (String) passwordValue;
 
 	}

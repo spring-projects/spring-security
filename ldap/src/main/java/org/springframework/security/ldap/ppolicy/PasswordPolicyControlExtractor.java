@@ -45,13 +45,11 @@ public final class PasswordPolicyControlExtractor {
 		catch (javax.naming.NamingException ex) {
 			logger.error("Failed to obtain response controls", ex);
 		}
-
 		for (int i = 0; ctrls != null && i < ctrls.length; i++) {
 			if (ctrls[i] instanceof PasswordPolicyResponseControl) {
 				return (PasswordPolicyResponseControl) ctrls[i];
 			}
 		}
-
 		return null;
 	}
 

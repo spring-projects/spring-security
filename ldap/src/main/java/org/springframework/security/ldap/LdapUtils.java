@@ -47,7 +47,6 @@ public final class LdapUtils {
 		if (ctx instanceof DirContextAdapter) {
 			return;
 		}
-
 		try {
 			if (ctx != null) {
 				ctx.close();
@@ -81,24 +80,17 @@ public final class LdapUtils {
 	 * @throws NamingException any exceptions thrown by the context are propagated.
 	 */
 	public static String getRelativeName(String fullDn, Context baseCtx) throws NamingException {
-
 		String baseDn = baseCtx.getNameInNamespace();
-
 		if (baseDn.length() == 0) {
 			return fullDn;
 		}
-
 		DistinguishedName base = new DistinguishedName(baseDn);
 		DistinguishedName full = new DistinguishedName(fullDn);
-
 		if (base.equals(full)) {
 			return "";
 		}
-
 		Assert.isTrue(full.startsWith(base), "Full DN does not start with base DN");
-
 		full.removeFirst(base);
-
 		return full.toString();
 	}
 
@@ -108,28 +100,22 @@ public final class LdapUtils {
 	 */
 	public static DistinguishedName getFullDn(DistinguishedName dn, Context baseCtx) throws NamingException {
 		DistinguishedName baseDn = new DistinguishedName(baseCtx.getNameInNamespace());
-
 		if (dn.contains(baseDn)) {
 			return dn;
 		}
-
 		baseDn.append(dn);
-
 		return baseDn;
 	}
 
 	public static String convertPasswordToString(Object passObj) {
 		Assert.notNull(passObj, "Password object to convert must not be null");
-
 		if (passObj instanceof byte[]) {
 			return Utf8.decode((byte[]) passObj);
 		}
-		else if (passObj instanceof String) {
+		if (passObj instanceof String) {
 			return (String) passObj;
 		}
-		else {
-			throw new IllegalArgumentException("Password object was not a String or byte array.");
-		}
+		throw new IllegalArgumentException("Password object was not a String or byte array.");
 	}
 
 	/**
@@ -143,9 +129,7 @@ public final class LdapUtils {
 	 */
 	public static String parseRootDnFromUrl(String url) {
 		Assert.hasLength(url, "url must have length");
-
 		String urlRootDn;
-
 		if (url.startsWith("ldap:") || url.startsWith("ldaps:")) {
 			URI uri = parseLdapUrl(url);
 			urlRootDn = uri.getRawPath();
@@ -154,11 +138,9 @@ public final class LdapUtils {
 			// Assume it's an embedded server
 			urlRootDn = url;
 		}
-
 		if (urlRootDn.startsWith("/")) {
 			urlRootDn = urlRootDn.substring(1);
 		}
-
 		return urlRootDn;
 	}
 
@@ -173,14 +155,11 @@ public final class LdapUtils {
 
 	private static URI parseLdapUrl(String url) {
 		Assert.hasLength(url, "url must have length");
-
 		try {
 			return new URI(url);
 		}
 		catch (URISyntaxException ex) {
-			IllegalArgumentException iae = new IllegalArgumentException("Unable to parse url: " + url);
-			iae.initCause(ex);
-			throw iae;
+			throw new IllegalArgumentException("Unable to parse url: " + url, ex);
 		}
 	}
 
