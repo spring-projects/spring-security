@@ -114,7 +114,6 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 		if (this.authentication != null) {
 			return this.authentication;
 		}
-
 		SecurityContext context = SecurityContextHolder.getContext();
 		return context.getAuthentication();
 	}
