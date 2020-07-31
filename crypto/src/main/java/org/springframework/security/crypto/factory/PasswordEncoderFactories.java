@@ -78,7 +78,6 @@ public final class PasswordEncoderFactories {
 				new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));
 		encoders.put("sha256", new org.springframework.security.crypto.password.StandardPasswordEncoder());
 		encoders.put("argon2", new Argon2PasswordEncoder());
-
 		return new DelegatingPasswordEncoder(encodingId, encoders);
 	}
 

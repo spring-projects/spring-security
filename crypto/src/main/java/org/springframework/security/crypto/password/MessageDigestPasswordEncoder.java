@@ -123,7 +123,6 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 
 	private String digest(String salt, CharSequence rawPassword) {
 		String saltedPassword = rawPassword + salt;
-
 		byte[] digest = this.digester.digest(Utf8.encode(saltedPassword));
 		String encoded = encode(digest);
 		return salt + encoded;
@@ -133,9 +132,7 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 		if (this.encodeHashAsBase64) {
 			return Utf8.decode(Base64.getEncoder().encode(digest));
 		}
-		else {
-			return new String(Hex.encode(digest));
-		}
+		return new String(Hex.encode(digest));
 	}
 
 	/**

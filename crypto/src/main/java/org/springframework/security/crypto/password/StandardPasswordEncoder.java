@@ -50,6 +50,8 @@ import org.springframework.security.crypto.util.EncodingUtils;
 @Deprecated
 public final class StandardPasswordEncoder implements PasswordEncoder {
 
+	private static final int DEFAULT_ITERATIONS = 1024;
+
 	private final Digester digester;
 
 	private final byte[] secret;
@@ -103,7 +105,5 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	private byte[] decode(CharSequence encodedPassword) {
 		return Hex.decode(encodedPassword);
 	}
-
-	private static final int DEFAULT_ITERATIONS = 1024;
 
 }

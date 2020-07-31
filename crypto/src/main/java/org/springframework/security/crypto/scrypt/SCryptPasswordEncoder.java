@@ -109,7 +109,6 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		if (saltLength < 1 || saltLength > Integer.MAX_VALUE) {
 			throw new IllegalArgumentException("Salt length must be >= 1 and <= " + Integer.MAX_VALUE);
 		}
-
 		this.cpuCost = cpuCost;
 		this.memoryCost = memoryCost;
 		this.parallelization = parallelization;
@@ -136,56 +135,43 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		if (encodedPassword == null || encodedPassword.isEmpty()) {
 			return false;
 		}
-
 		String[] parts = encodedPassword.split("\\$");
-
 		if (parts.length != 4) {
 			throw new IllegalArgumentException("Encoded password does not look like SCrypt: " + encodedPassword);
 		}
-
 		long params = Long.parseLong(parts[1], 16);
-
 		int cpuCost = (int) Math.pow(2, params >> 16 & 0xffff);
 		int memoryCost = (int) params >> 8 & 0xff;
 		int parallelization = (int) params & 0xff;
-
 		return cpuCost < this.cpuCost || memoryCost < this.memoryCost || parallelization < this.parallelization;
 	}
 
 	private boolean decodeAndCheckMatches(CharSequence rawPassword, String encodedPassword) {
 		String[] parts = encodedPassword.split("\\$");
-
 		if (parts.length != 4) {
 			return false;
 		}
-
 		long params = Long.parseLong(parts[1], 16);
 		byte[] salt = decodePart(parts[2]);
 		byte[] derived = decodePart(parts[3]);
-
 		int cpuCost = (int) Math.pow(2, params >> 16 & 0xffff);
 		int memoryCost = (int) params >> 8 & 0xff;
 		int parallelization = (int) params & 0xff;
-
 		byte[] generated = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization,
 				this.keyLength);
-
 		return MessageDigest.isEqual(derived, generated);
 	}
 
 	private String digest(CharSequence rawPassword, byte[] salt) {
 		byte[] derived = SCrypt.generate(Utf8.encode(rawPassword), salt, this.cpuCost, this.memoryCost,
 				this.parallelization, this.keyLength);
-
 		String params = Long.toString(
 				((int) (Math.log(this.cpuCost) / Math.log(2)) << 16L) | this.memoryCost << 8 | this.parallelization,
 				16);
-
 		StringBuilder sb = new StringBuilder((salt.length + derived.length) * 2);
 		sb.append("$").append(params).append('$');
 		sb.append(encodePart(salt)).append('$');
 		sb.append(encodePart(derived));
-
 		return sb.toString();
 	}
 

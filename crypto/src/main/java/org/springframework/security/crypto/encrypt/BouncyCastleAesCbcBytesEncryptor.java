@@ -33,7 +33,6 @@ import org.springframework.security.crypto.util.EncodingUtils;
  * "AES/CBC/PKCS5Padding".
  *
  * @author William Tran
- *
  */
 public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryptor {
 
@@ -46,10 +45,9 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public byte[] encrypt(byte[] bytes) {
 		byte[] iv = this.ivGenerator.generateKey();
-
-		@SuppressWarnings("deprecation")
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
 				new CBCBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine()), new PKCS7Padding());
 		blockCipher.init(true, new ParametersWithIV(this.secretKey, iv));
@@ -58,11 +56,10 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public byte[] decrypt(byte[] encryptedBytes) {
 		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
 		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
-
-		@SuppressWarnings("deprecation")
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
 				new CBCBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine()), new PKCS7Padding());
 		blockCipher.init(false, new ParametersWithIV(this.secretKey, iv));

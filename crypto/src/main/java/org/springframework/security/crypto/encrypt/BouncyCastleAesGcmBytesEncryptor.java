@@ -44,23 +44,20 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public byte[] encrypt(byte[] bytes) {
 		byte[] iv = this.ivGenerator.generateKey();
-
-		@SuppressWarnings("deprecation")
 		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());
 		blockCipher.init(true, new AEADParameters(this.secretKey, 128, iv, null));
-
 		byte[] encrypted = process(blockCipher, bytes);
 		return (iv != null) ? EncodingUtils.concatenate(iv, encrypted) : encrypted;
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public byte[] decrypt(byte[] encryptedBytes) {
 		byte[] iv = EncodingUtils.subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
 		encryptedBytes = EncodingUtils.subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
-
-		@SuppressWarnings("deprecation")
 		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());
 		blockCipher.init(false, new AEADParameters(this.secretKey, 128, iv, null));
 		return process(blockCipher, encryptedBytes);

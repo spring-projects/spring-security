@@ -112,11 +112,11 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 		String algorithmName = secretKeyFactoryAlgorithm.name();
 		try {
 			SecretKeyFactory.getInstance(algorithmName);
+			this.algorithm = algorithmName;
 		}
 		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalArgumentException("Invalid algorithm '" + algorithmName + "'.", ex);
 		}
-		this.algorithm = algorithmName;
 	}
 
 	/**

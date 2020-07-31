@@ -44,7 +44,6 @@ public final class Utf8 {
 			ByteBuffer bytes = CHARSET.newEncoder().encode(CharBuffer.wrap(string));
 			byte[] bytesCopy = new byte[bytes.limit()];
 			System.arraycopy(bytes.array(), 0, bytesCopy, 0, bytes.limit());
-
 			return bytesCopy;
 		}
 		catch (CharacterCodingException ex) {
