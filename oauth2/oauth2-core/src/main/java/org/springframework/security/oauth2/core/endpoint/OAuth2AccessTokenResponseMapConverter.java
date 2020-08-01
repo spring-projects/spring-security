@@ -39,15 +39,9 @@ public final class OAuth2AccessTokenResponseMapConverter
 	@Override
 	public Map<String, String> convert(OAuth2AccessTokenResponse tokenResponse) {
 		Map<String, String> parameters = new HashMap<>();
-
-		long expiresIn = -1;
-		if (tokenResponse.getAccessToken().getExpiresAt() != null) {
-			expiresIn = ChronoUnit.SECONDS.between(Instant.now(), tokenResponse.getAccessToken().getExpiresAt());
-		}
-
 		parameters.put(OAuth2ParameterNames.ACCESS_TOKEN, tokenResponse.getAccessToken().getTokenValue());
 		parameters.put(OAuth2ParameterNames.TOKEN_TYPE, tokenResponse.getAccessToken().getTokenType().getValue());
-		parameters.put(OAuth2ParameterNames.EXPIRES_IN, String.valueOf(expiresIn));
+		parameters.put(OAuth2ParameterNames.EXPIRES_IN, String.valueOf(getExpiresIn(tokenResponse)));
 		if (!CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
 			parameters.put(OAuth2ParameterNames.SCOPE,
 					StringUtils.collectionToDelimitedString(tokenResponse.getAccessToken().getScopes(), " "));
@@ -60,8 +54,14 @@ public final class OAuth2AccessTokenResponseMapConverter
 				parameters.put(entry.getKey(), entry.getValue().toString());
 			}
 		}
-
 		return parameters;
+	}
+
+	private long getExpiresIn(OAuth2AccessTokenResponse tokenResponse) {
+		if (tokenResponse.getAccessToken().getExpiresAt() != null) {
+			return ChronoUnit.SECONDS.between(Instant.now(), tokenResponse.getAccessToken().getExpiresAt());
+		}
+		return -1;
 	}
 
 }

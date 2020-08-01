@@ -80,11 +80,7 @@ public final class OAuth2TokenValidatorResult {
 	 * @return an {@link OAuth2TokenValidatorResult} with the errors specified
 	 */
 	public static OAuth2TokenValidatorResult failure(Collection<OAuth2Error> errors) {
-		if (errors.isEmpty()) {
-			return NO_ERRORS;
-		}
-
-		return new OAuth2TokenValidatorResult(errors);
+		return (errors.isEmpty()) ? NO_ERRORS : new OAuth2TokenValidatorResult(errors);
 	}
 
 }

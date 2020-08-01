@@ -52,7 +52,6 @@ public final class ClaimTypeConverter implements Converter<Map<String, Object>, 
 		if (CollectionUtils.isEmpty(claims)) {
 			return claims;
 		}
-
 		Map<String, Object> result = new HashMap<>(claims);
 		this.claimTypeConverters.forEach((claimName, typeConverter) -> {
 			if (claims.containsKey(claimName)) {
@@ -63,7 +62,6 @@ public final class ClaimTypeConverter implements Converter<Map<String, Object>, 
 				}
 			}
 		});
-
 		return result;
 	}
 

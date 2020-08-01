@@ -53,18 +53,20 @@ class OAuth2AccessTokenResponseBodyExtractor
 
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
+	};
+
 	OAuth2AccessTokenResponseBodyExtractor() {
 	}
 
 	@Override
 	public Mono<OAuth2AccessTokenResponse> extract(ReactiveHttpInputMessage inputMessage, Context context) {
-		ParameterizedTypeReference<Map<String, Object>> type = new ParameterizedTypeReference<Map<String, Object>>() {
-		};
-		BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors.toMono(type);
+		BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors
+				.toMono(STRING_OBJECT_MAP);
 		return delegate.extract(inputMessage, context)
-				.onErrorMap((e) -> new OAuth2AuthorizationException(
-						invalidTokenResponse("An error occurred parsing the Access Token response: " + e.getMessage()),
-						e))
+				.onErrorMap((ex) -> new OAuth2AuthorizationException(
+						invalidTokenResponse("An error occurred parsing the Access Token response: " + ex.getMessage()),
+						ex))
 				.switchIfEmpty(Mono.error(() -> new OAuth2AuthorizationException(
 						invalidTokenResponse("Empty OAuth 2.0 Access Token Response"))))
 				.map(OAuth2AccessTokenResponseBodyExtractor::parse)
@@ -76,10 +78,10 @@ class OAuth2AccessTokenResponseBodyExtractor
 		try {
 			return TokenResponse.parse(new JSONObject(json));
 		}
-		catch (ParseException pe) {
+		catch (ParseException ex) {
 			OAuth2Error oauth2Error = invalidTokenResponse(
-					"An error occurred parsing the Access Token response: " + pe.getMessage());
-			throw new OAuth2AuthorizationException(oauth2Error, pe);
+					"An error occurred parsing the Access Token response: " + ex.getMessage());
+			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
 	}
 
@@ -93,17 +95,18 @@ class OAuth2AccessTokenResponseBodyExtractor
 		}
 		TokenErrorResponse tokenErrorResponse = (TokenErrorResponse) tokenResponse;
 		ErrorObject errorObject = tokenErrorResponse.getErrorObject();
-		OAuth2Error oauth2Error;
-		if (errorObject == null) {
-			oauth2Error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR);
-		}
-		else {
-			oauth2Error = new OAuth2Error(
-					(errorObject.getCode() != null) ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
-					errorObject.getDescription(),
-					(errorObject.getURI() != null) ? errorObject.getURI().toString() : null);
-		}
+		OAuth2Error oauth2Error = getOAuth2Error(errorObject);
 		return Mono.error(new OAuth2AuthorizationException(oauth2Error));
+	}
+
+	private static OAuth2Error getOAuth2Error(ErrorObject errorObject) {
+		if (errorObject == null) {
+			return new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR);
+		}
+		String code = (errorObject.getCode() != null) ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR;
+		String description = errorObject.getDescription();
+		String uri = (errorObject.getURI() != null) ? errorObject.getURI().toString() : null;
+		return new OAuth2Error(code, description, uri);
 	}
 
 	private static OAuth2AccessTokenResponse oauth2AccessTokenResponse(AccessTokenResponse accessTokenResponse) {
@@ -113,17 +116,13 @@ class OAuth2AccessTokenResponseBodyExtractor
 			accessTokenType = OAuth2AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessToken.getLifetime();
-
 		Set<String> scopes = (accessToken.getScope() != null)
 				? new LinkedHashSet<>(accessToken.getScope().toStringList()) : Collections.emptySet();
-
 		String refreshToken = null;
 		if (accessTokenResponse.getTokens().getRefreshToken() != null) {
 			refreshToken = accessTokenResponse.getTokens().getRefreshToken().getValue();
 		}
-
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
-
 		return OAuth2AccessTokenResponse.withToken(accessToken.getValue()).tokenType(accessTokenType)
 				.expiresIn(expiresIn).scopes(scopes).refreshToken(refreshToken)
 				.additionalParameters(additionalParameters).build();

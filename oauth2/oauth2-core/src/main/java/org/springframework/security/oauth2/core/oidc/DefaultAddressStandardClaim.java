@@ -80,9 +80,7 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		if (obj == null || !AddressStandardClaim.class.isAssignableFrom(obj.getClass())) {
 			return false;
 		}
-
 		AddressStandardClaim other = (AddressStandardClaim) obj;
-
 		if ((this.getFormatted() != null) ? !this.getFormatted().equals(other.getFormatted())
 				: other.getFormatted() != null) {
 			return false;
@@ -238,7 +236,6 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 			address.region = this.region;
 			address.postalCode = this.postalCode;
 			address.country = this.country;
-
 			return address;
 		}
 

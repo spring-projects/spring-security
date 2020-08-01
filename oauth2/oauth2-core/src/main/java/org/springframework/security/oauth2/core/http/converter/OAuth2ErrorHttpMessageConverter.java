@@ -49,7 +49,7 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE = new ParameterizedTypeReference<Map<String, Object>>() {
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
 	private GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters.getJsonMessageConverter();
@@ -68,16 +68,14 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected OAuth2Error readInternal(Class<? extends OAuth2Error> clazz, HttpInputMessage inputMessage)
 			throws HttpMessageNotReadableException {
-
 		try {
-			// gh-8157
-			// Parse parameter values as Object in order to handle potential JSON Object
-			// and then convert values to String
-			@SuppressWarnings("unchecked")
+			// gh-8157: Parse parameter values as Object in order to handle potential JSON
+			// Object and then convert values to String
 			Map<String, Object> errorParameters = (Map<String, Object>) this.jsonMessageConverter
-					.read(PARAMETERIZED_RESPONSE_TYPE.getType(), null, inputMessage);
+					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
 			return this.errorConverter.convert(errorParameters.entrySet().stream()
 					.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
 		}
@@ -90,11 +88,10 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 	@Override
 	protected void writeInternal(OAuth2Error oauth2Error, HttpOutputMessage outputMessage)
 			throws HttpMessageNotWritableException {
-
 		try {
 			Map<String, String> errorParameters = this.errorParametersConverter.convert(oauth2Error);
-			this.jsonMessageConverter.write(errorParameters, PARAMETERIZED_RESPONSE_TYPE.getType(),
-					MediaType.APPLICATION_JSON, outputMessage);
+			this.jsonMessageConverter.write(errorParameters, STRING_OBJECT_MAP.getType(), MediaType.APPLICATION_JSON,
+					outputMessage);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(
@@ -136,7 +133,6 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 			String errorCode = parameters.get(OAuth2ParameterNames.ERROR);
 			String errorDescription = parameters.get(OAuth2ParameterNames.ERROR_DESCRIPTION);
 			String errorUri = parameters.get(OAuth2ParameterNames.ERROR_URI);
-
 			return new OAuth2Error(errorCode, errorDescription, errorUri);
 		}
 
@@ -151,7 +147,6 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 		@Override
 		public Map<String, String> convert(OAuth2Error oauth2Error) {
 			Map<String, String> parameters = new HashMap<>();
-
 			parameters.put(OAuth2ParameterNames.ERROR, oauth2Error.getErrorCode());
 			if (StringUtils.hasText(oauth2Error.getDescription())) {
 				parameters.put(OAuth2ParameterNames.ERROR_DESCRIPTION, oauth2Error.getDescription());
@@ -159,7 +154,6 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 			if (StringUtils.hasText(oauth2Error.getUri())) {
 				parameters.put(OAuth2ParameterNames.ERROR_URI, oauth2Error.getUri());
 			}
-
 			return parameters;
 		}
 

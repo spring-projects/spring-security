@@ -97,9 +97,7 @@ public abstract class AbstractOAuth2Token implements Serializable {
 		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
-
 		AbstractOAuth2Token other = (AbstractOAuth2Token) obj;
-
 		if (!this.getTokenValue().equals(other.getTokenValue())) {
 			return false;
 		}

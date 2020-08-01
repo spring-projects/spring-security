@@ -52,10 +52,10 @@ final class HttpMessageConverters {
 		if (jackson2Present) {
 			return new MappingJackson2HttpMessageConverter();
 		}
-		else if (gsonPresent) {
+		if (gsonPresent) {
 			return new GsonHttpMessageConverter();
 		}
-		else if (jsonbPresent) {
+		if (jsonbPresent) {
 			return new JsonbHttpMessageConverter();
 		}
 		return null;
