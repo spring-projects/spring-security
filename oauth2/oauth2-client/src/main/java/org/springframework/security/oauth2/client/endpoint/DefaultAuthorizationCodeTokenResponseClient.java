@@ -74,23 +74,9 @@ public final class DefaultAuthorizationCodeTokenResponseClient
 	public OAuth2AccessTokenResponse getTokenResponse(
 			OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest) {
 		Assert.notNull(authorizationCodeGrantRequest, "authorizationCodeGrantRequest cannot be null");
-
 		RequestEntity<?> request = this.requestEntityConverter.convert(authorizationCodeGrantRequest);
-
-		ResponseEntity<OAuth2AccessTokenResponse> response;
-		try {
-			response = this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
-		}
-		catch (RestClientException ex) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
-					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: "
-							+ ex.getMessage(),
-					null);
-			throw new OAuth2AuthorizationException(oauth2Error, ex);
-		}
-
+		ResponseEntity<OAuth2AccessTokenResponse> response = getResponse(request);
 		OAuth2AccessTokenResponse tokenResponse = response.getBody();
-
 		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
 			// As per spec, in Section 5.1 Successful Access Token Response
 			// https://tools.ietf.org/html/rfc6749#section-5.1
@@ -99,8 +85,20 @@ public final class DefaultAuthorizationCodeTokenResponseClient
 			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
 					.scopes(authorizationCodeGrantRequest.getClientRegistration().getScopes()).build();
 		}
-
 		return tokenResponse;
+	}
+
+	private ResponseEntity<OAuth2AccessTokenResponse> getResponse(RequestEntity<?> request) {
+		try {
+			return this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
+		}
+		catch (RestClientException ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
+					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: "
+							+ ex.getMessage(),
+					null);
+			throw new OAuth2AuthorizationException(oauth2Error, ex);
+		}
 	}
 
 	/**

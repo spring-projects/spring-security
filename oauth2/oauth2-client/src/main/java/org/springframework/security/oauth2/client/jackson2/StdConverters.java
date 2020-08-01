@@ -53,10 +53,10 @@ abstract class StdConverters {
 			if (ClientAuthenticationMethod.BASIC.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.BASIC;
 			}
-			else if (ClientAuthenticationMethod.POST.getValue().equalsIgnoreCase(value)) {
+			if (ClientAuthenticationMethod.POST.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.POST;
 			}
-			else if (ClientAuthenticationMethod.NONE.getValue().equalsIgnoreCase(value)) {
+			if (ClientAuthenticationMethod.NONE.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.NONE;
 			}
 			return null;
@@ -72,13 +72,13 @@ abstract class StdConverters {
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.AUTHORIZATION_CODE;
 			}
-			else if (AuthorizationGrantType.IMPLICIT.getValue().equalsIgnoreCase(value)) {
+			if (AuthorizationGrantType.IMPLICIT.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.IMPLICIT;
 			}
-			else if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equalsIgnoreCase(value)) {
+			if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.CLIENT_CREDENTIALS;
 			}
-			else if (AuthorizationGrantType.PASSWORD.getValue().equalsIgnoreCase(value)) {
+			if (AuthorizationGrantType.PASSWORD.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.PASSWORD;
 			}
 			return null;
@@ -94,10 +94,10 @@ abstract class StdConverters {
 			if (AuthenticationMethod.HEADER.getValue().equalsIgnoreCase(value)) {
 				return AuthenticationMethod.HEADER;
 			}
-			else if (AuthenticationMethod.FORM.getValue().equalsIgnoreCase(value)) {
+			if (AuthenticationMethod.FORM.getValue().equalsIgnoreCase(value)) {
 				return AuthenticationMethod.FORM;
 			}
-			else if (AuthenticationMethod.QUERY.getValue().equalsIgnoreCase(value)) {
+			if (AuthenticationMethod.QUERY.getValue().equalsIgnoreCase(value)) {
 				return AuthenticationMethod.QUERY;
 			}
 			return null;

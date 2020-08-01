@@ -121,14 +121,11 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 
 	private Mono<Map<String, OAuth2AuthorizationRequest>> saveStateToAuthorizationRequest(ServerWebExchange exchange) {
 		Assert.notNull(exchange, "exchange cannot be null");
-
 		return getSessionAttributes(exchange).doOnNext((sessionAttrs) -> {
 			Object stateToAuthzRequest = sessionAttrs.get(this.sessionAttributeName);
-
 			if (stateToAuthzRequest == null) {
 				stateToAuthzRequest = new HashMap<String, OAuth2AuthorizationRequest>();
 			}
-
 			// No matter stateToAuthzRequest was in session or not, we should always put
 			// it into session again
 			// in case of redis or hazelcast session. #6215

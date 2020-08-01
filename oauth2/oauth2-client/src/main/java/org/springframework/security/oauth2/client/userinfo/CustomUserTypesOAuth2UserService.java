@@ -88,22 +88,22 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 		if (customUserType == null) {
 			return null;
 		}
-
 		RequestEntity<?> request = this.requestEntityConverter.convert(userRequest);
+		ResponseEntity<? extends OAuth2User> response = getResponse(customUserType, request);
+		OAuth2User oauth2User = response.getBody();
+		return oauth2User;
+	}
 
-		ResponseEntity<? extends OAuth2User> response;
+	private ResponseEntity<? extends OAuth2User> getResponse(Class<? extends OAuth2User> customUserType,
+			RequestEntity<?> request) {
 		try {
-			response = this.restOperations.exchange(request, customUserType);
+			return this.restOperations.exchange(request, customUserType);
 		}
 		catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 					"An error occurred while attempting to retrieve the UserInfo Resource: " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
-
-		OAuth2User oauth2User = response.getBody();
-
-		return oauth2User;
 	}
 
 	/**

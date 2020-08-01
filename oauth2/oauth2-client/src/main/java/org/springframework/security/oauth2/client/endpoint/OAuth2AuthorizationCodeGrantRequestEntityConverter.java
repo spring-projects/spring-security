@@ -53,12 +53,10 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverter
 	@Override
 	public RequestEntity<?> convert(OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest) {
 		ClientRegistration clientRegistration = authorizationCodeGrantRequest.getClientRegistration();
-
 		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
 		MultiValueMap<String, String> formParameters = this.buildFormParameters(authorizationCodeGrantRequest);
 		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri()).build()
 				.toUri();
-
 		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
 	}
 
@@ -73,7 +71,6 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverter
 			OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest) {
 		ClientRegistration clientRegistration = authorizationCodeGrantRequest.getClientRegistration();
 		OAuth2AuthorizationExchange authorizationExchange = authorizationCodeGrantRequest.getAuthorizationExchange();
-
 		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
 		formParameters.add(OAuth2ParameterNames.GRANT_TYPE, authorizationCodeGrantRequest.getGrantType().getValue());
 		formParameters.add(OAuth2ParameterNames.CODE, authorizationExchange.getAuthorizationResponse().getCode());
@@ -92,7 +89,6 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverter
 		if (codeVerifier != null) {
 			formParameters.add(PkceParameterNames.CODE_VERIFIER, codeVerifier);
 		}
-
 		return formParameters;
 	}
 

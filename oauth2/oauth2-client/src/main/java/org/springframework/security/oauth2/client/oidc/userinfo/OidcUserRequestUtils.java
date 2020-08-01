@@ -46,10 +46,8 @@ final class OidcUserRequestUtils {
 		// Auto-disabled if UserInfo Endpoint URI is not provided
 		ClientRegistration clientRegistration = userRequest.getClientRegistration();
 		if (StringUtils.isEmpty(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())) {
-
 			return false;
 		}
-
 		// The Claims requested by the profile, email, address, and phone scope values
 		// are returned from the UserInfo Endpoint (as described in Section 5.3.2),
 		// when a response_type value is used that results in an Access Token being
@@ -60,13 +58,11 @@ final class OidcUserRequestUtils {
 		// The Authorization Code Grant Flow, which is response_type=code, results in an
 		// Access Token being issued.
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
-
 			// Return true if there is at least one match between the authorized scope(s)
 			// and UserInfo scope(s)
 			return CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(),
 					userRequest.getClientRegistration().getScopes());
 		}
-
 		return false;
 	}
 

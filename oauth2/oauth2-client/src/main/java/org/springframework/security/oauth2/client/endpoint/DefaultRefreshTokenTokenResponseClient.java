@@ -69,12 +69,32 @@ public final class DefaultRefreshTokenTokenResponseClient
 	@Override
 	public OAuth2AccessTokenResponse getTokenResponse(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
 		Assert.notNull(refreshTokenGrantRequest, "refreshTokenGrantRequest cannot be null");
-
 		RequestEntity<?> request = this.requestEntityConverter.convert(refreshTokenGrantRequest);
+		ResponseEntity<OAuth2AccessTokenResponse> response = getResponse(request);
+		OAuth2AccessTokenResponse tokenResponse = response.getBody();
+		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())
+				|| tokenResponse.getRefreshToken() == null) {
+			OAuth2AccessTokenResponse.Builder tokenResponseBuilder = OAuth2AccessTokenResponse
+					.withResponse(tokenResponse);
+			if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
+				// As per spec, in Section 5.1 Successful Access Token Response
+				// https://tools.ietf.org/html/rfc6749#section-5.1
+				// If AccessTokenResponse.scope is empty, then default to the scope
+				// originally requested by the client in the Token Request
+				tokenResponseBuilder.scopes(refreshTokenGrantRequest.getAccessToken().getScopes());
+			}
+			if (tokenResponse.getRefreshToken() == null) {
+				// Reuse existing refresh token
+				tokenResponseBuilder.refreshToken(refreshTokenGrantRequest.getRefreshToken().getTokenValue());
+			}
+			tokenResponse = tokenResponseBuilder.build();
+		}
+		return tokenResponse;
+	}
 
-		ResponseEntity<OAuth2AccessTokenResponse> response;
+	private ResponseEntity<OAuth2AccessTokenResponse> getResponse(RequestEntity<?> request) {
 		try {
-			response = this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
+			return this.restOperations.exchange(request, OAuth2AccessTokenResponse.class);
 		}
 		catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
@@ -83,31 +103,6 @@ public final class DefaultRefreshTokenTokenResponseClient
 					null);
 			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
-
-		OAuth2AccessTokenResponse tokenResponse = response.getBody();
-
-		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())
-				|| tokenResponse.getRefreshToken() == null) {
-			OAuth2AccessTokenResponse.Builder tokenResponseBuilder = OAuth2AccessTokenResponse
-					.withResponse(tokenResponse);
-
-			if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
-				// As per spec, in Section 5.1 Successful Access Token Response
-				// https://tools.ietf.org/html/rfc6749#section-5.1
-				// If AccessTokenResponse.scope is empty, then default to the scope
-				// originally requested by the client in the Token Request
-				tokenResponseBuilder.scopes(refreshTokenGrantRequest.getAccessToken().getScopes());
-			}
-
-			if (tokenResponse.getRefreshToken() == null) {
-				// Reuse existing refresh token
-				tokenResponseBuilder.refreshToken(refreshTokenGrantRequest.getRefreshToken().getTokenValue());
-			}
-
-			tokenResponse = tokenResponseBuilder.build();
-		}
-
-		return tokenResponse;
 	}
 
 	/**

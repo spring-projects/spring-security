@@ -53,12 +53,10 @@ public class OAuth2RefreshTokenGrantRequestEntityConverter
 	@Override
 	public RequestEntity<?> convert(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
 		ClientRegistration clientRegistration = refreshTokenGrantRequest.getClientRegistration();
-
 		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
 		MultiValueMap<String, String> formParameters = buildFormParameters(refreshTokenGrantRequest);
 		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri()).build()
 				.toUri();
-
 		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
 	}
 
@@ -71,7 +69,6 @@ public class OAuth2RefreshTokenGrantRequestEntityConverter
 	 */
 	private MultiValueMap<String, String> buildFormParameters(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
 		ClientRegistration clientRegistration = refreshTokenGrantRequest.getClientRegistration();
-
 		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
 		formParameters.add(OAuth2ParameterNames.GRANT_TYPE, refreshTokenGrantRequest.getGrantType().getValue());
 		formParameters.add(OAuth2ParameterNames.REFRESH_TOKEN,
@@ -84,7 +81,6 @@ public class OAuth2RefreshTokenGrantRequestEntityConverter
 			formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
 			formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
-
 		return formParameters;
 	}
 

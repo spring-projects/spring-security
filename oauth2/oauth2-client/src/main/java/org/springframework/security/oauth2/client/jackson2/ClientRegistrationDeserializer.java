@@ -52,7 +52,6 @@ final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegist
 		JsonNode clientRegistrationNode = mapper.readTree(parser);
 		JsonNode providerDetailsNode = JsonNodeUtils.findObjectNode(clientRegistrationNode, "providerDetails");
 		JsonNode userInfoEndpointNode = JsonNodeUtils.findObjectNode(providerDetailsNode, "userInfoEndpoint");
-
 		return ClientRegistration
 				.withRegistrationId(JsonNodeUtils.findStringValue(clientRegistrationNode, "registrationId"))
 				.clientId(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientId"))
@@ -62,8 +61,7 @@ final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegist
 				.authorizationGrantType(AUTHORIZATION_GRANT_TYPE_CONVERTER
 						.convert(JsonNodeUtils.findObjectNode(clientRegistrationNode, "authorizationGrantType")))
 				.redirectUri(JsonNodeUtils.findStringValue(clientRegistrationNode, "redirectUri"))
-				.scope(JsonNodeUtils.findValue(clientRegistrationNode, "scopes", JsonNodeUtils.SET_TYPE_REFERENCE,
-						mapper))
+				.scope(JsonNodeUtils.findValue(clientRegistrationNode, "scopes", JsonNodeUtils.STRING_SET, mapper))
 				.clientName(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientName"))
 				.authorizationUri(JsonNodeUtils.findStringValue(providerDetailsNode, "authorizationUri"))
 				.tokenUri(JsonNodeUtils.findStringValue(providerDetailsNode, "tokenUri"))
@@ -74,7 +72,7 @@ final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegist
 				.jwkSetUri(JsonNodeUtils.findStringValue(providerDetailsNode, "jwkSetUri"))
 				.issuerUri(JsonNodeUtils.findStringValue(providerDetailsNode, "issuerUri"))
 				.providerConfigurationMetadata(JsonNodeUtils.findValue(providerDetailsNode, "configurationMetadata",
-						JsonNodeUtils.MAP_TYPE_REFERENCE, mapper))
+						JsonNodeUtils.STRING_OBJECT_MAP, mapper))
 				.build();
 	}
 

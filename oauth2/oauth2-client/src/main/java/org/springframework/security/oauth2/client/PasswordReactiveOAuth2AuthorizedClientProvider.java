@@ -77,26 +77,21 @@ public final class PasswordReactiveOAuth2AuthorizedClientProvider implements Rea
 	@Override
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
-
 		if (!AuthorizationGrantType.PASSWORD.equals(clientRegistration.getAuthorizationGrantType())) {
 			return Mono.empty();
 		}
-
 		String username = context.getAttribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME);
 		String password = context.getAttribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME);
 		if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
 			return Mono.empty();
 		}
-
 		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
 			// If client is already authorized and access token is NOT expired than no
 			// need for re-authorization
 			return Mono.empty();
 		}
-
 		if (authorizedClient != null && hasTokenExpired(authorizedClient.getAccessToken())
 				&& authorizedClient.getRefreshToken() != null) {
 			// If client is already authorized and access token is expired and a refresh
@@ -105,10 +100,8 @@ public final class PasswordReactiveOAuth2AuthorizedClientProvider implements Rea
 			// handle the refresh
 			return Mono.empty();
 		}
-
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, username,
 				password);
-
 		return Mono.just(passwordGrantRequest).flatMap(this.accessTokenResponseClient::getTokenResponse)
 				.onErrorMap(OAuth2AuthorizationException.class,
 						(e) -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(),

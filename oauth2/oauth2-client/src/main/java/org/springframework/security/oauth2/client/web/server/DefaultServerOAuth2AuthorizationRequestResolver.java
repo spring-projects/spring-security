@@ -153,13 +153,23 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	private OAuth2AuthorizationRequest authorizationRequest(ServerWebExchange exchange,
 			ClientRegistration clientRegistration) {
 		String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
+		OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration, attributes);
+		builder.clientId(clientRegistration.getClientId())
+				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
+				.state(this.stateGenerator.generateKey()).attributes(attributes);
 
-		OAuth2AuthorizationRequest.Builder builder;
+		this.authorizationRequestCustomizer.accept(builder);
+
+		return builder.build();
+	}
+
+	private OAuth2AuthorizationRequest.Builder getBuilder(ClientRegistration clientRegistration,
+			Map<String, Object> attributes) {
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
-			builder = OAuth2AuthorizationRequest.authorizationCode();
+			OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode();
 			Map<String, Object> additionalParameters = new HashMap<>();
 			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
 					&& clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
@@ -174,23 +184,14 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 				addPkceParameters(attributes, additionalParameters);
 			}
 			builder.additionalParameters(additionalParameters);
+			return builder;
 		}
-		else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
-			builder = OAuth2AuthorizationRequest.implicit();
+		if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
+			return OAuth2AuthorizationRequest.implicit();
 		}
-		else {
-			throw new IllegalArgumentException(
-					"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
-							+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
-		}
-		builder.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
-				.state(this.stateGenerator.generateKey()).attributes(attributes);
-
-		this.authorizationRequestCustomizer.accept(builder);
-
-		return builder.build();
+		throw new IllegalArgumentException(
+				"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
+						+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 	}
 
 	/**
@@ -213,7 +214,6 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	private static String expandRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
-
 		UriComponents uriComponents = UriComponentsBuilder.fromUri(request.getURI())
 				.replacePath(request.getPath().contextPath().value()).replaceQuery(null).fragment(null).build();
 		String scheme = uriComponents.getScheme();
@@ -231,13 +231,11 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 		}
 		uriVariables.put("basePath", (path != null) ? path : "");
 		uriVariables.put("baseUrl", uriComponents.toUriString());
-
 		String action = "";
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 			action = "login";
 		}
 		uriVariables.put("action", action);
-
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri()).buildAndExpand(uriVariables)
 				.toUriString();
 	}

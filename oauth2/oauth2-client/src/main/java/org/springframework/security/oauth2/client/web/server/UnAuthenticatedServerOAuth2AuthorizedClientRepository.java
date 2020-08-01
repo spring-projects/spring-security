@@ -53,7 +53,6 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepository implements Se
 		Assert.notNull(clientRegistrationId, "clientRegistrationId cannot be null");
 		Assert.isNull(serverWebExchange, "serverWebExchange must be null");
 		Assert.isTrue(isUnauthenticated(authentication), "The user " + authentication + " should not be authenticated");
-
 		return Mono.fromSupplier(() -> (T) this.clientRegistrationIdToAuthorizedClient.get(clientRegistrationId));
 	}
 

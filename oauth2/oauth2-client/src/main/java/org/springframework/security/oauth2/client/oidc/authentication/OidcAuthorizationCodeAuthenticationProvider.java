@@ -110,7 +110,6 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	public OidcAuthorizationCodeAuthenticationProvider(
 			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
 			OAuth2UserService<OidcUserRequest, OidcUser> userService) {
-
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
@@ -120,7 +119,6 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OAuth2LoginAuthenticationToken authorizationCodeAuthentication = (OAuth2LoginAuthenticationToken) authentication;
-
 		// Section 3.1.2.1 Authentication Request -
 		// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
@@ -131,35 +129,20 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			// and let OAuth2LoginAuthenticationProvider handle it instead
 			return null;
 		}
-
 		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationExchange()
 				.getAuthorizationRequest();
 		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication.getAuthorizationExchange()
 				.getAuthorizationResponse();
-
 		if (authorizationResponse.statusError()) {
 			throw new OAuth2AuthenticationException(authorizationResponse.getError(),
 					authorizationResponse.getError().toString());
 		}
-
 		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-
-		OAuth2AccessTokenResponse accessTokenResponse;
-		try {
-			accessTokenResponse = this.accessTokenResponseClient.getTokenResponse(
-					new OAuth2AuthorizationCodeGrantRequest(authorizationCodeAuthentication.getClientRegistration(),
-							authorizationCodeAuthentication.getAuthorizationExchange()));
-		}
-		catch (OAuth2AuthorizationException ex) {
-			OAuth2Error oauth2Error = ex.getError();
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-
+		OAuth2AccessTokenResponse accessTokenResponse = getResponse(authorizationCodeAuthentication);
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
-
 		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
 		if (!additionalParameters.containsKey(OidcParameterNames.ID_TOKEN)) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE,
@@ -169,37 +152,52 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
 		}
 		OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
-
-		// Validate nonce
-		String requestNonce = authorizationRequest.getAttribute(OidcParameterNames.NONCE);
-		if (requestNonce != null) {
-			String nonceHash;
-			try {
-				nonceHash = createHash(requestNonce);
-			}
-			catch (NoSuchAlgorithmException ex) {
-				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
-			String nonceHashClaim = idToken.getNonce();
-			if (nonceHashClaim == null || !nonceHashClaim.equals(nonceHash)) {
-				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
-		}
-
+		validateNonce(authorizationRequest, idToken);
 		OidcUser oidcUser = this.userService.loadUser(new OidcUserRequest(clientRegistration,
 				accessTokenResponse.getAccessToken(), idToken, additionalParameters));
 		Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
 				.mapAuthorities(oidcUser.getAuthorities());
-
 		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
 				authorizationCodeAuthentication.getClientRegistration(),
 				authorizationCodeAuthentication.getAuthorizationExchange(), oidcUser, mappedAuthorities,
 				accessTokenResponse.getAccessToken(), accessTokenResponse.getRefreshToken());
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
-
 		return authenticationResult;
+	}
+
+	private OAuth2AccessTokenResponse getResponse(OAuth2LoginAuthenticationToken authorizationCodeAuthentication) {
+		try {
+			return this.accessTokenResponseClient.getTokenResponse(
+					new OAuth2AuthorizationCodeGrantRequest(authorizationCodeAuthentication.getClientRegistration(),
+							authorizationCodeAuthentication.getAuthorizationExchange()));
+		}
+		catch (OAuth2AuthorizationException ex) {
+			OAuth2Error oauth2Error = ex.getError();
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
+	private void validateNonce(OAuth2AuthorizationRequest authorizationRequest, OidcIdToken idToken) {
+		String requestNonce = authorizationRequest.getAttribute(OidcParameterNames.NONCE);
+		if (requestNonce == null) {
+			return;
+		}
+		String nonceHash = getNonceHash(requestNonce);
+		String nonceHashClaim = idToken.getNonce();
+		if (nonceHashClaim == null || !nonceHashClaim.equals(nonceHash)) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+	}
+
+	private String getNonceHash(String requestNonce) {
+		try {
+			return createHash(requestNonce);
+		}
+		catch (NoSuchAlgorithmException ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 	}
 
 	/**
@@ -235,18 +233,21 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private OidcIdToken createOidcToken(ClientRegistration clientRegistration,
 			OAuth2AccessTokenResponse accessTokenResponse) {
 		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
-		Jwt jwt;
+		Jwt jwt = getJwt(accessTokenResponse, jwtDecoder);
+		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(),
+				jwt.getClaims());
+		return idToken;
+	}
+
+	private Jwt getJwt(OAuth2AccessTokenResponse accessTokenResponse, JwtDecoder jwtDecoder) {
 		try {
-			jwt = jwtDecoder
-					.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
+			Map<String, Object> parameters = accessTokenResponse.getAdditionalParameters();
+			return jwtDecoder.decode((String) parameters.get(OidcParameterNames.ID_TOKEN));
 		}
 		catch (JwtException ex) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(), ex);
 		}
-		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(),
-				jwt.getClaims());
-		return idToken;
 	}
 
 	static String createHash(String nonce) throws NoSuchAlgorithmException {

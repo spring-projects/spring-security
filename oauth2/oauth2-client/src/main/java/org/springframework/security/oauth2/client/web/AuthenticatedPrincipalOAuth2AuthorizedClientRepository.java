@@ -79,10 +79,7 @@ public final class AuthenticatedPrincipalOAuth2AuthorizedClientRepository implem
 		if (this.isPrincipalAuthenticated(principal)) {
 			return this.authorizedClientService.loadAuthorizedClient(clientRegistrationId, principal.getName());
 		}
-		else {
-			return this.anonymousAuthorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal,
-					request);
-		}
+		return this.anonymousAuthorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, request);
 	}
 
 	@Override

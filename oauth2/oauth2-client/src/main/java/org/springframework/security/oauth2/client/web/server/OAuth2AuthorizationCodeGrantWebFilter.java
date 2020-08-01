@@ -206,7 +206,7 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
 				.flatMap((matchResult) -> this.authenticationConverter.convert(exchange).onErrorMap(
 						OAuth2AuthorizationException.class,
-						(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString())))
+						(ex) -> new OAuth2AuthenticationException(ex.getError(), ex.getError().toString())))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.flatMap((token) -> authenticate(exchange, chain, token))
 				.onErrorResume(AuthenticationException.class, (e) -> this.authenticationFailureHandler
@@ -217,7 +217,7 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 		return this.authenticationManager.authenticate(token)
 				.onErrorMap(OAuth2AuthorizationException.class,
-						(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
+						(ex) -> new OAuth2AuthenticationException(ex.getError(), ex.getError().toString()))
 				.switchIfEmpty(Mono.defer(
 						() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
 				.flatMap((authentication) -> onAuthenticationSuccess(authentication, webFilterExchange))
@@ -258,7 +258,6 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		// before doing an exact comparison with the authorizationRequest.getRedirectUri()
 		// parameters (if any)
 		requestUriParameters.retainAll(redirectUriParameters);
-
 		if (Objects.equals(requestUri.getScheme(), redirectUri.getScheme())
 				&& Objects.equals(requestUri.getUserInfo(), redirectUri.getUserInfo())
 				&& Objects.equals(requestUri.getHost(), redirectUri.getHost())

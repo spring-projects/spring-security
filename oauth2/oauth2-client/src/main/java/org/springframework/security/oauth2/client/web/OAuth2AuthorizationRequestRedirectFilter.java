@@ -23,6 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -162,7 +163,6 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
 		try {
 			OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver.resolve(request);
 			if (authorizationRequest != null) {
@@ -170,11 +170,10 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 				return;
 			}
 		}
-		catch (Exception failed) {
-			this.unsuccessfulRedirectForAuthorization(request, response, failed);
+		catch (Exception ex) {
+			this.unsuccessfulRedirectForAuthorization(request, response, ex);
 			return;
 		}
-
 		try {
 			filterChain.doFilter(request, response);
 		}
@@ -201,22 +200,18 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 				}
 				return;
 			}
-
 			if (ex instanceof ServletException) {
 				throw (ServletException) ex;
 			}
-			else if (ex instanceof RuntimeException) {
+			if (ex instanceof RuntimeException) {
 				throw (RuntimeException) ex;
 			}
-			else {
-				throw new RuntimeException(ex);
-			}
+			throw new RuntimeException(ex);
 		}
 	}
 
 	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
 			OAuth2AuthorizationRequest authorizationRequest) throws IOException {
-
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationRequest.getGrantType())) {
 			this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 		}
@@ -225,11 +220,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	private void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
-			Exception failed) throws IOException {
-
-		if (this.logger.isErrorEnabled()) {
-			this.logger.error("Authorization Request failed: " + failed.toString(), failed);
-		}
+			Exception ex) throws IOException {
+		this.logger.error(LogMessage.format("Authorization Request failed: %s", ex, ex));
 		response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 	}

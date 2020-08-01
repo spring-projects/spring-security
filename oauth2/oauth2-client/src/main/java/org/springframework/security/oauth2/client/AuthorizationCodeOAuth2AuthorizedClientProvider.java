@@ -46,7 +46,6 @@ public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OA
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(
 				context.getClientRegistration().getAuthorizationGrantType()) && context.getAuthorizedClient() == null) {
 			// ClientAuthorizationRequiredException is caught by

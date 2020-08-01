@@ -87,7 +87,6 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
-
 		if (!StringUtils
 				.hasText(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri())) {
 			OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_INFO_URI_ERROR_CODE,
@@ -105,12 +104,21 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 					null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-
 		RequestEntity<?> request = this.requestEntityConverter.convert(userRequest);
+		ResponseEntity<Map<String, Object>> response = getResponse(userRequest, request);
+		Map<String, Object> userAttributes = response.getBody();
+		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+		authorities.add(new OAuth2UserAuthority(userAttributes));
+		OAuth2AccessToken token = userRequest.getAccessToken();
+		for (String authority : token.getScopes()) {
+			authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+		}
+		return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
+	}
 
-		ResponseEntity<Map<String, Object>> response;
+	private ResponseEntity<Map<String, Object>> getResponse(OAuth2UserRequest userRequest, RequestEntity<?> request) {
 		try {
-			response = this.restOperations.exchange(request, PARAMETERIZED_RESPONSE_TYPE);
+			return this.restOperations.exchange(request, PARAMETERIZED_RESPONSE_TYPE);
 		}
 		catch (OAuth2AuthorizationException ex) {
 			OAuth2Error oauth2Error = ex.getError();
@@ -145,16 +153,6 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 					"An error occurred while attempting to retrieve the UserInfo Resource: " + ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
-
-		Map<String, Object> userAttributes = response.getBody();
-		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
-		authorities.add(new OAuth2UserAuthority(userAttributes));
-		OAuth2AccessToken token = userRequest.getAccessToken();
-		for (String authority : token.getScopes()) {
-			authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
-		}
-
-		return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
 	}
 
 	/**

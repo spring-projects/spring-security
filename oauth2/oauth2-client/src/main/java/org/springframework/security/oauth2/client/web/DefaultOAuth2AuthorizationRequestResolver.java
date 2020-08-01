@@ -143,41 +143,13 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		if (registrationId == null) {
 			return null;
 		}
-
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
 			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
 		}
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
-
-		OAuth2AuthorizationRequest.Builder builder;
-		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
-			builder = OAuth2AuthorizationRequest.authorizationCode();
-			Map<String, Object> additionalParameters = new HashMap<>();
-			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
-					&& clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
-				// Section 3.1.2.1 Authentication Request -
-				// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
-				// scope
-				// REQUIRED. OpenID Connect requests MUST contain the "openid" scope
-				// value.
-				addNonceParameters(attributes, additionalParameters);
-			}
-			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
-				addPkceParameters(attributes, additionalParameters);
-			}
-			builder.additionalParameters(additionalParameters);
-		}
-		else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
-			builder = OAuth2AuthorizationRequest.implicit();
-		}
-		else {
-			throw new IllegalArgumentException(
-					"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
-							+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
-		}
+		OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration, attributes);
 
 		String redirectUriStr = expandRedirectUri(request, clientRegistration, redirectUriAction);
 
@@ -189,6 +161,33 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		this.authorizationRequestCustomizer.accept(builder);
 
 		return builder.build();
+	}
+
+	private OAuth2AuthorizationRequest.Builder getBuilder(ClientRegistration clientRegistration,
+			Map<String, Object> attributes) {
+		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
+			OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode();
+			Map<String, Object> additionalParameters = new HashMap<>();
+			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
+					&& clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
+				// Section 3.1.2.1 Authentication Request -
+				// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest scope
+				// REQUIRED. OpenID Connect requests MUST contain the "openid" scope
+				// value.
+				addNonceParameters(attributes, additionalParameters);
+			}
+			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
+				addPkceParameters(attributes, additionalParameters);
+			}
+			builder.additionalParameters(additionalParameters);
+			return builder;
+		}
+		if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
+			return OAuth2AuthorizationRequest.implicit();
+		}
+		throw new IllegalArgumentException(
+				"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
+						+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 	}
 
 	private String resolveRegistrationId(HttpServletRequest request) {
@@ -220,7 +219,6 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 			String action) {
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
-
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
 				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
 		String scheme = uriComponents.getScheme();
@@ -238,9 +236,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		}
 		uriVariables.put("basePath", (path != null) ? path : "");
 		uriVariables.put("baseUrl", uriComponents.toUriString());
-
 		uriVariables.put("action", (action != null) ? action : "");
-
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri()).buildAndExpand(uriVariables)
 				.toUriString();
 	}

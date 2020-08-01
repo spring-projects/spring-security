@@ -77,13 +77,11 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 	@Override
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
 		if (authorizedClient == null || authorizedClient.getRefreshToken() == null
 				|| !hasTokenExpired(authorizedClient.getAccessToken())) {
 			return Mono.empty();
 		}
-
 		Object requestScope = context.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		Set<String> scopes = Collections.emptySet();
 		if (requestScope != null) {
@@ -92,10 +90,8 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 			scopes = new HashSet<>(Arrays.asList((String[]) requestScope));
 		}
 		ClientRegistration clientRegistration = context.getClientRegistration();
-
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
 				authorizedClient.getAccessToken(), authorizedClient.getRefreshToken(), scopes);
-
 		return Mono.just(refreshTokenGrantRequest).flatMap(this.accessTokenResponseClient::getTokenResponse)
 				.onErrorMap(OAuth2AuthorizationException.class,
 						(e) -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(),

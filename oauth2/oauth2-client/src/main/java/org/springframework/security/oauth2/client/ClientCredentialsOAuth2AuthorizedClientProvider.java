@@ -64,39 +64,37 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		if (!AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
 			return null;
 		}
-
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
 		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
 			// If client is already authorized but access token is NOT expired than no
 			// need for re-authorization
 			return null;
 		}
-
 		// As per spec, in section 4.4.3 Access Token Response
 		// https://tools.ietf.org/html/rfc6749#section-4.4.3
 		// A refresh token SHOULD NOT be included.
 		//
 		// Therefore, renewing an expired access token (re-authorization)
 		// is the same as acquiring a new access token (authorization).
-
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				clientRegistration);
+		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(clientRegistration, clientCredentialsGrantRequest);
+		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
+				tokenResponse.getAccessToken());
+	}
 
-		OAuth2AccessTokenResponse tokenResponse;
+	private OAuth2AccessTokenResponse getTokenResponse(ClientRegistration clientRegistration,
+			OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
 		try {
-			tokenResponse = this.accessTokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
+			return this.accessTokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
 		}
 		catch (OAuth2AuthorizationException ex) {
 			throw new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex);
 		}
-
-		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-				tokenResponse.getAccessToken());
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {

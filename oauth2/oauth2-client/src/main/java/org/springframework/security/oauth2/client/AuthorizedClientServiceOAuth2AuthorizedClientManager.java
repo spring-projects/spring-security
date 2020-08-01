@@ -115,11 +115,9 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 	@Override
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
-
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
 		OAuth2AuthorizedClient authorizedClient = authorizeRequest.getAuthorizedClient();
 		Authentication principal = authorizeRequest.getPrincipal();
-
 		OAuth2AuthorizationContext.Builder contextBuilder;
 		if (authorizedClient != null) {
 			contextBuilder = OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient);
@@ -138,14 +136,8 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 				contextBuilder = OAuth2AuthorizationContext.withClientRegistration(clientRegistration);
 			}
 		}
-		OAuth2AuthorizationContext authorizationContext = contextBuilder.principal(principal)
-				.attributes((attributes) -> {
-					Map<String, Object> contextAttributes = this.contextAttributesMapper.apply(authorizeRequest);
-					if (!CollectionUtils.isEmpty(contextAttributes)) {
-						attributes.putAll(contextAttributes);
-					}
-				}).build();
-
+		OAuth2AuthorizationContext authorizationContext = buildAuthorizationContext(authorizeRequest, principal,
+				contextBuilder);
 		try {
 			authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		}
@@ -153,7 +145,6 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 			this.authorizationFailureHandler.onAuthorizationFailure(ex, principal, Collections.emptyMap());
 			throw ex;
 		}
-
 		if (authorizedClient != null) {
 			this.authorizationSuccessHandler.onAuthorizationSuccess(authorizedClient, principal,
 					Collections.emptyMap());
@@ -167,8 +158,19 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 				return authorizationContext.getAuthorizedClient();
 			}
 		}
-
 		return authorizedClient;
+	}
+
+	private OAuth2AuthorizationContext buildAuthorizationContext(OAuth2AuthorizeRequest authorizeRequest,
+			Authentication principal, OAuth2AuthorizationContext.Builder contextBuilder) {
+		OAuth2AuthorizationContext authorizationContext = contextBuilder.principal(principal)
+				.attributes((attributes) -> {
+					Map<String, Object> contextAttributes = this.contextAttributesMapper.apply(authorizeRequest);
+					if (!CollectionUtils.isEmpty(contextAttributes)) {
+						attributes.putAll(contextAttributes);
+					}
+				}).build();
+		return authorizationContext;
 	}
 
 	/**

@@ -150,7 +150,6 @@ public final class ClientRegistrations {
 	private static Supplier<ClientRegistration.Builder> oidc(URI issuer) {
 		URI uri = UriComponentsBuilder.fromUri(issuer).replacePath(issuer.getPath() + OIDC_METADATA_PATH)
 				.build(Collections.emptyMap());
-
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri).build();
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
@@ -182,12 +181,10 @@ public final class ClientRegistrations {
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
 			AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString());
-
 			URI jwkSetUri = metadata.getJWKSetURI();
 			if (jwkSetUri != null) {
 				builder.jwkSetUri(jwkSetUri.toASCIIString());
 			}
-
 			String userinfoEndpoint = (String) configuration.get("userinfo_endpoint");
 			if (userinfoEndpoint != null) {
 				builder.userInfoUri(userinfoEndpoint);
@@ -221,7 +218,6 @@ public final class ClientRegistrations {
 	}
 
 	private static <T> T parse(Map<String, Object> body, ThrowingFunction<JSONObject, T, ParseException> parser) {
-
 		try {
 			return parser.apply(new JSONObject(body));
 		}
@@ -233,25 +229,19 @@ public final class ClientRegistrations {
 	private static ClientRegistration.Builder withProviderConfiguration(AuthorizationServerMetadata metadata,
 			String issuer) {
 		String metadataIssuer = metadata.getIssuer().getValue();
-		if (!issuer.equals(metadataIssuer)) {
-			throw new IllegalStateException(
-					"The Issuer \"" + metadataIssuer + "\" provided in the configuration metadata did "
-							+ "not match the requested issuer \"" + issuer + "\"");
-		}
-
+		Assert.state(issuer.equals(metadataIssuer),
+				() -> "The Issuer \"" + metadataIssuer + "\" provided in the configuration metadata did "
+						+ "not match the requested issuer \"" + issuer + "\"");
 		String name = URI.create(issuer).getHost();
 		ClientAuthenticationMethod method = getClientAuthenticationMethod(issuer,
 				metadata.getTokenEndpointAuthMethods());
 		List<GrantType> grantTypes = metadata.getGrantTypes();
 		// If null, the default includes authorization_code
-		if (grantTypes != null && !grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-			throw new IllegalArgumentException(
-					"Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + issuer
-							+ "\" returned a configuration of " + grantTypes);
-		}
+		Assert.isTrue(grantTypes == null || grantTypes.contains(GrantType.AUTHORIZATION_CODE),
+				"Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + issuer
+						+ "\" returned a configuration of " + grantTypes);
 		List<String> scopes = getScopes(metadata);
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
-
 		return ClientRegistration.withRegistrationId(name).userNameAttributeName(IdTokenClaimNames.SUB).scope(scopes)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).clientAuthenticationMethod(method)
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
@@ -284,9 +274,7 @@ public final class ClientRegistrations {
 			// If null, default to "openid" which must be supported
 			return Collections.singletonList(OidcScopes.OPENID);
 		}
-		else {
-			return scope.toStringList();
-		}
+		return scope.toStringList();
 	}
 
 	private interface ThrowingFunction<S, T, E extends Throwable> {

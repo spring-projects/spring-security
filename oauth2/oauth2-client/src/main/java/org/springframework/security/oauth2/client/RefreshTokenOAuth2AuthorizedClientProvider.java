@@ -75,13 +75,11 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
 		if (authorizedClient == null || authorizedClient.getRefreshToken() == null
 				|| !hasTokenExpired(authorizedClient.getAccessToken())) {
 			return null;
 		}
-
 		Object requestScope = context.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		Set<String> scopes = Collections.emptySet();
 		if (requestScope != null) {
@@ -89,22 +87,23 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 					+ OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
 			scopes = new HashSet<>(Arrays.asList((String[]) requestScope));
 		}
-
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
 				authorizedClient.getClientRegistration(), authorizedClient.getAccessToken(),
 				authorizedClient.getRefreshToken(), scopes);
+		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(authorizedClient, refreshTokenGrantRequest);
+		return new OAuth2AuthorizedClient(context.getAuthorizedClient().getClientRegistration(),
+				context.getPrincipal().getName(), tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+	}
 
-		OAuth2AccessTokenResponse tokenResponse;
+	private OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizedClient authorizedClient,
+			OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
 		try {
-			tokenResponse = this.accessTokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
+			return this.accessTokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
 		}
 		catch (OAuth2AuthorizationException ex) {
 			throw new ClientAuthorizationException(ex.getError(),
 					authorizedClient.getClientRegistration().getRegistrationId(), ex);
 		}
-
-		return new OAuth2AuthorizedClient(context.getAuthorizedClient().getClientRegistration(),
-				context.getPrincipal().getName(), tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {

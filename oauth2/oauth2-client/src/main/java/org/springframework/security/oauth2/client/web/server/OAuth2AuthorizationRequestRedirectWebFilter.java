@@ -130,8 +130,8 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 		return this.authorizationRequestResolver.resolve(exchange)
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.onErrorResume(ClientAuthorizationRequiredException.class,
-						(e) -> this.requestCache.saveRequest(exchange)
-								.then(this.authorizationRequestResolver.resolve(exchange, e.getClientRegistrationId())))
+						(ex) -> this.requestCache.saveRequest(exchange).then(
+								this.authorizationRequestResolver.resolve(exchange, ex.getClientRegistrationId())))
 				.flatMap((clientRegistration) -> sendRedirectForAuthorization(exchange, clientRegistration));
 	}
 
@@ -143,7 +143,6 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 				saveAuthorizationRequest = this.authorizationRequestRepository
 						.saveAuthorizationRequest(authorizationRequest, exchange);
 			}
-
 			URI redirectUri = UriComponentsBuilder.fromUriString(authorizationRequest.getAuthorizationRequestUri())
 					.build(true).toUri();
 			return saveAuthorizationRequest

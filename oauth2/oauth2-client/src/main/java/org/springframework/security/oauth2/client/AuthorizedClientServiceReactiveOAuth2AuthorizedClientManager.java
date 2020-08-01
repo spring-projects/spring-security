@@ -120,7 +120,6 @@ public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 	@Override
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizeRequest authorizeRequest) {
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
-
 		return createAuthorizationContext(authorizeRequest)
 				.flatMap((authorizationContext) -> authorize(authorizationContext, authorizeRequest.getPrincipal()));
 	}
