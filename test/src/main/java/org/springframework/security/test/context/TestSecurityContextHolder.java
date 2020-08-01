@@ -56,11 +56,13 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @author Tadaya Tsuyukubo
  * @since 4.0
- *
  */
 public final class TestSecurityContextHolder {
 
 	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
+
+	private TestSecurityContextHolder() {
+	}
 
 	/**
 	 * Clears the {@link SecurityContext} from {@link TestSecurityContextHolder} and
@@ -77,12 +79,10 @@ public final class TestSecurityContextHolder {
 	 */
 	public static SecurityContext getContext() {
 		SecurityContext ctx = contextHolder.get();
-
 		if (ctx == null) {
 			ctx = getDefaultContext();
 			contextHolder.set(ctx);
 		}
-
 		return ctx;
 	}
 
@@ -118,9 +118,6 @@ public final class TestSecurityContextHolder {
 	 */
 	private static SecurityContext getDefaultContext() {
 		return SecurityContextHolder.getContext();
-	}
-
-	private TestSecurityContextHolder() {
 	}
 
 }

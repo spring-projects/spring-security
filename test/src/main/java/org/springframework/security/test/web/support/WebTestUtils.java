@@ -47,6 +47,9 @@ public abstract class WebTestUtils {
 
 	private static final CsrfTokenRepository DEFAULT_TOKEN_REPO = new HttpSessionCsrfTokenRepository();
 
+	private WebTestUtils() {
+	}
+
 	/**
 	 * Gets the {@link SecurityContextRepository} for the specified
 	 * {@link HttpServletRequest}. If one is not found, a default
@@ -134,18 +137,16 @@ public abstract class WebTestUtils {
 		}
 		WebApplicationContext webApplicationContext = WebApplicationContextUtils
 				.getWebApplicationContext(servletContext);
-		if (webApplicationContext != null) {
-			try {
-				return webApplicationContext.getBean(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
-						Filter.class);
-			}
-			catch (NoSuchBeanDefinitionException notFound) {
-			}
+		if (webApplicationContext == null) {
+			return null;
 		}
-		return null;
-	}
-
-	private WebTestUtils() {
+		try {
+			String beanName = AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME;
+			return webApplicationContext.getBean(beanName, Filter.class);
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			return null;
+		}
 	}
 
 }

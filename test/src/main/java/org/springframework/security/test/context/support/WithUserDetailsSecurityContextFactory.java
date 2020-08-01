@@ -84,7 +84,7 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 					: this.beans.getBean(ReactiveUserDetailsService.class);
 			return new ReactiveUserDetailsServiceAdapter(reactiveUserDetailsService);
 		}
-		catch (NoSuchBeanDefinitionException | BeanNotOfRequiredTypeException notReactive) {
+		catch (NoSuchBeanDefinitionException | BeanNotOfRequiredTypeException ex) {
 			return null;
 		}
 	}

@@ -108,10 +108,12 @@ public final class SecurityMockServerConfigurers {
 	 */
 	public static MockServerConfigurer springSecurity() {
 		return new MockServerConfigurer() {
+
 			@Override
 			public void beforeServerCreated(WebHttpHandlerBuilder builder) {
 				builder.filters((filters) -> filters.add(0, new MutatorFilter()));
 			}
+
 		};
 	}
 
@@ -992,26 +994,22 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		private Collection<GrantedAuthority> getAuthorities() {
-			if (this.authorities == null) {
-				Set<GrantedAuthority> authorities = new LinkedHashSet<>();
-				authorities.add(new OidcUserAuthority(getOidcIdToken(), getOidcUserInfo()));
-				for (String authority : this.accessToken.getScopes()) {
-					authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
-				}
-				return authorities;
-			}
-			else {
+			if (this.authorities != null) {
 				return this.authorities;
 			}
+			Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+			authorities.add(new OidcUserAuthority(getOidcIdToken(), getOidcUserInfo()));
+			for (String authority : this.accessToken.getScopes()) {
+				authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+			}
+			return authorities;
 		}
 
 		private OidcIdToken getOidcIdToken() {
-			if (this.idToken == null) {
-				return new OidcIdToken("id-token", null, null, Collections.singletonMap(IdTokenClaimNames.SUB, "user"));
-			}
-			else {
+			if (this.idToken != null) {
 				return this.idToken;
 			}
+			return new OidcIdToken("id-token", null, null, Collections.singletonMap(IdTokenClaimNames.SUB, "user"));
 		}
 
 		private OidcUserInfo getOidcUserInfo() {
@@ -1071,7 +1069,6 @@ public final class SecurityMockServerConfigurers {
 		 */
 		public OAuth2ClientMutator clientRegistration(
 				Consumer<ClientRegistration.Builder> clientRegistrationConfigurer) {
-
 			ClientRegistration.Builder builder = clientRegistrationBuilder();
 			clientRegistrationConfigurer.accept(builder);
 			this.clientRegistration = builder.build();
@@ -1108,7 +1105,6 @@ public final class SecurityMockServerConfigurers {
 
 		@Override
 		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
-
 		}
 
 		@Override
@@ -1134,10 +1130,8 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		private OAuth2AuthorizedClient getClient() {
-			if (this.clientRegistration == null) {
-				throw new IllegalArgumentException(
-						"Please specify a ClientRegistration via one " + "of the clientRegistration methods");
-			}
+			Assert.notNull(this.clientRegistration,
+					"Please specify a ClientRegistration via one of the clientRegistration methods");
 			return new OAuth2AuthorizedClient(this.clientRegistration, this.principalName, this.accessToken);
 		}
 
@@ -1173,9 +1167,7 @@ public final class SecurityMockServerConfigurers {
 					OAuth2AuthorizedClient client = exchange.getAttribute(TOKEN_ATTR_NAME);
 					return Mono.just(client);
 				}
-				else {
-					return this.delegate.authorize(authorizeRequest);
-				}
+				return this.delegate.authorize(authorizeRequest);
 			}
 
 			static void enable(ServerWebExchange exchange) {

@@ -27,6 +27,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -41,21 +42,14 @@ final class WithMockUserSecurityContextFactory implements WithSecurityContextFac
 	@Override
 	public SecurityContext createSecurityContext(WithMockUser withUser) {
 		String username = StringUtils.hasLength(withUser.username()) ? withUser.username() : withUser.value();
-		if (username == null) {
-			throw new IllegalArgumentException(
-					withUser + " cannot have null username on both username and value properties");
-		}
-
+		Assert.notNull(username, () -> withUser + " cannot have null username on both username and value properties");
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 		for (String authority : withUser.authorities()) {
 			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
 		}
-
 		if (grantedAuthorities.isEmpty()) {
 			for (String role : withUser.roles()) {
-				if (role.startsWith("ROLE_")) {
-					throw new IllegalArgumentException("roles cannot start with ROLE_ Got " + role);
-				}
+				Assert.isTrue(!role.startsWith("ROLE_"), () -> "roles cannot start with ROLE_ Got " + role);
 				grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
 			}
 		}
@@ -63,7 +57,6 @@ final class WithMockUserSecurityContextFactory implements WithSecurityContextFac
 			throw new IllegalStateException("You cannot define roles attribute " + Arrays.asList(withUser.roles())
 					+ " with authorities attribute " + Arrays.asList(withUser.authorities()));
 		}
-
 		User principal = new User(username, withUser.password(), true, true, true, true, grantedAuthorities);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(),
 				principal.getAuthorities());

@@ -52,9 +52,11 @@ public class ReactorContextTestExecutionListener extends DelegatingTestExecution
 	}
 
 	private static TestExecutionListener createDelegate() {
-		return ClassUtils.isPresent(HOOKS_CLASS_NAME, ReactorContextTestExecutionListener.class.getClassLoader())
-				? new DelegateTestExecutionListener() : new AbstractTestExecutionListener() {
-				};
+		if (!ClassUtils.isPresent(HOOKS_CLASS_NAME, ReactorContextTestExecutionListener.class.getClassLoader())) {
+			return new AbstractTestExecutionListener() {
+			};
+		}
+		return new DelegateTestExecutionListener();
 	}
 
 	/**

@@ -43,6 +43,9 @@ import org.springframework.test.web.servlet.ResultMatcher;
  */
 public final class SecurityMockMvcResultMatchers {
 
+	private SecurityMockMvcResultMatchers() {
+	}
+
 	/**
 	 * {@link ResultMatcher} that verifies that a specified user is authenticated.
 	 * @return the {@link AuthenticatedMatcher} to use
@@ -90,29 +93,26 @@ public final class SecurityMockMvcResultMatchers {
 
 		private Consumer<Authentication> assertAuthentication;
 
+		AuthenticatedMatcher() {
+		}
+
 		@Override
 		public void match(MvcResult result) {
 			SecurityContext context = load(result);
-
 			Authentication auth = context.getAuthentication();
-
 			AssertionErrors.assertTrue("Authentication should not be null", auth != null);
-
 			if (this.assertAuthentication != null) {
 				this.assertAuthentication.accept(auth);
 			}
-
 			if (this.expectedContext != null) {
 				AssertionErrors.assertEquals(this.expectedContext + " does not equal " + context, this.expectedContext,
 						context);
 			}
-
 			if (this.expectedAuthentication != null) {
 				AssertionErrors.assertEquals(
 						this.expectedAuthentication + " does not equal " + context.getAuthentication(),
 						this.expectedAuthentication, context.getAuthentication());
 			}
-
 			if (this.expectedAuthenticationPrincipal != null) {
 				AssertionErrors.assertTrue("Authentication cannot be null", context.getAuthentication() != null);
 				AssertionErrors.assertEquals(
@@ -120,14 +120,12 @@ public final class SecurityMockMvcResultMatchers {
 								+ context.getAuthentication().getPrincipal(),
 						this.expectedAuthenticationPrincipal, context.getAuthentication().getPrincipal());
 			}
-
 			if (this.expectedAuthenticationName != null) {
 				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
 				String name = auth.getName();
 				AssertionErrors.assertEquals(this.expectedAuthenticationName + " does not equal " + name,
 						this.expectedAuthenticationName, name);
 			}
-
 			if (this.expectedGrantedAuthorities != null) {
 				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
 				Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
@@ -222,9 +220,6 @@ public final class SecurityMockMvcResultMatchers {
 			return withAuthorities(authorities);
 		}
 
-		AuthenticatedMatcher() {
-		}
-
 	}
 
 	/**
@@ -238,6 +233,9 @@ public final class SecurityMockMvcResultMatchers {
 
 		private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
+		private UnAuthenticatedMatcher() {
+		}
+
 		@Override
 		public void match(MvcResult result) {
 			SecurityContext context = load(result);
@@ -247,12 +245,6 @@ public final class SecurityMockMvcResultMatchers {
 					authentication == null || this.trustResolver.isAnonymous(authentication));
 		}
 
-		private UnAuthenticatedMatcher() {
-		}
-
-	}
-
-	private SecurityMockMvcResultMatchers() {
 	}
 
 }

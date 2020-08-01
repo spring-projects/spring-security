@@ -33,6 +33,7 @@ public enum TestExecutionEvent {
 	 * event.
 	 */
 	TEST_METHOD,
+
 	/**
 	 * Associated to
 	 * {@link org.springframework.test.context.TestExecutionListener#beforeTestExecution(TestContext)}
