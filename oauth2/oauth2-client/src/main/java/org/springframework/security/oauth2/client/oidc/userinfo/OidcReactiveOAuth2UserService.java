@@ -81,7 +81,6 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 	public static Map<String, Converter<Object, ?>> createDefaultClaimTypeConverters() {
 		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
 		Converter<Object, ?> instantConverter = getConverter(TypeDescriptor.valueOf(Instant.class));
-
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put(StandardClaimNames.EMAIL_VERIFIED, booleanConverter);
 		claimTypeConverters.put(StandardClaimNames.PHONE_NUMBER_VERIFIED, booleanConverter);
@@ -113,9 +112,7 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 						return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo,
 								userNameAttributeName);
 					}
-					else {
-						return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
-					}
+					return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 				});
 	}
 
@@ -123,7 +120,6 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 		if (!OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest)) {
 			return Mono.empty();
 		}
-
 		return this.oauth2UserService.loadUser(userRequest).map(OAuth2User::getAttributes)
 				.map((claims) -> convertClaims(claims, userRequest.getClientRegistration())).map(OidcUserInfo::new)
 				.doOnNext((userInfo) -> {

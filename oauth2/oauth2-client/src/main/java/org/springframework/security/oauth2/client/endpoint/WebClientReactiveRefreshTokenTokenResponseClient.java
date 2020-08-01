@@ -68,12 +68,10 @@ public final class WebClientReactiveRefreshTokenTokenResponseClient
 	@Override
 	OAuth2AccessTokenResponse populateTokenResponse(OAuth2RefreshTokenGrantRequest grantRequest,
 			OAuth2AccessTokenResponse accessTokenResponse) {
-
 		if (!CollectionUtils.isEmpty(accessTokenResponse.getAccessToken().getScopes())
 				&& accessTokenResponse.getRefreshToken() != null) {
 			return accessTokenResponse;
 		}
-
 		OAuth2AccessTokenResponse.Builder tokenResponseBuilder = OAuth2AccessTokenResponse
 				.withResponse(accessTokenResponse);
 		if (CollectionUtils.isEmpty(accessTokenResponse.getAccessToken().getScopes())) {

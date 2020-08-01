@@ -136,10 +136,8 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 	@Override
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizeRequest authorizeRequest) {
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
-
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
 		Authentication principal = authorizeRequest.getPrincipal();
-
 		return Mono.justOrEmpty(authorizeRequest.<ServerWebExchange>getAttribute(ServerWebExchange.class.getName()))
 				.switchIfEmpty(currentServerWebExchangeMono)
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException("serverWebExchange cannot be null")))
@@ -183,7 +181,6 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 	 */
 	private Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext authorizationContext,
 			Authentication principal, ServerWebExchange serverWebExchange) {
-
 		return this.authorizedClientProvider.authorize(authorizationContext)
 				// Delegate to the authorizationSuccessHandler of the successful
 				// authorization

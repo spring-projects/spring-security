@@ -88,18 +88,15 @@ public class OAuth2LoginReactiveAuthenticationManager implements ReactiveAuthent
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		return Mono.defer(() -> {
 			OAuth2AuthorizationCodeAuthenticationToken token = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
-
 			// Section 3.1.2.1 Authentication Request -
-			// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
-			// scope REQUIRED. OpenID Connect requests MUST contain the "openid" scope
-			// value.
+			// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest scope
+			// REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
 			if (token.getAuthorizationExchange().getAuthorizationRequest().getScopes().contains("openid")) {
 				// This is an OpenID Connect Authentication Request so return null
 				// and let OidcAuthorizationCodeReactiveAuthenticationManager handle it
 				// instead once one is created
 				return Mono.empty();
 			}
-
 			return this.authorizationCodeManager.authenticate(token)
 					.onErrorMap(OAuth2AuthorizationException.class,
 							(e) -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
@@ -128,7 +125,6 @@ public class OAuth2LoginReactiveAuthenticationManager implements ReactiveAuthent
 		return this.userService.loadUser(userRequest).map((oauth2User) -> {
 			Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
 					.mapAuthorities(oauth2User.getAuthorities());
-
 			OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
 					authentication.getClientRegistration(), authentication.getAuthorizationExchange(), oauth2User,
 					mappedAuthorities, accessToken, authentication.getRefreshToken());

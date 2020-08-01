@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
@@ -59,36 +60,29 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) {
 		String targetUrl = null;
-		URI endSessionEndpoint;
 		if (authentication instanceof OAuth2AuthenticationToken && authentication.getPrincipal() instanceof OidcUser) {
 			String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 			ClientRegistration clientRegistration = this.clientRegistrationRepository
 					.findByRegistrationId(registrationId);
-			endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
+			URI endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
 			if (endSessionEndpoint != null) {
 				String idToken = idToken(authentication);
 				URI postLogoutRedirectUri = postLogoutRedirectUri(request);
 				targetUrl = endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri);
 			}
 		}
-		if (targetUrl == null) {
-			targetUrl = super.determineTargetUrl(request, response);
-		}
-
-		return targetUrl;
+		return (targetUrl != null) ? targetUrl : super.determineTargetUrl(request, response);
 	}
 
 	private URI endSessionEndpoint(ClientRegistration clientRegistration) {
-		URI result = null;
 		if (clientRegistration != null) {
-			Object endSessionEndpoint = clientRegistration.getProviderDetails().getConfigurationMetadata()
-					.get("end_session_endpoint");
+			ProviderDetails providerDetails = clientRegistration.getProviderDetails();
+			Object endSessionEndpoint = providerDetails.getConfigurationMetadata().get("end_session_endpoint");
 			if (endSessionEndpoint != null) {
-				result = URI.create(endSessionEndpoint.toString());
+				return URI.create(endSessionEndpoint.toString());
 			}
 		}
-
-		return result;
+		return null;
 	}
 
 	private String idToken(Authentication authentication) {

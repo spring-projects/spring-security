@@ -105,28 +105,24 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		return Mono.defer(() -> {
 			RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils
 					.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
-
 			String clientRegistrationId = StringUtils.hasLength(authorizedClientAnnotation.registrationId())
 					? authorizedClientAnnotation.registrationId() : null;
-
 			return authorizeRequest(clientRegistrationId, exchange).flatMap(this.authorizedClientManager::authorize);
 		});
 	}
 
 	private Mono<OAuth2AuthorizeRequest> authorizeRequest(String registrationId, ServerWebExchange exchange) {
 		Mono<Authentication> defaultedAuthentication = currentAuthentication();
-
 		Mono<String> defaultedRegistrationId = Mono.justOrEmpty(registrationId)
 				.switchIfEmpty(clientRegistrationId(defaultedAuthentication))
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(
 						"The clientRegistrationId could not be resolved. Please provide one")));
-
 		Mono<ServerWebExchange> defaultedExchange = Mono.justOrEmpty(exchange)
 				.switchIfEmpty(currentServerWebExchange());
-
 		return Mono.zip(defaultedRegistrationId, defaultedAuthentication, defaultedExchange)
-				.map((t3) -> OAuth2AuthorizeRequest.withClientRegistrationId(t3.getT1()).principal(t3.getT2())
-						.attribute(ServerWebExchange.class.getName(), t3.getT3()).build());
+				.map((zipped) -> OAuth2AuthorizeRequest.withClientRegistrationId(zipped.getT1())
+						.principal(zipped.getT2()).attribute(ServerWebExchange.class.getName(), zipped.getT3())
+						.build());
 	}
 
 	private Mono<Authentication> currentAuthentication() {

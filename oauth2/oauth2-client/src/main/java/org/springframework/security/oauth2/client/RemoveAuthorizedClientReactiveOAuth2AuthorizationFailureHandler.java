@@ -16,9 +16,9 @@
 
 package org.springframework.security.oauth2.client;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,24 +47,20 @@ public class RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	 * client.
 	 * @see OAuth2ErrorCodes
 	 */
-	public static final Set<String> DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES = Collections
-			.unmodifiableSet(new HashSet<>(Arrays.asList(
-					/*
-					 * Returned from resource servers when an access token provided is
-					 * expired, revoked, malformed, or invalid for other reasons.
-					 *
-					 * Note that this is needed because the
-					 * ServerOAuth2AuthorizedClientExchangeFilterFunction delegates this
-					 * type of failure received from a resource server to this failure
-					 * handler.
-					 */
-					OAuth2ErrorCodes.INVALID_TOKEN,
-					/*
-					 * Returned from authorization servers when a refresh token is
-					 * invalid, expired, revoked, does not match the redirection URI used
-					 * in the authorization request, or was issued to another client.
-					 */
-					OAuth2ErrorCodes.INVALID_GRANT)));
+	public static final Set<String> DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES;
+	static {
+		Set<String> codes = new LinkedHashSet<>();
+		// Returned from resource servers when an access token provided is expired,
+		// revoked, malformed, or invalid for other reasons. Note that this is needed
+		// because the ServerOAuth2AuthorizedClientExchangeFilterFunction delegates this
+		// type of failure received from a resource server to this failure handler.
+		codes.add(OAuth2ErrorCodes.INVALID_TOKEN);
+		// Returned from authorization servers when a refresh token is invalid, expired,
+		// revoked, does not match the redirection URI used in the authorization request,
+		// or was issued to another client.
+		codes.add(OAuth2ErrorCodes.INVALID_GRANT);
+		DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES = Collections.unmodifiableSet(codes);
+	}
 
 	/**
 	 * A delegate that removes an {@link OAuth2AuthorizedClient} from a
@@ -116,17 +112,13 @@ public class RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	@Override
 	public Mono<Void> onAuthorizationFailure(OAuth2AuthorizationException authorizationException,
 			Authentication principal, Map<String, Object> attributes) {
-
 		if (authorizationException instanceof ClientAuthorizationException
 				&& hasRemovalErrorCode(authorizationException)) {
-
 			ClientAuthorizationException clientAuthorizationException = (ClientAuthorizationException) authorizationException;
 			return this.delegate.removeAuthorizedClient(clientAuthorizationException.getClientRegistrationId(),
 					principal, attributes);
 		}
-		else {
-			return Mono.empty();
-		}
+		return Mono.empty();
 	}
 
 	/**

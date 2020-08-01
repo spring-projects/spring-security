@@ -68,21 +68,17 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	public OAuth2TokenValidatorResult validate(Jwt idToken) {
 		// 3.1.3.7 ID Token Validation
 		// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
-
 		Map<String, Object> invalidClaims = validateRequiredClaims(idToken);
 		if (!invalidClaims.isEmpty()) {
 			return OAuth2TokenValidatorResult.failure(invalidIdToken(invalidClaims));
 		}
-
 		// 2. The Issuer Identifier for the OpenID Provider (which is typically obtained
 		// during Discovery)
 		// MUST exactly match the value of the iss (issuer) Claim.
 		String metadataIssuer = this.clientRegistration.getProviderDetails().getIssuerUri();
-
 		if (metadataIssuer != null && !Objects.equals(metadataIssuer, idToken.getIssuer().toExternalForm())) {
 			invalidClaims.put(IdTokenClaimNames.ISS, idToken.getIssuer());
 		}
-
 		// 3. The Client MUST validate that the aud (audience) Claim contains its
 		// client_id value
 		// registered at the Issuer identified by the iss (issuer) Claim as an audience.
@@ -93,31 +89,26 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		if (!idToken.getAudience().contains(this.clientRegistration.getClientId())) {
 			invalidClaims.put(IdTokenClaimNames.AUD, idToken.getAudience());
 		}
-
 		// 4. If the ID Token contains multiple audiences,
 		// the Client SHOULD verify that an azp Claim is present.
 		String authorizedParty = idToken.getClaimAsString(IdTokenClaimNames.AZP);
 		if (idToken.getAudience().size() > 1 && authorizedParty == null) {
 			invalidClaims.put(IdTokenClaimNames.AZP, authorizedParty);
 		}
-
 		// 5. If an azp (authorized party) Claim is present,
 		// the Client SHOULD verify that its client_id is the Claim Value.
 		if (authorizedParty != null && !authorizedParty.equals(this.clientRegistration.getClientId())) {
 			invalidClaims.put(IdTokenClaimNames.AZP, authorizedParty);
 		}
-
 		// 7. The alg value SHOULD be the default of RS256 or the algorithm sent by the
 		// Client
 		// in the id_token_signed_response_alg parameter during Registration.
 		// TODO Depends on gh-4413
-
 		// 9. The current time MUST be before the time represented by the exp Claim.
 		Instant now = Instant.now(this.clock);
 		if (now.minus(this.clockSkew).isAfter(idToken.getExpiresAt())) {
 			invalidClaims.put(IdTokenClaimNames.EXP, idToken.getExpiresAt());
 		}
-
 		// 10. The iat Claim can be used to reject tokens that were issued too far away
 		// from the current time,
 		// limiting the amount of time that nonces need to be stored to prevent attacks.
@@ -125,11 +116,9 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		if (now.plus(this.clockSkew).isBefore(idToken.getIssuedAt())) {
 			invalidClaims.put(IdTokenClaimNames.IAT, idToken.getIssuedAt());
 		}
-
 		if (!invalidClaims.isEmpty()) {
 			return OAuth2TokenValidatorResult.failure(invalidIdToken(invalidClaims));
 		}
-
 		return OAuth2TokenValidatorResult.success();
 	}
 
@@ -164,7 +153,6 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 	private static Map<String, Object> validateRequiredClaims(Jwt idToken) {
 		Map<String, Object> requiredClaims = new HashMap<>();
-
 		URL issuer = idToken.getIssuer();
 		if (issuer == null) {
 			requiredClaims.put(IdTokenClaimNames.ISS, issuer);
@@ -185,7 +173,6 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		if (issuedAt == null) {
 			requiredClaims.put(IdTokenClaimNames.IAT, issuedAt);
 		}
-
 		return requiredClaims;
 	}
 

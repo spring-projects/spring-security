@@ -53,12 +53,10 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverter
 	@Override
 	public RequestEntity<?> convert(OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
 		ClientRegistration clientRegistration = clientCredentialsGrantRequest.getClientRegistration();
-
 		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
 		MultiValueMap<String, String> formParameters = this.buildFormParameters(clientCredentialsGrantRequest);
 		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri()).build()
 				.toUri();
-
 		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
 	}
 
@@ -72,7 +70,6 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverter
 	private MultiValueMap<String, String> buildFormParameters(
 			OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
 		ClientRegistration clientRegistration = clientCredentialsGrantRequest.getClientRegistration();
-
 		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
 		formParameters.add(OAuth2ParameterNames.GRANT_TYPE, clientCredentialsGrantRequest.getGrantType().getValue());
 		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
@@ -83,7 +80,6 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverter
 			formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
 			formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
-
 		return formParameters;
 	}
 

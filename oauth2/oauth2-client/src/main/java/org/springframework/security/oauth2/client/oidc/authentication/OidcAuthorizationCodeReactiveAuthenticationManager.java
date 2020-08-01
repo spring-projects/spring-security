@@ -114,7 +114,6 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		return Mono.defer(() -> {
 			OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
-
 			// Section 3.1.2.1 Authentication Request -
 			// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 			// scope REQUIRED. OpenID Connect requests MUST contain the "openid" scope
@@ -125,26 +124,21 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 				// and let OAuth2LoginReactiveAuthenticationManager handle it instead
 				return Mono.empty();
 			}
-
 			OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationExchange()
 					.getAuthorizationRequest();
 			OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
 					.getAuthorizationExchange().getAuthorizationResponse();
-
 			if (authorizationResponse.statusError()) {
 				return Mono.error(new OAuth2AuthenticationException(authorizationResponse.getError(),
 						authorizationResponse.getError().toString()));
 			}
-
 			if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
 				return Mono.error(new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString()));
 			}
-
 			OAuth2AuthorizationCodeGrantRequest authzRequest = new OAuth2AuthorizationCodeGrantRequest(
 					authorizationCodeAuthentication.getClientRegistration(),
 					authorizationCodeAuthentication.getAuthorizationExchange());
-
 			return this.accessTokenResponseClient.getTokenResponse(authzRequest).flatMap(
 					(accessTokenResponse) -> authenticationResult(authorizationCodeAuthentication, accessTokenResponse))
 					.onErrorMap(OAuth2AuthorizationException.class,
@@ -190,7 +184,6 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 		OAuth2AccessToken accessToken = accessTokenResponse.getAccessToken();
 		ClientRegistration clientRegistration = authorizationCodeAuthentication.getClientRegistration();
 		Map<String, Object> additionalParameters = accessTokenResponse.getAdditionalParameters();
-
 		if (!additionalParameters.containsKey(OidcParameterNames.ID_TOKEN)) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE,
 					"Missing (required) ID Token in Token Response for Client Registration: "
@@ -198,14 +191,12 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 					null);
 			return Mono.error(new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString()));
 		}
-
 		return createOidcToken(clientRegistration, accessTokenResponse)
 				.doOnNext((idToken) -> validateNonce(authorizationCodeAuthentication, idToken))
 				.map((idToken) -> new OidcUserRequest(clientRegistration, accessToken, idToken, additionalParameters))
 				.flatMap(this.userService::loadUser).map((oauth2User) -> {
 					Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
 							.mapAuthorities(oauth2User.getAuthorities());
-
 					return new OAuth2LoginAuthenticationToken(authorizationCodeAuthentication.getClientRegistration(),
 							authorizationCodeAuthentication.getAuthorizationExchange(), oauth2User, mappedAuthorities,
 							accessToken, accessTokenResponse.getRefreshToken());
@@ -225,14 +216,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 		String requestNonce = authorizationCodeAuthentication.getAuthorizationExchange().getAuthorizationRequest()
 				.getAttribute(OidcParameterNames.NONCE);
 		if (requestNonce != null) {
-			String nonceHash;
-			try {
-				nonceHash = createHash(requestNonce);
-			}
-			catch (NoSuchAlgorithmException ex) {
-				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
+			String nonceHash = getNonceHash(requestNonce);
 			String nonceHashClaim = idToken.getNonce();
 			if (nonceHashClaim == null || !nonceHashClaim.equals(nonceHash)) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
@@ -241,6 +225,16 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 		}
 
 		return Mono.just(idToken);
+	}
+
+	private static String getNonceHash(String requestNonce) {
+		try {
+			return createHash(requestNonce);
+		}
+		catch (NoSuchAlgorithmException ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
 	}
 
 	static String createHash(String nonce) throws NoSuchAlgorithmException {

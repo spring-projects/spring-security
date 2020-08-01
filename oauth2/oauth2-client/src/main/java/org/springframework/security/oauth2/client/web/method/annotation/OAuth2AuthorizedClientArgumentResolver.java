@@ -114,46 +114,38 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	@Override
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) {
-
 		String clientRegistrationId = this.resolveClientRegistrationId(parameter);
 		if (StringUtils.isEmpty(clientRegistrationId)) {
 			throw new IllegalArgumentException("Unable to resolve the Client Registration Identifier. "
 					+ "It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or "
 					+ "@RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
 		}
-
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
 		if (principal == null) {
 			principal = ANONYMOUS_AUTHENTICATION;
 		}
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
 		HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId)
 				.principal(principal).attribute(HttpServletRequest.class.getName(), servletRequest)
 				.attribute(HttpServletResponse.class.getName(), servletResponse).build();
-
 		return this.authorizedClientManager.authorize(authorizeRequest);
 	}
 
 	private String resolveClientRegistrationId(MethodParameter parameter) {
 		RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils
 				.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
-
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
-
-		String clientRegistrationId = null;
 		if (!StringUtils.isEmpty(authorizedClientAnnotation.registrationId())) {
-			clientRegistrationId = authorizedClientAnnotation.registrationId();
+			return authorizedClientAnnotation.registrationId();
 		}
-		else if (!StringUtils.isEmpty(authorizedClientAnnotation.value())) {
-			clientRegistrationId = authorizedClientAnnotation.value();
+		if (!StringUtils.isEmpty(authorizedClientAnnotation.value())) {
+			return authorizedClientAnnotation.value();
 		}
-		else if (principal != null && OAuth2AuthenticationToken.class.isAssignableFrom(principal.getClass())) {
-			clientRegistrationId = ((OAuth2AuthenticationToken) principal).getAuthorizedClientRegistrationId();
+		if (principal != null && OAuth2AuthenticationToken.class.isAssignableFrom(principal.getClass())) {
+			return ((OAuth2AuthenticationToken) principal).getAuthorizedClientRegistrationId();
 		}
-
-		return clientRegistrationId;
+		return null;
 	}
 
 	/**
@@ -184,7 +176,6 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 
 	private void updateDefaultAuthorizedClientManager(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
-
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 				.authorizationCode().refreshToken()
 				.clientCredentials(

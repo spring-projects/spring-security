@@ -81,7 +81,6 @@ public class NimbusAuthorizationCodeTokenResponseClient
 	@Override
 	public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
-
 		// Build the authorization code grant request for the token endpoint
 		AuthorizationCode authorizationCode = new AuthorizationCode(
 				authorizationGrantRequest.getAuthorizationExchange().getAuthorizationResponse().getCode());
@@ -89,19 +88,43 @@ public class NimbusAuthorizationCodeTokenResponseClient
 				authorizationGrantRequest.getAuthorizationExchange().getAuthorizationRequest().getRedirectUri());
 		AuthorizationGrant authorizationCodeGrant = new AuthorizationCodeGrant(authorizationCode, redirectUri);
 		URI tokenUri = toURI(clientRegistration.getProviderDetails().getTokenUri());
-
 		// Set the credentials to authenticate the client at the token endpoint
 		ClientID clientId = new ClientID(clientRegistration.getClientId());
 		Secret clientSecret = new Secret(clientRegistration.getClientSecret());
-		ClientAuthentication clientAuthentication;
-		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
-			clientAuthentication = new ClientSecretPost(clientId, clientSecret);
+		boolean isPost = ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod());
+		ClientAuthentication clientAuthentication = isPost ? new ClientSecretPost(clientId, clientSecret)
+				: new ClientSecretBasic(clientId, clientSecret);
+		com.nimbusds.oauth2.sdk.TokenResponse tokenResponse = getTokenResponse(authorizationCodeGrant, tokenUri,
+				clientAuthentication);
+		if (!tokenResponse.indicatesSuccess()) {
+			TokenErrorResponse tokenErrorResponse = (TokenErrorResponse) tokenResponse;
+			ErrorObject errorObject = tokenErrorResponse.getErrorObject();
+			throw new OAuth2AuthorizationException(getOAuthError(errorObject));
 		}
-		else {
-			clientAuthentication = new ClientSecretBasic(clientId, clientSecret);
+		AccessTokenResponse accessTokenResponse = (AccessTokenResponse) tokenResponse;
+		String accessToken = accessTokenResponse.getTokens().getAccessToken().getValue();
+		OAuth2AccessToken.TokenType accessTokenType = null;
+		if (OAuth2AccessToken.TokenType.BEARER.getValue()
+				.equalsIgnoreCase(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
+			accessTokenType = OAuth2AccessToken.TokenType.BEARER;
 		}
+		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();
+		// As per spec, in section 5.1 Successful Access Token Response
+		// https://tools.ietf.org/html/rfc6749#section-5.1
+		// If AccessTokenResponse.scope is empty, then default to the scope
+		// originally requested by the client in the Authorization Request
+		Set<String> scopes = getScopes(authorizationGrantRequest, accessTokenResponse);
+		String refreshToken = null;
+		if (accessTokenResponse.getTokens().getRefreshToken() != null) {
+			refreshToken = accessTokenResponse.getTokens().getRefreshToken().getValue();
+		}
+		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
+		return OAuth2AccessTokenResponse.withToken(accessToken).tokenType(accessTokenType).expiresIn(expiresIn)
+				.scopes(scopes).refreshToken(refreshToken).additionalParameters(additionalParameters).build();
+	}
 
-		com.nimbusds.oauth2.sdk.TokenResponse tokenResponse;
+	private com.nimbusds.oauth2.sdk.TokenResponse getTokenResponse(AuthorizationGrant authorizationCodeGrant,
+			URI tokenUri, ClientAuthentication clientAuthentication) {
 		try {
 			// Send the Access Token request
 			TokenRequest tokenRequest = new TokenRequest(tokenUri, clientAuthentication, authorizationCodeGrant);
@@ -109,7 +132,7 @@ public class NimbusAuthorizationCodeTokenResponseClient
 			httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
 			httpRequest.setConnectTimeout(30000);
 			httpRequest.setReadTimeout(30000);
-			tokenResponse = com.nimbusds.oauth2.sdk.TokenResponse.parse(httpRequest.send());
+			return com.nimbusds.oauth2.sdk.TokenResponse.parse(httpRequest.send());
 		}
 		catch (ParseException | IOException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
@@ -118,55 +141,25 @@ public class NimbusAuthorizationCodeTokenResponseClient
 					null);
 			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
+	}
 
-		if (!tokenResponse.indicatesSuccess()) {
-			TokenErrorResponse tokenErrorResponse = (TokenErrorResponse) tokenResponse;
-			ErrorObject errorObject = tokenErrorResponse.getErrorObject();
-			OAuth2Error oauth2Error;
-			if (errorObject == null) {
-				oauth2Error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR);
-			}
-			else {
-				oauth2Error = new OAuth2Error(
-						(errorObject.getCode() != null) ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
-						errorObject.getDescription(),
-						(errorObject.getURI() != null) ? errorObject.getURI().toString() : null);
-			}
-			throw new OAuth2AuthorizationException(oauth2Error);
-		}
-
-		AccessTokenResponse accessTokenResponse = (AccessTokenResponse) tokenResponse;
-
-		String accessToken = accessTokenResponse.getTokens().getAccessToken().getValue();
-		OAuth2AccessToken.TokenType accessTokenType = null;
-		if (OAuth2AccessToken.TokenType.BEARER.getValue()
-				.equalsIgnoreCase(accessTokenResponse.getTokens().getAccessToken().getType().getValue())) {
-			accessTokenType = OAuth2AccessToken.TokenType.BEARER;
-		}
-		long expiresIn = accessTokenResponse.getTokens().getAccessToken().getLifetime();
-
-		// As per spec, in section 5.1 Successful Access Token Response
-		// https://tools.ietf.org/html/rfc6749#section-5.1
-		// If AccessTokenResponse.scope is empty, then default to the scope
-		// originally requested by the client in the Authorization Request
-		Set<String> scopes;
+	private Set<String> getScopes(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest,
+			AccessTokenResponse accessTokenResponse) {
 		if (CollectionUtils.isEmpty(accessTokenResponse.getTokens().getAccessToken().getScope())) {
-			scopes = new LinkedHashSet<>(
+			return new LinkedHashSet<>(
 					authorizationGrantRequest.getAuthorizationExchange().getAuthorizationRequest().getScopes());
 		}
-		else {
-			scopes = new LinkedHashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
+		return new LinkedHashSet<>(accessTokenResponse.getTokens().getAccessToken().getScope().toStringList());
+	}
+
+	private OAuth2Error getOAuthError(ErrorObject errorObject) {
+		if (errorObject == null) {
+			return new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR);
 		}
-
-		String refreshToken = null;
-		if (accessTokenResponse.getTokens().getRefreshToken() != null) {
-			refreshToken = accessTokenResponse.getTokens().getRefreshToken().getValue();
-		}
-
-		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
-
-		return OAuth2AccessTokenResponse.withToken(accessToken).tokenType(accessTokenType).expiresIn(expiresIn)
-				.scopes(scopes).refreshToken(refreshToken).additionalParameters(additionalParameters).build();
+		String errorCode = (errorObject.getCode() != null) ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR;
+		String description = errorObject.getDescription();
+		String uri = (errorObject.getURI() != null) ? errorObject.getURI().toString() : null;
+		return new OAuth2Error(errorCode, description, uri);
 	}
 
 	private static URI toURI(String uriStr) {

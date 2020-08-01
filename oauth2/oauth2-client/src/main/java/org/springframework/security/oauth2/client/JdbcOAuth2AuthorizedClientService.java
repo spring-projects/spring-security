@@ -99,7 +99,6 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	 */
 	public JdbcOAuth2AuthorizedClientService(JdbcOperations jdbcOperations,
 			ClientRegistrationRepository clientRegistrationRepository) {
-
 		Assert.notNull(jdbcOperations, "jdbcOperations cannot be null");
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.jdbcOperations = jdbcOperations;
@@ -113,15 +112,12 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
-
 		SqlParameterValue[] parameters = new SqlParameterValue[] {
 				new SqlParameterValue(Types.VARCHAR, clientRegistrationId),
 				new SqlParameterValue(Types.VARCHAR, principalName) };
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
-
 		List<OAuth2AuthorizedClient> result = this.jdbcOperations.query(LOAD_AUTHORIZED_CLIENT_SQL, pss,
 				this.authorizedClientRowMapper);
-
 		return !result.isEmpty() ? (T) result.get(0) : null;
 	}
 
@@ -129,10 +125,8 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
-
 		boolean existsAuthorizedClient = null != this.loadAuthorizedClient(
 				authorizedClient.getClientRegistration().getRegistrationId(), principal.getName());
-
 		if (existsAuthorizedClient) {
 			updateAuthorizedClient(authorizedClient, principal);
 		}
@@ -149,14 +143,11 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	private void updateAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		List<SqlParameterValue> parameters = this.authorizedClientParametersMapper
 				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal));
-
 		SqlParameterValue clientRegistrationIdParameter = parameters.remove(0);
 		SqlParameterValue principalNameParameter = parameters.remove(0);
 		parameters.add(clientRegistrationIdParameter);
 		parameters.add(principalNameParameter);
-
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-
 		this.jdbcOperations.update(UPDATE_AUTHORIZED_CLIENT_SQL, pss);
 	}
 
@@ -164,7 +155,6 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		List<SqlParameterValue> parameters = this.authorizedClientParametersMapper
 				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal));
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-
 		this.jdbcOperations.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
 	}
 
@@ -172,12 +162,10 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	public void removeAuthorizedClient(String clientRegistrationId, String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
-
 		SqlParameterValue[] parameters = new SqlParameterValue[] {
 				new SqlParameterValue(Types.VARCHAR, clientRegistrationId),
 				new SqlParameterValue(Types.VARCHAR, principalName) };
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
-
 		this.jdbcOperations.update(REMOVE_AUTHORIZED_CLIENT_SQL, pss);
 	}
 
@@ -229,7 +217,6 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 						"The ClientRegistration with id '" + clientRegistrationId + "' exists in the data source, "
 								+ "however, it was not found in the ClientRegistrationRepository.");
 			}
-
 			OAuth2AccessToken.TokenType tokenType = null;
 			if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(rs.getString("access_token_type"))) {
 				tokenType = OAuth2AccessToken.TokenType.BEARER;
@@ -243,7 +230,6 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 				scopes = StringUtils.commaDelimitedListToSet(accessTokenScopes);
 			}
 			OAuth2AccessToken accessToken = new OAuth2AccessToken(tokenType, tokenValue, issuedAt, expiresAt, scopes);
-
 			OAuth2RefreshToken refreshToken = null;
 			byte[] refreshTokenValue = rs.getBytes("refresh_token_value");
 			if (refreshTokenValue != null) {
@@ -255,9 +241,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 				}
 				refreshToken = new OAuth2RefreshToken(tokenValue, issuedAt);
 			}
-
 			String principalName = rs.getString("principal_name");
-
 			return new OAuth2AuthorizedClient(clientRegistration, principalName, accessToken, refreshToken);
 		}
 
@@ -277,7 +261,6 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			ClientRegistration clientRegistration = authorizedClient.getClientRegistration();
 			OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 			OAuth2RefreshToken refreshToken = authorizedClient.getRefreshToken();
-
 			List<SqlParameterValue> parameters = new ArrayList<>();
 			parameters.add(new SqlParameterValue(Types.VARCHAR, clientRegistration.getRegistrationId()));
 			parameters.add(new SqlParameterValue(Types.VARCHAR, principal.getName()));
@@ -301,7 +284,6 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			}
 			parameters.add(new SqlParameterValue(Types.BLOB, refreshTokenValue));
 			parameters.add(new SqlParameterValue(Types.TIMESTAMP, refreshTokenIssuedAt));
-
 			return parameters;
 		}
 

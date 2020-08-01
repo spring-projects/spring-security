@@ -157,8 +157,8 @@ public final class OAuth2AuthorizeRequest {
 
 		private static Authentication createAuthentication(final String principalName) {
 			Assert.hasText(principalName, "principalName cannot be empty");
-
 			return new AbstractAuthenticationToken(null) {
+
 				@Override
 				public Object getCredentials() {
 					return "";
@@ -168,6 +168,7 @@ public final class OAuth2AuthorizeRequest {
 				public Object getPrincipal() {
 					return principalName;
 				}
+
 			};
 		}
 

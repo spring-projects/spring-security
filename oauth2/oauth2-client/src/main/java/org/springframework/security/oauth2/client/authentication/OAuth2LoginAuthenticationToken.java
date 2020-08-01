@@ -66,7 +66,6 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 */
 	public OAuth2LoginAuthenticationToken(ClientRegistration clientRegistration,
 			OAuth2AuthorizationExchange authorizationExchange) {
-
 		super(Collections.emptyList());
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");

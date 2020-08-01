@@ -620,26 +620,29 @@ public final class ClientRegistration implements Serializable {
 
 		private ClientRegistration create() {
 			ClientRegistration clientRegistration = new ClientRegistration();
-
 			clientRegistration.registrationId = this.registrationId;
 			clientRegistration.clientId = this.clientId;
 			clientRegistration.clientSecret = StringUtils.hasText(this.clientSecret) ? this.clientSecret : "";
-			if (this.clientAuthenticationMethod != null) {
-				clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
-			}
-			else {
-				if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
-						&& !StringUtils.hasText(this.clientSecret)) {
-					clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.NONE;
-				}
-				else {
-					clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
-				}
-			}
+			clientRegistration.clientAuthenticationMethod = (this.clientAuthenticationMethod != null)
+					? this.clientAuthenticationMethod : deduceClientAuthenticationMethod(clientRegistration);
 			clientRegistration.authorizationGrantType = this.authorizationGrantType;
 			clientRegistration.redirectUri = this.redirectUri;
 			clientRegistration.scopes = this.scopes;
+			clientRegistration.providerDetails = createProviderDetails(clientRegistration);
+			clientRegistration.clientName = StringUtils.hasText(this.clientName) ? this.clientName
+					: this.registrationId;
+			return clientRegistration;
+		}
 
+		private ClientAuthenticationMethod deduceClientAuthenticationMethod(ClientRegistration clientRegistration) {
+			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
+					&& !StringUtils.hasText(this.clientSecret)) {
+				return ClientAuthenticationMethod.NONE;
+			}
+			return ClientAuthenticationMethod.BASIC;
+		}
+
+		private ProviderDetails createProviderDetails(ClientRegistration clientRegistration) {
 			ProviderDetails providerDetails = clientRegistration.new ProviderDetails();
 			providerDetails.authorizationUri = this.authorizationUri;
 			providerDetails.tokenUri = this.tokenUri;
@@ -649,12 +652,7 @@ public final class ClientRegistration implements Serializable {
 			providerDetails.jwkSetUri = this.jwkSetUri;
 			providerDetails.issuerUri = this.issuerUri;
 			providerDetails.configurationMetadata = Collections.unmodifiableMap(this.configurationMetadata);
-			clientRegistration.providerDetails = providerDetails;
-
-			clientRegistration.clientName = StringUtils.hasText(this.clientName) ? this.clientName
-					: this.registrationId;
-
-			return clientRegistration;
+			return providerDetails;
 		}
 
 		private void validateAuthorizationCodeGrantType() {
@@ -696,7 +694,6 @@ public final class ClientRegistration implements Serializable {
 			if (this.scopes == null) {
 				return;
 			}
-
 			for (String scope : this.scopes) {
 				Assert.isTrue(validateScope(scope), "scope \"" + scope + "\" contains invalid characters");
 			}

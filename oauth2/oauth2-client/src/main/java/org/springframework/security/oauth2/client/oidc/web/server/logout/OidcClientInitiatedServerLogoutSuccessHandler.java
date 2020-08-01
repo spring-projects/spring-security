@@ -66,14 +66,10 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 	 */
 	public OidcClientInitiatedServerLogoutSuccessHandler(
 			ReactiveClientRegistrationRepository clientRegistrationRepository) {
-
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<Void> onLogoutSuccess(WebFilterExchange exchange, Authentication authentication) {
 		return Mono.just(authentication).filter(OAuth2AuthenticationToken.class::isInstance)
@@ -95,16 +91,14 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 	}
 
 	private URI endSessionEndpoint(ClientRegistration clientRegistration) {
-		URI result = null;
 		if (clientRegistration != null) {
 			Object endSessionEndpoint = clientRegistration.getProviderDetails().getConfigurationMetadata()
 					.get("end_session_endpoint");
 			if (endSessionEndpoint != null) {
-				result = URI.create(endSessionEndpoint.toString());
+				return URI.create(endSessionEndpoint.toString());
 			}
 		}
-
-		return result;
+		return null;
 	}
 
 	private URI endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {

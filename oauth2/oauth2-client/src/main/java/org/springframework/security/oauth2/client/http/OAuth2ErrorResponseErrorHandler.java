@@ -55,14 +55,12 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 		if (!HttpStatus.BAD_REQUEST.equals(response.getStatusCode())) {
 			this.defaultErrorHandler.handleError(response);
 		}
-
 		// A Bearer Token Error may be in the WWW-Authenticate response header
 		// See https://tools.ietf.org/html/rfc6750#section-3
 		OAuth2Error oauth2Error = this.readErrorFromWwwAuthenticate(response.getHeaders());
 		if (oauth2Error == null) {
 			oauth2Error = this.oauth2ErrorConverter.read(OAuth2Error.class, response);
 		}
-
 		throw new OAuth2AuthorizationException(oauth2Error);
 	}
 
@@ -71,21 +69,21 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 		if (!StringUtils.hasText(wwwAuthenticateHeader)) {
 			return null;
 		}
-
-		BearerTokenError bearerTokenError;
-		try {
-			bearerTokenError = BearerTokenError.parse(wwwAuthenticateHeader);
-		}
-		catch (Exception ex) {
-			return null;
-		}
-
+		BearerTokenError bearerTokenError = getBearerToken(wwwAuthenticateHeader);
 		String errorCode = (bearerTokenError.getCode() != null) ? bearerTokenError.getCode()
 				: OAuth2ErrorCodes.SERVER_ERROR;
 		String errorDescription = bearerTokenError.getDescription();
 		String errorUri = (bearerTokenError.getURI() != null) ? bearerTokenError.getURI().toString() : null;
-
 		return new OAuth2Error(errorCode, errorDescription, errorUri);
+	}
+
+	private BearerTokenError getBearerToken(String wwwAuthenticateHeader) {
+		try {
+			return BearerTokenError.parse(wwwAuthenticateHeader);
+		}
+		catch (Exception ex) {
+			return null;
+		}
 	}
 
 }

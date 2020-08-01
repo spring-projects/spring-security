@@ -77,48 +77,43 @@ public final class PasswordOAuth2AuthorizedClientProvider implements OAuth2Autho
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
-
 		if (!AuthorizationGrantType.PASSWORD.equals(clientRegistration.getAuthorizationGrantType())) {
 			return null;
 		}
-
 		String username = context.getAttribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME);
 		String password = context.getAttribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME);
 		if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
 			return null;
 		}
-
 		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
 			// If client is already authorized and access token is NOT expired than no
 			// need for re-authorization
 			return null;
 		}
-
 		if (authorizedClient != null && hasTokenExpired(authorizedClient.getAccessToken())
 				&& authorizedClient.getRefreshToken() != null) {
 			// If client is already authorized and access token is expired and a refresh
-			// token is available,
-			// than return and allow RefreshTokenOAuth2AuthorizedClientProvider to handle
-			// the refresh
+			// token is available, than return and allow
+			// RefreshTokenOAuth2AuthorizedClientProvider to handle the refresh
 			return null;
 		}
-
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, username,
 				password);
+		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(clientRegistration, passwordGrantRequest);
+		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
+				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+	}
 
-		OAuth2AccessTokenResponse tokenResponse;
+	private OAuth2AccessTokenResponse getTokenResponse(ClientRegistration clientRegistration,
+			OAuth2PasswordGrantRequest passwordGrantRequest) {
 		try {
-			tokenResponse = this.accessTokenResponseClient.getTokenResponse(passwordGrantRequest);
+			return this.accessTokenResponseClient.getTokenResponse(passwordGrantRequest);
 		}
 		catch (OAuth2AuthorizationException ex) {
 			throw new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex);
 		}
-
-		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {

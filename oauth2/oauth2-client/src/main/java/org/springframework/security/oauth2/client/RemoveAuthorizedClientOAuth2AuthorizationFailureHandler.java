@@ -16,9 +16,9 @@
 
 package org.springframework.security.oauth2.client;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,26 +47,20 @@ public class RemoveAuthorizedClientOAuth2AuthorizationFailureHandler implements 
 	 * {@link OAuth2AuthorizedClient}.
 	 * @see OAuth2ErrorCodes
 	 */
-	public static final Set<String> DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES = Collections
-			.unmodifiableSet(new HashSet<>(Arrays.asList(
-					/*
-					 * Returned from Resource Servers when an access token provided is
-					 * expired, revoked, malformed, or invalid for other reasons.
-					 *
-					 * Note that this is needed because
-					 * ServletOAuth2AuthorizedClientExchangeFilterFunction delegates this
-					 * type of failure received from a Resource Server to this failure
-					 * handler.
-					 */
-					OAuth2ErrorCodes.INVALID_TOKEN,
-
-					/*
-					 * Returned from Authorization Servers when the authorization grant or
-					 * refresh token is invalid, expired, revoked, does not match the
-					 * redirection URI used in the authorization request, or was issued to
-					 * another client.
-					 */
-					OAuth2ErrorCodes.INVALID_GRANT)));
+	public static final Set<String> DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES;
+	static {
+		Set<String> codes = new LinkedHashSet<>();
+		// Returned from Resource Servers when an access token provided is expired,
+		// revoked, malformed, or invalid for other reasons. Note that this is needed
+		// because ServletOAuth2AuthorizedClientExchangeFilterFunction delegates this type
+		// of failure received from a Resource Server to this failure handler.
+		codes.add(OAuth2ErrorCodes.INVALID_TOKEN);
+		// Returned from Authorization Servers when the authorization grant or refresh
+		// token is invalid, expired, revoked, does not match the redirection URI used in
+		// the authorization request, or was issued to another client.
+		codes.add(OAuth2ErrorCodes.INVALID_GRANT);
+		DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES = Collections.unmodifiableSet(codes);
+	}
 
 	/**
 	 * The OAuth 2.0 error codes which will trigger removal of an
@@ -116,10 +110,8 @@ public class RemoveAuthorizedClientOAuth2AuthorizationFailureHandler implements 
 	@Override
 	public void onAuthorizationFailure(OAuth2AuthorizationException authorizationException, Authentication principal,
 			Map<String, Object> attributes) {
-
 		if (authorizationException instanceof ClientAuthorizationException
 				&& hasRemovalErrorCode(authorizationException)) {
-
 			ClientAuthorizationException clientAuthorizationException = (ClientAuthorizationException) authorizationException;
 			this.delegate.removeAuthorizedClient(clientAuthorizationException.getClientRegistrationId(), principal,
 					attributes);

@@ -131,16 +131,13 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	@Override
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
-
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
 		OAuth2AuthorizedClient authorizedClient = authorizeRequest.getAuthorizedClient();
 		Authentication principal = authorizeRequest.getPrincipal();
-
 		HttpServletRequest servletRequest = getHttpServletRequestOrDefault(authorizeRequest.getAttributes());
 		Assert.notNull(servletRequest, "servletRequest cannot be null");
 		HttpServletResponse servletResponse = getHttpServletResponseOrDefault(authorizeRequest.getAttributes());
 		Assert.notNull(servletResponse, "servletResponse cannot be null");
-
 		OAuth2AuthorizationContext.Builder contextBuilder;
 		if (authorizedClient != null) {
 			contextBuilder = OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient);
@@ -166,7 +163,6 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 						attributes.putAll(contextAttributes);
 					}
 				}).build();
-
 		try {
 			authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		}
@@ -175,7 +171,6 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 					createAttributes(servletRequest, servletResponse));
 			throw ex;
 		}
-
 		if (authorizedClient != null) {
 			this.authorizationSuccessHandler.onAuthorizationSuccess(authorizedClient, principal,
 					createAttributes(servletRequest, servletResponse));
@@ -189,7 +184,6 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 				return authorizationContext.getAuthorizedClient();
 			}
 		}
-
 		return authorizedClient;
 	}
 

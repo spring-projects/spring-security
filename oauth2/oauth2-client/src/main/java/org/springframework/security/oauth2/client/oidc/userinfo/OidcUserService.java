@@ -30,6 +30,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -87,7 +88,6 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	public static Map<String, Converter<Object, ?>> createDefaultClaimTypeConverters() {
 		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
 		Converter<Object, ?> instantConverter = getConverter(TypeDescriptor.valueOf(Instant.class));
-
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put(StandardClaimNames.EMAIL_VERIFIED, booleanConverter);
 		claimTypeConverters.put(StandardClaimNames.PHONE_NUMBER_VERIFIED, booleanConverter);
@@ -96,7 +96,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	}
 
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
-		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
+		TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
 		return (source) -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor,
 				targetDescriptor);
 	}
@@ -107,26 +107,14 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		OidcUserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(userRequest)) {
 			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
-
-			Map<String, Object> claims;
-			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
-					.apply(userRequest.getClientRegistration());
-			if (claimTypeConverter != null) {
-				claims = claimTypeConverter.convert(oauth2User.getAttributes());
-			}
-			else {
-				claims = DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
-			}
+			Map<String, Object> claims = getClaims(userRequest, oauth2User);
 			userInfo = new OidcUserInfo(claims);
-
 			// https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
-
 			// 1) The sub (subject) Claim MUST always be returned in the UserInfo Response
 			if (userInfo.getSubject() == null) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-
 			// 2) Due to the possibility of token substitution attacks (see Section
 			// 16.11),
 			// the UserInfo Response is not guaranteed to be about the End-User
@@ -139,36 +127,39 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 		}
-
 		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
 		authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		for (String authority : token.getScopes()) {
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
 		}
+		return getUser(userRequest, userInfo, authorities);
+	}
 
-		OidcUser user;
+	private Map<String, Object> getClaims(OidcUserRequest userRequest, OAuth2User oauth2User) {
+		Converter<Map<String, Object>, Map<String, Object>> converter = this.claimTypeConverterFactory
+				.apply(userRequest.getClientRegistration());
+		if (converter != null) {
+			return converter.convert(oauth2User.getAttributes());
+		}
+		return DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
+	}
 
-		String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
-				.getUserNameAttributeName();
+	private OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo, Set<GrantedAuthority> authorities) {
+		ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
+		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
 		if (StringUtils.hasText(userNameAttributeName)) {
-			user = new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
+			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
 		}
-		else {
-			user = new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
-		}
-
-		return user;
+		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 	}
 
 	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
 		// Auto-disabled if UserInfo Endpoint URI is not provided
-		if (StringUtils
-				.isEmpty(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri())) {
-
+		ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
+		if (StringUtils.isEmpty(providerDetails.getUserInfoEndpoint().getUri())) {
 			return false;
 		}
-
 		// The Claims requested by the profile, email, address, and phone scope values
 		// are returned from the UserInfo Endpoint (as described in Section 5.3.2),
 		// when a response_type value is used that results in an Access Token being
@@ -180,13 +171,11 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		// Access Token being issued.
 		if (AuthorizationGrantType.AUTHORIZATION_CODE
 				.equals(userRequest.getClientRegistration().getAuthorizationGrantType())) {
-
 			// Return true if there is at least one match between the authorized scope(s)
 			// and accessible scope(s)
 			return this.accessibleScopes.isEmpty()
 					|| CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.accessibleScopes);
 		}
-
 		return false;
 	}
 

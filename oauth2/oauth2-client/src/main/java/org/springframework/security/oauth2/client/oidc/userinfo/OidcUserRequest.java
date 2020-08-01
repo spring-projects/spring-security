@@ -47,7 +47,6 @@ public class OidcUserRequest extends OAuth2UserRequest {
 	 * @param idToken the ID Token
 	 */
 	public OidcUserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken, OidcIdToken idToken) {
-
 		this(clientRegistration, accessToken, idToken, Collections.emptyMap());
 	}
 
@@ -61,7 +60,6 @@ public class OidcUserRequest extends OAuth2UserRequest {
 	 */
 	public OidcUserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken, OidcIdToken idToken,
 			Map<String, Object> additionalParameters) {
-
 		super(clientRegistration, accessToken, additionalParameters);
 		Assert.notNull(idToken, "idToken cannot be null");
 		this.idToken = idToken;

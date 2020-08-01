@@ -20,6 +20,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,15 +67,16 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	private static final String MISSING_SIGNATURE_VERIFIER_ERROR_CODE = "missing_signature_verifier";
 
-	private static Map<JwsAlgorithm, String> jcaAlgorithmMappings = new HashMap<JwsAlgorithm, String>() {
-		{
-			put(MacAlgorithm.HS256, "HmacSHA256");
-			put(MacAlgorithm.HS384, "HmacSHA384");
-			put(MacAlgorithm.HS512, "HmacSHA512");
-		}
-	};
+	private static final Map<JwsAlgorithm, String> JCA_ALGORITHM_MAPPINGS;
+	static {
+		Map<JwsAlgorithm, String> mappings = new HashMap<JwsAlgorithm, String>();
+		mappings.put(MacAlgorithm.HS256, "HmacSHA256");
+		mappings.put(MacAlgorithm.HS384, "HmacSHA384");
+		mappings.put(MacAlgorithm.HS512, "HmacSHA512");
+		JCA_ALGORITHM_MAPPINGS = Collections.unmodifiableMap(mappings);
+	}
 
-	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
+	private static final ClaimTypeConverter DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
 			createDefaultClaimTypeConverters());
 
 	private final Map<String, ReactiveJwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
@@ -100,19 +102,18 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 		Converter<Object, ?> stringConverter = getConverter(TypeDescriptor.valueOf(String.class));
 		Converter<Object, ?> collectionStringConverter = getConverter(
 				TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)));
-
-		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
-		claimTypeConverters.put(IdTokenClaimNames.ISS, urlConverter);
-		claimTypeConverters.put(IdTokenClaimNames.AUD, collectionStringConverter);
-		claimTypeConverters.put(IdTokenClaimNames.NONCE, stringConverter);
-		claimTypeConverters.put(IdTokenClaimNames.EXP, instantConverter);
-		claimTypeConverters.put(IdTokenClaimNames.IAT, instantConverter);
-		claimTypeConverters.put(IdTokenClaimNames.AUTH_TIME, instantConverter);
-		claimTypeConverters.put(IdTokenClaimNames.AMR, collectionStringConverter);
-		claimTypeConverters.put(StandardClaimNames.EMAIL_VERIFIED, booleanConverter);
-		claimTypeConverters.put(StandardClaimNames.PHONE_NUMBER_VERIFIED, booleanConverter);
-		claimTypeConverters.put(StandardClaimNames.UPDATED_AT, instantConverter);
-		return claimTypeConverters;
+		Map<String, Converter<Object, ?>> converters = new HashMap<>();
+		converters.put(IdTokenClaimNames.ISS, urlConverter);
+		converters.put(IdTokenClaimNames.AUD, collectionStringConverter);
+		converters.put(IdTokenClaimNames.NONCE, stringConverter);
+		converters.put(IdTokenClaimNames.EXP, instantConverter);
+		converters.put(IdTokenClaimNames.IAT, instantConverter);
+		converters.put(IdTokenClaimNames.AUTH_TIME, instantConverter);
+		converters.put(IdTokenClaimNames.AMR, collectionStringConverter);
+		converters.put(StandardClaimNames.EMAIL_VERIFIED, booleanConverter);
+		converters.put(StandardClaimNames.PHONE_NUMBER_VERIFIED, booleanConverter);
+		converters.put(StandardClaimNames.UPDATED_AT, instantConverter);
+		return converters;
 	}
 
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
@@ -153,7 +154,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			// 7. The alg value SHOULD be the default of RS256 or the algorithm sent by
 			// the Client
 			// in the id_token_signed_response_alg parameter during Registration.
-
 			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
 			if (!StringUtils.hasText(jwkSetUri)) {
 				OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
@@ -166,7 +166,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
 					.build();
 		}
-		else if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
+		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
 			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 			//
 			// 8. If the JWT alg Header Parameter uses a MAC based algorithm such as
@@ -188,11 +188,10 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 			SecretKeySpec secretKeySpec = new SecretKeySpec(clientSecret.getBytes(StandardCharsets.UTF_8),
-					jcaAlgorithmMappings.get(jwsAlgorithm));
+					JCA_ALGORITHM_MAPPINGS.get(jwsAlgorithm));
 			return NimbusReactiveJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm((MacAlgorithm) jwsAlgorithm)
 					.build();
 		}
-
 		OAuth2Error oauth2Error = new OAuth2Error(MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
 				"Failed to find a Signature Verifier for Client Registration: '"
 						+ clientRegistration.getRegistrationId()

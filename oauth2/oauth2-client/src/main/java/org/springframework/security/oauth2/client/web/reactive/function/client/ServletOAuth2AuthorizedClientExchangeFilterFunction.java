@@ -218,18 +218,22 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction(
 			ClientRegistrationRepository clientRegistrationRepository,
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
-
 		OAuth2AuthorizationFailureHandler authorizationFailureHandler = new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
-				(clientRegistrationId, principal, attributes) -> authorizedClientRepository.removeAuthorizedClient(
-						clientRegistrationId, principal,
-						(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
-						(HttpServletResponse) attributes.get(HttpServletResponse.class.getName())));
+				(clientRegistrationId, principal, attributes) -> removeAuthorizedClient(authorizedClientRepository,
+						clientRegistrationId, principal, attributes));
 		DefaultOAuth2AuthorizedClientManager defaultAuthorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);
 		defaultAuthorizedClientManager.setAuthorizationFailureHandler(authorizationFailureHandler);
 		this.authorizedClientManager = defaultAuthorizedClientManager;
 		this.defaultAuthorizedClientManager = true;
 		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
+	}
+
+	private void removeAuthorizedClient(OAuth2AuthorizedClientRepository authorizedClientRepository,
+			String clientRegistrationId, Authentication principal, Map<String, Object> attributes) {
+		HttpServletRequest request = getRequest(attributes);
+		HttpServletResponse response = getResponse(attributes);
+		authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal, request, response);
 	}
 
 	/**
@@ -453,9 +457,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				|| !request.attribute(AUTHENTICATION_ATTR_NAME).isPresent()) {
 			return mergeRequestAttributesFromContext(request);
 		}
-		else {
-			return Mono.just(request);
-		}
+		return Mono.just(request);
 	}
 
 	private Mono<ClientRequest> mergeRequestAttributesFromContext(ClientRequest request) {
@@ -530,23 +532,13 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		}
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
-
 		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId)
 				.principal(authentication);
-		builder.attributes((attributes) -> {
-			if (servletRequest != null) {
-				attributes.put(HttpServletRequest.class.getName(), servletRequest);
-			}
-			if (servletResponse != null) {
-				attributes.put(HttpServletResponse.class.getName(), servletResponse);
-			}
-		});
+		builder.attributes((attributes) -> addToAttributes(attributes, servletRequest, servletResponse));
 		OAuth2AuthorizeRequest authorizeRequest = builder.build();
-
-		// NOTE:
-		// 'authorizedClientManager.authorize()' needs to be executed
-		// on a dedicated thread via subscribeOn(Schedulers.boundedElastic())
-		// since it performs a blocking I/O operation using RestTemplate internally
+		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated
+		// thread via subscribeOn(Schedulers.boundedElastic()) since it performs a
+		// blocking I/O operation using RestTemplate internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(authorizeRequest))
 				.subscribeOn(Schedulers.boundedElastic());
 	}
@@ -563,25 +555,25 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		}
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
-
 		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient)
 				.principal(authentication);
-		builder.attributes((attributes) -> {
-			if (servletRequest != null) {
-				attributes.put(HttpServletRequest.class.getName(), servletRequest);
-			}
-			if (servletResponse != null) {
-				attributes.put(HttpServletResponse.class.getName(), servletResponse);
-			}
-		});
+		builder.attributes((attributes) -> addToAttributes(attributes, servletRequest, servletResponse));
 		OAuth2AuthorizeRequest reauthorizeRequest = builder.build();
-
-		// NOTE:
-		// 'authorizedClientManager.authorize()' needs to be executed
-		// on a dedicated thread via subscribeOn(Schedulers.boundedElastic())
-		// since it performs a blocking I/O operation using RestTemplate internally
+		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated
+		// thread via subscribeOn(Schedulers.boundedElastic()) since it performs a
+		// blocking I/O operation using RestTemplate internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(reauthorizeRequest))
 				.subscribeOn(Schedulers.boundedElastic());
+	}
+
+	private void addToAttributes(Map<String, Object> attributes, HttpServletRequest servletRequest,
+			HttpServletResponse servletResponse) {
+		if (servletRequest != null) {
+			attributes.put(HTTP_SERVLET_REQUEST_ATTR_NAME, servletRequest);
+		}
+		if (servletResponse != null) {
+			attributes.put(HTTP_SERVLET_RESPONSE_ATTR_NAME, servletResponse);
+		}
 	}
 
 	private ClientRequest bearer(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
@@ -612,8 +604,8 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private static Authentication createAuthentication(final String principalName) {
 		Assert.hasText(principalName, "principalName cannot be empty");
-
 		return new AbstractAuthenticationToken(null) {
+
 			@Override
 			public Object getCredentials() {
 				return "";
@@ -656,7 +648,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		private AuthorizationFailureForwarder(OAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 			Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");
 			this.authorizationFailureHandler = authorizationFailureHandler;
-
 			Map<Integer, String> httpStatusToOAuth2Error = new HashMap<>();
 			httpStatusToOAuth2Error.put(HttpStatus.UNAUTHORIZED.value(), OAuth2ErrorCodes.INVALID_TOKEN);
 			httpStatusToOAuth2Error.put(HttpStatus.FORBIDDEN.value(), OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
@@ -679,14 +670,11 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				if (authorizedClient == null) {
 					return Mono.empty();
 				}
-
 				ClientAuthorizationException authorizationException = new ClientAuthorizationException(oauth2Error,
 						authorizedClient.getClientRegistration().getRegistrationId());
-
 				Authentication principal = createAuthentication(authorizedClient.getPrincipalName());
 				HttpServletRequest servletRequest = getRequest(attrs);
 				HttpServletResponse servletResponse = getResponse(attrs);
-
 				return handleAuthorizationFailure(authorizationException, principal, servletRequest, servletResponse);
 			});
 		}
@@ -740,14 +728,11 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				if (authorizedClient == null) {
 					return Mono.empty();
 				}
-
 				ClientAuthorizationException authorizationException = new ClientAuthorizationException(oauth2Error,
 						authorizedClient.getClientRegistration().getRegistrationId(), exception);
-
 				Authentication principal = createAuthentication(authorizedClient.getPrincipalName());
 				HttpServletRequest servletRequest = getRequest(attrs);
 				HttpServletResponse servletResponse = getResponse(attrs);
-
 				return handleAuthorizationFailure(authorizationException, principal, servletRequest, servletResponse);
 			});
 		}
@@ -769,11 +754,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				if (authorizedClient == null) {
 					return Mono.empty();
 				}
-
 				Authentication principal = createAuthentication(authorizedClient.getPrincipalName());
 				HttpServletRequest servletRequest = getRequest(attrs);
 				HttpServletResponse servletResponse = getResponse(attrs);
-
 				return handleAuthorizationFailure(authorizationException, principal, servletRequest, servletResponse);
 			});
 		}

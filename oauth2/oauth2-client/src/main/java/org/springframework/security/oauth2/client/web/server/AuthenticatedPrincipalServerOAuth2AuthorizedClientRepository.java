@@ -83,10 +83,7 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 		if (this.isPrincipalAuthenticated(principal)) {
 			return this.authorizedClientService.loadAuthorizedClient(clientRegistrationId, principal.getName());
 		}
-		else {
-			return this.anonymousAuthorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal,
-					exchange);
-		}
+		return this.anonymousAuthorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, exchange);
 	}
 
 	@Override
@@ -95,9 +92,7 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 		if (this.isPrincipalAuthenticated(principal)) {
 			return this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal);
 		}
-		else {
-			return this.anonymousAuthorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange);
-		}
+		return this.anonymousAuthorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange);
 	}
 
 	@Override
@@ -106,10 +101,8 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 		if (this.isPrincipalAuthenticated(principal)) {
 			return this.authorizedClientService.removeAuthorizedClient(clientRegistrationId, principal.getName());
 		}
-		else {
-			return this.anonymousAuthorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
-					exchange);
-		}
+		return this.anonymousAuthorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+				exchange);
 	}
 
 	private boolean isPrincipalAuthenticated(Authentication authentication) {

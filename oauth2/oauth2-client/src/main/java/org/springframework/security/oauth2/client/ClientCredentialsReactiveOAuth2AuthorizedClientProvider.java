@@ -64,31 +64,27 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider
 	@Override
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		if (!AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
 			return Mono.empty();
 		}
-
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
 		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
 			// If client is already authorized but access token is NOT expired than no
 			// need for re-authorization
 			return Mono.empty();
 		}
-
 		// As per spec, in section 4.4.3 Access Token Response
 		// https://tools.ietf.org/html/rfc6749#section-4.4.3
 		// A refresh token SHOULD NOT be included.
 		//
 		// Therefore, renewing an expired access token (re-authorization)
 		// is the same as acquiring a new access token (authorization).
-
 		return Mono.just(new OAuth2ClientCredentialsGrantRequest(clientRegistration))
 				.flatMap(this.accessTokenResponseClient::getTokenResponse)
 				.onErrorMap(OAuth2AuthorizationException.class,
-						(e) -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(),
-								e))
+						(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(),
+								ex))
 				.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
 						tokenResponse.getAccessToken()));
 	}

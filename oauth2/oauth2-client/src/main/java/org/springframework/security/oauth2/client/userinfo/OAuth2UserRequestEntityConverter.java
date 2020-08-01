@@ -54,12 +54,7 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 	@Override
 	public RequestEntity<?> convert(OAuth2UserRequest userRequest) {
 		ClientRegistration clientRegistration = userRequest.getClientRegistration();
-
-		HttpMethod httpMethod = HttpMethod.GET;
-		if (AuthenticationMethod.FORM
-				.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
-			httpMethod = HttpMethod.POST;
-		}
+		HttpMethod httpMethod = getHttpMethod(clientRegistration);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		URI uri = UriComponentsBuilder
@@ -78,6 +73,14 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 		}
 
 		return request;
+	}
+
+	private HttpMethod getHttpMethod(ClientRegistration clientRegistration) {
+		if (AuthenticationMethod.FORM
+				.equals(clientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod())) {
+			return HttpMethod.POST;
+		}
+		return HttpMethod.GET;
 	}
 
 }

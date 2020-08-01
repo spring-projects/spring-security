@@ -64,7 +64,6 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 	 */
 	public OAuth2AuthorizationCodeAuthenticationProvider(
 			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
-
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
 	}
@@ -72,30 +71,25 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
-
 		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication.getAuthorizationExchange()
 				.getAuthorizationResponse();
 		if (authorizationResponse.statusError()) {
 			throw new OAuth2AuthorizationException(authorizationResponse.getError());
 		}
-
 		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication.getAuthorizationExchange()
 				.getAuthorizationRequest();
 		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthorizationException(oauth2Error);
 		}
-
 		OAuth2AccessTokenResponse accessTokenResponse = this.accessTokenResponseClient.getTokenResponse(
 				new OAuth2AuthorizationCodeGrantRequest(authorizationCodeAuthentication.getClientRegistration(),
 						authorizationCodeAuthentication.getAuthorizationExchange()));
-
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult = new OAuth2AuthorizationCodeAuthenticationToken(
 				authorizationCodeAuthentication.getClientRegistration(),
 				authorizationCodeAuthentication.getAuthorizationExchange(), accessTokenResponse.getAccessToken(),
 				accessTokenResponse.getRefreshToken(), accessTokenResponse.getAdditionalParameters());
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
-
 		return authenticationResult;
 	}
 
