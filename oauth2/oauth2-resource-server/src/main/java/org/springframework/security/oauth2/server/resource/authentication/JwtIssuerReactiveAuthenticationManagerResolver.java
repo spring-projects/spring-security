@@ -110,7 +110,6 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(
 			ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
-
 		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
 		this.issuerAuthenticationManagerResolver = issuerAuthenticationManagerResolver;
 	}
@@ -141,9 +140,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 					if (issuer == null) {
 						throw new InvalidBearerTokenException("Missing issuer");
 					}
-					else {
-						return issuer;
-					}
+					return issuer;
 				}
 				catch (Exception ex) {
 					throw new InvalidBearerTokenException(ex.getMessage(), ex);

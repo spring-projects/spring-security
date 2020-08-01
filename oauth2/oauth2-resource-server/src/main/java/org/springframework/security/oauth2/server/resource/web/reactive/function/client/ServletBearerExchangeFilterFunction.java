@@ -62,9 +62,6 @@ public final class ServletBearerExchangeFilterFunction implements ExchangeFilter
 
 	static final String SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY = "org.springframework.security.SECURITY_CONTEXT_ATTRIBUTES";
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
 		return oauth2Token().map((token) -> bearer(request, token)).defaultIfEmpty(request).flatMap(next::exchange);

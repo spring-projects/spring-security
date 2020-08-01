@@ -74,7 +74,6 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(clientId, "clientId cannot be null");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
-
 		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(clientId, clientSecret));
@@ -92,7 +91,6 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	public NimbusOpaqueTokenIntrospector(String introspectionUri, RestOperations restOperations) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(restOperations, "restOperations cannot be null");
-
 		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
 		this.restOperations = restOperations;
 	}
@@ -117,27 +115,21 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		return body;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public OAuth2AuthenticatedPrincipal introspect(String token) {
 		RequestEntity<?> requestEntity = this.requestEntityConverter.convert(token);
 		if (requestEntity == null) {
 			throw new OAuth2IntrospectionException("requestEntityConverter returned a null entity");
 		}
-
 		ResponseEntity<String> responseEntity = makeRequest(requestEntity);
 		HTTPResponse httpResponse = adaptToNimbusResponse(responseEntity);
 		TokenIntrospectionResponse introspectionResponse = parseNimbusResponse(httpResponse);
 		TokenIntrospectionSuccessResponse introspectionSuccessResponse = castToNimbusSuccess(introspectionResponse);
-
 		// relying solely on the authorization server to validate this token (not checking
 		// 'exp', for example)
 		if (!introspectionSuccessResponse.isActive()) {
 			throw new BadOpaqueTokenException("Provided token isn't active");
 		}
-
 		return convertClaimsSet(introspectionSuccessResponse);
 	}
 
@@ -149,7 +141,6 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	 */
 	public void setRequestEntityConverter(Converter<String, RequestEntity<?>> requestEntityConverter) {
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
-
 		this.requestEntityConverter = requestEntityConverter;
 	}
 
@@ -166,7 +157,6 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		HTTPResponse response = new HTTPResponse(responseEntity.getStatusCodeValue());
 		response.setHeader(HttpHeaders.CONTENT_TYPE, responseEntity.getHeaders().getContentType().toString());
 		response.setContent(responseEntity.getBody());
-
 		if (response.getStatusCode() != HTTPResponse.SC_OK) {
 			throw new OAuth2IntrospectionException("Introspection endpoint responded with " + response.getStatusCode());
 		}
@@ -219,12 +209,10 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		if (response.getScope() != null) {
 			List<String> scopes = Collections.unmodifiableList(response.getScope().toStringList());
 			claims.put(OAuth2IntrospectionClaimNames.SCOPE, scopes);
-
 			for (String scope : scopes) {
 				authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
 			}
 		}
-
 		return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
 	}
 

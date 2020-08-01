@@ -59,7 +59,6 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException authException) {
 		return Mono.defer(() -> {
 			HttpStatus status = getStatus(authException);
-
 			Map<String, String> parameters = createParameters(authException);
 			String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 			ServerHttpResponse response = exchange.getResponse();
@@ -74,23 +73,17 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 		if (this.realmName != null) {
 			parameters.put("realm", this.realmName);
 		}
-
 		if (authException instanceof OAuth2AuthenticationException) {
 			OAuth2Error error = ((OAuth2AuthenticationException) authException).getError();
-
 			parameters.put("error", error.getErrorCode());
-
 			if (StringUtils.hasText(error.getDescription())) {
 				parameters.put("error_description", error.getDescription());
 			}
-
 			if (StringUtils.hasText(error.getUri())) {
 				parameters.put("error_uri", error.getUri());
 			}
-
 			if (error instanceof BearerTokenError) {
 				BearerTokenError bearerTokenError = (BearerTokenError) error;
-
 				if (StringUtils.hasText(bearerTokenError.getScope())) {
 					parameters.put("scope", bearerTokenError.getScope());
 				}
@@ -112,7 +105,6 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
 		StringBuilder wwwAuthenticate = new StringBuilder();
 		wwwAuthenticate.append("Bearer");
-
 		if (!parameters.isEmpty()) {
 			wwwAuthenticate.append(" ");
 			int i = 0;
@@ -124,7 +116,6 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 				i++;
 			}
 		}
-
 		return wwwAuthenticate.toString();
 	}
 

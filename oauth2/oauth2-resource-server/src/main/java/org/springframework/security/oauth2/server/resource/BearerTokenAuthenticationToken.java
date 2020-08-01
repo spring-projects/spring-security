@@ -40,7 +40,7 @@ public class BearerTokenAuthenticationToken extends AbstractAuthenticationToken 
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private String token;
+	private final String token;
 
 	/**
 	 * Create a {@code BearerTokenAuthenticationToken} using the provided parameter(s)
@@ -48,9 +48,7 @@ public class BearerTokenAuthenticationToken extends AbstractAuthenticationToken 
 	 */
 	public BearerTokenAuthenticationToken(String token) {
 		super(Collections.emptyList());
-
 		Assert.hasText(token, "token cannot be empty");
-
 		this.token = token;
 	}
 
@@ -65,17 +63,11 @@ public class BearerTokenAuthenticationToken extends AbstractAuthenticationToken 
 		return this.token;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object getCredentials() {
 		return this.getToken();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object getPrincipal() {
 		return this.getToken();

@@ -59,7 +59,6 @@ public final class BearerTokenError extends OAuth2Error {
 			String scope) {
 		super(errorCode, description, errorUri);
 		Assert.notNull(httpStatus, "httpStatus cannot be null");
-
 		Assert.isTrue(isDescriptionValid(description),
 				"description contains invalid ASCII characters, it must conform to RFC 6750");
 		Assert.isTrue(isErrorCodeValid(errorCode),
@@ -67,7 +66,6 @@ public final class BearerTokenError extends OAuth2Error {
 		Assert.isTrue(isErrorUriValid(errorUri),
 				"errorUri contains invalid ASCII characters, it must conform to RFC 6750");
 		Assert.isTrue(isScopeValid(scope), "scope contains invalid ASCII characters, it must conform to RFC 6750");
-
 		this.httpStatus = httpStatus;
 		this.scope = scope;
 	}

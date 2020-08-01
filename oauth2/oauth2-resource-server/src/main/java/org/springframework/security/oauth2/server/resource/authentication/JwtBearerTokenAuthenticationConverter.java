@@ -52,10 +52,8 @@ public final class JwtBearerTokenAuthenticationConverter implements Converter<Jw
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, jwt.getTokenValue(),
 				jwt.getIssuedAt(), jwt.getExpiresAt());
 		Map<String, Object> attributes = jwt.getClaims();
-
 		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
 		Collection<GrantedAuthority> authorities = token.getAuthorities();
-
 		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(attributes, authorities);
 		return new BearerTokenAuthentication(principal, accessToken, authorities);
 	}

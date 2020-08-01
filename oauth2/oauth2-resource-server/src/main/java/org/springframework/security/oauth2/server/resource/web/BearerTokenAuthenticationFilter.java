@@ -74,7 +74,6 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	 */
 	public BearerTokenAuthenticationFilter(
 			AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
-
 		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
 		this.authenticationManagerResolver = authenticationManagerResolver;
 	}
@@ -101,11 +100,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
-		final boolean debug = this.logger.isDebugEnabled();
-
 		String token;
-
 		try {
 			token = this.bearerTokenResolver.resolve(request);
 		}
@@ -113,33 +108,23 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 			this.authenticationEntryPoint.commence(request, response, invalid);
 			return;
 		}
-
 		if (token == null) {
 			filterChain.doFilter(request, response);
 			return;
 		}
-
 		BearerTokenAuthenticationToken authenticationRequest = new BearerTokenAuthenticationToken(token);
-
 		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
-
 		try {
 			AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
 			Authentication authenticationResult = authenticationManager.authenticate(authenticationRequest);
-
 			SecurityContext context = SecurityContextHolder.createEmptyContext();
 			context.setAuthentication(authenticationResult);
 			SecurityContextHolder.setContext(context);
-
 			filterChain.doFilter(request, response);
 		}
 		catch (AuthenticationException failed) {
 			SecurityContextHolder.clearContext();
-
-			if (debug) {
-				this.logger.debug("Authentication request for failed!", failed);
-			}
-
+			this.logger.debug("Authentication request for failed!", failed);
 			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
 	}

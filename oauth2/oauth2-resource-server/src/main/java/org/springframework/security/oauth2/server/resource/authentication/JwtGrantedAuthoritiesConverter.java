@@ -84,11 +84,9 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	}
 
 	private String getAuthoritiesClaimName(Jwt jwt) {
-
 		if (this.authoritiesClaimName != null) {
 			return this.authoritiesClaimName;
 		}
-
 		for (String claimName : WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
 			if (jwt.containsClaim(claimName)) {
 				return claimName;
@@ -99,24 +97,19 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 
 	private Collection<String> getAuthorities(Jwt jwt) {
 		String claimName = getAuthoritiesClaimName(jwt);
-
 		if (claimName == null) {
 			return Collections.emptyList();
 		}
-
 		Object authorities = jwt.getClaim(claimName);
 		if (authorities instanceof String) {
 			if (StringUtils.hasText((String) authorities)) {
 				return Arrays.asList(((String) authorities).split(" "));
 			}
-			else {
-				return Collections.emptyList();
-			}
+			return Collections.emptyList();
 		}
-		else if (authorities instanceof Collection) {
+		if (authorities instanceof Collection) {
 			return (Collection<String>) authorities;
 		}
-
 		return Collections.emptyList();
 	}
 

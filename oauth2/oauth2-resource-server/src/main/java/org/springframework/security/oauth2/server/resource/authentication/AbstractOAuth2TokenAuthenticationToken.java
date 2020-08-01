@@ -84,17 +84,11 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends AbstractO
 		this.token = token;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object getCredentials() {
 		return this.credentials;

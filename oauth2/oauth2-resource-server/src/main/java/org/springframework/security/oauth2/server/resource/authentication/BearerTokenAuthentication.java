@@ -40,7 +40,7 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private Map<String, Object> attributes;
+	private final Map<String, Object> attributes;
 
 	/**
 	 * Constructs a {@link BearerTokenAuthentication} with the provided arguments
@@ -50,7 +50,6 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 	 */
 	public BearerTokenAuthentication(OAuth2AuthenticatedPrincipal principal, OAuth2AccessToken credentials,
 			Collection<? extends GrantedAuthority> authorities) {
-
 		super(credentials, principal, credentials, authorities);
 		Assert.isTrue(credentials.getTokenType() == OAuth2AccessToken.TokenType.BEARER,
 				"credentials must be a bearer token");
@@ -58,9 +57,6 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 		setAuthenticated(true);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Map<String, Object> getTokenAttributes() {
 		return this.attributes;

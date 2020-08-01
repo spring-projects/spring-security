@@ -80,10 +80,15 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		BearerTokenAuthenticationToken bearer = (BearerTokenAuthenticationToken) authentication;
+		Jwt jwt = getJwt(bearer);
+		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
+		token.setDetails(bearer.getDetails());
+		return token;
+	}
 
-		Jwt jwt;
+	private Jwt getJwt(BearerTokenAuthenticationToken bearer) {
 		try {
-			jwt = this.jwtDecoder.decode(bearer.getToken());
+			return this.jwtDecoder.decode(bearer.getToken());
 		}
 		catch (BadJwtException failed) {
 			throw new InvalidBearerTokenException(failed.getMessage(), failed);
@@ -91,16 +96,8 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 		catch (JwtException failed) {
 			throw new AuthenticationServiceException(failed.getMessage(), failed);
 		}
-
-		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
-		token.setDetails(bearer.getDetails());
-
-		return token;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return BearerTokenAuthenticationToken.class.isAssignableFrom(authentication);
@@ -108,7 +105,6 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 
 	public void setJwtAuthenticationConverter(
 			Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter) {
-
 		Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
 		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}

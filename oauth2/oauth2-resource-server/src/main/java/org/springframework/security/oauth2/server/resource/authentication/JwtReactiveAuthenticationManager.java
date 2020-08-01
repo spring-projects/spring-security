@@ -65,7 +65,6 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 	 */
 	public void setJwtAuthenticationConverter(
 			Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter) {
-
 		Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
 		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}
@@ -74,9 +73,7 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 		if (ex instanceof BadJwtException) {
 			return new InvalidBearerTokenException(ex.getMessage(), ex);
 		}
-		else {
-			return new AuthenticationServiceException(ex.getMessage(), ex);
-		}
+		return new AuthenticationServiceException(ex.getMessage(), ex);
 	}
 
 }
