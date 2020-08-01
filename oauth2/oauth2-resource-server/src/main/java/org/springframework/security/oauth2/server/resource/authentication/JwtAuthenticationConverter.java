@@ -43,7 +43,6 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 		if (this.principalClaimName == null) {
 			return new JwtAuthenticationToken(jwt, authorities);
 		}
-
 		String name = jwt.getClaim(this.principalClaimName);
 		return new JwtAuthenticationToken(jwt, authorities, name);
 	}

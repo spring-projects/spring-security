@@ -72,9 +72,6 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		this.name = name;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Map<String, Object> getTokenAttributes() {
 		return this.getToken().getClaims();

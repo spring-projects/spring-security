@@ -55,13 +55,10 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 
 	@Override
 	public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
-
 		Map<String, String> parameters = new LinkedHashMap<>();
-
 		if (this.realmName != null) {
 			parameters.put("realm", this.realmName);
 		}
-
 		return exchange.getPrincipal().filter(AbstractOAuth2TokenAuthenticationToken.class::isInstance)
 				.map((token) -> errorMessageParameters(parameters)).switchIfEmpty(Mono.just(parameters))
 				.flatMap((params) -> respond(exchange, params));
@@ -80,7 +77,6 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 		parameters.put("error_description",
 				"The request requires higher privileges than provided by the access token.");
 		parameters.put("error_uri", "https://tools.ietf.org/html/rfc6750#section-3.1");
-
 		return parameters;
 	}
 
@@ -105,7 +101,6 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 				i++;
 			}
 		}
-
 		return wwwAuthenticate.toString();
 	}
 

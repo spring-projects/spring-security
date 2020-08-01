@@ -86,10 +86,15 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 			return null;
 		}
 		BearerTokenAuthenticationToken bearer = (BearerTokenAuthenticationToken) authentication;
+		OAuth2AuthenticatedPrincipal principal = getOAuth2AuthenticatedPrincipal(bearer);
+		AbstractAuthenticationToken result = convert(principal, bearer.getToken());
+		result.setDetails(bearer.getDetails());
+		return result;
+	}
 
-		OAuth2AuthenticatedPrincipal principal;
+	private OAuth2AuthenticatedPrincipal getOAuth2AuthenticatedPrincipal(BearerTokenAuthenticationToken bearer) {
 		try {
-			principal = this.introspector.introspect(bearer.getToken());
+			return this.introspector.introspect(bearer.getToken());
 		}
 		catch (BadOpaqueTokenException failed) {
 			throw new InvalidBearerTokenException(failed.getMessage());
@@ -97,15 +102,8 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		catch (OAuth2IntrospectionException failed) {
 			throw new AuthenticationServiceException(failed.getMessage());
 		}
-
-		AbstractAuthenticationToken result = convert(principal, bearer.getToken());
-		result.setDetails(bearer.getDetails());
-		return result;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return BearerTokenAuthenticationToken.class.isAssignableFrom(authentication);

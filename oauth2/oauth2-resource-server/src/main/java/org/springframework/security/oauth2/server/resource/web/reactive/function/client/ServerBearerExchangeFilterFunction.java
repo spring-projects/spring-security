@@ -51,9 +51,6 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
  */
 public final class ServerBearerExchangeFilterFunction implements ExchangeFilterFunction {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
 		return oauth2Token().map((token) -> bearer(request, token)).defaultIfEmpty(request).flatMap(next::exchange);

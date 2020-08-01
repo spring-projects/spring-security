@@ -74,7 +74,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 			}
 			return authorizationHeaderToken;
 		}
-		else if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
+		if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
 			return parameterToken;
 		}
 		return null;
@@ -107,17 +107,15 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 
 	private String resolveFromAuthorizationHeader(HttpHeaders headers) {
 		String authorization = headers.getFirst(this.bearerTokenHeaderName);
-		if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
-			Matcher matcher = authorizationPattern.matcher(authorization);
-
-			if (!matcher.matches()) {
-				BearerTokenError error = invalidTokenError();
-				throw new OAuth2AuthenticationException(error);
-			}
-
-			return matcher.group("token");
+		if (!StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
+			return null;
 		}
-		return null;
+		Matcher matcher = authorizationPattern.matcher(authorization);
+		if (!matcher.matches()) {
+			BearerTokenError error = invalidTokenError();
+			throw new OAuth2AuthenticationException(error);
+		}
+		return matcher.group("token");
 	}
 
 	private static BearerTokenError invalidTokenError() {

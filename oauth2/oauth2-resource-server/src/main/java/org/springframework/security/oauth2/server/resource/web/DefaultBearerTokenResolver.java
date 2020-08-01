@@ -46,9 +46,6 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private String bearerTokenHeaderName = HttpHeaders.AUTHORIZATION;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String resolve(HttpServletRequest request) {
 		String authorizationHeaderToken = resolveFromAuthorizationHeader(request);
@@ -61,7 +58,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			}
 			return authorizationHeaderToken;
 		}
-		else if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
+		if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
 			return parameterToken;
 		}
 		return null;
@@ -104,17 +101,15 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private String resolveFromAuthorizationHeader(HttpServletRequest request) {
 		String authorization = request.getHeader(this.bearerTokenHeaderName);
-		if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
-			Matcher matcher = authorizationPattern.matcher(authorization);
-
-			if (!matcher.matches()) {
-				BearerTokenError error = BearerTokenErrors.invalidToken("Bearer token is malformed");
-				throw new OAuth2AuthenticationException(error);
-			}
-
-			return matcher.group("token");
+		if (!StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
+			return null;
 		}
-		return null;
+		Matcher matcher = authorizationPattern.matcher(authorization);
+		if (!matcher.matches()) {
+			BearerTokenError error = BearerTokenErrors.invalidToken("Bearer token is malformed");
+			throw new OAuth2AuthenticationException(error);
+		}
+		return matcher.group("token");
 	}
 
 	private static String resolveFromRequestParameters(HttpServletRequest request) {
@@ -122,11 +117,9 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		if (values == null || values.length == 0) {
 			return null;
 		}
-
 		if (values.length == 1) {
 			return values[0];
 		}
-
 		BearerTokenError error = BearerTokenErrors.invalidRequest("Found multiple bearer tokens in the request");
 		throw new OAuth2AuthenticationException(error);
 	}

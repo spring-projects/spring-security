@@ -45,7 +45,6 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal
 	 */
 	public OAuth2IntrospectionAuthenticatedPrincipal(Map<String, Object> attributes,
 			Collection<GrantedAuthority> authorities) {
-
 		this.delegate = new DefaultOAuth2AuthenticatedPrincipal(attributes, authorities);
 	}
 
@@ -58,7 +57,6 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal
 	 */
 	public OAuth2IntrospectionAuthenticatedPrincipal(String name, Map<String, Object> attributes,
 			Collection<GrantedAuthority> authorities) {
-
 		this.delegate = new DefaultOAuth2AuthenticatedPrincipal(name, attributes, authorities);
 	}
 
@@ -81,17 +79,11 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal
 		return this.delegate.getAuthorities();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getName() {
 		return this.delegate.getName();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Map<String, Object> getClaims() {
 		return getAttributes();

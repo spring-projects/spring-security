@@ -54,9 +54,9 @@ import org.springframework.web.reactive.function.client.WebClient;
  */
 public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
 
-	private URI introspectionUri;
+	private final URI introspectionUri;
 
-	private WebClient webClient;
+	private final WebClient webClient;
 
 	private String authorityPrefix = "SCOPE_";
 
@@ -71,7 +71,6 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 		Assert.hasText(clientId, "clientId cannot be empty");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
-
 		this.introspectionUri = URI.create(introspectionUri);
 		this.webClient = WebClient.builder().defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret)).build();
 	}
@@ -85,14 +84,10 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	public NimbusReactiveOpaqueTokenIntrospector(String introspectionUri, WebClient webClient) {
 		Assert.hasText(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(webClient, "webClient cannot be null");
-
 		this.introspectionUri = URI.create(introspectionUri);
 		this.webClient = webClient;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
 		return Mono.just(token).flatMap(this::makeRequest).flatMap(this::adaptToNimbusResponse)
@@ -177,7 +172,6 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 				authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
 			}
 		}
-
 		return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
 	}
 

@@ -36,6 +36,9 @@ public final class BearerTokenErrors {
 
 	private static final String DEFAULT_URI = "https://tools.ietf.org/html/rfc6750#section-3.1";
 
+	private BearerTokenErrors() {
+	}
+
 	/**
 	 * Create a {@link BearerTokenError} caused by an invalid request
 	 * @param message a description of the error
@@ -46,7 +49,7 @@ public final class BearerTokenErrors {
 			return new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST, message,
 					DEFAULT_URI);
 		}
-		catch (IllegalArgumentException malformed) {
+		catch (IllegalArgumentException ex) {
 			// some third-party library error messages are not suitable for RFC 6750's
 			// error message charset
 			return DEFAULT_INVALID_REQUEST;
@@ -63,7 +66,7 @@ public final class BearerTokenErrors {
 			return new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN, HttpStatus.UNAUTHORIZED, message,
 					DEFAULT_URI);
 		}
-		catch (IllegalArgumentException malformed) {
+		catch (IllegalArgumentException ex) {
 			// some third-party library error messages are not suitable for RFC 6750's
 			// error message charset
 			return DEFAULT_INVALID_TOKEN;
@@ -80,14 +83,11 @@ public final class BearerTokenErrors {
 			return new BearerTokenError(BearerTokenErrorCodes.INSUFFICIENT_SCOPE, HttpStatus.FORBIDDEN, message,
 					DEFAULT_URI, scope);
 		}
-		catch (IllegalArgumentException malformed) {
+		catch (IllegalArgumentException ex) {
 			// some third-party library error messages are not suitable for RFC 6750's
 			// error message charset
 			return DEFAULT_INSUFFICIENT_SCOPE;
 		}
-	}
-
-	private BearerTokenErrors() {
 	}
 
 }

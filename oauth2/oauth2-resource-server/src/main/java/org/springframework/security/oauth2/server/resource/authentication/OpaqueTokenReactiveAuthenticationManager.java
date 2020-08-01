@@ -84,7 +84,6 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 		return this.introspector.introspect(token).map((principal) -> {
 			Instant iat = principal.getAttribute(OAuth2IntrospectionClaimNames.ISSUED_AT);
 			Instant exp = principal.getAttribute(OAuth2IntrospectionClaimNames.EXPIRES_AT);
-
 			// construct token
 			OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
 			return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
@@ -95,9 +94,7 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 		if (ex instanceof BadOpaqueTokenException) {
 			return new InvalidBearerTokenException(ex.getMessage(), ex);
 		}
-		else {
-			return new AuthenticationServiceException(ex.getMessage(), ex);
-		}
+		return new AuthenticationServiceException(ex.getMessage(), ex);
 	}
 
 }
