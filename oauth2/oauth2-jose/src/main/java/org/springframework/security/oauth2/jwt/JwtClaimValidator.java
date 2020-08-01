@@ -58,9 +58,6 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 				"https://tools.ietf.org/html/rfc6750#section-3.1");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		Assert.notNull(token, "token cannot be null");
@@ -68,10 +65,8 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 		if (this.test.test(claimValue)) {
 			return OAuth2TokenValidatorResult.success();
 		}
-		else {
-			this.logger.debug(this.error.getDescription());
-			return OAuth2TokenValidatorResult.failure(this.error);
-		}
+		this.logger.debug(this.error.getDescription());
+		return OAuth2TokenValidatorResult.failure(this.error);
 	}
 
 }

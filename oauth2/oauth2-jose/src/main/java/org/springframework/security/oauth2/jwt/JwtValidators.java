@@ -32,6 +32,9 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
  */
 public final class JwtValidators {
 
+	private JwtValidators() {
+	}
+
 	/**
 	 * <p>
 	 * Create a {@link Jwt} Validator that contains all standard validators when an issuer
@@ -67,9 +70,6 @@ public final class JwtValidators {
 	 */
 	public static OAuth2TokenValidator<Jwt> createDefault() {
 		return new DelegatingOAuth2TokenValidator<>(Arrays.asList(new JwtTimestampValidator()));
-	}
-
-	private JwtValidators() {
 	}
 
 }

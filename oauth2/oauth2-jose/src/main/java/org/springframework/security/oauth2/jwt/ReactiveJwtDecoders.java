@@ -33,6 +33,9 @@ import org.springframework.util.Assert;
  */
 public final class ReactiveJwtDecoders {
 
+	private ReactiveJwtDecoders() {
+	}
+
 	/**
 	 * Creates a {@link ReactiveJwtDecoder} using the provided <a href=
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
@@ -106,11 +109,7 @@ public final class ReactiveJwtDecoders {
 		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder
 				.withJwkSetUri(configuration.get("jwks_uri").toString()).build();
 		jwtDecoder.setJwtValidator(jwtValidator);
-
 		return jwtDecoder;
-	}
-
-	private ReactiveJwtDecoders() {
 	}
 
 }

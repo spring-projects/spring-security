@@ -63,29 +63,23 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 		return Mono.defer(() -> {
 			// Run the selector on the JWK set
 			List<JWK> matches = jwkSelector.select(jwkSet);
-
 			if (!matches.isEmpty()) {
 				// Success
 				return Mono.just(matches);
 			}
-
 			// Refresh the JWK set if the sought key ID is not in the cached JWK set
-
 			// Looking for JWK with specific ID?
 			String soughtKeyID = getFirstSpecifiedKeyID(jwkSelector.getMatcher());
 			if (soughtKeyID == null) {
 				// No key ID specified, return no matches
 				return Mono.just(Collections.emptyList());
 			}
-
 			if (jwkSet.getKeyByKeyId(soughtKeyID) != null) {
 				// The key ID exists in the cached JWK set, matching
 				// failed for some other reason, return no matches
 				return Mono.just(Collections.emptyList());
 			}
-
 			return Mono.empty();
-
 		});
 	}
 
@@ -114,13 +108,10 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	 * @return The first key ID, {@code null} if none.
 	 */
 	protected static String getFirstSpecifiedKeyID(final JWKMatcher jwkMatcher) {
-
 		Set<String> keyIDs = jwkMatcher.getKeyIDs();
-
 		if (keyIDs == null || keyIDs.isEmpty()) {
 			return null;
 		}
-
 		for (String id : keyIDs) {
 			if (id != null) {
 				return id;

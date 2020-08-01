@@ -23,6 +23,7 @@ import java.util.Map;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -46,7 +47,7 @@ final class JwtDecoderProviderConfigurationUtils {
 
 	private static final RestTemplate rest = new RestTemplate();
 
-	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
 	private JwtDecoderProviderConfigurationUtils() {
@@ -62,14 +63,16 @@ final class JwtDecoderProviderConfigurationUtils {
 	}
 
 	static void validateIssuer(Map<String, Object> configuration, String issuer) {
-		String metadataIssuer = "(unavailable)";
+		String metadataIssuer = getMetadataIssuer(configuration);
+		Assert.state(issuer.equals(metadataIssuer), () -> "The Issuer \"" + metadataIssuer
+				+ "\" provided in the configuration did not " + "match the requested issuer \"" + issuer + "\"");
+	}
+
+	private static String getMetadataIssuer(Map<String, Object> configuration) {
 		if (configuration.containsKey("issuer")) {
-			metadataIssuer = configuration.get("issuer").toString();
+			return configuration.get("issuer").toString();
 		}
-		if (!issuer.equals(metadataIssuer)) {
-			throw new IllegalStateException("The Issuer \"" + metadataIssuer
-					+ "\" provided in the configuration did not " + "match the requested issuer \"" + issuer + "\"");
-		}
+		return "(unavailable)";
 	}
 
 	private static Map<String, Object> getConfiguration(String issuer, URI... uris) {
@@ -77,13 +80,9 @@ final class JwtDecoderProviderConfigurationUtils {
 		for (URI uri : uris) {
 			try {
 				RequestEntity<Void> request = RequestEntity.get(uri).build();
-				ResponseEntity<Map<String, Object>> response = rest.exchange(request, typeReference);
+				ResponseEntity<Map<String, Object>> response = rest.exchange(request, STRING_OBJECT_MAP);
 				Map<String, Object> configuration = response.getBody();
-
-				if (configuration.get("jwks_uri") == null) {
-					throw new IllegalArgumentException("The public JWK set URI must not be null");
-				}
-
+				Assert.isTrue(configuration.get("jwks_uri") != null, "The public JWK set URI must not be null");
 				return configuration;
 			}
 			catch (IllegalArgumentException ex) {
