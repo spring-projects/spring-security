@@ -118,27 +118,15 @@ public final class OpenSamlInitializationService {
 	private static boolean initialize(Consumer<XMLObjectProviderRegistry> registryConsumer) {
 		if (initialized.compareAndSet(false, true)) {
 			log.trace("Initializing OpenSAML");
-
 			try {
 				InitializationService.initialize();
 			}
 			catch (Exception ex) {
 				throw new Saml2Exception(ex);
 			}
-
 			BasicParserPool parserPool = new BasicParserPool();
 			parserPool.setMaxPoolSize(50);
-
-			Map<String, Boolean> parserBuilderFeatures = new HashMap<>();
-			parserBuilderFeatures.put("http://apache.org/xml/features/disallow-doctype-decl", Boolean.TRUE);
-			parserBuilderFeatures.put(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-			parserBuilderFeatures.put("http://xml.org/sax/features/external-general-entities", Boolean.FALSE);
-			parserBuilderFeatures.put("http://apache.org/xml/features/validation/schema/normalized-value",
-					Boolean.FALSE);
-			parserBuilderFeatures.put("http://xml.org/sax/features/external-parameter-entities", Boolean.FALSE);
-			parserBuilderFeatures.put("http://apache.org/xml/features/dom/defer-node-expansion", Boolean.FALSE);
-			parserPool.setBuilderFeatures(parserBuilderFeatures);
-
+			parserPool.setBuilderFeatures(getParserBuilderFeatures());
 			try {
 				parserPool.initialize();
 			}
@@ -146,16 +134,23 @@ public final class OpenSamlInitializationService {
 				throw new Saml2Exception(ex);
 			}
 			XMLObjectProviderRegistrySupport.setParserPool(parserPool);
-
 			registryConsumer.accept(ConfigurationService.get(XMLObjectProviderRegistry.class));
-
 			log.debug("Initialized OpenSAML");
 			return true;
 		}
-		else {
-			log.debug("Refused to re-initialize OpenSAML");
-			return false;
-		}
+		log.debug("Refused to re-initialize OpenSAML");
+		return false;
+	}
+
+	private static Map<String, Boolean> getParserBuilderFeatures() {
+		Map<String, Boolean> parserBuilderFeatures = new HashMap<>();
+		parserBuilderFeatures.put("http://apache.org/xml/features/disallow-doctype-decl", Boolean.TRUE);
+		parserBuilderFeatures.put(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+		parserBuilderFeatures.put("http://xml.org/sax/features/external-general-entities", Boolean.FALSE);
+		parserBuilderFeatures.put("http://apache.org/xml/features/validation/schema/normalized-value", Boolean.FALSE);
+		parserBuilderFeatures.put("http://xml.org/sax/features/external-parameter-entities", Boolean.FALSE);
+		parserBuilderFeatures.put("http://apache.org/xml/features/dom/defer-node-expansion", Boolean.FALSE);
+		return parserBuilderFeatures;
 	}
 
 }

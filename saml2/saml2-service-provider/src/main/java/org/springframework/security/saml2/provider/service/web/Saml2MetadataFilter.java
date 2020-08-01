@@ -60,19 +60,16 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-
 		RequestMatcher.MatchResult matcher = this.requestMatcher.matcher(request);
 		if (!matcher.isMatch()) {
 			chain.doFilter(request, response);
 			return;
 		}
-
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationConverter.convert(request);
 		if (relyingPartyRegistration == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-
 		String metadata = this.saml2MetadataResolver.resolve(relyingPartyRegistration);
 		String registrationId = relyingPartyRegistration.getRegistrationId();
 		writeMetadataToResponse(response, registrationId, metadata);
@@ -80,7 +77,6 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	private void writeMetadataToResponse(HttpServletResponse response, String registrationId, String metadata)
 			throws IOException {
-
 		response.setContentType(MediaType.APPLICATION_XML_VALUE);
 		response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
 				"attachment; filename=\"saml-" + registrationId + "-metadata.xml\"");

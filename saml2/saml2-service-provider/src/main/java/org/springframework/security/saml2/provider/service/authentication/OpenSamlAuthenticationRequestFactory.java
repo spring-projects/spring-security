@@ -117,22 +117,15 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		throw new IllegalArgumentException("No signing credential provided");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
 		AuthnRequest authnRequest = createAuthnRequest(context);
 		String xml = context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned()
 				? serialize(sign(authnRequest, context.getRelyingPartyRegistration())) : serialize(authnRequest);
-
 		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
 				.samlRequest(Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8))).build();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Saml2RedirectAuthenticationRequest createRedirectAuthenticationRequest(
 			Saml2AuthenticationRequestContext context) {
@@ -141,7 +134,6 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		Builder result = Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context);
 		String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 		result.samlRequest(deflatedAndEncoded).relayState(context.getRelayState());
-
 		if (context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
 			Collection<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration()
 					.getSigningX509Credentials();
@@ -154,7 +146,6 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 			}
 			throw new Saml2Exception("No signing credential provided");
 		}
-
 		return result.build();
 	}
 
@@ -266,12 +257,10 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 					.append(UriUtils.encode(relayState, StandardCharsets.ISO_8859_1)).append("&");
 		}
 		queryString.append("SigAlg").append("=").append(UriUtils.encode(algorithmUri, StandardCharsets.ISO_8859_1));
-
 		try {
 			byte[] rawSignature = XMLSigningUtil.signWithURI(credential, algorithmUri,
 					queryString.toString().getBytes(StandardCharsets.UTF_8));
 			String b64Signature = Saml2Utils.samlEncode(rawSignature);
-
 			Map<String, String> result = new LinkedHashMap<>();
 			result.put("SAMLRequest", samlRequest);
 			if (StringUtils.hasText(relayState)) {

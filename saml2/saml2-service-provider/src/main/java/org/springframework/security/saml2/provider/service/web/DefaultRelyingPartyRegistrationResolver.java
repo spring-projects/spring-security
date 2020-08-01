@@ -52,7 +52,6 @@ public final class DefaultRelyingPartyRegistrationResolver
 
 	public DefaultRelyingPartyRegistrationResolver(
 			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
-
 		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
 	}
@@ -68,7 +67,6 @@ public final class DefaultRelyingPartyRegistrationResolver
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
-
 		String applicationUri = getApplicationUri(request);
 		Function<String, String> templateResolver = templateResolver(applicationUri, relyingPartyRegistration);
 		String relyingPartyEntityId = templateResolver.apply(relyingPartyRegistration.getEntityId());
@@ -104,7 +102,6 @@ public final class DefaultRelyingPartyRegistrationResolver
 		uriVariables.put("baseUrl", uriComponents.toUriString());
 		uriVariables.put("entityId", StringUtils.hasText(entityId) ? entityId : "");
 		uriVariables.put("registrationId", StringUtils.hasText(registrationId) ? registrationId : "");
-
 		return UriComponentsBuilder.fromUriString(template).buildAndExpand(uriVariables).toUriString();
 	}
 

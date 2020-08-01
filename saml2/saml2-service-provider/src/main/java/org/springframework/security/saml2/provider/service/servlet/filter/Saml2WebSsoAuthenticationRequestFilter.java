@@ -131,13 +131,9 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		this.redirectMatcher = redirectMatcher;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
 		MatchResult matcher = this.redirectMatcher.matcher(request);
 		if (!matcher.isMatch()) {
 			filterChain.doFilter(request, response);
@@ -192,26 +188,42 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		String authenticationRequestUri = authenticationRequest.getAuthenticationRequestUri();
 		String relayState = authenticationRequest.getRelayState();
 		String samlRequest = authenticationRequest.getSamlRequest();
-		StringBuilder postHtml = new StringBuilder().append("<!DOCTYPE html>\n").append("<html>\n")
-				.append("    <head>\n").append("        <meta charset=\"utf-8\" />\n").append("    </head>\n")
-				.append("    <body onload=\"document.forms[0].submit()\">\n").append("        <noscript>\n")
-				.append("            <p>\n")
-				.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n")
-				.append("                you must press the Continue button once to proceed.\n")
-				.append("            </p>\n").append("        </noscript>\n").append("        \n")
-				.append("        <form action=\"").append(authenticationRequestUri).append("\" method=\"post\">\n")
-				.append("            <div>\n")
-				.append("                <input type=\"hidden\" name=\"SAMLRequest\" value=\"")
-				.append(HtmlUtils.htmlEscape(samlRequest)).append("\"/>\n");
+		StringBuilder html = new StringBuilder();
+		html.append("<!DOCTYPE html>\n");
+		html.append("<html>\n").append("    <head>\n");
+		html.append("        <meta charset=\"utf-8\" />\n");
+		html.append("    </head>\n");
+		html.append("    <body onload=\"document.forms[0].submit()\">\n");
+		html.append("        <noscript>\n");
+		html.append("            <p>\n");
+		html.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n");
+		html.append("                you must press the Continue button once to proceed.\n");
+		html.append("            </p>\n");
+		html.append("        </noscript>\n");
+		html.append("        \n");
+		html.append("        <form action=\"");
+		html.append(authenticationRequestUri);
+		html.append("\" method=\"post\">\n");
+		html.append("            <div>\n");
+		html.append("                <input type=\"hidden\" name=\"SAMLRequest\" value=\"");
+		html.append(HtmlUtils.htmlEscape(samlRequest));
+		html.append("\"/>\n");
 		if (StringUtils.hasText(relayState)) {
-			postHtml.append("                <input type=\"hidden\" name=\"RelayState\" value=\"")
-					.append(HtmlUtils.htmlEscape(relayState)).append("\"/>\n");
+			html.append("                <input type=\"hidden\" name=\"RelayState\" value=\"");
+			html.append(HtmlUtils.htmlEscape(relayState));
+			html.append("\"/>\n");
 		}
-		postHtml.append("            </div>\n").append("            <noscript>\n").append("                <div>\n")
-				.append("                    <input type=\"submit\" value=\"Continue\"/>\n")
-				.append("                </div>\n").append("            </noscript>\n").append("        </form>\n")
-				.append("        \n").append("    </body>\n").append("</html>");
-		return postHtml.toString();
+		html.append("            </div>\n");
+		html.append("            <noscript>\n");
+		html.append("                <div>\n");
+		html.append("                    <input type=\"submit\" value=\"Continue\"/>\n");
+		html.append("                </div>\n");
+		html.append("            </noscript>\n");
+		html.append("        </form>\n");
+		html.append("        \n");
+		html.append("    </body>\n");
+		html.append("</html>");
+		return html.toString();
 	}
 
 }

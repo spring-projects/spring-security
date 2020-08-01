@@ -45,11 +45,12 @@ public final class Saml2Utils {
 
 	public static byte[] samlDeflate(String s) {
 		try {
-			ByteArrayOutputStream b = new ByteArrayOutputStream();
-			DeflaterOutputStream deflater = new DeflaterOutputStream(b, new Deflater(Deflater.DEFLATED, true));
-			deflater.write(s.getBytes(StandardCharsets.UTF_8));
-			deflater.finish();
-			return b.toByteArray();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(out,
+					new Deflater(Deflater.DEFLATED, true));
+			deflaterOutputStream.write(s.getBytes(StandardCharsets.UTF_8));
+			deflaterOutputStream.finish();
+			return out.toByteArray();
 		}
 		catch (IOException ex) {
 			throw new Saml2Exception("Unable to deflate string", ex);
@@ -59,9 +60,9 @@ public final class Saml2Utils {
 	public static String samlInflate(byte[] b) {
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
-			iout.write(b);
-			iout.finish();
+			InflaterOutputStream inflaterOutputStream = new InflaterOutputStream(out, new Inflater(true));
+			inflaterOutputStream.write(b);
+			inflaterOutputStream.finish();
 			return new String(out.toByteArray(), StandardCharsets.UTF_8);
 		}
 		catch (IOException ex) {

@@ -60,9 +60,6 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Saml2AuthenticationToken convert(HttpServletRequest request) {
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.convert(request);
@@ -82,9 +79,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		if (HttpMethod.GET.matches(request.getMethod())) {
 			return samlInflate(b);
 		}
-		else {
-			return new String(b, StandardCharsets.UTF_8);
-		}
+		return new String(b, StandardCharsets.UTF_8);
 	}
 
 	private byte[] samlDecode(String s) {
@@ -94,9 +89,9 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	private String samlInflate(byte[] b) {
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
-			iout.write(b);
-			iout.finish();
+			InflaterOutputStream inflaterOutputStream = new InflaterOutputStream(out, new Inflater(true));
+			inflaterOutputStream.write(b);
+			inflaterOutputStream.finish();
 			return new String(out.toByteArray(), StandardCharsets.UTF_8);
 		}
 		catch (IOException ex) {

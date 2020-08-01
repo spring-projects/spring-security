@@ -67,17 +67,12 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		Assert.notNull(this.entityDescriptorMarshaller, "entityDescriptorMarshaller cannot be null");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String resolve(RelyingPartyRegistration relyingPartyRegistration) {
 		EntityDescriptor entityDescriptor = build(EntityDescriptor.ELEMENT_QNAME);
 		entityDescriptor.setEntityID(relyingPartyRegistration.getEntityId());
-
 		SPSSODescriptor spSsoDescriptor = buildSpSsoDescriptor(relyingPartyRegistration);
 		entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).add(spSsoDescriptor);
-
 		return serialize(entityDescriptor);
 	}
 
@@ -107,17 +102,14 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		KeyInfo keyInfo = build(KeyInfo.DEFAULT_ELEMENT_NAME);
 		X509Certificate x509Certificate = build(X509Certificate.DEFAULT_ELEMENT_NAME);
 		X509Data x509Data = build(X509Data.DEFAULT_ELEMENT_NAME);
-
 		try {
 			x509Certificate.setValue(new String(Base64.getEncoder().encode(certificate.getEncoded())));
 		}
 		catch (CertificateEncodingException ex) {
 			throw new Saml2Exception("Cannot encode certificate " + certificate.toString());
 		}
-
 		x509Data.getX509Certificates().add(x509Certificate);
 		keyInfo.getX509Datas().add(x509Data);
-
 		keyDescriptor.setUse(usageType);
 		keyDescriptor.setKeyInfo(keyInfo);
 		return keyDescriptor;

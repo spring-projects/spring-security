@@ -47,9 +47,6 @@ public final class DefaultSaml2AuthenticationRequestContextResolver
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Saml2AuthenticationRequestContext resolve(HttpServletRequest request) {
 		Assert.notNull(request, "request cannot be null");

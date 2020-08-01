@@ -96,37 +96,24 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 		this.parserPool = registry.getParserPool();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean canRead(Class<?> clazz, MediaType mediaType) {
 		return RelyingPartyRegistration.Builder.class.isAssignableFrom(clazz);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean canWrite(Class<?> clazz, MediaType mediaType) {
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<MediaType> getSupportedMediaTypes() {
 		return Arrays.asList(MediaType.APPLICATION_XML, MediaType.TEXT_XML);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public RelyingPartyRegistration.Builder read(Class<? extends RelyingPartyRegistration.Builder> clazz,
 			HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
-
 		EntityDescriptor descriptor = entityDescriptor(inputMessage.getBody());
 		IDPSSODescriptor idpssoDescriptor = descriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
 		if (idpssoDescriptor == null) {
@@ -182,6 +169,32 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 		}
 		throw new Saml2Exception(
 				"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
+	}
+
+	private List<Saml2X509Credential> getVerification(IDPSSODescriptor idpssoDescriptor) {
+		List<Saml2X509Credential> verification = new ArrayList<>();
+		for (KeyDescriptor keyDescriptor : idpssoDescriptor.getKeyDescriptors()) {
+			if (keyDescriptor.getUse().equals(UsageType.SIGNING)) {
+				List<X509Certificate> certificates = certificates(keyDescriptor);
+				for (X509Certificate certificate : certificates) {
+					verification.add(Saml2X509Credential.verification(certificate));
+				}
+			}
+		}
+		return verification;
+	}
+
+	private List<Saml2X509Credential> getEncryption(IDPSSODescriptor idpssoDescriptor) {
+		List<Saml2X509Credential> encryption = new ArrayList<>();
+		for (KeyDescriptor keyDescriptor : idpssoDescriptor.getKeyDescriptors()) {
+			if (keyDescriptor.getUse().equals(UsageType.ENCRYPTION)) {
+				List<X509Certificate> certificates = certificates(keyDescriptor);
+				for (X509Certificate certificate : certificates) {
+					encryption.add(Saml2X509Credential.encryption(certificate));
+				}
+			}
+		}
+		return encryption;
 	}
 
 	private List<X509Certificate> certificates(KeyDescriptor keyDescriptor) {
