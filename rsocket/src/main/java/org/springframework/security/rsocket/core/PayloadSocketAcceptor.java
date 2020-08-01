@@ -66,10 +66,8 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 	public Mono<RSocket> accept(ConnectionSetupPayload setup, RSocket sendingSocket) {
 		MimeType dataMimeType = parseMimeType(setup.dataMimeType(), this.defaultDataMimeType);
 		Assert.notNull(dataMimeType, "No `dataMimeType` in ConnectionSetupPayload and no default value");
-
 		MimeType metadataMimeType = parseMimeType(setup.metadataMimeType(), this.defaultMetadataMimeType);
 		Assert.notNull(metadataMimeType, "No `metadataMimeType` in ConnectionSetupPayload and no default value");
-
 		// FIXME do we want to make the sendingSocket available in the PayloadExchange
 		return intercept(setup, dataMimeType, metadataMimeType)
 				.flatMap(

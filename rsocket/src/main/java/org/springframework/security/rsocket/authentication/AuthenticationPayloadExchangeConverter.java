@@ -56,7 +56,7 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 	private static final MimeType AUTHENTICATION_MIME_TYPE = MimeTypeUtils
 			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
-	private MetadataExtractor metadataExtractor = createDefaultExtractor();
+	private final MetadataExtractor metadataExtractor = createDefaultExtractor();
 
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
@@ -79,7 +79,7 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 		if (WellKnownAuthType.SIMPLE.equals(wellKnownAuthType)) {
 			return simple(rawAuthentication);
 		}
-		else if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
+		if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
 			return bearer(rawAuthentication);
 		}
 		throw new IllegalArgumentException("Unknown Mime Type " + wellKnownAuthType);

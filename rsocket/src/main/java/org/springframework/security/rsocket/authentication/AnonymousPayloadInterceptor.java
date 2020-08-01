@@ -39,11 +39,11 @@ import org.springframework.util.Assert;
  */
 public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered {
 
-	private String key;
+	private final String key;
 
-	private Object principal;
+	private final Object principal;
 
-	private List<GrantedAuthority> authorities;
+	private final List<GrantedAuthority> authorities;
 
 	private int order;
 
