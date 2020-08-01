@@ -29,6 +29,7 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurerAdapter;
+import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.testSecurityContext;
@@ -72,15 +73,11 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		if (getSpringSecurityFilterChain() == null && context.containsBean(securityBeanId)) {
 			setSpringSecurityFitlerChain(context.getBean(securityBeanId, Filter.class));
 		}
-
-		if (getSpringSecurityFilterChain() == null) {
-			throw new IllegalStateException("springSecurityFilterChain cannot be null. Ensure a Bean with the name "
-					+ securityBeanId + " implementing Filter is present or inject the Filter to be used.");
-		}
-
+		Assert.state(getSpringSecurityFilterChain() != null,
+				() -> "springSecurityFilterChain cannot be null. Ensure a Bean with the name " + securityBeanId
+						+ " implementing Filter is present or inject the Filter to be used.");
 		// This is used by other test support to obtain the FilterChainProxy
 		context.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, getSpringSecurityFilterChain());
-
 		return testSecurityContext();
 	}
 
@@ -118,11 +115,9 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 
 		Filter getDelegate() {
 			Filter result = this.delegate;
-			if (result == null) {
-				throw new IllegalStateException(
-						"delegate cannot be null. Ensure a Bean with the name " + BeanIds.SPRING_SECURITY_FILTER_CHAIN
-								+ " implementing Filter is present or inject the Filter to be used.");
-			}
+			Assert.state(result != null,
+					() -> "delegate cannot be null. Ensure a Bean with the name " + BeanIds.SPRING_SECURITY_FILTER_CHAIN
+							+ " implementing Filter is present or inject the Filter to be used.");
 			return result;
 		}
 

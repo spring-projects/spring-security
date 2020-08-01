@@ -36,9 +36,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *
  * @author Rob Winch
  * @since 4.0
- *
  */
 public final class SecurityMockMvcRequestBuilders {
+
+	private SecurityMockMvcRequestBuilders() {
+	}
 
 	/**
 	 * Creates a request (including any necessary {@link CsrfToken}) that will submit a
@@ -91,18 +93,18 @@ public final class SecurityMockMvcRequestBuilders {
 
 		private Mergeable parent;
 
+		private LogoutRequestBuilder() {
+		}
+
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
 			MockHttpServletRequestBuilder logoutRequest = post(this.logoutUrl).accept(MediaType.TEXT_HTML,
 					MediaType.ALL);
-
 			if (this.parent != null) {
 				logoutRequest = (MockHttpServletRequestBuilder) logoutRequest.merge(this.parent);
 			}
-
 			MockHttpServletRequest request = logoutRequest.buildRequest(servletContext);
 			logoutRequest.postProcessRequest(request);
-
 			return this.postProcessor.postProcessRequest(request);
 		}
 
@@ -141,12 +143,7 @@ public final class SecurityMockMvcRequestBuilders {
 				this.parent = (Mergeable) parent;
 				return this;
 			}
-			else {
-				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
-			}
-		}
-
-		private LogoutRequestBuilder() {
+			throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 		}
 
 	}
@@ -175,18 +172,18 @@ public final class SecurityMockMvcRequestBuilders {
 
 		private RequestPostProcessor postProcessor = csrf();
 
+		private FormLoginRequestBuilder() {
+		}
+
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
 			MockHttpServletRequestBuilder loginRequest = post(this.loginProcessingUrl).accept(this.acceptMediaType)
 					.param(this.usernameParam, this.username).param(this.passwordParam, this.password);
-
 			if (this.parent != null) {
 				loginRequest = (MockHttpServletRequestBuilder) loginRequest.merge(this.parent);
 			}
-
 			MockHttpServletRequest request = loginRequest.buildRequest(servletContext);
 			loginRequest.postProcessRequest(request);
-
 			return this.postProcessor.postProcessRequest(request);
 		}
 
@@ -305,17 +302,9 @@ public final class SecurityMockMvcRequestBuilders {
 				this.parent = (Mergeable) parent;
 				return this;
 			}
-			else {
-				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
-			}
+			throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 		}
 
-		private FormLoginRequestBuilder() {
-		}
-
-	}
-
-	private SecurityMockMvcRequestBuilders() {
 	}
 
 }

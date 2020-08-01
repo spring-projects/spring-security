@@ -116,6 +116,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  */
 public final class SecurityMockMvcRequestPostProcessors {
 
+	private SecurityMockMvcRequestPostProcessors() {
+	}
+
 	/**
 	 * Creates a DigestRequestPostProcessor that enables easily adding digest based
 	 * authentication to a request.
@@ -634,7 +637,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 			String toDigest = expiryTime + ":" + "key";
 			String signatureValue = md5Hex(toDigest);
 			String nonceValue = expiryTime + ":" + signatureValue;
-
 			return new String(Base64.getEncoder().encode(nonceValue.getBytes()));
 		}
 
@@ -649,7 +651,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-
 			request.addHeader("Authorization", createAuthorizationHeader(request));
 			return request;
 		}
@@ -676,28 +677,19 @@ public final class SecurityMockMvcRequestPostProcessors {
 			String a1Md5 = encodePasswordInA1Format(username, realm, password);
 			String a2 = httpMethod + ":" + uri;
 			String a2Md5 = md5Hex(a2);
-
-			String digest;
-
 			if (qop == null) {
 				// as per RFC 2069 compliant clients (also reaffirmed by RFC 2617)
-				digest = a1Md5 + ":" + nonce + ":" + a2Md5;
+				return md5Hex(a1Md5 + ":" + nonce + ":" + a2Md5);
 			}
-			else if ("auth".equals(qop)) {
+			if ("auth".equals(qop)) {
 				// As per RFC 2617 compliant clients
-				digest = a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + a2Md5;
+				return md5Hex(a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + a2Md5);
 			}
-			else {
-				throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
-			}
-
-			return md5Hex(digest);
+			throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
 		}
 
 		static String encodePasswordInA1Format(String username, String realm, String password) {
-			String a1 = username + ":" + realm + ":" + password;
-
-			return md5Hex(a1);
+			return md5Hex(username + ":" + realm + ":" + password);
 		}
 
 		private static String md5Hex(String a2) {
@@ -736,15 +728,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 				securityContextRepository = new TestSecurityContextRepository(securityContextRepository);
 				WebTestUtils.setSecurityContextRepository(request, securityContextRepository);
 			}
-
 			HttpServletResponse response = new MockHttpServletResponse();
-
 			HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response);
 			securityContextRepository.loadContext(requestResponseHolder);
-
 			request = requestResponseHolder.getRequest();
 			response = requestResponseHolder.getResponse();
-
 			securityContextRepository.saveContext(securityContext, request, response);
 		}
 
@@ -812,12 +800,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 			if (existingContext != null) {
 				return request;
 			}
-
 			SecurityContext context = TestSecurityContextHolder.getContext();
 			if (!this.EMPTY.equals(context)) {
 				save(context, request);
 			}
-
 			return request;
 		}
 
@@ -889,7 +875,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 		UserDetailsRequestPostProcessor(UserDetails user) {
 			Authentication token = new UsernamePasswordAuthenticationToken(user, user.getPassword(),
 					user.getAuthorities());
-
 			this.delegate = new AuthenticationRequestPostProcessor(token);
 		}
 
@@ -948,13 +933,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 		public UserRequestPostProcessor roles(String... roles) {
 			List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
 			for (String role : roles) {
-				if (role.startsWith(ROLE_PREFIX)) {
-					throw new IllegalArgumentException("Role should not start with " + ROLE_PREFIX
-							+ " since this method automatically prefixes with this value. Got " + role);
-				}
-				else {
-					authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role));
-				}
+				Assert.isTrue(!role.startsWith(ROLE_PREFIX), () -> "Role should not start with " + ROLE_PREFIX
+						+ " since this method automatically prefixes with this value. Got " + role);
+				authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role));
 			}
 			this.authorities = authorities;
 			return this;
@@ -1027,8 +1008,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private String headerValue;
 
 		private HttpBasicRequestPostProcessor(String username, String password) {
-			byte[] toEncode;
-			toEncode = (username + ":" + password).getBytes(StandardCharsets.UTF_8);
+			byte[] toEncode = (username + ":" + password).getBytes(StandardCharsets.UTF_8);
 			this.headerValue = "Basic " + new String(Base64.getEncoder().encode(toEncode));
 		}
 
@@ -1356,7 +1336,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 			OAuth2User oauth2User = this.oauth2User.get();
 			OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(oauth2User, oauth2User.getAuthorities(),
 					this.clientRegistration.getRegistrationId());
-
 			request = new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
 			return new OAuth2ClientRequestPostProcessor().clientRegistration(this.clientRegistration)
 					.principalName(oauth2User.getName()).accessToken(this.accessToken).postProcessRequest(request);
@@ -1504,26 +1483,22 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private Collection<GrantedAuthority> getAuthorities() {
-			if (this.authorities == null) {
-				Set<GrantedAuthority> authorities = new LinkedHashSet<>();
-				authorities.add(new OidcUserAuthority(getOidcIdToken(), getOidcUserInfo()));
-				for (String authority : this.accessToken.getScopes()) {
-					authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
-				}
-				return authorities;
-			}
-			else {
+			if (this.authorities != null) {
 				return this.authorities;
 			}
+			Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+			authorities.add(new OidcUserAuthority(getOidcIdToken(), getOidcUserInfo()));
+			for (String authority : this.accessToken.getScopes()) {
+				authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+			}
+			return authorities;
 		}
 
 		private OidcIdToken getOidcIdToken() {
-			if (this.idToken == null) {
-				return new OidcIdToken("id-token", null, null, Collections.singletonMap(IdTokenClaimNames.SUB, "user"));
-			}
-			else {
+			if (this.idToken != null) {
 				return this.idToken;
 			}
+			return new OidcIdToken("id-token", null, null, Collections.singletonMap(IdTokenClaimNames.SUB, "user"));
 		}
 
 		private OidcUserInfo getOidcUserInfo() {
@@ -1577,7 +1552,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		public OAuth2ClientRequestPostProcessor clientRegistration(
 				Consumer<ClientRegistration.Builder> clientRegistrationConfigurer) {
-
 			ClientRegistration.Builder builder = clientRegistrationBuilder();
 			clientRegistrationConfigurer.accept(builder);
 			this.clientRegistration = builder.build();
@@ -1613,7 +1587,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(this.clientRegistration, this.principalName,
 					this.accessToken);
-
 			OAuth2AuthorizedClientManager authorizationClientManager = OAuth2ClientServletTestUtils
 					.getOAuth2AuthorizedClientManager(request);
 			if (!(authorizationClientManager instanceof TestOAuth2AuthorizedClientManager)) {
@@ -1654,9 +1627,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 				if (isEnabled(request)) {
 					return (OAuth2AuthorizedClient) request.getAttribute(TOKEN_ATTR_NAME);
 				}
-				else {
-					return this.delegate.authorize(authorizeRequest);
-				}
+				return this.delegate.authorize(authorizeRequest);
 			}
 
 			static void enable(HttpServletRequest request) {
@@ -1760,9 +1731,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		}
 
-	}
-
-	private SecurityMockMvcRequestPostProcessors() {
 	}
 
 }

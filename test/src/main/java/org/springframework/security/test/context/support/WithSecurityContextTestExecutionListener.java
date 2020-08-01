@@ -68,7 +68,6 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 		if (testSecurityContext == null) {
 			return;
 		}
-
 		Supplier<SecurityContext> supplier = testSecurityContext.getSecurityContextSupplier();
 		if (testSecurityContext.getTestExecutionEvent() == TestExecutionEvent.TEST_METHOD) {
 			TestSecurityContextHolder.setContext(supplier.get());
