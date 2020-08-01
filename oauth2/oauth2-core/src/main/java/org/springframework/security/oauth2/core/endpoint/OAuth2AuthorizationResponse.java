@@ -205,7 +205,6 @@ public final class OAuth2AuthorizationResponse {
 				throw new IllegalArgumentException("code and errorCode cannot both be set");
 			}
 			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
-
 			OAuth2AuthorizationResponse authorizationResponse = new OAuth2AuthorizationResponse();
 			authorizationResponse.redirectUri = this.redirectUri;
 			authorizationResponse.state = this.state;

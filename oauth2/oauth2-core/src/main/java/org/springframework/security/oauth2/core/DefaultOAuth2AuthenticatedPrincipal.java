@@ -48,7 +48,6 @@ public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2Authenti
 	 */
 	public DefaultOAuth2AuthenticatedPrincipal(Map<String, Object> attributes,
 			Collection<GrantedAuthority> authorities) {
-
 		this(null, attributes, authorities);
 	}
 
@@ -61,7 +60,6 @@ public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2Authenti
 	 */
 	public DefaultOAuth2AuthenticatedPrincipal(String name, Map<String, Object> attributes,
 			Collection<GrantedAuthority> authorities) {
-
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		this.attributes = Collections.unmodifiableMap(attributes);
 		this.authorities = (authorities != null) ? Collections.unmodifiableCollection(authorities)
@@ -78,17 +76,11 @@ public final class DefaultOAuth2AuthenticatedPrincipal implements OAuth2Authenti
 		return this.attributes;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return this.authorities;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getName() {
 		return this.name;

@@ -74,9 +74,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
-
 		OidcUserInfo that = (OidcUserInfo) obj;
-
 		return this.getClaims().equals(that.getClaims());
 	}
 

@@ -98,9 +98,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		if (!super.equals(obj)) {
 			return false;
 		}
-
 		OidcUserAuthority that = (OidcUserAuthority) obj;
-
 		if (!this.getIdToken().equals(that.getIdToken())) {
 			return false;
 		}

@@ -215,7 +215,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	 */
 	public static Builder from(OAuth2AuthorizationRequest authorizationRequest) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
-
 		return new Builder(authorizationRequest.getGrantType())
 				.authorizationUri(authorizationRequest.getAuthorizationUri())
 				.clientId(authorizationRequest.getClientId()).redirectUri(authorizationRequest.getRedirectUri())
@@ -440,7 +439,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
 				Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
 			}
-
 			OAuth2AuthorizationRequest authorizationRequest = new OAuth2AuthorizationRequest();
 			authorizationRequest.authorizationUri = this.authorizationUri;
 			authorizationRequest.authorizationGrantType = this.authorizationGrantType;
@@ -454,7 +452,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			authorizationRequest.attributes = Collections.unmodifiableMap(this.attributes);
 			authorizationRequest.authorizationRequestUri = StringUtils.hasText(this.authorizationRequestUri)
 					? this.authorizationRequestUri : this.buildAuthorizationRequestUri();
-
 			return authorizationRequest;
 		}
 

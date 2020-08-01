@@ -106,9 +106,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
-
 		DefaultOAuth2User that = (DefaultOAuth2User) obj;
-
 		if (!this.getName().equals(that.getName())) {
 			return false;
 		}

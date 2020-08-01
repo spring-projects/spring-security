@@ -81,9 +81,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 		if (obj == null || this.getClass() != obj.getClass()) {
 			return false;
 		}
-
 		OAuth2UserAuthority that = (OAuth2UserAuthority) obj;
-
 		if (!this.getAuthority().equals(that.getAuthority())) {
 			return false;
 		}

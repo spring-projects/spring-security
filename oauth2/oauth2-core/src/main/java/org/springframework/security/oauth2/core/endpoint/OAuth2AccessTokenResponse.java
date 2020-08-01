@@ -187,7 +187,6 @@ public final class OAuth2AccessTokenResponse {
 		public OAuth2AccessTokenResponse build() {
 			Instant issuedAt = getIssuedAt();
 			Instant expiresAt = getExpiresAt();
-
 			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
 			accessTokenResponse.accessToken = new OAuth2AccessToken(this.tokenType, this.tokenValue, issuedAt,
 					expiresAt, this.scopes);

@@ -50,7 +50,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE = new ParameterizedTypeReference<Map<String, Object>>() {
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
 	private GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters.getJsonMessageConverter();
@@ -69,16 +69,14 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected OAuth2AccessTokenResponse readInternal(Class<? extends OAuth2AccessTokenResponse> clazz,
 			HttpInputMessage inputMessage) throws HttpMessageNotReadableException {
-
 		try {
-			// gh-6463
-			// Parse parameter values as Object in order to handle potential JSON Object
-			// and then convert values to String
-			@SuppressWarnings("unchecked")
+			// gh-6463: Parse parameter values as Object in order to handle potential JSON
+			// Object and then convert values to String
 			Map<String, Object> tokenResponseParameters = (Map<String, Object>) this.jsonMessageConverter
-					.read(PARAMETERIZED_RESPONSE_TYPE.getType(), null, inputMessage);
+					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
 			return this.tokenResponseConverter.convert(tokenResponseParameters.entrySet().stream()
 					.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
 		}
@@ -92,10 +90,9 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	@Override
 	protected void writeInternal(OAuth2AccessTokenResponse tokenResponse, HttpOutputMessage outputMessage)
 			throws HttpMessageNotWritableException {
-
 		try {
 			Map<String, String> tokenResponseParameters = this.tokenResponseParametersConverter.convert(tokenResponse);
-			this.jsonMessageConverter.write(tokenResponseParameters, PARAMETERIZED_RESPONSE_TYPE.getType(),
+			this.jsonMessageConverter.write(tokenResponseParameters, STRING_OBJECT_MAP.getType(),
 					MediaType.APPLICATION_JSON, outputMessage);
 		}
 		catch (Exception ex) {

@@ -97,10 +97,8 @@ public interface ClaimAccessor {
 		}
 		Object claimValue = getClaims().get(claim);
 		Instant convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, Instant.class);
-		if (convertedValue == null) {
-			throw new IllegalArgumentException(
-					"Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Instant.");
-		}
+		Assert.isTrue(convertedValue != null,
+				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Instant.");
 		return convertedValue;
 	}
 
@@ -115,10 +113,8 @@ public interface ClaimAccessor {
 		}
 		Object claimValue = getClaims().get(claim);
 		URL convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, URL.class);
-		if (convertedValue == null) {
-			throw new IllegalArgumentException(
-					"Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to URL.");
-		}
+		Assert.isTrue(convertedValue != null,
+				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to URL.");
 		return convertedValue;
 	}
 
@@ -140,10 +136,8 @@ public interface ClaimAccessor {
 		Object claimValue = getClaims().get(claim);
 		Map<String, Object> convertedValue = (Map<String, Object>) ClaimConversionService.getSharedInstance()
 				.convert(claimValue, sourceDescriptor, targetDescriptor);
-		if (convertedValue == null) {
-			throw new IllegalArgumentException(
-					"Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Map.");
-		}
+		Assert.isTrue(convertedValue != null,
+				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Map.");
 		return convertedValue;
 	}
 
@@ -165,10 +159,8 @@ public interface ClaimAccessor {
 		Object claimValue = getClaims().get(claim);
 		List<String> convertedValue = (List<String>) ClaimConversionService.getSharedInstance().convert(claimValue,
 				sourceDescriptor, targetDescriptor);
-		if (convertedValue == null) {
-			throw new IllegalArgumentException(
-					"Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to List.");
-		}
+		Assert.isTrue(convertedValue != null,
+				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to List.");
 		return convertedValue;
 	}
 

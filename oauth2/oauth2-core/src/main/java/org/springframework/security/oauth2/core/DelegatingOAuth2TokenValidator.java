@@ -40,7 +40,6 @@ public final class DelegatingOAuth2TokenValidator<T extends AbstractOAuth2Token>
 	 */
 	public DelegatingOAuth2TokenValidator(Collection<OAuth2TokenValidator<T>> tokenValidators) {
 		Assert.notNull(tokenValidators, "tokenValidators cannot be null");
-
 		this.tokenValidators = new ArrayList<>(tokenValidators);
 	}
 
@@ -53,17 +52,12 @@ public final class DelegatingOAuth2TokenValidator<T extends AbstractOAuth2Token>
 		this(Arrays.asList(tokenValidators));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public OAuth2TokenValidatorResult validate(T token) {
 		Collection<OAuth2Error> errors = new ArrayList<>();
-
 		for (OAuth2TokenValidator<T> validator : this.tokenValidators) {
 			errors.addAll(validator.validate(token).getErrors());
 		}
-
 		return OAuth2TokenValidatorResult.failure(errors);
 	}
 
