@@ -95,7 +95,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	@Override
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
-
 		if (this.consumer == null) {
 			try {
 				this.consumer = new OpenID4JavaConsumer();
@@ -104,7 +103,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				throw new IllegalArgumentException("Failed to initialize OpenID", ex);
 			}
 		}
-
 		if (this.returnToUrlParameters.isEmpty() && getRememberMeServices() instanceof AbstractRememberMeServices) {
 			this.returnToUrlParameters = new HashSet<>();
 			this.returnToUrlParameters.add(((AbstractRememberMeServices) getRememberMeServices()).getParameter());
@@ -124,12 +122,9 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException {
 		OpenIDAuthenticationToken token;
-
 		String identity = request.getParameter("openid.identity");
-
 		if (!StringUtils.hasText(identity)) {
 			String claimedIdentity = obtainUsername(request);
-
 			try {
 				String returnToUrl = buildReturnToUrl(request);
 				String realm = lookupRealm(returnToUrl);
@@ -139,7 +134,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 					this.logger.debug("Redirecting to " + openIdUrl);
 				}
 				response.sendRedirect(openIdUrl);
-
 				// Indicate to parent class that authentication is continuing.
 				return null;
 			}
@@ -149,34 +143,27 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 						"Unable to process claimed identity '" + claimedIdentity + "'");
 			}
 		}
-
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("Supplied OpenID identity is " + identity);
 		}
-
 		try {
 			token = this.consumer.endConsumption(request);
 		}
-		catch (OpenIDConsumerException oice) {
-			throw new AuthenticationServiceException("Consumer error", oice);
+		catch (OpenIDConsumerException ex) {
+			throw new AuthenticationServiceException("Consumer error", ex);
 		}
-
 		token.setDetails(this.authenticationDetailsSource.buildDetails(request));
-
 		// delegate to the authentication provider
 		Authentication authentication = this.getAuthenticationManager().authenticate(token);
-
 		return authentication;
 	}
 
 	protected String lookupRealm(String returnToUrl) {
 		String mapping = this.realmMapping.get(returnToUrl);
-
 		if (mapping == null) {
 			try {
 				URL url = new URL(returnToUrl);
 				int port = url.getPort();
-
 				StringBuilder realmBuffer = new StringBuilder(returnToUrl.length()).append(url.getProtocol())
 						.append("://").append(url.getHost());
 				if (port > 0) {
@@ -189,7 +176,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				this.logger.warn("returnToUrl was not a valid URL: [" + returnToUrl + "]", ex);
 			}
 		}
-
 		return mapping;
 	}
 
@@ -201,25 +187,20 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 */
 	protected String buildReturnToUrl(HttpServletRequest request) {
 		StringBuffer sb = request.getRequestURL();
-
 		Iterator<String> iterator = this.returnToUrlParameters.iterator();
 		boolean isFirst = true;
-
 		while (iterator.hasNext()) {
 			String name = iterator.next();
 			// Assume for simplicity that there is only one value
 			String value = request.getParameter(name);
-
 			if (value == null) {
 				continue;
 			}
-
 			if (isFirst) {
 				sb.append("?");
 				isFirst = false;
 			}
 			sb.append(utf8UrlEncode(name)).append("=").append(utf8UrlEncode(value));
-
 			if (iterator.hasNext()) {
 				sb.append("&");
 			}
@@ -232,12 +213,10 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 */
 	protected String obtainUsername(HttpServletRequest req) {
 		String claimedIdentity = req.getParameter(this.claimedIdentityFieldName);
-
 		if (!StringUtils.hasText(claimedIdentity)) {
 			this.logger.error("No claimed identity supplied in authentication request");
 			return "";
 		}
-
 		return claimedIdentity.trim();
 	}
 

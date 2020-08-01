@@ -57,7 +57,6 @@ public class RegexBasedAxFetchListFactory implements AxFetchListFactory {
 				return entry.getValue();
 			}
 		}
-
 		return Collections.emptyList();
 	}
 

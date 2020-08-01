@@ -66,42 +66,33 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
 
 	@Override
 	public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
-
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
-
-		if (authentication instanceof OpenIDAuthenticationToken) {
-			OpenIDAuthenticationToken response = (OpenIDAuthenticationToken) authentication;
-			OpenIDAuthenticationStatus status = response.getStatus();
-
-			// handle the various possibilities
-			if (status == OpenIDAuthenticationStatus.SUCCESS) {
-				// Lookup user details
-				UserDetails userDetails = this.userDetailsService.loadUserDetails(response);
-
-				return createSuccessfulAuthentication(userDetails, response);
-
-			}
-			else if (status == OpenIDAuthenticationStatus.CANCELLED) {
-				throw new AuthenticationCancelledException("Log in cancelled");
-			}
-			else if (status == OpenIDAuthenticationStatus.ERROR) {
-				throw new AuthenticationServiceException("Error message from server: " + response.getMessage());
-			}
-			else if (status == OpenIDAuthenticationStatus.FAILURE) {
-				throw new BadCredentialsException("Log in failed - identity could not be verified");
-			}
-			else if (status == OpenIDAuthenticationStatus.SETUP_NEEDED) {
-				throw new AuthenticationServiceException(
-						"The server responded setup was needed, which shouldn't happen");
-			}
-			else {
-				throw new AuthenticationServiceException("Unrecognized return value " + status.toString());
-			}
+		if (!(authentication instanceof OpenIDAuthenticationToken)) {
+			return null;
 		}
-
-		return null;
+		OpenIDAuthenticationToken response = (OpenIDAuthenticationToken) authentication;
+		OpenIDAuthenticationStatus status = response.getStatus();
+		// handle the various possibilities
+		if (status == OpenIDAuthenticationStatus.SUCCESS) {
+			// Lookup user details
+			UserDetails userDetails = this.userDetailsService.loadUserDetails(response);
+			return createSuccessfulAuthentication(userDetails, response);
+		}
+		if (status == OpenIDAuthenticationStatus.CANCELLED) {
+			throw new AuthenticationCancelledException("Log in cancelled");
+		}
+		if (status == OpenIDAuthenticationStatus.ERROR) {
+			throw new AuthenticationServiceException("Error message from server: " + response.getMessage());
+		}
+		if (status == OpenIDAuthenticationStatus.FAILURE) {
+			throw new BadCredentialsException("Log in failed - identity could not be verified");
+		}
+		if (status == OpenIDAuthenticationStatus.SETUP_NEEDED) {
+			throw new AuthenticationServiceException("The server responded setup was needed, which shouldn't happen");
+		}
+		throw new AuthenticationServiceException("Unrecognized return value " + status.toString());
 	}
 
 	/**
