@@ -39,9 +39,6 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 		this.validator = new JwtClaimValidator(JwtClaimNames.ISS, issuer::equals);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		Assert.notNull(token, "token cannot be null");

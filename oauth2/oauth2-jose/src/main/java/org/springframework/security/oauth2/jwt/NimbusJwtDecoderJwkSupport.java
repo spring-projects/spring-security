@@ -79,7 +79,6 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	public NimbusJwtDecoderJwkSupport(String jwkSetUrl, String jwsAlgorithm) {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
 		Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
-
 		this.jwtDecoderBuilder = NimbusJwtDecoder.withJwkSetUri(jwkSetUrl)
 				.jwsAlgorithm(SignatureAlgorithm.from(jwsAlgorithm));
 		this.delegate = makeDelegate();

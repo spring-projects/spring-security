@@ -93,11 +93,9 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	 */
 	public static MappedJwtClaimSetConverter withDefaults(Map<String, Converter<Object, ?>> claimTypeConverters) {
 		Assert.notNull(claimTypeConverters, "claimTypeConverters cannot be null");
-
 		Converter<Object, ?> stringConverter = getConverter(STRING_TYPE_DESCRIPTOR);
 		Converter<Object, ?> collectionStringConverter = getConverter(
 				TypeDescriptor.collection(Collection.class, STRING_TYPE_DESCRIPTOR));
-
 		Map<String, Converter<Object, ?>> claimNameToConverter = new HashMap<>();
 		claimNameToConverter.put(JwtClaimNames.AUD, collectionStringConverter);
 		claimNameToConverter.put(JwtClaimNames.EXP, MappedJwtClaimSetConverter::convertInstant);
@@ -107,7 +105,6 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 		claimNameToConverter.put(JwtClaimNames.NBF, MappedJwtClaimSetConverter::convertInstant);
 		claimNameToConverter.put(JwtClaimNames.SUB, stringConverter);
 		claimNameToConverter.putAll(claimTypeConverters);
-
 		return new MappedJwtClaimSetConverter(claimNameToConverter);
 	}
 
@@ -120,9 +117,7 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 			return null;
 		}
 		Instant result = (Instant) CONVERSION_SERVICE.convert(source, OBJECT_TYPE_DESCRIPTOR, INSTANT_TYPE_DESCRIPTOR);
-		if (result == null) {
-			throw new IllegalStateException("Could not coerce " + source + " into an Instant");
-		}
+		Assert.state(result != null, () -> "Could not coerce " + source + " into an Instant");
 		return result;
 	}
 
@@ -145,24 +140,17 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 		return (String) CONVERSION_SERVICE.convert(source, OBJECT_TYPE_DESCRIPTOR, STRING_TYPE_DESCRIPTOR);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Map<String, Object> convert(Map<String, Object> claims) {
 		Assert.notNull(claims, "claims cannot be null");
-
 		Map<String, Object> mappedClaims = this.delegate.convert(claims);
-
 		mappedClaims = removeClaims(mappedClaims);
 		mappedClaims = addClaims(mappedClaims);
-
 		Instant issuedAt = (Instant) mappedClaims.get(JwtClaimNames.IAT);
 		Instant expiresAt = (Instant) mappedClaims.get(JwtClaimNames.EXP);
 		if (issuedAt == null && expiresAt != null) {
 			mappedClaims.put(JwtClaimNames.IAT, expiresAt.minusSeconds(1));
 		}
-
 		return mappedClaims;
 	}
 

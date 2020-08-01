@@ -34,6 +34,9 @@ import org.springframework.util.Assert;
  */
 public final class JwtDecoders {
 
+	private JwtDecoders() {
+	}
+
 	/**
 	 * Creates a {@link JwtDecoder} using the provided <a href=
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
@@ -105,11 +108,7 @@ public final class JwtDecoders {
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(configuration.get("jwks_uri").toString()).build();
 		jwtDecoder.setJwtValidator(jwtValidator);
-
 		return jwtDecoder;
-	}
-
-	private JwtDecoders() {
 	}
 
 }

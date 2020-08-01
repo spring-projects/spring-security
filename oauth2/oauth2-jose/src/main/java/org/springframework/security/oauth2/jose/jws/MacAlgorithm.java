@@ -56,6 +56,15 @@ public enum MacAlgorithm implements JwsAlgorithm {
 	}
 
 	/**
+	 * Returns the algorithm name.
+	 * @return the algorithm name
+	 */
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	/**
 	 * Attempt to resolve the provided algorithm name to a {@code MacAlgorithm}.
 	 * @param name the algorithm name
 	 * @return the resolved {@code MacAlgorithm}, or {@code null} if not found
@@ -67,15 +76,6 @@ public enum MacAlgorithm implements JwsAlgorithm {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Returns the algorithm name.
-	 * @return the algorithm name
-	 */
-	@Override
-	public String getName() {
-		return this.name;
 	}
 
 }

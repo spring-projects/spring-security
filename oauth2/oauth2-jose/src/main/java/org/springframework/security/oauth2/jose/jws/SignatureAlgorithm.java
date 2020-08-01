@@ -86,6 +86,15 @@ public enum SignatureAlgorithm implements JwsAlgorithm {
 	}
 
 	/**
+	 * Returns the algorithm name.
+	 * @return the algorithm name
+	 */
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	/**
 	 * Attempt to resolve the provided algorithm name to a {@code SignatureAlgorithm}.
 	 * @param name the algorithm name
 	 * @return the resolved {@code SignatureAlgorithm}, or {@code null} if not found
@@ -97,15 +106,6 @@ public enum SignatureAlgorithm implements JwsAlgorithm {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Returns the algorithm name.
-	 * @return the algorithm name
-	 */
-	@Override
-	public String getName() {
-		return this.name;
 	}
 
 }

@@ -68,31 +68,23 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 		this.clockSkew = clockSkew;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt jwt) {
 		Assert.notNull(jwt, "jwt cannot be null");
-
 		Instant expiry = jwt.getExpiresAt();
-
 		if (expiry != null) {
 			if (Instant.now(this.clock).minus(this.clockSkew).isAfter(expiry)) {
 				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt expired at %s", jwt.getExpiresAt()));
 				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
 		}
-
 		Instant notBefore = jwt.getNotBefore();
-
 		if (notBefore != null) {
 			if (Instant.now(this.clock).plus(this.clockSkew).isBefore(notBefore)) {
 				OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt used before %s", jwt.getNotBefore()));
 				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
 		}
-
 		return OAuth2TokenValidatorResult.success();
 	}
 
@@ -103,8 +95,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	/**
-	 * ' Use this {@link Clock} with {@link Instant#now()} for assessing timestamp
-	 * validity
+	 * Use this {@link Clock} with {@link Instant#now()} for assessing timestamp validity
 	 * @param clock
 	 */
 	public void setClock(Clock clock) {
