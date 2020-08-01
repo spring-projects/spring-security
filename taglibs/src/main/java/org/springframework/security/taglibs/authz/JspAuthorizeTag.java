@@ -68,17 +68,13 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	public int doStartTag() throws JspException {
 		try {
 			this.authorized = super.authorize();
-
 			if (!this.authorized && TagLibConfig.isUiSecurityDisabled()) {
 				this.pageContext.getOut().write(TagLibConfig.getSecuredUiPrefix());
 			}
-
 			if (this.var != null) {
 				this.pageContext.setAttribute(this.var, this.authorized, PageContext.PAGE_SCOPE);
 			}
-
 			return TagLibConfig.evalOrSkip(this.authorized);
-
 		}
 		catch (IOException ex) {
 			throw new JspException(ex);
@@ -105,7 +101,6 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		catch (IOException ex) {
 			throw new JspException(ex);
 		}
-
 		return EVAL_PAGE;
 	}
 
@@ -222,7 +217,6 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		@Override
 		public Object lookupVariable(String name) {
 			Object result = this.delegate.lookupVariable(name);
-
 			if (result == null) {
 				result = JspAuthorizeTag.this.pageContext.findAttribute(name);
 			}

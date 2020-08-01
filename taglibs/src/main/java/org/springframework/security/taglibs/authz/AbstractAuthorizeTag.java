@@ -93,22 +93,13 @@ public abstract class AbstractAuthorizeTag {
 	 * @throws IOException
 	 */
 	public boolean authorize() throws IOException {
-		boolean isAuthorized;
-
 		if (StringUtils.hasText(getAccess())) {
-			isAuthorized = authorizeUsingAccessExpression();
-
+			return authorizeUsingAccessExpression();
 		}
-		else if (StringUtils.hasText(getUrl())) {
-			isAuthorized = authorizeUsingUrlCheck();
-
+		if (StringUtils.hasText(getUrl())) {
+			return authorizeUsingUrlCheck();
 		}
-		else {
-			isAuthorized = false;
-
-		}
-
-		return isAuthorized;
+		return false;
 	}
 
 	/**
@@ -122,18 +113,14 @@ public abstract class AbstractAuthorizeTag {
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			return false;
 		}
-
 		SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
-
 		Expression accessExpression;
 		try {
 			accessExpression = handler.getExpressionParser().parseExpression(getAccess());
-
 		}
 		catch (ParseException ex) {
 			throw new IOException(ex);
 		}
-
 		return ExpressionUtils.evaluateAsBoolean(accessExpression, createExpressionEvaluationContext(handler));
 	}
 
@@ -144,7 +131,6 @@ public abstract class AbstractAuthorizeTag {
 		FilterInvocation f = new FilterInvocation(getRequest(), getResponse(), (request, response) -> {
 			throw new UnsupportedOperationException();
 		});
-
 		return handler.createEvaluationContext(SecurityContextHolder.getContext().getAuthentication(), f);
 	}
 
@@ -184,21 +170,17 @@ public abstract class AbstractAuthorizeTag {
 		this.method = (method != null) ? method.toUpperCase() : null;
 	}
 
-	/*------------- Private helper methods  -----------------*/
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
 		ApplicationContext appContext = SecurityWebApplicationContextUtils
 				.findRequiredWebApplicationContext(getServletContext());
 		Map<String, SecurityExpressionHandler> handlers = appContext.getBeansOfType(SecurityExpressionHandler.class);
-
-		for (SecurityExpressionHandler h : handlers.values()) {
-			if (FilterInvocation.class
-					.equals(GenericTypeResolver.resolveTypeArgument(h.getClass(), SecurityExpressionHandler.class))) {
-				return h;
+		for (SecurityExpressionHandler handler : handlers.values()) {
+			if (FilterInvocation.class.equals(
+					GenericTypeResolver.resolveTypeArgument(handler.getClass(), SecurityExpressionHandler.class))) {
+				return handler;
 			}
 		}
-
 		throw new IOException("No visible WebSecurityExpressionHandler instance could be found in the application "
 				+ "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
 	}
@@ -209,17 +191,14 @@ public abstract class AbstractAuthorizeTag {
 		if (privEvaluatorFromRequest != null) {
 			return privEvaluatorFromRequest;
 		}
-
 		ApplicationContext ctx = SecurityWebApplicationContextUtils
 				.findRequiredWebApplicationContext(getServletContext());
 		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
-
 		if (wipes.size() == 0) {
 			throw new IOException(
 					"No visible WebInvocationPrivilegeEvaluator instance could be found in the application "
 							+ "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
 		}
-
 		return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
 	}
 
