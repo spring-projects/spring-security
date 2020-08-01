@@ -22,6 +22,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,7 +62,6 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 	public ContextPropagatingRemoteInvocation(MethodInvocation methodInvocation) {
 		super(methodInvocation);
 		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-
 		if (currentUser != null) {
 			this.principal = currentUser.getName();
 			Object userCredentials = currentUser.getCredentials();
@@ -71,7 +71,6 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 			this.credentials = null;
 			this.principal = null;
 		}
-
 		if (logger.isDebugEnabled()) {
 			logger.debug("RemoteInvocation now has principal: " + this.principal);
 			if (this.credentials == null) {
@@ -95,26 +94,18 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 	@Override
 	public Object invoke(Object targetObject)
 			throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-
 		if (this.principal != null) {
 			Authentication request = createAuthenticationRequest(this.principal, this.credentials);
 			request.setAuthenticated(false);
 			SecurityContextHolder.getContext().setAuthentication(request);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Set SecurityContextHolder to contain: " + request);
-			}
+			logger.debug(LogMessage.format("Set SecurityContextHolder to contain: %s", request));
 		}
-
 		try {
 			return super.invoke(targetObject);
 		}
 		finally {
 			SecurityContextHolder.clearContext();
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Cleared SecurityContextHolder.");
-			}
+			logger.debug("Cleared SecurityContextHolder.");
 		}
 	}
 
