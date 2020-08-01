@@ -98,7 +98,6 @@ public class JndiDnsResolver implements DnsResolver {
 			// (highest number)
 			int highestPriority = -1;
 			int highestWeight = -1;
-
 			for (NamingEnumeration<?> recordEnum = dnsRecord.getAll(); recordEnum.hasMoreElements();) {
 				String[] record = recordEnum.next().toString().split(" ");
 				if (record.length != 4) {
@@ -123,7 +122,6 @@ public class JndiDnsResolver implements DnsResolver {
 		catch (NamingException ex) {
 			throw new DnsLookupException("DNS lookup failed for service " + serviceType + " at " + domain, ex);
 		}
-
 		// remove the "." at the end
 		if (result.endsWith(".")) {
 			result = result.substring(0, result.length() - 1);
@@ -134,7 +132,6 @@ public class JndiDnsResolver implements DnsResolver {
 	private Attribute lookup(String query, DirContext ictx, String recordType) {
 		try {
 			Attributes dnsResult = ictx.getAttributes(query, new String[] { recordType });
-
 			return dnsResult.get(recordType);
 		}
 		catch (NamingException ex) {
@@ -152,14 +149,12 @@ public class JndiDnsResolver implements DnsResolver {
 			Hashtable<String, String> env = new Hashtable<>();
 			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
 			env.put(Context.PROVIDER_URL, "dns:"); // This is needed for IBM JDK/JRE
-			InitialDirContext ictx;
 			try {
-				ictx = new InitialDirContext(env);
+				return new InitialDirContext(env);
 			}
 			catch (NamingException ex) {
 				throw new DnsLookupException("Cannot create InitialDirContext for DNS lookup", ex);
 			}
-			return ictx;
 		}
 
 	}
