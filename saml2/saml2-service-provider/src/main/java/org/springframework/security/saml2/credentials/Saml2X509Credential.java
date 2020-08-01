@@ -39,18 +39,6 @@ import org.springframework.util.Assert;
 @Deprecated
 public class Saml2X509Credential {
 
-	/**
-	 * @deprecated Use
-	 * {@link org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType}
-	 * instead
-	 */
-	@Deprecated
-	public enum Saml2X509CredentialType {
-
-		VERIFICATION, ENCRYPTION, SIGNING, DECRYPTION,
-
-	}
-
 	private final PrivateKey privateKey;
 
 	private final X509Certificate certificate;
@@ -197,6 +185,24 @@ public class Saml2X509Credential {
 			}
 			Assert.state(valid, () -> usage + " is not a valid usage for this credential");
 		}
+	}
+
+	/**
+	 * @deprecated Use
+	 * {@link org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType}
+	 * instead
+	 */
+	@Deprecated
+	public enum Saml2X509CredentialType {
+
+		VERIFICATION,
+
+		ENCRYPTION,
+
+		SIGNING,
+
+		DECRYPTION,
+
 	}
 
 }

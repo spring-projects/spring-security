@@ -56,7 +56,7 @@ public class Saml2AuthenticationException extends AuthenticationException {
 	 * @param cause the root cause
 	 */
 	public Saml2AuthenticationException(Saml2Error error, Throwable cause) {
-		this(error, cause.getMessage(), cause);
+		this(error, (cause != null) ? cause.getMessage() : error.getDescription(), cause);
 	}
 
 	/**

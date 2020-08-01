@@ -60,7 +60,6 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	public static final class Builder extends AbstractSaml2AuthenticationRequest.Builder<Builder> {
 
 		private Builder() {
-			super();
 		}
 
 		/**

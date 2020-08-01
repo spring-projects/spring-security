@@ -37,7 +37,6 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 	public DefaultSaml2AuthenticatedPrincipal(String name, Map<String, List<Object>> attributes) {
 		Assert.notNull(name, "name cannot be null");
 		Assert.notNull(attributes, "attributes cannot be null");
-
 		this.name = name;
 		this.attributes = attributes;
 	}

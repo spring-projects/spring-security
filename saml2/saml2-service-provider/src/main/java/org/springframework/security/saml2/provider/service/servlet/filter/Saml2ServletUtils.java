@@ -41,7 +41,6 @@ final class Saml2ServletUtils {
 		if (!StringUtils.hasText(template)) {
 			return baseUrl;
 		}
-
 		String entityId = relyingParty.getAssertingPartyDetails().getEntityId();
 		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
@@ -64,7 +63,6 @@ final class Saml2ServletUtils {
 		uriVariables.put("baseUrl", uriComponents.toUriString());
 		uriVariables.put("entityId", StringUtils.hasText(entityId) ? entityId : "");
 		uriVariables.put("registrationId", StringUtils.hasText(registrationId) ? registrationId : "");
-
 		return UriComponentsBuilder.fromUriString(template).buildAndExpand(uriVariables).toUriString();
 	}
 

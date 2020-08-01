@@ -37,12 +37,6 @@ import org.springframework.util.Assert;
  */
 public final class Saml2X509Credential {
 
-	public enum Saml2X509CredentialType {
-
-		VERIFICATION, ENCRYPTION, SIGNING, DECRYPTION,
-
-	}
-
 	private final PrivateKey privateKey;
 
 	private final X509Certificate certificate;
@@ -223,6 +217,18 @@ public final class Saml2X509Credential {
 			}
 			Assert.state(valid, () -> usage + " is not a valid usage for this credential");
 		}
+	}
+
+	public enum Saml2X509CredentialType {
+
+		VERIFICATION,
+
+		ENCRYPTION,
+
+		SIGNING,
+
+		DECRYPTION,
+
 	}
 
 }

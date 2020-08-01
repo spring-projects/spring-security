@@ -87,7 +87,6 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		private String signature;
 
 		private Builder() {
-			super();
 		}
 
 		/**

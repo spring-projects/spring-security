@@ -28,8 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.ProviderDetails;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.util.Assert;
 
@@ -94,7 +92,6 @@ public final class RelyingPartyRegistration {
 			Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
-
 		Assert.hasText(registrationId, "registrationId cannot be empty");
 		Assert.hasText(entityId, "entityId cannot be empty");
 		Assert.hasText(assertionConsumerServiceLocation, "assertionConsumerServiceLocation cannot be empty");
@@ -332,7 +329,6 @@ public final class RelyingPartyRegistration {
 
 	private List<org.springframework.security.saml2.credentials.Saml2X509Credential> filterCredentials(
 			Function<org.springframework.security.saml2.credentials.Saml2X509Credential, Boolean> filter) {
-
 		List<org.springframework.security.saml2.credentials.Saml2X509Credential> result = new LinkedList<>();
 		for (org.springframework.security.saml2.credentials.Saml2X509Credential c : this.credentials) {
 			if (filter.apply(c)) {
@@ -447,7 +443,6 @@ public final class RelyingPartyRegistration {
 				Collection<Saml2X509Credential> verificationX509Credentials,
 				Collection<Saml2X509Credential> encryptionX509Credentials, String singleSignOnServiceLocation,
 				Saml2MessageBinding singleSignOnServiceBinding) {
-
 			Assert.hasText(entityId, "entityId cannot be null or empty");
 			Assert.notNull(verificationX509Credentials, "verificationX509Credentials cannot be null");
 			for (Saml2X509Credential credential : verificationX509Credentials) {
@@ -1038,7 +1033,6 @@ public final class RelyingPartyRegistration {
 			for (Saml2X509Credential credential : this.providerDetails.assertingPartyDetailsBuilder.encryptionX509Credentials) {
 				this.credentials.add(toDeprecated(credential));
 			}
-
 			return new RelyingPartyRegistration(this.registrationId, this.entityId,
 					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
 					this.providerDetails.build(), this.credentials, this.decryptionX509Credentials,
