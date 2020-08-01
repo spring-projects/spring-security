@@ -72,35 +72,23 @@ public class AccessControlListTag extends TagSupport {
 		if ((null == this.hasPermission) || "".equals(this.hasPermission)) {
 			return skipBody();
 		}
-
 		initializeIfRequired();
-
 		if (this.domainObject == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("domainObject resolved to null, so including tag body");
-			}
-
+			logger.debug("domainObject resolved to null, so including tag body");
 			// Of course they have access to a null object!
 			return evalBody();
 		}
-
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(
-						"SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
-			}
-
+			logger.debug("SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
 			return skipBody();
 		}
-
 		List<Object> requiredPermissions = parseHasPermission(this.hasPermission);
 		for (Object requiredPermission : requiredPermissions) {
 			if (!this.permissionEvaluator.hasPermission(authentication, this.domainObject, requiredPermission)) {
 				return skipBody();
 			}
 		}
-
 		return evalBody();
 	}
 
@@ -112,7 +100,7 @@ public class AccessControlListTag extends TagSupport {
 			try {
 				parsedPermission = Integer.parseInt(permissionToParse);
 			}
-			catch (NumberFormatException notBitMask) {
+			catch (NumberFormatException ex) {
 			}
 			parsedPermissions.add(parsedPermission);
 		}
@@ -141,7 +129,6 @@ public class AccessControlListTag extends TagSupport {
 	 */
 	protected ApplicationContext getContext(PageContext pageContext) {
 		ServletContext servletContext = pageContext.getServletContext();
-
 		return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);
 	}
 
@@ -157,27 +144,22 @@ public class AccessControlListTag extends TagSupport {
 		if (this.applicationContext != null) {
 			return;
 		}
-
 		this.applicationContext = getContext(this.pageContext);
-
 		this.permissionEvaluator = getBeanOfType(PermissionEvaluator.class);
 	}
 
 	private <T> T getBeanOfType(Class<T> type) throws JspException {
 		Map<String, T> map = this.applicationContext.getBeansOfType(type);
-
 		for (ApplicationContext context = this.applicationContext.getParent(); context != null; context = context
 				.getParent()) {
 			map.putAll(context.getBeansOfType(type));
 		}
-
 		if (map.size() == 0) {
 			return null;
 		}
-		else if (map.size() == 1) {
+		if (map.size() == 1) {
 			return map.values().iterator().next();
 		}
-
 		throw new JspException("Found incorrect number of " + type.getSimpleName() + " instances in "
 				+ "application context - you must have only have one!");
 	}

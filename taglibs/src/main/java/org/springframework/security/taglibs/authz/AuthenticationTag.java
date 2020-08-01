@@ -91,13 +91,10 @@ public class AuthenticationTag extends TagSupport {
 					|| (SecurityContextHolder.getContext().getAuthentication() == null)) {
 				return Tag.EVAL_PAGE;
 			}
-
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 			if (auth.getPrincipal() == null) {
 				return Tag.EVAL_PAGE;
 			}
-
 			try {
 				BeanWrapperImpl wrapper = new BeanWrapperImpl(auth);
 				result = wrapper.getPropertyValue(this.property);
@@ -106,7 +103,6 @@ public class AuthenticationTag extends TagSupport {
 				throw new JspException(ex);
 			}
 		}
-
 		if (this.var != null) {
 			/*
 			 * Store the result, letting an IllegalArgumentException propagate back if the
