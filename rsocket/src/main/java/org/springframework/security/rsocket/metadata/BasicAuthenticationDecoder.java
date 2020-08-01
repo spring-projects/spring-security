@@ -48,7 +48,6 @@ public class BasicAuthenticationDecoder extends AbstractDecoder<UsernamePassword
 		return Flux.from(input).map(DataBuffer::asByteBuffer).map((byteBuffer) -> {
 			byte[] sizeBytes = new byte[4];
 			byteBuffer.get(sizeBytes);
-
 			int usernameSize = 4;
 			byte[] usernameBytes = new byte[usernameSize];
 			byteBuffer.get(usernameBytes);

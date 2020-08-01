@@ -26,10 +26,9 @@ import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.util.Assert;
 import org.springframework.util.RouteMatcher;
 
+// FIXME: Pay attention to the package this goes into. It requires spring-messaging for the MetadataExtractor.
+
 /**
- * FIXME: Pay attention to the package this goes into. It requires spring-messaging for
- * the MetadataExtractor.
- *
  * @author Rob Winch
  * @since 5.2
  */

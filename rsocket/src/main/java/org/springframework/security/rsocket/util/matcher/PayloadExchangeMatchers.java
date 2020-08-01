@@ -24,37 +24,43 @@ import org.springframework.security.rsocket.api.PayloadExchangeType;
 /**
  * @author Rob Winch
  */
-public abstract class PayloadExchangeMatchers {
+public final class PayloadExchangeMatchers {
+
+	private PayloadExchangeMatchers() {
+	}
 
 	public static PayloadExchangeMatcher setup() {
 		return new PayloadExchangeMatcher() {
+
 			@Override
 			public Mono<MatchResult> matches(PayloadExchange exchange) {
 				return PayloadExchangeType.SETUP.equals(exchange.getType()) ? MatchResult.match()
 						: MatchResult.notMatch();
 			}
+
 		};
 	}
 
 	public static PayloadExchangeMatcher anyRequest() {
 		return new PayloadExchangeMatcher() {
+
 			@Override
 			public Mono<MatchResult> matches(PayloadExchange exchange) {
 				return exchange.getType().isRequest() ? MatchResult.match() : MatchResult.notMatch();
 			}
+
 		};
 	}
 
 	public static PayloadExchangeMatcher anyExchange() {
 		return new PayloadExchangeMatcher() {
+
 			@Override
 			public Mono<MatchResult> matches(PayloadExchange exchange) {
 				return MatchResult.match();
 			}
-		};
-	}
 
-	private PayloadExchangeMatchers() {
+		};
 	}
 
 }
