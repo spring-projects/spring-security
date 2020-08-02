@@ -66,66 +66,51 @@ public class FormLoginConfigTests {
 
 	@Test
 	public void getProtectedPageWhenFormLoginConfiguredThenRedirectsToDefaultLoginPage() throws Exception {
-
 		this.spring.configLocations(this.xml("WithAntRequestMatcher")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test
 	public void authenticateWhenDefaultTargetUrlConfiguredThenRedirectsAccordingly() throws Exception {
-
 		this.spring.configLocations(this.xml("WithDefaultTargetUrl")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
 				.andExpect(redirectedUrl("/default"));
 	}
 
 	@Test
 	public void authenticateWhenConfiguredWithSpelThenRedirectsAccordingly() throws Exception {
-
 		this.spring.configLocations(this.xml("UsingSpel")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
 				.andExpect(redirectedUrl(WebConfigUtilsTests.URL + "/default"));
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "wrong").with(csrf()))
 				.andExpect(redirectedUrl(WebConfigUtilsTests.URL + "/failure"));
-
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost" + WebConfigUtilsTests.URL + "/login"));
 	}
 
 	@Test
 	public void autowireWhenLoginPageIsMisconfiguredThenDetects() {
-
 		assertThatThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashLoginPage")).autowire())
 				.isInstanceOf(BeanCreationException.class);
 	}
 
 	@Test
 	public void autowireWhenDefaultTargetUrlIsMisconfiguredThenDetects() {
-
 		assertThatThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashDefaultTargetUrl")).autowire())
 				.isInstanceOf(BeanCreationException.class);
 	}
 
 	@Test
 	public void authenticateWhenCustomHandlerBeansConfiguredThenInvokesAccordingly() throws Exception {
-
 		this.spring.configLocations(this.xml("WithSuccessAndFailureHandlers")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
 				.andExpect(status().isIAmATeapot());
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "wrong").with(csrf()))
 				.andExpect(status().isIAmATeapot());
 	}
 
 	@Test
 	public void authenticateWhenCustomUsernameAndPasswordParametersThenSucceeds() throws Exception {
-
 		this.spring.configLocations(this.xml("WithUsernameAndPasswordParameters")).autowire();
-
 		this.mvc.perform(post("/login").param("xname", "user").param("xpass", "password").with(csrf()))
 				.andExpect(redirectedUrl("/"));
 	}
@@ -136,28 +121,21 @@ public class FormLoginConfigTests {
 	@Test
 	public void autowireWhenCustomLoginPageIsSlashLoginThenNoDefaultLoginPageGeneratingFilterIsWired()
 			throws Exception {
-
 		this.spring.configLocations(this.xml("ForSec2919")).autowire();
-
 		this.mvc.perform(get("/login")).andExpect(content().string("teapot"));
-
 		assertThat(getFilter(this.spring.getContext(), DefaultLoginPageGeneratingFilter.class)).isNull();
 	}
 
 	@Test
 	public void authenticateWhenCsrfIsEnabledThenRequiresToken() throws Exception {
-
 		this.spring.configLocations(this.xml("WithCsrfEnabled")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void authenticateWhenCsrfIsDisabledThenDoesNotRequireToken() throws Exception {
-
 		this.spring.configLocations(this.xml("WithCsrfDisabled")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
 				.andExpect(status().isFound());
 	}
@@ -169,24 +147,19 @@ public class FormLoginConfigTests {
 	@Test
 	public void authenticateWhenLoginPageIsSlashLoginAndAuthenticationFailsThenRedirectContainsErrorParameter()
 			throws Exception {
-
 		this.spring.configLocations(this.xml("ForSec3147")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "wrong").with(csrf()))
 				.andExpect(redirectedUrl("/login?error"));
 	}
 
 	private Filter getFilter(ApplicationContext context, Class<? extends Filter> filterClass) {
 		FilterChainProxy filterChain = context.getBean(BeanIds.FILTER_CHAIN_PROXY, FilterChainProxy.class);
-
 		List<Filter> filters = filterChain.getFilters("/any");
-
 		for (Filter filter : filters) {
 			if (filter.getClass() == filterClass) {
 				return filter;
 			}
 		}
-
 		return null;
 	}
 
@@ -210,14 +183,12 @@ public class FormLoginConfigTests {
 		@Override
 		public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 				AuthenticationException exception) {
-
 			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 		}
 
 		@Override
 		public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 				Authentication authentication) {
-
 			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 		}
 

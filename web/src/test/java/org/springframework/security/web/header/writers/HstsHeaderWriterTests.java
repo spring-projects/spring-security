@@ -45,7 +45,6 @@ public class HstsHeaderWriterTests {
 		this.request = new MockHttpServletRequest();
 		this.request.setSecure(true);
 		this.response = new MockHttpServletResponse();
-
 		this.writer = new HstsHeaderWriter();
 	}
 
@@ -53,9 +52,7 @@ public class HstsHeaderWriterTests {
 	public void allArgsCustomConstructorWriteHeaders() {
 		this.request.setSecure(false);
 		this.writer = new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=15768000");
 	}
@@ -64,9 +61,7 @@ public class HstsHeaderWriterTests {
 	public void maxAgeAndIncludeSubdomainsCustomConstructorWriteHeaders() {
 		this.request.setSecure(false);
 		this.writer = new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=15768000");
 	}
@@ -74,9 +69,7 @@ public class HstsHeaderWriterTests {
 	@Test
 	public void maxAgeCustomConstructorWriteHeaders() {
 		this.writer = new HstsHeaderWriter(15768000);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security"))
 				.isEqualTo("max-age=15768000 ; includeSubDomains");
@@ -85,9 +78,7 @@ public class HstsHeaderWriterTests {
 	@Test
 	public void includeSubDomainsCustomConstructorWriteHeaders() {
 		this.writer = new HstsHeaderWriter(false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000");
 	}
@@ -95,7 +86,6 @@ public class HstsHeaderWriterTests {
 	@Test
 	public void writeHeadersDefaultValues() {
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security"))
 				.isEqualTo("max-age=31536000 ; includeSubDomains");
@@ -104,9 +94,7 @@ public class HstsHeaderWriterTests {
 	@Test
 	public void writeHeadersIncludeSubDomainsFalse() {
 		this.writer.setIncludeSubDomains(false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000");
 	}
@@ -114,9 +102,7 @@ public class HstsHeaderWriterTests {
 	@Test
 	public void writeHeadersCustomMaxAgeInSeconds() {
 		this.writer.setMaxAgeInSeconds(1);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=1 ; includeSubDomains");
 	}
@@ -124,9 +110,7 @@ public class HstsHeaderWriterTests {
 	@Test
 	public void writeHeadersInsecureRequestDoesNotWriteHeader() {
 		this.request.setSecure(false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames().isEmpty()).isTrue();
 	}
 
@@ -134,9 +118,7 @@ public class HstsHeaderWriterTests {
 	public void writeHeadersAnyRequestMatcher() {
 		this.writer.setRequestMatcher(AnyRequestMatcher.INSTANCE);
 		this.request.setSecure(false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Strict-Transport-Security"))
 				.isEqualTo("max-age=31536000 ; includeSubDomains");

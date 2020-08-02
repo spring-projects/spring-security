@@ -11,7 +11,6 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
 package org.springframework.security.crypto.bcrypt;
 
 import java.util.ArrayList;
@@ -141,7 +140,6 @@ public class BCryptTests {
 				"$2y$06$sYDFHqOcXTjBgOsqC0WCKeMd3T1UhHuWQSxncLGtXDLMrcE6vFDti"));
 		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
 				"$2y$06$6Xm0gCw4g7ZNDCEp4yTisez0kSdpXEl66MvdxGidnmChIe8dFmMnq"));
-
 		testObjectsByteArray = new ArrayList<>();
 		testObjectsByteArray.add(new TestObject<>(new byte[] {}, "$2a$06$fPIsBO8qRqkjj273rfaOI.",
 				"$2a$06$fPIsBO8qRqkjj273rfaOI.uiVGfgi6Z1Iz.vZr11mi/38o09TUVCy"));
@@ -315,11 +313,9 @@ public class BCryptTests {
 		print("BCrypt.hashpw w/ international chars: ");
 		String pw1 = "ππππππππ";
 		String pw2 = "????????";
-
 		String h1 = BCrypt.hashpw(pw1, BCrypt.gensalt());
 		assertThat(BCrypt.checkpw(pw2, h1)).isFalse();
 		print(".");
-
 		String h2 = BCrypt.hashpw(pw2, BCrypt.gensalt());
 		assertThat(BCrypt.checkpw(pw1, h2)).isFalse();
 		print(".");
@@ -386,15 +382,12 @@ public class BCryptTests {
 	@Test
 	public void testBase64EncodeDecode() {
 		byte[] ba = new byte[3];
-
 		for (int b = 0; b <= 0xFF; b++) {
 			for (int i = 0; i < ba.length; i++) {
 				Arrays.fill(ba, (byte) 0);
 				ba[i] = (byte) b;
-
 				String s = encode_base64(ba, 3);
 				assertThat(s.length()).isEqualTo(4);
-
 				byte[] decoded = BCrypt.decode_base64(s, 3);
 				assertThat(decoded).isEqualTo(ba);
 			}
@@ -452,10 +445,8 @@ public class BCryptTests {
 	public void equalsOnStringsIsCorrect() {
 		assertThat(BCrypt.equalsNoEarlyReturn("", "")).isTrue();
 		assertThat(BCrypt.equalsNoEarlyReturn("test", "test")).isTrue();
-
 		assertThat(BCrypt.equalsNoEarlyReturn("test", "")).isFalse();
 		assertThat(BCrypt.equalsNoEarlyReturn("", "test")).isFalse();
-
 		assertThat(BCrypt.equalsNoEarlyReturn("test", "pass")).isFalse();
 	}
 

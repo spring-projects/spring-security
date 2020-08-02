@@ -73,7 +73,6 @@ public class SecurityMockMvcRequestPostProcessorsSecurityContextTests {
 	@Test
 	public void userDetails() {
 		securityContext(this.expectedContext).postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();

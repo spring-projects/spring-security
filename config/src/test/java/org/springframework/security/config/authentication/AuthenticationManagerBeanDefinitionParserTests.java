@@ -64,12 +64,10 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 		ConfigurableApplicationContext appContext = this.spring.context(CONTEXT).getContext();
 		AuthListener listener = new AuthListener();
 		appContext.addApplicationListener(listener);
-
 		ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
 		Object eventPublisher = FieldUtils.getFieldValue(pm, "eventPublisher");
 		assertThat(eventPublisher).isNotNull();
 		assertThat(eventPublisher instanceof DefaultAuthenticationEventPublisher).isTrue();
-
 		pm.authenticate(new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
 		assertThat(listener.events).hasSize(1);
 	}
@@ -99,7 +97,6 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 						+ "<user-service>" + "  <user name='user' password='password' authorities='ROLE_A,ROLE_B' />"
 						+ "</user-service>" + "<http/>")
 				.mockMvcAfterSpringSecurityOk().autowire();
-
 		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk());
 	}
 

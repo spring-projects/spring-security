@@ -96,7 +96,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
 		loadContext();
-
 		this.target.someUserMethod1();
 	}
 
@@ -105,9 +104,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		loadContext();
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.someUserMethod1();
-
 		// SEC-1213. Check the order
 		Advisor[] advisors = ((Advised) this.target).getAdvisors();
 		assertThat(advisors).hasSize(1);
@@ -119,9 +116,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		loadContext();
 		TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMEOTHERROLE");
 		token.setAuthenticated(true);
-
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.someAdminMethod();
 	}
 
@@ -132,10 +127,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 						+ "<global-method-security />" + "<authentication-manager>"
 						+ "   <authentication-provider user-service-ref='myUserService'/>" + "</authentication-manager>"
 						+ "<b:bean id='beanPostProcessor' class='org.springframework.security.config.MockUserServiceBeanPostProcessor'/>");
-
 		PostProcessedMockUserDetailsService service = (PostProcessedMockUserDetailsService) this.appContext
 				.getBean("myUserService");
-
 		assertThat(service.getPostProcessorWasHere()).isEqualTo("Hello from the post processor!");
 	}
 
@@ -147,12 +140,10 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "<b:bean id='myUserService' class='org.springframework.security.config.PostProcessedMockUserDetailsService'/>"
 				+ "<aop:aspectj-autoproxy />" + "<authentication-manager>"
 				+ "   <authentication-provider user-service-ref='myUserService'/>" + "</authentication-manager>");
-
 		UserDetailsService service = (UserDetailsService) this.appContext.getBean("myUserService");
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		service.loadUserByUsername("notused");
 	}
 
@@ -169,7 +160,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		// someOther(int) should not be matched by someOther(String), but should require
 		// ROLE_USER
 		this.target.someOther(0);
-
 		try {
 			// String version should required admin role
 			this.target.someOther("somestring");
@@ -190,7 +180,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		this.target = (BusinessService) this.appContext.getBean("target");
 		// String method should not be protected
 		this.target.someOther("somestring");
-
 		// All others should require ROLE_USER
 		try {
 			this.target.someOther(0);
@@ -198,7 +187,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		}
 		catch (AuthenticationCredentialsNotFoundException expected) {
 		}
-
 		SecurityContextHolder.getContext()
 				.setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
 		this.target.someOther(0);
@@ -217,7 +205,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "    <b:property name='serviceUrl' value='http://localhost:8080/SomeService'/>"
 				+ "    <b:property name='serviceInterface' value='org.springframework.security.access.annotation.BusinessService'/>"
 				+ "</b:bean>" + ConfigTestUtils.AUTH_PROVIDER_XML);
-
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
@@ -226,7 +213,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	}
 
 	// Expression configuration tests
-
 	@SuppressWarnings("unchecked")
 	@Test
 	public void expressionVoterAndAfterInvocationProviderUseSameExpressionHandlerInstance() throws Exception {
@@ -341,7 +327,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		props.addPropertyValue("key", "blah");
 		parent.registerSingleton("runAsMgr", RunAsManagerImpl.class, props);
 		parent.refresh();
-
 		setContext("<global-method-security run-as-manager-ref='runAsMgr'/>" + ConfigTestUtils.AUTH_PROVIDER_XML,
 				parent);
 		RunAsManagerImpl ram = (RunAsManagerImpl) this.appContext.getBean("runAsMgr");

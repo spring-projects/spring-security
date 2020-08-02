@@ -48,9 +48,7 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.ALL);
 		ServerWebExchange secureExchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("https://localhost").build());
-
 		writer.writeHttpHeaders(secureExchange);
-
 		assertThat(secureExchange.getResponse()).hasClearSiteDataHeaderDirectives(Directive.ALL);
 	}
 
@@ -58,9 +56,7 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 	public void writeHttpHeadersWhenInsecureConnectionThenHeaderNotWritten() {
 		ClearSiteDataServerHttpHeadersWriter writer = new ClearSiteDataServerHttpHeadersWriter(Directive.ALL);
 		ServerWebExchange insecureExchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-
 		writer.writeHttpHeaders(insecureExchange);
-
 		assertThat(insecureExchange.getResponse()).doesNotHaveClearSiteDataHeaderSet();
 	}
 
@@ -70,9 +66,7 @@ public class ClearSiteDataServerHttpHeadersWriterTests {
 				Directive.COOKIES);
 		ServerWebExchange secureExchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("https://localhost").build());
-
 		writer.writeHttpHeaders(secureExchange);
-
 		assertThat(secureExchange.getResponse()).hasClearSiteDataHeaderDirectives(Directive.CACHE, Directive.COOKIES);
 	}
 

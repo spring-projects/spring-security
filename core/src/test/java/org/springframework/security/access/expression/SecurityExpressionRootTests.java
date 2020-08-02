@@ -64,7 +64,6 @@ public class SecurityExpressionRootTests {
 	@Test
 	public void roleHierarchySupportIsCorrectlyUsedInEvaluatingRoles() {
 		this.root.setRoleHierarchy((authorities) -> AuthorityUtils.createAuthorityList("ROLE_C"));
-
 		assertThat(this.root.hasRole("C")).isTrue();
 		assertThat(this.root.hasAuthority("ROLE_C")).isTrue();
 		assertThat(this.root.hasRole("A")).isFalse();
@@ -98,7 +97,6 @@ public class SecurityExpressionRootTests {
 	public void hasRoleDoesNotAddDefaultPrefixForAlreadyPrefixedRoles() {
 		SecurityExpressionRoot root = new SecurityExpressionRoot(JOE) {
 		};
-
 		assertThat(root.hasRole("ROLE_A")).isTrue();
 		assertThat(root.hasRole("ROLE_NO")).isFalse();
 	}

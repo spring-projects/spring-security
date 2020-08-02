@@ -50,13 +50,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 		// Setup client-side context
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("Aladdin", "open sesame");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
-
 		// Create a connection and ensure our executor sets its
 		// properties correctly
 		AuthenticationSimpleHttpInvokerRequestExecutor executor = new AuthenticationSimpleHttpInvokerRequestExecutor();
 		HttpURLConnection conn = new MockHttpURLConnection(new URL("https://localhost/"));
 		executor.prepareConnection(conn, 10);
-
 		// Check connection properties
 		// See https://tools.ietf.org/html/rfc1945 section 11.1 for example
 		// we are comparing against
@@ -66,13 +64,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 	@Test
 	public void testNullContextHolderIsNull() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(null);
-
 		// Create a connection and ensure our executor sets its
 		// properties correctly
 		AuthenticationSimpleHttpInvokerRequestExecutor executor = new AuthenticationSimpleHttpInvokerRequestExecutor();
 		HttpURLConnection conn = new MockHttpURLConnection(new URL("https://localhost/"));
 		executor.prepareConnection(conn, 10);
-
 		// Check connection properties (shouldn't be an Authorization header)
 		assertThat(conn.getRequestProperty("Authorization")).isNull();
 	}
@@ -83,13 +79,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 		AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key", "principal",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 		SecurityContextHolder.getContext().setAuthentication(anonymous);
-
 		// Create a connection and ensure our executor sets its
 		// properties correctly
 		AuthenticationSimpleHttpInvokerRequestExecutor executor = new AuthenticationSimpleHttpInvokerRequestExecutor();
 		HttpURLConnection conn = new MockHttpURLConnection(new URL("https://localhost/"));
 		executor.prepareConnection(conn, 10);
-
 		// Check connection properties (shouldn't be an Authorization header)
 		assertThat(conn.getRequestProperty("Authorization")).isNull();
 	}

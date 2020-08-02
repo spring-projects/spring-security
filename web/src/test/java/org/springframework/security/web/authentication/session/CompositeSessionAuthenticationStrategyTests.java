@@ -76,7 +76,6 @@ public class CompositeSessionAuthenticationStrategyTests {
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
 				Arrays.asList(this.strategy1, this.strategy2));
 		strategy.onAuthentication(this.authentication, this.request, this.response);
-
 		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
 		verify(this.strategy2).onAuthentication(this.authentication, this.request, this.response);
 	}
@@ -85,17 +84,14 @@ public class CompositeSessionAuthenticationStrategyTests {
 	public void delegateShortCircuits() {
 		willThrow(new SessionAuthenticationException("oops")).given(this.strategy1)
 				.onAuthentication(this.authentication, this.request, this.response);
-
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
 				Arrays.asList(this.strategy1, this.strategy2));
-
 		try {
 			strategy.onAuthentication(this.authentication, this.request, this.response);
 			fail("Expected Exception");
 		}
 		catch (SessionAuthenticationException success) {
 		}
-
 		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
 		verify(this.strategy2, times(0)).onAuthentication(this.authentication, this.request, this.response);
 	}

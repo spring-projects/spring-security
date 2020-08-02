@@ -52,17 +52,14 @@ public class WebSpherePreAuthenticatedProcessingFilterTests {
 		WebSpherePreAuthenticatedProcessingFilter filter = new WebSpherePreAuthenticatedProcessingFilter(helper);
 		assertThat(filter.getPreAuthenticatedPrincipal(new MockHttpServletRequest())).isEqualTo("jerry");
 		assertThat(filter.getPreAuthenticatedCredentials(new MockHttpServletRequest())).isEqualTo("N/A");
-
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class)))
 				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
-
 		filter.setAuthenticationManager(am);
 		WebSpherePreAuthenticatedWebAuthenticationDetailsSource ads = new WebSpherePreAuthenticatedWebAuthenticationDetailsSource(
 				helper);
 		ads.setWebSphereGroups2GrantedAuthoritiesMapper(new SimpleAttributes2GrantedAuthoritiesMapper());
 		filter.setAuthenticationDetailsSource(ads);
-
 		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(FilterChain.class));
 	}
 

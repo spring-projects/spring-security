@@ -56,7 +56,6 @@ public class RequestWrapperTests {
 	@Test
 	public void pathParametersAreRemovedFromServletPath() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		for (Map.Entry<String, String> entry : testPaths.entrySet()) {
 			String path = entry.getKey();
 			String expectedResult = entry.getValue();
@@ -71,7 +70,6 @@ public class RequestWrapperTests {
 	@Test
 	public void pathParametersAreRemovedFromPathInfo() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		for (Map.Entry<String, String> entry : testPaths.entrySet()) {
 			String path = entry.getKey();
 			String expectedResult = entry.getValue();
@@ -97,11 +95,9 @@ public class RequestWrapperTests {
 		given(mockRequest.getServletPath()).willReturn("");
 		given(mockRequest.getPathInfo()).willReturn(denormalizedPath);
 		given(mockRequest.getRequestDispatcher(forwardPath)).willReturn(mockDispatcher);
-
 		RequestWrapper wrapper = new RequestWrapper(mockRequest);
 		RequestDispatcher dispatcher = wrapper.getRequestDispatcher(forwardPath);
 		dispatcher.forward(mockRequest, mockResponse);
-
 		verify(mockRequest).getRequestDispatcher(forwardPath);
 		verify(mockDispatcher).forward(mockRequest, mockResponse);
 		assertThat(wrapper.getPathInfo()).isEqualTo(denormalizedPath);

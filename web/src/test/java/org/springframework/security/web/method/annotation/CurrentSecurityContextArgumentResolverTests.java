@@ -139,7 +139,6 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@Test
 	public void resolveArgumentUserDetails() {
 		setAuthenticationDetail(new User("my_user", "my_password", AuthorityUtils.createAuthorityList("ROLE_USER")));
-
 		User u = (User) this.resolver.resolveArgument(showSecurityContextWithUserDetail(), null, null, null);
 		assertThat(u.getUsername()).isEqualTo("my_user");
 	}

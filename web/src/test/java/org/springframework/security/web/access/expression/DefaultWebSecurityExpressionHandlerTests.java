@@ -69,7 +69,6 @@ public class DefaultWebSecurityExpressionHandlerTests {
 		bean.getConstructorArgumentValues().addGenericArgumentValue("ROLE_A");
 		appContext.registerBeanDefinition("role", bean);
 		this.handler.setApplicationContext(appContext);
-
 		EvaluationContext ctx = this.handler.createEvaluationContext(mock(Authentication.class),
 				mock(FilterInvocation.class));
 		ExpressionParser parser = this.handler.getExpressionParser();
@@ -85,11 +84,9 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	@Test
 	public void createEvaluationContextCustomTrustResolver() {
 		this.handler.setTrustResolver(this.trustResolver);
-
 		Expression expression = this.handler.getExpressionParser().parseExpression("anonymous");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.invocation);
 		assertThat(expression.getValue(context, Boolean.class)).isFalse();
-
 		verify(this.trustResolver).isAnonymous(this.authentication);
 	}
 

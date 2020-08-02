@@ -91,7 +91,6 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 	private static final String JTI_VALUE = "jwt-id-1";
 
 	private static final Map<String, Object> CLAIMS;
-
 	static {
 		CLAIMS = new HashMap<>();
 		CLAIMS.put(ACTIVE_CLAIM, ACTIVE_VALUE);
@@ -111,7 +110,6 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 	public void constructorWhenAttributesIsNullOrEmptyThenIllegalArgumentException() {
 		assertThatCode(() -> new OAuth2IntrospectionAuthenticatedPrincipal(null, AUTHORITIES))
 				.isInstanceOf(IllegalArgumentException.class);
-
 		assertThatCode(() -> new OAuth2IntrospectionAuthenticatedPrincipal(Collections.emptyMap(), AUTHORITIES))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
@@ -121,7 +119,6 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 		Collection<? extends GrantedAuthority> authorities = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, null)
 				.getAuthorities();
 		assertThat(authorities).isEmpty();
-
 		authorities = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS, Collections.emptyList()).getAuthorities();
 		assertThat(authorities).isEmpty();
 	}
@@ -137,7 +134,6 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 	public void constructorWhenAttributesAuthoritiesProvidedThenCreated() {
 		OAuth2IntrospectionAuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(CLAIMS,
 				AUTHORITIES);
-
 		assertThat(principal.getName()).isEqualTo(CLAIMS.get(SUB_CLAIM));
 		assertThat(principal.getAttributes()).isEqualTo(CLAIMS);
 		assertThat(principal.getClaims()).isEqualTo(CLAIMS);
@@ -160,7 +156,6 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2IntrospectionAuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(SUBJECT,
 				CLAIMS, AUTHORITIES);
-
 		assertThat(principal.getName()).isEqualTo(SUBJECT);
 		assertThat(principal.getAttributes()).isEqualTo(CLAIMS);
 		assertThat(principal.getClaims()).isEqualTo(CLAIMS);

@@ -53,7 +53,6 @@ public class CacheControlHeadersWriterTests {
 	@Test
 	public void writeHeaders() {
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames().size()).isEqualTo(3);
 		assertThat(this.response.getHeaderValues("Cache-Control"))
 				.containsOnly("no-cache, no-store, max-age=0, must-revalidate");
@@ -65,9 +64,7 @@ public class CacheControlHeadersWriterTests {
 	@Test
 	public void writeHeadersDisabledIfCacheControl() {
 		this.response.setHeader("Cache-Control", "max-age: 123");
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("Cache-Control")).containsOnly("max-age: 123");
 		assertThat(this.response.getHeaderValue("Pragma")).isNull();
@@ -77,9 +74,7 @@ public class CacheControlHeadersWriterTests {
 	@Test
 	public void writeHeadersDisabledIfPragma() {
 		this.response.setHeader("Pragma", "mock");
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("Pragma")).containsOnly("mock");
 		assertThat(this.response.getHeaderValue("Expires")).isNull();
@@ -89,9 +84,7 @@ public class CacheControlHeadersWriterTests {
 	@Test
 	public void writeHeadersDisabledIfExpires() {
 		this.response.setHeader("Expires", "mock");
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("Expires")).containsOnly("mock");
 		assertThat(this.response.getHeaderValue("Cache-Control")).isNull();
@@ -102,9 +95,7 @@ public class CacheControlHeadersWriterTests {
 	// gh-5534
 	public void writeHeadersDisabledIfNotModified() {
 		this.response.setStatus(HttpStatus.NOT_MODIFIED.value());
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).isEmpty();
 	}
 

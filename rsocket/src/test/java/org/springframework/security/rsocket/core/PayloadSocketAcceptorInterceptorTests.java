@@ -76,9 +76,7 @@ public class PayloadSocketAcceptorInterceptorTests {
 	@Test
 	public void applyWhenDefaultMetadataMimeTypeThenDefaulted() {
 		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
-
 		PayloadExchange exchange = captureExchange();
-
 		assertThat(exchange.getMetadataMimeType().toString())
 				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
@@ -88,9 +86,7 @@ public class PayloadSocketAcceptorInterceptorTests {
 	public void acceptWhenDefaultMetadataMimeTypeOverrideThenDefaulted() {
 		this.acceptorInterceptor.setDefaultMetadataMimeType(MediaType.APPLICATION_JSON);
 		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
-
 		PayloadExchange exchange = captureExchange();
-
 		assertThat(exchange.getMetadataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
@@ -98,9 +94,7 @@ public class PayloadSocketAcceptorInterceptorTests {
 	@Test
 	public void acceptWhenDefaultDataMimeTypeThenDefaulted() {
 		this.acceptorInterceptor.setDefaultDataMimeType(MediaType.APPLICATION_JSON);
-
 		PayloadExchange exchange = captureExchange();
-
 		assertThat(exchange.getMetadataMimeType().toString())
 				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
@@ -109,16 +103,11 @@ public class PayloadSocketAcceptorInterceptorTests {
 	private PayloadExchange captureExchange() {
 		given(this.socketAcceptor.accept(any(), any())).willReturn(Mono.just(this.rSocket));
 		given(this.interceptor.intercept(any(), any())).willReturn(Mono.empty());
-
 		SocketAcceptor wrappedAcceptor = this.acceptorInterceptor.apply(this.socketAcceptor);
 		RSocket result = wrappedAcceptor.accept(this.setupPayload, this.rSocket).block();
-
 		assertThat(result).isInstanceOf(PayloadInterceptorRSocket.class);
-
 		given(this.rSocket.fireAndForget(any())).willReturn(Mono.empty());
-
 		result.fireAndForget(this.payload).block();
-
 		ArgumentCaptor<PayloadExchange> exchangeArg = ArgumentCaptor.forClass(PayloadExchange.class);
 		verify(this.interceptor, times(2)).intercept(exchangeArg.capture(), any());
 		return exchangeArg.getValue();

@@ -58,7 +58,6 @@ public class HttpStatusEntryPointTests {
 	@Test
 	public void unauthorized() throws Exception {
 		this.entryPoint.commence(this.request, this.response, this.authException);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
 	}
 

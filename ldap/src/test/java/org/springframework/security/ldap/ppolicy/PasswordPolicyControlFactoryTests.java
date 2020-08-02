@@ -33,7 +33,6 @@ public class PasswordPolicyControlFactoryTests {
 	public void returnsNullForUnrecognisedOID() {
 		PasswordPolicyControlFactory ctrlFactory = new PasswordPolicyControlFactory();
 		Control wrongCtrl = mock(Control.class);
-
 		given(wrongCtrl.getID()).willReturn("wrongId");
 		assertThat(ctrlFactory.getControlInstance(wrongCtrl)).isNull();
 	}
@@ -42,7 +41,6 @@ public class PasswordPolicyControlFactoryTests {
 	public void returnsControlForCorrectOID() {
 		PasswordPolicyControlFactory ctrlFactory = new PasswordPolicyControlFactory();
 		Control control = mock(Control.class);
-
 		given(control.getID()).willReturn(PasswordPolicyControl.OID);
 		given(control.getEncodedValue()).willReturn(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL);
 		Control result = ctrlFactory.getControlInstance(control);

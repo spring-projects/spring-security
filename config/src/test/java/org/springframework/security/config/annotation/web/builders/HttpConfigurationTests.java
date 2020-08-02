@@ -74,9 +74,7 @@ public class HttpConfigurationTests {
 	public void configureWhenAddFilterCasAuthenticationFilterThenFilterAdded() throws Exception {
 		CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER = spy(new CasAuthenticationFilter());
 		this.spring.register(CasAuthenticationFilterConfig.class).autowire();
-
 		this.mockMvc.perform(get("/"));
-
 		verify(CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER).doFilter(any(ServletRequest.class),
 				any(ServletResponse.class), any(FilterChain.class));
 	}
@@ -84,7 +82,6 @@ public class HttpConfigurationTests {
 	@Test
 	public void configureWhenConfigIsRequestMatchersJavadocThenAuthorizationApplied() throws Exception {
 		this.spring.register(RequestMatcherRegistryConfigs.class).autowire();
-
 		this.mockMvc.perform(get("/oauth/a")).andExpect(status().isUnauthorized());
 		this.mockMvc.perform(get("/oauth/b")).andExpect(status().isUnauthorized());
 		this.mockMvc.perform(get("/api/a")).andExpect(status().isUnauthorized());

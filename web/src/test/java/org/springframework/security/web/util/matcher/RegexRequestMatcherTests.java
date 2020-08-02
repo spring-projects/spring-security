@@ -41,31 +41,25 @@ public class RegexRequestMatcherTests {
 	@Test
 	public void doesntMatchIfHttpMethodIsDifferent() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
-
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/anything");
-
 		assertThat(matcher.matches(request)).isFalse();
 	}
 
 	@Test
 	public void matchesIfHttpMethodAndPathMatch() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/anything");
 		request.setServletPath("/anything");
-
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
 	public void queryStringIsMatcherCorrectly() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*\\?x=y", "GET");
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/any/path?x=y");
 		request.setServletPath("/any");
 		request.setPathInfo("/path");
 		request.setQueryString("x=y");
-
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
@@ -104,7 +98,6 @@ public class RegexRequestMatcherTests {
 		RegexRequestMatcher matcher = new RegexRequestMatcher("/blah", "GET");
 		MockHttpServletRequest request = new MockHttpServletRequest("INVALID", "/blah");
 		request.setMethod("INVALID");
-
 		assertThat(matcher.matches(request)).isFalse();
 	}
 

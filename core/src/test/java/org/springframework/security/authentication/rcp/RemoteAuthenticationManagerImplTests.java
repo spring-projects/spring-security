@@ -41,24 +41,20 @@ public class RemoteAuthenticationManagerImplTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		manager.setAuthenticationManager(am);
-
 		manager.attemptAuthentication("rod", "password");
 	}
 
 	@Test
 	public void testStartupChecksAuthenticationManagerSet() throws Exception {
 		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
-
 		try {
 			manager.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		manager.setAuthenticationManager(mock(AuthenticationManager.class));
 		manager.afterPropertiesSet();
-
 	}
 
 	@Test
@@ -67,7 +63,6 @@ public class RemoteAuthenticationManagerImplTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class))).willReturn(new TestingAuthenticationToken("u", "p", "A"));
 		manager.setAuthenticationManager(am);
-
 		manager.attemptAuthentication("rod", "password");
 	}
 

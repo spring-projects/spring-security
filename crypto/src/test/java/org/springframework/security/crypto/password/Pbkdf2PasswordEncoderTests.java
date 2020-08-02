@@ -71,14 +71,12 @@ public class Pbkdf2PasswordEncoderTests {
 		byte[] originalBytes = Hex.decode(originalEncodedPassword);
 		byte[] fixedBytes = Arrays.copyOfRange(originalBytes, saltLength, originalBytes.length);
 		String fixedHex = String.valueOf(Hex.encode(fixedBytes));
-
 		assertThat(fixedHex).isEqualTo(encodedPassword);
 	}
 
 	@Test
 	public void encodeAndMatchWhenBase64ThenSuccess() {
 		this.encoder.setEncodeHashAsBase64(true);
-
 		String rawPassword = "password";
 		String encodedPassword = this.encoder.encode(rawPassword);
 		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
@@ -89,7 +87,6 @@ public class Pbkdf2PasswordEncoderTests {
 		this.encoder.setEncodeHashAsBase64(true);
 		String rawPassword = "password";
 		String encodedPassword = "3FOwOMcDgxP+z1x/sv184LFY2WVD+ZGMgYP3LPOSmCcDmk1XPYvcCQ==";
-
 		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
 		java.util.Base64.getDecoder().decode(encodedPassword); // validate can decode as
 																// Base64
@@ -98,7 +95,6 @@ public class Pbkdf2PasswordEncoderTests {
 	@Test
 	public void encodeAndMatchWhenSha256ThenSuccess() {
 		this.encoder.setAlgorithm(Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256);
-
 		String rawPassword = "password";
 		String encodedPassword = this.encoder.encode(rawPassword);
 		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
@@ -107,7 +103,6 @@ public class Pbkdf2PasswordEncoderTests {
 	@Test
 	public void matchWhenSha256ThenSuccess() {
 		this.encoder.setAlgorithm(Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256);
-
 		String rawPassword = "password";
 		String encodedPassword = "821447f994e2b04c5014e31fa9fca4ae1cc9f2188c4ed53d3ddb5ba7980982b51a0ecebfc0b81a79";
 		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();

@@ -37,9 +37,7 @@ public class LogoutSuccessEventPublishingLogoutHandlerTests {
 		LogoutSuccessEventPublishingLogoutHandler handler = new LogoutSuccessEventPublishingLogoutHandler();
 		LogoutAwareEventPublisher eventPublisher = new LogoutAwareEventPublisher();
 		handler.setApplicationEventPublisher(eventPublisher);
-
 		handler.logout(new MockHttpServletRequest(), new MockHttpServletResponse(), mock(Authentication.class));
-
 		assertThat(eventPublisher.flag).isTrue();
 	}
 
@@ -48,9 +46,7 @@ public class LogoutSuccessEventPublishingLogoutHandlerTests {
 		LogoutSuccessEventPublishingLogoutHandler handler = new LogoutSuccessEventPublishingLogoutHandler();
 		LogoutAwareEventPublisher eventPublisher = new LogoutAwareEventPublisher();
 		handler.setApplicationEventPublisher(eventPublisher);
-
 		handler.logout(new MockHttpServletRequest(), new MockHttpServletResponse(), null);
-
 		assertThat(eventPublisher.flag).isFalse();
 	}
 

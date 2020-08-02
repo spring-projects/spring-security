@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Rob Winch
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WithMockUserTests.Config.class)
 public class WithMockUserTests {

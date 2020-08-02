@@ -35,7 +35,6 @@ public class LdapUserDetailsImplTests {
 		mutableLdapUserDetails.setDn("uid=username1,ou=people,dc=example,dc=com");
 		mutableLdapUserDetails.setUsername("username1");
 		mutableLdapUserDetails.setPassword("password");
-
 		LdapUserDetails ldapUserDetails = mutableLdapUserDetails.createUserDetails();
 		assertThat(ldapUserDetails).isInstanceOf(CredentialsContainer.class);
 		ldapUserDetails.eraseCredentials();

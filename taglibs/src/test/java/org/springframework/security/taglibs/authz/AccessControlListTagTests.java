@@ -64,13 +64,10 @@ public class AccessControlListTagTests {
 		SecurityContextHolder.getContext().setAuthentication(this.bob);
 		this.tag = new AccessControlListTag();
 		WebApplicationContext ctx = mock(WebApplicationContext.class);
-
 		this.pe = mock(PermissionEvaluator.class);
-
 		Map beanMap = new HashMap();
 		beanMap.put("pe", this.pe);
 		given(ctx.getBeansOfType(PermissionEvaluator.class)).willReturn(beanMap);
-
 		MockServletContext servletCtx = new MockServletContext();
 		servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
 		this.pageContext = new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse());
@@ -86,13 +83,11 @@ public class AccessControlListTagTests {
 	public void bodyIsEvaluatedIfAclGrantsAccess() throws Exception {
 		Object domainObject = new Object();
 		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(true);
-
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("READ");
 		this.tag.setVar("allowed");
 		assertThat(this.tag.getDomainObject()).isSameAs(domainObject);
 		assertThat(this.tag.getHasPermission()).isEqualTo("READ");
-
 		assertThat(this.tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 		assertThat((Boolean) this.pageContext.getAttribute("allowed")).isTrue();
 	}
@@ -104,16 +99,13 @@ public class AccessControlListTagTests {
 				.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
-
 		Object domainObject = new Object();
 		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(true);
-
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("READ");
 		this.tag.setVar("allowed");
 		assertThat(this.tag.getDomainObject()).isSameAs(domainObject);
 		assertThat(this.tag.getHasPermission()).isEqualTo("READ");
-
 		assertThat(this.tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 		assertThat((Boolean) this.pageContext.getAttribute("allowed")).isTrue();
 	}
@@ -124,13 +116,11 @@ public class AccessControlListTagTests {
 		Object domainObject = new Object();
 		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(true);
 		given(this.pe.hasPermission(this.bob, domainObject, "WRITE")).willReturn(true);
-
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("READ,WRITE");
 		this.tag.setVar("allowed");
 		assertThat(this.tag.getDomainObject()).isSameAs(domainObject);
 		assertThat(this.tag.getHasPermission()).isEqualTo("READ,WRITE");
-
 		assertThat(this.tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 		assertThat((Boolean) this.pageContext.getAttribute("allowed")).isTrue();
 		verify(this.pe).hasPermission(this.bob, domainObject, "READ");
@@ -144,13 +134,11 @@ public class AccessControlListTagTests {
 		Object domainObject = new Object();
 		given(this.pe.hasPermission(this.bob, domainObject, 1)).willReturn(true);
 		given(this.pe.hasPermission(this.bob, domainObject, 2)).willReturn(true);
-
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("1,2");
 		this.tag.setVar("allowed");
 		assertThat(this.tag.getDomainObject()).isSameAs(domainObject);
 		assertThat(this.tag.getHasPermission()).isEqualTo("1,2");
-
 		assertThat(this.tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 		assertThat((Boolean) this.pageContext.getAttribute("allowed")).isTrue();
 		verify(this.pe).hasPermission(this.bob, domainObject, 1);
@@ -163,13 +151,11 @@ public class AccessControlListTagTests {
 		Object domainObject = new Object();
 		given(this.pe.hasPermission(this.bob, domainObject, 1)).willReturn(true);
 		given(this.pe.hasPermission(this.bob, domainObject, "WRITE")).willReturn(true);
-
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("1,WRITE");
 		this.tag.setVar("allowed");
 		assertThat(this.tag.getDomainObject()).isSameAs(domainObject);
 		assertThat(this.tag.getHasPermission()).isEqualTo("1,WRITE");
-
 		assertThat(this.tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 		assertThat((Boolean) this.pageContext.getAttribute("allowed")).isTrue();
 		verify(this.pe).hasPermission(this.bob, domainObject, 1);
@@ -181,11 +167,9 @@ public class AccessControlListTagTests {
 	public void bodyIsSkippedIfAclDeniesAccess() throws Exception {
 		Object domainObject = new Object();
 		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(false);
-
 		this.tag.setDomainObject(domainObject);
 		this.tag.setHasPermission("READ");
 		this.tag.setVar("allowed");
-
 		assertThat(this.tag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat((Boolean) this.pageContext.getAttribute("allowed")).isFalse();
 	}

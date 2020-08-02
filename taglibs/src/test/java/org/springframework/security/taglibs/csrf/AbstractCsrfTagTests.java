@@ -56,11 +56,8 @@ public class AbstractCsrfTagTests {
 
 	@Test
 	public void noCsrfDoesNotRender() throws JspException, UnsupportedEncodingException {
-
 		this.tag.handleReturn = "shouldNotBeRendered";
-
 		int returned = this.tag.doEndTag();
-
 		assertThat(returned).as("The returned value is not correct.").isEqualTo(Tag.EVAL_PAGE);
 		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.")
 				.isEqualTo("");
@@ -68,14 +65,10 @@ public class AbstractCsrfTagTests {
 
 	@Test
 	public void hasCsrfRendersReturnedValue() throws JspException, UnsupportedEncodingException {
-
 		CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
 		this.request.setAttribute(CsrfToken.class.getName(), token);
-
 		this.tag.handleReturn = "fooBarBazQux";
-
 		int returned = this.tag.doEndTag();
-
 		assertThat(returned).as("The returned value is not correct.").isEqualTo(Tag.EVAL_PAGE);
 		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.")
 				.isEqualTo("fooBarBazQux");
@@ -84,14 +77,10 @@ public class AbstractCsrfTagTests {
 
 	@Test
 	public void hasCsrfRendersDifferentValue() throws JspException, UnsupportedEncodingException {
-
 		CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
 		this.request.setAttribute(CsrfToken.class.getName(), token);
-
 		this.tag.handleReturn = "<input type=\"hidden\" />";
-
 		int returned = this.tag.doEndTag();
-
 		assertThat(returned).as("The returned value is not correct.").isEqualTo(Tag.EVAL_PAGE);
 		assertThat(this.response.getContentAsString()).withFailMessage("The output value is not correct.")
 				.isEqualTo("<input type=\"hidden\" />");

@@ -85,7 +85,6 @@ public class OidcIdTokenTests {
 	private static final Map<String, Object> CLAIMS;
 
 	private static final String ID_TOKEN_VALUE = "id-token-value";
-
 	static {
 		CLAIMS = new HashMap<>();
 		CLAIMS.put(ISS_CLAIM, ISS_VALUE);
@@ -117,7 +116,6 @@ public class OidcIdTokenTests {
 	public void constructorWhenParametersProvidedAndValidThenCreated() {
 		OidcIdToken idToken = new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
 				Instant.ofEpochMilli(EXP_VALUE), CLAIMS);
-
 		assertThat(idToken.getClaims()).isEqualTo(CLAIMS);
 		assertThat(idToken.getTokenValue()).isEqualTo(ID_TOKEN_VALUE);
 		assertThat(idToken.getIssuer().toString()).isEqualTo(ISS_VALUE);

@@ -83,14 +83,11 @@ public class LdapShaPasswordEncoderTests {
 	public void correctPrefixCaseIsUsed() {
 		this.sha.setForceLowerCasePrefix(false);
 		assertThat(this.sha.encode("somepassword").startsWith("{SSHA}"));
-
 		this.sha.setForceLowerCasePrefix(true);
 		assertThat(this.sha.encode("somepassword").startsWith("{ssha}"));
-
 		this.sha = new LdapShaPasswordEncoder(KeyGenerators.shared(0));
 		this.sha.setForceLowerCasePrefix(false);
 		assertThat(this.sha.encode("somepassword").startsWith("{SHA}"));
-
 		this.sha.setForceLowerCasePrefix(true);
 		assertThat(this.sha.encode("somepassword").startsWith("{SSHA}"));
 	}

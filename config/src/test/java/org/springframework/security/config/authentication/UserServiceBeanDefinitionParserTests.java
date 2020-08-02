@@ -120,7 +120,6 @@ public class UserServiceBeanDefinitionParserTests {
 	public void multipleTopLevelUseWithoutIdThrowsException() {
 		setContext("<user-service properties='classpath:org/springframework/security/config/users.properties'/>"
 				+ "<user-service properties='classpath:org/springframework/security/config/users.properties'/>");
-
 	}
 
 	@Test(expected = FatalBeanException.class)

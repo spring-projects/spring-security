@@ -46,17 +46,14 @@ public class SidTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			new PrincipalSid("");
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		new PrincipalSid("johndoe");
 		// throws no exception
-
 		// Check one Authentication-argument constructor
 		try {
 			Authentication authentication = null;
@@ -65,7 +62,6 @@ public class SidTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			Authentication authentication = new TestingAuthenticationToken(null, "password");
 			new PrincipalSid(authentication);
@@ -73,7 +69,6 @@ public class SidTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
 		new PrincipalSid(authentication);
 		// throws no exception
@@ -88,25 +83,19 @@ public class SidTests {
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		try {
 			new GrantedAuthoritySid("");
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		try {
 			new GrantedAuthoritySid("ROLE_TEST");
-
 		}
 		catch (IllegalArgumentException notExpected) {
 			fail("It shouldn't have thrown IllegalArgumentException");
 		}
-
 		// Check one GrantedAuthority-argument constructor
 		try {
 			GrantedAuthority ga = null;
@@ -114,22 +103,17 @@ public class SidTests {
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		try {
 			GrantedAuthority ga = new SimpleGrantedAuthority(null);
 			new GrantedAuthoritySid(ga);
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		try {
 			GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 			new GrantedAuthoritySid(ga);
-
 		}
 		catch (IllegalArgumentException notExpected) {
 			fail("It shouldn't have thrown IllegalArgumentException");
@@ -140,7 +124,6 @@ public class SidTests {
 	public void testPrincipalSidEquals() {
 		Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
 		Sid principalSid = new PrincipalSid(authentication);
-
 		assertThat(principalSid.equals(null)).isFalse();
 		assertThat(principalSid.equals("DIFFERENT_TYPE_OBJECT")).isFalse();
 		assertThat(principalSid.equals(principalSid)).isTrue();
@@ -155,7 +138,6 @@ public class SidTests {
 	public void testGrantedAuthoritySidEquals() {
 		GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 		Sid gaSid = new GrantedAuthoritySid(ga);
-
 		assertThat(gaSid.equals(null)).isFalse();
 		assertThat(gaSid.equals("DIFFERENT_TYPE_OBJECT")).isFalse();
 		assertThat(gaSid.equals(gaSid)).isTrue();
@@ -170,7 +152,6 @@ public class SidTests {
 	public void testPrincipalSidHashCode() {
 		Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
 		Sid principalSid = new PrincipalSid(authentication);
-
 		assertThat(principalSid.hashCode()).isEqualTo("johndoe".hashCode());
 		assertThat(principalSid.hashCode()).isEqualTo(new PrincipalSid("johndoe").hashCode());
 		assertThat(principalSid.hashCode()).isNotEqualTo(new PrincipalSid("scott").hashCode());
@@ -182,7 +163,6 @@ public class SidTests {
 	public void testGrantedAuthoritySidHashCode() {
 		GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 		Sid gaSid = new GrantedAuthoritySid(ga);
-
 		assertThat(gaSid.hashCode()).isEqualTo("ROLE_TEST".hashCode());
 		assertThat(gaSid.hashCode()).isEqualTo(new GrantedAuthoritySid("ROLE_TEST").hashCode());
 		assertThat(gaSid.hashCode()).isNotEqualTo(new GrantedAuthoritySid("ROLE_TEST_2").hashCode());
@@ -196,10 +176,8 @@ public class SidTests {
 		PrincipalSid principalSid = new PrincipalSid(authentication);
 		GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 		GrantedAuthoritySid gaSid = new GrantedAuthoritySid(ga);
-
 		assertThat("johndoe".equals(principalSid.getPrincipal())).isTrue();
 		assertThat("scott".equals(principalSid.getPrincipal())).isFalse();
-
 		assertThat("ROLE_TEST".equals(gaSid.getGrantedAuthority())).isTrue();
 		assertThat("ROLE_TEST2".equals(gaSid.getGrantedAuthority())).isFalse();
 	}
@@ -209,7 +187,6 @@ public class SidTests {
 		User user = new User("user", "password", Collections.singletonList(new SimpleGrantedAuthority("ROLE_TEST")));
 		Authentication authentication = new TestingAuthenticationToken(user, "password");
 		PrincipalSid principalSid = new PrincipalSid(authentication);
-
 		assertThat("user").isEqualTo(principalSid.getPrincipal());
 	}
 
@@ -217,7 +194,6 @@ public class SidTests {
 	public void getPrincipalWhenPrincipalNotInstanceOfUserDetailsThenReturnsPrincipalName() {
 		Authentication authentication = new TestingAuthenticationToken("token", "password");
 		PrincipalSid principalSid = new PrincipalSid(authentication);
-
 		assertThat("token").isEqualTo(principalSid.getPrincipal());
 	}
 
@@ -225,7 +201,6 @@ public class SidTests {
 	public void getPrincipalWhenCustomAuthenticationPrincipalThenReturnsPrincipalName() {
 		Authentication authentication = new CustomAuthenticationToken(new CustomToken("token"), null);
 		PrincipalSid principalSid = new PrincipalSid(authentication);
-
 		assertThat("token").isEqualTo(principalSid.getPrincipal());
 	}
 

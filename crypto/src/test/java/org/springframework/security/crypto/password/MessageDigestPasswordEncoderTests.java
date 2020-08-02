@@ -95,7 +95,6 @@ public class MessageDigestPasswordEncoderTests {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("SHA-1");
 		String raw = "abc123";
 		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}b2f50ffcbd3407fe9415c062d55f54731f340d32"));
-
 	}
 
 	@Test

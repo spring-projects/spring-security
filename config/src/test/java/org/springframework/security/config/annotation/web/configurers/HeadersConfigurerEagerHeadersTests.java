@@ -48,7 +48,6 @@ public class HeadersConfigurerEagerHeadersTests {
 	@Test
 	public void requestWhenHeadersEagerlyConfiguredThenHeadersAreWritten() throws Exception {
 		this.spring.register(HeadersAtTheBeginningOfRequestConfig.class).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(header().string("X-Content-Type-Options", "nosniff"))
 				.andExpect(header().string("X-Frame-Options", "DENY"))
 				.andExpect(header().string("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains"))

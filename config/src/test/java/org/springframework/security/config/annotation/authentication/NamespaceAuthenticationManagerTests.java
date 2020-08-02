@@ -47,10 +47,8 @@ public class NamespaceAuthenticationManagerTests {
 	@Test
 	public void authenticationMangerWhenDefaultThenEraseCredentialsIsTrue() throws Exception {
 		this.spring.register(EraseCredentialsTrueDefaultConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin())
 				.andExpect(authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNull()));
-
 		this.mockMvc.perform(formLogin())
 				.andExpect(authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNull()));
 		// no exception due to username being cleared out
@@ -59,10 +57,8 @@ public class NamespaceAuthenticationManagerTests {
 	@Test
 	public void authenticationMangerWhenEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
 		this.spring.register(EraseCredentialsFalseConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin())
 				.andExpect(authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull()));
-
 		this.mockMvc.perform(formLogin())
 				.andExpect(authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull()));
 		// no exception due to username being cleared out
@@ -72,7 +68,6 @@ public class NamespaceAuthenticationManagerTests {
 	// SEC-2533
 	public void authenticationManagerWhenGlobalAndEraseCredentialsIsFalseThenCredentialsNotNull() throws Exception {
 		this.spring.register(GlobalEraseCredentialsFalseConfig.class).autowire();
-
 		this.mockMvc.perform(SecurityMockMvcRequestBuilders.formLogin()).andExpect(SecurityMockMvcResultMatchers
 				.authenticated().withAuthentication((a) -> assertThat(a.getCredentials()).isNotNull()));
 	}

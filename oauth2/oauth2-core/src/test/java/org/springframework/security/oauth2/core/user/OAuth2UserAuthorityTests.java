@@ -52,7 +52,6 @@ public class OAuth2UserAuthorityTests {
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2UserAuthority userAuthority = new OAuth2UserAuthority(AUTHORITY, ATTRIBUTES);
-
 		assertThat(userAuthority.getAuthority()).isEqualTo(AUTHORITY);
 		assertThat(userAuthority.getAttributes()).isEqualTo(ATTRIBUTES);
 	}

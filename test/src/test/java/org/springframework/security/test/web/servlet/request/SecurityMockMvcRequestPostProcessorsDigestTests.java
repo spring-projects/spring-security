@@ -55,7 +55,6 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	public void setup() {
 		this.password = "password";
 		this.request = new MockHttpServletRequest();
-
 		this.entryPoint = new DigestAuthenticationEntryPoint();
 		this.entryPoint.setKey("key");
 		this.entryPoint.setRealmName("Spring Security");
@@ -74,7 +73,6 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	@Test
 	public void digestWithFilter() throws Exception {
 		MockHttpServletRequest postProcessedRequest = digest().postProcessRequest(this.request);
-
 		assertThat(extractUser()).isEqualTo("user");
 	}
 
@@ -82,7 +80,6 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	public void digestWithFilterCustomUsername() throws Exception {
 		String username = "admin";
 		MockHttpServletRequest postProcessedRequest = digest(username).postProcessRequest(this.request);
-
 		assertThat(extractUser()).isEqualTo(username);
 	}
 
@@ -92,7 +89,6 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		this.password = "secret";
 		MockHttpServletRequest postProcessedRequest = digest(username).password(this.password)
 				.postProcessRequest(this.request);
-
 		assertThat(extractUser()).isEqualTo(username);
 	}
 
@@ -102,7 +98,6 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		this.entryPoint.setRealmName("Custom");
 		MockHttpServletRequest postProcessedRequest = digest(username).realm(this.entryPoint.getRealmName())
 				.postProcessRequest(this.request);
-
 		assertThat(extractUser()).isEqualTo(username);
 	}
 
@@ -111,7 +106,6 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		String username = "admin";
 		MockHttpServletRequest postProcessedRequest = digest(username).realm("Invalid")
 				.postProcessRequest(this.request);
-
 		assertThat(extractUser()).isNull();
 	}
 

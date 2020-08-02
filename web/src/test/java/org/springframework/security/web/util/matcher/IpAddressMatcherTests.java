@@ -71,7 +71,6 @@ public class IpAddressMatcherTests {
 	@Test
 	public void ipv6RangeMatches() {
 		IpAddressMatcher matcher = new IpAddressMatcher("2001:DB8::/48");
-
 		assertThat(matcher.matches("2001:DB8:0:0:0:0:0:0")).isTrue();
 		assertThat(matcher.matches("2001:DB8:0:0:0:0:0:1")).isTrue();
 		assertThat(matcher.matches("2001:DB8:0:FFFF:FFFF:FFFF:FFFF:FFFF")).isTrue();
@@ -82,10 +81,8 @@ public class IpAddressMatcherTests {
 	@Test
 	public void zeroMaskMatchesAnything() {
 		IpAddressMatcher matcher = new IpAddressMatcher("0.0.0.0/0");
-
 		assertThat(matcher.matches("123.4.5.6")).isTrue();
 		assertThat(matcher.matches("192.168.0.159")).isTrue();
-
 		matcher = new IpAddressMatcher("192.168.0.159/0");
 		assertThat(matcher.matches("123.4.5.6")).isTrue();
 		assertThat(matcher.matches("192.168.0.159")).isTrue();

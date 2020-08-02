@@ -120,16 +120,13 @@ public class OAuth2AuthorizationRequestTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("attribute1", "value1");
 		attributes.put("attribute2", "value2");
-
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
 				.state(STATE).additionalParameters(additionalParameters).attributes(attributes)
 				.authorizationRequestUri(AUTHORIZATION_URI).build();
-
 		assertThat(authorizationRequest.getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
 		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.CODE);
@@ -147,7 +144,6 @@ public class OAuth2AuthorizationRequestTests {
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.implicit()
 				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
 				.state(STATE).build();
-
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 				.isEqualTo("https://provider.com/oauth2/authorize?" + "response_type=token&client_id=client-id&"
 						+ "scope=scope1%20scope2&state=state&" + "redirect_uri=https://example.com");
@@ -174,11 +170,9 @@ public class OAuth2AuthorizationRequestTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
 				.state(STATE).additionalParameters(additionalParameters).build();
-
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo("https://provider.com/oauth2/authorize?"
 				+ "response_type=code&client_id=client-id&" + "scope=scope1%20scope2&state=state&"
@@ -189,7 +183,6 @@ public class OAuth2AuthorizationRequestTests {
 	public void buildWhenRequiredParametersSetThenAuthorizationRequestUriIncludesRequiredParametersOnly() {
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).build();
-
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 				.isEqualTo("https://provider.com/oauth2/authorize?response_type=code&client_id=client-id");
 	}
@@ -204,18 +197,14 @@ public class OAuth2AuthorizationRequestTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("attribute1", "value1");
 		attributes.put("attribute2", "value2");
-
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES)
 				.state(STATE).additionalParameters(additionalParameters).attributes(attributes).build();
-
 		OAuth2AuthorizationRequest authorizationRequestCopy = OAuth2AuthorizationRequest.from(authorizationRequest)
 				.build();
-
 		assertThat(authorizationRequestCopy.getAuthorizationUri())
 				.isEqualTo(authorizationRequest.getAuthorizationUri());
 		assertThat(authorizationRequestCopy.getGrantType()).isEqualTo(authorizationRequest.getGrantType());
@@ -235,7 +224,6 @@ public class OAuth2AuthorizationRequestTests {
 	public void buildWhenAuthorizationUriIncludesQueryParameterThenAuthorizationRequestUrlIncludesIt() {
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.authorizationUri(AUTHORIZATION_URI + "?param1=value1&param2=value2").build();
-
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo("https://provider.com/oauth2/authorize?"
 				+ "param1=value1&param2=value2&" + "response_type=code&client_id=client-id&state=state&"
@@ -248,7 +236,6 @@ public class OAuth2AuthorizationRequestTests {
 				.authorizationUri(AUTHORIZATION_URI
 						+ "?claims=%7B%22userinfo%22%3A%7B%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%7D%7D")
 				.build();
-
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo("https://provider.com/oauth2/authorize?"
 				+ "claims=%7B%22userinfo%22%3A%7B%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%7D%7D&"
@@ -264,7 +251,6 @@ public class OAuth2AuthorizationRequestTests {
 		additionalParameters.put('\u00e2' + "ge", "4" + '\u00bd');
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.additionalParameters(additionalParameters).build();
-
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(
 				"https://example.com/login/oauth/authorize?" + "response_type=code&client_id=client-id&state=state&"

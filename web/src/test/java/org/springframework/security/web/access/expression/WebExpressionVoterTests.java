@@ -55,7 +55,6 @@ public class WebExpressionVoterTests {
 						.isTrue();
 		assertThat(voter.supports(FilterInvocation.class)).isTrue();
 		assertThat(voter.supports(MethodInvocation.class)).isFalse();
-
 	}
 
 	@Test
@@ -83,9 +82,7 @@ public class WebExpressionVoterTests {
 		ArrayList attributes = new ArrayList();
 		attributes.addAll(SecurityConfig.createList("A", "B", "C"));
 		attributes.add(weca);
-
 		assertThat(voter.vote(this.user, fi, attributes)).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
-
 		// Second time false
 		assertThat(voter.vote(this.user, fi, attributes)).isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 	}

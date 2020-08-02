@@ -76,7 +76,6 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
 	@Override
 	@RolesAllowed({ "USER" })
 	public void rolesAllowedUser() {
-
 	}
 
 }

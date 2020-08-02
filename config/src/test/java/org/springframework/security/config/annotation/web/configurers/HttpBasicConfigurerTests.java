@@ -67,14 +67,12 @@ public class HttpBasicConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnBasicAuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(BasicAuthenticationFilter.class));
 	}
 
 	@Test
 	public void httpBasicWhenUsingDefaultsInLambdaThenResponseIncludesBasicChallenge() throws Exception {
 		this.spring.register(DefaultsLambdaEntryPointConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
 	}
@@ -83,7 +81,6 @@ public class HttpBasicConfigurerTests {
 	@Test
 	public void httpBasicWhenUsingDefaultsThenResponseIncludesBasicChallenge() throws Exception {
 		this.spring.register(DefaultsEntryPointConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized())
 				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
 	}
@@ -91,9 +88,7 @@ public class HttpBasicConfigurerTests {
 	@Test
 	public void httpBasicWhenUsingCustomAuthenticationEntryPointThenResponseIncludesBasicChallenge() throws Exception {
 		this.spring.register(CustomAuthenticationEntryPointConfig.class).autowire();
-
 		this.mvc.perform(get("/"));
-
 		verify(CustomAuthenticationEntryPointConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
@@ -101,9 +96,7 @@ public class HttpBasicConfigurerTests {
 	@Test
 	public void httpBasicWhenInvokedTwiceThenUsesOriginalEntryPoint() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-
 		this.mvc.perform(get("/"));
-
 		verify(DuplicateDoesNotOverrideConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
@@ -112,7 +105,6 @@ public class HttpBasicConfigurerTests {
 	@Test
 	public void httpBasicWhenRememberMeConfiguredThenSetsRememberMeCookie() throws Exception {
 		this.spring.register(BasicUsesRememberMeConfig.class).autowire();
-
 		this.mvc.perform(get("/").with(httpBasic("user", "password")).param("remember-me", "true"))
 				.andExpect(cookie().exists("remember-me"));
 	}

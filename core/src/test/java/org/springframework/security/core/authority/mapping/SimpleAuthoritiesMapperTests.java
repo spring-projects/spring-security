@@ -57,13 +57,11 @@ public class SimpleAuthoritiesMapperTests {
 		assertThat(mapped).hasSize(2);
 		assertThat(mapped.contains("AaA")).isTrue();
 		assertThat(mapped.contains("Bbb")).isTrue();
-
 		mapper.setConvertToLowerCase(true);
 		mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(toMap));
 		assertThat(mapped).hasSize(2);
 		assertThat(mapped.contains("aaa")).isTrue();
 		assertThat(mapped.contains("bbb")).isTrue();
-
 		mapper.setConvertToLowerCase(false);
 		mapper.setConvertToUpperCase(true);
 		mapped = AuthorityUtils.authorityListToSet(mapper.mapAuthorities(toMap));
@@ -76,7 +74,6 @@ public class SimpleAuthoritiesMapperTests {
 	public void duplicatesAreRemoved() {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		mapper.setConvertToUpperCase(true);
-
 		Set<String> mapped = AuthorityUtils
 				.authorityListToSet(mapper.mapAuthorities(AuthorityUtils.createAuthorityList("AaA", "AAA")));
 		assertThat(mapped).hasSize(1);

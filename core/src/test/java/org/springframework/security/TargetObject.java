@@ -47,7 +47,6 @@ public class TargetObject implements ITargetObject {
 	@Override
 	public String makeLowerCase(String input) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 		if (auth == null) {
 			return input.toLowerCase() + " Authentication empty";
 		}
@@ -67,7 +66,6 @@ public class TargetObject implements ITargetObject {
 	@Override
 	public String makeUpperCase(String input) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 		return input.toUpperCase() + " " + auth.getClass().getName() + " " + auth.isAuthenticated();
 	}
 

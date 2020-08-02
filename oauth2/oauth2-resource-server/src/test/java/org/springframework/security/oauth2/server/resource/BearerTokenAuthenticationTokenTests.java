@@ -43,7 +43,6 @@ public class BearerTokenAuthenticationTokenTests {
 	@Test
 	public void constructorWhenTokenHasValueThenConstructedCorrectly() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token");
-
 		assertThat(token.getToken()).isEqualTo("token");
 		assertThat(token.getPrincipal()).isEqualTo("token");
 		assertThat(token.getCredentials()).isEqualTo("token");

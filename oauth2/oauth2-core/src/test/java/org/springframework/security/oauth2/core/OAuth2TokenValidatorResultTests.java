@@ -38,7 +38,6 @@ public class OAuth2TokenValidatorResultTests {
 	@Test
 	public void failureWhenInvokedWithDetailReturnsFailureResultIncludingDetail() {
 		OAuth2TokenValidatorResult failure = OAuth2TokenValidatorResult.failure(DETAIL);
-
 		assertThat(failure.hasErrors()).isTrue();
 		assertThat(failure.getErrors()).containsExactly(DETAIL);
 	}
@@ -46,7 +45,6 @@ public class OAuth2TokenValidatorResultTests {
 	@Test
 	public void failureWhenInvokedWithMultipleDetailsReturnsFailureResultIncludingAll() {
 		OAuth2TokenValidatorResult failure = OAuth2TokenValidatorResult.failure(DETAIL, DETAIL);
-
 		assertThat(failure.hasErrors()).isTrue();
 		assertThat(failure.getErrors()).containsExactly(DETAIL, DETAIL);
 	}

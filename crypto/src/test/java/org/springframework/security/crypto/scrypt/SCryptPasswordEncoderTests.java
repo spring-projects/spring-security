@@ -68,7 +68,6 @@ public class SCryptPasswordEncoderTests {
 	public void samePasswordWithDifferentParams() {
 		SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(16384, 8, 1, 32, 64);
 		SCryptPasswordEncoder newEncoder = new SCryptPasswordEncoder();
-
 		String password = "secret";
 		String oldEncodedPassword = oldEncoder.encode(password);
 		assertThat(newEncoder.matches(password, oldEncodedPassword)).isTrue();
@@ -140,10 +139,8 @@ public class SCryptPasswordEncoderTests {
 	public void upgradeEncodingWhenWeakerToStrongerThenFalse() {
 		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
 		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
-
 		String weakPassword = weakEncoder.encode("password");
 		String strongPassword = strongEncoder.encode("password");
-
 		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
 	}
 
@@ -151,10 +148,8 @@ public class SCryptPasswordEncoderTests {
 	public void upgradeEncodingWhenStrongerToWeakerThenTrue() {
 		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
 		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
-
 		String weakPassword = weakEncoder.encode("password");
 		String strongPassword = strongEncoder.encode("password");
-
 		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
 	}
 

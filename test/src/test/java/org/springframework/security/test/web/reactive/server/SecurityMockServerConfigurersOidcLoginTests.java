@@ -73,7 +73,6 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthentication() {
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOidcLogin()).get().uri("/token").exchange()
 				.expectStatus().isOk();
-
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token).isNotNull();
 		assertThat(token.getAuthorizedClientRegistrationId()).isEqualTo("test");
@@ -88,7 +87,6 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient() {
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOidcLogin()).get().uri("/client").exchange()
 				.expectStatus().isOk();
-
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client).isNotNull();
 		assertThat(client.getClientRegistration().getRegistrationId()).isEqualTo("test");
@@ -102,7 +100,6 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 				.mutateWith(SecurityMockServerConfigurers.mockOidcLogin()
 						.authorities(new SimpleGrantedAuthority("SCOPE_admin")))
 				.get().uri("/token").exchange().expectStatus().isOk();
-
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat((Collection<GrantedAuthority>) token.getPrincipal().getAuthorities())
 				.contains(new SimpleGrantedAuthority("SCOPE_admin"));
@@ -114,7 +111,6 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 				.mutateWith(SecurityMockServerConfigurers.mockOidcLogin()
 						.idToken((i) -> i.issuer("https://idp.example.org")))
 				.get().uri("/token").exchange().expectStatus().isOk();
-
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("iss", "https://idp.example.org");
 	}
@@ -124,7 +120,6 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 		this.client
 				.mutateWith(SecurityMockServerConfigurers.mockOidcLogin().userInfoToken((u) -> u.email("email@email")))
 				.get().uri("/token").exchange().expectStatus().isOk();
-
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("email", "email@email");
 	}
@@ -134,16 +129,12 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
 				OidcIdToken.withTokenValue("id-token").claim("custom-attribute", "test-subject").build(),
 				"custom-attribute");
-
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login().oauth2User(oidcUser)).get().uri("/token")
 				.exchange().expectStatus().isOk();
-
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getName()).isEqualTo("test-subject");
-
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login().oauth2User(oidcUser)).get()
 				.uri("/client").exchange().expectStatus().isOk();
-
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client.getPrincipalName()).isEqualTo("test-subject");
 	}
@@ -153,18 +144,14 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("SCOPE_read"),
 				TestOidcIdTokens.idToken().build());
-
 		this.client.mutateWith(
 				SecurityMockServerConfigurers.mockOidcLogin().idToken((i) -> i.subject("foo")).oidcUser(oidcUser)).get()
 				.uri("/token").exchange().expectStatus().isOk();
-
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("sub", "subject");
-
 		this.client.mutateWith(
 				SecurityMockServerConfigurers.mockOidcLogin().oidcUser(oidcUser).idToken((i) -> i.subject("bar"))).get()
 				.uri("/token").exchange().expectStatus().isOk();
-
 		token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes()).containsEntry("sub", "bar");
 	}

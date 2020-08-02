@@ -33,7 +33,6 @@ public class XmlSupport {
 	public XmlNode parse(String location) throws IOException {
 		ClassPathResource resource = new ClassPathResource(location);
 		this.parser = new XmlParser(resource.getInputStream());
-
 		return this.parser.parse();
 	}
 

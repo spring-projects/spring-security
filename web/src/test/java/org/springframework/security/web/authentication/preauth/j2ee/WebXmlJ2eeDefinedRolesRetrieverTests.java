@@ -35,7 +35,6 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		List<String> ROLE1TO4_EXPECTED_ROLES = Arrays.asList("Role1", "Role2", "Role3", "Role4");
 		final Resource webXml = new ClassPathResource("webxml/Role1-4.web.xml");
 		WebXmlMappableAttributesRetriever rolesRetriever = new WebXmlMappableAttributesRetriever();
-
 		rolesRetriever.setResourceLoader(new ResourceLoader() {
 			@Override
 			public ClassLoader getClassLoader() {
@@ -47,7 +46,6 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 				return webXml;
 			}
 		});
-
 		rolesRetriever.afterPropertiesSet();
 		Set<String> j2eeRoles = rolesRetriever.getMappableAttributes();
 		assertThat(j2eeRoles).containsAll(ROLE1TO4_EXPECTED_ROLES);

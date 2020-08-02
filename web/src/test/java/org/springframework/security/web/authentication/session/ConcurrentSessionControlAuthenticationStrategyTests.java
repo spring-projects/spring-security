@@ -67,7 +67,6 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		this.response = new MockHttpServletResponse();
 		this.sessionInformation = new SessionInformation(this.authentication.getPrincipal(), "unique",
 				new Date(1374766134216L));
-
 		this.strategy = new ConcurrentSessionControlAuthenticationStrategy(this.sessionRegistry);
 	}
 
@@ -82,9 +81,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 				.willReturn(Collections.<SessionInformation>emptyList());
 		this.strategy.setMaximumSessions(1);
 		this.strategy.setExceptionIfMaximumExceeded(true);
-
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
-
 		// no exception
 	}
 
@@ -96,9 +93,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 				.willReturn(Collections.<SessionInformation>singletonList(this.sessionInformation));
 		this.strategy.setMaximumSessions(1);
 		this.strategy.setExceptionIfMaximumExceeded(true);
-
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
-
 		// no exception
 	}
 
@@ -108,7 +103,6 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 				.willReturn(Collections.<SessionInformation>singletonList(this.sessionInformation));
 		this.strategy.setMaximumSessions(1);
 		this.strategy.setExceptionIfMaximumExceeded(true);
-
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
 	}
 
@@ -117,9 +111,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 				.willReturn(Collections.<SessionInformation>singletonList(this.sessionInformation));
 		this.strategy.setMaximumSessions(1);
-
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
-
 		assertThat(this.sessionInformation.isExpired()).isTrue();
 	}
 
@@ -130,9 +122,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 				.willReturn(Arrays.<SessionInformation>asList(moreRecentSessionInfo, this.sessionInformation));
 		this.strategy.setMaximumSessions(2);
-
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
-
 		assertThat(this.sessionInformation.isExpired()).isTrue();
 	}
 
@@ -145,9 +135,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean())).willReturn(
 				Arrays.<SessionInformation>asList(oldestSessionInfo, secondOldestSessionInfo, this.sessionInformation));
 		this.strategy.setMaximumSessions(2);
-
 		this.strategy.onAuthentication(this.authentication, this.request, this.response);
-
 		assertThat(oldestSessionInfo.isExpired()).isTrue();
 		assertThat(secondOldestSessionInfo.isExpired()).isTrue();
 		assertThat(this.sessionInformation.isExpired()).isFalse();

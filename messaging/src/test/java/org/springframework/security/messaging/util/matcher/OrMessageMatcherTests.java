@@ -79,7 +79,6 @@ public class OrMessageMatcherTests {
 	public void matchesSingleTrue() {
 		given(this.delegate.matches(this.message)).willReturn(true);
 		this.matcher = new OrMessageMatcher<>(this.delegate);
-
 		assertThat(this.matcher.matches(this.message)).isTrue();
 	}
 
@@ -87,7 +86,6 @@ public class OrMessageMatcherTests {
 	public void matchesMultiTrue() {
 		given(this.delegate.matches(this.message)).willReturn(true);
 		this.matcher = new OrMessageMatcher<>(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.message)).isTrue();
 	}
 
@@ -95,7 +93,6 @@ public class OrMessageMatcherTests {
 	public void matchesSingleFalse() {
 		given(this.delegate.matches(this.message)).willReturn(false);
 		this.matcher = new OrMessageMatcher<>(this.delegate);
-
 		assertThat(this.matcher.matches(this.message)).isFalse();
 	}
 
@@ -104,7 +101,6 @@ public class OrMessageMatcherTests {
 		given(this.delegate.matches(this.message)).willReturn(false);
 		given(this.delegate2.matches(this.message)).willReturn(false);
 		this.matcher = new OrMessageMatcher<>(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.message)).isFalse();
 	}
 
@@ -112,7 +108,6 @@ public class OrMessageMatcherTests {
 	public void matchesMultiSingleFalse() {
 		given(this.delegate.matches(this.message)).willReturn(true);
 		this.matcher = new OrMessageMatcher<>(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.message)).isTrue();
 	}
 

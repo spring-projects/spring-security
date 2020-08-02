@@ -100,10 +100,8 @@ public class DefaultFiltersTests {
 		assertThat(filterChains.size()).isEqualTo(2);
 		DefaultSecurityFilterChain firstFilter = (DefaultSecurityFilterChain) filterChains.get(0);
 		DefaultSecurityFilterChain secondFilter = (DefaultSecurityFilterChain) filterChains.get(1);
-
 		assertThat(firstFilter.getFilters().isEmpty()).isEqualTo(true);
 		assertThat(secondFilter.getRequestMatcher()).isInstanceOf(AnyRequestMatcher.class);
-
 		List<? extends Class<? extends Filter>> classes = secondFilter.getFilters().stream().map(Filter::getClass)
 				.collect(Collectors.toList());
 		assertThat(classes.contains(WebAsyncManagerIntegrationFilter.class)).isTrue();
@@ -125,11 +123,9 @@ public class DefaultFiltersTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "");
 		request.setServletPath("/logout");
-
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		new HttpSessionCsrfTokenRepository().saveToken(csrfToken, request, response);
 		request.setParameter(csrfToken.getParameterName(), csrfToken.getToken());
-
 		this.spring.getContext().getBean("springSecurityFilterChain", Filter.class).doFilter(request, response,
 				new MockFilterChain());
 		assertThat(response.getRedirectedUrl()).isEqualTo("/login?logout");

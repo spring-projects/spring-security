@@ -78,9 +78,7 @@ public class AbstractAuthorizeTagTests {
 		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
 		this.tag.setUrl(uri);
 		this.request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE, expected);
-
 		this.tag.authorizeUsingUrlCheck();
-
 		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
 	}
 
@@ -93,9 +91,7 @@ public class AbstractAuthorizeTagTests {
 		given(wac.getBeansOfType(WebInvocationPrivilegeEvaluator.class))
 				.willReturn(Collections.singletonMap("wipe", expected));
 		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
-
 		this.tag.authorizeUsingUrlCheck();
-
 		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
 	}
 
@@ -109,7 +105,6 @@ public class AbstractAuthorizeTagTests {
 		given(wac.getBeansOfType(SecurityExpressionHandler.class))
 				.willReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
 		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
-
 		assertThat(this.tag.authorize()).isTrue();
 	}
 

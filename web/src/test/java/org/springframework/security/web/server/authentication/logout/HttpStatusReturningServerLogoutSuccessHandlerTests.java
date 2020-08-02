@@ -40,7 +40,6 @@ public class HttpStatusReturningServerLogoutSuccessHandlerTests {
 		WebFilterExchange filterExchange = buildFilterExchange();
 		new HttpStatusReturningServerLogoutSuccessHandler().onLogoutSuccess(filterExchange, mock(Authentication.class))
 				.block();
-
 		assertThat(filterExchange.getExchange().getResponse().getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
@@ -49,7 +48,6 @@ public class HttpStatusReturningServerLogoutSuccessHandlerTests {
 		WebFilterExchange filterExchange = buildFilterExchange();
 		new HttpStatusReturningServerLogoutSuccessHandler(HttpStatus.NO_CONTENT)
 				.onLogoutSuccess(filterExchange, mock(Authentication.class)).block();
-
 		assertThat(filterExchange.getExchange().getResponse().getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 	}
 
@@ -63,7 +61,6 @@ public class HttpStatusReturningServerLogoutSuccessHandlerTests {
 	private static WebFilterExchange buildFilterExchange() {
 		MockServerHttpRequest request = MockServerHttpRequest.get("/").build();
 		MockServerWebExchange exchange = MockServerWebExchange.from(request);
-
 		return new WebFilterExchange(exchange, mock(WebFilterChain.class));
 	}
 

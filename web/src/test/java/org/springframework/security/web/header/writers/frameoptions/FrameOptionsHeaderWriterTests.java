@@ -69,9 +69,7 @@ public class FrameOptionsHeaderWriterTests {
 	@Test
 	public void writeHeadersAllowFromReturnsNull() {
 		this.writer = new XFrameOptionsHeaderWriter(this.strategy);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames().isEmpty()).isTrue();
 	}
 
@@ -80,9 +78,7 @@ public class FrameOptionsHeaderWriterTests {
 		String allowFromValue = "https://example.com/";
 		given(this.strategy.getAllowFromValue(this.request)).willReturn(allowFromValue);
 		this.writer = new XFrameOptionsHeaderWriter(this.strategy);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
 				.isEqualTo("ALLOW-FROM " + allowFromValue);
@@ -91,9 +87,7 @@ public class FrameOptionsHeaderWriterTests {
 	@Test
 	public void writeHeadersDeny() {
 		this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}
@@ -101,9 +95,7 @@ public class FrameOptionsHeaderWriterTests {
 	@Test
 	public void writeHeadersSameOrigin() {
 		this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("SAMEORIGIN");
 	}
@@ -112,10 +104,8 @@ public class FrameOptionsHeaderWriterTests {
 	public void writeHeadersTwiceLastWins() {
 		this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
 		this.writer.writeHeaders(this.request, this.response);
-
 		this.writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}

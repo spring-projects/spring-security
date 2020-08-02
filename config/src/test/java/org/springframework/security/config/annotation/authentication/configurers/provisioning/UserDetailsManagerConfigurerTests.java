@@ -46,7 +46,6 @@ public class UserDetailsManagerConfigurerTests {
 		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
 				this.userDetailsManager).withUser("user").password("password").roles("USER").disabled(true)
 						.accountExpired(true).accountLocked(true).credentialsExpired(true).build();
-
 		assertThat(userDetails.getUsername()).isEqualTo("user");
 		assertThat(userDetails.getPassword()).isEqualTo("password");
 		assertThat(userDetails.getAuthorities().stream().findFirst().get().getAuthority()).isEqualTo("ROLE_USER");
@@ -59,31 +58,25 @@ public class UserDetailsManagerConfigurerTests {
 	@Test
 	public void authoritiesWithGrantedAuthorityWorks() {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
-
 		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
 				this.userDetailsManager).withUser("user").password("password").authorities(authority).build();
-
 		assertThat(userDetails.getAuthorities().stream().findFirst().get()).isEqualTo(authority);
 	}
 
 	@Test
 	public void authoritiesWithStringAuthorityWorks() {
 		String authority = "ROLE_USER";
-
 		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
 				this.userDetailsManager).withUser("user").password("password").authorities(authority).build();
-
 		assertThat(userDetails.getAuthorities().stream().findFirst().get().getAuthority()).isEqualTo(authority);
 	}
 
 	@Test
 	public void authoritiesWithAListOfGrantedAuthorityWorks() {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
-
 		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
 				this.userDetailsManager).withUser("user").password("password").authorities(Arrays.asList(authority))
 						.build();
-
 		assertThat(userDetails.getAuthorities().stream().findFirst().get()).isEqualTo(authority);
 	}
 

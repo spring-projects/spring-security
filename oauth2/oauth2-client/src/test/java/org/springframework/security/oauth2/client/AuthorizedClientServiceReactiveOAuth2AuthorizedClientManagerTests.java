@@ -155,7 +155,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)).willReturn(Mono.empty());
 		StepVerifier.create(this.authorizedClientManager.authorize(authorizeRequest))
 				.verifyError(IllegalArgumentException.class);
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -164,23 +163,18 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(this.clientRegistration));
 		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
-
 		given(this.authorizedClientProvider.authorize(any())).willReturn(Mono.empty());
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
 		Mono<OAuth2AuthorizedClient> authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
-
 		StepVerifier.create(authorizedClient).verifyComplete();
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isNull();
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(OAuth2AuthorizedClient.class),
 				eq(this.principal));
 	}
@@ -190,27 +184,20 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void authorizeWhenNotAuthorizedAndSupportedProviderThenAuthorized() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.just(this.authorizedClient));
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
 		Mono<OAuth2AuthorizedClient> authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
-
 		StepVerifier.create(authorizedClient).expectNext(this.authorizedClient).verifyComplete();
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isNull();
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService).saveAuthorizedClient(eq(this.authorizedClient), eq(this.principal));
 		this.saveAuthorizedClientProbe.assertWasSubscribed();
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
@@ -221,31 +208,23 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void authorizeWhenNotAuthorizedAndSupportedProviderAndCustomSuccessHandlerThenInvokeCustomSuccessHandler() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.just(this.authorizedClient));
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
 		PublisherProbe<Void> authorizationSuccessHandlerProbe = PublisherProbe.empty();
 		this.authorizedClientManager.setAuthorizationSuccessHandler(
 				(client, principal, attributes) -> authorizationSuccessHandlerProbe.mono());
-
 		Mono<OAuth2AuthorizedClient> authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
-
 		StepVerifier.create(authorizedClient).expectNext(this.authorizedClient).verifyComplete();
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isNull();
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		authorizationSuccessHandlerProbe.assertWasSubscribed();
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(), any());
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
@@ -255,30 +234,22 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void authorizeWhenInvalidTokenThenRemoveAuthorizedClient() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
-
 		ClientAuthorizationException exception = new ClientAuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, null, null),
 				this.clientRegistration.getRegistrationId());
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.error(exception));
-
 		assertThatCode(() -> this.authorizedClientManager.authorize(authorizeRequest).block()).isEqualTo(exception);
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isNull();
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService).removeAuthorizedClient(eq(this.clientRegistration.getRegistrationId()),
 				eq(this.principal.getName()));
 		this.removeAuthorizedClientProbe.assertWasSubscribed();
@@ -289,30 +260,22 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void authorizeWhenInvalidGrantThenRemoveAuthorizedClient() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
-
 		ClientAuthorizationException exception = new ClientAuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, null, null),
 				this.clientRegistration.getRegistrationId());
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.error(exception));
-
 		assertThatCode(() -> this.authorizedClientManager.authorize(authorizeRequest).block()).isEqualTo(exception);
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isNull();
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService).removeAuthorizedClient(eq(this.clientRegistration.getRegistrationId()),
 				eq(this.principal.getName()));
 		this.removeAuthorizedClientProbe.assertWasSubscribed();
@@ -323,30 +286,22 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void authorizeWhenServerErrorThenDoNotRemoveAuthorizedClient() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
-
 		ClientAuthorizationException exception = new ClientAuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR, null, null),
 				this.clientRegistration.getRegistrationId());
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.error(exception));
-
 		assertThatCode(() -> this.authorizedClientManager.authorize(authorizeRequest).block()).isEqualTo(exception);
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isNull();
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(), any());
 	}
@@ -355,29 +310,21 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void authorizeWhenOAuth2AuthorizationExceptionThenDoNotRemoveAuthorizedClient() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
-
 		OAuth2AuthorizationException exception = new OAuth2AuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, null, null));
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.error(exception));
-
 		assertThatCode(() -> this.authorizedClientManager.authorize(authorizeRequest).block()).isEqualTo(exception);
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isNull();
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(), any());
 	}
@@ -386,33 +333,24 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void authorizeWhenOAuth2AuthorizationExceptionAndCustomFailureHandlerThenInvokeCustomFailureHandler() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		given(this.authorizedClientService.loadAuthorizedClient(any(), any())).willReturn(Mono.empty());
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
-
 		OAuth2AuthorizationException exception = new OAuth2AuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, null, null));
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.error(exception));
-
 		PublisherProbe<Void> authorizationFailureHandlerProbe = PublisherProbe.empty();
 		this.authorizedClientManager.setAuthorizationFailureHandler(
 				(client, principal, attributes) -> authorizationFailureHandlerProbe.mono());
-
 		assertThatCode(() -> this.authorizedClientManager.authorize(authorizeRequest).block()).isEqualTo(exception);
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isNull();
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		authorizationFailureHandlerProbe.assertWasSubscribed();
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(), any());
@@ -425,27 +363,21 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 				.willReturn(Mono.just(this.clientRegistration));
 		given(this.authorizedClientService.loadAuthorizedClient(eq(this.clientRegistration.getRegistrationId()),
 				eq(this.principal.getName()))).willReturn(Mono.just(this.authorizedClient));
-
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.just(reauthorizedClient));
-
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.build();
 		Mono<OAuth2AuthorizedClient> authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
-
 		StepVerifier.create(authorizedClient).expectNext(reauthorizedClient).verifyComplete();
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService).saveAuthorizedClient(eq(reauthorizedClient), eq(this.principal));
 		this.saveAuthorizedClientProbe.assertWasSubscribed();
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
@@ -458,16 +390,13 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
 				.principal(this.principal).build();
 		Mono<OAuth2AuthorizedClient> authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest);
-
 		StepVerifier.create(authorizedClient).expectNext(this.authorizedClient).verifyComplete();
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(reauthorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(OAuth2AuthorizedClient.class),
 				eq(this.principal));
 	}
@@ -477,24 +406,18 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void reauthorizeWhenSupportedProviderThenReauthorized() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.just(reauthorizedClient));
-
 		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
 				.principal(this.principal).build();
 		Mono<OAuth2AuthorizedClient> authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest);
-
 		StepVerifier.create(authorizedClient).expectNext(reauthorizedClient).verifyComplete();
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(reauthorizeRequest));
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
 		verify(this.authorizedClientService).saveAuthorizedClient(eq(reauthorizedClient), eq(this.principal));
 		this.saveAuthorizedClientProbe.assertWasSubscribed();
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
@@ -505,24 +428,18 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 	public void reauthorizeWhenRequestAttributeScopeThenMappedToContext() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
-
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
 				.willReturn(Mono.just(reauthorizedClient));
-
 		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
 				.principal(this.principal).attribute(OAuth2ParameterNames.SCOPE, "read write").build();
-
 		this.authorizedClientManager.setContextAttributesMapper(
 				new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager.DefaultContextAttributesMapper());
 		Mono<OAuth2AuthorizedClient> authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest);
-
 		StepVerifier.create(authorizedClient).expectNext(reauthorizedClient).verifyComplete();
 		verify(this.authorizedClientService).saveAuthorizedClient(eq(reauthorizedClient), eq(this.principal));
 		this.saveAuthorizedClientProbe.assertWasSubscribed();
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
-
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
-
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
@@ -532,7 +449,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 		String[] requestScopeAttribute = authorizationContext
 				.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		assertThat(requestScopeAttribute).contains("read", "write");
-
 	}
 
 }

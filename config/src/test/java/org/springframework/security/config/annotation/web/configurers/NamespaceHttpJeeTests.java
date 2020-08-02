@@ -62,10 +62,8 @@ public class NamespaceHttpJeeTests {
 	@Test
 	public void requestWhenJeeUserThenBehaviorDiffersFromNamespaceForRoleNames() throws Exception {
 		this.spring.register(JeeMappableRolesConfig.class, BaseController.class).autowire();
-
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("joe");
-
 		this.mvc.perform(get("/roles").principal(user).with((request) -> {
 			request.addUserRole("ROLE_admin");
 			request.addUserRole("ROLE_user");
@@ -77,18 +75,13 @@ public class NamespaceHttpJeeTests {
 	@Test
 	public void requestWhenCustomAuthenticatedUserDetailsServiceThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(JeeUserServiceRefConfig.class, BaseController.class).autowire();
-
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("joe");
-
 		User result = new User(user.getName(), "N/A", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_user"));
-
 		given(bean(AuthenticationUserDetailsService.class).loadUserDetails(any())).willReturn(result);
-
 		this.mvc.perform(get("/roles").principal(user)).andExpect(status().isOk())
 				.andExpect(content().string("ROLE_user"));
-
 		verifyBean(AuthenticationUserDetailsService.class).loadUserDetails(any());
 	}
 

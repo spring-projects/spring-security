@@ -98,7 +98,6 @@ public class WebTestUtilsTests {
 	}
 
 	// getSecurityContextRepository
-
 	@Test
 	public void getSecurityContextRepositoryNoWac() {
 		assertThat(WebTestUtils.getSecurityContextRepository(this.request))
@@ -131,31 +130,26 @@ public class WebTestUtilsTests {
 	@Test
 	public void findFilterNoMatchingFilters() {
 		loadConfig(PartialSecurityConfig.class);
-
 		assertThat(WebTestUtils.findFilter(this.request, SecurityContextPersistenceFilter.class)).isNull();
 	}
 
 	@Test
 	public void findFilterNoSpringSecurityFilterChainInContext() {
 		loadConfig(NoSecurityConfig.class);
-
 		CsrfFilter toFind = new CsrfFilter(new HttpSessionCsrfTokenRepository());
 		FilterChainProxy springSecurityFilterChain = new FilterChainProxy(
 				new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, toFind));
 		this.request.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, springSecurityFilterChain);
-
 		assertThat(WebTestUtils.findFilter(this.request, toFind.getClass())).isEqualTo(toFind);
 	}
 
 	@Test
 	public void findFilterExplicitWithSecurityFilterInContext() {
 		loadConfig(SecurityConfigWithDefaults.class);
-
 		CsrfFilter toFind = new CsrfFilter(new HttpSessionCsrfTokenRepository());
 		FilterChainProxy springSecurityFilterChain = new FilterChainProxy(
 				new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, toFind));
 		this.request.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, springSecurityFilterChain);
-
 		assertThat(WebTestUtils.findFilter(this.request, toFind.getClass())).isSameAs(toFind);
 	}
 

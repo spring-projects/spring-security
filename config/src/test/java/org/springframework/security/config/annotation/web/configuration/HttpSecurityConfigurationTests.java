@@ -81,7 +81,6 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void getWhenDefaultFilterChainBeanThenDefaultHeadersInResponse() throws Exception {
 		this.spring.register(DefaultWithFilterChainConfig.class).autowire();
-
 		MvcResult mvcResult = this.mockMvc.perform(get("/").secure(true))
 				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff"))
 				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS,
@@ -100,48 +99,39 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void logoutWhenDefaultFilterChainBeanThenCreatesDefaultLogoutEndpoint() throws Exception {
 		this.spring.register(DefaultWithFilterChainConfig.class).autowire();
-
 		this.mockMvc.perform(post("/logout").with(csrf())).andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@Test
 	public void loadConfigWhenDefaultConfigThenWebAsyncManagerIntegrationFilterAdded() throws Exception {
 		this.spring.register(DefaultWithFilterChainConfig.class, NameController.class).autowire();
-
 		MvcResult mvcResult = this.mockMvc.perform(get("/name").with(user("Bob"))).andExpect(request().asyncStarted())
 				.andReturn();
-
 		this.mockMvc.perform(asyncDispatch(mvcResult)).andExpect(status().isOk()).andExpect(content().string("Bob"));
 	}
 
 	@Test
 	public void getWhenDefaultFilterChainBeanThenAnonymousPermitted() throws Exception {
 		this.spring.register(AuthorizeRequestsConfig.class, UserDetailsConfig.class, BaseController.class).autowire();
-
 		this.mockMvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@Test
 	public void authenticateWhenDefaultFilterChainBeanThenSessionIdChanges() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class).autowire();
-
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
-
 		MvcResult result = this.mockMvc.perform(
 				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
 				.andReturn();
-
 		assertThat(result.getRequest().getSession(false).getId()).isNotEqualTo(sessionId);
 	}
 
 	@Test
 	public void authenticateWhenDefaultFilterChainBeanThenRedirectsToSavedRequest() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class).autowire();
-
 		MockHttpSession session = (MockHttpSession) this.mockMvc.perform(get("/messages")).andReturn().getRequest()
 				.getSession();
-
 		this.mockMvc.perform(
 				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
 				.andExpect(redirectedUrl("http://localhost/messages"));
@@ -150,7 +140,6 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void authenticateWhenDefaultFilterChainBeanThenRolePrefixIsSet() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class, UserController.class).autowire();
-
 		this.mockMvc
 				.perform(get("/user")
 						.with(authentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"))))
@@ -160,7 +149,6 @@ public class HttpSecurityConfigurationTests {
 	@Test
 	public void loginWhenUsingDefaultsThenDefaultLoginPageGenerated() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class).autowire();
-
 		this.mockMvc.perform(get("/login")).andExpect(status().isOk());
 	}
 

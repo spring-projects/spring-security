@@ -51,7 +51,6 @@ public class DelegatingApplicationListenerTests {
 	@Test
 	public void processEventNull() {
 		this.listener.onApplicationEvent(null);
-
 		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
@@ -60,14 +59,12 @@ public class DelegatingApplicationListenerTests {
 		given(this.delegate.supportsEventType(this.event.getClass())).willReturn(true);
 		given(this.delegate.supportsSourceType(this.event.getSource().getClass())).willReturn(true);
 		this.listener.onApplicationEvent(this.event);
-
 		verify(this.delegate).onApplicationEvent(this.event);
 	}
 
 	@Test
 	public void processEventEventTypeNotSupported() {
 		this.listener.onApplicationEvent(this.event);
-
 		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 
@@ -75,7 +72,6 @@ public class DelegatingApplicationListenerTests {
 	public void processEventSourceTypeNotSupported() {
 		given(this.delegate.supportsEventType(this.event.getClass())).willReturn(true);
 		this.listener.onApplicationEvent(this.event);
-
 		verify(this.delegate, never()).onApplicationEvent(any(ApplicationEvent.class));
 	}
 

@@ -75,11 +75,9 @@ public class JdbcMutableAclServiceTestsWithAclClassId extends JdbcMutableAclServ
 	@Transactional
 	public void identityWithUuidIdIsSupportedByCreateAcl() {
 		SecurityContextHolder.getContext().setAuthentication(getAuth());
-
 		UUID id = UUID.randomUUID();
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, id);
 		getJdbcMutableAclService().createAcl(oid);
-
 		assertThat(getJdbcMutableAclService().readAclById(new ObjectIdentityImpl(TARGET_CLASS_WITH_UUID, id)))
 				.isNotNull();
 	}

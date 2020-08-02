@@ -33,7 +33,6 @@ public class MapReactiveUserDetailsServiceTests {
 			.roles("USER")
 			.build();
 	// @formatter:on
-
 	private MapReactiveUserDetailsService users = new MapReactiveUserDetailsService(Arrays.asList(USER_DETAILS));
 
 	@Test(expected = IllegalArgumentException.class)
@@ -71,7 +70,6 @@ public class MapReactiveUserDetailsServiceTests {
 		assertThat(foundUser.getPassword()).isNotEmpty();
 		foundUser.eraseCredentials();
 		assertThat(foundUser.getPassword()).isNull();
-
 		foundUser = this.users.findByUsername(USER_DETAILS.getUsername()).cast(User.class).block();
 		assertThat(foundUser.getPassword()).isNotEmpty();
 	}

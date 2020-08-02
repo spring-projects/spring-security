@@ -85,12 +85,9 @@ public class AuthenticationPayloadInterceptorTests {
 		PayloadExchange exchange = createExchange();
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password");
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(expectedAuthentication));
-
 		AuthenticationPayloadInterceptorChain authenticationPayloadChain = new AuthenticationPayloadInterceptorChain();
 		interceptor.intercept(exchange, authenticationPayloadChain).block();
-
 		Authentication authentication = authenticationPayloadChain.getAuthentication();
-
 		verify(this.authenticationManager).authenticate(this.authenticationArg.capture());
 		assertThat(this.authenticationArg.getValue())
 				.isEqualToComparingFieldByField(new UsernamePasswordAuthenticationToken("user", "password"));
@@ -100,21 +97,17 @@ public class AuthenticationPayloadInterceptorTests {
 	@Test
 	public void interceptWhenAuthenticationSuccessThenChainSubscribedOnce() {
 		AuthenticationPayloadInterceptor interceptor = new AuthenticationPayloadInterceptor(this.authenticationManager);
-
 		PayloadExchange exchange = createExchange();
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password");
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(expectedAuthentication));
-
 		PublisherProbe<Void> voidResult = PublisherProbe.empty();
 		PayloadInterceptorChain chain = mock(PayloadInterceptorChain.class);
 		given(chain.next(any())).willReturn(voidResult.mono());
-
 		StepVerifier.create(interceptor.intercept(exchange, chain))
 				.then(() -> assertThat(voidResult.subscribeCount()).isEqualTo(1)).verifyComplete();
 	}
 
 	private Payload createRequestPayload() {
-
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		BasicAuthenticationEncoder encoder = new BasicAuthenticationEncoder();
 		DefaultDataBufferFactory factory = new DefaultDataBufferFactory();
@@ -122,12 +115,10 @@ public class AuthenticationPayloadInterceptorTests {
 		MimeType mimeType = UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE;
 		Map<String, Object> hints = null;
 		DataBuffer dataBuffer = encoder.encodeValue(credentials, factory, elementType, mimeType, hints);
-
 		ByteBufAllocator allocator = ByteBufAllocator.DEFAULT;
 		CompositeByteBuf metadata = allocator.compositeBuffer();
 		CompositeMetadataCodec.encodeAndAddMetadata(metadata, allocator, mimeType.toString(),
 				NettyDataBufferFactory.toByteBuf(dataBuffer));
-
 		return DefaultPayload.create(allocator.buffer(), metadata);
 	}
 

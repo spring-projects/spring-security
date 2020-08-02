@@ -40,7 +40,6 @@ public class XmlParser implements AutoCloseable {
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-
 			return new XmlNode(dBuilder.parse(this.xml));
 		}
 		catch (IOException | ParserConfigurationException | SAXException ex) {

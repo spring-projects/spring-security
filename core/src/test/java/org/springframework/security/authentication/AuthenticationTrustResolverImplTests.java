@@ -55,11 +55,9 @@ public class AuthenticationTrustResolverImplTests {
 	@Test
 	public void testGettersSetters() {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
-
 		assertThat(AnonymousAuthenticationToken.class).isEqualTo(trustResolver.getAnonymousClass());
 		trustResolver.setAnonymousClass(TestingAuthenticationToken.class);
 		assertThat(trustResolver.getAnonymousClass()).isEqualTo(TestingAuthenticationToken.class);
-
 		assertThat(RememberMeAuthenticationToken.class).isEqualTo(trustResolver.getRememberMeClass());
 		trustResolver.setRememberMeClass(TestingAuthenticationToken.class);
 		assertThat(trustResolver.getRememberMeClass()).isEqualTo(TestingAuthenticationToken.class);

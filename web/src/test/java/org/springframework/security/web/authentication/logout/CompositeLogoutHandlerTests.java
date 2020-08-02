@@ -59,11 +59,8 @@ public class CompositeLogoutHandlerTests {
 	public void callLogoutHandlersSuccessfullyWithArray() {
 		LogoutHandler securityContextLogoutHandler = mock(SecurityContextLogoutHandler.class);
 		LogoutHandler csrfLogoutHandler = mock(SecurityContextLogoutHandler.class);
-
 		LogoutHandler handler = new CompositeLogoutHandler(securityContextLogoutHandler, csrfLogoutHandler);
-
 		handler.logout(mock(HttpServletRequest.class), mock(HttpServletResponse.class), mock(Authentication.class));
-
 		verify(securityContextLogoutHandler, times(1)).logout(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(Authentication.class));
 		verify(csrfLogoutHandler, times(1)).logout(any(HttpServletRequest.class), any(HttpServletResponse.class),
@@ -74,12 +71,9 @@ public class CompositeLogoutHandlerTests {
 	public void callLogoutHandlersSuccessfully() {
 		LogoutHandler securityContextLogoutHandler = mock(SecurityContextLogoutHandler.class);
 		LogoutHandler csrfLogoutHandler = mock(SecurityContextLogoutHandler.class);
-
 		List<LogoutHandler> logoutHandlers = Arrays.asList(securityContextLogoutHandler, csrfLogoutHandler);
 		LogoutHandler handler = new CompositeLogoutHandler(logoutHandlers);
-
 		handler.logout(mock(HttpServletRequest.class), mock(HttpServletResponse.class), mock(Authentication.class));
-
 		verify(securityContextLogoutHandler, times(1)).logout(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(Authentication.class));
 		verify(csrfLogoutHandler, times(1)).logout(any(HttpServletRequest.class), any(HttpServletResponse.class),
@@ -90,22 +84,17 @@ public class CompositeLogoutHandlerTests {
 	public void callLogoutHandlersThrowException() {
 		LogoutHandler firstLogoutHandler = mock(LogoutHandler.class);
 		LogoutHandler secondLogoutHandler = mock(LogoutHandler.class);
-
 		willThrow(new IllegalArgumentException()).given(firstLogoutHandler).logout(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(Authentication.class));
-
 		List<LogoutHandler> logoutHandlers = Arrays.asList(firstLogoutHandler, secondLogoutHandler);
 		LogoutHandler handler = new CompositeLogoutHandler(logoutHandlers);
-
 		try {
 			handler.logout(mock(HttpServletRequest.class), mock(HttpServletResponse.class), mock(Authentication.class));
 			fail("Expected Exception");
 		}
 		catch (IllegalArgumentException success) {
 		}
-
 		InOrder logoutHandlersInOrder = inOrder(firstLogoutHandler, secondLogoutHandler);
-
 		logoutHandlersInOrder.verify(firstLogoutHandler, times(1)).logout(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(Authentication.class));
 		logoutHandlersInOrder.verify(secondLogoutHandler, never()).logout(any(HttpServletRequest.class),

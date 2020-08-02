@@ -80,7 +80,6 @@ public class DefaultJaasAuthenticationProviderTests {
 		given(configuration.getAppConfigurationEntry(this.provider.getLoginContextName())).willReturn(aces);
 		this.token = new UsernamePasswordAuthenticationToken("user", "password");
 		ReflectionTestUtils.setField(this.provider, "log", this.log);
-
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -119,7 +118,6 @@ public class DefaultJaasAuthenticationProviderTests {
 		}
 		catch (AuthenticationException success) {
 		}
-
 		verifyFailedLogin();
 	}
 
@@ -131,7 +129,6 @@ public class DefaultJaasAuthenticationProviderTests {
 		}
 		catch (AuthenticationException success) {
 		}
-
 		verifyFailedLogin();
 	}
 
@@ -141,13 +138,10 @@ public class DefaultJaasAuthenticationProviderTests {
 		SecurityContext securityContext = mock(SecurityContext.class);
 		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
 		LoginContext context = mock(LoginContext.class);
-
 		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
 		given(securityContext.getAuthentication()).willReturn(token);
 		given(token.getLoginContext()).willReturn(context);
-
 		this.provider.onApplicationEvent(event);
-
 		verify(event).getSecurityContexts();
 		verify(securityContext).getAuthentication();
 		verify(token).getLoginContext();
@@ -158,9 +152,7 @@ public class DefaultJaasAuthenticationProviderTests {
 	@Test
 	public void logoutNullSession() {
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
-
 		this.provider.handleLogout(event);
-
 		verify(event).getSecurityContexts();
 		verify(this.log).debug(anyString());
 		verifyNoMoreInteractions(event);
@@ -170,11 +162,8 @@ public class DefaultJaasAuthenticationProviderTests {
 	public void logoutNullAuthentication() {
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
 		SecurityContext securityContext = mock(SecurityContext.class);
-
 		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
-
 		this.provider.handleLogout(event);
-
 		verify(event).getSecurityContexts();
 		verify(event).getSecurityContexts();
 		verify(securityContext).getAuthentication();
@@ -185,12 +174,9 @@ public class DefaultJaasAuthenticationProviderTests {
 	public void logoutNonJaasAuthentication() {
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
 		SecurityContext securityContext = mock(SecurityContext.class);
-
 		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
 		given(securityContext.getAuthentication()).willReturn(this.token);
-
 		this.provider.handleLogout(event);
-
 		verify(event).getSecurityContexts();
 		verify(event).getSecurityContexts();
 		verify(securityContext).getAuthentication();
@@ -202,15 +188,12 @@ public class DefaultJaasAuthenticationProviderTests {
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
 		SecurityContext securityContext = mock(SecurityContext.class);
 		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
-
 		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
 		given(securityContext.getAuthentication()).willReturn(token);
-
 		this.provider.onApplicationEvent(event);
 		verify(event).getSecurityContexts();
 		verify(securityContext).getAuthentication();
 		verify(token).getLoginContext();
-
 		verifyNoMoreInteractions(event, securityContext, token);
 	}
 
@@ -221,14 +204,11 @@ public class DefaultJaasAuthenticationProviderTests {
 		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
 		LoginContext context = mock(LoginContext.class);
 		LoginException loginException = new LoginException("Failed Login");
-
 		given(event.getSecurityContexts()).willReturn(Arrays.asList(securityContext));
 		given(securityContext.getAuthentication()).willReturn(token);
 		given(token.getLoginContext()).willReturn(context);
 		willThrow(loginException).given(context).logout();
-
 		this.provider.onApplicationEvent(event);
-
 		verify(event).getSecurityContexts();
 		verify(securityContext).getAuthentication();
 		verify(token).getLoginContext();
@@ -241,7 +221,6 @@ public class DefaultJaasAuthenticationProviderTests {
 	public void publishNullPublisher() {
 		this.provider.setApplicationEventPublisher(null);
 		AuthenticationException ae = new BadCredentialsException("Failed to login");
-
 		this.provider.publishFailureEvent(this.token, ae);
 		this.provider.publishSuccessEvent(this.token);
 	}

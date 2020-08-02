@@ -88,12 +88,9 @@ public class NamespaceHttpBasicTests {
 			"	<b:bean id=\"passwordEncoder\"\n" +
 			"		class=\"org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder\" />");
 			// @formatter:on
-
 		this.request.addHeader("Authorization",
 				"Basic " + Base64.getEncoder().encodeToString("user:test".getBytes("UTF-8")));
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
@@ -108,9 +105,7 @@ public class NamespaceHttpBasicTests {
 			"\n" +
 			"	<authentication-manager />");
 		// @formatter:on
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		assertThat(this.response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"Realm\"");
 	}

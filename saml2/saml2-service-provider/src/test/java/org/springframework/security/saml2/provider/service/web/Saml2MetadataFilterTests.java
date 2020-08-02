@@ -67,61 +67,39 @@ public class Saml2MetadataFilterTests {
 
 	@Test
 	public void doFilterWhenMatcherSucceedsThenResolverInvoked() throws Exception {
-		// given
 		this.request.setPathInfo("/saml2/service-provider-metadata/registration-id");
-
-		// when
 		this.filter.doFilter(this.request, this.response, this.chain);
-
-		// then
 		verifyNoInteractions(this.chain);
 		verify(this.repository).findByRegistrationId("registration-id");
 	}
 
 	@Test
 	public void doFilterWhenMatcherFailsThenProcessesFilterChain() throws Exception {
-		// given
 		this.request.setPathInfo("/saml2/authenticate/registration-id");
-
-		// when
 		this.filter.doFilter(this.request, this.response, this.chain);
-
-		// then
 		verify(this.chain).doFilter(this.request, this.response);
 	}
 
 	@Test
 	public void doFilterWhenNoRelyingPartyRegistrationThenUnauthorized() throws Exception {
-		// given
 		this.request.setPathInfo("/saml2/service-provider-metadata/invalidRegistration");
 		given(this.repository.findByRegistrationId("invalidRegistration")).willReturn(null);
-
-		// when
 		this.filter.doFilter(this.request, this.response, this.chain);
-
-		// then
 		verifyNoInteractions(this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
 	public void doFilterWhenRelyingPartyRegistrationFoundThenInvokesMetadataResolver() throws Exception {
-		// given
 		this.request.setPathInfo("/saml2/service-provider-metadata/validRegistration");
 		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.noCredentials()
 				.assertingPartyDetails((party) -> party.verificationX509Credentials(
 						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 				.build();
-
 		String generatedMetadata = "<xml>test</xml>";
 		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
-
 		this.filter = new Saml2MetadataFilter((request) -> validRegistration, this.resolver);
-
-		// when
 		this.filter.doFilter(this.request, this.response, this.chain);
-
-		// then
 		verifyNoInteractions(this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(200);
 		assertThat(this.response.getContentAsString()).isEqualTo(generatedMetadata);
@@ -130,14 +108,9 @@ public class Saml2MetadataFilterTests {
 
 	@Test
 	public void doFilterWhenCustomRequestMatcherThenUses() throws Exception {
-		// given
 		this.request.setPathInfo("/path");
 		this.filter.setRequestMatcher(new AntPathRequestMatcher("/path"));
-
-		// when
 		this.filter.doFilter(this.request, this.response, this.chain);
-
-		// then
 		verifyNoInteractions(this.chain);
 		verify(this.repository).findByRegistrationId("path");
 	}

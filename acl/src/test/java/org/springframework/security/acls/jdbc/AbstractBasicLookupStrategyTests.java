@@ -147,7 +147,6 @@ public abstract class AbstractBasicLookupStrategyTests {
 		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101L);
 		// Deliberately use an integer for the child, to reproduce bug report in SEC-819
 		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102);
-
 		Map<ObjectIdentity, Acl> map = this.strategy
 				.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
 		checkEntries(topParentOid, middleParentOid, childOid, map);
@@ -158,15 +157,12 @@ public abstract class AbstractBasicLookupStrategyTests {
 		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100);
 		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101L);
 		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
-
 		// Objects were put in cache
 		this.strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
-
 		// Let's empty the database to force acls retrieval from cache
 		emptyDatabase();
 		Map<ObjectIdentity, Acl> map = this.strategy
 				.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
-
 		checkEntries(topParentOid, middleParentOid, childOid, map);
 	}
 
@@ -175,7 +171,6 @@ public abstract class AbstractBasicLookupStrategyTests {
 		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101);
 		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
-
 		// Set a batch size to allow multiple database queries in order to retrieve all
 		// acls
 		this.strategy.setBatchSize(1);
@@ -187,31 +182,25 @@ public abstract class AbstractBasicLookupStrategyTests {
 	private void checkEntries(ObjectIdentity topParentOid, ObjectIdentity middleParentOid, ObjectIdentity childOid,
 			Map<ObjectIdentity, Acl> map) {
 		assertThat(map).hasSize(3);
-
 		MutableAcl topParent = (MutableAcl) map.get(topParentOid);
 		MutableAcl middleParent = (MutableAcl) map.get(middleParentOid);
 		MutableAcl child = (MutableAcl) map.get(childOid);
-
 		// Check the retrieved versions has IDs
 		assertThat(topParent.getId()).isNotNull();
 		assertThat(middleParent.getId()).isNotNull();
 		assertThat(child.getId()).isNotNull();
-
 		// Check their parents were correctly retrieved
 		assertThat(topParent.getParentAcl()).isNull();
 		assertThat(middleParent.getParentAcl().getObjectIdentity()).isEqualTo(topParentOid);
 		assertThat(child.getParentAcl().getObjectIdentity()).isEqualTo(middleParentOid);
-
 		// Check their ACEs were correctly retrieved
 		assertThat(topParent.getEntries()).hasSize(2);
 		assertThat(middleParent.getEntries()).hasSize(1);
 		assertThat(child.getEntries()).hasSize(1);
-
 		// Check object identities were correctly retrieved
 		assertThat(topParent.getObjectIdentity()).isEqualTo(topParentOid);
 		assertThat(middleParent.getObjectIdentity()).isEqualTo(middleParentOid);
 		assertThat(child.getObjectIdentity()).isEqualTo(childOid);
-
 		// Check each entry
 		assertThat(topParent.isEntriesInheriting()).isTrue();
 		assertThat(Long.valueOf(1)).isEqualTo(topParent.getId());
@@ -222,14 +211,12 @@ public abstract class AbstractBasicLookupStrategyTests {
 		assertThat(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isAuditFailure()).isFalse();
 		assertThat(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isAuditSuccess()).isFalse();
 		assertThat((topParent.getEntries().get(0)).isGranting()).isTrue();
-
 		assertThat(Long.valueOf(2)).isEqualTo(topParent.getEntries().get(1).getId());
 		assertThat(topParent.getEntries().get(1).getPermission()).isEqualTo(BasePermission.WRITE);
 		assertThat(topParent.getEntries().get(1).getSid()).isEqualTo(new PrincipalSid("ben"));
 		assertThat(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isAuditFailure()).isFalse();
 		assertThat(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isAuditSuccess()).isFalse();
 		assertThat(topParent.getEntries().get(1).isGranting()).isFalse();
-
 		assertThat(middleParent.isEntriesInheriting()).isTrue();
 		assertThat(Long.valueOf(2)).isEqualTo(middleParent.getId());
 		assertThat(new PrincipalSid("ben")).isEqualTo(middleParent.getOwner());
@@ -239,7 +226,6 @@ public abstract class AbstractBasicLookupStrategyTests {
 		assertThat(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isAuditFailure()).isFalse();
 		assertThat(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isAuditSuccess()).isFalse();
 		assertThat(middleParent.getEntries().get(0).isGranting()).isTrue();
-
 		assertThat(child.isEntriesInheriting()).isTrue();
 		assertThat(Long.valueOf(3)).isEqualTo(child.getId());
 		assertThat(new PrincipalSid("ben")).isEqualTo(child.getOwner());
@@ -255,15 +241,12 @@ public abstract class AbstractBasicLookupStrategyTests {
 	public void testAllParentsAreRetrievedWhenChildIsLoaded() {
 		String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (6,2,103,1,1,1);";
 		getJdbcTemplate().execute(query);
-
 		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101L);
 		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
 		ObjectIdentity middleParent2Oid = new ObjectIdentityImpl(TARGET_CLASS, 103L);
-
 		// Retrieve the child
 		Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(childOid), null);
-
 		// Check that the child and all its parents were retrieved
 		assertThat(map.get(childOid)).isNotNull();
 		assertThat(map.get(childOid).getObjectIdentity()).isEqualTo(childOid);
@@ -271,7 +254,6 @@ public abstract class AbstractBasicLookupStrategyTests {
 		assertThat(map.get(middleParentOid).getObjectIdentity()).isEqualTo(middleParentOid);
 		assertThat(map.get(topParentOid)).isNotNull();
 		assertThat(map.get(topParentOid).getObjectIdentity()).isEqualTo(topParentOid);
-
 		// The second parent shouldn't have been retrieved
 		assertThat(map.get(middleParent2Oid)).isNull();
 	}
@@ -287,26 +269,21 @@ public abstract class AbstractBasicLookupStrategyTests {
 				+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (9,2,108,7,1,1);"
 				+ "INSERT INTO acl_entry(ID,ACL_OBJECT_IDENTITY,ACE_ORDER,SID,MASK,GRANTING,AUDIT_SUCCESS,AUDIT_FAILURE) VALUES (7,6,0,1,1,1,0,0)";
 		getJdbcTemplate().execute(query);
-
 		ObjectIdentity grandParentOid = new ObjectIdentityImpl(TARGET_CLASS, 104L);
 		ObjectIdentity parent1Oid = new ObjectIdentityImpl(TARGET_CLASS, 105L);
 		ObjectIdentity parent2Oid = new ObjectIdentityImpl(TARGET_CLASS, 106);
 		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 107);
-
 		// First lookup only child, thus populating the cache with grandParent,
 		// parent1
 		// and child
 		List<Permission> checkPermission = Arrays.asList(BasePermission.READ);
 		List<Sid> sids = Arrays.asList(BEN_SID);
 		List<ObjectIdentity> childOids = Arrays.asList(childOid);
-
 		this.strategy.setBatchSize(6);
 		Map<ObjectIdentity, Acl> foundAcls = this.strategy.readAclsById(childOids, sids);
-
 		Acl foundChildAcl = foundAcls.get(childOid);
 		assertThat(foundChildAcl).isNotNull();
 		assertThat(foundChildAcl.isGranted(checkPermission, sids, false)).isTrue();
-
 		// Search for object identities has to be done in the following order:
 		// last
 		// element have to be one which
@@ -315,12 +292,10 @@ public abstract class AbstractBasicLookupStrategyTests {
 		List<ObjectIdentity> allOids = Arrays.asList(grandParentOid, parent1Oid, parent2Oid, childOid);
 		try {
 			foundAcls = this.strategy.readAclsById(allOids, sids);
-
 		}
 		catch (NotFoundException notExpected) {
 			fail("It shouldn't have thrown NotFoundException");
 		}
-
 		Acl foundParent2Acl = foundAcls.get(parent2Oid);
 		assertThat(foundParent2Acl).isNotNull();
 		assertThat(foundParent2Acl.isGranted(checkPermission, sids, false)).isTrue();
@@ -329,18 +304,14 @@ public abstract class AbstractBasicLookupStrategyTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void nullOwnerIsNotSupported() {
 		String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (6,2,104,null,null,1);";
-
 		getJdbcTemplate().execute(query);
-
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 104L);
-
 		this.strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
 	}
 
 	@Test
 	public void testCreatePrincipalSid() {
 		Sid result = this.strategy.createSid(true, "sid");
-
 		assertThat(result.getClass()).isEqualTo(PrincipalSid.class);
 		assertThat(((PrincipalSid) result).getPrincipal()).isEqualTo("sid");
 	}
@@ -348,7 +319,6 @@ public abstract class AbstractBasicLookupStrategyTests {
 	@Test
 	public void testCreateGrantedAuthority() {
 		Sid result = this.strategy.createSid(false, "sid");
-
 		assertThat(result.getClass()).isEqualTo(GrantedAuthoritySid.class);
 		assertThat(((GrantedAuthoritySid) result).getGrantedAuthority()).isEqualTo("sid");
 	}

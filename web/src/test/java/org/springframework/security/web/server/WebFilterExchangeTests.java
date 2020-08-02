@@ -54,14 +54,12 @@ public class WebFilterExchangeTests {
 	@Test
 	public void getExchange() {
 		WebFilterExchange filterExchange = new WebFilterExchange(this.exchange, this.chain);
-
 		assertThat(filterExchange.getExchange()).isEqualTo(this.exchange);
 	}
 
 	@Test
 	public void getChain() {
 		WebFilterExchange filterExchange = new WebFilterExchange(this.exchange, this.chain);
-
 		assertThat(filterExchange.getChain()).isEqualTo(this.chain);
 	}
 

@@ -48,7 +48,6 @@ public class DefaultAddressStandardClaimTests {
 		AddressStandardClaim addressStandardClaim = new DefaultAddressStandardClaim.Builder().formatted(FORMATTED)
 				.streetAddress(STREET_ADDRESS).locality(LOCALITY).region(REGION).postalCode(POSTAL_CODE)
 				.country(COUNTRY).build();
-
 		assertThat(addressStandardClaim.getFormatted()).isEqualTo(FORMATTED);
 		assertThat(addressStandardClaim.getStreetAddress()).isEqualTo(STREET_ADDRESS);
 		assertThat(addressStandardClaim.getLocality()).isEqualTo(LOCALITY);
@@ -66,9 +65,7 @@ public class DefaultAddressStandardClaimTests {
 		addressFields.put(REGION_FIELD_NAME, REGION);
 		addressFields.put(POSTAL_CODE_FIELD_NAME, POSTAL_CODE);
 		addressFields.put(COUNTRY_FIELD_NAME, COUNTRY);
-
 		AddressStandardClaim addressStandardClaim = new DefaultAddressStandardClaim.Builder(addressFields).build();
-
 		assertThat(addressStandardClaim.getFormatted()).isEqualTo(FORMATTED);
 		assertThat(addressStandardClaim.getStreetAddress()).isEqualTo(STREET_ADDRESS);
 		assertThat(addressStandardClaim.getLocality()).isEqualTo(LOCALITY);

@@ -113,9 +113,8 @@ public class MethodExpressionVoterTests {
 	@Test
 	public void ruleDefinedInAClassMethodIsApplied() throws Exception {
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingAString(), "joe");
-		assertThat(
-
-				this.am.vote(this.joe, mi, createAttributes(new PreInvocationExpressionAttribute(null, null,
+		assertThat(this.am.vote(this.joe, mi,
+				createAttributes(new PreInvocationExpressionAttribute(null, null,
 						"T(org.springframework.security.access.expression.method.SecurityRules).isJoe(#argument)"))))
 								.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}

@@ -49,7 +49,6 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	@WithMockUser
 	public void withMockUserWhenOnMethodThenSuccess() {
 		this.client.get().exchange().expectStatus().isOk();
-
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
 		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
@@ -64,9 +63,7 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 				.apply(SecurityMockServerConfigurers.springSecurity())
 				.apply(SecurityMockServerConfigurers.mockAuthentication(authentication)).configureClient()
 				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
-
 		this.client.get().exchange().expectStatus().isOk();
-
 		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
 
@@ -77,7 +74,6 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 				"ROLE_USER");
 		this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication)).get().exchange()
 				.expectStatus().isOk();
-
 		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
 
@@ -88,11 +84,8 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 				"ROLE_USER");
 		this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication)).get().exchange()
 				.expectStatus().isOk();
-
 		this.controller.assertPrincipalIsEqualTo(authentication);
-
 		this.client.get().exchange().expectStatus().isOk();
-
 		assertPrincipalCreatedFromUserDetails(this.controller.removePrincipal(), this.userBuilder.build());
 	}
 
@@ -101,7 +94,6 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	public void withMockUserWhenOnMethodAndRequestIsExecutedOnDifferentThreadThenSuccess() {
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
 		ForkJoinPool.commonPool().submit(() -> this.client.get().exchange().expectStatus().isOk()).join();
-
 		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
 
@@ -110,16 +102,12 @@ public class SecurityMockServerConfigurersAnnotatedTests extends AbstractMockSer
 	public void withMockUserAndWithCallOnSeparateThreadWhenMutateWithMockPrincipalAndNoMutateThenOverridesAnnotationAndUsesAnnotation() {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("authentication", "secret",
 				"ROLE_USER");
-
 		ForkJoinPool.commonPool()
 				.submit(() -> this.client.mutateWith(SecurityMockServerConfigurers.mockAuthentication(authentication))
 						.get().exchange().expectStatus().isOk())
 				.join();
-
 		this.controller.assertPrincipalIsEqualTo(authentication);
-
 		ForkJoinPool.commonPool().submit(() -> this.client.get().exchange().expectStatus().isOk()).join();
-
 		assertPrincipalCreatedFromUserDetails(this.controller.removePrincipal(), this.userBuilder.build());
 	}
 

@@ -67,7 +67,6 @@ public class LogoutConfigurerClearSiteDataTests {
 	@WithMockUser
 	public void logoutWhenRequestTypeGetThenHeaderNotPresentt() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-
 		this.mvc.perform(get("/logout").secure(true).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
 	}
@@ -76,7 +75,6 @@ public class LogoutConfigurerClearSiteDataTests {
 	@WithMockUser
 	public void logoutWhenRequestTypePostAndNotSecureThenHeaderNotPresent() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-
 		this.mvc.perform(post("/logout").with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
 	}
@@ -85,7 +83,6 @@ public class LogoutConfigurerClearSiteDataTests {
 	@WithMockUser
 	public void logoutWhenRequestTypePostAndSecureThenHeaderIsPresent() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-
 		this.mvc.perform(post("/logout").secure(true).with(SecurityMockMvcRequestPostProcessors.csrf()))
 				.andExpect(header().stringValues(CLEAR_SITE_DATA_HEADER, HEADER_VALUE));
 	}

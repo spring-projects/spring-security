@@ -89,37 +89,28 @@ public class SpringCacheBasedAclCacheTests {
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
 		AuditLogger auditLogger = new ConsoleAuditLogger();
-
 		PermissionGrantingStrategy permissionGrantingStrategy = new DefaultPermissionGrantingStrategy(auditLogger);
 		SpringCacheBasedAclCache myCache = new SpringCacheBasedAclCache(cache, permissionGrantingStrategy,
 				aclAuthorizationStrategy);
 		MutableAcl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy, auditLogger);
-
 		assertThat(realCache).isEmpty();
 		myCache.putInCache(acl);
-
 		// Check we can get from cache the same objects we put in
 		assertThat(acl).isEqualTo(myCache.getFromCache(1L));
 		assertThat(acl).isEqualTo(myCache.getFromCache(identity));
-
 		// Put another object in cache
 		ObjectIdentity identity2 = new ObjectIdentityImpl(TARGET_CLASS, 101L);
 		MutableAcl acl2 = new AclImpl(identity2, 2L, aclAuthorizationStrategy, new ConsoleAuditLogger());
-
 		myCache.putInCache(acl2);
-
 		// Try to evict an entry that doesn't exist
 		myCache.evictFromCache(3L);
 		myCache.evictFromCache(new ObjectIdentityImpl(TARGET_CLASS, 102L));
 		assertThat(realCache).hasSize(4);
-
 		myCache.evictFromCache(1L);
 		assertThat(realCache).hasSize(2);
-
 		// Check the second object inserted
 		assertThat(acl2).isEqualTo(myCache.getFromCache(2L));
 		assertThat(acl2).isEqualTo(myCache.getFromCache(identity2));
-
 		myCache.evictFromCache(identity2);
 		assertThat(realCache).isEmpty();
 	}
@@ -129,31 +120,24 @@ public class SpringCacheBasedAclCacheTests {
 	public void cacheOperationsAclWithParent() throws Exception {
 		Cache cache = getCache();
 		Map realCache = (Map) cache.getNativeCache();
-
 		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
-
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 1L);
 		ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, 2L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
 		AuditLogger auditLogger = new ConsoleAuditLogger();
-
 		PermissionGrantingStrategy permissionGrantingStrategy = new DefaultPermissionGrantingStrategy(auditLogger);
 		SpringCacheBasedAclCache myCache = new SpringCacheBasedAclCache(cache, permissionGrantingStrategy,
 				aclAuthorizationStrategy);
-
 		MutableAcl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy, auditLogger);
 		MutableAcl parentAcl = new AclImpl(identityParent, 2L, aclAuthorizationStrategy, auditLogger);
-
 		acl.setParent(parentAcl);
-
 		assertThat(realCache).isEmpty();
 		myCache.putInCache(acl);
 		assertThat(4).isEqualTo(realCache.size());
-
 		// Check we can get from cache the same objects we put in
 		AclImpl aclFromCache = (AclImpl) myCache.getFromCache(1L);
 		assertThat(aclFromCache).isEqualTo(acl);

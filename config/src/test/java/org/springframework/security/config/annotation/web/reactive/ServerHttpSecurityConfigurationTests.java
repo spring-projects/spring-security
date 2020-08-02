@@ -41,7 +41,6 @@ public class ServerHttpSecurityConfigurationTests {
 		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
 				WebFluxSecurityConfiguration.class).autowire();
 		ServerHttpSecurity serverHttpSecurity = this.spring.getContext().getBean(ServerHttpSecurity.class);
-
 		assertThat(serverHttpSecurity).isNotNull();
 	}
 
@@ -50,7 +49,6 @@ public class ServerHttpSecurityConfigurationTests {
 		this.spring.register(SubclassConfig.class, ReactiveAuthenticationTestConfiguration.class,
 				WebFluxSecurityConfiguration.class).autowire();
 		ServerHttpSecurity serverHttpSecurity = this.spring.getContext().getBean(ServerHttpSecurity.class);
-
 		assertThat(serverHttpSecurity).isNotNull();
 	}
 

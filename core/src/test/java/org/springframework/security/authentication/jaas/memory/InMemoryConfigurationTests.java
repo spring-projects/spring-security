@@ -45,7 +45,6 @@ public class InMemoryConfigurationTests {
 	public void setUp() {
 		this.defaultEntries = new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
 				LoginModuleControlFlag.REQUIRED, Collections.<String, Object>emptyMap()) };
-
 		this.mappedEntries = Collections.<String, AppConfigurationEntry[]>singletonMap("name",
 				new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
 						LoginModuleControlFlag.OPTIONAL, Collections.<String, Object>emptyMap()) });

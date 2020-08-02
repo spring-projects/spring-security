@@ -72,7 +72,6 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 		setContext(" <authentication-provider>" + "        <password-encoder hash='bcrypt'/>" + "        <user-service>"
 				+ "            <user name='bob' password='$2a$05$dRmjl1T05J7rvCPD2NgsHesCEJHww3pdmesUhjM3PD4m/gaEYyx/G' authorities='ROLE_A' />"
 				+ "        </user-service>" + "    </authentication-provider>");
-
 		getProvider().authenticate(this.bob);
 	}
 
@@ -84,7 +83,6 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 				+ "        </user-service>" + "    </authentication-provider>" + " </authentication-manager>"
 				+ " <b:bean id='passwordEncoder'  class='" + MessageDigestPasswordEncoder.class.getName() + "'>"
 				+ "     <b:constructor-arg value='MD5'/>" + " </b:bean>");
-
 		getProvider().authenticate(this.bob);
 	}
 
@@ -95,7 +93,6 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 				+ "            <user name='bob' password='{SSHA}PpuEwfdj7M1rs0C2W4ssSM2XEN/Y6S5U' authorities='ROLE_A' />"
 				+ "        </user-service>" + "    </authentication-provider>" + " </authentication-manager>"
 				+ " <b:bean id='passwordEncoder'  class='" + LdapShaPasswordEncoder.class.getName() + "'/>");
-
 		getProvider().authenticate(this.bob);
 	}
 
@@ -108,7 +105,6 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 				+ " <b:bean id='passwordEncoder'  class='" + MessageDigestPasswordEncoder.class.getName() + "'>"
 				+ "     <b:constructor-arg value='MD5'/>" + "     <b:property name='encodeHashAsBase64' value='true'/>"
 				+ " </b:bean>");
-
 		getProvider().authenticate(this.bob);
 	}
 
@@ -127,7 +123,6 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	private AuthenticationProvider getProvider() {
 		List<AuthenticationProvider> providers = ((ProviderManager) this.appContext
 				.getBean(BeanIds.AUTHENTICATION_MANAGER)).getProviders();
-
 		return providers.get(0);
 	}
 

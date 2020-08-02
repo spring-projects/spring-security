@@ -71,15 +71,11 @@ public class HeaderWriterFilterTests {
 		List<HeaderWriter> headerWriters = new ArrayList<>();
 		headerWriters.add(this.writer1);
 		headerWriters.add(this.writer2);
-
 		HeaderWriterFilter filter = new HeaderWriterFilter(headerWriters);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain filterChain = new MockFilterChain();
-
 		filter.doFilter(request, response, filterChain);
-
 		verify(this.writer1).writeHeaders(request, response);
 		verify(this.writer2).writeHeaders(request, response);
 		HeaderWriterFilter.HeaderWriterRequest wrappedRequest = (HeaderWriterFilter.HeaderWriterRequest) filterChain
@@ -93,19 +89,14 @@ public class HeaderWriterFilterTests {
 	@Test
 	public void headersDelayed() throws Exception {
 		HeaderWriterFilter filter = new HeaderWriterFilter(Arrays.<HeaderWriter>asList(this.writer1));
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		filter.doFilter(request, response, (request1, response1) -> {
 			verifyZeroInteractions(HeaderWriterFilterTests.this.writer1);
-
 			response1.flushBuffer();
-
 			verify(HeaderWriterFilterTests.this.writer1).writeHeaders(any(HttpServletRequest.class),
 					any(HttpServletResponse.class));
 		});
-
 		verifyNoMoreInteractions(this.writer1);
 	}
 
@@ -113,19 +104,14 @@ public class HeaderWriterFilterTests {
 	@Test
 	public void doFilterWhenRequestContainsIncludeThenHeadersStillWritten() throws Exception {
 		HeaderWriterFilter filter = new HeaderWriterFilter(Collections.singletonList(this.writer1));
-
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
 		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
-
 		filter.doFilter(mockRequest, mockResponse, (request, response) -> {
 			verifyZeroInteractions(HeaderWriterFilterTests.this.writer1);
-
 			request.getRequestDispatcher("/").include(request, response);
-
 			verify(HeaderWriterFilterTests.this.writer1).writeHeaders(any(HttpServletRequest.class),
 					any(HttpServletResponse.class));
 		});
-
 		verifyNoMoreInteractions(this.writer1);
 	}
 
@@ -133,13 +119,10 @@ public class HeaderWriterFilterTests {
 	public void headersWrittenAtBeginningOfRequest() throws Exception {
 		HeaderWriterFilter filter = new HeaderWriterFilter(Collections.singletonList(this.writer1));
 		filter.setShouldWriteHeadersEagerly(true);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		filter.doFilter(request, response, (request1, response1) -> verify(HeaderWriterFilterTests.this.writer1)
 				.writeHeaders(any(HttpServletRequest.class), any(HttpServletResponse.class)));
-
 		verifyNoMoreInteractions(this.writer1);
 	}
 

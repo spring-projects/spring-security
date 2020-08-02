@@ -73,17 +73,13 @@ public class HttpSecurityLogoutTests {
 	@Test
 	public void clearAuthenticationFalse() throws Exception {
 		loadConfig(ClearAuthenticationFalseConfig.class);
-
 		SecurityContext currentContext = SecurityContextHolder.createEmptyContext();
 		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-
 		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				currentContext);
 		this.request.setMethod("POST");
 		this.request.setServletPath("/logout");
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(currentContext.getAuthentication()).isNotNull();
 	}
 
@@ -91,7 +87,6 @@ public class HttpSecurityLogoutTests {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);
 		this.context.refresh();
-
 		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 

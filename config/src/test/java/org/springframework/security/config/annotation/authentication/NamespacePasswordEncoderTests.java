@@ -52,21 +52,18 @@ public class NamespacePasswordEncoderTests {
 	@Test
 	public void passwordEncoderRefWithInMemory() throws Exception {
 		this.spring.register(PasswordEncoderWithInMemoryConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
 	@Test
 	public void passwordEncoderRefWithJdbc() throws Exception {
 		this.spring.register(PasswordEncoderWithJdbcConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
 	@Test
 	public void passwordEncoderRefWithUserDetailsService() throws Exception {
 		this.spring.register(PasswordEncoderWithUserDetailsServiceConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 
@@ -91,7 +88,6 @@ public class NamespacePasswordEncoderTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			// @formatter:off
 			auth

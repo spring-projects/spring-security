@@ -63,11 +63,9 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		Assert.assertTrue(scopes.contains("read"));
 		Assert.assertTrue(scopes.contains("write"));
 		Assert.assertEquals(3600, Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
-
 		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
 		Assert.assertNotNull(refreshToken);
 		Assert.assertEquals("refresh-token-1234", refreshToken.getTokenValue());
-
 		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
 		Assert.assertNotNull(additionalParameters);
 		Assert.assertEquals(2, additionalParameters.size());
@@ -88,12 +86,9 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		Set<String> scopes = accessToken.getScopes();
 		Assert.assertNotNull(scopes);
 		Assert.assertEquals(0, scopes.size());
-
 		Assert.assertEquals(1, Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
-
 		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
 		Assert.assertNull(refreshToken);
-
 		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
 		Assert.assertNotNull(additionalParameters);
 		Assert.assertEquals(0, additionalParameters.size());
@@ -113,12 +108,9 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		Set<String> scopes = accessToken.getScopes();
 		Assert.assertNotNull(scopes);
 		Assert.assertEquals(0, scopes.size());
-
 		Assert.assertEquals(1, Duration.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()).getSeconds());
-
 		OAuth2RefreshToken refreshToken = converted.getRefreshToken();
 		Assert.assertNull(refreshToken);
-
 		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
 		Assert.assertNotNull(additionalParameters);
 		Assert.assertEquals(0, additionalParameters.size());

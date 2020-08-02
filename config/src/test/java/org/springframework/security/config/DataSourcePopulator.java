@@ -34,13 +34,11 @@ public class DataSourcePopulator implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.template, "dataSource required");
-
 		this.template.execute(
 				"CREATE TABLE USERS(USERNAME VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,PASSWORD VARCHAR_IGNORECASE(500) NOT NULL,ENABLED BOOLEAN NOT NULL);");
 		this.template.execute(
 				"CREATE TABLE AUTHORITIES(USERNAME VARCHAR_IGNORECASE(50) NOT NULL,AUTHORITY VARCHAR_IGNORECASE(50) NOT NULL,CONSTRAINT FK_AUTHORITIES_USERS FOREIGN KEY(USERNAME) REFERENCES USERS(USERNAME));");
 		this.template.execute("CREATE UNIQUE INDEX IX_AUTH_USERNAME ON AUTHORITIES(USERNAME,AUTHORITY);");
-
 		/*
 		 * Passwords encoded using MD5, NOT in Base64 format, with null as salt Encoded
 		 * password for rod is "koala" Encoded password for dianne is "emu" Encoded

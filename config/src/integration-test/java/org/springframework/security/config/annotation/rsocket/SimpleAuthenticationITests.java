@@ -92,7 +92,6 @@ public class SimpleAuthenticationITests {
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
 		this.requester = RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies())
 				.connectTcp("localhost", this.server.address().getPort()).block();
-
 		String data = "rob";
 		assertThatCode(() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
 				.isInstanceOf(ApplicationErrorException.class);
@@ -103,7 +102,6 @@ public class SimpleAuthenticationITests {
 	public void retrieveMonoWhenAuthorizedThenGranted() {
 		MimeType authenticationMimeType = MimeTypeUtils
 				.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
-
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
 		this.requester = RSocketRequester.builder().setupMetadata(credentials, authenticationMimeType)
 				.rsocketStrategies(this.handler.getRSocketStrategies())
@@ -111,7 +109,6 @@ public class SimpleAuthenticationITests {
 		String data = "rob";
 		String hiRob = this.requester.route("secure.retrieve-mono").metadata(credentials, authenticationMimeType)
 				.data(data).retrieveMono(String.class).block();
-
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}

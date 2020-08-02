@@ -75,7 +75,6 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 
 	@Test
 	public void oauth2ClientWhenUsingDefaultsThenException() throws Exception {
-
 		WebHttpHandlerBuilder builder = WebHttpHandlerBuilder.webHandler(new DispatcherHandler());
 		assertThatCode(() -> SecurityMockServerConfigurers.mockOAuth2Client().beforeServerCreated(builder))
 				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("ClientRegistration");
@@ -83,10 +82,8 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 
 	@Test
 	public void oauth2ClientWhenUsingRegistrationIdThenProducesAuthorizedClient() throws Exception {
-
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Client("registration-id")).get().uri("/client")
 				.exchange().expectStatus().isOk();
-
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client).isNotNull();
 		assertThat(client.getClientRegistration().getRegistrationId()).isEqualTo("registration-id");
@@ -96,12 +93,10 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 
 	@Test
 	public void oauth2ClientWhenClientRegistrationThenUses() throws Exception {
-
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
 				.registrationId("registration-id").clientId("client-id").build();
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Client().clientRegistration(clientRegistration))
 				.get().uri("/client").exchange().expectStatus().isOk();
-
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client).isNotNull();
 		assertThat(client.getClientRegistration().getRegistrationId()).isEqualTo("registration-id");
@@ -111,12 +106,10 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 
 	@Test
 	public void oauth2ClientWhenClientRegistrationConsumerThenUses() throws Exception {
-
 		this.client
 				.mutateWith(SecurityMockServerConfigurers.mockOAuth2Client("registration-id")
 						.clientRegistration((c) -> c.clientId("client-id")))
 				.get().uri("/client").exchange().expectStatus().isOk();
-
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client).isNotNull();
 		assertThat(client.getClientRegistration().getRegistrationId()).isEqualTo("registration-id");
@@ -136,12 +129,10 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 
 	@Test
 	public void oauth2ClientWhenAccessTokenThenUses() throws Exception {
-
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
 		this.client
 				.mutateWith(SecurityMockServerConfigurers.mockOAuth2Client("registration-id").accessToken(accessToken))
 				.get().uri("/client").exchange().expectStatus().isOk();
-
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client).isNotNull();
 		assertThat(client.getClientRegistration().getRegistrationId()).isEqualTo("registration-id");
@@ -153,11 +144,9 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 	public void oauth2ClientWhenUsedOnceThenDoesNotAffectRemainingTests() throws Exception {
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Client("registration-id")).get().uri("/client")
 				.exchange().expectStatus().isOk();
-
 		OAuth2AuthorizedClient client = this.controller.authorizedClient;
 		assertThat(client).isNotNull();
 		assertThat(client.getClientRegistration().getClientId()).isEqualTo("test-client");
-
 		client = new OAuth2AuthorizedClient(TestClientRegistrations.clientRegistration().build(), "sub",
 				TestOAuth2AccessTokens.noScopes());
 		given(this.authorizedClientRepository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),

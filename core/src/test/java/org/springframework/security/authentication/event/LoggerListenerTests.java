@@ -33,7 +33,6 @@ public class LoggerListenerTests {
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
 				"Credentials");
 		authentication.setDetails("127.0.0.1");
-
 		return authentication;
 	}
 
@@ -43,7 +42,6 @@ public class LoggerListenerTests {
 				new LockedException("TEST"));
 		LoggerListener listener = new LoggerListener();
 		listener.onApplicationEvent(event);
-
 	}
 
 }

@@ -84,7 +84,6 @@ public class CsrfTokenArgumentResolverTests {
 	@Test
 	public void resolveArgumentFound() throws Exception {
 		this.request.setAttribute(CsrfToken.class.getName(), this.token);
-
 		assertThat(this.resolver.resolveArgument(token(), this.mavContainer, this.webRequest, this.binderFactory))
 				.isSameAs(this.token);
 	}

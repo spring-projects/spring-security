@@ -43,26 +43,22 @@ public class PortMapperImplTests {
 	@Test
 	public void testDetectsEmptyMap() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-
 		try {
 			portMapper.setPortMappings(new HashMap<>());
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
 	@Test
 	public void testDetectsNullMap() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-
 		try {
 			portMapper.setPortMappings(null);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -77,13 +73,11 @@ public class PortMapperImplTests {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		Map<String, String> map = new HashMap<>();
 		map.put("79", "80559");
-
 		try {
 			portMapper.setPortMappings(map);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -98,9 +92,7 @@ public class PortMapperImplTests {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		Map<String, String> map = new HashMap<>();
 		map.put("79", "442");
-
 		portMapper.setPortMappings(map);
-
 		assertThat(portMapper.lookupHttpPort(442)).isEqualTo(Integer.valueOf(79));
 		assertThat(Integer.valueOf(442)).isEqualTo(portMapper.lookupHttpsPort(79));
 	}

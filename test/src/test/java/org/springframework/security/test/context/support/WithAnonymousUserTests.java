@@ -32,7 +32,6 @@ public class WithAnonymousUserTests {
 	public void defaults() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(Annotated.class,
 				WithSecurityContext.class);
-
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
@@ -40,7 +39,6 @@ public class WithAnonymousUserTests {
 	public void findMergedAnnotationWhenSetupExplicitThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupExplicit.class,
 				WithSecurityContext.class);
-
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
@@ -48,7 +46,6 @@ public class WithAnonymousUserTests {
 	public void findMergedAnnotationWhenSetupOverriddenThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupOverridden.class,
 				WithSecurityContext.class);
-
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_EXECUTION);
 	}
 

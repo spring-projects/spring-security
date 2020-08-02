@@ -74,7 +74,6 @@ public class CasAuthenticationTokenMixinTests {
 		+ "\"authorities\": " + AUTHORITIES_SET_JSON
 	+ "}";
 	// @formatter:on
-
 	private static final String CAS_TOKEN_JSON = "{"
 			+ "\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", "
 			+ "\"keyHash\": " + KEY.hashCode() + "," + "\"principal\": " + USER_JSON + ", " + "\"credentials\": "

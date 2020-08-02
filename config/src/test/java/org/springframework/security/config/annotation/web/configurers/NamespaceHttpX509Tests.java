@@ -81,10 +81,8 @@ public class NamespaceHttpX509Tests {
 	@Test
 	public void x509AuthenticationWhenHasCustomAuthenticationDetailsSourceThenMatchesNamespace() throws Exception {
 		this.spring.register(AuthenticationDetailsSourceRefConfig.class, X509Controller.class).autowire();
-
 		X509Certificate certificate = loadCert("rod.cer");
 		this.mvc.perform(get("/whoami").with(x509(certificate))).andExpect(content().string("rod"));
-
 		verifyBean(AuthenticationDetailsSource.class).buildDetails(any());
 	}
 
@@ -183,7 +181,6 @@ public class NamespaceHttpX509Tests {
 
 		@Bean
 		AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource() {
-
 			return mock(AuthenticationDetailsSource.class);
 		}
 

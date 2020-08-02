@@ -68,9 +68,7 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 	@Test
 	public void testSecurityContextSaves() {
 		TestSecurityContextHolder.setContext(this.context);
-
 		testSecurityContext().postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(eq(this.context), eq(this.request), any(HttpServletResponse.class));
 	}
 
@@ -78,7 +76,6 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
 	@Test
 	public void testSecurityContextNoContext() {
 		testSecurityContext().postProcessRequest(this.request);
-
 		verify(this.repository, never()).saveContext(any(SecurityContext.class), eq(this.request),
 				any(HttpServletResponse.class));
 	}

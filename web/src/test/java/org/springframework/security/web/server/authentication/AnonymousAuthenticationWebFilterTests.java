@@ -42,10 +42,8 @@ public class AnonymousAuthenticationWebFilterTests {
 
 	@Test
 	public void anonymousAuthenticationFilterWorking() {
-
 		WebTestClient client = WebTestClientBuilder.bindToControllerAndWebFilters(HttpMeController.class,
 				new AnonymousAuthenticationWebFilter(UUID.randomUUID().toString())).build();
-
 		client.get().uri("/me").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("anonymousUser");
 	}
 

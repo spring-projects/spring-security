@@ -58,20 +58,16 @@ public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
 	@Test
 	public void convertWhenGrantRequestValidThenConverts() {
 		RequestEntity<?> requestEntity = this.converter.convert(this.refreshTokenGrantRequest);
-
 		ClientRegistration clientRegistration = this.refreshTokenGrantRequest.getClientRegistration();
 		OAuth2RefreshToken refreshToken = this.refreshTokenGrantRequest.getRefreshToken();
-
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
-
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
 		assertThat(headers.getContentType())
 				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
-
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
 				.isEqualTo(AuthorizationGrantType.REFRESH_TOKEN.getValue());

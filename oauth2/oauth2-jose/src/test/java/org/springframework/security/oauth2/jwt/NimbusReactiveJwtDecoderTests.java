@@ -126,16 +126,13 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void decodeWhenInvalidUrl() {
 		this.decoder = new NimbusReactiveJwtDecoder("https://s");
-
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
 				.isInstanceOf(IllegalStateException.class).hasCauseInstanceOf(UnknownHostException.class);
-
 	}
 
 	@Test
 	public void decodeWhenMessageReadScopeThenSuccess() {
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
-
 		assertThat(jwt.getClaims().get("scope")).isEqualTo("message:read");
 	}
 
@@ -147,16 +144,13 @@ public class NimbusReactiveJwtDecoderTests {
 				.generatePublic(new X509EncodedKeySpec(bytes));
 		this.decoder = new NimbusReactiveJwtDecoder(publicKey);
 		String noKeyId = "eyJhbGciOiJSUzI1NiJ9.eyJzY29wZSI6IiIsImV4cCI6OTIyMzM3MjAwNjA5NjM3NX0.hNVuHSUkxdLZrDfqdmKcOi0ggmNaDuB4ZPxPtJl1gwBiXzIGN6Hwl24O2BfBZiHFKUTQDs4_RvzD71mEG3DvUrcKmdYWqIB1l8KNmxQLUDG-cAPIpJmRJgCh50tf8OhOE_Cb9E1HcsOUb47kT9iz-VayNBcmo6BmyZLdEGhsdGBrc3Mkz2dd_0PF38I2Hf_cuSjn9gBjFGtiPEXJvob3PEjVTSx_zvodT8D9p3An1R3YBZf5JSd1cQisrXgDX2k1Jmf7UKKWzgfyCgnEtRWWbsUdPqo3rSEY9GDC1iSQXsFTTC1FT_JJDkwzGf011fsU5O_Ko28TARibmKTCxAKNRQ";
-
 		assertThatCode(() -> this.decoder.decode(noKeyId).block()).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void decodeWhenIssuedAtThenSuccess() {
 		String withIssuedAt = "eyJraWQiOiJrZXktaWQtMSIsImFsZyI6IlJTMjU2In0.eyJzY29wZSI6IiIsImV4cCI6OTIyMzM3MjAwNjA5NjM3NSwiaWF0IjoxNTI5OTQyNDQ4fQ.LBzAJO-FR-uJDHST61oX4kimuQjz6QMJPW_mvEXRB6A-fMQWpfTQ089eboipAqsb33XnwWth9ELju9HMWLk0FjlWVVzwObh9FcoKelmPNR8mZIlFG-pAYGgSwi8HufyLabXHntFavBiFtqwp_z9clSOFK1RxWvt3lywEbGgtCKve0BXOjfKWiH1qe4QKGixH-NFxidvz8Qd5WbJwyb9tChC6ZKoKPv7Jp-N5KpxkY-O2iUtINvn4xOSactUsvKHgF8ZzZjvJGzG57r606OZXaNtoElQzjAPU5xDGg5liuEJzfBhvqiWCLRmSuZ33qwp3aoBnFgEw0B85gsNe3ggABg";
-
 		Jwt jwt = this.decoder.decode(withIssuedAt).block();
-
 		assertThat(jwt.getClaims().get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1529942448L));
 	}
 
@@ -207,11 +201,9 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenUsingCustomValidatorThenValidatorIsInvoked() {
 		OAuth2TokenValidator jwtValidator = mock(OAuth2TokenValidator.class);
 		this.decoder.setJwtValidator(jwtValidator);
-
 		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error);
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
-
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
 				.isInstanceOf(JwtValidationException.class).hasMessageContaining("mock-description");
 	}
@@ -220,13 +212,11 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenReadingErrorPickTheFirstErrorMessage() {
 		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 		this.decoder.setJwtValidator(jwtValidator);
-
 		OAuth2Error errorEmpty = new OAuth2Error("mock-error", "", "mock-uri");
 		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
-
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
 				.isInstanceOf(JwtValidationException.class).hasMessageContaining("mock-description");
 	}
@@ -235,9 +225,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenUsingSignedJwtThenReturnsClaimsGivenByClaimSetConverter() {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		this.decoder.setClaimSetConverter(claimSetConverter);
-
 		given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
-
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
 		assertThat(jwt.getClaims().size()).isEqualTo(1);
 		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
@@ -249,9 +237,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenClaimSetConverterFailsThenBadJwtException() {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		this.decoder.setClaimSetConverter(claimSetConverter);
-
 		given(claimSetConverter.convert(any(Map.class))).willThrow(new IllegalArgumentException("bad conversion"));
-
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block()).isInstanceOf(BadJwtException.class);
 	}
 
@@ -359,7 +345,6 @@ public class NimbusReactiveJwtDecoderTests {
 				.jwtProcessorCustomizer(
 						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
 				.build();
-
 		AssertionsForClassTypes.assertThatCode(() -> decoder.decode(this.rsa256).block())
 				.isInstanceOf(BadJwtException.class)
 				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
@@ -381,7 +366,6 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenCustomJwkSourceResolutionThenDecodes() {
 		NimbusReactiveJwtDecoder decoder = NimbusReactiveJwtDecoder
 				.withJwkSource((jwt) -> Flux.fromIterable(parseJWKSet(this.jwkSet).getKeys())).build();
-
 		assertThat(decoder.decode(this.messageReadToken).block()).extracting(Jwt::getExpiresAt).isNotNull();
 	}
 
@@ -392,7 +376,6 @@ public class NimbusReactiveJwtDecoderTests {
 				.jwtProcessorCustomizer(
 						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
 				.build();
-
 		assertThatCode(() -> decoder.decode(this.messageReadToken).block()).isInstanceOf(BadJwtException.class)
 				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
 	}
@@ -424,7 +407,6 @@ public class NimbusReactiveJwtDecoderTests {
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject("test-subject")
 				.expirationTime(Date.from(Instant.now().plusSeconds(60))).build();
 		SignedJWT signedJWT = signedJwt(secretKey, macAlgorithm, claimsSet);
-
 		this.decoder = NimbusReactiveJwtDecoder.withSecretKey(secretKey).macAlgorithm(macAlgorithm).build();
 		Jwt jwt = this.decoder.decode(signedJWT.serialize()).block();
 		assertThat(jwt.getSubject()).isEqualTo("test-subject");
@@ -449,7 +431,6 @@ public class NimbusReactiveJwtDecoderTests {
 		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject("test-subject")
 				.expirationTime(Date.from(Instant.now().plusSeconds(60))).build();
 		SignedJWT signedJWT = signedJwt(secretKey, macAlgorithm, claimsSet);
-
 		this.decoder = NimbusReactiveJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
 		assertThatThrownBy(() -> this.decoder.decode(signedJWT.serialize()).block())
 				.isInstanceOf(BadJwtException.class);

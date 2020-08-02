@@ -120,7 +120,6 @@ public class OAuth2ClientConfigurerTests {
 				authorizedClientService);
 		authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
 				"/oauth2/authorization");
-
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(300).build();
 		accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
@@ -132,7 +131,6 @@ public class OAuth2ClientConfigurerTests {
 	@Test
 	public void configureWhenAuthorizationCodeRequestThenRedirectForAuthorization() throws Exception {
 		this.spring.register(OAuth2ClientConfig.class).autowire();
-
 		MvcResult mvcResult = this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
 				.andExpect(status().is3xxRedirection()).andReturn();
 		assertThat(mvcResult.getResponse().getRedirectedUrl())
@@ -143,7 +141,6 @@ public class OAuth2ClientConfigurerTests {
 	@Test
 	public void configureWhenOauth2ClientInLambdaThenRedirectForAuthorization() throws Exception {
 		this.spring.register(OAuth2ClientInLambdaConfig.class).autowire();
-
 		MvcResult mvcResult = this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
 				.andExpect(status().is3xxRedirection()).andReturn();
 		assertThat(mvcResult.getResponse().getRedirectedUrl())
@@ -154,7 +151,6 @@ public class OAuth2ClientConfigurerTests {
 	@Test
 	public void configureWhenAuthorizationCodeResponseSuccessThenAuthorizedClientSaved() throws Exception {
 		this.spring.register(OAuth2ClientConfig.class).autowire();
-
 		// Setup the Authorization Request in the session
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
@@ -162,21 +158,16 @@ public class OAuth2ClientConfigurerTests {
 				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
 				.clientId(this.registration1.getClientId()).redirectUri("http://localhost/client-1").state("state")
 				.attributes(attributes).build();
-
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
-
 		MockHttpSession session = (MockHttpSession) request.getSession();
-
 		String principalName = "user1";
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
-
 		this.mockMvc.perform(get("/client-1").param(OAuth2ParameterNames.CODE, "code")
 				.param(OAuth2ParameterNames.STATE, "state").with(authentication(authentication)).session(session))
 				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/client-1"));
-
 		OAuth2AuthorizedClient authorizedClient = authorizedClientRepository
 				.loadAuthorizedClient(this.registration1.getRegistrationId(), authentication, request);
 		assertThat(authorizedClient).isNotNull();
@@ -186,20 +177,17 @@ public class OAuth2ClientConfigurerTests {
 	public void configureWhenRequestCacheProvidedAndClientAuthorizationRequiredExceptionThrownThenRequestCacheUsed()
 			throws Exception {
 		this.spring.register(OAuth2ClientConfig.class).autowire();
-
 		MvcResult mvcResult = this.mockMvc.perform(get("/resource1").with(user("user1")))
 				.andExpect(status().is3xxRedirection()).andReturn();
 		assertThat(mvcResult.getResponse().getRedirectedUrl())
 				.matches("https://provider.com/oauth2/authorize\\?" + "response_type=code&client_id=client-1&"
 						+ "scope=user&state=.{15,}&" + "redirect_uri=http://localhost/client-1");
-
 		verify(requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void configureWhenRequestCacheProvidedAndClientAuthorizationSucceedsThenRequestCacheUsed() throws Exception {
 		this.spring.register(OAuth2ClientConfig.class).autowire();
-
 		// Setup the Authorization Request in the session
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
@@ -207,21 +195,16 @@ public class OAuth2ClientConfigurerTests {
 				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
 				.clientId(this.registration1.getClientId()).redirectUri("http://localhost/client-1").state("state")
 				.attributes(attributes).build();
-
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
-
 		MockHttpSession session = (MockHttpSession) request.getSession();
-
 		String principalName = "user1";
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
-
 		this.mockMvc.perform(get("/client-1").param(OAuth2ParameterNames.CODE, "code")
 				.param(OAuth2ParameterNames.STATE, "state").with(authentication(authentication)).session(session))
 				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/client-1"));
-
 		verify(requestCache).getRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -234,12 +217,9 @@ public class OAuth2ClientConfigurerTests {
 		authorizationRequestResolver = mock(OAuth2AuthorizationRequestResolver.class);
 		given(authorizationRequestResolver.resolve(any()))
 				.willAnswer((invocation) -> defaultAuthorizationRequestResolver.resolve(invocation.getArgument(0)));
-
 		this.spring.register(OAuth2ClientConfig.class).autowire();
-
 		this.mockMvc.perform(get("/oauth2/authorization/registration-1")).andExpect(status().is3xxRedirection())
 				.andReturn();
-
 		verify(authorizationRequestResolver).resolve(any());
 	}
 

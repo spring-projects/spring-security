@@ -52,12 +52,9 @@ public class MultiHttpBlockConfigTests {
 
 	@Test
 	public void requestWhenUsingMutuallyExclusiveHttpElementsThenIsRoutedAccordingly() throws Exception {
-
 		this.spring.configLocations(this.xml("DistinctHttpElements")).autowire();
-
 		this.mvc.perform(MockMvcRequestBuilders.get("/first").with(httpBasic("user", "password")))
 				.andExpect(status().isOk());
-
 		this.mvc.perform(post("/second/login").param("username", "user").param("password", "password").with(csrf()))
 				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
 	}
@@ -80,11 +77,8 @@ public class MultiHttpBlockConfigTests {
 	@Test
 	public void requestWhenTargettingAuthenticationManagersToCorrespondingHttpElementsThenAuthenticationProceeds()
 			throws Exception {
-
 		this.spring.configLocations(this.xml("Sec1937")).autowire();
-
 		this.mvc.perform(get("/first").with(httpBasic("first", "password")).with(csrf())).andExpect(status().isOk());
-
 		this.mvc.perform(post("/second/login").param("username", "second").param("password", "password").with(csrf()))
 				.andExpect(redirectedUrl("/"));
 	}

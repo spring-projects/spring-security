@@ -51,7 +51,6 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "date";
 		this.claims.put(claimName, Date.from(expectedClaimValue));
-
 		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
 				expectedClaimValue.plusSeconds(1));
 	}
@@ -62,7 +61,6 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "longSeconds";
 		this.claims.put(claimName, expectedClaimValue.getEpochSecond());
-
 		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
 				expectedClaimValue.plusSeconds(1));
 	}
@@ -72,7 +70,6 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "instant";
 		this.claims.put(claimName, expectedClaimValue);
-
 		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
 				expectedClaimValue.plusSeconds(1));
 	}
@@ -83,7 +80,6 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "integerSeconds";
 		this.claims.put(claimName, Long.valueOf(expectedClaimValue.getEpochSecond()).intValue());
-
 		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
 				expectedClaimValue.plusSeconds(1));
 	}
@@ -94,7 +90,6 @@ public class ClaimAccessorTests {
 		Instant expectedClaimValue = Instant.now();
 		String claimName = "doubleSeconds";
 		this.claims.put(claimName, Long.valueOf(expectedClaimValue.getEpochSecond()).doubleValue());
-
 		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
 				expectedClaimValue.plusSeconds(1));
 	}
@@ -104,7 +99,6 @@ public class ClaimAccessorTests {
 	public void getClaimAsStringWhenValueIsNullThenReturnNull() {
 		String claimName = "claim-with-null-value";
 		this.claims.put(claimName, null);
-
 		assertThat(this.claimAccessor.getClaimAsString(claimName)).isNull();
 	}
 
@@ -120,9 +114,7 @@ public class ClaimAccessorTests {
 		List<String> expectedClaimValue = Arrays.asList("item1", "item2");
 		String claimName = "list";
 		this.claims.put(claimName, expectedClaimValue);
-
 		List<String> actualClaimValue = this.claimAccessor.getClaim(claimName);
-
 		assertThat(actualClaimValue).containsOnlyElementsOf(expectedClaimValue);
 	}
 
@@ -131,9 +123,7 @@ public class ClaimAccessorTests {
 		boolean expectedClaimValue = true;
 		String claimName = "boolean";
 		this.claims.put(claimName, expectedClaimValue);
-
 		boolean actualClaimValue = this.claimAccessor.getClaim(claimName);
-
 		assertThat(actualClaimValue).isEqualTo(expectedClaimValue);
 	}
 

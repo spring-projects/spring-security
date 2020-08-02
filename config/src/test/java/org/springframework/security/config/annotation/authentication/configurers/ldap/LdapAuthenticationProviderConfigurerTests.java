@@ -40,7 +40,6 @@ public class LdapAuthenticationProviderConfigurerTests {
 		assertThat(this.configurer.getAuthoritiesMapper()).isInstanceOf(SimpleAuthorityMapper.class);
 		this.configurer.authoritiesMapper(new NullAuthoritiesMapper());
 		assertThat(this.configurer.getAuthoritiesMapper()).isInstanceOf(NullAuthoritiesMapper.class);
-
 	}
 
 }

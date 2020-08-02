@@ -42,12 +42,10 @@ public class SpringSecurityMessageSourceTests {
 		// Change Locale to English
 		Locale before = LocaleContextHolder.getLocale();
 		LocaleContextHolder.setLocale(Locale.FRENCH);
-
 		// Cause a message to be generated
 		MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 		assertThat("Le jeton nonce est compromis FOOBAR").isEqualTo(messages.getMessage(
 				"DigestAuthenticationFilter.nonceCompromised", new Object[] { "FOOBAR" }, "ERROR - FAILED TO LOOKUP"));
-
 		// Revert to original Locale
 		LocaleContextHolder.setLocale(before);
 	}
@@ -57,14 +55,11 @@ public class SpringSecurityMessageSourceTests {
 	public void germanSystemLocaleWithEnglishLocaleContextHolder() {
 		Locale beforeSystem = Locale.getDefault();
 		Locale.setDefault(Locale.GERMAN);
-
 		Locale beforeHolder = LocaleContextHolder.getLocale();
 		LocaleContextHolder.setLocale(Locale.US);
-
 		MessageSourceAccessor msgs = SpringSecurityMessageSource.getAccessor();
 		assertThat("Access is denied")
 				.isEqualTo(msgs.getMessage("AbstractAccessDecisionManager.accessDenied", "Ooops"));
-
 		// Revert to original Locale
 		Locale.setDefault(beforeSystem);
 		LocaleContextHolder.setLocale(beforeHolder);

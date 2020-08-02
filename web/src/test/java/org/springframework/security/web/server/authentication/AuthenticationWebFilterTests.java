@@ -83,13 +83,10 @@ public class AuthenticationWebFilterTests {
 	@Test
 	public void filterWhenDefaultsAndNoAuthenticationThenContinues() {
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		EntityExchangeResult<String> result = client.get().uri("/").exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 				.returnResult();
-
 		verifyZeroInteractions(this.authenticationManager);
 		assertThat(result.getResponseCookies()).isEmpty();
 	}
@@ -97,13 +94,10 @@ public class AuthenticationWebFilterTests {
 	@Test
 	public void filterWhenAuthenticationManagerResolverDefaultsAndNoAuthenticationThenContinues() {
 		this.filter = new AuthenticationWebFilter(this.authenticationManagerResolver);
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		EntityExchangeResult<String> result = client.get().uri("/").exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 				.returnResult();
-
 		verifyZeroInteractions(this.authenticationManagerResolver);
 		assertThat(result.getResponseCookies()).isEmpty();
 	}
@@ -113,14 +107,11 @@ public class AuthenticationWebFilterTests {
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("test", "this", "ROLE")));
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		EntityExchangeResult<String> result = client.get().uri("/")
 				.headers((headers) -> headers.setBasicAuth("test", "this")).exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 				.returnResult();
-
 		assertThat(result.getResponseCookies()).isEmpty();
 	}
 
@@ -129,16 +120,12 @@ public class AuthenticationWebFilterTests {
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("test", "this", "ROLE")));
 		given(this.authenticationManagerResolver.resolve(any())).willReturn(Mono.just(this.authenticationManager));
-
 		this.filter = new AuthenticationWebFilter(this.authenticationManagerResolver);
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		EntityExchangeResult<String> result = client.get().uri("/")
 				.headers((headers) -> headers.setBasicAuth("test", "this")).exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 				.returnResult();
-
 		assertThat(result.getResponseCookies()).isEmpty();
 	}
 
@@ -147,13 +134,10 @@ public class AuthenticationWebFilterTests {
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.error(new BadCredentialsException("failed")));
 		this.filter = new AuthenticationWebFilter(this.authenticationManager);
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		EntityExchangeResult<Void> result = client.get().uri("/")
 				.headers((headers) -> headers.setBasicAuth("test", "this")).exchange().expectStatus().isUnauthorized()
 				.expectHeader().valueMatches("WWW-Authenticate", "Basic realm=\"Realm\"").expectBody().isEmpty();
-
 		assertThat(result.getResponseCookies()).isEmpty();
 	}
 
@@ -162,27 +146,20 @@ public class AuthenticationWebFilterTests {
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.error(new BadCredentialsException("failed")));
 		given(this.authenticationManagerResolver.resolve(any())).willReturn(Mono.just(this.authenticationManager));
-
 		this.filter = new AuthenticationWebFilter(this.authenticationManagerResolver);
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		EntityExchangeResult<Void> result = client.get().uri("/")
 				.headers((headers) -> headers.setBasicAuth("test", "this")).exchange().expectStatus().isUnauthorized()
 				.expectHeader().valueMatches("WWW-Authenticate", "Basic realm=\"Realm\"").expectBody().isEmpty();
-
 		assertThat(result.getResponseCookies()).isEmpty();
 	}
 
 	@Test
 	public void filterWhenConvertEmptyThenOk() {
 		given(this.authenticationConverter.convert(any())).willReturn(Mono.empty());
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		client.get().uri("/").exchange().expectStatus().isOk().expectBody(String.class)
 				.consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok")).returnResult();
-
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler, this.failureHandler);
 	}
@@ -190,11 +167,8 @@ public class AuthenticationWebFilterTests {
 	@Test
 	public void filterWhenConvertErrorThenServerError() {
 		given(this.authenticationConverter.convert(any())).willReturn(Mono.error(new RuntimeException("Unexpected")));
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		client.get().uri("/").exchange().expectStatus().is5xxServerError().expectBody().isEmpty();
-
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.authenticationManager, this.successHandler, this.failureHandler);
 	}
@@ -206,11 +180,8 @@ public class AuthenticationWebFilterTests {
 		given(this.authenticationManager.authenticate(any())).willReturn(authentication);
 		given(this.successHandler.onAuthenticationSuccess(any(), any())).willReturn(Mono.empty());
 		given(this.securityContextRepository.save(any(), any())).willAnswer((a) -> Mono.just(a.getArguments()[0]));
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		client.get().uri("/").exchange().expectStatus().isOk().expectBody().isEmpty();
-
 		verify(this.successHandler).onAuthenticationSuccess(any(), eq(authentication.block()));
 		verify(this.securityContextRepository).save(any(), any());
 		verifyZeroInteractions(this.failureHandler);
@@ -221,11 +192,8 @@ public class AuthenticationWebFilterTests {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.empty());
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		client.get().uri("/").exchange().expectStatus().is5xxServerError().expectBody().isEmpty();
-
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler, this.failureHandler);
 	}
@@ -233,14 +201,11 @@ public class AuthenticationWebFilterTests {
 	@Test
 	public void filterWhenNotMatchAndConvertAndAuthenticationSuccessThenContinues() {
 		this.filter.setRequiresAuthenticationMatcher((e) -> ServerWebExchangeMatcher.MatchResult.notMatch());
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		EntityExchangeResult<String> result = client.get().uri("/")
 				.headers((headers) -> headers.setBasicAuth("test", "this")).exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 				.returnResult();
-
 		assertThat(result.getResponseCookies()).isEmpty();
 		verifyZeroInteractions(this.authenticationConverter, this.authenticationManager, this.successHandler);
 	}
@@ -252,11 +217,8 @@ public class AuthenticationWebFilterTests {
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.error(new BadCredentialsException("Failed")));
 		given(this.failureHandler.onAuthenticationFailure(any(), any())).willReturn(Mono.empty());
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		client.get().uri("/").exchange().expectStatus().isOk().expectBody().isEmpty();
-
 		verify(this.failureHandler).onAuthenticationFailure(any(), any());
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler);
@@ -267,11 +229,8 @@ public class AuthenticationWebFilterTests {
 		Mono<Authentication> authentication = Mono.just(new TestingAuthenticationToken("test", "this", "ROLE_USER"));
 		given(this.authenticationConverter.convert(any())).willReturn(authentication);
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.error(new RuntimeException("Failed")));
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
-
 		client.get().uri("/").exchange().expectStatus().is5xxServerError().expectBody().isEmpty();
-
 		verify(this.securityContextRepository, never()).save(any(), any());
 		verifyZeroInteractions(this.successHandler, this.failureHandler);
 	}

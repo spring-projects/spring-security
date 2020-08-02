@@ -81,9 +81,7 @@ public class DelegatingLogoutSuccessHandlerTests {
 	public void onLogoutSuccessFirstMatches() throws Exception {
 		this.delegatingHandler.setDefaultLogoutSuccessHandler(this.defaultHandler);
 		given(this.matcher.matches(this.request)).willReturn(true);
-
 		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
-
 		verify(this.handler).onLogoutSuccess(this.request, this.response, this.authentication);
 		verifyZeroInteractions(this.matcher2, this.handler2, this.defaultHandler);
 	}
@@ -92,9 +90,7 @@ public class DelegatingLogoutSuccessHandlerTests {
 	public void onLogoutSuccessSecondMatches() throws Exception {
 		this.delegatingHandler.setDefaultLogoutSuccessHandler(this.defaultHandler);
 		given(this.matcher2.matches(this.request)).willReturn(true);
-
 		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
-
 		verify(this.handler2).onLogoutSuccess(this.request, this.response, this.authentication);
 		verifyZeroInteractions(this.handler, this.defaultHandler);
 	}
@@ -102,18 +98,14 @@ public class DelegatingLogoutSuccessHandlerTests {
 	@Test
 	public void onLogoutSuccessDefault() throws Exception {
 		this.delegatingHandler.setDefaultLogoutSuccessHandler(this.defaultHandler);
-
 		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
-
 		verify(this.defaultHandler).onLogoutSuccess(this.request, this.response, this.authentication);
 		verifyZeroInteractions(this.handler, this.handler2);
 	}
 
 	@Test
 	public void onLogoutSuccessNoMatchDefaultNull() throws Exception {
-
 		this.delegatingHandler.onLogoutSuccess(this.request, this.response, this.authentication);
-
 		verifyZeroInteractions(this.handler, this.handler2, this.defaultHandler);
 	}
 

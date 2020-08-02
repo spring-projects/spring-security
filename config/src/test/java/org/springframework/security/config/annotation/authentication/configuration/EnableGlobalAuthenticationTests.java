@@ -40,29 +40,23 @@ public class EnableGlobalAuthenticationTests {
 	@Test
 	public void authenticationConfigurationWhenGetAuthenticationManagerThenNotNull() throws Exception {
 		this.spring.register(Config.class).autowire();
-
 		AuthenticationConfiguration auth = this.spring.getContext().getBean(AuthenticationConfiguration.class);
-
 		assertThat(auth.getAuthenticationManager()).isNotNull();
 	}
 
 	@Test
 	public void enableGlobalAuthenticationWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
 		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
-
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
 		assertThat(parentBean.getChild()).isSameAs(childBean);
 	}
 
 	@Test
 	public void enableGlobalAuthenticationWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
 		this.spring.register(BeanProxyDisabledConfig.class).autowire();
-
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
 		assertThat(parentBean.getChild()).isNotSameAs(childBean);
 	}
 

@@ -43,9 +43,7 @@ public class ConsensusBasedTests {
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfEqualGrantedDeniedDecisions(false);
 		assertThat(!mgr.isAllowIfEqualGrantedDeniedDecisions()).isTrue(); // check changed
-
 		List<ConfigAttribute> config = SecurityConfig.createList("ROLE_1", "DENY_FOR_SURE");
-
 		mgr.decide(auth, new Object(), config);
 	}
 
@@ -53,29 +51,22 @@ public class ConsensusBasedTests {
 	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
-
 		assertThat(mgr.isAllowIfEqualGrantedDeniedDecisions()).isTrue(); // check default
-
 		List<ConfigAttribute> config = SecurityConfig.createList("ROLE_1", "DENY_FOR_SURE");
-
 		mgr.decide(auth, new Object(), config);
-
 	}
 
 	@Test
 	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
-
 		mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_2"));
-
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
-
 		mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_WE_DO_NOT_HAVE"));
 		fail("Should have thrown AccessDeniedException");
 	}
@@ -84,9 +75,7 @@ public class ConsensusBasedTests {
 	public void testThreeAbstainVotesDeniesAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
-
 		assertThat(!mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
-
 		mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
 	}
 
@@ -96,7 +85,6 @@ public class ConsensusBasedTests {
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfAllAbstainDecisions(true);
 		assertThat(mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check changed
-
 		mgr.decide(auth, new Object(), SecurityConfig.createList("IGNORED_BY_ALL"));
 	}
 
@@ -104,7 +92,6 @@ public class ConsensusBasedTests {
 	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
-
 		mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_1", "ROLE_2"));
 	}
 
@@ -116,7 +103,6 @@ public class ConsensusBasedTests {
 		voters.add(roleVoter);
 		voters.add(denyForSureVoter);
 		voters.add(denyAgainForSureVoter);
-
 		return new ConsensusBased(voters);
 	}
 

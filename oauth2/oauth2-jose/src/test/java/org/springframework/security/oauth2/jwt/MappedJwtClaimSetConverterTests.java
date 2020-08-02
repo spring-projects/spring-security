@@ -48,23 +48,18 @@ public class MappedJwtClaimSetConverterTests {
 		Instant at = Instant.ofEpochMilli(1000000000000L);
 		Converter<Object, Instant> expiresAtConverter = mock(Converter.class);
 		given(expiresAtConverter.convert(any())).willReturn(at);
-
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
 				.withDefaults(Collections.singletonMap(JwtClaimNames.EXP, expiresAtConverter));
-
 		Map<String, Object> source = new HashMap<>();
 		Map<String, Object> target = converter.convert(source);
-
 		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochMilli(at.toEpochMilli()).minusSeconds(1));
 	}
 
 	@Test
 	public void convertWhenUsingDefaultsThenBasesIssuedAtOffOfExpiration() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
-
 		Map<String, Object> source = Collections.singletonMap(JwtClaimNames.EXP, 1000000000L);
 		Map<String, Object> target = converter.convert(source);
-
 		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(Instant.ofEpochSecond(1000000000L));
 		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1000000000L).minusSeconds(1));
 	}
@@ -72,16 +67,12 @@ public class MappedJwtClaimSetConverterTests {
 	@Test
 	public void convertWhenUsingDefaultsThenCoercesAudienceAccordingToJwtSpec() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
-
 		Map<String, Object> source = Collections.singletonMap(JwtClaimNames.AUD, "audience");
 		Map<String, Object> target = converter.convert(source);
-
 		assertThat(target.get(JwtClaimNames.AUD)).isInstanceOf(Collection.class);
 		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("audience"));
-
 		source = Collections.singletonMap(JwtClaimNames.AUD, Arrays.asList("one", "two"));
 		target = converter.convert(source);
-
 		assertThat(target.get(JwtClaimNames.AUD)).isInstanceOf(Collection.class);
 		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("one", "two"));
 	}
@@ -89,7 +80,6 @@ public class MappedJwtClaimSetConverterTests {
 	@Test
 	public void convertWhenUsingDefaultsThenCoercesAllAttributesInJwtSpec() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
-
 		Map<String, Object> source = new HashMap<>();
 		source.put(JwtClaimNames.JTI, 1);
 		source.put(JwtClaimNames.AUD, "audience");
@@ -98,9 +88,7 @@ public class MappedJwtClaimSetConverterTests {
 		source.put(JwtClaimNames.ISS, "https://any.url");
 		source.put(JwtClaimNames.NBF, 1000000000);
 		source.put(JwtClaimNames.SUB, 1234);
-
 		Map<String, Object> target = converter.convert(source);
-
 		assertThat(target.get(JwtClaimNames.JTI)).isEqualTo("1");
 		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("audience"));
 		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(Instant.ofEpochSecond(2000000000L));
@@ -116,7 +104,6 @@ public class MappedJwtClaimSetConverterTests {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
 				.withDefaults(Collections.singletonMap(JwtClaimNames.SUB, claimConverter));
 		given(claimConverter.convert(any(Object.class))).willReturn("1234");
-
 		Map<String, Object> source = new HashMap<>();
 		source.put(JwtClaimNames.JTI, 1);
 		source.put(JwtClaimNames.AUD, "audience");
@@ -125,9 +112,7 @@ public class MappedJwtClaimSetConverterTests {
 		source.put(JwtClaimNames.ISS, URI.create("https://any.url"));
 		source.put(JwtClaimNames.NBF, "1000000000");
 		source.put(JwtClaimNames.SUB, 2345);
-
 		Map<String, Object> target = converter.convert(source);
-
 		assertThat(target.get(JwtClaimNames.JTI)).isEqualTo("1");
 		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("audience"));
 		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(Instant.ofEpochSecond(2000000000L));
@@ -140,10 +125,8 @@ public class MappedJwtClaimSetConverterTests {
 	@Test
 	public void convertWhenConverterReturnsNullThenClaimIsRemoved() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
-
 		Map<String, Object> source = Collections.singletonMap(JwtClaimNames.ISS, null);
 		Map<String, Object> target = converter.convert(source);
-
 		assertThat(target).doesNotContainKey(JwtClaimNames.ISS);
 	}
 
@@ -153,10 +136,8 @@ public class MappedJwtClaimSetConverterTests {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
 				.withDefaults(Collections.singletonMap("custom-claim", claimConverter));
 		given(claimConverter.convert(any())).willReturn("custom-value");
-
 		Map<String, Object> source = new HashMap<>();
 		Map<String, Object> target = converter.convert(source);
-
 		assertThat(target.get("custom-claim")).isEqualTo("custom-value");
 	}
 
@@ -166,7 +147,6 @@ public class MappedJwtClaimSetConverterTests {
 		MappedJwtClaimSetConverter converter = new MappedJwtClaimSetConverter(
 				Collections.singletonMap(JwtClaimNames.SUB, claimConverter));
 		given(claimConverter.convert(any(Object.class))).willReturn("1234");
-
 		Map<String, Object> source = new HashMap<>();
 		source.put(JwtClaimNames.JTI, new Object());
 		source.put(JwtClaimNames.AUD, new Object());
@@ -175,9 +155,7 @@ public class MappedJwtClaimSetConverterTests {
 		source.put(JwtClaimNames.ISS, new Object());
 		source.put(JwtClaimNames.NBF, new Object());
 		source.put(JwtClaimNames.SUB, new Object());
-
 		Map<String, Object> target = converter.convert(source);
-
 		assertThat(target.get(JwtClaimNames.JTI)).isEqualTo(source.get(JwtClaimNames.JTI));
 		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(source.get(JwtClaimNames.AUD));
 		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(source.get(JwtClaimNames.EXP));
@@ -190,16 +168,12 @@ public class MappedJwtClaimSetConverterTests {
 	@Test
 	public void convertWhenUsingDefaultsThenFailedConversionThrowsIllegalStateException() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
-
 		Map<String, Object> badIssuer = Collections.singletonMap(JwtClaimNames.ISS, "https://badly formed iss");
 		assertThatCode(() -> converter.convert(badIssuer)).isInstanceOf(IllegalStateException.class);
-
 		Map<String, Object> badIssuedAt = Collections.singletonMap(JwtClaimNames.IAT, "badly-formed-iat");
 		assertThatCode(() -> converter.convert(badIssuedAt)).isInstanceOf(IllegalStateException.class);
-
 		Map<String, Object> badExpiresAt = Collections.singletonMap(JwtClaimNames.EXP, "badly-formed-exp");
 		assertThatCode(() -> converter.convert(badExpiresAt)).isInstanceOf(IllegalStateException.class);
-
 		Map<String, Object> badNotBefore = Collections.singletonMap(JwtClaimNames.NBF, "badly-formed-nbf");
 		assertThatCode(() -> converter.convert(badNotBefore)).isInstanceOf(IllegalStateException.class);
 	}
@@ -208,7 +182,6 @@ public class MappedJwtClaimSetConverterTests {
 	@Test
 	public void convertWhenIssuerIsNotAUriThenConvertsToString() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
-
 		Map<String, Object> nonUriIssuer = Collections.singletonMap(JwtClaimNames.ISS, "issuer");
 		Map<String, Object> target = converter.convert(nonUriIssuer);
 		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("issuer");
@@ -218,7 +191,6 @@ public class MappedJwtClaimSetConverterTests {
 	@Test
 	public void convertWhenIssuerIsOfTypeURLThenConvertsToString() throws Exception {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
-
 		Map<String, Object> issuer = Collections.singletonMap(JwtClaimNames.ISS, new URL("https://issuer"));
 		Map<String, Object> target = converter.convert(issuer);
 		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("https://issuer");

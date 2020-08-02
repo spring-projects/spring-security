@@ -61,7 +61,6 @@ public class JeeConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnJ2eePreAuthenticatedProcessingFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
 				.postProcess(any(J2eePreAuthenticatedProcessingFilter.class));
 	}
@@ -70,7 +69,6 @@ public class JeeConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
 				.postProcess(any(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class));
 	}
@@ -80,7 +78,6 @@ public class JeeConfigurerTests {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
-
 		this.mvc.perform(get("/").principal(user).with((request) -> {
 			request.addUserRole("ROLE_ADMIN");
 			request.addUserRole("ROLE_USER");
@@ -93,7 +90,6 @@ public class JeeConfigurerTests {
 		this.spring.register(JeeMappableRolesConfig.class).autowire();
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
-
 		this.mvc.perform(get("/").principal(user).with((request) -> {
 			request.addUserRole("ROLE_ADMIN");
 			request.addUserRole("ROLE_USER");
@@ -106,7 +102,6 @@ public class JeeConfigurerTests {
 		this.spring.register(JeeMappableAuthoritiesConfig.class).autowire();
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("user");
-
 		this.mvc.perform(get("/").principal(user).with((request) -> {
 			request.addUserRole("ROLE_ADMIN");
 			request.addUserRole("ROLE_USER");
@@ -124,7 +119,6 @@ public class JeeConfigurerTests {
 		given(user.getName()).willReturn("user");
 		given(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
 				.willReturn(userDetails);
-
 		this.mvc.perform(get("/").principal(user).with((request) -> {
 			request.addUserRole("ROLE_ADMIN");
 			request.addUserRole("ROLE_USER");

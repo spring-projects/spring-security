@@ -45,7 +45,6 @@ public class DefaultOAuth2AuthenticatedPrincipalTests {
 	public void constructorWhenAttributesIsNullOrEmptyThenIllegalArgumentException() {
 		assertThatCode(() -> new DefaultOAuth2AuthenticatedPrincipal(null, this.authorities))
 				.isInstanceOf(IllegalArgumentException.class);
-
 		assertThatCode(() -> new DefaultOAuth2AuthenticatedPrincipal(Collections.emptyMap(), this.authorities))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
@@ -55,7 +54,6 @@ public class DefaultOAuth2AuthenticatedPrincipalTests {
 		Collection<? extends GrantedAuthority> authorities = new DefaultOAuth2AuthenticatedPrincipal(this.attributes,
 				null).getAuthorities();
 		assertThat(authorities).isEmpty();
-
 		authorities = new DefaultOAuth2AuthenticatedPrincipal(this.attributes, Collections.emptyList())
 				.getAuthorities();
 		assertThat(authorities).isEmpty();

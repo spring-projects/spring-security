@@ -54,11 +54,8 @@ public class OpaqueTokenAuthenticationProviderTests {
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
-
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));
-
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
-
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
@@ -71,7 +68,6 @@ public class OpaqueTokenAuthenticationProviderTests {
 				.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
 				.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
-
 		assertThat(result.getAuthorities()).extracting("authority").containsExactly("SCOPE_read", "SCOPE_write",
 				"SCOPE_dolphin");
 	}
@@ -83,13 +79,10 @@ public class OpaqueTokenAuthenticationProviderTests {
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
-
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token"));
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2AuthenticatedPrincipal.class);
-
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes).isNotNull().doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
-
 		assertThat(result.getAuthorities()).isEmpty();
 	}
 
@@ -98,7 +91,6 @@ public class OpaqueTokenAuthenticationProviderTests {
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willThrow(new OAuth2IntrospectionException("with \"invalid\" chars"));
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
-
 		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")))
 				.isInstanceOf(AuthenticationServiceException.class);
 	}

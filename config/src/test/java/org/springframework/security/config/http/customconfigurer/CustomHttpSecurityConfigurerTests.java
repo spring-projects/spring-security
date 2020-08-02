@@ -75,11 +75,8 @@ public class CustomHttpSecurityConfigurerTests {
 	@Test
 	public void customConfiguerPermitAll() throws Exception {
 		loadContext(Config.class);
-
 		this.request.setPathInfo("/public/something");
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
@@ -87,9 +84,7 @@ public class CustomHttpSecurityConfigurerTests {
 	public void customConfiguerFormLogin() throws Exception {
 		loadContext(Config.class);
 		this.request.setPathInfo("/requires-authentication");
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).endsWith("/custom");
 	}
 
@@ -98,9 +93,7 @@ public class CustomHttpSecurityConfigurerTests {
 		loadContext(ConfigCustomize.class);
 		this.request.setPathInfo("/public/something");
 		this.request.setMethod("POST");
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
@@ -108,9 +101,7 @@ public class CustomHttpSecurityConfigurerTests {
 	public void customConfiguerCustomizeFormLogin() throws Exception {
 		loadContext(ConfigCustomize.class);
 		this.request.setPathInfo("/requires-authentication");
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).endsWith("/other");
 	}
 
@@ -136,7 +127,6 @@ public class CustomHttpSecurityConfigurerTests {
 			// Typically externalize this as a properties file
 			Properties properties = new Properties();
 			properties.setProperty("permitAllPattern", "/public/**");
-
 			PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 			propertyPlaceholderConfigurer.setProperties(properties);
 			return propertyPlaceholderConfigurer;
@@ -164,7 +154,6 @@ public class CustomHttpSecurityConfigurerTests {
 			// Typically externalize this as a properties file
 			Properties properties = new Properties();
 			properties.setProperty("permitAllPattern", "/public/**");
-
 			PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 			propertyPlaceholderConfigurer.setProperties(properties);
 			return propertyPlaceholderConfigurer;

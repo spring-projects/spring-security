@@ -68,7 +68,6 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void getWhenFormLoginEnabledThenRedirectsToLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
@@ -77,7 +76,6 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect(content().string("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -103,7 +101,6 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void loginWhenNoCredentialsThenRedirectedToLoginPageWithError() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-
 		this.mvc.perform(post("/login").with(csrf())).andExpect(redirectedUrl("/login?error"));
 	}
 
@@ -112,9 +109,7 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
 		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf())).andReturn();
-
 		this.mvc.perform(get("/login?error").session((MockHttpSession) mvcResult.getRequest().getSession())
 				.sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect(content().string("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
@@ -142,7 +137,6 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void loginWhenValidCredentialsThenRedirectsToDefaultSuccessPage() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-
 		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
 				.andExpect(redirectedUrl("/"));
 	}
@@ -152,7 +146,6 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
 		this.mvc.perform(get("/login?logout").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect(content().string("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -179,14 +172,12 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void loginPageWhenLoggedOutAndCustomLogoutSuccessHandlerThenDoesNotRenderLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageCustomLogoutSuccessHandlerConfig.class).autowire();
-
 		this.mvc.perform(get("/login?logout")).andExpect(content().string(""));
 	}
 
 	@Test
 	public void loginPageWhenLoggedOutAndCustomLogoutSuccessUrlThenDoesNotRenderLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageCustomLogoutSuccessUrlConfig.class).autowire();
-
 		this.mvc.perform(get("/login?logout")).andExpect(content().string(""));
 	}
 
@@ -195,7 +186,6 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(DefaultLoginPageWithRememberMeConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect(content().string("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -223,10 +213,8 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void loginPageWhenOpenIdLoginConfiguredThenOpedIdLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageWithOpenIDConfig.class).autowire();
-
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect(content().string("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -251,7 +239,6 @@ public class DefaultLoginPageConfigurerTests {
 		this.spring.register(DefaultLoginPageWithFormLoginOpenIDRememberMeConfig.class).autowire();
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
-
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
 				.andExpect(content().string("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -290,7 +277,6 @@ public class DefaultLoginPageConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnDefaultLoginPageGeneratingFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(DefaultLoginPageGeneratingFilter.class));
 	}
 
@@ -298,7 +284,6 @@ public class DefaultLoginPageConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnUsernamePasswordAuthenticationFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
 				.postProcess(any(UsernamePasswordAuthenticationFilter.class));
 	}
@@ -307,7 +292,6 @@ public class DefaultLoginPageConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnLoginUrlAuthenticationEntryPoint() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(LoginUrlAuthenticationEntryPoint.class));
 	}
 
@@ -315,14 +299,12 @@ public class DefaultLoginPageConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnExceptionTranslationFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
 	}
 
 	@Test
 	public void configureWhenAuthenticationEntryPointThenNoDefaultLoginPageGeneratingFilter() {
 		this.spring.register(DefaultLoginWithCustomAuthenticationEntryPointConfig.class).autowire();
-
 		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChain.getFilterChains().get(0).getFilters().stream()
 				.filter((filter) -> filter.getClass().isAssignableFrom(DefaultLoginPageGeneratingFilter.class)).count())

@@ -49,17 +49,12 @@ public class RequestCacheTests {
 	public void defaultFormLoginRequestCache() {
 		SecurityWebFilterChain securityWebFilter = this.http.authorizeExchange().anyExchange().authenticated().and()
 				.formLogin().and().build();
-
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new SecuredPageController(), new WebTestClientBuilder.Http200RestController())
 				.webFilter(new WebFilterChainProxy(securityWebFilter)).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = SecuredPage.to(driver, DefaultLoginPage.class).assertAt();
-
 		SecuredPage securedPage = loginPage.loginForm().username("user").password("password").submit(SecuredPage.class);
-
 		securedPage.assertAt();
 	}
 
@@ -67,17 +62,12 @@ public class RequestCacheTests {
 	public void requestCacheNoOp() {
 		SecurityWebFilterChain securityWebFilter = this.http.authorizeExchange().anyExchange().authenticated().and()
 				.formLogin().and().requestCache().requestCache(NoOpServerRequestCache.getInstance()).and().build();
-
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new SecuredPageController(), new WebTestClientBuilder.Http200RestController())
 				.webFilter(new WebFilterChainProxy(securityWebFilter)).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = SecuredPage.to(driver, DefaultLoginPage.class).assertAt();
-
 		HomePage securedPage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		securedPage.assertAt();
 	}
 
@@ -88,17 +78,12 @@ public class RequestCacheTests {
 				.formLogin(withDefaults())
 				.requestCache((requestCache) -> requestCache.requestCache(NoOpServerRequestCache.getInstance()))
 				.build();
-
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new SecuredPageController(), new WebTestClientBuilder.Http200RestController())
 				.webFilter(new WebFilterChainProxy(securityWebFilter)).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = SecuredPage.to(driver, DefaultLoginPage.class).assertAt();
-
 		HomePage securedPage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		securedPage.assertAt();
 	}
 

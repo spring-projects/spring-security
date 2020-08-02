@@ -49,7 +49,6 @@ public class PermitAllSupportTests {
 	@Test
 	public void performWhenUsingPermitAllExactUrlRequestMatcherThenMatchesExactUrl() throws Exception {
 		this.spring.register(PermitAllConfig.class).autowire();
-
 		this.mvc.perform(get("/app/xyz").contextPath("/app")).andExpect(status().isNotFound());
 		this.mvc.perform(get("/app/xyz?def").contextPath("/app")).andExpect(status().isFound());
 		this.mvc.perform(post("/app/abc?def").with(csrf()).contextPath("/app")).andExpect(status().isNotFound());

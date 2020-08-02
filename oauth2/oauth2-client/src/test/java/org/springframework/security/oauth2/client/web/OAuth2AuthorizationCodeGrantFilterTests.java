@@ -157,9 +157,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		// parameter.
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
-
 		this.filter.doFilter(request, response, filterChain);
-
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -169,9 +167,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -184,9 +180,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		authorizationResponse.setRequestURI(requestUri + "-no-match");
 		FilterChain filterChain = mock(FilterChain.class);
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -206,7 +200,6 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		this.filter.doFilter(authorizationResponse, response, filterChain);
 		verifyNoInteractions(filterChain);
-
 		// 2) redirect_uri with query parameters AND authorization response additional
 		// parameters
 		Map<String, String> additionalParameters = new LinkedHashMap<>();
@@ -231,7 +224,6 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
 		FilterChain filterChain = mock(FilterChain.class);
-
 		// 1) Parameter value
 		Map<String, String> parametersNotMatch = new LinkedHashMap<>(parameters);
 		parametersNotMatch.put("param2", "value8");
@@ -240,7 +232,6 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		authorizationResponse.setSession(authorizationRequest.getSession());
 		this.filter.doFilter(authorizationResponse, response, filterChain);
 		verify(filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-
 		// 2) Parameter order
 		parametersNotMatch = new LinkedHashMap<>();
 		parametersNotMatch.put("param2", "value2");
@@ -249,7 +240,6 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		authorizationResponse.setSession(authorizationRequest.getSession());
 		this.filter.doFilter(authorizationResponse, response, filterChain);
 		verify(filterChain, times(2)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-
 		// 3) Parameter missing
 		parametersNotMatch = new LinkedHashMap<>(parameters);
 		parametersNotMatch.remove("param2");
@@ -267,9 +257,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		assertThat(this.authorizationRequestRepository.loadAuthorizationRequest(authorizationResponse)).isNull();
 	}
 
@@ -280,13 +268,10 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
-
 		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT);
 		given(this.authenticationManager.authenticate(any(Authentication.class)))
 				.willThrow(new OAuth2AuthorizationException(error));
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/callback/client-1?error=invalid_grant");
 	}
 
@@ -298,9 +283,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService
 				.loadAuthorizedClient(this.registration1.getRegistrationId(), this.principalName1);
 		assertThat(authorizedClient).isNotNull();
@@ -318,9 +301,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/callback/client-1");
 	}
 
@@ -338,9 +319,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(request, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
-
 		this.filter.doFilter(request, response, filterChain);
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/saved-request");
 	}
 
@@ -349,19 +328,14 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		MockHttpServletRequest authorizationRequest = createAuthorizationRequest("/callback/client-1");
 		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
-
 		RequestCache requestCache = spy(HttpSessionRequestCache.class);
 		this.filter.setRequestCache(requestCache);
-
 		authorizationRequest.setRequestURI("/saved-request");
 		requestCache.saveRequest(authorizationRequest, response);
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		verify(requestCache).getRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/saved-request");
 	}
@@ -374,26 +348,21 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(anonymousPrincipal);
 		SecurityContextHolder.setContext(securityContext);
-
 		MockHttpServletRequest authorizationRequest = createAuthorizationRequest("/callback/client-1");
 		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
 				this.registration1.getRegistrationId(), anonymousPrincipal, authorizationResponse);
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration1);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(anonymousPrincipal.getName());
 		assertThat(authorizedClient.getAccessToken()).isNotNull();
-
 		HttpSession session = authorizationResponse.getSession(false);
 		assertThat(session).isNotNull();
-
 		@SuppressWarnings("unchecked")
 		Map<String, OAuth2AuthorizedClient> authorizedClients = (Map<String, OAuth2AuthorizedClient>) session
 				.getAttribute(HttpSessionOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS");
@@ -407,26 +376,21 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 			throws Exception {
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		SecurityContextHolder.setContext(securityContext); // null Authentication
-
 		MockHttpServletRequest authorizationRequest = createAuthorizationRequest("/callback/client-1");
 		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
-
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository
 				.loadAuthorizedClient(this.registration1.getRegistrationId(), null, authorizationResponse);
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration1);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo("anonymousUser");
 		assertThat(authorizedClient.getAccessToken()).isNotNull();
-
 		HttpSession session = authorizationResponse.getSession(false);
 		assertThat(session).isNotNull();
-
 		@SuppressWarnings("unchecked")
 		Map<String, OAuth2AuthorizedClient> authorizedClients = (Map<String, OAuth2AuthorizedClient>) session
 				.getAttribute(HttpSessionOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS");

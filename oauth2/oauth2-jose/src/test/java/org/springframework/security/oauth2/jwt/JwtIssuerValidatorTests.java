@@ -36,23 +36,19 @@ public class JwtIssuerValidatorTests {
 	@Test
 	public void validateWhenIssuerMatchesThenReturnsSuccess() {
 		Jwt jwt = TestJwts.jwt().claim("iss", ISSUER).build();
-
 		assertThat(this.validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
 	public void validateWhenIssuerMismatchesThenReturnsError() {
 		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "https://other").build();
-
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
-
 		assertThat(result.getErrors()).isNotEmpty();
 	}
 
 	@Test
 	public void validateWhenJwtHasNoIssuerThenReturnsError() {
 		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.AUD, "https://aud").build();
-
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 		assertThat(result.getErrors()).isNotEmpty();
 	}
@@ -62,7 +58,6 @@ public class JwtIssuerValidatorTests {
 	public void validateWhenIssuerMatchesAndIsNotAUriThenReturnsSuccess() {
 		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "issuer").build();
 		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
-
 		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 

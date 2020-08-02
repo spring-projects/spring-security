@@ -76,7 +76,6 @@ public class OAuth2LoginAuthenticationTokenTests {
 	public void constructorAuthorizationRequestResponseWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2LoginAuthenticationToken authentication = new OAuth2LoginAuthenticationToken(this.clientRegistration,
 				this.authorizationExchange);
-
 		assertThat(authentication.getPrincipal()).isNull();
 		assertThat(authentication.getCredentials()).isEqualTo("");
 		assertThat(authentication.getAuthorities()).isEqualTo(Collections.emptyList());
@@ -126,7 +125,6 @@ public class OAuth2LoginAuthenticationTokenTests {
 	public void constructorTokenRequestResponseWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2LoginAuthenticationToken authentication = new OAuth2LoginAuthenticationToken(this.clientRegistration,
 				this.authorizationExchange, this.principal, this.authorities, this.accessToken);
-
 		assertThat(authentication.getPrincipal()).isEqualTo(this.principal);
 		assertThat(authentication.getCredentials()).isEqualTo("");
 		assertThat(authentication.getAuthorities()).isEqualTo(this.authorities);

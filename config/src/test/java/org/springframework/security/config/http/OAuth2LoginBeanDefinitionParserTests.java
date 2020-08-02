@@ -144,9 +144,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestLoginWhenMultiClientRegistrationThenReturnLoginPageWithClients() throws Exception {
 		this.spring.configLocations(this.xml("MultiClientRegistration")).autowire();
-
 		MvcResult result = this.mvc.perform(get("/login")).andExpect(status().is2xxSuccessful()).andReturn();
-
 		assertThat(result.getResponse().getContentAsString())
 				.contains("<a href=\"/oauth2/authorization/google-login\">Google</a>");
 		assertThat(result.getResponse().getContentAsString())
@@ -157,10 +155,8 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenSingleClientRegistrationThenAutoRedirect() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/oauth2/authorization/google-login"));
-
 		verify(this.requestCache).saveRequest(any(), any());
 	}
 
@@ -169,7 +165,6 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenSingleClientRegistrationAndRequestFaviconNotAuthenticatedThenRedirectDefaultLoginPage()
 			throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration")).autowire();
-
 		this.mvc.perform(get("/favicon.ico").accept(new MediaType("image", "*"))).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
@@ -179,7 +174,6 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenSingleClientRegistrationAndRequestXHRNotAuthenticatedThenDoesNotRedirectForAuthorization()
 			throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration")).autowire();
-
 		this.mvc.perform(get("/").header("X-Requested-With", "XMLHttpRequest")).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
@@ -188,12 +182,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenAuthorizationRequestNotFoundThenThrowAuthenticationException() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomAuthenticationFailureHandler"))
 				.autowire();
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", "state123");
 		this.mvc.perform(get("/login/oauth2/code/google").params(params));
-
 		ArgumentCaptor<AuthenticationException> exceptionCaptor = ArgumentCaptor
 				.forClass(AuthenticationException.class);
 		verify(this.authenticationFailureHandler).onAuthenticationFailure(any(), any(), exceptionCaptor.capture());
@@ -206,25 +198,20 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenAuthorizationResponseValidThenAuthenticate() throws Exception {
 		this.spring.configLocations(this.xml("MultiClientRegistration-WithCustomConfiguration")).autowire();
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "github-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2User oauth2User = TestOAuth2Users.create();
 		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/github-login").params(params)).andExpect(status().is2xxSuccessful());
-
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
@@ -235,25 +222,20 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenAuthorizationResponseValidThenAuthenticationSuccessEventPublished() throws Exception {
 		this.spring.configLocations(this.xml("MultiClientRegistration-WithCustomConfiguration")).autowire();
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "github-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2User oauth2User = TestOAuth2Users.create();
 		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/github-login").params(params));
-
 		verify(this.authenticationSuccessListener).onApplicationEvent(any(AuthenticationSuccessEvent.class));
 	}
 
@@ -261,27 +243,22 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenOidcAuthenticationResponseValidThenJwtDecoderFactoryCalled() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithJwtDecoderFactoryAndDefaultSuccessHandler"))
 				.autowire();
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "google-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.oidcRequest()
 				.attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.oidcAccessTokenResponse()
 				.build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		Jwt jwt = TestJwts.user();
 		given(this.jwtDecoderFactory.createDecoder(any())).willReturn((token) -> jwt);
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/google-login").params(params)).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/"));
-
 		verify(this.jwtDecoderFactory).createDecoder(any());
 		verify(this.requestCache).getRequest(any(), any());
 	}
@@ -290,28 +267,22 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenCustomGrantedAuthoritiesMapperThenCalled() throws Exception {
 		this.spring.configLocations(this.xml("MultiClientRegistration-WithCustomGrantedAuthorities")).autowire();
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "github-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2User oauth2User = TestOAuth2Users.create();
 		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
-
 		given(this.userAuthoritiesMapper.mapAuthorities(any()))
 				.willReturn((Collection) AuthorityUtils.createAuthorityList("ROLE_OAUTH2_USER"));
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/github-login").params(params)).andExpect(status().is2xxSuccessful());
-
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
@@ -319,25 +290,19 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(SimpleGrantedAuthority.class)
 				.hasToString("ROLE_OAUTH2_USER");
-
 		// re-setup for OIDC test
 		attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "google-login");
 		authorizationRequest = TestOAuth2AuthorizationRequests.oidcRequest().attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		accessTokenResponse = TestOAuth2AccessTokenResponses.oidcAccessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		Jwt jwt = TestJwts.user();
 		given(this.jwtDecoderFactory.createDecoder(any())).willReturn((token) -> jwt);
-
 		given(this.userAuthoritiesMapper.mapAuthorities(any()))
 				.willReturn((Collection) AuthorityUtils.createAuthorityList("ROLE_OIDC_USER"));
-
 		this.mvc.perform(get("/login/oauth2/code/google-login").params(params)).andExpect(status().is2xxSuccessful());
-
 		authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		verify(this.authenticationSuccessHandler, times(2)).onAuthenticationSuccess(any(), any(),
 				authenticationCaptor.capture());
@@ -352,25 +317,20 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenCustomLoginProcessingUrlThenProcessAuthentication() throws Exception {
 		this.spring.configLocations(this.xml("MultiClientRegistration-WithCustomLoginProcessingUrl")).autowire();
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, "github-login");
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2User oauth2User = TestOAuth2Users.create();
 		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/github-login").params(params)).andExpect(status().is2xxSuccessful());
-
 		ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
@@ -382,9 +342,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenCustomAuthorizationRequestResolverThenCalled() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomAuthorizationRequestResolver"))
 				.autowire();
-
 		this.mvc.perform(get("/oauth2/authorization/google-login")).andExpect(status().is3xxRedirection());
-
 		verify(this.authorizationRequestResolver).resolve(any());
 	}
 
@@ -392,7 +350,6 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenMultiClientRegistrationThenRedirectDefaultLoginPage() throws Exception {
 		this.spring.configLocations(this.xml("MultiClientRegistration")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
@@ -400,7 +357,6 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenCustomLoginPageThenRedirectCustomLoginPage() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomLoginPage")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/custom-login"));
 	}
@@ -410,7 +366,6 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void requestWhenSingleClientRegistrationAndFormLoginConfiguredThenRedirectDefaultLoginPage()
 			throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithFormLogin")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
@@ -418,84 +373,66 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenCustomClientRegistrationRepositoryThenCalled() throws Exception {
 		this.spring.configLocations(this.xml("WithCustomClientRegistrationRepository")).autowire();
-
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2User oauth2User = TestOAuth2Users.create();
 		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
-
 		verify(this.clientRegistrationRepository).findByRegistrationId(clientRegistration.getRegistrationId());
 	}
 
 	@Test
 	public void requestWhenCustomAuthorizedClientRepositoryThenCalled() throws Exception {
 		this.spring.configLocations(this.xml("WithCustomAuthorizedClientRepository")).autowire();
-
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2User oauth2User = TestOAuth2Users.create();
 		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
-
 		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), any(), any(), any());
 	}
 
 	@Test
 	public void requestWhenCustomAuthorizedClientServiceThenCalled() throws Exception {
 		this.spring.configLocations(this.xml("WithCustomAuthorizedClientService")).autowire();
-
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.attributes(attributes).build();
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
 				.willReturn(authorizationRequest);
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2User oauth2User = TestOAuth2Users.create();
 		given(this.oauth2UserService.loadUser(any())).willReturn(oauth2User);
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
 		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
-
 		verify(this.authorizedClientService).saveAuthorizedClient(any(), any());
 	}
 
@@ -503,13 +440,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Test
 	public void requestWhenAuthorizedClientFoundThenMethodArgumentResolved() throws Exception {
 		this.spring.configLocations(xml("AuthorizedClientArgumentResolver")).autowire();
-
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
-
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, "user",
 				TestOAuth2AccessTokens.noScopes());
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(authorizedClient);
-
 		this.mvc.perform(get("/authorized-client")).andExpect(status().isOk()).andExpect(content().string("resolved"));
 	}
 

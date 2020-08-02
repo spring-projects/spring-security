@@ -59,12 +59,9 @@ public class OrServerWebExchangeMatcherTests {
 	public void matchesWhenFalseFalseThenFalse() {
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
-
 		verify(this.matcher1).matches(this.exchange);
 		verify(this.matcher2).matches(this.exchange);
 	}
@@ -73,12 +70,9 @@ public class OrServerWebExchangeMatcherTests {
 	public void matchesWhenTrueFalseThenTrueAndMatcher2NotInvoked() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).isEqualTo(params);
-
 		verify(this.matcher1).matches(this.exchange);
 		verify(this.matcher2, never()).matches(this.exchange);
 	}
@@ -88,12 +82,9 @@ public class OrServerWebExchangeMatcherTests {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).isEqualTo(params);
-
 		verify(this.matcher1).matches(this.exchange);
 		verify(this.matcher2).matches(this.exchange);
 	}

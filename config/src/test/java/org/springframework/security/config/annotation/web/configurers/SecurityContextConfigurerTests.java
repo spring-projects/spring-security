@@ -67,7 +67,6 @@ public class SecurityContextConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnSecurityContextPersistenceFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SecurityContextPersistenceFilter.class));
 	}
 
@@ -75,9 +74,7 @@ public class SecurityContextConfigurerTests {
 	public void securityContextWhenInvokedTwiceThenUsesOriginalSecurityContextRepository() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
 		given(DuplicateDoesNotOverrideConfig.SCR.loadContext(any())).willReturn(mock(SecurityContext.class));
-
 		this.mvc.perform(get("/"));
-
 		verify(DuplicateDoesNotOverrideConfig.SCR).loadContext(any(HttpRequestResponseHolder.class));
 	}
 
@@ -85,14 +82,12 @@ public class SecurityContextConfigurerTests {
 	@Test
 	public void securityContextWhenSecurityContextRepositoryNotConfiguredThenDoesNotThrowException() throws Exception {
 		this.spring.register(SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig.class).autowire();
-
 		this.mvc.perform(get("/"));
 	}
 
 	@Test
 	public void requestWhenSecurityContextWithDefaultsInLambdaThenSessionIsCreated() throws Exception {
 		this.spring.register(SecurityContextWithDefaultsInLambdaConfig.class).autowire();
-
 		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
 		HttpSession session = mvcResult.getRequest().getSession(false);
 		assertThat(session).isNotNull();
@@ -101,7 +96,6 @@ public class SecurityContextConfigurerTests {
 	@Test
 	public void requestWhenSecurityContextDisabledInLambdaThenContextNotSavedInSession() throws Exception {
 		this.spring.register(SecurityContextDisabledInLambdaConfig.class).autowire();
-
 		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
 		HttpSession session = mvcResult.getRequest().getSession(false);
 		assertThat(session).isNull();
@@ -110,7 +104,6 @@ public class SecurityContextConfigurerTests {
 	@Test
 	public void requestWhenNullSecurityContextRepositoryInLambdaThenContextNotSavedInSession() throws Exception {
 		this.spring.register(NullSecurityContextRepositoryInLambdaConfig.class).autowire();
-
 		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
 		HttpSession session = mvcResult.getRequest().getSession(false);
 		assertThat(session).isNull();

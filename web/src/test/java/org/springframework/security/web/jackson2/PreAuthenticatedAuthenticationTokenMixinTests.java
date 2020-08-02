@@ -44,7 +44,6 @@ public class PreAuthenticatedAuthenticationTokenMixinTests extends AbstractMixin
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
-
 	PreAuthenticatedAuthenticationToken expected;
 
 	@Before

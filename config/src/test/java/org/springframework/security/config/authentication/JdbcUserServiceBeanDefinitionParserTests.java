@@ -45,9 +45,8 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 	private static String USER_CACHE_XML = "<b:bean id='userCache' class='org.springframework.security.authentication.dao.MockUserCache'/>";
 
 	private static String DATA_SOURCE = "    <b:bean id='populator' class='org.springframework.security.config.DataSourcePopulator'>"
-			+ "        <b:property name='dataSource' ref='dataSource'/>" + "    </b:bean>" +
-
-			"    <b:bean id='dataSource' class='org.springframework.security.TestDataSource'>"
+			+ "        <b:property name='dataSource' ref='dataSource'/>" + "    </b:bean>"
+			+ "    <b:bean id='dataSource' class='org.springframework.security.TestDataSource'>"
 			+ "        <b:constructor-arg value='jdbcnamespaces'/>" + "    </b:bean>";
 
 	private InMemoryXmlApplicationContext appContext;

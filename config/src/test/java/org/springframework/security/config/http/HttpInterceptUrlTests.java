@@ -48,11 +48,8 @@ public class HttpInterceptUrlTests {
 	@Test
 	public void interceptUrlWhenRequestMatcherRefThenWorks() throws Exception {
 		loadConfig("interceptUrlWhenRequestMatcherRefThenWorks.xml");
-
 		this.mockMvc.perform(get("/foo")).andExpect(status().isUnauthorized());
-
 		this.mockMvc.perform(get("/FOO")).andExpect(status().isUnauthorized());
-
 		this.mockMvc.perform(get("/other")).andExpect(status().isOk());
 	}
 
@@ -65,9 +62,7 @@ public class HttpInterceptUrlTests {
 		context.setServletContext(new MockServletContext());
 		context.refresh();
 		this.context = context;
-
 		context.getAutowireCapableBeanFactory().autowireBean(this);
-
 		Filter springSecurityFilterChain = context.getBean("springSecurityFilterChain", Filter.class);
 		this.mockMvc = MockMvcBuilders.standaloneSetup(new FooController()).addFilters(springSecurityFilterChain)
 				.build();

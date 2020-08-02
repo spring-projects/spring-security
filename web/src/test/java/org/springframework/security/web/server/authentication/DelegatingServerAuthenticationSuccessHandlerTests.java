@@ -84,9 +84,7 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 	public void onAuthenticationSuccessWhenSingleThenExecuted() {
 		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(
 				this.delegate1);
-
 		handler.onAuthenticationSuccess(this.exchange, this.authentication).block();
-
 		this.delegate1Result.assertWasSubscribed();
 	}
 
@@ -94,9 +92,7 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 	public void onAuthenticationSuccessWhenMultipleThenExecuted() {
 		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(
 				this.delegate1, this.delegate2);
-
 		handler.onAuthenticationSuccess(this.exchange, this.authentication).block();
-
 		this.delegate1Result.assertWasSubscribed();
 		this.delegate2Result.assertWasSubscribed();
 	}
@@ -114,9 +110,7 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 		});
 		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(slow,
 				second);
-
 		handler.onAuthenticationSuccess(this.exchange, this.authentication).block();
-
 		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
 

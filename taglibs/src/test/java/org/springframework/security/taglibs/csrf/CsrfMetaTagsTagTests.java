@@ -39,9 +39,7 @@ public class CsrfMetaTagsTagTests {
 	@Test
 	public void handleTokenRendersTags() {
 		CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
-
 		String value = this.tag.handleToken(token);
-
 		assertThat(value).as("The returned value should not be null.").isNotNull();
 		assertThat(value).withFailMessage("The output is not correct.")
 				.isEqualTo("<meta name=\"_csrf_parameter\" content=\"_csrf\" />"
@@ -52,9 +50,7 @@ public class CsrfMetaTagsTagTests {
 	@Test
 	public void handleTokenRendersTagsDifferentToken() {
 		CsrfToken token = new DefaultCsrfToken("csrfHeader", "csrfParameter", "fooBarBazQux");
-
 		String value = this.tag.handleToken(token);
-
 		assertThat(value).as("The returned value should not be null.").isNotNull();
 		assertThat(value).withFailMessage("The output is not correct.")
 				.isEqualTo("<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />"

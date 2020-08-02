@@ -38,10 +38,8 @@ public class RememberMeAuthenticationProviderTests {
 	@Test
 	public void testDetectsAnInvalidKey() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
-
 		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("WRONG_KEY", "Test",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-
 		try {
 			aap.authenticate(token);
 			fail("Should have thrown BadCredentialsException");
@@ -57,7 +55,6 @@ public class RememberMeAuthenticationProviderTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -71,10 +68,8 @@ public class RememberMeAuthenticationProviderTests {
 	@Test
 	public void testIgnoresClassesItDoesNotSupport() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
-
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
-
 		// Try it anyway
 		assertThat(aap.authenticate(token)).isNull();
 	}
@@ -82,12 +77,9 @@ public class RememberMeAuthenticationProviderTests {
 	@Test
 	public void testNormalOperation() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
-
 		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("qwerty", "Test",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-
 		Authentication result = aap.authenticate(token);
-
 		assertThat(token).isEqualTo(result);
 	}
 

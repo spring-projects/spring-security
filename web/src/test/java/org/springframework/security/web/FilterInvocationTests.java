@@ -48,7 +48,6 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld/some/more/segments.html");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
 		FilterInvocation fi = new FilterInvocation(request, response, chain);
@@ -66,21 +65,18 @@ public class FilterInvocationTests {
 	public void testRejectsNullFilterChain() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		new FilterInvocation(request, response, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNullServletRequest() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		new FilterInvocation(null, response, mock(FilterChain.class));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNullServletResponse() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-
 		new FilterInvocation(request, null, mock(FilterChain.class));
 	}
 
@@ -94,7 +90,6 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld?foo=bar");
@@ -111,7 +106,6 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld");

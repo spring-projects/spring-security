@@ -121,9 +121,7 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-
 		this.filter.filter(exchange, chain).block();
-
 		verifyNoInteractions(this.authenticationManager);
 	}
 
@@ -131,7 +129,6 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	public void filterWhenMatchThenAuthorizedClientSaved() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(clientRegistration));
-
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
@@ -139,18 +136,14 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
-
 		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
-
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-
 		this.filter.filter(exchange, chain).block();
-
 		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), any(AnonymousAuthenticationToken.class),
 				any());
 	}
@@ -163,7 +156,6 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
-
 		// 1) redirect_uri with query parameters
 		Map<String, String> parameters = new LinkedHashMap<>();
 		parameters.put("param1", "value1");
@@ -175,15 +167,12 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
-
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-
 		this.filter.filter(exchange, chain).block();
 		verify(this.authenticationManager, times(1)).authenticate(any());
-
 		// 2) redirect_uri with query parameters AND authorization response additional
 		// parameters
 		Map<String, String> additionalParameters = new LinkedHashMap<>();
@@ -191,7 +180,6 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		additionalParameters.put("auth-param2", "value2");
 		authorizationResponse = createAuthorizationResponse(authorizationRequest, additionalParameters);
 		exchange = MockServerWebExchange.from(authorizationResponse);
-
 		this.filter.filter(exchange, chain).block();
 		verify(this.authenticationManager, times(2)).authenticate(any());
 	}
@@ -209,7 +197,6 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 				clientRegistration);
 		given(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
-
 		// 1) Parameter value
 		Map<String, String> parametersNotMatch = new LinkedHashMap<>(parameters);
 		parametersNotMatch.put("param2", "value8");
@@ -218,26 +205,21 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-
 		this.filter.filter(exchange, chain).block();
 		verifyNoInteractions(this.authenticationManager);
-
 		// 2) Parameter order
 		parametersNotMatch = new LinkedHashMap<>();
 		parametersNotMatch.put("param2", "value2");
 		parametersNotMatch.put("param1", "value1");
 		authorizationResponse = createAuthorizationResponse(createAuthorizationRequest(requestUri, parametersNotMatch));
 		exchange = MockServerWebExchange.from(authorizationResponse);
-
 		this.filter.filter(exchange, chain).block();
 		verifyNoInteractions(this.authenticationManager);
-
 		// 3) Parameter missing
 		parametersNotMatch = new LinkedHashMap<>(parameters);
 		parametersNotMatch.remove("param2");
 		authorizationResponse = createAuthorizationResponse(createAuthorizationRequest(requestUri, parametersNotMatch));
 		exchange = MockServerWebExchange.from(authorizationResponse);
-
 		this.filter.filter(exchange, chain).block();
 		verifyNoInteractions(this.authenticationManager);
 	}
@@ -249,7 +231,6 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		given(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
-
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
@@ -257,20 +238,15 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
-
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-
 		ServerRequestCache requestCache = mock(ServerRequestCache.class);
 		given(requestCache.getRedirectUri(any(ServerWebExchange.class)))
 				.willReturn(Mono.just(URI.create("/saved-request")));
-
 		this.filter.setRequestCache(requestCache);
-
 		this.filter.filter(exchange, chain).block();
-
 		verify(requestCache).getRedirectUri(exchange);
 		assertThat(exchange.getResponse().getHeaders().getLocation().toString()).isEqualTo("/saved-request");
 	}
@@ -280,7 +256,6 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	public void filterWhenAuthenticationConverterThrowsOAuth2AuthorizationExceptionThenMappedToOAuth2AuthenticationException() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
-
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
@@ -288,12 +263,10 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
-
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-
 		assertThatThrownBy(() -> this.filter.filter(exchange, chain).block())
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError()).extracting("errorCode")
@@ -306,7 +279,6 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	public void filterWhenAuthenticationManagerThrowsOAuth2AuthorizationExceptionThenMappedToOAuth2AuthenticationException() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(clientRegistration));
-
 		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
 		OAuth2AuthorizationRequest oauth2AuthorizationRequest = createOAuth2AuthorizationRequest(authorizationRequest,
 				clientRegistration);
@@ -314,15 +286,12 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(oauth2AuthorizationRequest));
-
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.error(new OAuth2AuthorizationException(new OAuth2Error("authorization_error"))));
-
 		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-
 		assertThatThrownBy(() -> this.filter.filter(exchange, chain).block())
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError()).extracting("errorCode")

@@ -40,7 +40,6 @@ public class XContentTypeOptionsServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenNoHeadersThenWriteHeaders() {
 		this.writer.writeHttpHeaders(this.exchange);
-
 		assertThat(this.headers).hasSize(1);
 		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 				.containsOnly(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
@@ -50,9 +49,7 @@ public class XContentTypeOptionsServerHttpHeadersWriterTests {
 	public void writeHeadersWhenHeaderWrittenThenDoesNotOverrride() {
 		String headerValue = "value";
 		this.headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
-
 		this.writer.writeHttpHeaders(this.exchange);
-
 		assertThat(this.headers).hasSize(1);
 		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 				.containsOnly(headerValue);

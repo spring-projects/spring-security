@@ -44,7 +44,6 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 		+ "\"authentication\": " + UsernamePasswordAuthenticationTokenMixinTests.AUTHENTICATED_STRINGPRINCIPAL_JSON
 	+ "}";
 	// @formatter:on
-
 	@Test
 	public void securityContextSerializeTest() throws JsonProcessingException, JSONException {
 		SecurityContext context = new SecurityContextImpl();

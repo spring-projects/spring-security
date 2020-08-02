@@ -68,10 +68,8 @@ public class ServicePropertiesTests {
 			assertThat(sp.getArtifactParameter()).isEqualTo("notticket");
 			sp.setServiceParameter("notservice");
 			assertThat(sp.getServiceParameter()).isEqualTo("notservice");
-
 			sp.setService("https://mycompany.com/service");
 			assertThat(sp.getService()).isEqualTo("https://mycompany.com/service");
-
 			sp.afterPropertiesSet();
 		}
 	}

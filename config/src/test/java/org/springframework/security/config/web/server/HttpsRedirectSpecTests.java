@@ -55,14 +55,12 @@ public class HttpsRedirectSpecTests {
 	@Test
 	public void getWhenSecureThenDoesNotRedirect() {
 		this.spring.register(RedirectToHttpConfig.class).autowire();
-
 		this.client.get().uri("https://localhost").exchange().expectStatus().isNotFound();
 	}
 
 	@Test
 	public void getWhenInsecureThenRespondsWithRedirectToSecure() {
 		this.spring.register(RedirectToHttpConfig.class).autowire();
-
 		this.client.get().uri("http://localhost").exchange().expectStatus().isFound().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "https://localhost");
 	}
@@ -70,7 +68,6 @@ public class HttpsRedirectSpecTests {
 	@Test
 	public void getWhenInsecureAndRedirectConfiguredInLambdaThenRespondsWithRedirectToSecure() {
 		this.spring.register(RedirectToHttpsInLambdaConfig.class).autowire();
-
 		this.client.get().uri("http://localhost").exchange().expectStatus().isFound().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "https://localhost");
 	}
@@ -78,9 +75,7 @@ public class HttpsRedirectSpecTests {
 	@Test
 	public void getWhenInsecureAndPathRequiresTransportSecurityThenRedirects() {
 		this.spring.register(SometimesRedirectToHttpsConfig.class).autowire();
-
 		this.client.get().uri("http://localhost:8080").exchange().expectStatus().isNotFound();
-
 		this.client.get().uri("http://localhost:8080/secure").exchange().expectStatus().isFound().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "https://localhost:8443/secure");
 	}
@@ -88,9 +83,7 @@ public class HttpsRedirectSpecTests {
 	@Test
 	public void getWhenInsecureAndPathRequiresTransportSecurityInLambdaThenRedirects() {
 		this.spring.register(SometimesRedirectToHttpsInLambdaConfig.class).autowire();
-
 		this.client.get().uri("http://localhost:8080").exchange().expectStatus().isNotFound();
-
 		this.client.get().uri("http://localhost:8080/secure").exchange().expectStatus().isFound().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "https://localhost:8443/secure");
 	}
@@ -98,10 +91,8 @@ public class HttpsRedirectSpecTests {
 	@Test
 	public void getWhenInsecureAndUsingCustomPortMapperThenRespondsWithRedirectToSecurePort() {
 		this.spring.register(RedirectToHttpsViaCustomPortsConfig.class).autowire();
-
 		PortMapper portMapper = this.spring.getContext().getBean(PortMapper.class);
 		given(portMapper.lookupHttpsPort(4080)).willReturn(4443);
-
 		this.client.get().uri("http://localhost:4080").exchange().expectStatus().isFound().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "https://localhost:4443");
 	}
@@ -109,10 +100,8 @@ public class HttpsRedirectSpecTests {
 	@Test
 	public void getWhenInsecureAndUsingCustomPortMapperInLambdaThenRespondsWithRedirectToSecurePort() {
 		this.spring.register(RedirectToHttpsViaCustomPortsInLambdaConfig.class).autowire();
-
 		PortMapper portMapper = this.spring.getContext().getBean(PortMapper.class);
 		given(portMapper.lookupHttpsPort(4080)).willReturn(4443);
-
 		this.client.get().uri("http://localhost:4080").exchange().expectStatus().isFound().expectHeader()
 				.valueEquals(HttpHeaders.LOCATION, "https://localhost:4443");
 	}
@@ -127,7 +116,6 @@ public class HttpsRedirectSpecTests {
 			http
 				.redirectToHttps();
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -143,7 +131,6 @@ public class HttpsRedirectSpecTests {
 			http
 				.redirectToHttps(withDefaults());
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -160,7 +147,6 @@ public class HttpsRedirectSpecTests {
 				.redirectToHttps()
 					.httpsRedirectWhen(new PathPatternParserServerWebExchangeMatcher("/secure"));
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -179,7 +165,6 @@ public class HttpsRedirectSpecTests {
 						.httpsRedirectWhen(new PathPatternParserServerWebExchangeMatcher("/secure"))
 				);
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -196,7 +181,6 @@ public class HttpsRedirectSpecTests {
 				.redirectToHttps()
 					.portMapper(portMapper());
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -220,7 +204,6 @@ public class HttpsRedirectSpecTests {
 						.portMapper(portMapper())
 				);
 			// @formatter:on
-
 			return http.build();
 		}
 

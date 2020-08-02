@@ -72,21 +72,17 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	public void logoutWhenOidcRedirectUrlConfiguredThenRedirects() throws IOException, ServletException {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?id_token_hint=id-token");
 	}
 
 	@Test
 	public void logoutWhenNotOAuth2AuthenticationThenDefaults() throws IOException, ServletException {
 		Authentication token = mock(Authentication.class);
-
 		this.request.setUserPrincipal(token);
 		this.handler.setDefaultTargetUrl("https://default");
 		this.handler.onLogoutSuccess(this.request, this.response, token);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://default");
 	}
 
@@ -94,41 +90,32 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	public void logoutWhenNotOidcUserThenDefaults() throws IOException, ServletException {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOAuth2Users.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-
 		this.request.setUserPrincipal(token);
 		this.handler.setDefaultTargetUrl("https://default");
 		this.handler.onLogoutSuccess(this.request, this.response, token);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://default");
 	}
 
 	@Test
 	public void logoutWhenClientRegistrationHasNoEndSessionEndpointThenDefaults() throws Exception {
-
 		ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 		ClientRegistrationRepository repository = new InMemoryClientRegistrationRepository(registration);
 		OidcClientInitiatedLogoutSuccessHandler handler = new OidcClientInitiatedLogoutSuccessHandler(repository);
-
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, registration.getRegistrationId());
-
 		this.request.setUserPrincipal(token);
 		handler.setDefaultTargetUrl("https://default");
 		handler.onLogoutSuccess(this.request, this.response, token);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://default");
 	}
 
 	@Test
 	public void logoutWhenUsingPostLogoutRedirectUriThenIncludesItInRedirect() throws IOException, ServletException {
-
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-
 		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?" + "id_token_hint=id-token&"
 				+ "post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
 	}
@@ -136,7 +123,6 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	@Test
 	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect()
 			throws IOException, ServletException {
-
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 		this.handler.setPostLogoutRedirectUri("{baseUrl}");
@@ -145,7 +131,6 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		this.request.setServerName("rp.example.org");
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
 	}

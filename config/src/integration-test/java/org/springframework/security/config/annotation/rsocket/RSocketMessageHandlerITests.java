@@ -79,7 +79,6 @@ public class RSocketMessageHandlerITests {
 		this.server = RSocketFactory.receive().frameDecoder(PayloadDecoder.ZERO_COPY)
 				.addSocketAcceptorPlugin(this.interceptor).acceptor(this.handler.responder())
 				.transport(TcpServerTransport.create("localhost", 0)).start().block();
-
 		this.requester = RSocketRequester.builder()
 				// .rsocketFactory((factory) ->
 				// factory.addRequesterPlugin(payloadInterceptor))
@@ -99,7 +98,6 @@ public class RSocketMessageHandlerITests {
 		String data = "rob";
 		assertThatCode(() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
 				.isInstanceOf(ApplicationErrorException.class).hasMessageContaining("Access Denied");
-
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -111,7 +109,6 @@ public class RSocketMessageHandlerITests {
 				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
 				.retrieveMono(String.class).block()).isInstanceOf(ApplicationErrorException.class)
 						.hasMessageContaining("Invalid Credentials");
-
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -122,7 +119,6 @@ public class RSocketMessageHandlerITests {
 		String hiRob = this.requester.route("secure.retrieve-mono")
 				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
 				.retrieveMono(String.class).block();
-
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}
@@ -131,7 +127,6 @@ public class RSocketMessageHandlerITests {
 	public void retrieveMonoWhenPublicThenGranted() throws Exception {
 		String data = "rob";
 		String hiRob = this.requester.route("retrieve-mono").data(data).retrieveMono(String.class).block();
-
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}
@@ -142,7 +137,6 @@ public class RSocketMessageHandlerITests {
 		assertThatCode(() -> this.requester.route("secure.retrieve-flux").data(data, String.class)
 				.retrieveFlux(String.class).collectList().block()).isInstanceOf(ApplicationErrorException.class)
 						.hasMessageContaining("Access Denied");
-
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -151,7 +145,6 @@ public class RSocketMessageHandlerITests {
 		Flux<String> data = Flux.just("a", "b", "c");
 		List<String> hi = this.requester.route("retrieve-flux").data(data, String.class).retrieveFlux(String.class)
 				.collectList().block();
-
 		assertThat(hi).containsOnly("hello a", "hello b", "hello c");
 		assertThat(this.controller.payloads).containsOnlyElementsOf(data.collectList().block());
 	}
@@ -162,7 +155,6 @@ public class RSocketMessageHandlerITests {
 		assertThatCode(
 				() -> this.requester.route("secure.hello").data(data).retrieveFlux(String.class).collectList().block())
 						.isInstanceOf(ApplicationErrorException.class).hasMessageContaining("Access Denied");
-
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -170,7 +162,6 @@ public class RSocketMessageHandlerITests {
 	public void sendWhenSecureThenDenied() throws Exception {
 		String data = "hi";
 		this.requester.route("secure.send").data(data).send().block();
-
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -248,7 +239,6 @@ public class RSocketMessageHandlerITests {
 		@MessageMapping({ "secure.send", "send" })
 		Mono<Void> send(Mono<String> payload) {
 			return payload.doOnNext(this::add).then(Mono.fromRunnable(() -> doNotifyAll()));
-
 		}
 
 		private synchronized void doNotifyAll() {

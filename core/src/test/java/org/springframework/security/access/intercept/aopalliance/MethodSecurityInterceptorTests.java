@@ -198,7 +198,6 @@ public class MethodSecurityInterceptorTests {
 		given(this.adm.supports(MethodInvocation.class)).willReturn(true);
 		given(this.mds.supports(MethodInvocation.class)).willReturn(true);
 		given(this.mds.getAllConfigAttributes()).willReturn(null);
-
 		this.interceptor.setValidateConfigAttributes(true);
 		this.interceptor.afterPropertiesSet();
 		verify(this.adm, never()).supports(any(ConfigAttribute.class));
@@ -224,10 +223,8 @@ public class MethodSecurityInterceptorTests {
 	public void callIsntMadeWhenAuthenticationManagerRejectsAuthentication() {
 		final TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password");
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		mdsReturnsUserRole();
 		given(this.authman.authenticate(token)).willThrow(new BadCredentialsException("rejected"));
-
 		this.advisedTarget.makeLowerCase("HELLO");
 	}
 
@@ -237,9 +234,7 @@ public class MethodSecurityInterceptorTests {
 		this.interceptor.setPublishAuthorizationSuccess(true);
 		SecurityContextHolder.getContext().setAuthentication(this.token);
 		mdsReturnsUserRole();
-
 		String result = this.advisedTarget.makeLowerCase("HELLO");
-
 		// Note we check the isAuthenticated remained true in following line
 		assertThat(result)
 				.isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken true");
@@ -256,7 +251,6 @@ public class MethodSecurityInterceptorTests {
 		given(this.authman.authenticate(this.token)).willReturn(this.token);
 		willThrow(new AccessDeniedException("rejected")).given(this.adm).decide(any(Authentication.class),
 				any(MethodInvocation.class), any(List.class));
-
 		try {
 			this.advisedTarget.makeUpperCase("HELLO");
 			fail("Expected Exception");
@@ -282,7 +276,6 @@ public class MethodSecurityInterceptorTests {
 		this.interceptor.setRunAsManager(runAs);
 		mdsReturnsUserRole();
 		given(runAs.buildRunAs(eq(this.token), any(MethodInvocation.class), any(List.class))).willReturn(runAsToken);
-
 		String result = this.advisedTarget.makeUpperCase("hello");
 		assertThat(result).isEqualTo("HELLO org.springframework.security.access.intercept.RunAsUserToken true");
 		// Check we've changed back
@@ -304,14 +297,12 @@ public class MethodSecurityInterceptorTests {
 		this.interceptor.setRunAsManager(runAs);
 		mdsReturnsUserRole();
 		given(runAs.buildRunAs(eq(this.token), any(MethodInvocation.class), any(List.class))).willReturn(runAsToken);
-
 		try {
 			this.advisedTarget.makeUpperCase("hello");
 			fail("Expected Exception");
 		}
 		catch (RuntimeException success) {
 		}
-
 		// Check we've changed back
 		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.token);
@@ -329,19 +320,15 @@ public class MethodSecurityInterceptorTests {
 		this.token.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(this.token);
 		mdsReturnsUserRole();
-
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		this.interceptor.setAfterInvocationManager(aim);
-
 		given(mi.proceed()).willThrow(new Throwable());
-
 		try {
 			this.interceptor.invoke(mi);
 			fail("Expected exception");
 		}
 		catch (Throwable expected) {
 		}
-
 		verifyZeroInteractions(aim);
 	}
 

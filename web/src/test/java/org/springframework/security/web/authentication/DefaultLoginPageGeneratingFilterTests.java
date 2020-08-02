@@ -60,9 +60,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
-
 		assertThat(response.getContentAsString()).isNotEmpty();
 	}
 
@@ -71,10 +69,8 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login");
 		filter.doFilter(request, response, this.chain);
-
 		assertThat(response.getContentAsString()).isEmpty();
 	}
 
@@ -83,11 +79,9 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/context/login");
 		request.setContextPath("/context");
 		filter.doFilter(request, response, this.chain);
-
 		assertThat(response.getContentAsString()).isNotEmpty();
 	}
 
@@ -96,9 +90,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		filter.doFilter(new MockHttpServletRequest("GET", "/api/login"), response, this.chain);
-
 		assertThat(response.getContentAsString()).isEmpty();
 	}
 
@@ -107,12 +99,9 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
 		request.setQueryString("error");
-
 		filter.doFilter(request, response, this.chain);
-
 		assertThat(response.getContentAsString()).isNotEmpty();
 	}
 
@@ -136,12 +125,9 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
 		request.setQueryString("not");
-
 		filter.doFilter(request, response, this.chain);
-
 		assertThat(response.getContentAsString()).isEmpty();
 	}
 
@@ -162,7 +148,6 @@ public class DefaultLoginPageGeneratingFilterTests {
 		String message = messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials",
 				"Bad credentials", Locale.KOREA);
 		request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, new BadCredentialsException(message));
-
 		filter.doFilter(request, new MockHttpServletResponse(), this.chain);
 	}
 
@@ -172,14 +157,11 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
 		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
 		filter.setOauth2LoginEnabled(true);
-
 		String clientName = "Google < > \" \' &";
 		filter.setOauth2AuthenticationUrlToClientName(
 				Collections.singletonMap("/oauth2/authorization/google", clientName));
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
-
 		assertThat(response.getContentAsString())
 				.contains("<a href=\"/oauth2/authorization/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
 	}
@@ -189,13 +171,10 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
 		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
 		filter.setSaml2LoginEnabled(true);
-
 		String clientName = "Google < > \" \' &";
 		filter.setSaml2AuthenticationUrlToProviderName(Collections.singletonMap("/saml/sso/google", clientName));
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
-
 		assertThat(response.getContentAsString()).contains("Login with SAML 2.0");
 		assertThat(response.getContentAsString())
 				.contains("<a href=\"/saml/sso/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");

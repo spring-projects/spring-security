@@ -36,7 +36,6 @@ public class SecurityConfigurerAdapterTests {
 	public void postProcessObjectPostProcessorsAreSorted() {
 		this.adapter.addObjectPostProcessor(new OrderedObjectPostProcessor(Ordered.LOWEST_PRECEDENCE));
 		this.adapter.addObjectPostProcessor(new OrderedObjectPostProcessor(Ordered.HIGHEST_PRECEDENCE));
-
 		assertThat(this.adapter.postProcess("hi"))
 				.isEqualTo("hi " + Ordered.HIGHEST_PRECEDENCE + " " + Ordered.LOWEST_PRECEDENCE);
 	}

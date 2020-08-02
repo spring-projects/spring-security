@@ -64,15 +64,12 @@ public class SpringCacheBasedUserCacheTests {
 	@Test
 	public void cacheOperationsAreSuccessful() throws Exception {
 		SpringCacheBasedUserCache cache = new SpringCacheBasedUserCache(getCache());
-
 		// Check it gets stored in the cache
 		cache.putUserInCache(getUser());
 		assertThat(getUser().getPassword()).isEqualTo(cache.getUserFromCache(getUser().getUsername()).getPassword());
-
 		// Check it gets removed from the cache
 		cache.removeUserFromCache(getUser());
 		assertThat(cache.getUserFromCache(getUser().getUsername())).isNull();
-
 		// Check it doesn't return values for null or unknown users
 		assertThat(cache.getUserFromCache(null)).isNull();
 		assertThat(cache.getUserFromCache("UNKNOWN_USER")).isNull();

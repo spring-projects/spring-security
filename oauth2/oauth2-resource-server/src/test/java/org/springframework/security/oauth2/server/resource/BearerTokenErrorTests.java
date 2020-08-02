@@ -44,7 +44,6 @@ public class BearerTokenErrorTests {
 	@Test
 	public void constructorWithErrorCodeWhenErrorCodeIsValidThenCreated() {
 		BearerTokenError error = new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, null, null);
-
 		assertThat(error.getErrorCode()).isEqualTo(TEST_ERROR_CODE);
 		assertThat(error.getHttpStatus()).isEqualTo(TEST_HTTP_STATUS);
 		assertThat(error.getDescription()).isNull();
@@ -74,7 +73,6 @@ public class BearerTokenErrorTests {
 	public void constructorWithAllParametersWhenAllParametersAreValidThenCreated() {
 		BearerTokenError error = new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI,
 				TEST_SCOPE);
-
 		assertThat(error.getErrorCode()).isEqualTo(TEST_ERROR_CODE);
 		assertThat(error.getHttpStatus()).isEqualTo(TEST_HTTP_STATUS);
 		assertThat(error.getDescription()).isEqualTo(TEST_DESCRIPTION);

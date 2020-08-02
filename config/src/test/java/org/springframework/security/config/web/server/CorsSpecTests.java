@@ -105,9 +105,7 @@ public class CorsSpecTests {
 		WebTestClient client = buildClient();
 		FluxExchangeResult<String> response = client.get().uri("https://example.com/")
 				.headers((h) -> h.setOrigin("https://origin.example.com")).exchange().returnResult(String.class);
-
 		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
-
 		if (!this.expectedHeaders.isEmpty()) {
 			assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(this.expectedHeaders);
 		}

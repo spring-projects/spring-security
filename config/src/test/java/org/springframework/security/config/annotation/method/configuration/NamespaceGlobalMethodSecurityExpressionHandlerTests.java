@@ -54,9 +54,7 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 	@WithMockUser
 	public void methodSecurityWhenUsingCustomPermissionEvaluatorThenPreAuthorizesAccordingly() {
 		this.spring.register(CustomAccessDecisionManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatCode(() -> this.service.hasPermission("granted")).doesNotThrowAnyException();
-
 		assertThatThrownBy(() -> this.service.hasPermission("denied")).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -64,9 +62,7 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 	@WithMockUser
 	public void methodSecurityWhenUsingCustomPermissionEvaluatorThenPostAuthorizesAccordingly() {
 		this.spring.register(CustomAccessDecisionManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatCode(() -> this.service.postHasPermission("granted")).doesNotThrowAnyException();
-
 		assertThatThrownBy(() -> this.service.postHasPermission("denied")).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -76,7 +72,6 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 		@Override
 		protected MethodSecurityExpressionHandler createExpressionHandler() {
 			DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-
 			expressionHandler.setPermissionEvaluator(new PermissionEvaluator() {
 				@Override
 				public boolean hasPermission(Authentication authentication, Object targetDomainObject,
@@ -90,7 +85,6 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 					throw new UnsupportedOperationException();
 				}
 			});
-
 			return expressionHandler;
 		}
 

@@ -69,7 +69,6 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 	public void constructorAuthorizationRequestResponseWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2AuthorizationCodeAuthenticationToken authentication = new OAuth2AuthorizationCodeAuthenticationToken(
 				this.clientRegistration, this.authorizationExchange);
-
 		assertThat(authentication.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
 		assertThat(authentication.getCredentials())
 				.isEqualTo(this.authorizationExchange.getAuthorizationResponse().getCode());
@@ -103,7 +102,6 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 	public void constructorTokenRequestResponseWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2AuthorizationCodeAuthenticationToken authentication = new OAuth2AuthorizationCodeAuthenticationToken(
 				this.clientRegistration, this.authorizationExchange, this.accessToken);
-
 		assertThat(authentication.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
 		assertThat(authentication.getCredentials()).isEqualTo(this.accessToken.getTokenValue());
 		assertThat(authentication.getAuthorities()).isEqualTo(Collections.emptyList());

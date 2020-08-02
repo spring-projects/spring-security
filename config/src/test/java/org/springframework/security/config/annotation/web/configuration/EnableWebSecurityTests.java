@@ -57,7 +57,6 @@ public class EnableWebSecurityTests {
 	@Test
 	public void configureWhenOverrideAuthenticationManagerBeanThenAuthenticationManagerBeanRegistered() {
 		this.spring.register(SecurityConfig.class).autowire();
-
 		AuthenticationManager authenticationManager = this.spring.getContext().getBean(AuthenticationManager.class);
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
@@ -73,7 +72,6 @@ public class EnableWebSecurityTests {
 	@Test
 	public void configureWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
 		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
-
 		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
 				.andExpect(content().string("user1"));
 	}
@@ -81,7 +79,6 @@ public class EnableWebSecurityTests {
 	@Test
 	public void securityFilterChainWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
 		this.spring.register(SecurityFilterChainAuthenticationPrincipalConfig.class).autowire();
-
 		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
 				.andExpect(content().string("user1"));
 	}
@@ -89,20 +86,16 @@ public class EnableWebSecurityTests {
 	@Test
 	public void enableWebSecurityWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
 		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
-
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
 		assertThat(parentBean.getChild()).isSameAs(childBean);
 	}
 
 	@Test
 	public void enableWebSecurityWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
 		this.spring.register(BeanProxyDisabledConfig.class).autowire();
-
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
 		assertThat(parentBean.getChild()).isNotSameAs(childBean);
 	}
 

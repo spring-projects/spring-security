@@ -89,7 +89,6 @@ public class Argon2PasswordEncoderTests {
 	public void matchesWhenGeneratedWithDifferentEncoderThenTrue() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder();
-
 		String password = "secret";
 		String oldEncodedPassword = oldEncoder.encode(password);
 		assertThat(newEncoder.matches(password, oldEncodedPassword)).isTrue();
@@ -113,9 +112,7 @@ public class Argon2PasswordEncoderTests {
 	@Test
 	public void encodeWhenUsingPredictableSaltThenEqualTestHash() throws Exception {
 		injectPredictableSaltGen();
-
 		String hash = this.encoder.encode("sometestpassword");
-
 		assertThat(hash).isEqualTo(
 				"$argon2id$v=19$m=4096,t=3,p=1$QUFBQUFBQUFBQUFBQUFBQQ$hmmTNyJlwbb6HAvFoHFWF+u03fdb0F2qA+39oPlcAqo");
 	}
@@ -125,7 +122,6 @@ public class Argon2PasswordEncoderTests {
 		this.encoder = new Argon2PasswordEncoder(16, 32, 4, 512, 5);
 		injectPredictableSaltGen();
 		String hash = this.encoder.encode("sometestpassword");
-
 		assertThat(hash).isEqualTo(
 				"$argon2id$v=19$m=512,t=5,p=4$QUFBQUFBQUFBQUFBQUFBQQ$PNv4C3K50bz3rmON+LtFpdisD7ePieLNq+l5iUHgc1k");
 	}
@@ -133,16 +129,13 @@ public class Argon2PasswordEncoderTests {
 	@Test
 	public void upgradeEncodingWhenSameEncodingThenFalse() {
 		String hash = this.encoder.encode("password");
-
 		assertThat(this.encoder.upgradeEncoding(hash)).isFalse();
 	}
 
 	@Test
 	public void upgradeEncodingWhenSameStandardParamsThenFalse() {
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder();
-
 		String hash = this.encoder.encode("password");
-
 		assertThat(newEncoder.upgradeEncoding(hash)).isFalse();
 	}
 
@@ -150,9 +143,7 @@ public class Argon2PasswordEncoderTests {
 	public void upgradeEncodingWhenSameCustomParamsThenFalse() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
-
 		String hash = oldEncoder.encode("password");
-
 		assertThat(newEncoder.upgradeEncoding(hash)).isFalse();
 	}
 
@@ -160,9 +151,7 @@ public class Argon2PasswordEncoderTests {
 	public void upgradeEncodingWhenHashHasLowerMemoryThenTrue() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(20, 64, 4, 512, 4);
-
 		String hash = oldEncoder.encode("password");
-
 		assertThat(newEncoder.upgradeEncoding(hash)).isTrue();
 	}
 
@@ -170,9 +159,7 @@ public class Argon2PasswordEncoderTests {
 	public void upgradeEncodingWhenHashHasLowerIterationsThenTrue() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 5);
-
 		String hash = oldEncoder.encode("password");
-
 		assertThat(newEncoder.upgradeEncoding(hash)).isTrue();
 	}
 
@@ -180,9 +167,7 @@ public class Argon2PasswordEncoderTests {
 	public void upgradeEncodingWhenHashHasHigherParamsThenFalse() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(20, 64, 4, 128, 3);
-
 		String hash = oldEncoder.encode("password");
-
 		assertThat(newEncoder.upgradeEncoding(hash)).isFalse();
 	}
 
@@ -205,7 +190,6 @@ public class Argon2PasswordEncoderTests {
 		byte[] bytes = new byte[16];
 		Arrays.fill(bytes, (byte) 0x41);
 		Mockito.when(this.keyGeneratorMock.generateKey()).thenReturn(bytes);
-
 		// we can't use the @InjectMock-annotation because the salt-generator is set in
 		// the constructor
 		// and Mockito will only inject mocks if they are null

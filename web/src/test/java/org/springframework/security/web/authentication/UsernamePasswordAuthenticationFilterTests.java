@@ -44,11 +44,9 @@ public class UsernamePasswordAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
-
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		// filter.init(null);
-
 		Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
 		assertThat(result != null).isTrue();
 		assertThat(((WebAuthenticationDetails) result.getDetails()).getRemoteAddress()).isEqualTo("127.0.0.1");
@@ -59,10 +57,8 @@ public class UsernamePasswordAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "dokdo");
-
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter(
 				createAuthenticationManager());
-
 		Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
 		assertThat(result).isNotNull();
 	}
@@ -71,7 +67,6 @@ public class UsernamePasswordAuthenticationFilterTests {
 	public void testNullPasswordHandledGracefully() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
-
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		assertThat(filter.attemptAuthentication(request, new MockHttpServletResponse())).isNotNull();
@@ -81,7 +76,6 @@ public class UsernamePasswordAuthenticationFilterTests {
 	public void testNullUsernameHandledGracefully() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
-
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		assertThat(filter.attemptAuthentication(request, new MockHttpServletResponse())).isNotNull();
@@ -93,11 +87,9 @@ public class UsernamePasswordAuthenticationFilterTests {
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setUsernameParameter("x");
 		filter.setPasswordParameter("y");
-
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter("x", "rod");
 		request.addParameter("y", "koala");
-
 		Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
 		assertThat(result).isNotNull();
 		assertThat(((WebAuthenticationDetails) result.getDetails()).getRemoteAddress()).isEqualTo("127.0.0.1");
@@ -108,10 +100,8 @@ public class UsernamePasswordAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, " rod ");
 		request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
-
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
 		assertThat(result.getName()).isEqualTo("rod");
 	}
@@ -124,7 +114,6 @@ public class UsernamePasswordAuthenticationFilterTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		filter.setAuthenticationManager(am);
-
 		try {
 			filter.attemptAuthentication(request, new MockHttpServletResponse());
 			fail("Expected AuthenticationException");
@@ -140,13 +129,10 @@ public class UsernamePasswordAuthenticationFilterTests {
 	public void noSessionIsCreatedIfAllowSessionCreationIsFalse() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
-
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAllowSessionCreation(false);
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.attemptAuthentication(request, new MockHttpServletResponse());
-
 		assertThat(request.getSession(false)).isNull();
 	}
 
@@ -154,7 +140,6 @@ public class UsernamePasswordAuthenticationFilterTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class)))
 				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
-
 		return am;
 	}
 

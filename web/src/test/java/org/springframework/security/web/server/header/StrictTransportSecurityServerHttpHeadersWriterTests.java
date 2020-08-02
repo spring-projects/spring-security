@@ -41,9 +41,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 	@Test
 	public void writeHttpHeadersWhenHttpsThenWrites() {
 		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
-
 		this.hsts.writeHttpHeaders(this.exchange);
-
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
@@ -55,9 +53,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 		Duration maxAge = Duration.ofDays(1);
 		this.hsts.setMaxAge(maxAge);
 		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
-
 		this.hsts.writeHttpHeaders(this.exchange);
-
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
@@ -68,9 +64,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 	public void writeHttpHeadersWhenCustomIncludeSubDomainsThenWrites() {
 		this.hsts.setIncludeSubDomains(false);
 		this.exchange = exchange(MockServerHttpRequest.get("https://example.com/"));
-
 		this.hsts.writeHttpHeaders(this.exchange);
-
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
 		assertThat(headers).containsEntry(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
@@ -80,9 +74,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 	@Test
 	public void writeHttpHeadersWhenNullSchemeThenNoHeaders() {
 		this.exchange = exchange(MockServerHttpRequest.get("/"));
-
 		this.hsts.writeHttpHeaders(this.exchange);
-
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).isEmpty();
 	}
@@ -90,9 +82,7 @@ public class StrictTransportSecurityServerHttpHeadersWriterTests {
 	@Test
 	public void writeHttpHeadersWhenHttpThenNoHeaders() {
 		this.exchange = exchange(MockServerHttpRequest.get("http://localhost/"));
-
 		this.hsts.writeHttpHeaders(this.exchange);
-
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).isEmpty();
 	}

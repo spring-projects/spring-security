@@ -52,7 +52,6 @@ public class UserDetailsResourceFactoryBeanTests {
 	@Test
 	public void getObjectWhenPropertiesResourceLocationNullThenThrowsIllegalStateException() {
 		this.factory.setResourceLoader(this.resourceLoader);
-
 		assertThatThrownBy(() -> this.factory.getObject()).isInstanceOf(IllegalArgumentException.class)
 				.hasStackTraceContaining("resource cannot be null if resourceLocation is null");
 	}
@@ -60,23 +59,19 @@ public class UserDetailsResourceFactoryBeanTests {
 	@Test
 	public void getObjectWhenPropertiesResourceLocationSingleUserThenThrowsGetsSingleUser() throws Exception {
 		this.factory.setResourceLocation("classpath:users.properties");
-
 		Collection<UserDetails> users = this.factory.getObject();
-
 		assertLoaded();
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceSingleUserThenThrowsGetsSingleUser() throws Exception {
 		this.factory.setResource(new InMemoryResource("user=password,ROLE_USER"));
-
 		assertLoaded();
 	}
 
 	@Test
 	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() {
 		this.factory.setResource(new InMemoryResource("user=invalidFormatHere"));
-
 		assertThatThrownBy(() -> this.factory.getObject()).isInstanceOf(IllegalStateException.class)
 				.hasStackTraceContaining("user").hasStackTraceContaining("invalidFormatHere");
 	}
@@ -84,7 +79,6 @@ public class UserDetailsResourceFactoryBeanTests {
 	@Test
 	public void getObjectWhenStringSingleUserThenGetsSingleUser() throws Exception {
 		this.factory = UserDetailsResourceFactoryBean.fromString("user=password,ROLE_USER");
-
 		assertLoaded();
 	}
 

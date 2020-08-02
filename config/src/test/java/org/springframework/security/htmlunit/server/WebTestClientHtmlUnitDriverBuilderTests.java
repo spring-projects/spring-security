@@ -46,9 +46,7 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 	public void helloWorld() {
 		WebTestClient webTestClient = WebTestClient.bindToController(new HelloWorldController()).build();
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		driver.get("http://localhost/");
-
 		assertThat(driver.getPageSource()).contains("Hello World");
 	}
 
@@ -56,13 +54,9 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 	public void cookies() {
 		WebTestClient webTestClient = WebTestClient.bindToController(new CookieController()).build();
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		driver.get("http://localhost/cookie");
-
 		assertThat(driver.getPageSource()).contains("theCookie");
-
 		driver.get("http://localhost/cookie/delete");
-
 		assertThat(driver.getPageSource()).contains("null");
 	}
 

@@ -72,33 +72,27 @@ public class LazyCsrfTokenRepositoryTests {
 	@Test
 	public void generateTokenGetTokenSavesToken() {
 		CsrfToken newToken = this.repository.generateToken(this.request);
-
 		newToken.getToken();
-
 		verify(this.delegate).saveToken(this.token, this.request, this.response);
 	}
 
 	@Test
 	public void saveNonNullDoesNothing() {
 		this.repository.saveToken(this.token, this.request, this.response);
-
 		verifyZeroInteractions(this.delegate);
 	}
 
 	@Test
 	public void saveNullDelegates() {
 		this.repository.saveToken(null, this.request, this.response);
-
 		verify(this.delegate).saveToken(null, this.request, this.response);
 	}
 
 	@Test
 	public void loadTokenDelegates() {
 		given(this.delegate.loadToken(this.request)).willReturn(this.token);
-
 		CsrfToken loadToken = this.repository.loadToken(this.request);
 		assertThat(loadToken).isSameAs(this.token);
-
 		verify(this.delegate).loadToken(this.request);
 	}
 

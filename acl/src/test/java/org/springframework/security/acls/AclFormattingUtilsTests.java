@@ -39,21 +39,18 @@ public class AclFormattingUtilsTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			AclFormattingUtils.demergePatterns("SOME STRING", null);
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			AclFormattingUtils.demergePatterns("SOME STRING", "LONGER SOME STRING");
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			AclFormattingUtils.demergePatterns("SOME STRING", "SAME LENGTH");
 		}
@@ -68,7 +65,6 @@ public class AclFormattingUtilsTests {
 		String removeBits = "...............................R";
 		assertThat(AclFormattingUtils.demergePatterns(original, removeBits))
 				.isEqualTo("...........................A....");
-
 		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "......")).isEqualTo("ABCDEF");
 		assertThat(AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL")).isEqualTo("......");
 	}
@@ -81,21 +77,18 @@ public class AclFormattingUtilsTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			AclFormattingUtils.mergePatterns("SOME STRING", null);
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			AclFormattingUtils.mergePatterns("SOME STRING", "LONGER SOME STRING");
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			AclFormattingUtils.mergePatterns("SOME STRING", "SAME LENGTH");
 		}
@@ -108,7 +101,6 @@ public class AclFormattingUtilsTests {
 		String original = "...............................R";
 		String extraBits = "...........................A....";
 		assertThat(AclFormattingUtils.mergePatterns(original, extraBits)).isEqualTo("...........................A...R");
-
 		assertThat(AclFormattingUtils.mergePatterns("ABCDEF", "......")).isEqualTo("ABCDEF");
 		assertThat(AclFormattingUtils.mergePatterns("ABCDEF", "GHIJKL")).isEqualTo("GHIJKL");
 	}
@@ -116,21 +108,18 @@ public class AclFormattingUtilsTests {
 	@Test
 	public final void testBinaryPrints() {
 		assertThat(AclFormattingUtils.printBinary(15)).isEqualTo("............................****");
-
 		try {
 			AclFormattingUtils.printBinary(15, Permission.RESERVED_ON);
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException notExpected) {
 		}
-
 		try {
 			AclFormattingUtils.printBinary(15, Permission.RESERVED_OFF);
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException notExpected) {
 		}
-
 		assertThat(AclFormattingUtils.printBinary(15, 'x')).isEqualTo("............................xxxx");
 	}
 

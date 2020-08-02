@@ -53,7 +53,6 @@ public class HeaderWriterLogoutHandlerTests {
 	public void constructorWhenHeaderWriterIsNullThenThrowsException() {
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("headerWriter cannot be null");
-
 		new HeaderWriterLogoutHandler(null);
 	}
 
@@ -62,7 +61,6 @@ public class HeaderWriterLogoutHandlerTests {
 		HeaderWriter headerWriter = mock(HeaderWriter.class);
 		HeaderWriterLogoutHandler handler = new HeaderWriterLogoutHandler(headerWriter);
 		handler.logout(this.request, this.response, mock(Authentication.class));
-
 		verify(headerWriter).writeHeaders(this.request, this.response);
 	}
 

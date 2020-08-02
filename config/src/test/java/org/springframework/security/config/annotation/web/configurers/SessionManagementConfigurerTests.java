@@ -83,9 +83,7 @@ public class SessionManagementConfigurerTests {
 	public void sessionManagementWhenConfiguredThenDoesNotOverrideRequestCache() throws Exception {
 		SessionManagementRequestCacheConfig.REQUEST_CACHE = mock(RequestCache.class);
 		this.spring.register(SessionManagementRequestCacheConfig.class).autowire();
-
 		this.mvc.perform(get("/"));
-
 		verify(SessionManagementRequestCacheConfig.REQUEST_CACHE).getMatchingRequest(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
@@ -96,9 +94,7 @@ public class SessionManagementConfigurerTests {
 		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
 				.loadContext(any(HttpRequestResponseHolder.class))).willReturn(mock(SecurityContext.class));
 		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
-
 		this.mvc.perform(get("/"));
-
 		verify(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO)
 				.saveContext(any(SecurityContext.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -106,10 +102,8 @@ public class SessionManagementConfigurerTests {
 	@Test
 	public void sessionManagementWhenInvokedTwiceThenUsesOriginalSessionCreationPolicy() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
-
 		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
 		HttpSession session = mvcResult.getRequest().getSession(false);
-
 		assertThat(session).isNull();
 	}
 
@@ -120,25 +114,20 @@ public class SessionManagementConfigurerTests {
 		this.spring.register(DisableSessionFixationEnableConcurrencyControlConfig.class).autowire();
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
-
 		MvcResult mvcResult = this.mvc.perform(get("/").with(httpBasic("user", "password")).session(session))
 				.andExpect(status().isNotFound()).andReturn();
-
 		assertThat(mvcResult.getRequest().getSession().getId()).isEqualTo(sessionId);
 	}
 
 	@Test
 	public void authenticateWhenNewSessionFixationProtectionInLambdaThenCreatesNewSession() throws Exception {
 		this.spring.register(SFPNewSessionInLambdaConfig.class).autowire();
-
 		MockHttpSession givenSession = new MockHttpSession();
 		String givenSessionId = givenSession.getId();
 		givenSession.setAttribute("name", "value");
-
 		MockHttpSession resultingSession = (MockHttpSession) this.mvc
 				.perform(get("/auth").session(givenSession).with(httpBasic("user", "password")))
 				.andExpect(status().isNotFound()).andReturn().getRequest().getSession(false);
-
 		assertThat(givenSessionId).isNotEqualTo(resultingSession.getId());
 		assertThat(resultingSession.getAttribute("name")).isNull();
 	}
@@ -146,9 +135,7 @@ public class SessionManagementConfigurerTests {
 	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsIsOneThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlConfig.class).autowire();
-
 		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"));
-
 		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
 				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?error"));
 	}
@@ -156,13 +143,11 @@ public class SessionManagementConfigurerTests {
 	@Test
 	public void loginWhenUserSessionExpiredAndMaxSessionsIsOneThenLoggedIn() throws Exception {
 		this.spring.register(ConcurrencyControlConfig.class).autowire();
-
 		MvcResult mvcResult = this.mvc
 				.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
 				.andReturn();
 		HttpSession authenticatedSession = mvcResult.getRequest().getSession();
 		this.spring.getContext().publishEvent(new HttpSessionDestroyedEvent(authenticatedSession));
-
 		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
 				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
 	}
@@ -170,9 +155,7 @@ public class SessionManagementConfigurerTests {
 	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsOneInLambdaThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlInLambdaConfig.class).autowire();
-
 		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"));
-
 		this.mvc.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
 				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?error"));
 	}
@@ -180,10 +163,8 @@ public class SessionManagementConfigurerTests {
 	@Test
 	public void requestWhenSessionCreationPolicyStateLessInLambdaThenNoSessionCreated() throws Exception {
 		this.spring.register(SessionCreationPolicyStateLessInLambdaConfig.class).autowire();
-
 		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
 		HttpSession session = mvcResult.getRequest().getSession(false);
-
 		assertThat(session).isNull();
 	}
 
@@ -191,7 +172,6 @@ public class SessionManagementConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnSessionManagementFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SessionManagementFilter.class));
 	}
 
@@ -199,7 +179,6 @@ public class SessionManagementConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnConcurrentSessionFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ConcurrentSessionFilter.class));
 	}
 
@@ -207,7 +186,6 @@ public class SessionManagementConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnConcurrentSessionControlAuthenticationStrategy() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
 				.postProcess(any(ConcurrentSessionControlAuthenticationStrategy.class));
 	}
@@ -216,7 +194,6 @@ public class SessionManagementConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnCompositeSessionAuthenticationStrategy() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
 				.postProcess(any(CompositeSessionAuthenticationStrategy.class));
 	}
@@ -225,7 +202,6 @@ public class SessionManagementConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnRegisterSessionAuthenticationStrategy() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
 				.postProcess(any(RegisterSessionAuthenticationStrategy.class));
 	}
@@ -234,7 +210,6 @@ public class SessionManagementConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnChangeSessionIdAuthenticationStrategy() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
 				.postProcess(any(ChangeSessionIdAuthenticationStrategy.class));
 	}
@@ -245,9 +220,7 @@ public class SessionManagementConfigurerTests {
 		SharedTrustResolverConfig.TR = mock(AuthenticationTrustResolver.class);
 		given(SharedTrustResolverConfig.TR.isAnonymous(any())).willReturn(false);
 		this.spring.register(SharedTrustResolverConfig.class).autowire();
-
 		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
-
 		assertThat(mvcResult.getRequest().getSession(false)).isNotNull();
 	}
 
@@ -255,10 +228,8 @@ public class SessionManagementConfigurerTests {
 	public void whenOneSessionRegistryBeanThenUseIt() throws Exception {
 		SessionRegistryOneBeanConfig.SESSION_REGISTRY = mock(SessionRegistry.class);
 		this.spring.register(SessionRegistryOneBeanConfig.class).autowire();
-
 		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
 		this.mvc.perform(get("/").session(session));
-
 		verify(SessionRegistryOneBeanConfig.SESSION_REGISTRY).getSessionInformation(session.getId());
 	}
 
@@ -267,10 +238,8 @@ public class SessionManagementConfigurerTests {
 		SessionRegistryTwoBeansConfig.SESSION_REGISTRY_ONE = mock(SessionRegistry.class);
 		SessionRegistryTwoBeansConfig.SESSION_REGISTRY_TWO = mock(SessionRegistry.class);
 		this.spring.register(SessionRegistryTwoBeansConfig.class).autowire();
-
 		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
 		this.mvc.perform(get("/").session(session));
-
 		verifyNoInteractions(SessionRegistryTwoBeansConfig.SESSION_REGISTRY_ONE);
 		verifyNoInteractions(SessionRegistryTwoBeansConfig.SESSION_REGISTRY_TWO);
 	}

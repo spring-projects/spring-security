@@ -39,7 +39,6 @@ public class CookieRequestCacheTests {
 	@Test
 	public void saveRequestWhenMatchesThenSavedRequestInACookieOnResponse() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServerPort(443);
 		request.setSecure(true);
@@ -48,15 +47,11 @@ public class CookieRequestCacheTests {
 		request.setRequestURI("/destination");
 		request.setQueryString("param1=a&param2=b&param3=1122");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		cookieRequestCache.saveRequest(request, response);
-
 		Cookie savedCookie = response.getCookie(DEFAULT_COOKIE_NAME);
 		assertThat(savedCookie).isNotNull();
-
 		String redirectUrl = decodeCookie(savedCookie.getValue());
 		assertThat(redirectUrl).isEqualTo("https://abc.com/destination?param1=a&param2=b&param3=1122");
-
 		assertThat(savedCookie.getMaxAge()).isEqualTo(-1);
 		assertThat(savedCookie.getPath()).isEqualTo("/");
 		assertThat(savedCookie.isHttpOnly()).isTrue();
@@ -74,14 +69,11 @@ public class CookieRequestCacheTests {
 	public void getMatchingRequestWhenRequestMatcherDefinedThenReturnsCorrectSubsetOfCachedRequests() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		cookieRequestCache.setRequestMatcher((request) -> request.getRequestURI().equals("/expected-destination"));
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cookieRequestCache.saveRequest(request, response);
-
 		SavedRequest savedRequest = cookieRequestCache.getRequest(request, response);
 		assertThat(savedRequest).isNull();
-
 		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
 		assertThat(matchingRequest).isNull();
 	}
@@ -105,12 +97,10 @@ public class CookieRequestCacheTests {
 
 	@Test
 	public void getRequestWhenRequestContainsSavedRequestCookieThenReturnsSaveRequest() {
-
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		String redirectUrl = "https://abc.com/destination?param1=a&param2=b&param3=1122";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
-
 		SavedRequest savedRequest = cookieRequestCache.getRequest(request, new MockHttpServletResponse());
 		assertThat(savedRequest).isNotNull();
 		assertThat(savedRequest.getRedirectUrl()).isEqualTo(redirectUrl);
@@ -118,10 +108,8 @@ public class CookieRequestCacheTests {
 
 	@Test
 	public void matchingRequestWhenRequestDoesNotContainSavedRequestCookieThenReturnsNull() {
-
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(new MockHttpServletRequest(),
 				response);
 		assertThat(matchingRequest).isNull();
@@ -138,11 +126,9 @@ public class CookieRequestCacheTests {
 		request.setServerName("abc.com");
 		request.setRequestURI("/destination");
 		request.setQueryString("param1=a&param2=b&param3=1122");
-
 		String redirectUrl = "https://abc.com/destination?param1=a&param2=b&param3=1122";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		cookieRequestCache.getMatchingRequest(request, response);
 		Cookie expiredCookie = response.getCookie(DEFAULT_COOKIE_NAME);
 		assertThat(expiredCookie).isNotNull();
@@ -159,11 +145,9 @@ public class CookieRequestCacheTests {
 		request.setScheme("https");
 		request.setServerName("abc.com");
 		request.setRequestURI("/destination");
-
 		String redirectUrl = "https://abc.com/api";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		final HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
 		assertThat(matchingRequest).isNull();
 		Cookie expiredCookie = response.getCookie(DEFAULT_COOKIE_NAME);

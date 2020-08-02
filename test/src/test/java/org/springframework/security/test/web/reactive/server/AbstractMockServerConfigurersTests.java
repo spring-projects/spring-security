@@ -43,11 +43,9 @@ abstract class AbstractMockServerConfigurersTests {
 
 	protected void assertPrincipalCreatedFromUserDetails(Principal principal, UserDetails originalUserDetails) {
 		assertThat(principal).isInstanceOf(UsernamePasswordAuthenticationToken.class);
-
 		UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) principal;
 		assertThat(authentication.getCredentials()).isEqualTo(originalUserDetails.getPassword());
 		assertThat(authentication.getAuthorities()).containsOnlyElementsOf(originalUserDetails.getAuthorities());
-
 		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 		assertThat(userDetails.getPassword()).isEqualTo(authentication.getCredentials());
 		assertThat(authentication.getAuthorities()).containsOnlyElementsOf(userDetails.getAuthorities());

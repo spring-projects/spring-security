@@ -69,7 +69,6 @@ public class SampleWebSecurityConfigurerAdapterTests {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
-
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "CSRF-TOKEN-TEST");
 		new HttpSessionCsrfTokenRepository().saveToken(csrfToken, this.request, this.response);
 		this.request.setParameter(csrfToken.getParameterName(), csrfToken.getToken());
@@ -78,136 +77,112 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	@Test
 	public void helloWorldSampleWhenRequestSecureResourceThenRedirectToLogin() throws Exception {
 		this.spring.register(HelloWorldWebSecurityConfigurerAdapter.class).autowire();
-
 		this.request.addHeader("Accept", "text/html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
 
 	@Test
 	public void helloWorldSampleWhenRequestLoginWithoutCredentialsThenRedirectToLogin() throws Exception {
 		this.spring.register(HelloWorldWebSecurityConfigurerAdapter.class).autowire();
-
 		this.request.setServletPath("/login");
 		this.request.setMethod("POST");
 		this.request.addHeader("Accept", "text/html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("/login?error");
 	}
 
 	@Test
 	public void helloWorldSampleWhenRequestLoginWithValidCredentialsThenRedirectToIndex() throws Exception {
 		this.spring.register(HelloWorldWebSecurityConfigurerAdapter.class).autowire();
-
 		this.request.setServletPath("/login");
 		this.request.setMethod("POST");
 		this.request.addHeader("Accept", "text/html");
 		this.request.addParameter("username", "user");
 		this.request.addParameter("password", "password");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("/");
 	}
 
 	@Test
 	public void readmeSampleWhenRequestSecureResourceThenRedirectToLogin() throws Exception {
 		this.spring.register(SampleWebSecurityConfigurerAdapter.class).autowire();
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
 
 	@Test
 	public void readmeSampleWhenRequestLoginWithoutCredentialsThenRedirectToLogin() throws Exception {
 		this.spring.register(SampleWebSecurityConfigurerAdapter.class).autowire();
-
 		this.request.setServletPath("/login");
 		this.request.setMethod("POST");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("/login?error");
 	}
 
 	@Test
 	public void readmeSampleWhenRequestLoginWithValidCredentialsThenRedirectToIndex() throws Exception {
 		this.spring.register(SampleWebSecurityConfigurerAdapter.class).autowire();
-
 		this.request.setServletPath("/login");
 		this.request.setMethod("POST");
 		this.request.addParameter("username", "user");
 		this.request.addParameter("password", "password");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("/");
 	}
 
 	@Test
 	public void multiHttpSampleWhenRequestSecureResourceThenRedirectToLogin() throws Exception {
 		this.spring.register(SampleMultiHttpSecurityConfig.class).autowire();
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
 
 	@Test
 	public void multiHttpSampleWhenRequestLoginWithoutCredentialsThenRedirectToLogin() throws Exception {
 		this.spring.register(SampleMultiHttpSecurityConfig.class).autowire();
-
 		this.request.setServletPath("/login");
 		this.request.setMethod("POST");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("/login?error");
 	}
 
 	@Test
 	public void multiHttpSampleWhenRequestLoginWithValidCredentialsThenRedirectToIndex() throws Exception {
 		this.spring.register(SampleMultiHttpSecurityConfig.class).autowire();
-
 		this.request.setServletPath("/login");
 		this.request.setMethod("POST");
 		this.request.addParameter("username", "user");
 		this.request.addParameter("password", "password");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("/");
 	}
 
 	@Test
 	public void multiHttpSampleWhenRequestProtectedResourceThenStatusUnauthorized() throws Exception {
 		this.spring.register(SampleMultiHttpSecurityConfig.class).autowire();
-
 		this.request.setServletPath("/api/admin/test");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@Test
 	public void multiHttpSampleWhenRequestAdminResourceWithRegularUserThenStatusForbidden() throws Exception {
 		this.spring.register(SampleMultiHttpSecurityConfig.class).autowire();
-
 		this.request.setServletPath("/api/admin/test");
 		this.request.addHeader("Authorization",
 				"Basic " + Base64.getEncoder().encodeToString("user:password".getBytes()));
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
 	@Test
 	public void multiHttpSampleWhenRequestAdminResourceWithAdminUserThenStatusOk() throws Exception {
 		this.spring.register(SampleMultiHttpSecurityConfig.class).autowire();
-
 		this.request.setServletPath("/api/admin/test");
 		this.request.addHeader("Authorization",
 				"Basic " + Base64.getEncoder().encodeToString("admin:password".getBytes()));
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 

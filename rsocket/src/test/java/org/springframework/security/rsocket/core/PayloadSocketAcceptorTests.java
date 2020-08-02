@@ -107,9 +107,7 @@ public class PayloadSocketAcceptorTests {
 	@Test
 	public void acceptWhenDefaultMetadataMimeTypeThenDefaulted() {
 		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
-
 		PayloadExchange exchange = captureExchange();
-
 		assertThat(exchange.getMetadataMimeType().toString())
 				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
@@ -119,9 +117,7 @@ public class PayloadSocketAcceptorTests {
 	public void acceptWhenDefaultMetadataMimeTypeOverrideThenDefaulted() {
 		this.acceptor.setDefaultMetadataMimeType(MediaType.APPLICATION_JSON);
 		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
-
 		PayloadExchange exchange = captureExchange();
-
 		assertThat(exchange.getMetadataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
@@ -129,9 +125,7 @@ public class PayloadSocketAcceptorTests {
 	@Test
 	public void acceptWhenDefaultDataMimeTypeThenDefaulted() {
 		this.acceptor.setDefaultDataMimeType(MediaType.APPLICATION_JSON);
-
 		PayloadExchange exchange = captureExchange();
-
 		assertThat(exchange.getMetadataMimeType().toString())
 				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
@@ -141,9 +135,7 @@ public class PayloadSocketAcceptorTests {
 	public void acceptWhenExplicitMimeTypeThenThenOverrideDefault() {
 		given(this.setupPayload.metadataMimeType()).willReturn(MediaType.TEXT_PLAIN_VALUE);
 		given(this.setupPayload.dataMimeType()).willReturn(MediaType.APPLICATION_JSON_VALUE);
-
 		PayloadExchange exchange = captureExchange();
-
 		assertThat(exchange.getMetadataMimeType()).isEqualTo(MediaType.TEXT_PLAIN);
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
@@ -164,24 +156,17 @@ public class PayloadSocketAcceptorTests {
 		};
 		List<PayloadInterceptor> interceptors = Arrays.asList(authenticateInterceptor);
 		this.acceptor = new PayloadSocketAcceptor(captureSecurityContext, interceptors);
-
 		this.acceptor.accept(this.setupPayload, this.rSocket).block();
-
 		assertThat(captureSecurityContext.getSecurityContext()).isEqualTo(expectedSecurityContext);
 	}
 
 	private PayloadExchange captureExchange() {
 		given(this.delegate.accept(any(), any())).willReturn(Mono.just(this.rSocket));
 		given(this.interceptor.intercept(any(), any())).willReturn(Mono.empty());
-
 		RSocket result = this.acceptor.accept(this.setupPayload, this.rSocket).block();
-
 		assertThat(result).isInstanceOf(PayloadInterceptorRSocket.class);
-
 		given(this.rSocket.fireAndForget(any())).willReturn(Mono.empty());
-
 		result.fireAndForget(this.payload).block();
-
 		ArgumentCaptor<PayloadExchange> exchangeArg = ArgumentCaptor.forClass(PayloadExchange.class);
 		verify(this.interceptor, times(2)).intercept(exchangeArg.capture(), any());
 		return exchangeArg.getValue();

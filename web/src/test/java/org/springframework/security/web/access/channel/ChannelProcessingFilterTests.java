@@ -43,10 +43,8 @@ public class ChannelProcessingFilterTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testDetectsMissingChannelDecisionManager() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
-
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "MOCK");
 		filter.setSecurityMetadataSource(fids);
-
 		filter.afterPropertiesSet();
 	}
 
@@ -61,12 +59,9 @@ public class ChannelProcessingFilterTests {
 	public void testDetectsSupportedConfigAttribute() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
-
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true,
 				"SUPPORTS_MOCK_ONLY");
-
 		filter.setSecurityMetadataSource(fids);
-
 		filter.afterPropertiesSet();
 	}
 
@@ -74,10 +69,8 @@ public class ChannelProcessingFilterTests {
 	public void testDetectsUnsupportedConfigAttribute() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SUPPORTS_MOCK_ONLY"));
-
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true,
 				"SUPPORTS_MOCK_ONLY", "INVALID_ATTRIBUTE");
-
 		filter.setSecurityMetadataSource(fids);
 		filter.afterPropertiesSet();
 	}
@@ -86,17 +79,12 @@ public class ChannelProcessingFilterTests {
 	public void testDoFilterWhenManagerDoesCommitResponse() throws Exception {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(true, "SOME_ATTRIBUTE"));
-
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SOME_ATTRIBUTE");
-
 		filter.setSecurityMetadataSource(fids);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("info=now");
 		request.setServletPath("/path");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		filter.doFilter(request, response, mock(FilterChain.class));
 	}
 
@@ -104,17 +92,12 @@ public class ChannelProcessingFilterTests {
 	public void testDoFilterWhenManagerDoesNotCommitResponse() throws Exception {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "SOME_ATTRIBUTE"));
-
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "SOME_ATTRIBUTE");
-
 		filter.setSecurityMetadataSource(fids);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("info=now");
 		request.setServletPath("/path");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		filter.doFilter(request, response, mock(FilterChain.class));
 	}
 
@@ -122,17 +105,12 @@ public class ChannelProcessingFilterTests {
 	public void testDoFilterWhenNullConfigAttributeReturned() throws Exception {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "NOT_USED"));
-
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "NOT_USED");
-
 		filter.setSecurityMetadataSource(fids);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("info=now");
 		request.setServletPath("/PATH_NOT_MATCHING_CONFIG_ATTRIBUTE");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		filter.doFilter(request, response, mock(FilterChain.class));
 	}
 
@@ -141,12 +119,9 @@ public class ChannelProcessingFilterTests {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
 		assertThat(filter.getChannelDecisionManager() != null).isTrue();
-
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", false, "MOCK");
-
 		filter.setSecurityMetadataSource(fids);
 		assertThat(filter.getSecurityMetadataSource()).isSameAs(fids);
-
 		filter.afterPropertiesSet();
 	}
 
@@ -192,7 +167,6 @@ public class ChannelProcessingFilterTests {
 		@Override
 		public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
 			FilterInvocation fi = (FilterInvocation) object;
-
 			if (this.servletPath.equals(fi.getHttpRequest().getServletPath())) {
 				return this.toReturn;
 			}
@@ -206,7 +180,6 @@ public class ChannelProcessingFilterTests {
 			if (!this.provideIterator) {
 				return null;
 			}
-
 			return this.toReturn;
 		}
 

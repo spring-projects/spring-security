@@ -51,49 +51,42 @@ public class FirewalledResponseTests {
 	@Test
 	public void sendRedirectWhenValidThenNoException() throws Exception {
 		this.fwResponse.sendRedirect("/theURL");
-
 		verify(this.response).sendRedirect("/theURL");
 	}
 
 	@Test
 	public void sendRedirectWhenNullThenDelegateInvoked() throws Exception {
 		this.fwResponse.sendRedirect(null);
-
 		verify(this.response).sendRedirect(null);
 	}
 
 	@Test
 	public void sendRedirectWhenHasCrlfThenThrowsException() throws Exception {
 		expectCrlfValidationException();
-
 		this.fwResponse.sendRedirect("/theURL\r\nsomething");
 	}
 
 	@Test
 	public void addHeaderWhenValidThenDelegateInvoked() {
 		this.fwResponse.addHeader("foo", "bar");
-
 		verify(this.response).addHeader("foo", "bar");
 	}
 
 	@Test
 	public void addHeaderWhenNullValueThenDelegateInvoked() {
 		this.fwResponse.addHeader("foo", null);
-
 		verify(this.response).addHeader("foo", null);
 	}
 
 	@Test
 	public void addHeaderWhenHeaderValueHasCrlfThenException() {
 		expectCrlfValidationException();
-
 		this.fwResponse.addHeader("foo", "abc\r\nContent-Length:100");
 	}
 
 	@Test
 	public void addHeaderWhenHeaderNameHasCrlfThenException() {
 		expectCrlfValidationException();
-
 		this.fwResponse.addHeader("abc\r\nContent-Length:100", "bar");
 	}
 
@@ -103,16 +96,13 @@ public class FirewalledResponseTests {
 		cookie.setPath("/foobar");
 		cookie.setDomain("foobar");
 		cookie.setComment("foobar");
-
 		this.fwResponse.addCookie(cookie);
-
 		verify(this.response).addCookie(cookie);
 	}
 
 	@Test
 	public void addCookieWhenNullThenDelegateInvoked() {
 		this.fwResponse.addCookie(null);
-
 		verify(this.response).addCookie(null);
 	}
 
@@ -124,10 +114,8 @@ public class FirewalledResponseTests {
 			public String getName() {
 				return "foo\r\nbar";
 			}
-
 		};
 		expectCrlfValidationException();
-
 		this.fwResponse.addCookie(cookie);
 	}
 
@@ -135,7 +123,6 @@ public class FirewalledResponseTests {
 	public void addCookieWhenCookieValueContainsCrlfThenException() {
 		Cookie cookie = new Cookie("foo", "foo\r\nbar");
 		expectCrlfValidationException();
-
 		this.fwResponse.addCookie(cookie);
 	}
 
@@ -144,7 +131,6 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setPath("/foo\r\nbar");
 		expectCrlfValidationException();
-
 		this.fwResponse.addCookie(cookie);
 	}
 
@@ -153,7 +139,6 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setDomain("foo\r\nbar");
 		expectCrlfValidationException();
-
 		this.fwResponse.addCookie(cookie);
 	}
 
@@ -162,7 +147,6 @@ public class FirewalledResponseTests {
 		Cookie cookie = new Cookie("foo", "bar");
 		cookie.setComment("foo\r\nbar");
 		expectCrlfValidationException();
-
 		this.fwResponse.addCookie(cookie);
 	}
 
@@ -171,7 +155,6 @@ public class FirewalledResponseTests {
 		validateLineEnding("foo", "foo\rbar");
 		validateLineEnding("foo", "foo\r\nbar");
 		validateLineEnding("foo", "foo\nbar");
-
 		validateLineEnding("foo\rbar", "bar");
 		validateLineEnding("foo\r\nbar", "bar");
 		validateLineEnding("foo\nbar", "bar");

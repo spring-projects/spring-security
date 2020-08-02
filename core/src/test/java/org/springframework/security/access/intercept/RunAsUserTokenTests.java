@@ -53,7 +53,6 @@ public class RunAsUserTokenTests {
 	@Test
 	public void testNoArgConstructorDoesntExist() {
 		Class<RunAsUserToken> clazz = RunAsUserToken.class;
-
 		try {
 			clazz.getDeclaredConstructor((Class[]) null);
 			fail("Should have thrown NoSuchMethodException");

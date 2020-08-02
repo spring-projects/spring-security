@@ -69,7 +69,6 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		this.services = create(new PersistentRememberMeToken("joe", "series", "token",
 				new Date(System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(1) - 100)));
 		this.services.setTokenValiditySeconds(1);
-
 		this.services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
 				new MockHttpServletResponse());
 	}
@@ -107,9 +106,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 				new UsernamePasswordAuthenticationToken("joe", "password"));
 		assertThat(this.repo.getStoredToken().getSeries().length()).isEqualTo(16);
 		assertThat(this.repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
-
 		String[] cookie = this.services.decodeCookie(response.getCookie("mycookiename").getValue());
-
 		assertThat(cookie[0]).isEqualTo(this.repo.getStoredToken().getSeries());
 		assertThat(cookie[1]).isEqualTo(this.repo.getStoredToken().getTokenValue());
 	}
@@ -125,7 +122,6 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		Cookie returnedCookie = response.getCookie("mycookiename");
 		assertThat(returnedCookie).isNotNull();
 		assertThat(returnedCookie.getMaxAge()).isZero();
-
 		// SEC-1280
 		this.services.logout(request, response, null);
 	}
@@ -135,7 +131,6 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices("key",
 				new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false),
 				this.repo);
-
 		services.setCookieName("mycookiename");
 		return services;
 	}

@@ -84,7 +84,6 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 				.errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
-
 		assertThatThrownBy(() -> this.authenticationProvider.authenticate(
 				new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
 						.isInstanceOf(OAuth2AuthorizationException.class)
@@ -97,7 +96,6 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				authorizationResponse);
-
 		assertThatThrownBy(() -> this.authenticationProvider.authenticate(
 				new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange)))
 						.isInstanceOf(OAuth2AuthorizationException.class)
@@ -109,13 +107,11 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.refreshToken("refresh").build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				TestOAuth2AuthorizationResponses.success().build());
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider
 				.authenticate(
 						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
-
 		assertThat(authenticationResult.isAuthenticated()).isTrue();
 		assertThat(authenticationResult.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
 		assertThat(authenticationResult.getCredentials())
@@ -133,18 +129,14 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
-
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.additionalParameters(additionalParameters).build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
 				TestOAuth2AuthorizationResponses.success().build());
-
 		OAuth2AuthorizationCodeAuthenticationToken authentication = (OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider
 				.authenticate(
 						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
-
 		assertThat(authentication.getAdditionalParameters())
 				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}

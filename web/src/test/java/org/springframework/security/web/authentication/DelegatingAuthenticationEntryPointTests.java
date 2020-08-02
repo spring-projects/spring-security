@@ -63,9 +63,7 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		given(firstRM.matches(this.request)).willReturn(false);
 		this.entryPoints.put(firstRM, firstAEP);
-
 		this.daep.commence(this.request, null, null);
-
 		verify(this.defaultEntryPoint).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);
 	}
@@ -79,9 +77,7 @@ public class DelegatingAuthenticationEntryPointTests {
 		given(firstRM.matches(this.request)).willReturn(true);
 		this.entryPoints.put(firstRM, firstAEP);
 		this.entryPoints.put(secondRM, secondAEP);
-
 		this.daep.commence(this.request, null, null);
-
 		verify(firstAEP).commence(this.request, null, null);
 		verify(secondAEP, never()).commence(this.request, null, null);
 		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);
@@ -98,9 +94,7 @@ public class DelegatingAuthenticationEntryPointTests {
 		given(secondRM.matches(this.request)).willReturn(true);
 		this.entryPoints.put(firstRM, firstAEP);
 		this.entryPoints.put(secondRM, secondAEP);
-
 		this.daep.commence(this.request, null, null);
-
 		verify(secondAEP).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);
 		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);

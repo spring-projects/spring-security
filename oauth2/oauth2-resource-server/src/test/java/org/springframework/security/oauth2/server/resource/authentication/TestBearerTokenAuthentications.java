@@ -44,7 +44,6 @@ public final class TestBearerTokenAuthentications {
 				Collections.singletonMap("sub", "user"), authorities);
 		OAuth2AccessToken token = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(),
 				Instant.now().plusSeconds(86400), new HashSet<>(Arrays.asList("USER")));
-
 		return new BearerTokenAuthentication(principal, token, authorities);
 	}
 

@@ -175,15 +175,11 @@ public class NimbusJwtDecoderJwkSupportTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
-
 			NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
-
 			OAuth2Error failure = new OAuth2Error("mock-error", "mock-description", "mock-uri");
-
 			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 			given(jwtValidator.validate(any(Jwt.class))).willReturn(OAuth2TokenValidatorResult.failure(failure));
 			decoder.setJwtValidator(jwtValidator);
-
 			assertThatCode(() -> decoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
 					.hasMessageContaining("mock-description");
 		}
@@ -194,17 +190,13 @@ public class NimbusJwtDecoderJwkSupportTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
-
 			NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
-
 			OAuth2Error firstFailure = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 			OAuth2Error secondFailure = new OAuth2Error("another-error", "another-description", "another-uri");
 			OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(firstFailure, secondFailure);
-
 			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 			given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 			decoder.setJwtValidator(jwtValidator);
-
 			assertThatCode(() -> decoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
 					.hasMessageContaining("mock-description")
 					.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure));
@@ -216,13 +208,10 @@ public class NimbusJwtDecoderJwkSupportTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody(JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
-
 			NimbusJwtDecoderJwkSupport decoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
-
 			Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 			given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
 			decoder.setClaimSetConverter(claimSetConverter);
-
 			Jwt jwt = decoder.decode(SIGNED_JWT);
 			assertThat(jwt.getClaims().size()).isEqualTo(1);
 			assertThat(jwt.getClaims().get("custom")).isEqualTo("value");

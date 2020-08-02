@@ -69,15 +69,12 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
 					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-
 			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
 					issuer);
 			MockServerWebExchange exchange = withBearerToken(jws.serialize());
-
 			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(exchange)
 					.block();
 			assertThat(authenticationManager).isNotNull();
-
 			ReactiveAuthenticationManager cachedAuthenticationManager = authenticationManagerResolver.resolve(exchange)
 					.block();
 			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
@@ -89,7 +86,6 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
 				"other", "issuers");
 		MockServerWebExchange exchange = withBearerToken(this.jwt);
-
 		assertThatCode(() -> authenticationManagerResolver.resolve(exchange).block())
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
 	}
@@ -100,24 +96,20 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
 				(issuer) -> Mono.just(authenticationManager));
 		MockServerWebExchange exchange = withBearerToken(this.jwt);
-
 		assertThat(authenticationManagerResolver.resolve(exchange).block()).isSameAs(authenticationManager);
 	}
 
 	@Test
 	public void resolveWhenUsingExternalSourceThenRespondsToChanges() {
 		MockServerWebExchange exchange = withBearerToken(this.jwt);
-
 		Map<String, ReactiveAuthenticationManager> authenticationManagers = new HashMap<>();
 		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
 				(issuer) -> Mono.justOrEmpty(authenticationManagers.get(issuer)));
 		assertThatCode(() -> authenticationManagerResolver.resolve(exchange).block())
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
-
 		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
 		authenticationManagers.put("trusted", authenticationManager);
 		assertThat(authenticationManagerResolver.resolve(exchange).block()).isSameAs(authenticationManager);
-
 		authenticationManagers.clear();
 		assertThatCode(() -> authenticationManagerResolver.resolve(exchange).block())
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");

@@ -34,26 +34,20 @@ public class UsernamePasswordAuthenticationTokenTests {
 	public void authenticatedPropertyContractIsSatisfied() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.NO_AUTHORITIES);
-
 		// check default given we passed some GrantedAuthorty[]s (well, we passed empty
 		// list)
 		assertThat(token.isAuthenticated()).isTrue();
-
 		// check explicit set to untrusted (we can safely go from trusted to untrusted,
 		// but not the reverse)
 		token.setAuthenticated(false);
 		assertThat(!token.isAuthenticated()).isTrue();
-
 		// Now let's create a UsernamePasswordAuthenticationToken without any
 		// GrantedAuthorty[]s (different constructor)
 		token = new UsernamePasswordAuthenticationToken("Test", "Password");
-
 		assertThat(!token.isAuthenticated()).isTrue();
-
 		// check we're allowed to still set it to untrusted
 		token.setAuthenticated(false);
 		assertThat(!token.isAuthenticated()).isTrue();
-
 		// check denied changing it to trusted
 		try {
 			token.setAuthenticated(true);

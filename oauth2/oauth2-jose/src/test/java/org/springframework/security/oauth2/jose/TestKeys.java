@@ -43,7 +43,6 @@ public final class TestKeys {
 			throw new IllegalStateException(ex);
 		}
 	}
-
 	public static final String DEFAULT_ENCODED_SECRET_KEY = "bCzY/M48bbkwBEWjmNSIEPfwApcvXOnkCxORBEbPr+4=";
 
 	public static final SecretKey DEFAULT_SECRET_KEY = new SecretKeySpec(
@@ -66,7 +65,6 @@ public final class TestKeys {
 			throw new IllegalArgumentException(ex);
 		}
 	}
-
 	public static final String DEFAULT_RSA_PRIVATE_KEY = "MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDcWWomvlNGyQhA"
 			+ "iB0TcN3sP2VuhZ1xNRPxr58lHswC9Cbtdc2hiSbe/sxAvU1i0O8vaXwICdzRZ1JM"
 			+ "g1TohG9zkqqjZDhyw1f1Ic6YR/OhE6NCpqERy97WMFeW6gJd1i5inHj/W19GAbqK"
@@ -94,7 +92,6 @@ public final class TestKeys {
 			+ "TszuiGTkrKcZy9G0wJqPztZZl2F2+bJgnA6nBEV7g5PA4Af+QSmaIhRwqGDAuROR" + "47jndeyIaMTNETEmOnms+as17g==";
 
 	public static final RSAPrivateKey DEFAULT_PRIVATE_KEY;
-
 	static {
 		PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(DEFAULT_RSA_PRIVATE_KEY));
 		try {

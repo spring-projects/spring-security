@@ -80,9 +80,7 @@ public class WithSecurityContextTestExecutionListenerTests {
 		Method testMethod = TheTest.class.getMethod("withMockUserDefault");
 		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
 		given(this.testContext.getTestMethod()).willReturn(testMethod);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		verify(this.testContext, never()).setAttribute(
 				eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME), any(SecurityContext.class));
@@ -93,9 +91,7 @@ public class WithSecurityContextTestExecutionListenerTests {
 		Method testMethod = TheTest.class.getMethod("withMockUserTestMethod");
 		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
 		given(this.testContext.getTestMethod()).willReturn(testMethod);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		verify(this.testContext, never()).setAttribute(
 				eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME), any(SecurityContext.class));
@@ -106,9 +102,7 @@ public class WithSecurityContextTestExecutionListenerTests {
 		Method testMethod = TheTest.class.getMethod("withMockUserTestExecution");
 		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
 		given(this.testContext.getTestMethod()).willReturn(testMethod);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNull();
 		verify(this.testContext).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME),
 				ArgumentMatchers.<Supplier<SecurityContext>>any());
@@ -120,9 +114,7 @@ public class WithSecurityContextTestExecutionListenerTests {
 		Method testMethod = TheTest.class.getMethod("withMockUserTestExecution");
 		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
 		given(this.testContext.getTestMethod()).willReturn(testMethod);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		ArgumentCaptor<Supplier<SecurityContext>> supplierCaptor = ArgumentCaptor.forClass(Supplier.class);
 		verify(this.testContext).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME),
 				supplierCaptor.capture());
@@ -136,7 +128,6 @@ public class WithSecurityContextTestExecutionListenerTests {
 		given(this.testContext.getApplicationContext()).willReturn(this.applicationContext);
 		// do not set a UserDetailsService Bean so it would fail if looked up
 		given(this.testContext.getTestMethod()).willReturn(testMethod);
-
 		this.listener.beforeTestMethod(this.testContext);
 		// bean lookup of UserDetailsService would fail if it has already been looked up
 	}
@@ -144,7 +135,6 @@ public class WithSecurityContextTestExecutionListenerTests {
 	@Test
 	public void beforeTestExecutionWhenTestContextNullThenSecurityContextNotSet() {
 		this.listener.beforeTestExecution(this.testContext);
-
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
@@ -155,9 +145,7 @@ public class WithSecurityContextTestExecutionListenerTests {
 		Supplier<SecurityContext> supplier = () -> securityContext;
 		given(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME))
 				.willReturn(supplier);
-
 		this.listener.beforeTestExecution(this.testContext);
-
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication())
 				.isEqualTo(securityContext.getAuthentication());
 	}

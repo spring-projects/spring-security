@@ -53,7 +53,6 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON
 	+ "}";
 	// @formatter:on
-
 	@Test
 	public void serializeUserTest() throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();
@@ -72,14 +71,12 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	public void deserializeUserWithNullPasswordEmptyAuthorityTest() throws IOException {
 		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
 				"[]");
-
 		this.mapper.readValue(userJsonWithoutPasswordString, User.class);
 	}
 
 	@Test
 	public void deserializeUserWithNullPasswordNoAuthorityTest() throws Exception {
 		String userJsonWithoutPasswordString = removeNode(userWithNoAuthoritiesJson(), this.mapper, "password");
-
 		User user = this.mapper.readValue(userJsonWithoutPasswordString, User.class);
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo("admin");
@@ -107,7 +104,6 @@ public class UserDeserializerTests extends AbstractMixinTests {
 	private String removeNode(String json, ObjectMapper mapper, String toRemove) throws Exception {
 		ObjectNode node = mapper.getFactory().createParser(json).readValueAsTree();
 		node.remove(toRemove);
-
 		String result = mapper.writeValueAsString(node);
 		JSONAssert.assertNotEquals(json, result, false);
 		return result;

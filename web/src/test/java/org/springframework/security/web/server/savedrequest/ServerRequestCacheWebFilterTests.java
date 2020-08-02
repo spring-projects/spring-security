@@ -70,9 +70,7 @@ public class ServerRequestCacheWebFilterTests {
 		ServerHttpRequest savedRequest = MockServerHttpRequest.get("/")
 				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML.getType()).build();
 		given(this.requestCache.removeMatchingRequest(any())).willReturn(Mono.just(savedRequest));
-
 		this.requestCacheFilter.filter(exchange, this.chain).block();
-
 		verify(this.chain).filter(this.exchangeCaptor.capture());
 		ServerWebExchange updatedExchange = this.exchangeCaptor.getValue();
 		assertThat(updatedExchange.getRequest()).isEqualTo(savedRequest);
@@ -83,9 +81,7 @@ public class ServerRequestCacheWebFilterTests {
 		MockServerHttpRequest initialRequest = MockServerHttpRequest.get("/").build();
 		ServerWebExchange exchange = MockServerWebExchange.from(initialRequest);
 		given(this.requestCache.removeMatchingRequest(any())).willReturn(Mono.empty());
-
 		this.requestCacheFilter.filter(exchange, this.chain).block();
-
 		verify(this.chain).filter(this.exchangeCaptor.capture());
 		ServerWebExchange updatedExchange = this.exchangeCaptor.getValue();
 		assertThat(updatedExchange.getRequest()).isEqualTo(initialRequest);

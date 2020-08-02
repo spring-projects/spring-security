@@ -67,10 +67,8 @@ public class DelegatingAccessDeniedHandlerTests {
 	public void moreSpecificDoesNotInvokeLessSpecific() throws Exception {
 		this.handlers.put(CsrfException.class, this.handler1);
 		this.handler = new DelegatingAccessDeniedHandler(this.handlers, this.handler3);
-
 		AccessDeniedException accessDeniedException = new AccessDeniedException("");
 		this.handler.handle(this.request, this.response, accessDeniedException);
-
 		verify(this.handler1, never()).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(AccessDeniedException.class));
 		verify(this.handler3).handle(this.request, this.response, accessDeniedException);
@@ -81,10 +79,8 @@ public class DelegatingAccessDeniedHandlerTests {
 		this.handlers.put(InvalidCsrfTokenException.class, this.handler1);
 		this.handlers.put(MissingCsrfTokenException.class, this.handler2);
 		this.handler = new DelegatingAccessDeniedHandler(this.handlers, this.handler3);
-
 		AccessDeniedException accessDeniedException = new MissingCsrfTokenException("123");
 		this.handler.handle(this.request, this.response, accessDeniedException);
-
 		verify(this.handler1, never()).handle(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(AccessDeniedException.class));
 		verify(this.handler2).handle(this.request, this.response, accessDeniedException);

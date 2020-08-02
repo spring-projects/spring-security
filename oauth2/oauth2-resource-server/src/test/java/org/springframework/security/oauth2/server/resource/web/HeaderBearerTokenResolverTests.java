@@ -52,14 +52,12 @@ public class HeaderBearerTokenResolverTests {
 	public void resolveWhenTokenPresentThenTokenIsResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader(CORRECT_HEADER, TEST_TOKEN);
-
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
 	@Test
 	public void resolveWhenTokenNotPresentThenTokenIsNotResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		assertThat(this.resolver.resolve(request)).isNull();
 	}
 

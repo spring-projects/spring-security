@@ -42,11 +42,9 @@ public class DigestAuthenticationEntryPointTests {
 		// format of nonce is:
 		// base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
 		assertThat(Base64.isArrayByteBase64(nonce.getBytes())).isTrue();
-
 		String decodedNonce = new String(Base64.decodeBase64(nonce.getBytes()));
 		String[] nonceTokens = StringUtils.delimitedListToStringArray(decodedNonce, ":");
 		assertThat(nonceTokens).hasSize(2);
-
 		String expectedNonceSignature = DigestUtils.md5Hex(nonceTokens[0] + ":" + "key");
 		assertThat(nonceTokens[1]).isEqualTo(expectedNonceSignature);
 	}
@@ -55,7 +53,6 @@ public class DigestAuthenticationEntryPointTests {
 	public void testDetectsMissingKey() throws Exception {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setRealmName("realm");
-
 		try {
 			ep.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
@@ -70,7 +67,6 @@ public class DigestAuthenticationEntryPointTests {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setKey("dcdc");
 		ep.setNonceValiditySeconds(12);
-
 		try {
 			ep.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
@@ -97,29 +93,21 @@ public class DigestAuthenticationEntryPointTests {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setRealmName("hello");
 		ep.setKey("key");
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/some_path");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		ep.afterPropertiesSet();
-
 		ep.commence(request, response, new DisabledException("foobar"));
-
 		// Check response is properly formed
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getHeader("WWW-Authenticate").toString()).startsWith("Digest ");
-
 		// Break up response header
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
 		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
-
 		assertThat(headerMap.get("realm")).isEqualTo("hello");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
 		assertThat(headerMap.get("stale")).isNull();
-
 		checkNonceValid(headerMap.get("nonce"));
 	}
 
@@ -128,29 +116,21 @@ public class DigestAuthenticationEntryPointTests {
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setRealmName("hello");
 		ep.setKey("key");
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/some_path");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		ep.afterPropertiesSet();
-
 		ep.commence(request, response, new NonceExpiredException("expired nonce"));
-
 		// Check response is properly formed
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getHeader("WWW-Authenticate").toString()).startsWith("Digest ");
-
 		// Break up response header
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
 		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
-
 		assertThat(headerMap.get("realm")).isEqualTo("hello");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
 		assertThat(headerMap.get("stale")).isEqualTo("true");
-
 		checkNonceValid(headerMap.get("nonce"));
 	}
 

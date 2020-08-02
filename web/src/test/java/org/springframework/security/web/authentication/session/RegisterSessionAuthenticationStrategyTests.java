@@ -64,7 +64,6 @@ public class RegisterSessionAuthenticationStrategyTests {
 	@Test
 	public void onAuthenticationRegistersSession() {
 		this.authenticationStrategy.onAuthentication(this.authentication, this.request, this.response);
-
 		verify(this.registry).registerNewSession(this.request.getSession().getId(), this.authentication.getPrincipal());
 	}
 

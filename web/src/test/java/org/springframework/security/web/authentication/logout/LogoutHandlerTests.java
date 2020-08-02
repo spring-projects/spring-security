@@ -41,11 +41,9 @@ public class LogoutHandlerTests {
 	public void testRequiresLogoutUrlWorksWithPathParams() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		request.setRequestURI("/context/logout;someparam=blah?param=blah");
 		request.setServletPath("/logout;someparam=blah");
 		request.setQueryString("otherparam=blah");
-
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		assertThat(this.filter.requiresLogout(fw.getFirewalledRequest(request), response)).isTrue();
 	}
@@ -55,11 +53,9 @@ public class LogoutHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/context");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		request.setServletPath("/logout");
 		request.setRequestURI("/context/logout?param=blah");
 		request.setQueryString("otherparam=blah");
-
 		assertThat(this.filter.requiresLogout(request, response)).isTrue();
 	}
 

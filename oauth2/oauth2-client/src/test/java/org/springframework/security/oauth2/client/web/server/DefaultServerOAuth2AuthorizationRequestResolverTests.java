@@ -77,19 +77,15 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	@Test
 	public void resolveWhenClientRegistrationNotFoundMatchThenBadRequest() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
-
 		ResponseStatusException expected = catchThrowableOfType(() -> resolve("/oauth2/authorization/not-found-id"),
 				ResponseStatusException.class);
-
 		assertThat(expected.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
 
 	@Test
 	public void resolveWhenClientRegistrationFoundThenWorks() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(this.registration));
-
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/not-found-id");
-
 		assertThat(request.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
 						+ "scope=read:user&state=.*?&" + "redirect_uri=/login/oauth2/code/registration-id");
@@ -100,9 +96,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.just(this.registration));
 		ServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("/oauth2/authorization/id").header("X-Forwarded-Host", "evil.com"));
-
 		OAuth2AuthorizationRequest request = this.resolver.resolve(exchange).block();
-
 		assertThat(request.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
 						+ "scope=read:user&state=.*?&" + "redirect_uri=/login/oauth2/code/registration-id");
@@ -113,12 +107,9 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration()
 						.clientAuthenticationMethod(ClientAuthenticationMethod.NONE).clientSecret(null).build()));
-
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/registration-id");
-
 		assertThat((String) request.getAttribute(PkceParameterNames.CODE_VERIFIER))
 				.matches("^([a-zA-Z0-9\\-\\.\\_\\~]){128}$");
-
 		assertThat(request.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
 						+ "scope=read:user&state=.*?&" + "redirect_uri=/login/oauth2/code/registration-id&"
@@ -129,11 +120,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	public void resolveWhenAuthenticationRequestWithValidOidcClientThenResolves() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
-
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/registration-id");
-
 		assertThat((String) request.getAttribute(OidcParameterNames.NONCE)).matches("^([a-zA-Z0-9\\-\\.\\_\\~]){128}$");
-
 		assertThat(request.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=openid&state=.*?&"
 				+ "redirect_uri=/login/oauth2/code/registration-id&" + "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
@@ -144,13 +132,10 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	public void resolveWhenAuthorizationRequestCustomizerRemovesNonceThenQueryExcludesNonce() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
-
 		this.resolver.setAuthorizationRequestCustomizer(
 				(customizer) -> customizer.additionalParameters((params) -> params.remove(OidcParameterNames.NONCE))
 						.attributes((attrs) -> attrs.remove(OidcParameterNames.NONCE)));
-
 		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id");
-
 		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OidcParameterNames.NONCE);
 		assertThat(authorizationRequest.getAttributes()).doesNotContainKey(OidcParameterNames.NONCE);
 		assertThat(authorizationRequest.getAttributes()).containsKey(OAuth2ParameterNames.REGISTRATION_ID);
@@ -163,15 +148,12 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	public void resolveWhenAuthorizationRequestCustomizerAddsParameterThenQueryIncludesParameter() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
-
 		this.resolver
 				.setAuthorizationRequestCustomizer((customizer) -> customizer.authorizationRequestUri((uriBuilder) -> {
 					uriBuilder.queryParam("param1", "value1");
 					return uriBuilder.build();
 				}));
-
 		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id");
-
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
 						+ "scope=openid&state=.{15,}&" + "redirect_uri=/login/oauth2/code/registration-id&"
@@ -182,14 +164,11 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	public void resolveWhenAuthorizationRequestCustomizerOverridesParameterThenQueryIncludesParameter() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().scope(OidcScopes.OPENID).build()));
-
 		this.resolver.setAuthorizationRequestCustomizer((customizer) -> customizer.parameters((params) -> {
 			params.put("appid", params.get("client_id"));
 			params.remove("client_id");
 		}));
-
 		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id");
-
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&"
 						+ "scope=openid&state=.{15,}&" + "redirect_uri=/login/oauth2/code/registration-id&"

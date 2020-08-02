@@ -56,7 +56,6 @@ public class SecurityContextPersistenceFilterTests {
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
 		SecurityContextHolder.getContext().setAuthentication(this.testToken);
-
 		filter.doFilter(request, response, chain);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
@@ -76,7 +75,6 @@ public class SecurityContextPersistenceFilterTests {
 		}
 		catch (IOException expected) {
 		}
-
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
@@ -91,17 +89,13 @@ public class SecurityContextPersistenceFilterTests {
 		scBefore.setAuthentication(beforeAuth);
 		final SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(repo);
-
 		given(repo.loadContext(any(HttpRequestResponseHolder.class))).willReturn(scBefore);
-
 		final FilterChain chain = (request1, response1) -> {
 			assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(beforeAuth);
 			// Change the context here
 			SecurityContextHolder.setContext(scExpectedAfter);
 		};
-
 		filter.doFilter(request, response, chain);
-
 		verify(repo).saveContext(scExpectedAfter, request, response);
 	}
 
@@ -112,7 +106,6 @@ public class SecurityContextPersistenceFilterTests {
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(
 				mock(SecurityContextRepository.class));
-
 		request.setAttribute(SecurityContextPersistenceFilter.FILTER_APPLIED, Boolean.TRUE);
 		filter.doFilter(request, response, chain);
 		verify(chain).doFilter(request, response);

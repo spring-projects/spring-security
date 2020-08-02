@@ -36,7 +36,6 @@ public abstract class HierarchicalRolesTestHelper {
 		if (authorities1 == null && authorities2 == null) {
 			return true;
 		}
-
 		if (authorities1 == null || authorities2 == null) {
 			return false;
 		}
@@ -48,7 +47,6 @@ public abstract class HierarchicalRolesTestHelper {
 		if (authorities1 == null && authorities2 == null) {
 			return true;
 		}
-
 		if (authorities1 == null || authorities2 == null) {
 			return false;
 		}
@@ -60,7 +58,6 @@ public abstract class HierarchicalRolesTestHelper {
 		if (authorities == null) {
 			return null;
 		}
-
 		List<String> result = new ArrayList<>(authorities.size());
 		for (GrantedAuthority authority : authorities) {
 			result.add(authority.getAuthority());
@@ -70,12 +67,10 @@ public abstract class HierarchicalRolesTestHelper {
 
 	public static List<GrantedAuthority> createAuthorityList(final String... roles) {
 		List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
-
 		for (final String role : roles) {
 			// Use non SimpleGrantedAuthority (SEC-863)
 			authorities.add((GrantedAuthority) () -> role);
 		}
-
 		return authorities;
 	}
 

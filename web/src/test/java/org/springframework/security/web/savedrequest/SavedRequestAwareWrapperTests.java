@@ -56,11 +56,9 @@ public class SavedRequestAwareWrapperTests {
 		MockHttpServletRequest savedRequest = new MockHttpServletRequest();
 		savedRequest.addHeader("header", "savedheader");
 		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, new MockHttpServletRequest());
-
 		assertThat(wrapper.getHeader("nonexistent")).isNull();
 		Enumeration headers = wrapper.getHeaders("nonexistent");
 		assertThat(headers.hasMoreElements()).isFalse();
-
 		assertThat(wrapper.getHeader("Header")).isEqualTo("savedheader");
 		headers = wrapper.getHeaders("heaDer");
 		assertThat(headers.hasMoreElements()).isTrue();
@@ -125,7 +123,6 @@ public class SavedRequestAwareWrapperTests {
 		savedRequest.setParameter("action", "foo");
 		MockHttpServletRequest wrappedRequest = new MockHttpServletRequest();
 		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, wrappedRequest);
-
 		assertThat(wrapper.getParameterValues("action")).isEqualTo(new Object[] { "foo" });
 		wrappedRequest.setParameter("action", "bar");
 		assertThat(wrapper.getParameterValues("action")).isEqualTo(new Object[] { "bar", "foo" });
@@ -144,7 +141,6 @@ public class SavedRequestAwareWrapperTests {
 		request.addHeader("header", nowString);
 		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest());
 		assertThat(wrapper.getDateHeader("header")).isEqualTo(now.getTime());
-
 		assertThat(wrapper.getDateHeader("nonexistent")).isEqualTo(-1L);
 	}
 
@@ -169,7 +165,6 @@ public class SavedRequestAwareWrapperTests {
 		request.addHeader("header", "999");
 		request.addHeader("header", "1000");
 		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest());
-
 		assertThat(wrapper.getIntHeader("header")).isEqualTo(999);
 		assertThat(wrapper.getIntHeader("nonexistent")).isEqualTo(-1);
 	}

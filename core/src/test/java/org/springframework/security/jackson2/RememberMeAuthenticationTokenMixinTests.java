@@ -48,7 +48,6 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
-
 	// @formatter:off
 	private static final String REMEMBERME_AUTH_STRINGPRINCIPAL_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.authentication.RememberMeAuthenticationToken\","
@@ -59,7 +58,6 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
-
 	@Test(expected = IllegalArgumentException.class)
 	public void testWithNullPrincipal() {
 		new RememberMeAuthenticationToken("key", null, Collections.<GrantedAuthority>emptyList());

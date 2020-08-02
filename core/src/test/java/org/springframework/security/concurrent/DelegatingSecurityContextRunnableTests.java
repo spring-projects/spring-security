@@ -66,7 +66,6 @@ public class DelegatingSecurityContextRunnableTests {
 			assertThat(SecurityContextHolder.getContext()).isEqualTo(this.securityContext);
 			return null;
 		}).given(this.delegate).run();
-
 		this.executor = Executors.newFixedThreadPool(1);
 	}
 

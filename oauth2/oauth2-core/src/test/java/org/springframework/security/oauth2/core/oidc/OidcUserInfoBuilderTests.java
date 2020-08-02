@@ -28,14 +28,10 @@ public class OidcUserInfoBuilderTests {
 	@Test
 	public void buildWhenCalledTwiceThenGeneratesTwoOidcUserInfos() {
 		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder();
-
 		OidcUserInfo first = userInfoBuilder.claim("TEST_CLAIM_1", "C1").build();
-
 		OidcUserInfo second = userInfoBuilder.claim("TEST_CLAIM_1", "C2").claim("TEST_CLAIM_2", "C3").build();
-
 		assertThat(first.getClaims()).hasSize(1);
 		assertThat(first.getClaims().get("TEST_CLAIM_1")).isEqualTo("C1");
-
 		assertThat(second.getClaims()).hasSize(2);
 		assertThat(second.getClaims().get("TEST_CLAIM_1")).isEqualTo("C2");
 		assertThat(second.getClaims().get("TEST_CLAIM_2")).isEqualTo("C3");
@@ -44,13 +40,10 @@ public class OidcUserInfoBuilderTests {
 	@Test
 	public void subjectWhenUsingGenericOrNamedClaimMethodThenLastOneWins() {
 		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder();
-
 		String generic = new String("sub");
 		String named = new String("sub");
-
 		OidcUserInfo userInfo = userInfoBuilder.subject(named).claim(IdTokenClaimNames.SUB, generic).build();
 		assertThat(userInfo.getSubject()).isSameAs(generic);
-
 		userInfo = userInfoBuilder.claim(IdTokenClaimNames.SUB, generic).subject(named).build();
 		assertThat(userInfo.getSubject()).isSameAs(named);
 	}
@@ -58,7 +51,6 @@ public class OidcUserInfoBuilderTests {
 	@Test
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
 		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder().claim("needs", "a claim");
-
 		OidcUserInfo userInfo = userInfoBuilder.subject("sub").claims((claims) -> claims.remove(IdTokenClaimNames.SUB))
 				.build();
 		assertThat(userInfo.getSubject()).isNull();
@@ -67,11 +59,9 @@ public class OidcUserInfoBuilderTests {
 	@Test
 	public void claimsWhenAddingAClaimThenIsPresent() {
 		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder();
-
 		String name = new String("name");
 		String value = new String("value");
 		OidcUserInfo userInfo = userInfoBuilder.claims((claims) -> claims.put(name, value)).build();
-
 		assertThat(userInfo.getClaims()).hasSize(1);
 		assertThat(userInfo.getClaims().get(name)).isSameAs(value);
 	}

@@ -146,14 +146,10 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 	public void createDecoderWhenCustomJwtValidatorFactorySetThenApplied() {
 		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> customJwtValidatorFactory = mock(Function.class);
 		this.idTokenDecoderFactory.setJwtValidatorFactory(customJwtValidatorFactory);
-
 		ClientRegistration clientRegistration = this.registration.build();
-
 		given(customJwtValidatorFactory.apply(same(clientRegistration)))
 				.willReturn(new OidcIdTokenValidator(clientRegistration));
-
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
-
 		verify(customJwtValidatorFactory).apply(same(clientRegistration));
 	}
 
@@ -161,13 +157,9 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 	public void createDecoderWhenCustomJwsAlgorithmResolverSetThenApplied() {
 		Function<ClientRegistration, JwsAlgorithm> customJwsAlgorithmResolver = mock(Function.class);
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver(customJwsAlgorithmResolver);
-
 		ClientRegistration clientRegistration = this.registration.build();
-
 		given(customJwsAlgorithmResolver.apply(same(clientRegistration))).willReturn(MacAlgorithm.HS256);
-
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
-
 		verify(customJwsAlgorithmResolver).apply(same(clientRegistration));
 	}
 
@@ -176,14 +168,10 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(
 				Function.class);
 		this.idTokenDecoderFactory.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
-
 		ClientRegistration clientRegistration = this.registration.build();
-
 		given(customClaimTypeConverterFactory.apply(same(clientRegistration)))
 				.willReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
-
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
-
 		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
 	}
 

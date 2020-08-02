@@ -42,7 +42,6 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenJwtHasSubjectThenReturnsSubject() {
 		Jwt jwt = builder().subject("Carl").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-
 		assertThat(token.getName()).isEqualTo("Carl");
 	}
 
@@ -50,7 +49,6 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenJwtHasNoSubjectThenReturnsNull() {
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-
 		assertThat(token.getName()).isNull();
 	}
 
@@ -65,7 +63,6 @@ public class JwtAuthenticationTokenTests {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
-
 		assertThat(token.getAuthorities()).isEqualTo(authorities);
 		assertThat(token.getPrincipal()).isEqualTo(jwt);
 		assertThat(token.getCredentials()).isEqualTo(jwt);
@@ -78,7 +75,6 @@ public class JwtAuthenticationTokenTests {
 	public void constructorWhenUsingOnlyJwtThenConstructedCorrectly() {
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-
 		assertThat(token.getAuthorities()).isEmpty();
 		assertThat(token.getPrincipal()).isEqualTo(jwt);
 		assertThat(token.getCredentials()).isEqualTo(jwt);
@@ -91,7 +87,6 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenConstructedWithJwtThenReturnsSubject() {
 		Jwt jwt = builder().subject("Hayden").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-
 		assertThat(token.getName()).isEqualTo("Hayden");
 	}
 
@@ -100,7 +95,6 @@ public class JwtAuthenticationTokenTests {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().subject("Hayden").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
-
 		assertThat(token.getName()).isEqualTo("Hayden");
 	}
 
@@ -109,7 +103,6 @@ public class JwtAuthenticationTokenTests {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities, "Hayden");
-
 		assertThat(token.getName()).isEqualTo("Hayden");
 	}
 
@@ -117,7 +110,6 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenConstructedWithNoSubjectThenReturnsNull() {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().claim("claim", "value").build();
-
 		assertThat(new JwtAuthenticationToken(jwt, authorities, null).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt).getName()).isNull();

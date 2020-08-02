@@ -48,13 +48,10 @@ public class ForwardAuthenticaionSuccessHandlerTests {
 	@Test
 	public void responseIsForwarded() throws Exception {
 		ForwardAuthenticationSuccessHandler fash = new ForwardAuthenticationSuccessHandler("/forwardUrl");
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Authentication authentication = mock(Authentication.class);
-
 		fash.onAuthenticationSuccess(request, response, authentication);
-
 		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
 	}
 

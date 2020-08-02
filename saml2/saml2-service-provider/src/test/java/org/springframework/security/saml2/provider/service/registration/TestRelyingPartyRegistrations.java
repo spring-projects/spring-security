@@ -30,16 +30,13 @@ public final class TestRelyingPartyRegistrations {
 
 	public static RelyingPartyRegistration.Builder relyingPartyRegistration() {
 		String registrationId = "simplesamlphp";
-
 		String rpEntityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
 		Saml2X509Credential signingCredential = TestSaml2X509Credentials.relyingPartySigningCredential();
 		String assertionConsumerServiceLocation = "{baseUrl}"
 				+ Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
-
 		String apEntityId = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php";
 		Saml2X509Credential verificationCertificate = TestSaml2X509Credentials.relyingPartyVerifyingCredential();
 		String singleSignOnServiceLocation = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php";
-
 		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(rpEntityId)
 				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
 				.credentials((c) -> c.add(signingCredential))

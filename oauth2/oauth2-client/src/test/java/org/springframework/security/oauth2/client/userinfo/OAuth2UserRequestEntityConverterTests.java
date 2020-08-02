@@ -49,13 +49,10 @@ public class OAuth2UserRequestEntityConverterTests {
 	public void convertWhenAuthenticationMethodHeaderThenGetRequest() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		OAuth2UserRequest userRequest = new OAuth2UserRequest(clientRegistration, this.createAccessToken());
-
 		RequestEntity<?> requestEntity = this.converter.convert(userRequest);
-
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.GET);
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
-
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION))
@@ -68,18 +65,14 @@ public class OAuth2UserRequestEntityConverterTests {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
 				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).build();
 		OAuth2UserRequest userRequest = new OAuth2UserRequest(clientRegistration, this.createAccessToken());
-
 		RequestEntity<?> requestEntity = this.converter.convert(userRequest);
-
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
-
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getContentType())
 				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
-
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.ACCESS_TOKEN))
 				.isEqualTo(userRequest.getAccessToken().getTokenValue());

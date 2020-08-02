@@ -52,7 +52,6 @@ public class SpringSecurityAuthenticationSourceTests {
 	@Test
 	public void principalIsEmptyForAnonymousUser() {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
-
 		SecurityContextHolder.getContext().setAuthentication(
 				new AnonymousAuthenticationToken("key", "anonUser", AuthorityUtils.createAuthorityList("ignored")));
 		assertThat(source.getPrincipal()).isEqualTo("");
@@ -62,7 +61,6 @@ public class SpringSecurityAuthenticationSourceTests {
 	public void getPrincipalRejectsNonLdapUserDetailsObject() {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
-
 		source.getPrincipal();
 	}
 
@@ -70,7 +68,6 @@ public class SpringSecurityAuthenticationSourceTests {
 	public void expectedCredentialsAreReturned() {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
-
 		assertThat(source.getCredentials()).isEqualTo("password");
 	}
 
@@ -82,7 +79,6 @@ public class SpringSecurityAuthenticationSourceTests {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken(user.createUserDetails(), null));
-
 		assertThat(source.getPrincipal()).isEqualTo("uid=joe,ou=users");
 	}
 

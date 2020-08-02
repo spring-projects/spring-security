@@ -219,7 +219,6 @@ public class JwtDecodersTests {
 
 	@Test
 	public void issuerWhenRequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException() throws Exception {
-
 		this.server.shutdown();
 		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation("https://issuer"))
 				.isInstanceOf(IllegalArgumentException.class);
@@ -228,7 +227,6 @@ public class JwtDecodersTests {
 	@Test
 	public void issuerWhenOidcFallbackRequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException()
 			throws Exception {
-
 		this.server.shutdown();
 		assertThatCode(() -> JwtDecoders.fromIssuerLocation("https://issuer"))
 				.isInstanceOf(IllegalArgumentException.class);

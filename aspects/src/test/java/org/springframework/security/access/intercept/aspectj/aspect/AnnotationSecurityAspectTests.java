@@ -111,7 +111,6 @@ public class AnnotationSecurityAspectTests {
 	@Test(expected = AccessDeniedException.class)
 	public void internalPrivateCallIsIntercepted() {
 		SecurityContextHolder.getContext().setAuthentication(this.anne);
-
 		try {
 			this.secured.publicCallsPrivate();
 			fail("Expected AccessDeniedException");
@@ -124,7 +123,6 @@ public class AnnotationSecurityAspectTests {
 	@Test(expected = AccessDeniedException.class)
 	public void protectedMethodIsIntercepted() {
 		SecurityContextHolder.getContext().setAuthentication(this.anne);
-
 		this.secured.protectedMethod();
 	}
 

@@ -58,7 +58,6 @@ public class BasicAuthenticationConverterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
 		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
-
 		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");
@@ -70,7 +69,6 @@ public class BasicAuthenticationConverterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
 		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
-
 		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");
@@ -81,7 +79,6 @@ public class BasicAuthenticationConverterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer someOtherToken");
 		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
-
 		verifyZeroInteractions(this.authenticationDetailsSource);
 		assertThat(authentication).isNull();
 	}
@@ -98,7 +95,6 @@ public class BasicAuthenticationConverterTests {
 	public void testWhenInvalidBase64ThenError() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic NOT_VALID_BASE64");
-
 		this.converter.convert(request);
 	}
 
@@ -108,7 +104,6 @@ public class BasicAuthenticationConverterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
 		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
-
 		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.getName()).isEqualTo("rod");

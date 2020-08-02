@@ -61,7 +61,6 @@ public class DelegatingAuthenticationEntryPointContextTests {
 		verify(this.firstAEP).commence(request, null, null);
 		verify(this.defaultAEP, never()).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(AuthenticationException.class));
-
 	}
 
 	@Test
@@ -73,7 +72,6 @@ public class DelegatingAuthenticationEntryPointContextTests {
 		verify(this.defaultAEP).commence(request, null, null);
 		verify(this.firstAEP, never()).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(AuthenticationException.class));
-
 	}
 
 }

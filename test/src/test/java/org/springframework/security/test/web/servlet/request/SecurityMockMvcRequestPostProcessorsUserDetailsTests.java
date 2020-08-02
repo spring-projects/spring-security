@@ -75,7 +75,6 @@ public class SecurityMockMvcRequestPostProcessorsUserDetailsTests {
 	@Test
 	public void userDetails() {
 		user(this.userDetails).postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();

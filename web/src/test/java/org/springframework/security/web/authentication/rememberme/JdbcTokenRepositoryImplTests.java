@@ -94,9 +94,7 @@ public class JdbcTokenRepositoryImplTests {
 		Timestamp currentDate = new Timestamp(Calendar.getInstance().getTimeInMillis());
 		PersistentRememberMeToken token = new PersistentRememberMeToken("joeuser", "joesseries", "atoken", currentDate);
 		this.repo.createNewToken(token);
-
 		Map<String, Object> results = this.template.queryForMap("select * from persistent_logins");
-
 		assertThat(results.get("last_used")).isEqualTo(currentDate);
 		assertThat(results.get("username")).isEqualTo("joeuser");
 		assertThat(results.get("series")).isEqualTo("joesseries");
@@ -105,11 +103,9 @@ public class JdbcTokenRepositoryImplTests {
 
 	@Test
 	public void retrievingTokenReturnsCorrectData() {
-
 		this.template.execute("insert into persistent_logins (series, username, token, last_used) values "
 				+ "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
 		PersistentRememberMeToken token = this.repo.getTokenForSeries("joesseries");
-
 		assertThat(token.getUsername()).isEqualTo("joeuser");
 		assertThat(token.getSeries()).isEqualTo("joesseries");
 		assertThat(token.getTokenValue()).isEqualTo("atoken");
@@ -122,11 +118,9 @@ public class JdbcTokenRepositoryImplTests {
 				+ "('joesseries', 'joeuser', 'atoken2', '2007-10-19 18:19:25.000000000')");
 		this.template.execute("insert into persistent_logins (series, username, token, last_used) values "
 				+ "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
-
 		// List results =
 		// template.queryForList("select * from persistent_logins where series =
 		// 'joesseries'");
-
 		assertThat(this.repo.getTokenForSeries("joesseries")).isNull();
 	}
 
@@ -146,16 +140,12 @@ public class JdbcTokenRepositoryImplTests {
 				+ "('joesseries2', 'joeuser', 'atoken2', '2007-10-19 18:19:25.000000000')");
 		this.template.execute("insert into persistent_logins (series, username, token, last_used) values "
 				+ "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
-
 		// List results =
 		// template.queryForList("select * from persistent_logins where series =
 		// 'joesseries'");
-
 		this.repo.removeUserTokens("joeuser");
-
 		List<Map<String, Object>> results = this.template
 				.queryForList("select * from persistent_logins where username = 'joeuser'");
-
 		assertThat(results).isEmpty();
 	}
 
@@ -165,10 +155,8 @@ public class JdbcTokenRepositoryImplTests {
 		this.template.execute("insert into persistent_logins (series, username, token, last_used) values "
 				+ "('joesseries', 'joeuser', 'atoken', '" + ts.toString() + "')");
 		this.repo.updateToken("joesseries", "newtoken", new Date());
-
 		Map<String, Object> results = this.template
 				.queryForMap("select * from persistent_logins where series = 'joesseries'");
-
 		assertThat(results.get("username")).isEqualTo("joeuser");
 		assertThat(results.get("series")).isEqualTo("joesseries");
 		assertThat(results.get("token")).isEqualTo("newtoken");
@@ -183,7 +171,6 @@ public class JdbcTokenRepositoryImplTests {
 		this.repo.setDataSource(dataSource);
 		this.repo.setCreateTableOnStartup(true);
 		this.repo.initDao();
-
 		this.template.queryForList("select username,series,token,last_used from persistent_logins");
 	}
 
@@ -194,9 +181,7 @@ public class JdbcTokenRepositoryImplTests {
 		Date lastUsed = new Date(1424841314059L);
 		JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
 		repository.setJdbcTemplate(template);
-
 		repository.updateToken("series", "token", lastUsed);
-
 		verify(template).update(anyString(), anyString(), eq(lastUsed), anyString());
 	}
 

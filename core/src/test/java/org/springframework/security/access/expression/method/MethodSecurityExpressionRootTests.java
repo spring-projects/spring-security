@@ -64,7 +64,6 @@ public class MethodSecurityExpressionRootTests {
 	public void canCallMethodsOnVariables() {
 		this.ctx.setVariable("var", "somestring");
 		Expression e = this.parser.parseExpression("#var.length() == 10");
-
 		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
 	}
 
@@ -87,9 +86,7 @@ public class MethodSecurityExpressionRootTests {
 		this.ctx.setVariable("domainObject", dummyDomainObject);
 		this.root.setPermissionEvaluator(pe);
 		given(pe.hasPermission(this.user, dummyDomainObject, "ignored")).willReturn(false);
-
 		assertThat(this.root.hasPermission(dummyDomainObject, "ignored")).isFalse();
-
 	}
 
 	@Test
@@ -99,7 +96,6 @@ public class MethodSecurityExpressionRootTests {
 		this.ctx.setVariable("domainObject", dummyDomainObject);
 		this.root.setPermissionEvaluator(pe);
 		given(pe.hasPermission(this.user, dummyDomainObject, "ignored")).willReturn(true);
-
 		assertThat(this.root.hasPermission(dummyDomainObject, "ignored")).isTrue();
 	}
 
@@ -110,7 +106,6 @@ public class MethodSecurityExpressionRootTests {
 		final PermissionEvaluator pe = mock(PermissionEvaluator.class);
 		this.root.setPermissionEvaluator(pe);
 		given(pe.hasPermission(eq(this.user), eq(dummyDomainObject), any(Integer.class))).willReturn(true, true, false);
-
 		Expression e = this.parser.parseExpression("hasPermission(#domainObject, 0xA)");
 		// evaluator returns true
 		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
@@ -135,12 +130,10 @@ public class MethodSecurityExpressionRootTests {
 		this.root.setPermissionEvaluator(pe);
 		given(pe.hasPermission(this.user, targetObject, i)).willReturn(true, false);
 		given(pe.hasPermission(this.user, "x", i)).willReturn(true);
-
 		Expression e = this.parser.parseExpression("hasPermission(this, 2)");
 		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
 		e = this.parser.parseExpression("hasPermission(this, 2)");
 		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isFalse();
-
 		e = this.parser.parseExpression("hasPermission(this.x, 2)");
 		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
 	}

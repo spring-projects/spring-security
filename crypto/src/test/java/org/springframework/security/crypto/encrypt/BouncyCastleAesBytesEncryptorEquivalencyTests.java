@@ -102,7 +102,6 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 			Assert.assertArrayEquals(this.testData, leftDecrypted);
 			Assert.assertArrayEquals(this.testData, rightDecrypted);
 		}
-
 	}
 
 	private void testCompatibility(BytesEncryptor left, BytesEncryptor right) {

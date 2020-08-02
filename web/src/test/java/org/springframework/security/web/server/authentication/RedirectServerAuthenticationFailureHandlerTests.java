@@ -65,7 +65,6 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.exchange = createExchange();
 		this.handler.onAuthenticationFailure(this.exchange, this.exception);
-
 		assertThat(this.exchange.getExchange().getResponse().getHeaders().getLocation()).isNull();
 		assertThat(this.exchange.getExchange().getSession().block().isStarted()).isFalse();
 	}
@@ -73,9 +72,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	@Test
 	public void commenceWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = createExchange();
-
 		this.handler.onAuthenticationFailure(this.exchange, this.exception).block();
-
 		assertThat(this.exchange.getExchange().getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getExchange().getResponse().getHeaders().getLocation()).hasPath(this.location);
 	}
@@ -86,9 +83,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 		given(this.redirectStrategy.sendRedirect(any(), any())).willReturn(redirectResult.mono());
 		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = createExchange();
-
 		this.handler.onAuthenticationFailure(this.exchange, this.exception).block();
-
 		redirectResult.assertWasSubscribed();
 	}
 

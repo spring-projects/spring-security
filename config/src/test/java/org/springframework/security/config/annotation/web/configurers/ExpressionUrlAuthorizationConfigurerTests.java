@@ -93,7 +93,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void configureWhenNoCustomAccessDecisionManagerThenUsesAffirmativeBased() {
 		this.spring.register(NoSpecificAccessDecisionManagerConfig.class).autowire();
-
 		verify(NoSpecificAccessDecisionManagerConfig.objectPostProcessor).postProcess(any(AffirmativeBased.class));
 	}
 
@@ -113,7 +112,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenHasAnyAuthorityRoleUserConfiguredAndAuthorityIsRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserAnyAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
 				.andExpect(status().isOk());
 	}
@@ -122,7 +120,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void getWhenHasAnyAuthorityRoleUserConfiguredAndAuthorityIsRoleAdminThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(RoleUserAnyAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
 				.andExpect(status().isForbidden());
 	}
@@ -130,14 +127,12 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenHasAnyAuthorityRoleUserConfiguredAndNoAuthorityThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(RoleUserAnyAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void getWhenHasAuthorityRoleUserConfiguredAndAuthorityIsRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
 				.andExpect(status().isOk());
 	}
@@ -146,7 +141,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void getWhenHasAuthorityRoleUserConfiguredAndAuthorityIsRoleAdminThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(RoleUserAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
 				.andExpect(status().isForbidden());
 	}
@@ -154,14 +148,12 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenHasAuthorityRoleUserConfiguredAndNoAuthorityThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(RoleUserAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void getWhenAuthorityRoleUserOrAdminRequiredAndAuthorityIsRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrRoleAdminAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
 				.andExpect(status().isOk());
 	}
@@ -169,7 +161,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenAuthorityRoleUserOrAdminRequiredAndAuthorityIsRoleAdminThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrRoleAdminAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
 				.andExpect(status().isOk());
 	}
@@ -178,7 +169,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void getWhenAuthorityRoleUserOrAdminRequiredAndAuthorityIsRoleOtherThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(RoleUserOrRoleAdminAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").authorities(new SimpleGrantedAuthority("ROLE_OTHER"))))
 				.andExpect(status().isForbidden());
 	}
@@ -186,49 +176,42 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenAuthorityRoleUserOrAdminAuthRequiredAndNoUserThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(RoleUserOrRoleAdminAuthorityConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void getWhenHasAnyRoleUserConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenHasAnyRoleUserConfiguredAndRoleIsAdminThenRespondsWithForbidden() throws Exception {
 		this.spring.register(RoleUserConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").roles("ADMIN"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenRoleUserOrAdminConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrAdminConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenRoleUserOrAdminConfiguredAndRoleIsAdminThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleUserOrAdminConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").roles("ADMIN"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenRoleUserOrAdminConfiguredAndRoleIsOtherThenRespondsWithForbidden() throws Exception {
 		this.spring.register(RoleUserOrAdminConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").roles("OTHER"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenHasIpAddressConfiguredAndIpAddressMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(HasIpAddressConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with((request) -> {
 			request.setRemoteAddr("192.168.1.0");
 			return request;
@@ -238,7 +221,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenHasIpAddressConfiguredAndIpAddressDoesNotMatchThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(HasIpAddressConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with((request) -> {
 			request.setRemoteAddr("192.168.1.1");
 			return request;
@@ -248,28 +230,24 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenAnonymousConfiguredAndAnonymousUserThenRespondsWithOk() throws Exception {
 		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenAnonymousConfiguredAndLoggedInUserThenRespondsWithForbidden() throws Exception {
 		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenRememberMeConfiguredAndNoUserThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(RememberMeConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void getWhenRememberMeConfiguredAndRememberMeTokenThenRespondsWithOk() throws Exception {
 		this.spring.register(RememberMeConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(authentication(
 				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
 				.andExpect(status().isOk());
@@ -278,28 +256,24 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenDenyAllConfiguredAndNoUserThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(DenyAllConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void getWheDenyAllConfiguredAndUserLoggedInThenRespondsWithForbidden() throws Exception {
 		this.spring.register(DenyAllConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenNotDenyAllConfiguredAndNoUserThenRespondsWithOk() throws Exception {
 		this.spring.register(NotDenyAllConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenNotDenyAllConfiguredAndRememberMeTokenThenRespondsWithOk() throws Exception {
 		this.spring.register(NotDenyAllConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(authentication(
 				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
 				.andExpect(status().isOk());
@@ -308,7 +282,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenFullyAuthenticatedConfiguredAndRememberMeTokenThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(authentication(
 				new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))))
 				.andExpect(status().isUnauthorized());
@@ -317,35 +290,30 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void getWhenFullyAuthenticatedConfiguredAndUserThenRespondsWithOk() throws Exception {
 		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenAccessRoleUserOrGetRequestConfiguredThenRespondsWithOk() throws Exception {
 		this.spring.register(AccessConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@Test
 	public void postWhenAccessRoleUserOrGetRequestConfiguredAndRoleUserThenRespondsWithOk() throws Exception {
 		this.spring.register(AccessConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(post("/").with(csrf()).with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void postWhenAccessRoleUserOrGetRequestConfiguredThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(AccessConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
 	}
 
 	@Test
 	public void authorizeRequestsWhenInvokedTwiceThenUsesOriginalConfiguration() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotResetConfig.class, BasicController.class).autowire();
-
 		this.mvc.perform(post("/").with(csrf())).andExpect(status().isUnauthorized());
 	}
 
@@ -358,58 +326,49 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenApplicationListenerInvokedOnAuthorizedEvent()
 			throws Exception {
 		this.spring.register(AuthorizedRequestsWithPostProcessorConfig.class).autowire();
-
 		this.mvc.perform(get("/"));
-
 		verify(AuthorizedRequestsWithPostProcessorConfig.AL).onApplicationEvent(any(AuthorizedEvent.class));
 	}
 
 	@Test
 	public void getWhenPermissionCheckAndRoleDoesNotMatchThenRespondsWithForbidden() throws Exception {
 		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/admin").with(user("user").roles("USER"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenPermissionCheckAndRoleMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/user").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenPermissionCheckAndAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenPermissionCheckAndAuthenticationNameDoesNotMatchThenRespondsWithForbidden() throws Exception {
 		this.spring.register(UseBeansInExpressions.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenCustomExpressionHandlerAndRoleDoesNotMatchThenRespondsWithForbidden() throws Exception {
 		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/admin").with(user("user").roles("USER"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenCustomExpressionHandlerAndRoleMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/user").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenCustomExpressionHandlerAndAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
@@ -417,7 +376,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void getWhenCustomExpressionHandlerAndAuthenticationNameDoesNotMatchThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(CustomExpressionRootConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
 	}
 
@@ -425,7 +383,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnAccessDecisionManager() {
 		this.spring.register(Sec3011Config.class).autowire();
-
 		verify(Sec3011Config.objectPostProcessor).postProcess(any(AccessDecisionManager.class));
 	}
 
@@ -433,7 +390,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithIdAndTypeMatchesThenRespondsWithOk()
 			throws Exception {
 		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/allow")).andExpect(status().isOk());
 	}
 
@@ -441,7 +397,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithIdAndTypeDoesNotMatchThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/deny")).andExpect(status().isForbidden());
 	}
 
@@ -449,7 +404,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithObjectMatchesThenRespondsWithOk()
 			throws Exception {
 		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/allowObject")).andExpect(status().isOk());
 	}
 
@@ -457,21 +411,18 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithObjectDoesNotMatchThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(PermissionEvaluatorConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/denyObject")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenRegisteringRoleHierarchyAndRelatedRoleAllowedThenRespondsWithOk() throws Exception {
 		this.spring.register(RoleHierarchyConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/allow").with(user("user").roles("USER"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenRegisteringRoleHierarchyAndNoRelatedRolesAllowedThenRespondsWithForbidden() throws Exception {
 		this.spring.register(RoleHierarchyConfig.class, WildcardController.class).autowire();
-
 		this.mvc.perform(get("/deny").with(user("user").roles("USER"))).andExpect(status().isForbidden());
 	}
 
@@ -939,7 +890,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		@Bean
 		PermissionEvaluator permissionEvaluator() {
 			return new PermissionEvaluator() {
-
 				@Override
 				public boolean hasPermission(Authentication authentication, Object targetDomainObject,
 						Object permission) {
@@ -951,7 +901,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 						Object permission) {
 					return "ID".equals(targetId) && "TYPE".equals(targetType) && "PERMISSION".equals(permission);
 				}
-
 			};
 		}
 

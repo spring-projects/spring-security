@@ -70,22 +70,14 @@ public class FormLoginTests {
 	public void defaultLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http.authorizeExchange().anyExchange().authenticated().and()
 				.formLogin().and().build();
-
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class).assertAt();
-
 		loginPage = loginPage.loginForm().username("user").password("invalid").submit(DefaultLoginPage.class)
 				.assertError();
-
 		HomePage homePage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		homePage.assertAt();
-
 		loginPage = DefaultLogoutPage.to(driver).assertAt().logout();
-
 		loginPage.assertAt().assertLogout();
 	}
 
@@ -94,22 +86,14 @@ public class FormLoginTests {
 		SecurityWebFilterChain securityWebFilter = this.http
 				.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated()).formLogin(withDefaults())
 				.build();
-
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class).assertAt();
-
 		loginPage = loginPage.loginForm().username("user").password("invalid").submit(DefaultLoginPage.class)
 				.assertError();
-
 		HomePage homePage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		homePage.assertAt();
-
 		loginPage = DefaultLogoutPage.to(driver).assertAt().logout();
-
 		loginPage.assertAt().assertLogout();
 	}
 
@@ -117,17 +101,12 @@ public class FormLoginTests {
 	public void customLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http.authorizeExchange().pathMatchers("/login").permitAll()
 				.anyExchange().authenticated().and().formLogin().loginPage("/login").and().build();
-
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new CustomLoginPageController(), new WebTestClientBuilder.Http200RestController())
 				.webFilter(new WebFilterChainProxy(securityWebFilter)).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		CustomLoginPage loginPage = HomePage.to(driver, CustomLoginPage.class).assertAt();
-
 		HomePage homePage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		homePage.assertAt();
 	}
 
@@ -137,17 +116,12 @@ public class FormLoginTests {
 				.authorizeExchange(
 						(exchanges) -> exchanges.pathMatchers("/login").permitAll().anyExchange().authenticated())
 				.formLogin((formLogin) -> formLogin.loginPage("/login")).build();
-
 		WebTestClient webTestClient = WebTestClient
 				.bindToController(new CustomLoginPageController(), new WebTestClientBuilder.Http200RestController())
 				.webFilter(new WebFilterChainProxy(securityWebFilter)).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		CustomLoginPage loginPage = HomePage.to(driver, CustomLoginPage.class).assertAt();
-
 		HomePage homePage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		homePage.assertAt();
 	}
 
@@ -156,15 +130,10 @@ public class FormLoginTests {
 		SecurityWebFilterChain securityWebFilter = this.http.authorizeExchange().pathMatchers("/login", "/failure")
 				.permitAll().anyExchange().authenticated().and().formLogin()
 				.authenticationFailureHandler(new RedirectServerAuthenticationFailureHandler("/failure")).and().build();
-
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class).assertAt();
-
 		loginPage.loginForm().username("invalid").password("invalid").submit(HomePage.class);
-
 		assertThat(driver.getCurrentUrl()).endsWith("/failure");
 	}
 
@@ -173,13 +142,9 @@ public class FormLoginTests {
 		SecurityWebFilterChain securityWebFilter = this.http.authorizeExchange().pathMatchers("/login", "/sign-in")
 				.permitAll().anyExchange().authenticated().and().formLogin()
 				.requiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/sign-in")).and().build();
-
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		driver.get("http://localhost/sign-in");
-
 		assertThat(driver.getCurrentUrl()).endsWith("/login?error");
 	}
 
@@ -188,15 +153,10 @@ public class FormLoginTests {
 		SecurityWebFilterChain securityWebFilter = this.http.authorizeExchange().anyExchange().authenticated().and()
 				.formLogin().authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/custom"))
 				.and().build();
-
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = DefaultLoginPage.to(driver).assertAt();
-
 		HomePage homePage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		assertThat(driver.getCurrentUrl()).endsWith("/custom");
 	}
 
@@ -204,25 +164,17 @@ public class FormLoginTests {
 	public void customAuthenticationManager() {
 		ReactiveAuthenticationManager defaultAuthenticationManager = mock(ReactiveAuthenticationManager.class);
 		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
-
 		given(defaultAuthenticationManager.authenticate(any()))
 				.willThrow(new RuntimeException("should not interact with default auth manager"));
 		given(customAuthenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("user", "password", "ROLE_USER", "ROLE_ADMIN")));
-
 		SecurityWebFilterChain securityWebFilter = this.http.authenticationManager(defaultAuthenticationManager)
 				.formLogin().authenticationManager(customAuthenticationManager).and().build();
-
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = DefaultLoginPage.to(driver).assertAt();
-
 		HomePage homePage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		homePage.assertAt();
-
 		verifyZeroInteractions(defaultAuthenticationManager);
 	}
 
@@ -230,28 +182,19 @@ public class FormLoginTests {
 	public void formLoginSecurityContextRepository() {
 		ServerSecurityContextRepository defaultSecContextRepository = mock(ServerSecurityContextRepository.class);
 		ServerSecurityContextRepository formLoginSecContextRepository = mock(ServerSecurityContextRepository.class);
-
 		TestingAuthenticationToken token = new TestingAuthenticationToken("rob", "rob", "ROLE_USER");
-
 		given(defaultSecContextRepository.save(any(), any())).willReturn(Mono.empty());
 		given(defaultSecContextRepository.load(any())).willReturn(authentication(token));
 		given(formLoginSecContextRepository.save(any(), any())).willReturn(Mono.empty());
 		given(formLoginSecContextRepository.load(any())).willReturn(authentication(token));
-
 		SecurityWebFilterChain securityWebFilter = this.http.authorizeExchange().anyExchange().authenticated().and()
 				.securityContextRepository(defaultSecContextRepository).formLogin()
 				.securityContextRepository(formLoginSecContextRepository).and().build();
-
 		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
-
 		DefaultLoginPage loginPage = DefaultLoginPage.to(driver).assertAt();
-
 		HomePage homePage = loginPage.loginForm().username("user").password("password").submit(HomePage.class);
-
 		homePage.assertAt();
-
 		verify(defaultSecContextRepository, atLeastOnce()).load(any());
 		verify(formLoginSecContextRepository).save(any(), any());
 	}

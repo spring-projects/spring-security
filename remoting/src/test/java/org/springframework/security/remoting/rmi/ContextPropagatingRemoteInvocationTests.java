@@ -49,9 +49,7 @@ public class ContextPropagatingRemoteInvocationTests {
 		Class<TargetObject> clazz = TargetObject.class;
 		Method method = clazz.getMethod("makeLowerCase", new Class[] { String.class });
 		MethodInvocation mi = new SimpleMethodInvocation(new TargetObject(), method, "SOME_STRING");
-
 		ContextPropagatingRemoteInvocationFactory factory = new ContextPropagatingRemoteInvocationFactory();
-
 		return (ContextPropagatingRemoteInvocation) factory.createRemoteInvocation(mi);
 	}
 
@@ -60,9 +58,7 @@ public class ContextPropagatingRemoteInvocationTests {
 		// Setup client-side context
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
-
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-
 		try {
 			// Set up the wrong arguments.
 			remoteInvocation.setArguments(new Object[] {});
@@ -72,7 +68,6 @@ public class ContextPropagatingRemoteInvocationTests {
 		catch (IllegalArgumentException ex) {
 			// expected
 		}
-
 		assertThat(SecurityContextHolder.getContext().getAuthentication())
 				.withFailMessage("Authentication must be null").isNull();
 	}
@@ -82,14 +77,11 @@ public class ContextPropagatingRemoteInvocationTests {
 		// Setup client-side context
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
-
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-
 		// Set to null, as ContextPropagatingRemoteInvocation already obtained
 		// a copy and nulling is necessary to ensure the Context delivered by
 		// ContextPropagatingRemoteInvocation is used on server-side
 		SecurityContextHolder.clearContext();
-
 		// The result from invoking the TargetObject should contain the
 		// Authentication class delivered via the SecurityContextHolder
 		assertThat(remoteInvocation.invoke(new TargetObject())).isEqualTo(
@@ -99,11 +91,9 @@ public class ContextPropagatingRemoteInvocationTests {
 	@Test
 	public void testNullContextHolderDoesNotCauseInvocationProblems() throws Exception {
 		SecurityContextHolder.clearContext(); // just to be explicit
-
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 		SecurityContextHolder.clearContext(); // unnecessary, but for
 												// explicitness
-
 		assertThat(remoteInvocation.invoke(new TargetObject())).isEqualTo("some_string Authentication empty");
 	}
 
@@ -112,7 +102,6 @@ public class ContextPropagatingRemoteInvocationTests {
 	public void testNullCredentials() throws Exception {
 		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", null);
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
-
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 		assertThat(ReflectionTestUtils.getField(remoteInvocation, "credentials")).isNull();
 	}

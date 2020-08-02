@@ -78,7 +78,6 @@ public class DefaultFilterChainValidatorTests {
 				this.fsi);
 		this.fcp = new FilterChainProxy(securityChain);
 		this.validator = new DefaultFilterChainValidator();
-
 		ReflectionTestUtils.setField(this.validator, "logger", this.logger);
 	}
 
@@ -101,9 +100,7 @@ public class DefaultFilterChainValidatorTests {
 		FilterInvocationSecurityMetadataSource customMetaDataSource = mock(
 				FilterInvocationSecurityMetadataSource.class);
 		this.fsi.setSecurityMetadataSource(customMetaDataSource);
-
 		this.validator.validate(this.fcp);
-
 		verify(customMetaDataSource).getAttributes(any());
 	}
 

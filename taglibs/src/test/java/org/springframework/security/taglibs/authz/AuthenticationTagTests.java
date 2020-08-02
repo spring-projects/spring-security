@@ -52,7 +52,6 @@ public class AuthenticationTagTests {
 	@Test
 	public void testOperationWhenPrincipalIsAUserDetailsInstance() throws JspException {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
-
 		this.authenticationTag.setProperty("name");
 		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
@@ -63,7 +62,6 @@ public class AuthenticationTagTests {
 	public void testOperationWhenPrincipalIsAString() throws JspException {
 		SecurityContextHolder.getContext().setAuthentication(
 				new TestingAuthenticationToken("rodAsString", "koala", AuthorityUtils.NO_AUTHORITIES));
-
 		this.authenticationTag.setProperty("principal");
 		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
@@ -73,7 +71,6 @@ public class AuthenticationTagTests {
 	@Test
 	public void testNestedPropertyIsReadCorrectly() throws JspException {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
-
 		this.authenticationTag.setProperty("principal.username");
 		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
@@ -84,7 +81,6 @@ public class AuthenticationTagTests {
 	public void testOperationWhenPrincipalIsNull() throws JspException {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken(null, "koala", AuthorityUtils.NO_AUTHORITIES));
-
 		this.authenticationTag.setProperty("principal");
 		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
@@ -93,7 +89,6 @@ public class AuthenticationTagTests {
 	@Test
 	public void testOperationWhenSecurityContextIsNull() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(null);
-
 		this.authenticationTag.setProperty("principal");
 		assertThat(this.authenticationTag.doStartTag()).isEqualTo(Tag.SKIP_BODY);
 		assertThat(this.authenticationTag.doEndTag()).isEqualTo(Tag.EVAL_PAGE);
@@ -111,7 +106,6 @@ public class AuthenticationTagTests {
 	public void testThrowsExceptionForUnrecognisedProperty() {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
 		this.authenticationTag.setProperty("qsq");
-
 		try {
 			this.authenticationTag.doStartTag();
 			this.authenticationTag.doEndTag();

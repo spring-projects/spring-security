@@ -82,7 +82,6 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 
 	@Test
 	public void opaqueTokenWhenUsingDefaultsThenProducesDefaultAuthentication() throws Exception {
-
 		this.mvc.perform(get("/name").with(opaqueToken())).andExpect(content().string("user"));
 		this.mvc.perform(get("/admin/scopes").with(opaqueToken())).andExpect(status().isForbidden());
 	}
@@ -100,7 +99,6 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 		OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
 		given(principal.getName()).willReturn("ben");
 		given(principal.getAuthorities()).willReturn(authorities);
-
 		this.mvc.perform(get("/name").with(opaqueToken().principal(principal))).andExpect(content().string("ben"));
 	}
 
@@ -109,7 +107,6 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 	public void opaqueTokenWhenPrincipalSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OAuth2AuthenticatedPrincipal principal = TestOAuth2AuthenticatedPrincipals
 				.active((a) -> a.put("scope", "user"));
-
 		this.mvc.perform(get("/opaque-token/sub")
 				.with(opaqueToken().attributes((a) -> a.put("sub", "foo")).principal(principal)))
 				.andExpect(status().isOk()).andExpect(content().string((String) principal.getAttribute("sub")));
@@ -147,14 +144,12 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 			@GetMapping("/opaque-token/{attribute}")
 			String tokenAttribute(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
 					@PathVariable("attribute") String attribute) {
-
 				return principal.getAttribute(attribute);
 			}
 
 			@GetMapping("/admin/scopes")
 			List<String> scopes(
 					@AuthenticationPrincipal(expression = "authorities") Collection<GrantedAuthority> authorities) {
-
 				return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 			}
 

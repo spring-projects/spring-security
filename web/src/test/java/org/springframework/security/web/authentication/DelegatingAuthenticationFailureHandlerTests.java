@@ -79,10 +79,8 @@ public class DelegatingAuthenticationFailureHandlerTests {
 	public void handleByDefaultHandler() throws Exception {
 		this.handlers.put(BadCredentialsException.class, this.handler1);
 		this.handler = new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler);
-
 		AuthenticationException exception = new AccountExpiredException("");
 		this.handler.onAuthenticationFailure(this.request, this.response, exception);
-
 		verifyZeroInteractions(this.handler1, this.handler2);
 		verify(this.defaultHandler).onAuthenticationFailure(this.request, this.response, exception);
 	}
@@ -92,10 +90,8 @@ public class DelegatingAuthenticationFailureHandlerTests {
 		this.handlers.put(BadCredentialsException.class, this.handler1); // same type
 		this.handlers.put(AccountStatusException.class, this.handler2);
 		this.handler = new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler);
-
 		AuthenticationException exception = new BadCredentialsException("");
 		this.handler.onAuthenticationFailure(this.request, this.response, exception);
-
 		verifyZeroInteractions(this.handler2, this.defaultHandler);
 		verify(this.handler1).onAuthenticationFailure(this.request, this.response, exception);
 	}
@@ -106,43 +102,32 @@ public class DelegatingAuthenticationFailureHandlerTests {
 		this.handlers.put(AccountStatusException.class, this.handler2); // super type of
 		// CredentialsExpiredException
 		this.handler = new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler);
-
 		AuthenticationException exception = new CredentialsExpiredException("");
 		this.handler.onAuthenticationFailure(this.request, this.response, exception);
-
 		verifyZeroInteractions(this.handler1, this.defaultHandler);
 		verify(this.handler2).onAuthenticationFailure(this.request, this.response, exception);
 	}
 
 	@Test
 	public void handlersIsNull() {
-
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("handlers cannot be null or empty");
-
 		new DelegatingAuthenticationFailureHandler(null, this.defaultHandler);
-
 	}
 
 	@Test
 	public void handlersIsEmpty() {
-
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("handlers cannot be null or empty");
-
 		new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler);
-
 	}
 
 	@Test
 	public void defaultHandlerIsNull() {
-
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("defaultHandler cannot be null");
-
 		this.handlers.put(BadCredentialsException.class, this.handler1);
 		new DelegatingAuthenticationFailureHandler(this.handlers, null);
-
 	}
 
 }

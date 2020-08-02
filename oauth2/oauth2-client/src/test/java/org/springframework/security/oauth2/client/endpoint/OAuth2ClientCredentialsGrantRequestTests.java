@@ -55,7 +55,6 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 				.clientId("client-1").authorizationGrantType(AuthorizationGrantType.IMPLICIT)
 				.redirectUri("https://localhost:8080/redirect-uri").authorizationUri("https://provider.com/oauth2/auth")
 				.clientName("Client 1").build();
-
 		assertThatThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(clientRegistration))
 				.isInstanceOf(IllegalArgumentException.class).hasMessage(
 						"clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");
@@ -65,7 +64,6 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 	public void constructorWhenValidParametersProvidedThenCreated() {
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
 				this.clientRegistration);
-
 		assertThat(clientCredentialsGrantRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(clientCredentialsGrantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.CLIENT_CREDENTIALS);
 	}

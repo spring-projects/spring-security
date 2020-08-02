@@ -49,7 +49,6 @@ public class NamespaceAuthenticationProviderTests {
 	// authentication-provider@ref
 	public void authenticationProviderRef() throws Exception {
 		this.spring.register(AuthenticationProviderRefConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
@@ -57,7 +56,6 @@ public class NamespaceAuthenticationProviderTests {
 	// authentication-provider@user-service-ref
 	public void authenticationProviderUserServiceRef() throws Exception {
 		this.spring.register(AuthenticationProviderRefConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 

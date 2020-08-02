@@ -73,13 +73,11 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	@Test
 	public void constructorWhenAuthorizedClientsProvidedThenUseProvidedAuthorizedClients() {
 		String registrationId = this.registration3.getRegistrationId();
-
 		Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients = Collections.singletonMap(
 				new OAuth2AuthorizedClientId(this.registration3.getRegistrationId(), this.principalName1),
 				mock(OAuth2AuthorizedClient.class));
 		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		given(clientRegistrationRepository.findByRegistrationId(eq(registrationId))).willReturn(this.registration3);
-
 		InMemoryOAuth2AuthorizedClientService authorizedClientService = new InMemoryOAuth2AuthorizedClientService(
 				clientRegistrationRepository, authorizedClients);
 		assertThat((Object) authorizedClientService.loadAuthorizedClient(registrationId, this.principalName1))
@@ -114,11 +112,9 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	public void loadAuthorizedClientWhenClientRegistrationFoundAndAssociatedToPrincipalThenReturnAuthorizedClient() {
 		Authentication authentication = mock(Authentication.class);
 		given(authentication.getName()).willReturn(this.principalName1);
-
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
-
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService
 				.loadAuthorizedClient(this.registration1.getRegistrationId(), this.principalName1);
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
@@ -138,11 +134,9 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	public void saveAuthorizedClientWhenSavedThenCanLoad() {
 		Authentication authentication = mock(Authentication.class);
 		given(authentication.getName()).willReturn(this.principalName2);
-
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration3, this.principalName2,
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
-
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService
 				.loadAuthorizedClient(this.registration3.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
@@ -162,18 +156,14 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	public void removeAuthorizedClientWhenSavedThenRemoved() {
 		Authentication authentication = mock(Authentication.class);
 		given(authentication.getName()).willReturn(this.principalName2);
-
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration2, this.principalName2,
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, authentication);
-
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientService
 				.loadAuthorizedClient(this.registration2.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isNotNull();
-
 		this.authorizedClientService.removeAuthorizedClient(this.registration2.getRegistrationId(),
 				this.principalName2);
-
 		loadedAuthorizedClient = this.authorizedClientService
 				.loadAuthorizedClient(this.registration2.getRegistrationId(), this.principalName2);
 		assertThat(loadedAuthorizedClient).isNull();

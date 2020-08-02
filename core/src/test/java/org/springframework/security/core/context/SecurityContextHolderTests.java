@@ -60,7 +60,6 @@ public class SecurityContextHolderTests {
 			fail("Should have rejected null");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 

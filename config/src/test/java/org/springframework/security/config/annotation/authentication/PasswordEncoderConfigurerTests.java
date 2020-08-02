@@ -51,7 +51,6 @@ public class PasswordEncoderConfigurerTests {
 	@Test
 	public void passwordEncoderRefWhenAuthenticationManagerBuilderThenAuthenticationSuccess() throws Exception {
 		this.spring.register(PasswordEncoderNoAuthManagerLoadsConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated());
 	}
 

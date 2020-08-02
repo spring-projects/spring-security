@@ -49,7 +49,6 @@ public class MockUserDetailsService implements UserDetailsService {
 		if (this.users.get(username) == null) {
 			throw new UsernameNotFoundException("User not found: " + username);
 		}
-
 		return this.users.get(username);
 	}
 

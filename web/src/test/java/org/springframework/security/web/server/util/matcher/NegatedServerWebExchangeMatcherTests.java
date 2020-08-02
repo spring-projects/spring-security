@@ -51,24 +51,18 @@ public class NegatedServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenFalseThenTrue() {
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).isEmpty();
-
 		verify(this.matcher1).matches(this.exchange);
 	}
 
 	@Test
 	public void matchesWhenTrueThenFalse() {
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match());
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
-
 		verify(this.matcher1).matches(this.exchange);
 	}
 

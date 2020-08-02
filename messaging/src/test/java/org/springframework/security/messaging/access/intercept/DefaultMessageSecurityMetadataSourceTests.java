@@ -63,7 +63,6 @@ public class DefaultMessageSecurityMetadataSourceTests {
 		this.messageMap = new LinkedHashMap<>();
 		this.messageMap.put(this.matcher1, Arrays.<ConfigAttribute>asList(this.config1));
 		this.messageMap.put(this.matcher2, Arrays.<ConfigAttribute>asList(this.config2));
-
 		this.source = new DefaultMessageSecurityMetadataSource(this.messageMap);
 	}
 
@@ -75,14 +74,12 @@ public class DefaultMessageSecurityMetadataSourceTests {
 	@Test
 	public void getAttributesFirst() {
 		given(this.matcher1.matches(this.message)).willReturn(true);
-
 		assertThat(this.source.getAttributes(this.message)).containsOnly(this.config1);
 	}
 
 	@Test
 	public void getAttributesSecond() {
 		given(this.matcher1.matches(this.message)).willReturn(true);
-
 		assertThat(this.source.getAttributes(this.message)).containsOnly(this.config2);
 	}
 

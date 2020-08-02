@@ -65,24 +65,18 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void basicAuthenticationWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpBasicConfig.class, UserConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
-
 		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
-
 		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void basicAuthenticationWhenUsingDefaultsInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpBasicLambdaConfig.class, UserConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
-
 		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
-
 		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
 
@@ -92,7 +86,6 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void basicAuthenticationWhenUsingCustomRealmThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpBasicConfig.class, UserConfig.class).autowire();
-
 		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
 	}
@@ -100,7 +93,6 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void basicAuthenticationWhenUsingCustomRealmInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpBasicLambdaConfig.class, UserConfig.class).autowire();
-
 		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
 	}
@@ -111,12 +103,9 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void basicAuthenticationWhenUsingAuthenticationDetailsSourceRefThenMatchesNamespace() throws Exception {
 		this.spring.register(AuthenticationDetailsSourceHttpBasicConfig.class, UserConfig.class).autowire();
-
 		AuthenticationDetailsSource<HttpServletRequest, ?> source = this.spring.getContext()
 				.getBean(AuthenticationDetailsSource.class);
-
 		this.mvc.perform(get("/").with(httpBasic("user", "password")));
-
 		verify(source).buildDetails(any(HttpServletRequest.class));
 	}
 
@@ -124,12 +113,9 @@ public class NamespaceHttpBasicTests {
 	public void basicAuthenticationWhenUsingAuthenticationDetailsSourceRefInLambdaThenMatchesNamespace()
 			throws Exception {
 		this.spring.register(AuthenticationDetailsSourceHttpBasicLambdaConfig.class, UserConfig.class).autowire();
-
 		AuthenticationDetailsSource<HttpServletRequest, ?> source = this.spring.getContext()
 				.getBean(AuthenticationDetailsSource.class);
-
 		this.mvc.perform(get("/").with(httpBasic("user", "password")));
-
 		verify(source).buildDetails(any(HttpServletRequest.class));
 	}
 
@@ -139,22 +125,16 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void basicAuthenticationWhenUsingEntryPointRefThenMatchesNamespace() throws Exception {
 		this.spring.register(EntryPointRefHttpBasicConfig.class, UserConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().is(999));
-
 		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().is(999));
-
 		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void basicAuthenticationWhenUsingEntryPointRefInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(EntryPointRefHttpBasicLambdaConfig.class, UserConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().is(999));
-
 		this.mvc.perform(get("/").with(httpBasic("user", "invalid"))).andExpect(status().is(999));
-
 		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isNotFound());
 	}
 

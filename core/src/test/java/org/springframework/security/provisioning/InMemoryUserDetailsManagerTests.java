@@ -44,7 +44,6 @@ public class InMemoryUserDetailsManagerTests {
 	@Test
 	public void changePasswordWhenUsernameIsNotInLowercase() {
 		UserDetails userNotLowerCase = User.withUserDetails(PasswordEncodedUser.user()).username("User").build();
-
 		String newPassword = "newPassword";
 		this.manager.updatePassword(userNotLowerCase, newPassword);
 		assertThat(this.manager.loadUserByUsername(userNotLowerCase.getUsername()).getPassword())

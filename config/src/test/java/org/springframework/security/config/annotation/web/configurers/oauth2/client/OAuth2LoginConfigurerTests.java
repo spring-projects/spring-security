@@ -157,18 +157,14 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2Login() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfig.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -184,9 +180,7 @@ public class OAuth2LoginConfigurerTests {
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
@@ -199,18 +193,14 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginWhenSuccessThenAuthenticationSuccessEventPublished() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfig.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		assertThat(OAuth2LoginConfig.EVENTS).isNotEmpty();
 		assertThat(OAuth2LoginConfig.EVENTS).hasSize(1);
@@ -221,18 +211,14 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginCustomWithConfigurer() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfigCustomWithConfigurer.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -245,18 +231,14 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginCustomWithBeanRegistration() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfigCustomWithBeanRegistration.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -269,18 +251,14 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginCustomWithUserServiceBeanRegistration() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfigCustomUserServiceBeanRegistration.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -294,19 +272,15 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginConfigLoginProcessingUrl() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfigLoginProcessingUrl.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
 		this.request.setServletPath("/login/oauth2/google");
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -327,13 +301,10 @@ public class OAuth2LoginConfigurerTests {
 						"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
 				.build();
 		given(resolver.resolve(any())).willReturn(result);
-
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
 	}
@@ -350,13 +321,10 @@ public class OAuth2LoginConfigurerTests {
 						"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1")
 				.build();
 		given(resolver.resolve(any())).willReturn(result);
-
 		String requestUri = "/oauth2/authorization/google";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
 	}
@@ -365,13 +333,10 @@ public class OAuth2LoginConfigurerTests {
 	@Test
 	public void oauth2LoginWithOneClientConfiguredThenRedirectForAuthorization() throws Exception {
 		loadConfig(OAuth2LoginConfig.class);
-
 		String requestUri = "/";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
 	}
 
@@ -380,14 +345,11 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginWithOneClientConfiguredAndRequestFaviconNotAuthenticatedThenRedirectDefaultLoginPage()
 			throws Exception {
 		loadConfig(OAuth2LoginConfig.class);
-
 		String requestUri = "/favicon.ico";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
 		this.request.addHeader(HttpHeaders.ACCEPT, new MediaType("image", "*").toString());
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
 
@@ -395,13 +357,10 @@ public class OAuth2LoginConfigurerTests {
 	@Test
 	public void oauth2LoginWithMultipleClientsConfiguredThenRedirectDefaultLoginPage() throws Exception {
 		loadConfig(OAuth2LoginConfigMultipleClients.class);
-
 		String requestUri = "/";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
 
@@ -410,40 +369,31 @@ public class OAuth2LoginConfigurerTests {
 	public void oauth2LoginWithOneClientConfiguredAndRequestXHRNotAuthenticatedThenDoesNotRedirectForAuthorization()
 			throws Exception {
 		loadConfig(OAuth2LoginConfig.class);
-
 		String requestUri = "/";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
 		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.response.getRedirectedUrl()).doesNotMatch("http://localhost/oauth2/authorization/google");
 	}
 
 	@Test
 	public void oauth2LoginWithCustomLoginPageThenRedirectCustomLoginPage() throws Exception {
 		loadConfig(OAuth2LoginConfigCustomLoginPage.class);
-
 		String requestUri = "/";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/custom-login");
 	}
 
 	@Test
 	public void requestWhenOauth2LoginWithCustomLoginPageInLambdaThenRedirectCustomLoginPage() throws Exception {
 		loadConfig(OAuth2LoginConfigCustomLoginPageInLambda.class);
-
 		String requestUri = "/";
 		this.request = new MockHttpServletRequest("GET", requestUri);
 		this.request.setServletPath(requestUri);
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/custom-login");
 	}
 
@@ -451,18 +401,14 @@ public class OAuth2LoginConfigurerTests {
 	public void oidcLogin() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfig.class, JwtDecoderFactoryConfig.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -475,18 +421,14 @@ public class OAuth2LoginConfigurerTests {
 	public void requestWhenOauth2LoginInLambdaAndOidcThenAuthenticationContainsOidcUserAuthority() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginInLambdaConfig.class, JwtDecoderFactoryConfig.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -499,18 +441,14 @@ public class OAuth2LoginConfigurerTests {
 	public void oidcLoginCustomWithConfigurer() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfigCustomWithConfigurer.class, JwtDecoderFactoryConfig.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -523,18 +461,14 @@ public class OAuth2LoginConfigurerTests {
 	public void oidcLoginCustomWithBeanRegistration() throws Exception {
 		// setup application context
 		loadConfig(OAuth2LoginConfigCustomWithBeanRegistration.class, JwtDecoderFactoryConfig.class);
-
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
-
 		// setup authentication parameters
 		this.request.setParameter("code", "code123");
 		this.request.setParameter("state", authorizationRequest.getState());
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -555,10 +489,8 @@ public class OAuth2LoginConfigurerTests {
 	@Test
 	public void logoutWhenUsingOidcLogoutHandlerThenRedirects() throws Exception {
 		this.spring.register(OAuth2LoginConfigWithOidcLogoutSuccessHandler.class).autowire();
-
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, "registration-id");
-
 		this.mvc.perform(post("/logout").with(authentication(token)).with(csrf()))
 				.andExpect(redirectedUrl("https://logout?id_token_hint=id-token"));
 	}

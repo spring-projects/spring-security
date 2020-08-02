@@ -42,12 +42,10 @@ public class TestHelperTests {
 		List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_C");
 		List<GrantedAuthority> authorities4 = AuthorityUtils.createAuthorityList("ROLE_A");
 		List<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_A");
-
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null, null)).isTrue();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, authorities1)).isTrue();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, authorities2)).isTrue();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities2, authorities1)).isTrue();
-
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null, authorities1)).isFalse();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, null)).isFalse();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, authorities3)).isFalse();
@@ -65,42 +63,32 @@ public class TestHelperTests {
 		Collection<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_C");
 		Collection<GrantedAuthority> authorities4 = AuthorityUtils.createAuthorityList("ROLE_A");
 		Collection<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_A");
-
 		List<String> authoritiesStrings1 = new ArrayList<>();
 		authoritiesStrings1.add("ROLE_A");
 		authoritiesStrings1.add("ROLE_B");
-
 		List<String> authoritiesStrings2 = new ArrayList<>();
 		authoritiesStrings2.add("ROLE_B");
 		authoritiesStrings2.add("ROLE_A");
-
 		List<String> authoritiesStrings3 = new ArrayList<>();
 		authoritiesStrings3.add("ROLE_A");
 		authoritiesStrings3.add("ROLE_C");
-
 		List<String> authoritiesStrings4 = new ArrayList<>();
 		authoritiesStrings4.add("ROLE_A");
-
 		List<String> authoritiesStrings5 = new ArrayList<>();
 		authoritiesStrings5.add("ROLE_A");
 		authoritiesStrings5.add("ROLE_A");
-
 		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities1), authoritiesStrings1))
 						.isTrue();
-
 		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities2), authoritiesStrings2))
 						.isTrue();
-
 		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities3), authoritiesStrings3))
 						.isTrue();
-
 		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities4), authoritiesStrings4))
 						.isTrue();
-
 		assertThat(CollectionUtils.isEqualCollection(
 				HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities5), authoritiesStrings5))
 						.isTrue();
@@ -114,12 +102,10 @@ public class TestHelperTests {
 		List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_C");
 		List<GrantedAuthority> authorities4 = AuthorityUtils.createAuthorityList("ROLE_A");
 		List<GrantedAuthority> authorities5 = AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_A");
-
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null, null)).isTrue();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, authorities1)).isTrue();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, authorities2)).isTrue();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities2, authorities1)).isTrue();
-
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(null, authorities1)).isFalse();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, null)).isFalse();
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(authorities1, authorities3)).isFalse();
@@ -144,7 +130,6 @@ public class TestHelperTests {
 		List<GrantedAuthority> authorities1 = HierarchicalRolesTestHelper.createAuthorityList("ROLE_A");
 		assertThat(authorities1).hasSize(1);
 		assertThat(authorities1.get(0).getAuthority()).isEqualTo("ROLE_A");
-
 		List<GrantedAuthority> authorities2 = HierarchicalRolesTestHelper.createAuthorityList("ROLE_A", "ROLE_C");
 		assertThat(authorities2).hasSize(2);
 		assertThat(authorities2.get(0).getAuthority()).isEqualTo("ROLE_A");

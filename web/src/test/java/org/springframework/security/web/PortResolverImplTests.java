@@ -33,7 +33,6 @@ public class PortResolverImplTests {
 	@Test
 	public void testDetectsBuggyIeHttpRequest() {
 		PortResolverImpl pr = new PortResolverImpl();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServerPort(8443);
 		request.setScheme("HTtP"); // proves case insensitive handling
@@ -43,7 +42,6 @@ public class PortResolverImplTests {
 	@Test
 	public void testDetectsBuggyIeHttpsRequest() {
 		PortResolverImpl pr = new PortResolverImpl();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServerPort(8080);
 		request.setScheme("HTtPs"); // proves case insensitive handling
@@ -53,13 +51,11 @@ public class PortResolverImplTests {
 	@Test
 	public void testDetectsEmptyPortMapper() {
 		PortResolverImpl pr = new PortResolverImpl();
-
 		try {
 			pr.setPortMapper(null);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -74,7 +70,6 @@ public class PortResolverImplTests {
 	@Test
 	public void testNormalOperation() {
 		PortResolverImpl pr = new PortResolverImpl();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setScheme("http");
 		request.setServerPort(1021);

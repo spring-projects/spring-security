@@ -62,7 +62,6 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principal.getName(),
 				TestOAuth2AccessTokens.noScopes());
-
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider1 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
 		given(authorizedClientProvider1.authorize(any())).willReturn(Mono.empty());
@@ -72,7 +71,6 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider3 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
 		given(authorizedClientProvider3.authorize(any())).willReturn(Mono.just(authorizedClient));
-
 		DelegatingReactiveOAuth2AuthorizedClientProvider delegate = new DelegatingReactiveOAuth2AuthorizedClientProvider(
 				authorizedClientProvider1, authorizedClientProvider2, authorizedClientProvider3);
 		OAuth2AuthorizationContext context = OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
@@ -86,14 +84,12 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		OAuth2AuthorizationContext context = OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
 				.principal(new TestingAuthenticationToken("principal", "password")).build();
-
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider1 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
 		given(authorizedClientProvider1.authorize(any())).willReturn(Mono.empty());
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider2 = mock(
 				ReactiveOAuth2AuthorizedClientProvider.class);
 		given(authorizedClientProvider2.authorize(any())).willReturn(Mono.empty());
-
 		DelegatingReactiveOAuth2AuthorizedClientProvider delegate = new DelegatingReactiveOAuth2AuthorizedClientProvider(
 				authorizedClientProvider1, authorizedClientProvider2);
 		assertThat(delegate.authorize(context).block()).isNull();

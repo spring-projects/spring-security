@@ -73,7 +73,6 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.someUserMethod1();
 	}
 
@@ -82,7 +81,6 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.someAdminMethod();
 	}
 
@@ -101,7 +99,6 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 		catch (AuthenticationCredentialsNotFoundException expected) {
 		}
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("u", "p", "ROLE_A"));
-
 		BusinessService chompedTarget = (BusinessService) serializeAndDeserialize(this.target);
 		chompedTarget.someAdminMethod();
 	}
@@ -113,11 +110,9 @@ public class SecuredAnnotationDrivenBeanDefinitionParserTests {
 		oos.flush();
 		baos.flush();
 		byte[] bytes = baos.toByteArray();
-
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
 		ObjectInputStream ois = new ObjectInputStream(is);
 		Object o2 = ois.readObject();
-
 		return o2;
 	}
 

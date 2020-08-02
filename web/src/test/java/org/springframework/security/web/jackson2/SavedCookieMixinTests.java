@@ -51,13 +51,11 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 		+ "\"domain\": null"
 	+ "}";
 	// @formatter:on
-
 	// @formatter:off
 	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", ["
 		+ COOKIE_JSON
 	+ "]]";
 	// @formatter:on
-
 	@Test
 	public void serializeWithDefaultConfigurationTest() throws JsonProcessingException, JSONException {
 		SavedCookie savedCookie = new SavedCookie(new Cookie("SESSION", "123456789"));

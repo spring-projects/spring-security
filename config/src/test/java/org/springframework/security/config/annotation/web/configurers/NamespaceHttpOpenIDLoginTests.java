@@ -104,18 +104,14 @@ public class NamespaceHttpOpenIDLoginTests {
 		given(OpenIDLoginAttributeExchangeConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
 				any())).willReturn(mockAuthRequest);
 		this.spring.register(OpenIDLoginAttributeExchangeConfig.class).autowire();
-
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
-
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-
 			MvcResult mvcResult = this.mvc.perform(get("/login/openid")
 					.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "https://www.google.com/1"))
 					.andExpect(status().isFound()).andReturn();
-
 			Object attributeObject = mvcResult.getRequest().getSession()
 					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);
@@ -144,25 +140,20 @@ public class NamespaceHttpOpenIDLoginTests {
 	public void openidLoginWithCustomHandlersThenBehaviorMatchesNamespace() throws Exception {
 		OpenIDAuthenticationToken token = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS,
 				"identityUrl", "message", Arrays.asList(new OpenIDAttribute("name", "type")));
-
 		OpenIDLoginCustomRefsConfig.AUDS = mock(AuthenticationUserDetailsService.class);
 		given(OpenIDLoginCustomRefsConfig.AUDS.loadUserDetails(any(Authentication.class)))
 				.willReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
 		OpenIDLoginCustomRefsConfig.ADS = spy(new WebAuthenticationDetailsSource());
 		OpenIDLoginCustomRefsConfig.CONSUMER = mock(OpenIDConsumer.class);
-
 		this.spring.register(OpenIDLoginCustomRefsConfig.class, UserDetailsServiceConfig.class).autowire();
-
 		given(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class)))
 				.willThrow(new AuthenticationServiceException("boom"));
 		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
 				.andExpect(redirectedUrl("/custom/failure"));
 		reset(OpenIDLoginCustomRefsConfig.CONSUMER);
-
 		given(OpenIDLoginCustomRefsConfig.CONSUMER.endConsumption(any(HttpServletRequest.class))).willReturn(token);
 		this.mvc.perform(post("/login/openid").with(csrf()).param("openid.identity", "identity"))
 				.andExpect(redirectedUrl("/custom/targetUrl"));
-
 		verify(OpenIDLoginCustomRefsConfig.AUDS).loadUserDetails(any(Authentication.class));
 		verify(OpenIDLoginCustomRefsConfig.ADS).buildDetails(any(Object.class));
 	}

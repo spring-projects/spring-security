@@ -31,7 +31,6 @@ public class UserAttributeEditorTests {
 	public void testCorrectOperationWithTrailingSpaces() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password ,ROLE_ONE,ROLE_TWO ");
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user.getPassword()).isEqualTo("password");
 		assertThat(user.getAuthorities()).hasSize(2);
@@ -43,7 +42,6 @@ public class UserAttributeEditorTests {
 	public void testCorrectOperationWithoutEnabledDisabledKeyword() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password,ROLE_ONE,ROLE_TWO");
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user.isValid()).isTrue();
 		assertThat(user.isEnabled()).isTrue(); // default
@@ -57,7 +55,6 @@ public class UserAttributeEditorTests {
 	public void testDisabledKeyword() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password,disabled,ROLE_ONE,ROLE_TWO");
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user.isValid()).isTrue();
 		assertThat(!user.isEnabled()).isTrue();
@@ -71,7 +68,6 @@ public class UserAttributeEditorTests {
 	public void testEmptyStringReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("");
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user == null).isTrue();
 	}
@@ -80,7 +76,6 @@ public class UserAttributeEditorTests {
 	public void testEnabledKeyword() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password,ROLE_ONE,enabled,ROLE_TWO");
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user.isValid()).isTrue();
 		assertThat(user.isEnabled()).isTrue();
@@ -94,7 +89,6 @@ public class UserAttributeEditorTests {
 	public void testMalformedStringReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("MALFORMED_STRING");
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user == null).isTrue();
 	}
@@ -103,7 +97,6 @@ public class UserAttributeEditorTests {
 	public void testNoPasswordOrRolesReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("disabled");
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user == null).isTrue();
 	}
@@ -112,7 +105,6 @@ public class UserAttributeEditorTests {
 	public void testNoRolesReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText("password,enabled");
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user == null).isTrue();
 	}
@@ -121,7 +113,6 @@ public class UserAttributeEditorTests {
 	public void testNullReturnsNull() {
 		UserAttributeEditor editor = new UserAttributeEditor();
 		editor.setAsText(null);
-
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user == null).isTrue();
 	}

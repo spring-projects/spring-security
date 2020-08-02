@@ -106,18 +106,14 @@ public class CsrfFilterTests {
 		this.filter = createCsrfFilter(new LazyCsrfTokenRepository(this.tokenRepository));
 		given(this.requestMatcher.matches(this.request)).willReturn(false);
 		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 		CsrfToken attrToken = (CsrfToken) this.request.getAttribute(this.token.getParameterName());
-
 		// no CsrfToken should have been saved yet
 		verify(this.tokenRepository, times(0)).saveToken(any(CsrfToken.class), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 		verify(this.filterChain).doFilter(this.request, this.response);
-
 		// access the token
 		attrToken.getToken();
-
 		// now the CsrfToken should have been saved
 		verify(this.tokenRepository).saveToken(eq(this.token), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
@@ -127,12 +123,9 @@ public class CsrfFilterTests {
 	public void doFilterAccessDeniedNoTokenPresent() throws ServletException, IOException {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.deniedHandler).handle(eq(this.request), eq(this.response), any(InvalidCsrfTokenException.class));
 		verifyZeroInteractions(this.filterChain);
 	}
@@ -142,12 +135,9 @@ public class CsrfFilterTests {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken() + " INVALID");
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.deniedHandler).handle(eq(this.request), eq(this.response), any(InvalidCsrfTokenException.class));
 		verifyZeroInteractions(this.filterChain);
 	}
@@ -157,12 +147,9 @@ public class CsrfFilterTests {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken() + " INVALID");
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.deniedHandler).handle(eq(this.request), eq(this.response), any(InvalidCsrfTokenException.class));
 		verifyZeroInteractions(this.filterChain);
 	}
@@ -174,12 +161,9 @@ public class CsrfFilterTests {
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken() + " INVALID");
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.deniedHandler).handle(eq(this.request), eq(this.response), any(InvalidCsrfTokenException.class));
 		verifyZeroInteractions(this.filterChain);
 	}
@@ -188,12 +172,9 @@ public class CsrfFilterTests {
 	public void doFilterNotCsrfRequestExistingToken() throws ServletException, IOException {
 		given(this.requestMatcher.matches(this.request)).willReturn(false);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.filterChain).doFilter(this.request, this.response);
 		verifyZeroInteractions(this.deniedHandler);
 	}
@@ -202,12 +183,9 @@ public class CsrfFilterTests {
 	public void doFilterNotCsrfRequestGenerateToken() throws ServletException, IOException {
 		given(this.requestMatcher.matches(this.request)).willReturn(false);
 		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertToken(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertToken(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.filterChain).doFilter(this.request, this.response);
 		verifyZeroInteractions(this.deniedHandler);
 	}
@@ -217,12 +195,9 @@ public class CsrfFilterTests {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken());
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.filterChain).doFilter(this.request, this.response);
 		verifyZeroInteractions(this.deniedHandler);
 	}
@@ -234,12 +209,9 @@ public class CsrfFilterTests {
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken() + " INVALID");
 		this.request.addHeader(this.token.getHeaderName(), this.token.getToken());
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.filterChain).doFilter(this.request, this.response);
 		verifyZeroInteractions(this.deniedHandler);
 	}
@@ -249,12 +221,9 @@ public class CsrfFilterTests {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		verify(this.filterChain).doFilter(this.request, this.response);
 		verifyZeroInteractions(this.deniedHandler);
 		verify(this.tokenRepository, never()).saveToken(any(CsrfToken.class), any(HttpServletRequest.class),
@@ -266,15 +235,11 @@ public class CsrfFilterTests {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
 		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertToken(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertToken(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		// LazyCsrfTokenRepository requires the response as an attribute
 		assertThat(this.request.getAttribute(HttpServletResponse.class.getName())).isEqualTo(this.response);
-
 		verify(this.filterChain).doFilter(this.request, this.response);
 		verify(this.tokenRepository).saveToken(this.token, this.request, this.response);
 		verifyZeroInteractions(this.deniedHandler);
@@ -284,14 +249,11 @@ public class CsrfFilterTests {
 	public void doFilterDefaultRequireCsrfProtectionMatcherAllowedMethods() throws ServletException, IOException {
 		this.filter = new CsrfFilter(this.tokenRepository);
 		this.filter.setAccessDeniedHandler(this.deniedHandler);
-
 		for (String method : Arrays.asList("GET", "TRACE", "OPTIONS", "HEAD")) {
 			resetRequestResponse();
 			given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 			this.request.setMethod(method);
-
 			this.filter.doFilter(this.request, this.response, this.filterChain);
-
 			verify(this.filterChain).doFilter(this.request, this.response);
 			verifyZeroInteractions(this.deniedHandler);
 		}
@@ -307,14 +269,11 @@ public class CsrfFilterTests {
 	public void doFilterDefaultRequireCsrfProtectionMatcherAllowedMethodsCaseSensitive() throws Exception {
 		this.filter = new CsrfFilter(this.tokenRepository);
 		this.filter.setAccessDeniedHandler(this.deniedHandler);
-
 		for (String method : Arrays.asList("get", "TrAcE", "oPTIOnS", "hEaD")) {
 			resetRequestResponse();
 			given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 			this.request.setMethod(method);
-
 			this.filter.doFilter(this.request, this.response, this.filterChain);
-
 			verify(this.deniedHandler).handle(eq(this.request), eq(this.response),
 					any(InvalidCsrfTokenException.class));
 			verifyZeroInteractions(this.filterChain);
@@ -325,14 +284,11 @@ public class CsrfFilterTests {
 	public void doFilterDefaultRequireCsrfProtectionMatcherDeniedMethods() throws ServletException, IOException {
 		this.filter = new CsrfFilter(this.tokenRepository);
 		this.filter.setAccessDeniedHandler(this.deniedHandler);
-
 		for (String method : Arrays.asList("POST", "PUT", "PATCH", "DELETE", "INVALID")) {
 			resetRequestResponse();
 			given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
 			this.request.setMethod(method);
-
 			this.filter.doFilter(this.request, this.response, this.filterChain);
-
 			verify(this.deniedHandler).handle(eq(this.request), eq(this.response),
 					any(InvalidCsrfTokenException.class));
 			verifyZeroInteractions(this.filterChain);
@@ -345,28 +301,21 @@ public class CsrfFilterTests {
 		this.filter.setRequireCsrfProtectionMatcher(this.requestMatcher);
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
-
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 		verifyZeroInteractions(this.filterChain);
 	}
 
 	@Test
 	public void doFilterWhenSkipRequestInvokedThenSkips() throws Exception {
-
 		CsrfTokenRepository repository = mock(CsrfTokenRepository.class);
 		CsrfFilter filter = new CsrfFilter(repository);
-
 		lenient().when(repository.loadToken(any(HttpServletRequest.class))).thenReturn(this.token);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		CsrfFilter.skipRequest(request);
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-
 		verifyZeroInteractions(repository);
 	}
 

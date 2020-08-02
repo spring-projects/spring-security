@@ -161,41 +161,29 @@ public class MiscHttpConfigTests {
 
 	@Test
 	public void requestWhenUsingDebugFilterAndPatternIsNotConfigureForSecurityThenRespondsOk() throws Exception {
-
 		this.spring.configLocations(xml("NoSecurityForPattern")).autowire();
-
 		this.mvc.perform(get("/unprotected")).andExpect(status().isNotFound());
-
 		this.mvc.perform(get("/nomatch")).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void requestWhenHttpPatternUsesRegexMatchingThenMatchesAccordingly() throws Exception {
-
 		this.spring.configLocations(xml("RegexSecurityPattern")).autowire();
-
 		this.mvc.perform(get("/protected")).andExpect(status().isUnauthorized());
-
 		this.mvc.perform(get("/unprotected")).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void requestWhenHttpPatternUsesCiRegexMatchingThenMatchesAccordingly() throws Exception {
-
 		this.spring.configLocations(xml("CiRegexSecurityPattern")).autowire();
-
 		this.mvc.perform(get("/ProTectEd")).andExpect(status().isUnauthorized());
-
 		this.mvc.perform(get("/UnProTectEd")).andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void requestWhenHttpPatternUsesCustomRequestMatcherThenMatchesAccordingly() throws Exception {
-
 		this.spring.configLocations(xml("CustomRequestMatcher")).autowire();
-
 		this.mvc.perform(get("/protected")).andExpect(status().isUnauthorized());
-
 		this.mvc.perform(get("/unprotected")).andExpect(status().isNotFound());
 	}
 
@@ -204,94 +192,64 @@ public class MiscHttpConfigTests {
 	 */
 	@Test
 	public void requestWhenUsingMinimalConfigurationThenHonorsAnonymousEndpoints() throws Exception {
-
 		this.spring.configLocations(xml("AnonymousEndpoints")).autowire();
-
 		this.mvc.perform(get("/protected")).andExpect(status().isUnauthorized());
-
 		this.mvc.perform(get("/unprotected")).andExpect(status().isNotFound());
-
 		assertThat(getFilter(AnonymousAuthenticationFilter.class)).isNotNull();
 	}
 
 	@Test
 	public void requestWhenAnonymousIsDisabledThenRejectsAnonymousEndpoints() throws Exception {
-
 		this.spring.configLocations(xml("AnonymousDisabled")).autowire();
-
 		this.mvc.perform(get("/protected")).andExpect(status().isUnauthorized());
-
 		this.mvc.perform(get("/unprotected")).andExpect(status().isUnauthorized());
-
 		assertThat(getFilter(AnonymousAuthenticationFilter.class)).isNull();
 	}
 
 	@Test
 	public void requestWhenAnonymousUsesCustomAttributesThenRespondsWithThoseAttributes() throws Exception {
-
 		this.spring.configLocations(xml("AnonymousCustomAttributes")).autowire();
-
 		this.mvc.perform(get("/protected").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
-
 		this.mvc.perform(get("/protected")).andExpect(status().isOk()).andExpect(content().string("josh"));
-
 		this.mvc.perform(get("/customKey")).andExpect(status().isOk())
 				.andExpect(content().string(String.valueOf("myCustomKey".hashCode())));
 	}
 
 	@Test
 	public void requestWhenAnonymousUsesMultipleGrantedAuthoritiesThenRespondsWithThoseAttributes() throws Exception {
-
 		this.spring.configLocations(xml("AnonymousMultipleAuthorities")).autowire();
-
 		this.mvc.perform(get("/protected").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
-
 		this.mvc.perform(get("/protected")).andExpect(status().isOk()).andExpect(content().string("josh"));
-
 		this.mvc.perform(get("/customKey")).andExpect(status().isOk())
 				.andExpect(content().string(String.valueOf("myCustomKey".hashCode())));
 	}
 
 	@Test
 	public void requestWhenInterceptUrlMatchesMethodThenSecuresAccordingly() throws Exception {
-
 		this.spring.configLocations(xml("InterceptUrlMethod")).autowire();
-
 		this.mvc.perform(get("/protected").with(httpBasic("user", "password"))).andExpect(status().isOk());
-
 		this.mvc.perform(post("/protected").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
-
 		this.mvc.perform(post("/protected").with(httpBasic("poster", "password"))).andExpect(status().isOk());
-
 		this.mvc.perform(delete("/protected").with(httpBasic("poster", "password"))).andExpect(status().isForbidden());
-
 		this.mvc.perform(delete("/protected").with(httpBasic("admin", "password"))).andExpect(status().isOk());
 	}
 
 	@Test
 	public void requestWhenInterceptUrlMatchesMethodAndRequiresHttpsThenSecuresAccordingly() throws Exception {
-
 		this.spring.configLocations(xml("InterceptUrlMethodRequiresHttps")).autowire();
-
 		this.mvc.perform(post("/protected").with(csrf())).andExpect(status().isOk());
-
 		this.mvc.perform(get("/protected").secure(true).with(httpBasic("user", "password")))
 				.andExpect(status().isForbidden());
-
 		this.mvc.perform(get("/protected").secure(true).with(httpBasic("admin", "password")))
 				.andExpect(status().isOk());
 	}
 
 	@Test
 	public void requestWhenInterceptUrlMatchesAnyPatternAndRequiresHttpsThenSecuresAccordingly() throws Exception {
-
 		this.spring.configLocations(xml("InterceptUrlMethodRequiresHttpsAny")).autowire();
-
 		this.mvc.perform(post("/protected").with(csrf())).andExpect(status().isOk());
-
 		this.mvc.perform(get("/protected").secure(true).with(httpBasic("user", "password")))
 				.andExpect(status().isForbidden());
-
 		this.mvc.perform(get("/protected").secure(true).with(httpBasic("admin", "password")))
 				.andExpect(status().isOk());
 	}
@@ -299,20 +257,15 @@ public class MiscHttpConfigTests {
 	@Test
 	public void configureWhenOncePerRequestIsFalseThenFilterSecurityInterceptorExercisedForForwards() {
 		this.spring.configLocations(xml("OncePerRequest")).autowire();
-
 		FilterSecurityInterceptor filterSecurityInterceptor = getFilter(FilterSecurityInterceptor.class);
 		assertThat(filterSecurityInterceptor.isObserveOncePerRequest()).isFalse();
 	}
 
 	@Test
 	public void requestWhenCustomHttpBasicEntryPointRefThenInvokesOnCommence() throws Exception {
-
 		this.spring.configLocations(xml("CustomHttpBasicEntryPointRef")).autowire();
-
 		AuthenticationEntryPoint entryPoint = this.spring.getContext().getBean(AuthenticationEntryPoint.class);
-
 		this.mvc.perform(get("/protected")).andExpect(status().isOk());
-
 		verify(entryPoint).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(AuthenticationException.class));
 	}
@@ -326,7 +279,6 @@ public class MiscHttpConfigTests {
 	@Test
 	public void getWhenPortsMappedThenRedirectedAccordingly() throws Exception {
 		this.spring.configLocations(xml("PortsMappedInterceptUrlMethodRequiresAny")).autowire();
-
 		this.mvc.perform(get("http://localhost:9080/protected"))
 				.andExpect(redirectedUrl("https://localhost:9443/protected"));
 	}
@@ -335,11 +287,8 @@ public class MiscHttpConfigTests {
 	public void configureWhenCustomFiltersThenAddedToChainInCorrectOrder() {
 		System.setProperty("customFilterRef", "userFilter");
 		this.spring.configLocations(xml("CustomFilters")).autowire();
-
 		List<Filter> filters = getFilters("/");
-
 		Class<?> userFilterClass = this.spring.getContext().getBean("userFilter").getClass();
-
 		assertThat(filters).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass()).containsSubsequence(
 				userFilterClass, userFilterClass, SecurityContextPersistenceFilter.class, LogoutFilter.class,
 				userFilterClass);
@@ -354,7 +303,6 @@ public class MiscHttpConfigTests {
 	@Test
 	public void configureWhenUsingX509ThenAddsX509FilterCorrectly() {
 		this.spring.configLocations(xml("X509")).autowire();
-
 		assertThat(getFilters("/")).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass())
 				.containsSubsequence(CsrfFilter.class, X509AuthenticationFilter.class,
 						ExceptionTranslationFilter.class);
@@ -364,7 +312,6 @@ public class MiscHttpConfigTests {
 	public void getWhenUsingX509AndPropertyPlaceholderThenSubjectPrincipalRegexIsConfigured() throws Exception {
 		System.setProperty("subject_principal_regex", "OU=(.*?)(?:,|$)");
 		this.spring.configLocations(xml("X509")).autowire();
-
 		this.mvc.perform(get("/protected")
 				.with(x509("classpath:org/springframework/security/config/http/MiscHttpConfigTests-certificate.pem")))
 				.andExpect(status().isOk());
@@ -379,9 +326,7 @@ public class MiscHttpConfigTests {
 	@Test
 	public void logoutWhenSpecifyingCookiesToDeleteThenSetCookieAdded() throws Exception {
 		this.spring.configLocations(xml("DeleteCookies")).autowire();
-
 		MvcResult result = this.mvc.perform(post("/logout").with(csrf())).andReturn();
-
 		List<String> values = result.getResponse().getHeaders("Set-Cookie");
 		assertThat(values.size()).isEqualTo(2);
 		assertThat(values).extracting((value) -> value.split("=")[0]).contains("JSESSIONID", "mycookie");
@@ -390,29 +335,22 @@ public class MiscHttpConfigTests {
 	@Test
 	public void logoutWhenSpecifyingSuccessHandlerRefThenResponseHandledAccordingly() throws Exception {
 		this.spring.configLocations(xml("LogoutSuccessHandlerRef")).autowire();
-
 		this.mvc.perform(post("/logout").with(csrf())).andExpect(redirectedUrl("/logoutSuccessEndpoint"));
 	}
 
 	@Test
 	public void getWhenUnauthenticatedThenUsesConfiguredRequestCache() throws Exception {
 		this.spring.configLocations(xml("RequestCache")).autowire();
-
 		RequestCache requestCache = this.spring.getContext().getBean(RequestCache.class);
-
 		this.mvc.perform(get("/"));
-
 		verify(requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void getWhenUnauthenticatedThenUsesConfiguredAuthenticationEntryPoint() throws Exception {
 		this.spring.configLocations(xml("EntryPoint")).autowire();
-
 		AuthenticationEntryPoint entryPoint = this.spring.getContext().getBean(AuthenticationEntryPoint.class);
-
 		this.mvc.perform(get("/"));
-
 		verify(entryPoint).commence(any(HttpServletRequest.class), any(HttpServletResponse.class),
 				any(AuthenticationException.class));
 	}
@@ -426,38 +364,29 @@ public class MiscHttpConfigTests {
 	@Test
 	public void configureWhenUsingCustomUserDetailsServiceThenBeanPostProcessorsAreStillApplied() {
 		this.spring.configLocations(xml("Sec750")).autowire();
-
 		BeanNameCollectingPostProcessor postProcessor = this.spring.getContext()
 				.getBean(BeanNameCollectingPostProcessor.class);
-
 		assertThat(postProcessor.getBeforeInitPostProcessedBeans()).contains("authenticationProvider", "userService");
 		assertThat(postProcessor.getAfterInitPostProcessedBeans()).contains("authenticationProvider", "userService");
-
 	}
 
 	/* SEC-934 */
 	@Test
 	public void getWhenUsingTwoIdenticalInterceptUrlsThenTheSecondTakesPrecedence() throws Exception {
 		this.spring.configLocations(xml("Sec934")).autowire();
-
 		this.mvc.perform(get("/protected").with(httpBasic("user", "password"))).andExpect(status().isOk());
-
 		this.mvc.perform(get("/protected").with(httpBasic("admin", "password"))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void getWhenAuthenticatingThenConsultsCustomSecurityContextRepository() throws Exception {
 		this.spring.configLocations(xml("SecurityContextRepository")).autowire();
-
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
 		given(repository.loadContext(any(HttpRequestResponseHolder.class))).willReturn(context);
-
 		MvcResult result = this.mvc.perform(get("/protected").with(httpBasic("user", "password")))
 				.andExpect(status().isOk()).andReturn();
-
 		assertThat(result.getRequest().getSession(false)).isNotNull();
-
 		verify(repository, atLeastOnce()).saveContext(any(SecurityContext.class), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
@@ -465,25 +394,18 @@ public class MiscHttpConfigTests {
 	@Test
 	public void getWhenUsingInterceptUrlExpressionsThenAuthorizesAccordingly() throws Exception {
 		this.spring.configLocations(xml("InterceptUrlExpressions")).autowire();
-
 		this.mvc.perform(get("/protected").with(httpBasic("admin", "password"))).andExpect(status().isOk());
-
 		this.mvc.perform(get("/protected").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
-
 		this.mvc.perform(get("/unprotected").with(httpBasic("user", "password"))).andExpect(status().isOk());
-
 	}
 
 	@Test
 	public void getWhenUsingCustomExpressionHandlerThenAuthorizesAccordingly() throws Exception {
 		this.spring.configLocations(xml("ExpressionHandler")).autowire();
-
 		PermissionEvaluator permissionEvaluator = this.spring.getContext().getBean(PermissionEvaluator.class);
 		given(permissionEvaluator.hasPermission(any(Authentication.class), any(Object.class), any(Object.class)))
 				.willReturn(false);
-
 		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
-
 		verify(permissionEvaluator).hasPermission(any(Authentication.class), any(Object.class), any(Object.class));
 	}
 
@@ -491,26 +413,19 @@ public class MiscHttpConfigTests {
 	public void configureWhenProtectingLoginPageThenWarningLogged() {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		redirectLogsTo(baos, DefaultFilterChainValidator.class);
-
 		this.spring.configLocations(xml("ProtectedLoginPage")).autowire();
-
 		assertThat(baos.toString()).contains("[WARN]");
 	}
 
 	@Test
 	public void configureWhenUsingDisableUrlRewritingThenRedirectIsNotEncodedByResponse()
 			throws IOException, ServletException {
-
 		this.spring.configLocations(xml("DisableUrlRewriting")).autowire();
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
-
 		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
 		});
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
@@ -520,11 +435,9 @@ public class MiscHttpConfigTests {
 		assertThatCode(
 				() -> this.spring.configLocations(MiscHttpConfigTests.xml("MissingUserDetailsService")).autowire())
 						.isInstanceOf(BeansException.class);
-
 		try (XmlWebApplicationContext parent = new XmlWebApplicationContext()) {
 			parent.setConfigLocations(MiscHttpConfigTests.xml("AutoConfig"));
 			parent.refresh();
-
 			try (XmlWebApplicationContext child = new XmlWebApplicationContext()) {
 				child.setParent(parent);
 				child.setConfigLocation(MiscHttpConfigTests.xml("MissingUserDetailsService"));
@@ -536,9 +449,7 @@ public class MiscHttpConfigTests {
 	@Test
 	public void loginWhenConfiguredWithNoInternalAuthenticationProvidersThenSuccessfullyAuthenticates()
 			throws Exception {
-
 		this.spring.configLocations(xml("NoInternalAuthenticationProviders")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
 				.andExpect(redirectedUrl("/"));
 	}
@@ -546,16 +457,13 @@ public class MiscHttpConfigTests {
 	@Test
 	public void loginWhenUsingDefaultsThenErasesCredentialsAfterAuthentication() throws Exception {
 		this.spring.configLocations(xml("HttpBasic")).autowire();
-
 		this.mvc.perform(get("/password").with(httpBasic("user", "password"))).andExpect(content().string(""));
 	}
 
 	@Test
 	public void loginWhenAuthenticationManagerConfiguredToEraseCredentialsThenErasesCredentialsAfterAuthentication()
 			throws Exception {
-
 		this.spring.configLocations(xml("AuthenticationManagerEraseCredentials")).autowire();
-
 		this.mvc.perform(get("/password").with(httpBasic("user", "password"))).andExpect(content().string(""));
 	}
 
@@ -565,28 +473,22 @@ public class MiscHttpConfigTests {
 	@Test
 	public void loginWhenAuthenticationManagerRefConfiguredToKeepCredentialsThenKeepsCredentialsAfterAuthentication()
 			throws Exception {
-
 		this.spring.configLocations(xml("AuthenticationManagerRefKeepCredentials")).autowire();
-
 		this.mvc.perform(get("/password").with(httpBasic("user", "password"))).andExpect(content().string("password"));
 	}
 
 	@Test
 	public void loginWhenAuthenticationManagerRefIsNotAProviderManagerThenKeepsCredentialsAccordingly()
 			throws Exception {
-
 		this.spring.configLocations(xml("AuthenticationManagerRefNotProviderManager")).autowire();
-
 		this.mvc.perform(get("/password").with(httpBasic("user", "password"))).andExpect(content().string("password"));
 	}
 
 	@Test
 	public void loginWhenJeeFilterThenExtractsRoles() throws Exception {
 		this.spring.configLocations(xml("JeeFilter")).autowire();
-
 		Principal user = mock(Principal.class);
 		given(user.getName()).willReturn("joe");
-
 		this.mvc.perform(get("/roles").principal(user).with((request) -> {
 			request.addUserRole("admin");
 			request.addUserRole("user");
@@ -598,26 +500,19 @@ public class MiscHttpConfigTests {
 	@Test
 	public void loginWhenUsingCustomAuthenticationDetailsSourceRefThenAuthenticationSourcesDetailsAccordingly()
 			throws Exception {
-
 		this.spring.configLocations(xml("CustomAuthenticationDetailsSourceRef")).autowire();
-
 		Object details = mock(Object.class);
 		AuthenticationDetailsSource source = this.spring.getContext().getBean(AuthenticationDetailsSource.class);
 		given(source.buildDetails(any(Object.class))).willReturn(details);
-
 		this.mvc.perform(get("/details").with(httpBasic("user", "password")))
 				.andExpect(content().string(details.getClass().getName()));
-
 		this.mvc.perform(get("/details")
 				.with(x509("classpath:org/springframework/security/config/http/MiscHttpConfigTests-certificate.pem")))
 				.andExpect(content().string(details.getClass().getName()));
-
 		MockHttpSession session = (MockHttpSession) this.mvc
 				.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
 				.andReturn().getRequest().getSession(false);
-
 		this.mvc.perform(get("/details").session(session)).andExpect(content().string(details.getClass().getName()));
-
 		assertThat(ReflectionTestUtils.getField(getFilter(OpenIDAuthenticationFilter.class),
 				"authenticationDetailsSource")).isEqualTo(source);
 	}
@@ -625,29 +520,24 @@ public class MiscHttpConfigTests {
 	@Test
 	public void loginWhenUsingJaasApiProvisionThenJaasSubjectContainsUsername() throws Exception {
 		this.spring.configLocations(xml("Jaas")).autowire();
-
 		AuthorityGranter granter = this.spring.getContext().getBean(AuthorityGranter.class);
 		given(granter.grant(any(Principal.class))).willReturn(new HashSet<>(Arrays.asList("USER")));
-
 		this.mvc.perform(get("/username").with(httpBasic("user", "password"))).andExpect(content().string("user"));
 	}
 
 	@Test
 	public void getWhenUsingCustomHttpFirewallThenFirewallIsInvoked() throws Exception {
 		this.spring.configLocations(xml("HttpFirewall")).autowire();
-
 		FirewalledRequest request = new FirewalledRequest(new MockHttpServletRequest()) {
 			@Override
 			public void reset() {
 			}
 		};
 		HttpServletResponse response = new MockHttpServletResponse();
-
 		HttpFirewall firewall = this.spring.getContext().getBean(HttpFirewall.class);
 		given(firewall.getFirewalledRequest(any(HttpServletRequest.class))).willReturn(request);
 		given(firewall.getFirewalledResponse(any(HttpServletResponse.class))).willReturn(response);
 		this.mvc.perform(get("/unprotected"));
-
 		verify(firewall).getFirewalledRequest(any(HttpServletRequest.class));
 		verify(firewall).getFirewalledResponse(any(HttpServletResponse.class));
 	}
@@ -655,22 +545,18 @@ public class MiscHttpConfigTests {
 	@Test
 	public void getWhenUsingCustomRequestRejectedHandlerThenRequestRejectedHandlerIsInvoked() throws Exception {
 		this.spring.configLocations(xml("RequestRejectedHandler")).autowire();
-
 		HttpServletResponse response = new MockHttpServletResponse();
-
 		RequestRejectedException rejected = new RequestRejectedException("failed");
 		HttpFirewall firewall = this.spring.getContext().getBean(HttpFirewall.class);
 		RequestRejectedHandler requestRejectedHandler = this.spring.getContext().getBean(RequestRejectedHandler.class);
 		given(firewall.getFirewalledRequest(any(HttpServletRequest.class))).willThrow(rejected);
 		this.mvc.perform(get("/unprotected"));
-
 		verify(requestRejectedHandler).handle(any(), any(), any());
 	}
 
 	@Test
 	public void getWhenUsingCustomAccessDecisionManagerThenAuthorizesAccordingly() throws Exception {
 		this.spring.configLocations(xml("CustomAccessDecisionManager")).autowire();
-
 		this.mvc.perform(get("/unprotected").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
 	}
 
@@ -680,16 +566,13 @@ public class MiscHttpConfigTests {
 	@Test
 	public void authenticateWhenUsingPortMapperThenRedirectsAppropriately() throws Exception {
 		this.spring.configLocations(xml("PortsMappedRequiresHttps")).autowire();
-
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("https://localhost:9080/protected"))
 				.andExpect(redirectedUrl("https://localhost:9443/login")).andReturn().getRequest().getSession(false);
-
 		session = (MockHttpSession) this.mvc
 				.perform(post("/login").param("username", "user").param("password", "password").session(session)
 						.with(csrf()))
 				.andExpect(redirectedUrl("https://localhost:9443/protected")).andReturn().getRequest()
 				.getSession(false);
-
 		this.mvc.perform(get("http://localhost:9080/protected").session(session))
 				.andExpect(redirectedUrl("https://localhost:9443/protected"));
 	}
@@ -715,7 +598,6 @@ public class MiscHttpConfigTests {
 
 	private void assertThatFiltersMatchExpectedAutoConfigList(String url) {
 		Iterator<Filter> filters = getFilters(url).iterator();
-
 		assertThat(filters.next()).isInstanceOf(SecurityContextPersistenceFilter.class);
 		assertThat(filters.next()).isInstanceOf(WebAsyncManagerIntegrationFilter.class);
 		assertThat(filters.next()).isInstanceOf(HeaderWriterFilter.class);
@@ -768,11 +650,9 @@ public class MiscHttpConfigTests {
 		@GetMapping("/customKey")
 		String customKey() {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
 			if (authentication != null && authentication instanceof AnonymousAuthenticationToken) {
 				return String.valueOf(((AnonymousAuthenticationToken) authentication).getKeyHash());
 			}
-
 			return null;
 		}
 

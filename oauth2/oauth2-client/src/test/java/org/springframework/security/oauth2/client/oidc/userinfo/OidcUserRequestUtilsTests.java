@@ -52,21 +52,18 @@ public class OidcUserRequestUtilsTests {
 	@Test
 	public void shouldRetrieveUserInfoWhenNoUserInfoUriThenFalse() {
 		this.registration.userInfoUri(null);
-
 		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest())).isFalse();
 	}
 
 	@Test
 	public void shouldRetrieveUserInfoWhenDifferentScopesThenFalse() {
 		this.registration.scope("notintoken");
-
 		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest())).isFalse();
 	}
 
 	@Test
 	public void shouldRetrieveUserInfoWhenNotAuthorizationCodeThenFalse() {
 		this.registration.authorizationGrantType(AuthorizationGrantType.IMPLICIT);
-
 		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest())).isFalse();
 	}
 

@@ -79,7 +79,6 @@ public class AndMessageMatcherTests {
 	public void matchesSingleTrue() {
 		given(this.delegate.matches(this.message)).willReturn(true);
 		this.matcher = new AndMessageMatcher<>(this.delegate);
-
 		assertThat(this.matcher.matches(this.message)).isTrue();
 	}
 
@@ -88,7 +87,6 @@ public class AndMessageMatcherTests {
 		given(this.delegate.matches(this.message)).willReturn(true);
 		given(this.delegate2.matches(this.message)).willReturn(true);
 		this.matcher = new AndMessageMatcher<>(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.message)).isTrue();
 	}
 
@@ -96,7 +94,6 @@ public class AndMessageMatcherTests {
 	public void matchesSingleFalse() {
 		given(this.delegate.matches(this.message)).willReturn(false);
 		this.matcher = new AndMessageMatcher<>(this.delegate);
-
 		assertThat(this.matcher.matches(this.message)).isFalse();
 	}
 
@@ -104,7 +101,6 @@ public class AndMessageMatcherTests {
 	public void matchesMultiBothFalse() {
 		given(this.delegate.matches(this.message)).willReturn(false);
 		this.matcher = new AndMessageMatcher<>(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.message)).isFalse();
 	}
 
@@ -113,7 +109,6 @@ public class AndMessageMatcherTests {
 		given(this.delegate.matches(this.message)).willReturn(true);
 		given(this.delegate2.matches(this.message)).willReturn(false);
 		this.matcher = new AndMessageMatcher<>(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.message)).isFalse();
 	}
 

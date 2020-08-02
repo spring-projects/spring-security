@@ -65,14 +65,12 @@ public class AbstractVariableEvaluationContextPostProcessorTests {
 	@Test
 	public void extractVariables() {
 		this.context = this.processor.postProcess(this.context, this.invocation);
-
 		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);
 	}
 
 	@Test
 	public void extractVariablesOnlyUsedOnce() {
 		this.context = this.processor.postProcess(this.context, this.invocation);
-
 		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);
 		this.processor.results = Collections.emptyMap();
 		assertThat(this.context.lookupVariable(KEY)).isEqualTo(VALUE);

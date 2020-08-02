@@ -64,35 +64,30 @@ public class AuthenticationConverterServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenNotEmptyThenReturnTrue() {
 		given(this.converter.convert(any())).willReturn(Mono.just(this.authentication));
-
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void matchesWhenEmptyThenReturnFalse() {
 		given(this.converter.convert(any())).willReturn(Mono.empty());
-
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void matchesWhenErrorThenReturnFalse() {
 		given(this.converter.convert(any())).willReturn(Mono.error(new RuntimeException()));
-
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void matchesWhenNullThenThrowsException() {
 		given(this.converter.convert(any())).willReturn(null);
-
 		assertThatCode(() -> this.matcher.matches(this.exchange).block()).isInstanceOf(NullPointerException.class);
 	}
 
 	@Test
 	public void matchesWhenExceptionThenPropagates() {
 		given(this.converter.convert(any())).willThrow(RuntimeException.class);
-
 		assertThatCode(() -> this.matcher.matches(this.exchange).block()).isInstanceOf(RuntimeException.class);
 	}
 

@@ -79,7 +79,6 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		Class testClass = FakeTest.class;
 		given(this.testContext.getTestClass()).willReturn(testClass);
 		given(this.testContext.getTestMethod()).willReturn(ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
-
 		this.listener.beforeTestMethod(this.testContext);
 	}
 
@@ -89,9 +88,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		Class testClass = FakeTest.class;
 		given(this.testContext.getApplicationContext()).willThrow(new IllegalStateException());
 		given(this.testContext.getTestMethod()).willReturn(ReflectionUtils.findMethod(testClass, "testWithMockUser"));
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
 	}
 
@@ -100,11 +97,8 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	public void withSecurityContextAfterSqlScripts() {
 		SqlScriptsTestExecutionListener sql = new SqlScriptsTestExecutionListener();
 		WithSecurityContextTestExecutionListener security = new WithSecurityContextTestExecutionListener();
-
 		List<TestExecutionListener> listeners = Arrays.asList(security, sql);
-
 		AnnotationAwareOrderComparator.sort(listeners);
-
 		assertThat(listeners).containsExactly(sql, security);
 	}
 
@@ -113,13 +107,10 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	public void orderOverridden() {
 		AbstractTestExecutionListener otherListener = new AbstractTestExecutionListener() {
 		};
-
 		List<TestExecutionListener> listeners = new ArrayList<>();
 		listeners.add(otherListener);
 		listeners.add(this.listener);
-
 		AnnotationAwareOrderComparator.sort(listeners);
-
 		assertThat(listeners).containsSequence(this.listener, otherListener);
 	}
 
@@ -131,9 +122,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		TestContext testContext = mock(TestContext.class);
 		given(testContext.getTestMethod()).willReturn(method);
 		given(testContext.getApplicationContext()).willThrow(new IllegalStateException(""));
-
 		this.listener.beforeTestMethod(testContext);
-
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
 				.isInstanceOf(WithSuperClassWithSecurityContext.class);
 	}

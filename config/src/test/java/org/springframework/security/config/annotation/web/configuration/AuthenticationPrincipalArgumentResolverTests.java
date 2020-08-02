@@ -67,9 +67,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		context.setAuthentication(
 				new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
 		SecurityContextHolder.setContext(context);
-
 		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-
 		mockMvc.perform(get("/users/self")).andExpect(status().isOk()).andExpect(content().string("extracted-user"));
 	}
 
@@ -84,12 +82,10 @@ public class AuthenticationPrincipalArgumentResolverTests {
 				.inMemoryAuthentication();
 			// @formatter:off
 		}
-
 		@Bean
 		public UsernameExtractor usernameExtractor() {
 			return new UsernameExtractor();
 		}
-
 		@RestController
 		static class UserController {
 			@GetMapping("/users/self")
@@ -98,7 +94,6 @@ public class AuthenticationPrincipalArgumentResolverTests {
 			}
 		}
 	}
-
 	static class UsernameExtractor {
 		public String extract(User u) {
 			return "extracted-" + u.getUsername();

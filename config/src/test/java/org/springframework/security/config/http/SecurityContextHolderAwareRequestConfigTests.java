@@ -66,132 +66,89 @@ public class SecurityContextHolderAwareRequestConfigTests {
 
 	@Test
 	public void servletLoginWhenUsingDefaultConfigurationThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("Simple")).autowire();
-
 		this.mvc.perform(get("/good-login")).andExpect(status().isOk()).andExpect(content().string("user"));
 	}
 
 	@Test
 	public void servletAuthenticateWhenUsingDefaultConfigurationThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("Simple")).autowire();
-
 		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test
 	public void servletLogoutWhenUsingDefaultConfigurationThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("Simple")).autowire();
-
 		MvcResult result = this.mvc.perform(get("/good-login")).andReturn();
-
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
-
 		assertThat(session).isNotNull();
-
 		result = this.mvc.perform(get("/do-logout").session(session)).andExpect(status().isOk())
 				.andExpect(content().string("")).andReturn();
-
 		session = (MockHttpSession) result.getRequest().getSession(false);
-
 		assertThat(session).isNull();
 	}
 
 	@Test
 	public void servletAuthenticateWhenUsingHttpBasicThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("HttpBasic")).autowire();
-
 		this.mvc.perform(get("/authenticate")).andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("discworld")));
 	}
 
 	@Test
 	public void servletAuthenticateWhenUsingFormLoginThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("FormLogin")).autowire();
-
 		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test
 	public void servletLoginWhenUsingMultipleHttpConfigsThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("MultiHttp")).autowire();
-
 		this.mvc.perform(get("/good-login")).andExpect(status().isOk()).andExpect(content().string("user"));
-
 		this.mvc.perform(get("/v2/good-login")).andExpect(status().isOk()).andExpect(content().string("user2"));
 	}
 
 	@Test
 	public void servletAuthenticateWhenUsingMultipleHttpConfigsThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("MultiHttp")).autowire();
-
 		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
-
 		this.mvc.perform(get("/v2/authenticate")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login2"));
-
 	}
 
 	@Test
 	public void servletLogoutWhenUsingMultipleHttpConfigsThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("MultiHttp")).autowire();
-
 		MvcResult result = this.mvc.perform(get("/good-login")).andReturn();
-
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
-
 		assertThat(session).isNotNull();
-
 		result = this.mvc.perform(get("/do-logout").session(session)).andExpect(status().isOk())
 				.andExpect(content().string("")).andReturn();
-
 		session = (MockHttpSession) result.getRequest().getSession(false);
-
 		assertThat(session).isNotNull();
-
 		result = this.mvc.perform(get("/v2/good-login")).andReturn();
-
 		session = (MockHttpSession) result.getRequest().getSession(false);
-
 		assertThat(session).isNotNull();
-
 		result = this.mvc.perform(get("/v2/do-logout").session(session)).andExpect(status().isOk())
 				.andExpect(content().string("")).andReturn();
-
 		session = (MockHttpSession) result.getRequest().getSession(false);
-
 		assertThat(session).isNull();
 	}
 
 	@Test
 	public void servletLogoutWhenUsingCustomLogoutThenUsesSpringSecurity() throws Exception {
-
 		this.spring.configLocations(this.xml("Logout")).autowire();
-
 		this.mvc.perform(get("/authenticate")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/signin"));
-
 		MvcResult result = this.mvc.perform(get("/good-login")).andReturn();
-
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
-
 		assertThat(session).isNotNull();
-
 		result = this.mvc.perform(get("/do-logout").session(session)).andExpect(status().isOk())
 				.andExpect(content().string("")).andExpect(cookie().maxAge("JSESSIONID", 0)).andReturn();
-
 		session = (MockHttpSession) result.getRequest().getSession(false);
-
 		assertThat(session).isNotNull();
 	}
 
@@ -201,9 +158,7 @@ public class SecurityContextHolderAwareRequestConfigTests {
 	@Test
 	@WithMockUser
 	public void servletIsUserInRoleWhenUsingDefaultConfigThenRoleIsSet() throws Exception {
-
 		this.spring.configLocations(this.xml("Simple")).autowire();
-
 		this.mvc.perform(get("/role")).andExpect(content().string("true"));
 	}
 
@@ -216,33 +171,26 @@ public class SecurityContextHolderAwareRequestConfigTests {
 
 		@GetMapping("/v2/good-login")
 		public String v2Login(HttpServletRequest request) throws ServletException {
-
 			request.login("user2", "password2");
-
 			return this.principal();
 		}
 
 		@GetMapping("/good-login")
 		public String login(HttpServletRequest request) throws ServletException {
-
 			request.login("user", "password");
-
 			return this.principal();
 		}
 
 		@GetMapping("/v2/authenticate")
 		public String v2Authenticate(HttpServletRequest request, HttpServletResponse response)
 				throws IOException, ServletException {
-
 			return this.authenticate(request, response);
 		}
 
 		@GetMapping("/authenticate")
 		public String authenticate(HttpServletRequest request, HttpServletResponse response)
 				throws IOException, ServletException {
-
 			request.authenticate(response);
-
 			return this.principal();
 		}
 
@@ -254,7 +202,6 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		@GetMapping("/do-logout")
 		public String logout(HttpServletRequest request) throws ServletException {
 			request.logout();
-
 			return this.principal();
 		}
 

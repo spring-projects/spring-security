@@ -72,63 +72,47 @@ public class OpenIDConfigTests {
 
 	@Test
 	public void requestWhenOpenIDAndFormLoginBothConfiguredThenRedirectsToGeneratedLoginPage() throws Exception {
-
 		this.spring.configLocations(this.xml("WithFormLogin")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login"));
-
 		assertThat(getFilter(DefaultLoginPageGeneratingFilter.class)).isNotNull();
 	}
 
 	@Test
 	public void requestWhenOpenIDAndFormLoginWithFormLoginPageConfiguredThenFormLoginPageWins() throws Exception {
-
 		this.spring.configLocations(this.xml("WithFormLoginPage")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/form-page"));
 	}
 
 	@Test
 	public void requestWhenOpenIDAndFormLoginWithOpenIDLoginPageConfiguredThenOpenIDLoginPageWins() throws Exception {
-
 		this.spring.configLocations(this.xml("WithOpenIDLoginPageAndFormLogin")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/openid-page"));
 	}
 
 	@Test
 	public void configureWhenOpenIDAndFormLoginBothConfigureLoginPagesThenWiringException() {
-
 		assertThatCode(() -> this.spring.configLocations(this.xml("WithFormLoginAndOpenIDLoginPages")).autowire())
 				.isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void requestWhenOpenIDAndRememberMeConfiguredThenRememberMePassedToIdp() throws Exception {
-
 		this.spring.configLocations(this.xml("WithRememberMe")).autowire();
-
 		OpenIDAuthenticationFilter openIDFilter = getFilter(OpenIDAuthenticationFilter.class);
-
 		String openIdEndpointUrl = "https://testopenid.com?openid.return_to=";
 		Set<String> returnToUrlParameters = new HashSet<>();
 		returnToUrlParameters.add(AbstractRememberMeServices.DEFAULT_PARAMETER);
 		openIDFilter.setReturnToUrlParameters(returnToUrlParameters);
-
 		OpenIDConsumer consumer = mock(OpenIDConsumer.class);
 		given(consumer.beginConsumption(any(HttpServletRequest.class), anyString(), anyString(), anyString()))
 				.will((invocation) -> openIdEndpointUrl + invocation.getArgument(2));
 		openIDFilter.setConsumer(consumer);
-
 		String expectedReturnTo = new StringBuilder("http://localhost/login/openid").append("?")
 				.append(AbstractRememberMeServices.DEFAULT_PARAMETER).append("=").append("on").toString();
-
 		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login"));
-
 		this.mvc.perform(get("/login")).andExpect(status().isOk())
 				.andExpect(content().string(containsString(AbstractRememberMeServices.DEFAULT_PARAMETER)));
-
 		this.mvc.perform(get("/login/openid")
 				.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "https://ww1.openid.com")
 				.param(AbstractRememberMeServices.DEFAULT_PARAMETER, "on")).andExpect(status().isFound())
@@ -137,21 +121,16 @@ public class OpenIDConfigTests {
 
 	@Test
 	public void requestWhenAttributeExchangeConfiguredThenFetchAttributesPassedToIdp() throws Exception {
-
 		this.spring.configLocations(this.xml("WithOpenIDAttributes")).autowire();
-
 		OpenIDAuthenticationFilter openIDFilter = getFilter(OpenIDAuthenticationFilter.class);
 		OpenID4JavaConsumer consumer = getFieldValue(openIDFilter, "consumer");
 		ConsumerManager manager = getFieldValue(consumer, "consumerManager");
 		manager.setMaxAssocAttempts(0);
-
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
-
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-
 			this.mvc.perform(
 					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
 					.andExpect(status().isFound())
@@ -169,11 +148,8 @@ public class OpenIDConfigTests {
 	@Test
 	public void requestWhenLoginPageConfiguredWithPhraseLoginThenRedirectsOnlyToUserGeneratedLoginPage()
 			throws Exception {
-
 		this.spring.configLocations(this.xml("Sec2919")).autowire();
-
 		assertThat(getFilter(DefaultLoginPageGeneratingFilter.class)).isNull();
-
 		this.mvc.perform(get("/login")).andExpect(status().isOk()).andExpect(content().string("a custom login page"));
 	}
 

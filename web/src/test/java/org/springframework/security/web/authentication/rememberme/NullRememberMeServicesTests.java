@@ -35,7 +35,6 @@ public class NullRememberMeServicesTests {
 		assertThat(services.autoLogin(null, null)).isNull();
 		services.loginFail(null, null);
 		services.loginSuccess(null, null, null);
-
 	}
 
 }

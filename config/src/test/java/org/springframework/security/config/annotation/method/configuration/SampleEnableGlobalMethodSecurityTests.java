@@ -60,19 +60,15 @@ public class SampleEnableGlobalMethodSecurityTests {
 	@Test
 	public void preAuthorize() {
 		this.spring.register(SampleWebSecurityConfig.class).autowire();
-
 		assertThat(this.methodSecurityService.secured()).isNull();
 		assertThat(this.methodSecurityService.jsr250()).isNull();
-
 		assertThatThrownBy(() -> this.methodSecurityService.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void customPermissionHandler() {
 		this.spring.register(CustomPermissionEvaluatorWebSecurityConfig.class).autowire();
-
 		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
-
 		assertThatThrownBy(() -> this.methodSecurityService.hasPermission("denied"))
 				.isInstanceOf(AccessDeniedException.class);
 	}

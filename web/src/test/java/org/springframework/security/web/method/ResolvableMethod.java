@@ -260,17 +260,14 @@ public final class ResolvableMethod {
 			factory.addAdvice(interceptor);
 			return (T) factory.getProxy();
 		}
-
 		else {
 			Enhancer enhancer = new Enhancer();
 			enhancer.setSuperclass(type);
 			enhancer.setInterfaces(new Class<?>[] { Supplier.class });
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
 			enhancer.setCallbackType(org.springframework.cglib.proxy.MethodInterceptor.class);
-
 			Class<?> proxyClass = enhancer.createClass();
 			Object proxy = null;
-
 			if (objenesis.isWorthTrying()) {
 				try {
 					proxy = objenesis.newInstance(proxyClass, enhancer.getUseCache());
@@ -279,7 +276,6 @@ public final class ResolvableMethod {
 					logger.debug("Objenesis failed, falling back to default constructor", ex);
 				}
 			}
-
 			if (proxy == null) {
 				try {
 					proxy = ReflectionUtils.accessibleConstructor(proxyClass).newInstance();
@@ -290,7 +286,6 @@ public final class ResolvableMethod {
 							ex);
 				}
 			}
-
 			((Factory) proxy).setCallbacks(new Callback[] { interceptor });
 			return (T) proxy;
 		}
@@ -426,7 +421,6 @@ public final class ResolvableMethod {
 		}
 
 		// Build & resolve shortcuts...
-
 		/**
 		 * Resolve and return the {@code Method} equivalent to:
 		 * <p>
@@ -475,7 +469,6 @@ public final class ResolvableMethod {
 		 */
 		public MethodParameter resolveReturnType(Class<?> returnType, ResolvableType generic,
 				ResolvableType... generics) {
-
 			return returning(returnType, generic, generics).build().returnType();
 		}
 

@@ -85,7 +85,6 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 	@Test
 	public void applyWhenAuthorizationRequestEmptyThenOAuth2AuthorizationException() {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any())).willReturn(Mono.empty());
-
 		assertThatThrownBy(() -> applyConverter()).isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
@@ -94,7 +93,6 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 		this.authorizationRequest.attributes(Map::clear);
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(this.authorizationRequest.build()));
-
 		assertThatThrownBy(() -> applyConverter()).isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining(
 						ServerOAuth2AuthorizationCodeAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
@@ -105,7 +103,6 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(this.authorizationRequest.build()));
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
-
 		assertThatThrownBy(() -> applyConverter()).isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining(
 						ServerOAuth2AuthorizationCodeAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
@@ -118,7 +115,6 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 				.willReturn(Mono.just(this.authorizationRequest.build()));
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		assertThat(applyConverter().getAuthorizationExchange().getAuthorizationResponse().getError().getErrorCode())
 				.isEqualTo("error");
 	}
@@ -130,9 +126,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 				.willReturn(Mono.just(this.authorizationRequest.build()));
 		given(this.clientRegistrationRepository.findByRegistrationId(any()))
 				.willReturn(Mono.just(this.clientRegistration));
-
 		OAuth2AuthorizationCodeAuthenticationToken result = applyConverter();
-
 		OAuth2AuthorizationResponse exchange = result.getAuthorizationExchange().getAuthorizationResponse();
 		assertThat(exchange.getError()).isNull();
 		assertThat(exchange.getCode()).isEqualTo("code");

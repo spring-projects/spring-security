@@ -73,7 +73,6 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 		setContext("<filter-security-metadata-source id='fids'>"
 				+ "   <intercept-url pattern='/**' access=\"hasRole('ROLE_A')\" />"
 				+ "</filter-security-metadata-source>");
-
 		ExpressionBasedFilterInvocationSecurityMetadataSource fids = (ExpressionBasedFilterInvocationSecurityMetadataSource) this.appContext
 				.getBean("fids");
 		ConfigAttribute[] cad = fids.getAttributes(createFilterInvocation("/anything", "GET"))
@@ -122,9 +121,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.setRequestURI(null);
 		request.setMethod(method);
-
 		request.setServletPath(path);
-
 		return new FilterInvocation(request, new MockHttpServletResponse(), new MockFilterChain());
 	}
 

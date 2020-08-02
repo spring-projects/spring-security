@@ -74,7 +74,6 @@ public class MessageExpressionConfigAttributeTests {
 	@Test
 	public void toStringUsesExpressionString() {
 		given(this.expression.getExpressionString()).willReturn("toString");
-
 		assertThat(this.attribute.toString()).isEqualTo(this.expression.getExpressionString());
 	}
 
@@ -84,10 +83,8 @@ public class MessageExpressionConfigAttributeTests {
 		Message<?> message = MessageBuilder.withPayload("M")
 				.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1").build();
 		EvaluationContext context = mock(EvaluationContext.class);
-
 		this.attribute = new MessageExpressionConfigAttribute(this.expression, matcher);
 		this.attribute.postProcess(context, message);
-
 		verify(context).setVariable("topic", "someTopic");
 	}
 

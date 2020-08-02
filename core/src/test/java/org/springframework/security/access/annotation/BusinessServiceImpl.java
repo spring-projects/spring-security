@@ -75,7 +75,6 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
 
 	@Override
 	public void rolesAllowedUser() {
-
 	}
 
 }

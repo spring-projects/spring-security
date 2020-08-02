@@ -77,7 +77,6 @@ public class OAuth2UserRequestTests {
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2UserRequest userRequest = new OAuth2UserRequest(this.clientRegistration, this.accessToken,
 				this.additionalParameters);
-
 		assertThat(userRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(userRequest.getAccessToken()).isEqualTo(this.accessToken);
 		assertThat(userRequest.getAdditionalParameters()).containsAllEntriesOf(this.additionalParameters);

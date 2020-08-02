@@ -66,7 +66,6 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 		this.matcherToExpression = new LinkedHashMap<>();
 		this.matcherToExpression.put(this.matcher1, this.expression1);
 		this.matcherToExpression.put(this.matcher2, this.expression2);
-
 		this.source = ExpressionBasedMessageSecurityMetadataSourceFactory
 				.createExpressionMessageMetadataSource(this.matcherToExpression);
 		this.rootObject = new MessageSecurityExpressionRoot(this.authentication, this.message);
@@ -74,18 +73,14 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 
 	@Test
 	public void createExpressionMessageMetadataSourceNoMatch() {
-
 		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
-
 		assertThat(attrs).isNull();
 	}
 
 	@Test
 	public void createExpressionMessageMetadataSourceMatchFirst() {
 		given(this.matcher1.matches(this.message)).willReturn(true);
-
 		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
-
 		assertThat(attrs).hasSize(1);
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
@@ -96,9 +91,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 	@Test
 	public void createExpressionMessageMetadataSourceMatchSecond() {
 		given(this.matcher2.matches(this.message)).willReturn(true);
-
 		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
-
 		assertThat(attrs).hasSize(1);
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);

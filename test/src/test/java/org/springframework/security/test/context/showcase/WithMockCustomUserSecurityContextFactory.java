@@ -30,7 +30,6 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
 	@Override
 	public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
-
 		CustomUserDetails principal = new CustomUserDetails(customUser.name(), customUser.username());
 		Authentication auth = new UsernamePasswordAuthenticationToken(principal, "password",
 				principal.getAuthorities());

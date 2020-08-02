@@ -42,9 +42,7 @@ public class ExceptionHandlingSpecTests {
 	public void defaultAuthenticationEntryPoint() {
 		SecurityWebFilterChain securityWebFilter = this.http.csrf().disable().authorizeExchange().anyExchange()
 				.authenticated().and().exceptionHandling().and().build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		client.get().uri("/test").exchange().expectStatus().isUnauthorized().expectHeader()
 				.valueMatches("WWW-Authenticate", "Basic.*");
 	}
@@ -54,9 +52,7 @@ public class ExceptionHandlingSpecTests {
 		SecurityWebFilterChain securityWebFilter = this.http
 				.authorizeExchange((exchanges) -> exchanges.anyExchange().authenticated())
 				.exceptionHandling(withDefaults()).build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		client.get().uri("/test").exchange().expectStatus().isUnauthorized().expectHeader()
 				.valueMatches("WWW-Authenticate", "Basic.*");
 	}
@@ -66,9 +62,7 @@ public class ExceptionHandlingSpecTests {
 		SecurityWebFilterChain securityWebFilter = this.http.csrf().disable().authorizeExchange().anyExchange()
 				.authenticated().and().exceptionHandling()
 				.authenticationEntryPoint(redirectServerAuthenticationEntryPoint("/auth")).and().build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		client.get().uri("/test").exchange().expectStatus().isFound().expectHeader().valueMatches("Location", ".*");
 	}
 
@@ -79,9 +73,7 @@ public class ExceptionHandlingSpecTests {
 				.exceptionHandling((exceptionHandling) -> exceptionHandling
 						.authenticationEntryPoint(redirectServerAuthenticationEntryPoint("/auth")))
 				.build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		client.get().uri("/test").exchange().expectStatus().isFound().expectHeader().valueMatches("Location", ".*");
 	}
 
@@ -89,9 +81,7 @@ public class ExceptionHandlingSpecTests {
 	public void defaultAccessDeniedHandler() {
 		SecurityWebFilterChain securityWebFilter = this.http.csrf().disable().httpBasic().and().authorizeExchange()
 				.anyExchange().hasRole("ADMIN").and().exceptionHandling().and().build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		client.get().uri("/admin").headers((headers) -> headers.setBasicAuth("user", "password")).exchange()
 				.expectStatus().isForbidden();
 	}
@@ -101,9 +91,7 @@ public class ExceptionHandlingSpecTests {
 		SecurityWebFilterChain securityWebFilter = this.http.httpBasic(withDefaults())
 				.authorizeExchange((exchanges) -> exchanges.anyExchange().hasRole("ADMIN"))
 				.exceptionHandling(withDefaults()).build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		client.get().uri("/admin").headers((headers) -> headers.setBasicAuth("user", "password")).exchange()
 				.expectStatus().isForbidden();
 	}
@@ -113,9 +101,7 @@ public class ExceptionHandlingSpecTests {
 		SecurityWebFilterChain securityWebFilter = this.http.csrf().disable().httpBasic().and().authorizeExchange()
 				.anyExchange().hasRole("ADMIN").and().exceptionHandling()
 				.accessDeniedHandler(httpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST)).and().build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		client.get().uri("/admin").headers((headers) -> headers.setBasicAuth("user", "password")).exchange()
 				.expectStatus().isBadRequest();
 	}
@@ -127,9 +113,7 @@ public class ExceptionHandlingSpecTests {
 				.exceptionHandling((exceptionHandling) -> exceptionHandling
 						.accessDeniedHandler(httpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST)))
 				.build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
-
 		client.get().uri("/admin").headers((headers) -> headers.setBasicAuth("user", "password")).exchange()
 				.expectStatus().isBadRequest();
 	}

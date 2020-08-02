@@ -49,7 +49,6 @@ public class XXssProtectionHeaderWriterTests {
 	@Test
 	public void writeHeaders() {
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("1; mode=block");
 	}
@@ -57,9 +56,7 @@ public class XXssProtectionHeaderWriterTests {
 	@Test
 	public void writeHeadersNoBlock() {
 		this.writer.setBlock(false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("1");
 	}
@@ -68,9 +65,7 @@ public class XXssProtectionHeaderWriterTests {
 	public void writeHeadersDisabled() {
 		this.writer.setBlock(false);
 		this.writer.setEnabled(false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
 	}
@@ -78,9 +73,7 @@ public class XXssProtectionHeaderWriterTests {
 	@Test
 	public void setEnabledFalseWithBlockTrue() {
 		this.writer.setEnabled(false);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
 	}
@@ -89,7 +82,6 @@ public class XXssProtectionHeaderWriterTests {
 	public void setBlockTrueWithEnabledFalse() {
 		this.writer.setBlock(false);
 		this.writer.setEnabled(false);
-
 		this.writer.setBlock(true);
 	}
 

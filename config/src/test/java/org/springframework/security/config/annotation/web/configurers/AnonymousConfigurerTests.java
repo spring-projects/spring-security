@@ -52,28 +52,24 @@ public class AnonymousConfigurerTests {
 	@Test
 	public void requestWhenAnonymousTwiceInvokedThenDoesNotOverride() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class, PrincipalController.class).autowire();
-
 		this.mockMvc.perform(get("/")).andExpect(content().string("principal"));
 	}
 
 	@Test
 	public void requestWhenAnonymousPrincipalInLambdaThenPrincipalUsed() throws Exception {
 		this.spring.register(AnonymousPrincipalInLambdaConfig.class, PrincipalController.class).autowire();
-
 		this.mockMvc.perform(get("/")).andExpect(content().string("principal"));
 	}
 
 	@Test
 	public void requestWhenAnonymousDisabledInLambdaThenRespondsWithForbidden() throws Exception {
 		this.spring.register(AnonymousDisabledInLambdaConfig.class, PrincipalController.class).autowire();
-
 		this.mockMvc.perform(get("/")).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void requestWhenAnonymousWithDefaultsInLambdaThenRespondsWithOk() throws Exception {
 		this.spring.register(AnonymousWithDefaultsInLambdaConfig.class, PrincipalController.class).autowire();
-
 		this.mockMvc.perform(get("/")).andExpect(status().isOk());
 	}
 

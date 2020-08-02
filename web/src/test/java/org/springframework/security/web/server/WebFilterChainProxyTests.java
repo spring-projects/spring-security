@@ -34,7 +34,6 @@ import org.springframework.web.server.WebFilterChain;
  * @author Rob Winch
  * @since 5.0
  */
-
 public class WebFilterChainProxyTests {
 
 	// gh-4668
@@ -44,7 +43,6 @@ public class WebFilterChainProxyTests {
 		ServerWebExchangeMatcher notMatch = (exchange) -> MatchResult.notMatch();
 		MatcherSecurityWebFilterChain chain = new MatcherSecurityWebFilterChain(notMatch, filters);
 		WebFilterChainProxy filter = new WebFilterChainProxy(chain);
-
 		WebTestClient.bindToController(new Object()).webFilter(filter).build().get().exchange().expectStatus()
 				.isNotFound();
 	}

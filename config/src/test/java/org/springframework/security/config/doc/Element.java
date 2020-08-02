@@ -129,45 +129,33 @@ public class Element {
 	public Collection<String> getIds() {
 		Collection<String> ids = new ArrayList<>();
 		ids.add(getId());
-
 		this.childElmts.values().forEach((elmt) -> ids.add(elmt.getId()));
-
 		this.attrs.forEach((attr) -> ids.add(attr.getId()));
-
 		if (!this.childElmts.isEmpty()) {
 			ids.add(getId() + "-children");
 		}
-
 		if (!this.attrs.isEmpty()) {
 			ids.add(getId() + "-attributes");
 		}
-
 		if (!this.parentElmts.isEmpty()) {
 			ids.add(getId() + "-parents");
 		}
-
 		return ids;
 	}
 
 	public Map<String, Element> getAllChildElmts() {
 		Map<String, Element> result = new HashMap<>();
-
 		this.childElmts.values()
 				.forEach((elmt) -> elmt.subGrps.forEach((subElmt) -> result.put(subElmt.name, subElmt)));
-
 		result.putAll(this.childElmts);
-
 		return result;
 	}
 
 	public Map<String, Element> getAllParentElmts() {
 		Map<String, Element> result = new HashMap<>();
-
 		this.parentElmts.values()
 				.forEach((elmt) -> elmt.subGrps.forEach((subElmt) -> result.put(subElmt.name, subElmt)));
-
 		result.putAll(this.parentElmts);
-
 		return result;
 	}
 

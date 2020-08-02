@@ -49,7 +49,6 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenValidHeaderIsPresentThenTokenIsResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
-
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
@@ -59,7 +58,6 @@ public class DefaultBearerTokenResolverTests {
 		String token = TEST_TOKEN + "==";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + token);
-
 		assertThat(this.resolver.resolve(request)).isEqualTo(token);
 	}
 
@@ -68,7 +66,6 @@ public class DefaultBearerTokenResolverTests {
 		this.resolver.setBearerTokenHeaderName(CUSTOM_HEADER);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader(CUSTOM_HEADER, "Bearer " + TEST_TOKEN);
-
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
@@ -76,14 +73,12 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenLowercaseHeaderIsPresentThenTokenIsResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("authorization", "bearer " + TEST_TOKEN);
-
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
 	@Test
 	public void resolveWhenNoHeaderIsPresentThenTokenIsNotResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		assertThat(this.resolver.resolve(request)).isNull();
 	}
 
@@ -91,7 +86,6 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenHeaderWithWrongSchemeIsPresentThenTokenIsNotResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString("test:test".getBytes()));
-
 		assertThat(this.resolver.resolve(request)).isNull();
 	}
 
@@ -99,7 +93,6 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenHeaderWithMissingTokenIsPresentThenAuthenticationExceptionIsThrown() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer ");
-
 		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining(("Bearer token is malformed"));
 	}
@@ -108,7 +101,6 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenHeaderWithInvalidCharactersIsPresentThenAuthenticationExceptionIsThrown() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer an\"invalid\"token");
-
 		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining(("Bearer token is malformed"));
 	}
@@ -120,7 +112,6 @@ public class DefaultBearerTokenResolverTests {
 		request.setMethod("POST");
 		request.setContentType("application/x-www-form-urlencoded");
 		request.addParameter("access_token", TEST_TOKEN);
-
 		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining("Found multiple bearer tokens in the request");
 	}
@@ -131,7 +122,6 @@ public class DefaultBearerTokenResolverTests {
 		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
 		request.setMethod("GET");
 		request.addParameter("access_token", TEST_TOKEN);
-
 		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining("Found multiple bearer tokens in the request");
 	}
@@ -140,7 +130,6 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenRequestContainsTwoAccessTokenParametersThenAuthenticationExceptionIsThrown() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter("access_token", "token1", "token2");
-
 		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining("Found multiple bearer tokens in the request");
 	}
@@ -148,12 +137,10 @@ public class DefaultBearerTokenResolverTests {
 	@Test
 	public void resolveWhenFormParameterIsPresentAndSupportedThenTokenIsResolved() {
 		this.resolver.setAllowFormEncodedBodyParameter(true);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
 		request.setContentType("application/x-www-form-urlencoded");
 		request.addParameter("access_token", TEST_TOKEN);
-
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
@@ -163,18 +150,15 @@ public class DefaultBearerTokenResolverTests {
 		request.setMethod("POST");
 		request.setContentType("application/x-www-form-urlencoded");
 		request.addParameter("access_token", TEST_TOKEN);
-
 		assertThat(this.resolver.resolve(request)).isNull();
 	}
 
 	@Test
 	public void resolveWhenQueryParameterIsPresentAndSupportedThenTokenIsResolved() {
 		this.resolver.setAllowUriQueryParameter(true);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("GET");
 		request.addParameter("access_token", TEST_TOKEN);
-
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
@@ -183,7 +167,6 @@ public class DefaultBearerTokenResolverTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("GET");
 		request.addParameter("access_token", TEST_TOKEN);
-
 		assertThat(this.resolver.resolve(request)).isNull();
 	}
 

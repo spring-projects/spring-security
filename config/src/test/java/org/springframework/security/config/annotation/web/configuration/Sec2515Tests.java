@@ -60,7 +60,6 @@ public class Sec2515Tests {
 				.getContext();
 		context.setClassLoader(new URLClassLoader(new URL[0], context.getClassLoader()));
 		this.spring.autowire();
-
 		assertThat(this.spring.getContext().getBean(AuthenticationManager.class)).isNotNull();
 	} // SEC-2515
 

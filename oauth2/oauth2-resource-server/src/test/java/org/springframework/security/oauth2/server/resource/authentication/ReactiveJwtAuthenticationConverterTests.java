@@ -44,10 +44,8 @@ public class ReactiveJwtAuthenticationConverterTests {
 	@Test
 	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
 		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
-
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
 		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
@@ -62,15 +60,11 @@ public class ReactiveJwtAuthenticationConverterTests {
 	@Test
 	public void convertWithOverriddenGrantedAuthoritiesConverter() {
 		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
-
 		Converter<Jwt, Flux<GrantedAuthority>> grantedAuthoritiesConverter = (token) -> Flux
 				.just(new SimpleGrantedAuthority("blah"));
-
 		this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
 		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("blah"));
 	}
 

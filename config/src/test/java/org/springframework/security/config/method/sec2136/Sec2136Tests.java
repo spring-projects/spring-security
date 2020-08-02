@@ -32,7 +32,6 @@ public class Sec2136Tests {
 
 	@Test
 	public void configurationLoads() {
-
 	}
 
 }

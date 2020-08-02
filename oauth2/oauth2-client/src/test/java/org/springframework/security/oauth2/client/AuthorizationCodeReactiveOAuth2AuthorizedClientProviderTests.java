@@ -61,7 +61,6 @@ public class AuthorizationCodeReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenNotAuthorizationCodeThenUnableToAuthorize() {
 		ClientRegistration clientCredentialsClient = TestClientRegistrations.clientCredentials().build();
-
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(clientCredentialsClient).principal(this.principal).build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();

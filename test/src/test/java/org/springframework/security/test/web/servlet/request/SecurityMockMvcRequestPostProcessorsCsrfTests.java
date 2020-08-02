@@ -155,12 +155,10 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	public void csrfWhenUsedThenDoesNotImpactOriginalRepository() throws Exception {
 		// @formatter:off
 		this.mockMvc.perform(post("/").with(csrf()));
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
 		CsrfToken token = repo.generateToken(request);
 		repo.saveToken(token, request, new MockHttpServletResponse());
-
 		MockHttpServletRequestBuilder requestWithCsrf = post("/")
 			.param(token.getParameterName(), token.getToken())
 			.session((MockHttpSession) request.getSession());

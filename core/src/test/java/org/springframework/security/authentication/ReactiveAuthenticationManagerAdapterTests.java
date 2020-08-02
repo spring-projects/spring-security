@@ -64,27 +64,21 @@ public class ReactiveAuthenticationManagerAdapterTests {
 	public void authenticateWhenSuccessThenSuccess() {
 		given(this.delegate.authenticate(any())).willReturn(this.authentication);
 		given(this.authentication.isAuthenticated()).willReturn(true);
-
 		Authentication result = this.manager.authenticate(this.authentication).block();
-
 		assertThat(result).isEqualTo(this.authentication);
 	}
 
 	@Test
 	public void authenticateWhenReturnNotAuthenticatedThenError() {
 		given(this.delegate.authenticate(any())).willReturn(this.authentication);
-
 		Authentication result = this.manager.authenticate(this.authentication).block();
-
 		assertThat(result).isNull();
 	}
 
 	@Test
 	public void authenticateWhenBadCredentialsThenError() {
 		given(this.delegate.authenticate(any())).willThrow(new BadCredentialsException("Failed"));
-
 		Mono<Authentication> result = this.manager.authenticate(this.authentication);
-
 		StepVerifier.create(result).expectError(BadCredentialsException.class).verify();
 	}
 

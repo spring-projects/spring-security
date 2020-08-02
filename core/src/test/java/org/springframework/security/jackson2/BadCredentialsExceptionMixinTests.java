@@ -41,7 +41,6 @@ public class BadCredentialsExceptionMixinTests extends AbstractMixinTests {
 		+ "\"suppressed\": [\"[Ljava.lang.Throwable;\",[]]"
 		+ "}";
 	// @formatter:on
-
 	@Test
 	public void serializeBadCredentialsExceptionMixinTest() throws JsonProcessingException, JSONException {
 		BadCredentialsException exception = new BadCredentialsException("message");

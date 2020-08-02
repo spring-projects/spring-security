@@ -51,10 +51,8 @@ public class DelegatingReactiveAuthenticationManagerTests {
 	public void authenticateWhenEmptyAndNotThenReturnsNotEmpty() {
 		given(this.delegate1.authenticate(any())).willReturn(Mono.empty());
 		given(this.delegate2.authenticate(any())).willReturn(Mono.just(this.authentication));
-
 		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1,
 				this.delegate2);
-
 		assertThat(manager.authenticate(this.authentication).block()).isEqualTo(this.authentication);
 	}
 
@@ -64,20 +62,16 @@ public class DelegatingReactiveAuthenticationManagerTests {
 		// flatMap)
 		given(this.delegate1.authenticate(any()))
 				.willReturn(Mono.just(this.authentication).delayElement(Duration.ofMillis(100)));
-
 		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1,
 				this.delegate2);
-
 		StepVerifier.create(manager.authenticate(this.authentication)).expectNext(this.authentication).verifyComplete();
 	}
 
 	@Test
 	public void authenticateWhenBadCredentialsThenDelegate2NotInvokedAndError() {
 		given(this.delegate1.authenticate(any())).willReturn(Mono.error(new BadCredentialsException("Test")));
-
 		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1,
 				this.delegate2);
-
 		StepVerifier.create(manager.authenticate(this.authentication)).expectError(BadCredentialsException.class)
 				.verify();
 	}

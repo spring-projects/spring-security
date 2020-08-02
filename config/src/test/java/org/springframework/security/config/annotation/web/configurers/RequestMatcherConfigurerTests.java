@@ -47,7 +47,6 @@ public class RequestMatcherConfigurerTests {
 	@Test
 	public void authorizeRequestsWhenInvokedMultipleTimesThenChainsPaths() throws Exception {
 		this.spring.register(Sec2908Config.class).autowire();
-
 		this.mvc.perform(get("/oauth/abc")).andExpect(status().isForbidden());
 		this.mvc.perform(get("/api/abc")).andExpect(status().isForbidden());
 	}
@@ -55,7 +54,6 @@ public class RequestMatcherConfigurerTests {
 	@Test
 	public void authorizeRequestsWhenInvokedMultipleTimesInLambdaThenChainsPaths() throws Exception {
 		this.spring.register(AuthorizeRequestInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/oauth/abc")).andExpect(status().isForbidden());
 		this.mvc.perform(get("/api/abc")).andExpect(status().isForbidden());
 	}

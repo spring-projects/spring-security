@@ -52,13 +52,10 @@ public class LdapUserDetailsServiceTests {
 	@Test
 	public void correctAuthoritiesAreReturned() {
 		DirContextAdapter userData = new DirContextAdapter(new DistinguishedName("uid=joe"));
-
 		LdapUserDetailsService service = new LdapUserDetailsService(new MockUserSearch(userData),
 				new MockAuthoritiesPopulator());
 		service.setUserDetailsMapper(new LdapUserDetailsMapper());
-
 		UserDetails user = service.loadUserByUsername("doesntmatterwegetjoeanyway");
-
 		Set<String> authorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
 		assertThat(authorities).hasSize(1);
 		assertThat(authorities.contains("ROLE_FROM_POPULATOR")).isTrue();
@@ -67,7 +64,6 @@ public class LdapUserDetailsServiceTests {
 	@Test
 	public void nullPopulatorConstructorReturnsEmptyAuthoritiesList() {
 		DirContextAdapter userData = new DirContextAdapter(new DistinguishedName("uid=joe"));
-
 		LdapUserDetailsService service = new LdapUserDetailsService(new MockUserSearch(userData));
 		UserDetails user = service.loadUserByUsername("doesntmatterwegetjoeanyway");
 		assertThat(user.getAuthorities()).isEmpty();

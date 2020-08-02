@@ -88,7 +88,6 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void classLevelPreAnnotationIsPickedUpWhenNoMethodLevelExists() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.voidImpl1).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
@@ -100,7 +99,6 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void mixedClassAndMethodPreAnnotationsAreBothIncluded() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.voidImpl2).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
@@ -112,7 +110,6 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void methodWithPreFilterOnlyIsAllowed() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.voidImpl3).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
@@ -124,7 +121,6 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void methodWithPostFilterOnlyIsAllowed() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.listImpl1).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(2);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		assertThat(attrs[1] instanceof PostInvocationExpressionAttribute).isTrue();
@@ -138,7 +134,6 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void interfaceAttributesAreIncluded() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.notherListImpl1).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
@@ -151,7 +146,6 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void classAttributesTakesPrecedeceOverInterfaceAttributes() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.notherListImpl2).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs[0] instanceof PreInvocationExpressionAttribute).isTrue();
 		PreInvocationExpressionAttribute pre = (PreInvocationExpressionAttribute) attrs[0];
@@ -164,7 +158,6 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void customAnnotationAtClassLevelIsDetected() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 	}
 
@@ -172,14 +165,12 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	public void customAnnotationAtInterfaceLevelIsDetected() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.annotatedAtInterfaceLevel)
 				.toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 	}
 
 	@Test
 	public void customAnnotationAtMethodLevelIsDetected() {
 		ConfigAttribute[] attrs = this.mds.getAttributes(this.annotatedAtMethodLevel).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 	}
 

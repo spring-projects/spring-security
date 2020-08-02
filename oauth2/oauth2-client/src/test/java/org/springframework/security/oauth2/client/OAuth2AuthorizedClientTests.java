@@ -65,7 +65,6 @@ public class OAuth2AuthorizedClientTests {
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
-
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName);
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(this.accessToken);

@@ -49,7 +49,6 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 
 	private HttpServletRequest getRequest(final String aUserName, final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
-
 			private Set<String> roles = new HashSet<>(Arrays.asList(aRoles));
 
 			@Override

@@ -113,7 +113,6 @@ public class OidcUserInfoTests {
 	private static final long UPDATED_AT_VALUE = Instant.now().minusSeconds(60).toEpochMilli();
 
 	private static final Map<String, Object> CLAIMS;
-
 	static {
 		CLAIMS = new HashMap<>();
 		CLAIMS.put(SUB_CLAIM, SUB_VALUE);
@@ -134,7 +133,6 @@ public class OidcUserInfoTests {
 		CLAIMS.put(LOCALE_CLAIM, LOCALE_VALUE);
 		CLAIMS.put(PHONE_NUMBER_CLAIM, PHONE_NUMBER_VALUE);
 		CLAIMS.put(PHONE_NUMBER_VERIFIED_CLAIM, PHONE_NUMBER_VERIFIED_VALUE);
-
 		ADDRESS_VALUE = new HashMap<>();
 		ADDRESS_VALUE.put(DefaultAddressStandardClaimTests.FORMATTED_FIELD_NAME,
 				DefaultAddressStandardClaimTests.FORMATTED);
@@ -148,7 +146,6 @@ public class OidcUserInfoTests {
 		ADDRESS_VALUE.put(DefaultAddressStandardClaimTests.COUNTRY_FIELD_NAME,
 				DefaultAddressStandardClaimTests.COUNTRY);
 		CLAIMS.put(ADDRESS_CLAIM, ADDRESS_VALUE);
-
 		CLAIMS.put(UPDATED_AT_CLAIM, UPDATED_AT_VALUE);
 	}
 
@@ -160,7 +157,6 @@ public class OidcUserInfoTests {
 	@Test
 	public void constructorWhenParametersProvidedAndValidThenCreated() {
 		OidcUserInfo userInfo = new OidcUserInfo(CLAIMS);
-
 		assertThat(userInfo.getClaims()).isEqualTo(CLAIMS);
 		assertThat(userInfo.getSubject()).isEqualTo(SUB_VALUE);
 		assertThat(userInfo.getFullName()).isEqualTo(NAME_VALUE);

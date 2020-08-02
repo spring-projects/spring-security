@@ -70,7 +70,6 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenWrongTypeThenEmpty() {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("foo", "bar");
-
 		assertThat(this.manager.authenticate(token).block()).isNull();
 	}
 
@@ -78,7 +77,6 @@ public class JwtReactiveAuthenticationManagerTests {
 	public void authenticateWhenEmptyJwtThenEmpty() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(token.getToken())).willReturn(Mono.empty());
-
 		assertThat(this.manager.authenticate(token).block()).isNull();
 	}
 
@@ -86,7 +84,6 @@ public class JwtReactiveAuthenticationManagerTests {
 	public void authenticateWhenJwtExceptionThenOAuth2AuthenticationException() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.error(new BadJwtException("Oops")));
-
 		assertThatCode(() -> this.manager.authenticate(token).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
@@ -96,7 +93,6 @@ public class JwtReactiveAuthenticationManagerTests {
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
-
 		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasFieldOrPropertyWithValue("error.description", "Invalid token");
 	}
@@ -106,7 +102,6 @@ public class JwtReactiveAuthenticationManagerTests {
 	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
-
 		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(AuthenticationException.class)
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
 	}
@@ -115,7 +110,6 @@ public class JwtReactiveAuthenticationManagerTests {
 	public void authenticateWhenNotJwtExceptionThenPropagates() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.error(new RuntimeException("Oops")));
-
 		assertThatCode(() -> this.manager.authenticate(token).block()).isInstanceOf(RuntimeException.class);
 	}
 
@@ -123,9 +117,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	public void authenticateWhenJwtThenSuccess() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
 		given(this.jwtDecoder.decode(token.getToken())).willReturn(Mono.just(this.jwt));
-
 		Authentication authentication = this.manager.authenticate(token).block();
-
 		assertThat(authentication).isNotNull();
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)

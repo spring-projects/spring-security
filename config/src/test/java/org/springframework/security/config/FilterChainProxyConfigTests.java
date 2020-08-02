@@ -111,7 +111,6 @@ public class FilterChainProxyConfigTests {
 	@Test
 	public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() {
 		FilterChainProxy fcp = this.appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
-
 		List<SecurityFilterChain> chains = fcp.getFilterChains();
 		assertThat(getPattern(chains.get(0))).isEqualTo("/login*");
 		assertThat(getPattern(chains.get(1))).isEqualTo("/logout");
@@ -127,17 +126,14 @@ public class FilterChainProxyConfigTests {
 		List<Filter> filters = filterChainProxy.getFilters("/foo/blah;x=1");
 		assertThat(filters).hasSize(1);
 		assertThat(filters.get(0) instanceof SecurityContextHolderAwareRequestFilter).isTrue();
-
 		filters = filterChainProxy.getFilters("/some;x=2,y=3/other/path;z=4/blah");
 		assertThat(filters).isNotNull();
 		assertThat(filters).hasSize(3);
 		assertThat(filters.get(0) instanceof SecurityContextPersistenceFilter).isTrue();
 		assertThat(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter).isTrue();
 		assertThat(filters.get(2) instanceof SecurityContextHolderAwareRequestFilter).isTrue();
-
 		filters = filterChainProxy.getFilters("/do/not/filter;x=7");
 		assertThat(filters).isEmpty();
-
 		filters = filterChainProxy.getFilters("/another/nonspecificmatch");
 		assertThat(filters).hasSize(3);
 		assertThat(filters.get(0) instanceof SecurityContextPersistenceFilter).isTrue();
@@ -148,13 +144,10 @@ public class FilterChainProxyConfigTests {
 	private void doNormalOperation(FilterChainProxy filterChainProxy) throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.setServletPath("/foo/secure/super/somefile.html");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
-
 		filterChainProxy.doFilter(request, response, chain);
 		verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-
 		request.setServletPath("/a/path/which/doesnt/match/any/filter.html");
 		chain = mock(FilterChain.class);
 		filterChainProxy.doFilter(request, response, chain);

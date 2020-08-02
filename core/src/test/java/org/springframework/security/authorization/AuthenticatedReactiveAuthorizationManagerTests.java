@@ -46,39 +46,32 @@ public class AuthenticatedReactiveAuthorizationManagerTests {
 	@Test
 	public void checkWhenAuthenticatedThenReturnTrue() {
 		given(this.authentication.isAuthenticated()).willReturn(true);
-
 		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
-
 		assertThat(granted).isTrue();
 	}
 
 	@Test
 	public void checkWhenNotAuthenticatedThenReturnFalse() {
 		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
-
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenEmptyThenReturnFalse() {
 		boolean granted = this.manager.check(Mono.empty(), null).block().isGranted();
-
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenAnonymousAuthenticatedThenReturnFalse() {
 		AnonymousAuthenticationToken anonymousAuthenticationToken = mock(AnonymousAuthenticationToken.class);
-
 		boolean granted = this.manager.check(Mono.just(anonymousAuthenticationToken), null).block().isGranted();
-
 		assertThat(granted).isFalse();
 	}
 
 	@Test
 	public void checkWhenErrorThenError() {
 		Mono<AuthorizationDecision> result = this.manager.check(Mono.error(new RuntimeException("ooops")), null);
-
 		StepVerifier.create(result).expectError().verify();
 	}
 

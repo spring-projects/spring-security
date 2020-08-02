@@ -114,7 +114,6 @@ public class AspectJMethodSecurityInterceptorTests {
 		SecurityContextHolder.getContext().setAuthentication(this.token);
 		this.interceptor.invoke(this.joinPoint, this.aspectJCallback);
 		verify(this.aspectJCallback).proceedWithObject();
-
 		// Just try the other method too
 		this.interceptor.invoke(this.joinPoint);
 	}
@@ -123,7 +122,6 @@ public class AspectJMethodSecurityInterceptorTests {
 	@Test
 	public void callbackIsNotInvokedWhenPermissionDenied() {
 		willThrow(new AccessDeniedException("denied")).given(this.adm).decide(any(), any(), any());
-
 		SecurityContextHolder.getContext().setAuthentication(this.token);
 		try {
 			this.interceptor.invoke(this.joinPoint, this.aspectJCallback);
@@ -138,7 +136,6 @@ public class AspectJMethodSecurityInterceptorTests {
 	public void adapterHoldsCorrectData() {
 		TargetObject to = new TargetObject();
 		Method m = ClassUtils.getMethodIfAvailable(TargetObject.class, "countLength", new Class[] { String.class });
-
 		given(this.joinPoint.getTarget()).willReturn(to);
 		given(this.joinPoint.getArgs()).willReturn(new Object[] { "Hi" });
 		MethodInvocationAdapter mia = new MethodInvocationAdapter(this.joinPoint);
@@ -152,19 +149,15 @@ public class AspectJMethodSecurityInterceptorTests {
 	public void afterInvocationManagerIsNotInvokedIfExceptionIsRaised() {
 		this.token.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(this.token);
-
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		this.interceptor.setAfterInvocationManager(aim);
-
 		given(this.aspectJCallback.proceedWithObject()).willThrow(new RuntimeException());
-
 		try {
 			this.interceptor.invoke(this.joinPoint, this.aspectJCallback);
 			fail("Expected exception");
 		}
 		catch (RuntimeException expected) {
 		}
-
 		verifyZeroInteractions(aim);
 	}
 
@@ -181,14 +174,12 @@ public class AspectJMethodSecurityInterceptorTests {
 		this.interceptor.setRunAsManager(runAs);
 		given(runAs.buildRunAs(eq(this.token), any(MethodInvocation.class), any(List.class))).willReturn(runAsToken);
 		given(this.aspectJCallback.proceedWithObject()).willThrow(new RuntimeException());
-
 		try {
 			this.interceptor.invoke(this.joinPoint, this.aspectJCallback);
 			fail("Expected Exception");
 		}
 		catch (RuntimeException success) {
 		}
-
 		// Check we've changed back
 		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.token);
@@ -207,14 +198,12 @@ public class AspectJMethodSecurityInterceptorTests {
 		this.interceptor.setRunAsManager(runAs);
 		given(runAs.buildRunAs(eq(this.token), any(MethodInvocation.class), any(List.class))).willReturn(runAsToken);
 		given(this.joinPoint.proceed()).willThrow(new RuntimeException());
-
 		try {
 			this.interceptor.invoke(this.joinPoint);
 			fail("Expected Exception");
 		}
 		catch (RuntimeException success) {
 		}
-
 		// Check we've changed back
 		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.token);

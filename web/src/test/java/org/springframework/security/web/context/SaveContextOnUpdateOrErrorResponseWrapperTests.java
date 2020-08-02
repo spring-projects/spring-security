@@ -35,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  *
  */
-
 @RunWith(MockitoJUnitRunner.class)
 public class SaveContextOnUpdateOrErrorResponseWrapperTests {
 

@@ -48,16 +48,13 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.entryPoint.commence(this.exchange, this.exception);
-
 		verifyZeroInteractions(this.exchange);
 	}
 
 	@Test
 	public void commenceWhenSubscribeThenStatusAndHeaderSet() {
 		this.exchange = exchange(MockServerHttpRequest.get("/"));
-
 		this.entryPoint.commence(this.exchange, this.exception).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate"))
 				.containsOnly("Basic realm=\"Realm\"");
@@ -67,9 +64,7 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 	public void commenceWhenCustomRealmThenStatusAndHeaderSet() {
 		this.entryPoint.setRealm("Custom");
 		this.exchange = exchange(MockServerHttpRequest.get("/"));
-
 		this.entryPoint.commence(this.exchange, this.exception).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate"))
 				.containsOnly("Basic realm=\"Custom\"");

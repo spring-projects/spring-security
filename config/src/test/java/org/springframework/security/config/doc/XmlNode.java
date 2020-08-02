@@ -45,7 +45,6 @@ public class XmlNode {
 
 	public Stream<XmlNode> children() {
 		NodeList children = this.node.getChildNodes();
-
 		return IntStream.range(0, children.getLength()).mapToObj(children::item).map(XmlNode::new);
 	}
 

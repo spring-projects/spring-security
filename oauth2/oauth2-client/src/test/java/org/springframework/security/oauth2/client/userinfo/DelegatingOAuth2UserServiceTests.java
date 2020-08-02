@@ -62,10 +62,8 @@ public class DelegatingOAuth2UserServiceTests {
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService3 = mock(OAuth2UserService.class);
 		OAuth2User mockUser = mock(OAuth2User.class);
 		given(userService3.loadUser(any(OAuth2UserRequest.class))).willReturn(mockUser);
-
 		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
 				Arrays.asList(userService1, userService2, userService3));
-
 		OAuth2User loadedUser = delegatingUserService.loadUser(mock(OAuth2UserRequest.class));
 		assertThat(loadedUser).isEqualTo(mockUser);
 	}
@@ -76,10 +74,8 @@ public class DelegatingOAuth2UserServiceTests {
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService1 = mock(OAuth2UserService.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService2 = mock(OAuth2UserService.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService3 = mock(OAuth2UserService.class);
-
 		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
 				Arrays.asList(userService1, userService2, userService3));
-
 		OAuth2User loadedUser = delegatingUserService.loadUser(mock(OAuth2UserRequest.class));
 		assertThat(loadedUser).isNull();
 	}

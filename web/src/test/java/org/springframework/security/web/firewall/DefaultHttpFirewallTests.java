@@ -33,7 +33,6 @@ public class DefaultHttpFirewallTests {
 	@Test
 	public void unnormalizedPathsAreRejected() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
-
 		MockHttpServletRequest request;
 		for (String path : this.unnormalizedPaths) {
 			request = new MockHttpServletRequest();
@@ -78,7 +77,6 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-
 		fw.getFirewalledRequest(request);
 	}
 
@@ -91,7 +89,6 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-
 		fw.getFirewalledRequest(request);
 	}
 
@@ -104,7 +101,6 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-
 		fw.getFirewalledRequest(request);
 	}
 

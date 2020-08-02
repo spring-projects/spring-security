@@ -109,12 +109,9 @@ public class ServerHttpSecurityTests {
 		TestPublisher<SecurityContext> securityContext = TestPublisher.create();
 		given(this.contextRepository.load(any())).willReturn(securityContext.mono());
 		this.http.securityContextRepository(this.contextRepository);
-
 		WebTestClient client = buildClient();
-
 		FluxExchangeResult<String> result = client.get().uri("/").exchange().expectHeader()
 				.valueMatches(HttpHeaders.CACHE_CONTROL, ".+").returnResult(String.class);
-
 		assertThat(result.getResponseCookies()).isEmpty();
 		// there is no need to try and load the SecurityContext by default
 		securityContext.assertWasNotSubscribed();
@@ -124,19 +121,15 @@ public class ServerHttpSecurityTests {
 	public void basic() {
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
-
 		this.http.httpBasic();
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
-
 		WebTestClient client = buildClient();
-
 		EntityExchangeResult<String> result = client.get().uri("/")
 				.headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
 				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+").expectBody(String.class)
 				.consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok")).returnResult();
-
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
@@ -144,27 +137,22 @@ public class ServerHttpSecurityTests {
 	public void basicWithGlobalWebSessionServerSecurityContextRepository() {
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
-
 		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
 		this.http.httpBasic();
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
-
 		WebTestClient client = buildClient();
-
 		EntityExchangeResult<String> result = client.get().uri("/")
 				.headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
 				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+").expectBody(String.class)
 				.consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok")).returnResult();
-
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNotNull();
 	}
 
 	@Test
 	public void basicWhenNoCredentialsThenUnauthorized() {
 		this.http.authorizeExchange().anyExchange().authenticated();
-
 		WebTestClient client = buildClient();
 		client.get().uri("/").exchange().expectStatus().isUnauthorized().expectHeader()
 				.valueMatches(HttpHeaders.CACHE_CONTROL, ".+").expectBody().isEmpty();
@@ -173,23 +161,18 @@ public class ServerHttpSecurityTests {
 	@Test
 	public void buildWhenServerWebExchangeFromContextThenFound() {
 		SecurityWebFilterChain filter = this.http.build();
-
 		WebTestClient client = WebTestClient.bindToController(new SubscriberContextController())
 				.webFilter(new WebFilterChainProxy(filter)).build();
-
 		client.get().uri("/foo/bar").exchange().expectBody(String.class).isEqualTo("/foo/bar");
 	}
 
 	@Test
 	public void csrfServerLogoutHandlerNotAppliedIfCsrfIsntEnabled() {
 		SecurityWebFilterChain securityWebFilterChain = this.http.csrf().disable().build();
-
 		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class)).isNotPresent();
-
 		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)
 				.map((logoutWebFilter) -> (ServerLogoutHandler) ReflectionTestUtils.getField(logoutWebFilter,
 						LogoutWebFilter.class, "logoutHandler"));
-
 		assertThat(logoutHandler).get().isExactlyInstanceOf(SecurityContextServerLogoutHandler.class);
 	}
 
@@ -197,15 +180,12 @@ public class ServerHttpSecurityTests {
 	public void csrfServerLogoutHandlerAppliedIfCsrfIsEnabled() {
 		SecurityWebFilterChain securityWebFilterChain = this.http.csrf().csrfTokenRepository(this.csrfTokenRepository)
 				.and().build();
-
 		assertThat(getWebFilter(securityWebFilterChain, CsrfWebFilter.class)).get()
 				.extracting((csrfWebFilter) -> ReflectionTestUtils.getField(csrfWebFilter, "csrfTokenRepository"))
 				.isEqualTo(this.csrfTokenRepository);
-
 		Optional<ServerLogoutHandler> logoutHandler = getWebFilter(securityWebFilterChain, LogoutWebFilter.class)
 				.map((logoutWebFilter) -> (ServerLogoutHandler) ReflectionTestUtils.getField(logoutWebFilter,
 						LogoutWebFilter.class, "logoutHandler"));
-
 		assertThat(logoutHandler).get().isExactlyInstanceOf(DelegatingServerLogoutHandler.class)
 				.extracting((delegatingLogoutHandler) -> ((List<ServerLogoutHandler>) ReflectionTestUtils
 						.getField(delegatingLogoutHandler, DelegatingServerLogoutHandler.class, "delegates")).stream()
@@ -220,10 +200,8 @@ public class ServerHttpSecurityTests {
 				.addFilterAfter(new TestWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE)
 				.build();
 		List filters = securityWebFilterChain.getWebFilters().map(WebFilter::getClass).collectList().block();
-
 		assertThat(filters).isNotNull().isNotEmpty().containsSequence(SecurityContextServerWebExchangeWebFilter.class,
 				TestWebFilter.class);
-
 	}
 
 	@Test
@@ -233,10 +211,8 @@ public class ServerHttpSecurityTests {
 				.addFilterBefore(new TestWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE)
 				.build();
 		List filters = securityWebFilterChain.getWebFilters().map(WebFilter::getClass).collectList().block();
-
 		assertThat(filters).isNotNull().isNotEmpty().containsSequence(TestWebFilter.class,
 				SecurityContextServerWebExchangeWebFilter.class);
-
 	}
 
 	@Test
@@ -244,9 +220,7 @@ public class ServerHttpSecurityTests {
 		SecurityWebFilterChain securityFilterChain = this.http.anonymous().and().build();
 		WebTestClient client = WebTestClientBuilder.bindToControllerAndWebFilters(
 				AnonymousAuthenticationWebFilterTests.HttpMeController.class, securityFilterChain).build();
-
 		client.get().uri("/me").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("anonymousUser");
-
 	}
 
 	@Test
@@ -254,7 +228,6 @@ public class ServerHttpSecurityTests {
 		SecurityWebFilterChain securityFilterChain = this.http.anonymous(withDefaults()).build();
 		WebTestClient client = WebTestClientBuilder.bindToControllerAndWebFilters(
 				AnonymousAuthenticationWebFilterTests.HttpMeController.class, securityFilterChain).build();
-
 		client.get().uri("/me").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("anonymousUser");
 	}
 
@@ -262,19 +235,15 @@ public class ServerHttpSecurityTests {
 	public void basicWithAnonymous() {
 		given(this.authenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
-
 		this.http.httpBasic().and().anonymous();
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().hasAuthority("ROLE_ADMIN");
-
 		WebTestClient client = buildClient();
-
 		EntityExchangeResult<String> result = client.get().uri("/")
 				.headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
 				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+").expectBody(String.class)
 				.consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok")).returnResult();
-
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
@@ -287,13 +256,10 @@ public class ServerHttpSecurityTests {
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
-
 		WebTestClient client = buildClient();
-
 		EntityExchangeResult<String> result = client.get().uri("/").exchange().expectStatus().isUnauthorized()
 				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, (value) -> assertThat(value).contains("myrealm"))
 				.expectBody(String.class).returnResult();
-
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
@@ -306,13 +272,10 @@ public class ServerHttpSecurityTests {
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
 		authorize.anyExchange().authenticated();
-
 		WebTestClient client = buildClient();
-
 		EntityExchangeResult<String> result = client.get().uri("/").exchange().expectStatus().isUnauthorized()
 				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, (value) -> assertThat(value).contains("myrealm"))
 				.expectBody(String.class).returnResult();
-
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
 	}
 
@@ -321,15 +284,12 @@ public class ServerHttpSecurityTests {
 		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
 		given(customAuthenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
-
 		SecurityWebFilterChain securityFilterChain = this.http.httpBasic()
 				.authenticationManager(customAuthenticationManager).and().build();
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
-
 		client.get().uri("/").headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"));
-
 		verifyZeroInteractions(this.authenticationManager);
 	}
 
@@ -338,15 +298,12 @@ public class ServerHttpSecurityTests {
 		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
 		given(customAuthenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
-
 		SecurityWebFilterChain securityFilterChain = this.http
 				.httpBasic((httpBasic) -> httpBasic.authenticationManager(customAuthenticationManager)).build();
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
-
 		client.get().uri("/").headers((headers) -> headers.setBasicAuth("rob", "rob")).exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"));
-
 		verifyZeroInteractions(this.authenticationManager);
 		verify(customAuthenticationManager).authenticate(any(Authentication.class));
 	}
@@ -356,12 +313,9 @@ public class ServerHttpSecurityTests {
 	public void addsX509FilterWhenX509AuthenticationIsConfigured() {
 		X509PrincipalExtractor mockExtractor = mock(X509PrincipalExtractor.class);
 		ReactiveAuthenticationManager mockAuthenticationManager = mock(ReactiveAuthenticationManager.class);
-
 		this.http.x509().principalExtractor(mockExtractor).authenticationManager(mockAuthenticationManager).and();
-
 		SecurityWebFilterChain securityWebFilterChain = this.http.build();
 		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters().filter(this::isX509Filter).blockFirst();
-
 		assertThat(x509WebFilter).isNotNull();
 	}
 
@@ -369,33 +323,26 @@ public class ServerHttpSecurityTests {
 	public void x509WhenCustomizedThenAddsX509Filter() {
 		X509PrincipalExtractor mockExtractor = mock(X509PrincipalExtractor.class);
 		ReactiveAuthenticationManager mockAuthenticationManager = mock(ReactiveAuthenticationManager.class);
-
 		this.http.x509(
 				(x509) -> x509.principalExtractor(mockExtractor).authenticationManager(mockAuthenticationManager));
-
 		SecurityWebFilterChain securityWebFilterChain = this.http.build();
 		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters().filter(this::isX509Filter).blockFirst();
-
 		assertThat(x509WebFilter).isNotNull();
 	}
 
 	@Test
 	public void addsX509FilterWhenX509AuthenticationIsConfiguredWithDefaults() {
 		this.http.x509();
-
 		SecurityWebFilterChain securityWebFilterChain = this.http.build();
 		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters().filter(this::isX509Filter).blockFirst();
-
 		assertThat(x509WebFilter).isNotNull();
 	}
 
 	@Test
 	public void x509WhenDefaultsThenAddsX509Filter() {
 		this.http.x509(withDefaults());
-
 		SecurityWebFilterChain securityWebFilterChain = this.http.build();
 		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters().filter(this::isX509Filter).blockFirst();
-
 		assertThat(x509WebFilter).isNotNull();
 	}
 
@@ -404,7 +351,6 @@ public class ServerHttpSecurityTests {
 		SecurityWebFilterChain securityFilterChain = this.http.csrf((csrf) -> csrf.disable()).build();
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
-
 		client.post().uri("/").exchange().expectStatus().isOk();
 	}
 
@@ -416,9 +362,7 @@ public class ServerHttpSecurityTests {
 				.csrf((csrf) -> csrf.csrfTokenRepository(customServerCsrfTokenRepository)).build();
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
-
 		client.post().uri("/").exchange().expectStatus().isForbidden();
-
 		verify(customServerCsrfTokenRepository).loadToken(any());
 	}
 
@@ -427,17 +371,14 @@ public class ServerHttpSecurityTests {
 		ServerRequestCache requestCache = spy(new WebSessionServerRequestCache());
 		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
 				ReactiveClientRegistrationRepository.class);
-
 		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
 				.clientRegistrationRepository(clientRegistrationRepository).and().authorizeExchange().anyExchange()
 				.authenticated().and().requestCache((c) -> c.requestCache(requestCache)).build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
 		client.get().uri("/test").exchange();
 		ArgumentCaptor<ServerWebExchange> captor = ArgumentCaptor.forClass(ServerWebExchange.class);
 		verify(requestCache).saveRequest(captor.capture());
 		assertThat(captor.getValue().getRequest().getURI().toString()).isEqualTo("/test");
-
 		OAuth2LoginAuthenticationWebFilter authenticationWebFilter = getWebFilter(securityFilterChain,
 				OAuth2LoginAuthenticationWebFilter.class).get();
 		Object handler = ReflectionTestUtils.getField(authenticationWebFilter, "authenticationSuccessHandler");
@@ -450,19 +391,14 @@ public class ServerHttpSecurityTests {
 				ServerAuthorizationRequestRepository.class);
 		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
 				ReactiveClientRegistrationRepository.class);
-
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request().build();
-
 		given(authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(authorizationRequest));
-
 		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
 				.clientRegistrationRepository(clientRegistrationRepository)
 				.authorizationRequestRepository(authorizationRequestRepository).and().build();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
 		client.get().uri("/login/oauth2/code/registration-id").exchange();
-
 		verify(authorizationRequestRepository).removeAuthorizationRequest(any());
 	}
 
