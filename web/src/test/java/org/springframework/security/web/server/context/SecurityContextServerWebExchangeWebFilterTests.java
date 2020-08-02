@@ -51,7 +51,6 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 						.doOnSuccess((context) -> assertThat(context.<String>get("foo")).isEqualTo("bar")).then()))
 				.subscriberContext((context) -> context.put("foo", "bar"))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
-
 		StepVerifier.create(result).verifyComplete();
 	}
 
@@ -64,7 +63,6 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 										(contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(this.principal))
 								.then()))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
-
 		StepVerifier.create(result).verifyComplete();
 	}
 

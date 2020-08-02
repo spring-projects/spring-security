@@ -72,7 +72,6 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-
 		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/login?logout")).andExpect(noCookies()).andExpect(session(Objects::isNull));
 	}
@@ -81,7 +80,6 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenDisabledInLambdaThenRespondsWithNotFound() throws Exception {
 		this.spring.register(HttpLogoutDisabledInLambdaConfig.class).autowire();
-
 		this.mvc.perform(post("/logout").with(csrf()).with(user("user"))).andExpect(status().isNotFound());
 	}
 
@@ -92,7 +90,6 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingVariousCustomizationsMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpLogoutConfig.class).autowire();
-
 		this.mvc.perform(post("/custom-logout").with(csrf())).andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/logout-success"))
 				.andExpect((result) -> assertThat(result.getResponse().getCookies()).hasSize(1))
@@ -103,7 +100,6 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingVariousCustomizationsInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpLogoutInLambdaConfig.class).autowire();
-
 		this.mvc.perform(post("/custom-logout").with(csrf())).andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/logout-success"))
 				.andExpect((result) -> assertThat(result.getResponse().getCookies()).hasSize(1))
@@ -117,7 +113,6 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingSuccessHandlerRefThenMatchesNamespace() throws Exception {
 		this.spring.register(SuccessHandlerRefHttpLogoutConfig.class).autowire();
-
 		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
@@ -127,7 +122,6 @@ public class NamespaceHttpLogoutTests {
 	@WithMockUser
 	public void logoutWhenUsingSuccessHandlerRefInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(SuccessHandlerRefHttpLogoutInLambdaConfig.class).autowire();
-
 		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
@@ -224,7 +218,6 @@ public class NamespaceHttpLogoutTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
 			logoutSuccessHandler.setDefaultTargetUrl("/SuccessHandlerRefHttpLogoutConfig");
-
 			// @formatter:off
 			http
 				.logout((logout) -> logout.logoutSuccessHandler(logoutSuccessHandler));

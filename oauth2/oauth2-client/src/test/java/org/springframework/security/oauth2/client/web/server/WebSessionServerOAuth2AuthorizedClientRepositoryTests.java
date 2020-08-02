@@ -81,7 +81,6 @@ public class WebSessionServerOAuth2AuthorizedClientRepositoryTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, this.exchange).block();
-
 		OAuth2AuthorizedClient loadedAuthorizedClient = this.authorizedClientRepository
 				.loadAuthorizedClient(this.registrationId1, null, this.exchange).block();
 		assertThat(loadedAuthorizedClient).isEqualTo(authorizedClient);
@@ -115,10 +114,8 @@ public class WebSessionServerOAuth2AuthorizedClientRepositoryTests {
 		OAuth2AuthorizedClient expected = new OAuth2AuthorizedClient(this.registration2, this.principalName1,
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(expected, null, this.exchange).block();
-
 		OAuth2AuthorizedClient result = this.authorizedClientRepository
 				.loadAuthorizedClient(this.registrationId2, null, this.exchange).block();
-
 		assertThat(result).isEqualTo(expected);
 	}
 
@@ -151,10 +148,8 @@ public class WebSessionServerOAuth2AuthorizedClientRepositoryTests {
 		OAuth2AuthorizedClient authorizedClient1 = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient1, null, this.exchange).block();
-
 		// Remove registrationId2 (never added so is not removed either)
 		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId2, null, this.exchange);
-
 		OAuth2AuthorizedClient loadedAuthorizedClient1 = this.authorizedClientRepository
 				.loadAuthorizedClient(this.registrationId1, null, this.exchange).block();
 		assertThat(loadedAuthorizedClient1).isNotNull();
@@ -184,7 +179,6 @@ public class WebSessionServerOAuth2AuthorizedClientRepositoryTests {
 				.loadAuthorizedClient(this.registrationId1, null, this.exchange).block();
 		assertThat(loadedAuthorizedClient).isSameAs(authorizedClient);
 		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId1, null, this.exchange).block();
-
 		WebSession session = this.exchange.getSession().block();
 		assertThat(session).isNotNull();
 		assertThat(session.getAttributes()).isEmpty();
@@ -195,13 +189,10 @@ public class WebSessionServerOAuth2AuthorizedClientRepositoryTests {
 		OAuth2AuthorizedClient authorizedClient1 = new OAuth2AuthorizedClient(this.registration1, this.principalName1,
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient1, null, this.exchange).block();
-
 		OAuth2AuthorizedClient authorizedClient2 = new OAuth2AuthorizedClient(this.registration2, this.principalName1,
 				mock(OAuth2AccessToken.class));
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient2, null, this.exchange).block();
-
 		this.authorizedClientRepository.removeAuthorizedClient(this.registrationId1, null, this.exchange).block();
-
 		OAuth2AuthorizedClient loadedAuthorizedClient2 = this.authorizedClientRepository
 				.loadAuthorizedClient(this.registrationId2, null, this.exchange).block();
 		assertThat(loadedAuthorizedClient2).isNotNull();

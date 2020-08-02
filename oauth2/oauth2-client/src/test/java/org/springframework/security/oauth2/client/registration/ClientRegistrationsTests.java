@@ -200,45 +200,35 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenScopesNullThenScopesDefaulted() throws Exception {
 		this.response.remove("scopes_supported");
-
 		ClientRegistration registration = registration("").build();
-
 		assertThat(registration.getScopes()).containsOnly("openid");
 	}
 
 	@Test
 	public void issuerWhenOidcFallbackScopesNullThenScopesDefaulted() throws Exception {
 		this.response.remove("scopes_supported");
-
 		ClientRegistration registration = registrationOidcFallback("", null).build();
-
 		assertThat(registration.getScopes()).containsOnly("openid");
 	}
 
 	@Test
 	public void issuerWhenOAuth2ScopesNullThenScopesDefaulted() throws Exception {
 		this.response.remove("scopes_supported");
-
 		ClientRegistration registration = registrationOAuth2("", null).build();
-
 		assertThat(registration.getScopes()).containsOnly("openid");
 	}
 
 	@Test
 	public void issuerWhenGrantTypesSupportedNullThenDefaulted() throws Exception {
 		this.response.remove("grant_types_supported");
-
 		ClientRegistration registration = registration("").build();
-
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
 	@Test
 	public void issuerWhenOAuth2GrantTypesSupportedNullThenDefaulted() throws Exception {
 		this.response.remove("grant_types_supported");
-
 		ClientRegistration registration = registrationOAuth2("", null).build();
-
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
@@ -249,7 +239,6 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenGrantTypesSupportedInvalidThenException() {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
-
 		assertThatThrownBy(() -> registration("")).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \""
 						+ this.issuer + "\" returned a configuration of [implicit]");
@@ -258,7 +247,6 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenOAuth2GrantTypesSupportedInvalidThenException() {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
-
 		assertThatThrownBy(() -> registrationOAuth2("", null)).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \""
 						+ this.issuer + "\" returned a configuration of [implicit]");
@@ -267,54 +255,42 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
 		this.response.remove("token_endpoint_auth_methods_supported");
-
 		ClientRegistration registration = registration("").build();
-
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 	}
 
 	@Test
 	public void issuerWhenOAuth2TokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
 		this.response.remove("token_endpoint_auth_methods_supported");
-
 		ClientRegistration registration = registrationOAuth2("", null).build();
-
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 	}
 
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
-
 		ClientRegistration registration = registration("").build();
-
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
 	}
 
 	@Test
 	public void issuerWhenOAuth2TokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
-
 		ClientRegistration registration = registrationOAuth2("", null).build();
-
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
 	}
 
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsNoneThenMethodIsNone() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("none"));
-
 		ClientRegistration registration = registration("").build();
-
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
 	}
 
 	@Test
 	public void issuerWhenOAuth2TokenEndpointAuthMethodsNoneThenMethodIsNone() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("none"));
-
 		ClientRegistration registration = registrationOAuth2("", null).build();
-
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
 	}
 
@@ -325,7 +301,6 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsInvalidThenException() {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
-
 		assertThatThrownBy(() -> registration("")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining(
 				"Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and ClientAuthenticationMethod.NONE are supported. The issuer \""
 						+ this.issuer + "\" returned a configuration of [tls_client_auth]");
@@ -334,7 +309,6 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenOAuth2TokenEndpointAuthMethodsInvalidThenException() {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
-
 		assertThatThrownBy(() -> registrationOAuth2("", null)).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining(
 						"Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and ClientAuthenticationMethod.NONE are supported. The issuer \""
@@ -384,7 +358,6 @@ public class ClientRegistrationsTests {
 		MockResponse mockResponse = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
 				MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-
 		return ClientRegistrations.fromOidcIssuerLocation(this.issuer).clientId("client-id")
 				.clientSecret("client-secret");
 	}
@@ -394,7 +367,6 @@ public class ClientRegistrationsTests {
 		this.response.put("issuer", this.issuer);
 		this.issuer = this.server.url(path).toString();
 		final String responseBody = (body != null) ? body : this.mapper.writeValueAsString(this.response);
-
 		final Dispatcher dispatcher = new Dispatcher() {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) {
@@ -406,9 +378,7 @@ public class ClientRegistrationsTests {
 				return new MockResponse().setResponseCode(404);
 			}
 		};
-
 		this.server.setDispatcher(dispatcher);
-
 		return ClientRegistrations.fromIssuerLocation(this.issuer).clientId("client-id").clientSecret("client-secret");
 	}
 
@@ -428,9 +398,7 @@ public class ClientRegistrationsTests {
 	private ClientRegistration.Builder registrationOidcFallback(String path, String body) throws Exception {
 		this.issuer = createIssuerFromServer(path);
 		this.response.put("issuer", this.issuer);
-
 		String responseBody = (body != null) ? body : this.mapper.writeValueAsString(this.response);
-
 		final Dispatcher dispatcher = new Dispatcher() {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) {
@@ -443,7 +411,6 @@ public class ClientRegistrationsTests {
 			}
 		};
 		this.server.setDispatcher(dispatcher);
-
 		return ClientRegistrations.fromIssuerLocation(this.issuer).clientId("client-id").clientSecret("client-secret");
 	}
 

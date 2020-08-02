@@ -71,12 +71,10 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
 
 	@PreAuthorize("#x == 'x' and @number.intValue() == 1294 ")
 	public void methodWithBeanNamePropertyAccessExpression(String x) {
-
 	}
 
 	@Override
 	public void rolesAllowedUser() {
-
 	}
 
 }

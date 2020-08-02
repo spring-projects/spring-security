@@ -90,9 +90,7 @@ public class ReactiveJwtDecodersTests {
 	@Test
 	public void issuerWhenResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
 		prepareConfigurationResponse();
-
 		ReactiveJwtDecoder decoder = ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer);
-
 		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH).block()).isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("The iss claim is not valid");
 	}
@@ -100,9 +98,7 @@ public class ReactiveJwtDecodersTests {
 	@Test
 	public void issuerWhenOidcFallbackResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
 		prepareConfigurationResponseOidc();
-
 		ReactiveJwtDecoder decoder = ReactiveJwtDecoders.fromIssuerLocation(this.issuer);
-
 		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH).block()).isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("The iss claim is not valid");
 	}
@@ -110,9 +106,7 @@ public class ReactiveJwtDecodersTests {
 	@Test
 	public void issuerWhenOAuth2ResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
 		prepareConfigurationResponseOAuth2();
-
 		ReactiveJwtDecoder decoder = ReactiveJwtDecoders.fromIssuerLocation(this.issuer);
-
 		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH).block()).isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("The iss claim is not valid");
 	}
@@ -120,7 +114,6 @@ public class ReactiveJwtDecodersTests {
 	@Test
 	public void issuerWhenResponseIsNonCompliantThenThrowsRuntimeException() {
 		prepareConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
-
 		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
 	}
@@ -167,7 +160,6 @@ public class ReactiveJwtDecodersTests {
 	@Test
 	public void issuerWhenResponseIsMalformedThenThrowsRuntimeException() {
 		prepareConfigurationResponse("malformed");
-
 		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
 	}
@@ -187,7 +179,6 @@ public class ReactiveJwtDecodersTests {
 	@Test
 	public void issuerWhenRespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
 		prepareConfigurationResponse(String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer + "/wrong", this.issuer));
-
 		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer))
 				.isInstanceOf(IllegalStateException.class);
 	}
@@ -209,9 +200,7 @@ public class ReactiveJwtDecodersTests {
 
 	@Test
 	public void issuerWhenRequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException() throws Exception {
-
 		this.server.shutdown();
-
 		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation("https://issuer"))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
@@ -219,7 +208,6 @@ public class ReactiveJwtDecodersTests {
 	@Test
 	public void issuerWhenOidcFallbackRequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException()
 			throws Exception {
-
 		this.server.shutdown();
 		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation("https://issuer"))
 				.isInstanceOf(IllegalArgumentException.class);

@@ -70,7 +70,6 @@ public class CsrfServerLogoutHandlerTests {
 	public void logoutRemovesCsrfToken() {
 		this.handler.logout(this.filterExchange, new TestingAuthenticationToken("user", "password", "ROLE_USER"))
 				.block();
-
 		verify(this.csrfTokenRepository).saveToken(this.exchange, null);
 	}
 

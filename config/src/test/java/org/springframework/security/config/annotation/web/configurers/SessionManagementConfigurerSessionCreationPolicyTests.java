@@ -47,31 +47,22 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 
 	@Test
 	public void getWhenSharedObjectSessionCreationPolicyConfigurationThenOverrides() throws Exception {
-
 		this.spring.register(StatelessCreateSessionSharedObjectConfig.class).autowire();
-
 		MvcResult result = this.mvc.perform(get("/")).andReturn();
-
 		assertThat(result.getRequest().getSession(false)).isNull();
 	}
 
 	@Test
 	public void getWhenUserSessionCreationPolicyConfigurationThenOverrides() throws Exception {
-
 		this.spring.register(StatelessCreateSessionUserConfig.class).autowire();
-
 		MvcResult result = this.mvc.perform(get("/")).andReturn();
-
 		assertThat(result.getRequest().getSession(false)).isNull();
 	}
 
 	@Test
 	public void getWhenDefaultsThenLoginChallengeCreatesSession() throws Exception {
-
 		this.spring.register(DefaultConfig.class, BasicController.class).autowire();
-
 		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isUnauthorized()).andReturn();
-
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
@@ -96,7 +87,6 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 			http
 					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 			// @formatter:on
-
 			http.setSharedObject(SessionCreationPolicy.class, SessionCreationPolicy.ALWAYS);
 		}
 

@@ -61,14 +61,11 @@ public class AndServerWebExchangeMatcherTests {
 		Map<String, Object> params2 = Collections.singletonMap("x", "y");
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params1));
 		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params2));
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).hasSize(2);
 		assertThat(matches.getVariables()).containsAllEntriesOf(params1);
 		assertThat(matches.getVariables()).containsAllEntriesOf(params2);
-
 		verify(this.matcher1).matches(this.exchange);
 		verify(this.matcher2).matches(this.exchange);
 	}
@@ -76,12 +73,9 @@ public class AndServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenFalseFalseThenFalseAndMatcher2NotInvoked() {
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
-
 		verify(this.matcher1).matches(this.exchange);
 		verify(this.matcher2, never()).matches(this.exchange);
 	}
@@ -91,12 +85,9 @@ public class AndServerWebExchangeMatcherTests {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
 		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
-
 		verify(this.matcher1).matches(this.exchange);
 		verify(this.matcher2).matches(this.exchange);
 	}
@@ -104,12 +95,9 @@ public class AndServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenFalseTrueThenFalse() {
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-
 		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
-
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
-
 		verify(this.matcher1).matches(this.exchange);
 		verify(this.matcher2, never()).matches(this.exchange);
 	}

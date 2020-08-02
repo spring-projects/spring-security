@@ -35,7 +35,6 @@ public class DefaultTokenTests {
 		String key = "key";
 		long created = new Date().getTime();
 		String extendedInformation = "extended";
-
 		DefaultToken t1 = new DefaultToken(key, created, extendedInformation);
 		DefaultToken t2 = new DefaultToken(key, created, extendedInformation);
 		assertThat(t2).isEqualTo(t1);
@@ -52,7 +51,6 @@ public class DefaultTokenTests {
 	public void testEqualityWithDifferentExtendedInformation3() {
 		String key = "key";
 		long created = new Date().getTime();
-
 		DefaultToken t1 = new DefaultToken(key, created, "length1");
 		DefaultToken t2 = new DefaultToken(key, created, "longerLength2");
 		assertThat(t1).isNotEqualTo(t2);

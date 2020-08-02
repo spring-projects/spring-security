@@ -115,7 +115,6 @@ public class CustomConfigAuthenticationTests {
 			return new InMemoryUserDetailsManager(user);
 		}
 		// @formatter:on
-
 		@Bean
 		SecurityContextRepository securityContextRepository() {
 			HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();

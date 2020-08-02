@@ -48,29 +48,23 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 
 	@Test
 	public void handleWhenNotOAuth2AuthenticatedThenStatus403() {
-
 		Authentication token = new TestingAuthenticationToken("user", "pass");
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
 		given(exchange.getPrincipal()).willReturn(Mono.just(token));
 		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
-
 		this.accessDeniedHandler.handle(exchange, null).block();
-
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate")).isEqualTo(Arrays.asList("Bearer"));
 	}
 
 	@Test
 	public void handleWhenNotOAuth2AuthenticatedAndRealmSetThenStatus403AndAuthHeaderWithRealm() {
-
 		Authentication token = new TestingAuthenticationToken("user", "pass");
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
 		given(exchange.getPrincipal()).willReturn(Mono.just(token));
 		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
-
 		this.accessDeniedHandler.setRealmName("test");
 		this.accessDeniedHandler.handle(exchange, null).block();
-
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate"))
 				.isEqualTo(Arrays.asList("Bearer realm=\"test\""));
@@ -78,14 +72,11 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 
 	@Test
 	public void handleWhenOAuth2AuthenticatedThenStatus403AndAuthHeaderWithInsufficientScopeErrorAttribute() {
-
 		Authentication token = new TestingOAuth2TokenAuthenticationToken(Collections.emptyMap());
 		ServerWebExchange exchange = mock(ServerWebExchange.class);
 		given(exchange.getPrincipal()).willReturn(Mono.just(token));
 		given(exchange.getResponse()).willReturn(new MockServerHttpResponse());
-
 		this.accessDeniedHandler.handle(exchange, null).block();
-
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 		assertThat(exchange.getResponse().getHeaders().get("WWW-Authenticate"))
 				.isEqualTo(Arrays.asList("Bearer error=\"insufficient_scope\", "

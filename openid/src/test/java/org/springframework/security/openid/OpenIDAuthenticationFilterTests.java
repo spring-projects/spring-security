@@ -75,10 +75,8 @@ public class OpenIDAuthenticationFilterTests {
 		req.setRequestURI(REQUEST_PATH);
 		req.setServerPort(8080);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		req.setParameter("openid_identifier", " " + CLAIMED_IDENTITY_URL);
 		req.setRemoteHost("www.example.com");
-
 		this.filter.setConsumer(new MockOpenIDConsumer() {
 			@Override
 			public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl,
@@ -89,7 +87,6 @@ public class OpenIDAuthenticationFilterTests {
 				return REDIRECT_URL;
 			}
 		});
-
 		FilterChain fc = mock(FilterChain.class);
 		this.filter.doFilter(req, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo(REDIRECT_URL);
@@ -108,7 +105,6 @@ public class OpenIDAuthenticationFilterTests {
 		MockHttpServletRequest req = new MockHttpServletRequest("GET", REQUEST_PATH);
 		req.addParameter(paramName, paramValue);
 		this.filter.setReturnToUrlParameters(Collections.singleton(paramName));
-
 		URI returnTo = new URI(this.filter.buildReturnToUrl(req));
 		String query = returnTo.getRawQuery();
 		assertThat(count(query, '=')).isEqualTo(1);

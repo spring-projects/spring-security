@@ -51,7 +51,6 @@ public class WhiteListedAllowFromStrategyTests {
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("from", "https://www.test.com");
-
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("https://www.test.com");
 	}
@@ -65,7 +64,6 @@ public class WhiteListedAllowFromStrategyTests {
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("from", "https://www.test.com");
-
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("https://www.test.com");
 	}
@@ -78,7 +76,6 @@ public class WhiteListedAllowFromStrategyTests {
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter("from", "https://www.test123.com");
-
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("DENY");
 	}
@@ -90,10 +87,8 @@ public class WhiteListedAllowFromStrategyTests {
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("DENY");
-
 	}
 
 }

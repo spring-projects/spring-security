@@ -46,7 +46,6 @@ public class AccessControlImplEntryTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		// Check Sid field is present
 		try {
 			new AccessControlEntryImpl(null, mock(Acl.class), null, BasePermission.ADMINISTRATION, true, true, true);
@@ -54,7 +53,6 @@ public class AccessControlImplEntryTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		// Check Permission field is present
 		try {
 			new AccessControlEntryImpl(null, mock(Acl.class), new PrincipalSid("johndoe"), null, true, true, true);
@@ -68,11 +66,9 @@ public class AccessControlImplEntryTests {
 	public void testAccessControlEntryImplGetters() {
 		Acl mockAcl = mock(Acl.class);
 		Sid sid = new PrincipalSid("johndoe");
-
 		// Create a sample entry
 		AccessControlEntry ace = new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true,
 				true);
-
 		// and check every get() method
 		assertThat(ace.getId()).isEqualTo(1L);
 		assertThat(ace.getAcl()).isEqualTo(mockAcl);
@@ -87,13 +83,10 @@ public class AccessControlImplEntryTests {
 	public void testEquals() {
 		final Acl mockAcl = mock(Acl.class);
 		final ObjectIdentity oid = mock(ObjectIdentity.class);
-
 		given(mockAcl.getObjectIdentity()).willReturn(oid);
 		Sid sid = new PrincipalSid("johndoe");
-
 		AccessControlEntry ace = new AccessControlEntryImpl(1L, mockAcl, sid, BasePermission.ADMINISTRATION, true, true,
 				true);
-
 		assertThat(ace).isNotNull();
 		assertThat(ace).isNotEqualTo(100L);
 		assertThat(ace).isEqualTo(ace);

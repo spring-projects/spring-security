@@ -51,7 +51,6 @@ public class OAuth2AuthenticationExceptionMixinTests {
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(
 				new OAuth2Error("[authorization_request_not_found]", "Authorization Request Not Found", "/foo/bar"),
 				"Authorization Request Not Found");
-
 		String serializedJson = this.mapper.writeValueAsString(exception);
 		String expected = asJson(exception);
 		JSONAssert.assertEquals(expected, serializedJson, true);
@@ -61,7 +60,6 @@ public class OAuth2AuthenticationExceptionMixinTests {
 	public void serializeWhenRequiredAttributesOnlyThenSerializes() throws Exception {
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(
 				new OAuth2Error("[authorization_request_not_found]"));
-
 		String serializedJson = this.mapper.writeValueAsString(exception);
 		String expected = asJson(exception);
 		JSONAssert.assertEquals(expected, serializedJson, true);
@@ -79,13 +77,11 @@ public class OAuth2AuthenticationExceptionMixinTests {
 		OAuth2AuthenticationException expected = new OAuth2AuthenticationException(
 				new OAuth2Error("[authorization_request_not_found]", "Authorization Request Not Found", "/foo/bar"),
 				"Authorization Request Not Found");
-
 		OAuth2AuthenticationException exception = this.mapper.readValue(asJson(expected),
 				OAuth2AuthenticationException.class);
 		assertThat(exception).isNotNull();
 		assertThat(exception.getCause()).isNull();
 		assertThat(exception.getMessage()).isEqualTo(expected.getMessage());
-
 		OAuth2Error oauth2Error = exception.getError();
 		assertThat(oauth2Error).isNotNull();
 		assertThat(oauth2Error.getErrorCode()).isEqualTo(expected.getError().getErrorCode());
@@ -97,13 +93,11 @@ public class OAuth2AuthenticationExceptionMixinTests {
 	public void deserializeWhenRequiredAttributesOnlyThenDeserializes() throws Exception {
 		OAuth2AuthenticationException expected = new OAuth2AuthenticationException(
 				new OAuth2Error("[authorization_request_not_found]"));
-
 		OAuth2AuthenticationException exception = this.mapper.readValue(asJson(expected),
 				OAuth2AuthenticationException.class);
 		assertThat(exception).isNotNull();
 		assertThat(exception.getCause()).isNull();
 		assertThat(exception.getMessage()).isNull();
-
 		OAuth2Error oauth2Error = exception.getError();
 		assertThat(oauth2Error).isNotNull();
 		assertThat(oauth2Error.getErrorCode()).isEqualTo(expected.getError().getErrorCode());

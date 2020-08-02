@@ -46,7 +46,6 @@ public class XContentTypeOptionsHeaderWriterTests {
 	@Test
 	public void writeHeaders() {
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("X-Content-Type-Options")).containsExactly("nosniff");
 	}

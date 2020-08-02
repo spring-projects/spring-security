@@ -35,7 +35,6 @@ public class DatabaseSeeder {
 	public DatabaseSeeder(DataSource dataSource, Resource resource) throws IOException {
 		Assert.notNull(dataSource, "dataSource required");
 		Assert.notNull(resource, "resource required");
-
 		JdbcTemplate template = new JdbcTemplate(dataSource);
 		String sql = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
 		template.execute(sql);

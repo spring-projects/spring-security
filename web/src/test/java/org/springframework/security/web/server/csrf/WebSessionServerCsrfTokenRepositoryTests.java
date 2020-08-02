@@ -41,18 +41,14 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 	@Test
 	public void generateTokenThenNoSession() {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange);
-
 		Mono<Boolean> isSessionStarted = this.exchange.getSession().map(WebSession::isStarted);
-
 		StepVerifier.create(isSessionStarted).expectNext(false).verifyComplete();
 	}
 
 	@Test
 	public void generateTokenWhenSubscriptionThenNoSession() {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange);
-
 		Mono<Boolean> isSessionStarted = this.exchange.getSession().map(WebSession::isStarted);
-
 		StepVerifier.create(isSessionStarted).expectNext(false).verifyComplete();
 	}
 
@@ -61,10 +57,8 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange)
 				.delayUntil((t) -> this.repository.saveToken(this.exchange, t));
 		result.block();
-
 		WebSession session = this.exchange.getSession().block();
 		Map<String, Object> attributes = session.getAttributes();
-
 		assertThat(session.isStarted()).isTrue();
 		assertThat(attributes).hasSize(1);
 		assertThat(attributes.values().iterator().next()).isInstanceOf(CsrfToken.class);
@@ -73,12 +67,9 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 	@Test
 	public void saveTokenWhenNullThenDeletes() {
 		CsrfToken token = this.repository.generateToken(this.exchange).block();
-
 		Mono<Void> result = this.repository.saveToken(this.exchange, null);
 		StepVerifier.create(result).verifyComplete();
-
 		WebSession session = this.exchange.getSession().block();
-
 		assertThat(session.getAttributes()).isEmpty();
 	}
 

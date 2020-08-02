@@ -90,13 +90,10 @@ public class SecurityNamespaceHandlerTests {
 		PowerMockito.spy(ClassUtils.class);
 		PowerMockito.doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName",
 				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
-
 		Log logger = mock(Log.class);
 		SecurityNamespaceHandler handler = new SecurityNamespaceHandler();
 		ReflectionTestUtils.setField(handler, "logger", logger);
-
 		handler.init();
-
 		PowerMockito.verifyStatic(ClassUtils.class);
 		ClassUtils.forName(eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
 		verifyZeroInteractions(logger);

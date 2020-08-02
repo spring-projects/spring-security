@@ -69,7 +69,6 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@Test
 	public void requestWhenCustomAccessDeniedPageInLambdaThenForwardedToCustomPage() throws Exception {
 		this.spring.register(AccessDeniedPageInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/").with(authentication(user()))).andExpect(status().isForbidden())
 				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
 	}
@@ -85,9 +84,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@Test
 	public void requestWhenCustomAccessDeniedHandlerInLambdaThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(AccessDeniedHandlerRefInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/").with(authentication(user())));
-
 		verify(AccessDeniedHandlerRefInLambdaConfig.accessDeniedHandler).handle(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(AccessDeniedException.class));
 	}

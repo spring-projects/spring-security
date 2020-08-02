@@ -52,17 +52,13 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 		EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
 		cache.setCache(cacheManager.getCache("castickets"));
 		cache.afterPropertiesSet();
-
 		final CasAuthenticationToken token = getToken();
-
 		// Check it gets stored in the cache
 		cache.putTicketInCache(token);
 		assertThat(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ")).isEqualTo(token);
-
 		// Check it gets removed from the cache
 		cache.removeTicketFromCache(getToken());
 		assertThat(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ")).isNull();
-
 		// Check it doesn't return values for null or unknown service tickets
 		assertThat(cache.getByTicketId(null)).isNull();
 		assertThat(cache.getByTicketId("UNKNOWN_SERVICE_TICKET")).isNull();
@@ -71,15 +67,12 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
 	@Test
 	public void testStartupDetectsMissingCache() throws Exception {
 		EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
-
 		try {
 			cache.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		Ehcache myCache = cacheManager.getCache("castickets");
 		cache.setCache(myCache);
 		assertThat(cache.getCache()).isEqualTo(myCache);

@@ -54,7 +54,6 @@ public class ClearSiteDataHeaderWriterTests {
 	public void createInstanceWhenMissingSourceThenThrowsException() {
 		this.thrown.expect(Exception.class);
 		this.thrown.expectMessage("directives cannot be empty or null");
-
 		new ClearSiteDataHeaderWriter();
 	}
 
@@ -63,7 +62,6 @@ public class ClearSiteDataHeaderWriterTests {
 		this.request.setSecure(false);
 		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(Directive.CACHE);
 		headerWriter.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeader(HEADER_NAME)).isNull();
 	}
 
@@ -71,7 +69,6 @@ public class ClearSiteDataHeaderWriterTests {
 	public void writeHeaderWhenRequestIsSecureThenHeaderValueMatchesPassedSource() {
 		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(Directive.STORAGE);
 		headerWriter.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeader(HEADER_NAME)).isEqualTo("\"storage\"");
 	}
 
@@ -80,7 +77,6 @@ public class ClearSiteDataHeaderWriterTests {
 		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(Directive.CACHE, Directive.COOKIES,
 				Directive.STORAGE, Directive.EXECUTION_CONTEXTS);
 		headerWriter.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeader(HEADER_NAME))
 				.isEqualTo("\"cache\", \"cookies\", \"storage\", \"executionContexts\"");
 	}

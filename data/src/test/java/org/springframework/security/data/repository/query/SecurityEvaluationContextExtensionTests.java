@@ -49,7 +49,6 @@ public class SecurityEvaluationContextExtensionTests {
 	public void getRootObjectSecurityContextHolderAuthentication() {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-
 		assertThat(getRoot().getAuthentication()).isSameAs(authentication);
 	}
 
@@ -57,10 +56,8 @@ public class SecurityEvaluationContextExtensionTests {
 	public void getRootObjectExplicitAuthenticationOverridesSecurityContextHolder() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
-
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-
 		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
 	}
 
@@ -68,7 +65,6 @@ public class SecurityEvaluationContextExtensionTests {
 	public void getRootObjectExplicitAuthentication() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
-
 		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
 	}
 

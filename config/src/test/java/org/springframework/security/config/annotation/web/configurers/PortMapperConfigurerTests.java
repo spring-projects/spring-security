@@ -47,21 +47,18 @@ public class PortMapperConfigurerTests {
 	@Test
 	public void requestWhenPortMapperTwiceInvokedThenDoesNotOverride() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
-
 		this.mockMvc.perform(get("http://localhost:543")).andExpect(redirectedUrl("https://localhost:123"));
 	}
 
 	@Test
 	public void requestWhenPortMapperHttpMapsToInLambdaThenRedirectsToHttpsPort() throws Exception {
 		this.spring.register(HttpMapsToInLambdaConfig.class).autowire();
-
 		this.mockMvc.perform(get("http://localhost:543")).andExpect(redirectedUrl("https://localhost:123"));
 	}
 
 	@Test
 	public void requestWhenCustomPortMapperInLambdaThenRedirectsToHttpsPort() throws Exception {
 		this.spring.register(CustomPortMapperInLambdaConfig.class).autowire();
-
 		this.mockMvc.perform(get("http://localhost:543")).andExpect(redirectedUrl("https://localhost:123"));
 	}
 

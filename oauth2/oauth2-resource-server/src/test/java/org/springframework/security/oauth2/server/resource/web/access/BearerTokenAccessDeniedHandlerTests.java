@@ -48,31 +48,23 @@ public class BearerTokenAccessDeniedHandlerTests {
 
 	@Test
 	public void handleWhenNotOAuth2AuthenticatedThenStatus403() throws Exception {
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		Authentication authentication = new TestingAuthenticationToken("user", "pass");
 		request.setUserPrincipal(authentication);
-
 		this.accessDeniedHandler.handle(request, response, null);
-
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer");
 	}
 
 	@Test
 	public void handleWhenNotOAuth2AuthenticatedAndRealmSetThenStatus403AndAuthHeaderWithRealm() throws Exception {
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		Authentication authentication = new TestingAuthenticationToken("user", "pass");
 		request.setUserPrincipal(authentication);
-
 		this.accessDeniedHandler.setRealmName("test");
 		this.accessDeniedHandler.handle(request, response, null);
-
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer realm=\"test\"");
 	}
@@ -80,15 +72,11 @@ public class BearerTokenAccessDeniedHandlerTests {
 	@Test
 	public void handleWhenOAuth2AuthenticatedThenStatus403AndAuthHeaderWithInsufficientScopeErrorAttribute()
 			throws Exception {
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		Authentication token = new TestingOAuth2TokenAuthenticationToken(Collections.emptyMap());
 		request.setUserPrincipal(token);
-
 		this.accessDeniedHandler.handle(request, response, null);
-
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", "
 				+ "error_description=\"The request requires higher privileges than provided by the access token.\", "

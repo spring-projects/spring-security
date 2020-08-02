@@ -54,7 +54,6 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	@Test
 	public void postProcessWhenApplicationContextAwareThenAwareInvoked() {
 		this.spring.register(Config.class).autowire();
-
 		ApplicationContextAware toPostProcess = mock(ApplicationContextAware.class);
 		this.objectObjectPostProcessor.postProcess(toPostProcess);
 		verify(toPostProcess).setApplicationContext(isNotNull());
@@ -63,17 +62,14 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	@Test
 	public void postProcessWhenApplicationEventPublisherAwareThenAwareInvoked() {
 		this.spring.register(Config.class).autowire();
-
 		ApplicationEventPublisherAware toPostProcess = mock(ApplicationEventPublisherAware.class);
 		this.objectObjectPostProcessor.postProcess(toPostProcess);
 		verify(toPostProcess).setApplicationEventPublisher(isNotNull());
-
 	}
 
 	@Test
 	public void postProcessWhenBeanClassLoaderAwareThenAwareInvoked() {
 		this.spring.register(Config.class).autowire();
-
 		BeanClassLoaderAware toPostProcess = mock(BeanClassLoaderAware.class);
 		this.objectObjectPostProcessor.postProcess(toPostProcess);
 		verify(toPostProcess).setBeanClassLoader(isNotNull());
@@ -82,7 +78,6 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	@Test
 	public void postProcessWhenBeanFactoryAwareThenAwareInvoked() {
 		this.spring.register(Config.class).autowire();
-
 		BeanFactoryAware toPostProcess = mock(BeanFactoryAware.class);
 		this.objectObjectPostProcessor.postProcess(toPostProcess);
 		verify(toPostProcess).setBeanFactory(isNotNull());
@@ -91,7 +86,6 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	@Test
 	public void postProcessWhenEnvironmentAwareThenAwareInvoked() {
 		this.spring.register(Config.class).autowire();
-
 		EnvironmentAware toPostProcess = mock(EnvironmentAware.class);
 		this.objectObjectPostProcessor.postProcess(toPostProcess);
 		verify(toPostProcess).setEnvironment(isNotNull());
@@ -100,7 +94,6 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	@Test
 	public void postProcessWhenMessageSourceAwareThenAwareInvoked() {
 		this.spring.register(Config.class).autowire();
-
 		MessageSourceAware toPostProcess = mock(MessageSourceAware.class);
 		this.objectObjectPostProcessor.postProcess(toPostProcess);
 		verify(toPostProcess).setMessageSource(isNotNull());
@@ -109,7 +102,6 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	@Test
 	public void postProcessWhenServletContextAwareThenAwareInvoked() {
 		this.spring.register(Config.class).autowire();
-
 		ServletContextAware toPostProcess = mock(ServletContextAware.class);
 		this.objectObjectPostProcessor.postProcess(toPostProcess);
 		verify(toPostProcess).setServletContext(isNotNull());
@@ -118,21 +110,16 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	@Test
 	public void postProcessWhenDisposableBeanThenAwareInvoked() throws Exception {
 		this.spring.register(Config.class).autowire();
-
 		DisposableBean toPostProcess = mock(DisposableBean.class);
 		this.objectObjectPostProcessor.postProcess(toPostProcess);
-
 		this.spring.getContext().close();
-
 		verify(toPostProcess).destroy();
 	}
 
 	@Test
 	public void postProcessWhenSmartInitializingSingletonThenAwareInvoked() {
 		this.spring.register(Config.class, SmartConfig.class).autowire();
-
 		SmartConfig config = this.spring.getContext().getBean(SmartConfig.class);
-
 		verify(config.toTest).afterSingletonsInstantiated();
 	}
 
@@ -140,9 +127,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 	// SEC-2382
 	public void autowireBeanFactoryWhenBeanNameAutoProxyCreatorThenWorks() {
 		this.spring.testConfigLocations("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml").autowire();
-
 		MyAdvisedBean bean = this.spring.getContext().getBean(MyAdvisedBean.class);
-
 		assertThat(bean.doStuff()).isEqualTo("null");
 	}
 

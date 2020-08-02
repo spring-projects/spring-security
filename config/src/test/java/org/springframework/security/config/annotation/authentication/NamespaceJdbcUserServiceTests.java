@@ -53,14 +53,12 @@ public class NamespaceJdbcUserServiceTests {
 	@Test
 	public void jdbcUserService() throws Exception {
 		this.spring.register(DataSourceConfig.class, JdbcUserServiceConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void jdbcUserServiceCustom() throws Exception {
 		this.spring.register(CustomDataSourceConfig.class, CustomJdbcUserServiceSampleConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user").withRoles("DBA", "USER"));
 	}
 
@@ -118,7 +116,6 @@ public class NamespaceJdbcUserServiceTests {
 				// jdbc-user-service@role-prefix
 				.rolePrefix("ROLE_");
 			// @formatter:on
-
 		}
 
 		static class CustomUserCache implements UserCache {

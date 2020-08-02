@@ -78,13 +78,10 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 	public void allowsAccessUsingCreate() throws Exception {
 		Object object = new TargetObject();
 		final MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", "foobar");
-
 		MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
 		given(this.mds.getAttributes(mi)).willReturn(this.role);
-
 		mipe.setSecurityInterceptor(this.interceptor);
 		mipe.afterPropertiesSet();
-
 		assertThat(mipe.isAllowed(mi, this.token)).isTrue();
 	}
 
@@ -95,7 +92,6 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
 		mipe.setSecurityInterceptor(this.interceptor);
 		given(this.mds.getAttributes(mi)).willReturn(this.role);
-
 		assertThat(mipe.isAllowed(mi, this.token)).isTrue();
 	}
 
@@ -107,7 +103,6 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 		mipe.setSecurityInterceptor(this.interceptor);
 		given(this.mds.getAttributes(mi)).willReturn(this.role);
 		willThrow(new AccessDeniedException("rejected")).given(this.adm).decide(this.token, mi, this.role);
-
 		assertThat(mipe.isAllowed(mi, this.token)).isFalse();
 	}
 
@@ -115,12 +110,10 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 	public void declinesAccessUsingCreateFromClass() {
 		final MethodInvocation mi = MethodInvocationUtils.createFromClass(new OtherTargetObject(), ITargetObject.class,
 				"makeLowerCase", new Class[] { String.class }, new Object[] { "helloWorld" });
-
 		MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
 		mipe.setSecurityInterceptor(this.interceptor);
 		given(this.mds.getAttributes(mi)).willReturn(this.role);
 		willThrow(new AccessDeniedException("rejected")).given(this.adm).decide(this.token, mi, this.role);
-
 		assertThat(mipe.isAllowed(mi, this.token)).isFalse();
 	}
 

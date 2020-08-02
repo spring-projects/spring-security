@@ -65,7 +65,6 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 		Mono<Void> result = Mono.empty();
 		BadCredentialsException e = new BadCredentialsException("Failed");
 		given(this.authenticationEntryPoint.commence(this.exchange, e)).willReturn(result);
-
 		assertThat(this.handler.onAuthenticationFailure(this.filterExchange, e)).isEqualTo(result);
 	}
 

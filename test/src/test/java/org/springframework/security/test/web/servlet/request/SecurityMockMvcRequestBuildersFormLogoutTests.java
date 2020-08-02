@@ -52,10 +52,8 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	@Test
 	public void defaults() {
 		MockHttpServletRequest request = logout().buildRequest(this.servletContext);
-
 		CsrfToken token = (CsrfToken) request
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
-
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/logout");
@@ -64,10 +62,8 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	@Test
 	public void custom() {
 		MockHttpServletRequest request = logout("/admin/logout").buildRequest(this.servletContext);
-
 		CsrfToken token = (CsrfToken) request
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
-
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/admin/logout");
@@ -77,10 +73,8 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	public void customWithUriVars() {
 		MockHttpServletRequest request = logout().logoutUrl("/uri-logout/{var1}/{var2}", "val1", "val2")
 				.buildRequest(this.servletContext);
-
 		CsrfToken token = (CsrfToken) request
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
-
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/uri-logout/val1/val2");
@@ -97,7 +91,6 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		given(postProcessor.postProcessRequest(any())).willAnswer((i) -> i.getArgument(0));
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
 				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor)).build();
-
 		MvcResult mvcResult = mockMvc.perform(logout()).andReturn();
 		assertThat(mvcResult.getRequest().getMethod()).isEqualTo(HttpMethod.POST.name());
 		assertThat(mvcResult.getRequest().getHeader("Accept"))

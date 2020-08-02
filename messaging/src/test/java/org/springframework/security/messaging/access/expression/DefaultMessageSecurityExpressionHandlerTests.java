@@ -56,7 +56,6 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 	@Before
 	public void setup() {
 		this.handler = new DefaultMessageSecurityExpressionHandler<>();
-
 		this.message = new GenericMessage<>("");
 		this.authentication = new AnonymousAuthenticationToken("key", "anonymous",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
@@ -67,7 +66,6 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 	public void trustResolverPopulated() {
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
 		Expression expression = this.handler.getExpressionParser().parseExpression("authenticated");
-
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isFalse();
 	}
 
@@ -82,7 +80,6 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
 		Expression expression = this.handler.getExpressionParser().parseExpression("authenticated");
 		given(this.trustResolver.isAnonymous(this.authentication)).willReturn(false);
-
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}
 
@@ -94,7 +91,6 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		this.handler.setRoleHierarchy(roleHierarchy);
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
 		Expression expression = this.handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");
-
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}
 
@@ -104,7 +100,6 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
 		Expression expression = this.handler.getExpressionParser().parseExpression("hasPermission(message, 'read')");
 		given(this.permissionEvaluator.hasPermission(this.authentication, this.message, "read")).willReturn(true);
-
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}
 

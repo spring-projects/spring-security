@@ -50,7 +50,6 @@ public class RequestAttributeAuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
-
 		filter.doFilter(request, response, chain);
 	}
 
@@ -62,7 +61,6 @@ public class RequestAttributeAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("cat");
@@ -78,7 +76,6 @@ public class RequestAttributeAuthenticationFilterTests {
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setPrincipalEnvironmentVariable("myUsernameVariable");
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("wolfman");
@@ -94,7 +91,6 @@ public class RequestAttributeAuthenticationFilterTests {
 		filter.setCredentialsEnvironmentVariable("myCredentialsVariable");
 		request.setAttribute("REMOTE_USER", "cat");
 		request.setAttribute("myCredentialsVariable", "catspassword");
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("catspassword");
@@ -130,7 +126,6 @@ public class RequestAttributeAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.doFilter(request, response, chain);
 	}
 
@@ -152,7 +147,6 @@ public class RequestAttributeAuthenticationFilterTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class)))
 				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
-
 		return am;
 	}
 

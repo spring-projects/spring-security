@@ -35,9 +35,7 @@ public class TestingAuthenticationProviderTests {
 		TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
 		TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password", "ROLE_ONE", "ROLE_TWO");
 		Authentication result = provider.authenticate(token);
-
 		assertThat(result instanceof TestingAuthenticationToken).isTrue();
-
 		TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
 		assertThat(castResult.getPrincipal()).isEqualTo("Test");
 		assertThat(castResult.getCredentials()).isEqualTo("Password");

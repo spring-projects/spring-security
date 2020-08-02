@@ -42,7 +42,6 @@ public class ObjectIdentityImplTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		// Check String-Serializable constructor required field
 		try {
 			new ObjectIdentityImpl("", 1L);
@@ -50,7 +49,6 @@ public class ObjectIdentityImplTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		// Check Serializable parameter is not null
 		try {
 			new ObjectIdentityImpl(DOMAIN_CLASS, null);
@@ -58,7 +56,6 @@ public class ObjectIdentityImplTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		// The correct way of using String-Serializable constructor
 		try {
 			new ObjectIdentityImpl(DOMAIN_CLASS, 1L);
@@ -66,7 +63,6 @@ public class ObjectIdentityImplTests {
 		catch (IllegalArgumentException notExpected) {
 			fail("It shouldn't have thrown IllegalArgumentException");
 		}
-
 		// Check the Class-Serializable constructor
 		try {
 			new ObjectIdentityImpl(MockIdDomainObject.class, null);
@@ -91,9 +87,7 @@ public class ObjectIdentityImplTests {
 			fail("It should have thrown IdentityUnavailableException");
 		}
 		catch (IdentityUnavailableException expected) {
-
 		}
-
 		// getId() should return a non-null value
 		MockIdDomainObject mockId = new MockIdDomainObject();
 		try {
@@ -101,9 +95,7 @@ public class ObjectIdentityImplTests {
 			fail("It should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		// getId() should return a Serializable object
 		mockId.setId(new MockIdDomainObject());
 		try {
@@ -112,7 +104,6 @@ public class ObjectIdentityImplTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		// getId() should return a Serializable object
 		mockId.setId(100L);
 		try {
@@ -132,7 +123,6 @@ public class ObjectIdentityImplTests {
 		ObjectIdentity obj = new ObjectIdentityImpl(DOMAIN_CLASS, 1L);
 		MockIdDomainObject mockObj = new MockIdDomainObject();
 		mockObj.setId(1L);
-
 		String string = "SOME_STRING";
 		assertThat(string).isNotSameAs(obj);
 		assertThat(obj).isNotNull();
@@ -155,7 +145,6 @@ public class ObjectIdentityImplTests {
 	public void longAndIntegerIdsWithSameValueAreEqualAndHaveSameHashcode() {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, 5L);
 		ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, 5);
-
 		assertThat(obj2).isEqualTo(obj);
 		assertThat(obj2.hashCode()).isEqualTo(obj.hashCode());
 	}

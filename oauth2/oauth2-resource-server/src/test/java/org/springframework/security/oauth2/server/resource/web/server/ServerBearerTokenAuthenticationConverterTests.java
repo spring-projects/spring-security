@@ -55,7 +55,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenValidHeaderIsPresentThenTokenIsResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer " + TEST_TOKEN);
-
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
 
@@ -65,7 +64,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 		String token = TEST_TOKEN + "==";
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer " + token);
-
 		assertThat(convertToToken(request).getToken()).isEqualTo(token);
 	}
 
@@ -74,7 +72,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 		this.converter.setBearerTokenHeaderName(CUSTOM_HEADER);
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(CUSTOM_HEADER,
 				"Bearer " + TEST_TOKEN);
-
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
 
@@ -83,7 +80,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenValidHeaderIsEmptyStringThenTokenIsResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer ");
-
 		OAuth2AuthenticationException expected = catchThrowableOfType(() -> convertToToken(request),
 				OAuth2AuthenticationException.class);
 		BearerTokenError error = (BearerTokenError) expected.getError();
@@ -96,14 +92,12 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenLowercaseHeaderIsPresentThenTokenIsResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"bearer " + TEST_TOKEN);
-
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
 
 	@Test
 	public void resolveWhenNoHeaderIsPresentThenTokenIsNotResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/");
-
 		assertThat(convertToToken(request)).isNull();
 	}
 
@@ -111,7 +105,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenHeaderWithWrongSchemeIsPresentThenTokenIsNotResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Basic " + Base64.getEncoder().encodeToString("test:test".getBytes()));
-
 		assertThat(convertToToken(request)).isNull();
 	}
 
@@ -119,7 +112,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenHeaderWithMissingTokenIsPresentThenAuthenticationExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer ");
-
 		assertThatCode(() -> convertToToken(request)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining(("Bearer token is malformed"));
 	}
@@ -128,7 +120,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenHeaderWithInvalidCharactersIsPresentThenAuthenticationExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer an\"invalid\"token");
-
 		assertThatCode(() -> convertToToken(request)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining(("Bearer token is malformed"));
 	}
@@ -138,7 +129,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenHeaderWithInvalidCharactersIsPresentAndNotSubscribedThenNoneExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer an\"invalid\"token");
-
 		assertThatCode(() -> this.converter.convert(MockServerWebExchange.from(request))).doesNotThrowAnyException();
 	}
 
@@ -146,7 +136,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenValidHeaderIsPresentTogetherWithQueryParameterThenAuthenticationExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
 				.queryParam("access_token", TEST_TOKEN).header(HttpHeaders.AUTHORIZATION, "Bearer " + TEST_TOKEN);
-
 		assertThatCode(() -> convertToToken(request)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasMessageContaining("Found multiple bearer tokens in the request");
 	}
@@ -154,10 +143,8 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	public void resolveWhenQueryParameterIsPresentAndSupportedThenTokenIsResolved() {
 		this.converter.setAllowUriQueryParameter(true);
-
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").queryParam("access_token",
 				TEST_TOKEN);
-
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
 
@@ -165,9 +152,7 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	@Test
 	public void resolveWhenQueryParameterIsEmptyAndSupportedThenOAuth2AuthenticationException() {
 		this.converter.setAllowUriQueryParameter(true);
-
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").queryParam("access_token", "");
-
 		OAuth2AuthenticationException expected = catchThrowableOfType(() -> convertToToken(request),
 				OAuth2AuthenticationException.class);
 		BearerTokenError error = (BearerTokenError) expected.getError();
@@ -180,7 +165,6 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenQueryParameterIsPresentAndNotSupportedThenTokenIsNotResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").queryParam("access_token",
 				TEST_TOKEN);
-
 		assertThat(convertToToken(request)).isNull();
 	}
 

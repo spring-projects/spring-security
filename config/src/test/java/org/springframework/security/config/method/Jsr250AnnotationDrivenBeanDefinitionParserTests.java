@@ -64,7 +64,6 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.someOther(0);
 	}
 
@@ -73,7 +72,6 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.someUserMethod1();
 	}
 
@@ -82,7 +80,6 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.someAdminMethod();
 	}
 
@@ -91,7 +88,6 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.rolesAllowedUser();
 	}
 

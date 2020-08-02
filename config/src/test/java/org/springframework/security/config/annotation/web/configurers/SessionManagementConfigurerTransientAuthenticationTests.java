@@ -50,7 +50,6 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 
 	@Test
 	public void postWhenTransientAuthenticationThenNoSessionCreated() throws Exception {
-
 		this.spring.register(WithTransientAuthenticationConfig.class).autowire();
 		MvcResult result = this.mvc.perform(post("/login")).andReturn();
 		assertThat(result.getRequest().getSession(false)).isNull();
@@ -58,7 +57,6 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 
 	@Test
 	public void postWhenTransientAuthenticationThenAlwaysSessionOverrides() throws Exception {
-
 		this.spring.register(AlwaysCreateSessionConfig.class).autowire();
 		MvcResult result = this.mvc.perform(post("/login")).andReturn();
 		assertThat(result.getRequest().getSession(false)).isNotNull();

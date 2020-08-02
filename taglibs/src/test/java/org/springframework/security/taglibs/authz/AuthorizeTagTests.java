@@ -66,11 +66,9 @@ public class AuthorizeTagTests {
 	public void setUp() {
 		SecurityContextHolder.getContext().setAuthentication(this.currentUser);
 		StaticWebApplicationContext ctx = new StaticWebApplicationContext();
-
 		BeanDefinitionBuilder webExpressionHandler = BeanDefinitionBuilder
 				.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class);
 		webExpressionHandler.addPropertyValue("permissionEvaluator", this.permissionEvaluator);
-
 		ctx.registerBeanDefinition("expressionHandler", webExpressionHandler.getBeanDefinition());
 		ctx.registerSingleton("wipe", MockWebInvocationPrivilegeEvaluator.class);
 		MockServletContext servletCtx = new MockServletContext();
@@ -85,14 +83,12 @@ public class AuthorizeTagTests {
 	}
 
 	// access attribute tests
-
 	@Test
 	public void taglibsDocumentationHasPermissionOr() throws Exception {
 		Object domain = new Object();
 		this.request.setAttribute("domain", domain);
 		this.authorizeTag.setAccess("hasPermission(#domain,'read') or hasPermission(#domain,'write')");
 		given(this.permissionEvaluator.hasPermission(eq(this.currentUser), eq(domain), anyString())).willReturn(true);
-
 		assertThat(this.authorizeTag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 	}
 

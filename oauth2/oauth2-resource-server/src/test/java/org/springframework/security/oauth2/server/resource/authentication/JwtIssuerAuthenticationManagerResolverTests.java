@@ -68,15 +68,12 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
 					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-
 			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
 					issuer);
 			MockHttpServletRequest request = new MockHttpServletRequest();
 			request.addHeader("Authorization", "Bearer " + jws.serialize());
-
 			AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(request);
 			assertThat(authenticationManager).isNotNull();
-
 			AuthenticationManager cachedAuthenticationManager = authenticationManagerResolver.resolve(request);
 			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
 		}
@@ -88,7 +85,6 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				"other", "issuers");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.jwt);
-
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
 	}
@@ -100,7 +96,6 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				(issuer) -> authenticationManager);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.jwt);
-
 		assertThat(authenticationManagerResolver.resolve(request)).isSameAs(authenticationManager);
 	}
 
@@ -108,17 +103,14 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	public void resolveWhenUsingExternalSourceThenRespondsToChanges() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.jwt);
-
 		Map<String, AuthenticationManager> authenticationManagers = new HashMap<>();
 		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
 				authenticationManagers::get);
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
-
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		authenticationManagers.put("trusted", authenticationManager);
 		assertThat(authenticationManagerResolver.resolve(request)).isSameAs(authenticationManager);
-
 		authenticationManagers.clear();
 		assertThatCode(() -> authenticationManagerResolver.resolve(request))
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");

@@ -32,15 +32,10 @@ public class OpenSamlMetadataResolverTests {
 
 	@Test
 	public void resolveWhenRelyingPartyThenMetadataMatches() {
-		// given
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
 				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
-
-		// when
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
-
-		// then
 		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"rp-entity-id\"")
 				.contains("WantAssertionsSigned=\"true\"").contains("<md:KeyDescriptor use=\"signing\">")
 				.contains("<md:KeyDescriptor use=\"encryption\">")
@@ -51,17 +46,12 @@ public class OpenSamlMetadataResolverTests {
 
 	@Test
 	public void resolveWhenRelyingPartyNoCredentialsThenMetadataMatches() {
-		// given
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
 				.assertingPartyDetails((party) -> party.verificationX509Credentials(
 						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 				.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
-
-		// when
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
-
-		// then
 		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"rp-entity-id\"")
 				.contains("WantAssertionsSigned=\"true\"").doesNotContain("<md:KeyDescriptor use=\"signing\">")
 				.doesNotContain("<md:KeyDescriptor use=\"encryption\">")

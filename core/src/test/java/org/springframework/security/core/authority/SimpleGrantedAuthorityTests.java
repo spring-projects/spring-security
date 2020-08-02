@@ -35,14 +35,10 @@ public class SimpleGrantedAuthorityTests {
 		SimpleGrantedAuthority auth1 = new SimpleGrantedAuthority("TEST");
 		assertThat(auth1).isEqualTo(auth1);
 		assertThat(new SimpleGrantedAuthority("TEST")).isEqualTo(auth1);
-
 		assertThat(auth1.equals("TEST")).isFalse();
-
 		SimpleGrantedAuthority auth3 = new SimpleGrantedAuthority("NOT_EQUAL");
 		assertThat(!auth1.equals(auth3)).isTrue();
-
 		assertThat(auth1.equals(mock(GrantedAuthority.class))).isFalse();
-
 		assertThat(auth1.equals(222)).isFalse();
 	}
 

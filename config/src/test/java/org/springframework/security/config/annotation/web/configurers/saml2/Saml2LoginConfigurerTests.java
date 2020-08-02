@@ -169,7 +169,6 @@ public class Saml2LoginConfigurerTests {
 	@Test
 	public void saml2LoginWhenCustomAuthenticationRequestContextResolverThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationRequestContextResolver.class).autowire();
-
 		Saml2AuthenticationRequestContext context = TestSaml2AuthenticationRequestContexts
 				.authenticationRequestContext().build();
 		Saml2AuthenticationRequestContextResolver resolver = CustomAuthenticationRequestContextResolver.resolver;
@@ -181,7 +180,6 @@ public class Saml2LoginConfigurerTests {
 	@Test
 	public void authenticationRequestWhenAuthnRequestConsumerResolverThenUses() throws Exception {
 		this.spring.register(CustomAuthnRequestConsumerResolver.class).autowire();
-
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
 		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
@@ -228,10 +226,8 @@ public class Saml2LoginConfigurerTests {
 		// setup authentication parameters
 		this.request.setParameter("SAMLResponse",
 				Base64.getEncoder().encodeToString("saml2-xml-response-object".getBytes()));
-
 		// perform test
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
@@ -263,7 +259,6 @@ public class Saml2LoginConfigurerTests {
 
 	private static AuthenticationManager getAuthenticationManagerMock(String role) {
 		return new AuthenticationManager() {
-
 			@Override
 			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 				if (!supports(authentication.getClass())) {
@@ -306,7 +301,6 @@ public class Saml2LoginConfigurerTests {
 					return provider;
 				}
 			};
-
 			http.saml2Login().addObjectPostProcessor(processor);
 			super.configure(http);
 		}

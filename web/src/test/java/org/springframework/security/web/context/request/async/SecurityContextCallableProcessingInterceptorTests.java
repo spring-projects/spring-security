@@ -62,10 +62,8 @@ public class SecurityContextCallableProcessingInterceptorTests {
 		SecurityContextHolder.setContext(this.securityContext);
 		interceptor.beforeConcurrentHandling(this.webRequest, this.callable);
 		SecurityContextHolder.clearContext();
-
 		interceptor.preProcess(this.webRequest, this.callable);
 		assertThat(SecurityContextHolder.getContext()).isSameAs(this.securityContext);
-
 		interceptor.postProcess(this.webRequest, this.callable, null);
 		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.securityContext);
 	}
@@ -74,10 +72,8 @@ public class SecurityContextCallableProcessingInterceptorTests {
 	public void specificSecurityContext() throws Exception {
 		SecurityContextCallableProcessingInterceptor interceptor = new SecurityContextCallableProcessingInterceptor(
 				this.securityContext);
-
 		interceptor.preProcess(this.webRequest, this.callable);
 		assertThat(SecurityContextHolder.getContext()).isSameAs(this.securityContext);
-
 		interceptor.postProcess(this.webRequest, this.callable, null);
 		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.securityContext);
 	}

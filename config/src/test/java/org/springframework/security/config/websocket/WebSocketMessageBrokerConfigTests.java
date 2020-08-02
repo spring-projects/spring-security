@@ -102,9 +102,7 @@ public class WebSocketMessageBrokerConfigTests {
 	@Test
 	public void sendWhenNoIdSpecifiedThenIntegratesWithClientInboundChannel() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		this.clientInboundChannel.send(message("/permitAll"));
-
 		assertThatThrownBy(() -> this.clientInboundChannel.send(message("/denyAll")))
 				.hasCauseInstanceOf(AccessDeniedException.class);
 	}
@@ -112,214 +110,165 @@ public class WebSocketMessageBrokerConfigTests {
 	@Test
 	public void sendWhenAnonymousMessageWithConnectMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
-
 		assertThatCode(() -> this.clientInboundChannel.send(message("/permitAll", headers))).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithConnectAckMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.CONNECT_ACK);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithDisconnectMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.DISCONNECT);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithDisconnectAckMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.DISCONNECT_ACK);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithHeartbeatMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.HEARTBEAT);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithMessageMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.MESSAGE);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithOtherMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.OTHER);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithSubscribeMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithUnsubscribeMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenConnectWithoutCsrfTokenThenDenied() {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
-
 		Message<?> message = message("/message", SimpMessageType.CONNECT);
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(InvalidCsrfTokenException.class);
 	}
 
 	@Test
 	public void sendWhenConnectWithSameOriginDisabledThenCsrfTokenNotRequired() {
 		this.spring.configLocations(xml("SyncSameOriginDisabledConfig")).autowire();
-
 		Message<?> message = message("/message", SimpMessageType.CONNECT);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenInterceptWiredForMessageTypeThenDeniesOnTypeMismatch() {
 		this.spring.configLocations(xml("MessageInterceptTypeConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.MESSAGE);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
-
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
-
 		message = message("/anyOther", SimpMessageType.MESSAGE);
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void sendWhenInterceptWiredForSubscribeTypeThenDeniesOnTypeMismatch() {
 		this.spring.configLocations(xml("SubscribeInterceptTypeConfig")).autowire();
-
 		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
-
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
-
 		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void configureWhenUsingConnectMessageTypeThenAutowireFails() {
 		ThrowingCallable bad = () -> this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire();
-
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingConnectAckMessageTypeThenAutowireFails() {
 		ThrowingCallable bad = () -> this.spring.configLocations(xml("ConnectAckInterceptTypeConfig")).autowire();
-
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingDisconnectMessageTypeThenAutowireFails() {
 		ThrowingCallable bad = () -> this.spring.configLocations(xml("DisconnectInterceptTypeConfig")).autowire();
-
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingDisconnectAckMessageTypeThenAutowireFails() {
 		ThrowingCallable bad = () -> this.spring.configLocations(xml("DisconnectAckInterceptTypeConfig")).autowire();
-
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingHeartbeatMessageTypeThenAutowireFails() {
 		ThrowingCallable bad = () -> this.spring.configLocations(xml("HeartbeatInterceptTypeConfig")).autowire();
-
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingOtherMessageTypeThenAutowireFails() {
 		ThrowingCallable bad = () -> this.spring.configLocations(xml("OtherInterceptTypeConfig")).autowire();
-
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingUnsubscribeMessageTypeThenAutowireFails() {
 		ThrowingCallable bad = () -> this.spring.configLocations(xml("UnsubscribeInterceptTypeConfig")).autowire();
-
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void sendWhenNoIdMessageThenAuthenticationPrincipalResolved() {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
-
 		this.clientInboundChannel.send(message("/message"));
-
 		assertThat(this.messageController.username).isEqualTo("anonymous");
 	}
 
 	@Test
 	public void requestWhenConnectMessageThenUsesCsrfTokenHandshakeInterceptor() throws Exception {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
-
 		WebApplicationContext context = this.spring.getContext();
 		MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
-
 		String csrfAttributeName = CsrfToken.class.getName();
 		String customAttributeName = this.getClass().getName();
-
 		MvcResult result = mvc.perform(get("/app").requestAttr(csrfAttributeName, this.token)
 				.sessionAttr(customAttributeName, "attributeValue")).andReturn();
-
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
-
 		assertThat(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
-
 		assertThat(handshakeValue).isEqualTo(sessionValue)
 				.withFailMessage("Explicitly listed session variables are not overridden");
 	}
@@ -327,22 +276,16 @@ public class WebSocketMessageBrokerConfigTests {
 	@Test
 	public void requestWhenConnectMessageAndUsingSockJsThenUsesCsrfTokenHandshakeInterceptor() throws Exception {
 		this.spring.configLocations(xml("SyncSockJsConfig")).autowire();
-
 		WebApplicationContext context = this.spring.getContext();
 		MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
-
 		String csrfAttributeName = CsrfToken.class.getName();
 		String customAttributeName = this.getClass().getName();
-
 		MvcResult result = mvc.perform(get("/app/289/tpyx6mde/websocket").requestAttr(csrfAttributeName, this.token)
 				.sessionAttr(customAttributeName, "attributeValue")).andReturn();
-
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
-
 		assertThat(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
-
 		assertThat(handshakeValue).isEqualTo(sessionValue)
 				.withFailMessage("Explicitly listed session variables are not overridden");
 	}
@@ -350,31 +293,23 @@ public class WebSocketMessageBrokerConfigTests {
 	@Test
 	public void sendWhenNoIdSpecifiedThenCustomArgumentResolversAreNotOverridden() {
 		this.spring.configLocations(xml("SyncCustomArgumentResolverConfig")).autowire();
-
 		this.clientInboundChannel.send(message("/message-with-argument"));
-
 		assertThat(this.messageWithArgumentController.messageArgument).isNotNull();
 	}
 
 	@Test
 	public void sendWhenUsingCustomPathMatcherThenSecurityAppliesIt() {
 		this.spring.configLocations(xml("CustomPathMatcherConfig")).autowire();
-
 		Message<?> message = message("/denyAll.a");
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
-
 		message = message("/denyAll.a.b");
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
 	@Test
 	public void sendWhenIdSpecifiedThenSecurityDoesNotIntegrateWithClientInboundChannel() {
 		this.spring.configLocations(xml("IdConfig")).autowire();
-
 		Message<?> message = message("/denyAll");
-
 		assertThatCode(send(message)).doesNotThrowAnyException();
 	}
 
@@ -382,18 +317,14 @@ public class WebSocketMessageBrokerConfigTests {
 	@WithMockUser
 	public void sendWhenIdSpecifiedAndExplicitlyIntegratedWhenBrokerUsesClientInboundChannel() {
 		this.spring.configLocations(xml("IdIntegratedConfig")).autowire();
-
 		Message<?> message = message("/denyAll");
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void sendWhenNoIdSpecifiedThenSecurityDoesntOverrideCustomInterceptors() {
 		this.spring.configLocations(xml("CustomInterceptorConfig")).autowire();
-
 		Message<?> message = message("/throwAll");
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(UnsupportedOperationException.class);
 	}
 
@@ -401,9 +332,7 @@ public class WebSocketMessageBrokerConfigTests {
 	@WithMockUser(username = "nile")
 	public void sendWhenCustomExpressionHandlerThenAuthorizesAccordingly() {
 		this.spring.configLocations(xml("CustomExpressionHandlerConfig")).autowire();
-
 		Message<?> message = message("/denyNile");
-
 		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
 	}
 
@@ -428,13 +357,10 @@ public class WebSocketMessageBrokerConfigTests {
 		headers.setSessionId("123");
 		headers.setSessionAttributes(new HashMap<>());
 		headers.setDestination(destination);
-
 		if (SecurityContextHolder.getContext().getAuthentication() != null) {
 			headers.setUser(SecurityContextHolder.getContext().getAuthentication());
 		}
-
 		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
-
 		return new GenericMessage<>("hi", headers.getMessageHeaders());
 	}
 
@@ -491,9 +417,7 @@ public class WebSocketMessageBrokerConfigTests {
 		public boolean doHandshake(ServerHttpRequest request,
 				org.springframework.http.server.ServerHttpResponse response, WebSocketHandler wsHandler,
 				Map<String, Object> attributes) throws HandshakeFailureException {
-
 			this.attributes = attributes;
-
 			return true;
 		}
 
@@ -510,7 +434,6 @@ public class WebSocketMessageBrokerConfigTests {
 
 		@Override
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
 		}
 
 	}
@@ -529,14 +452,11 @@ public class WebSocketMessageBrokerConfigTests {
 		@Override
 		protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 				Message<Object> invocation) {
-
 			return new MessageSecurityExpressionRoot(authentication, invocation) {
-
 				public boolean denyNile() {
 					Authentication auth = getAuthentication();
 					return auth != null && !"nile".equals(auth.getName());
 				}
-
 			};
 		}
 

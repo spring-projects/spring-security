@@ -65,23 +65,17 @@ public class JwtAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenJwtDecodesThenAuthenticationHasAttributesContainedInJwt() {
 		BearerTokenAuthenticationToken token = this.authentication();
-
 		Jwt jwt = TestJwts.jwt().claim("name", "value").build();
-
 		given(this.jwtDecoder.decode("token")).willReturn(jwt);
 		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(new JwtAuthenticationToken(jwt));
-
 		JwtAuthenticationToken authentication = (JwtAuthenticationToken) this.provider.authenticate(token);
-
 		assertThat(authentication.getTokenAttributes()).containsEntry("name", "value");
 	}
 
 	@Test
 	public void authenticateWhenJwtDecodeFailsThenRespondsWithInvalidToken() {
 		BearerTokenAuthenticationToken token = this.authentication();
-
 		given(this.jwtDecoder.decode("token")).willThrow(BadJwtException.class);
-
 		assertThatCode(() -> this.provider.authenticate(token))
 				.matches((failed) -> failed instanceof OAuth2AuthenticationException)
 				.matches(errorCode(BearerTokenErrorCodes.INVALID_TOKEN));
@@ -90,9 +84,7 @@ public class JwtAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = this.authentication();
-
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
-
 		assertThatCode(() -> this.provider.authenticate(token)).isInstanceOf(OAuth2AuthenticationException.class)
 				.hasFieldOrPropertyWithValue("error.description", "Invalid token");
 	}
@@ -101,9 +93,7 @@ public class JwtAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
 		BearerTokenAuthenticationToken token = this.authentication();
-
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
-
 		assertThatCode(() -> this.provider.authenticate(token)).isInstanceOf(AuthenticationException.class)
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
 	}
@@ -113,13 +103,10 @@ public class JwtAuthenticationProviderTests {
 		BearerTokenAuthenticationToken token = this.authentication();
 		Object details = mock(Object.class);
 		token.setDetails(details);
-
 		Jwt jwt = TestJwts.jwt().build();
 		JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
-
 		given(this.jwtDecoder.decode(token.getToken())).willReturn(jwt);
 		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(authentication);
-
 		assertThat(this.provider.authenticate(token)).isEqualTo(authentication).hasFieldOrPropertyWithValue("details",
 				details);
 	}

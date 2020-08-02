@@ -47,7 +47,6 @@ public class ChannelDecisionManagerImplTests {
 	@Test
 	public void testCannotSetEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-
 		try {
 			cdm.setChannelProcessors(new Vector());
 			cdm.afterPropertiesSet();
@@ -63,20 +62,17 @@ public class ChannelDecisionManagerImplTests {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		List list = new Vector();
 		list.add("THIS IS NOT A CHANNELPROCESSOR");
-
 		try {
 			cdm.setChannelProcessors(list);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
 	@Test
 	public void testCannotSetNullChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-
 		try {
 			cdm.setChannelProcessors(null);
 			cdm.afterPropertiesSet();
@@ -97,13 +93,10 @@ public class ChannelDecisionManagerImplTests {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
-
 		List<ConfigAttribute> cad = SecurityConfig.createList("xyz");
-
 		cdm.decide(fi, cad);
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
@@ -116,11 +109,9 @@ public class ChannelDecisionManagerImplTests {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
-
 		cdm.decide(fi, SecurityConfig.createList(new String[] { "abc", "ANY_CHANNEL" }));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
@@ -135,11 +126,9 @@ public class ChannelDecisionManagerImplTests {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
-
 		cdm.decide(fi, SecurityConfig.createList("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
@@ -154,7 +143,6 @@ public class ChannelDecisionManagerImplTests {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
-
 		assertThat(cdm.supports(new SecurityConfig("xyz"))).isTrue();
 		assertThat(cdm.supports(new SecurityConfig("abc"))).isTrue();
 		assertThat(cdm.supports(new SecurityConfig("UNSUPPORTED"))).isFalse();
@@ -164,21 +152,18 @@ public class ChannelDecisionManagerImplTests {
 	public void testGettersSetters() {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		assertThat(cdm.getChannelProcessors()).isNull();
-
 		MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
 		MockChannelProcessor cpAbc = new MockChannelProcessor("abc", false);
 		List list = new Vector();
 		list.add(cpXyz);
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
-
 		assertThat(cdm.getChannelProcessors()).isEqualTo(list);
 	}
 
 	@Test
 	public void testStartupFailsWithEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-
 		try {
 			cdm.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
@@ -202,17 +187,13 @@ public class ChannelDecisionManagerImplTests {
 		@Override
 		public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException {
 			Iterator iter = config.iterator();
-
 			if (this.failIfCalled) {
 				fail("Should not have called this channel processor: " + this.configAttribute);
 			}
-
 			while (iter.hasNext()) {
 				ConfigAttribute attr = (ConfigAttribute) iter.next();
-
 				if (attr.getAttribute().equals(this.configAttribute)) {
 					invocation.getHttpResponse().sendRedirect("/redirected");
-
 					return;
 				}
 			}

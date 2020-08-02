@@ -38,10 +38,8 @@ public class AnonymousAuthenticationProviderTests {
 	@Test
 	public void testDetectsAnInvalidKey() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
-
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("WRONG_KEY", "Test",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-
 		try {
 			aap.authenticate(token);
 			fail("Should have thrown BadCredentialsException");
@@ -57,7 +55,6 @@ public class AnonymousAuthenticationProviderTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -70,10 +67,8 @@ public class AnonymousAuthenticationProviderTests {
 	@Test
 	public void testIgnoresClassesItDoesNotSupport() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
-
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
-
 		// Try it anyway
 		assertThat(aap.authenticate(token)).isNull();
 	}
@@ -81,12 +76,9 @@ public class AnonymousAuthenticationProviderTests {
 	@Test
 	public void testNormalOperation() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
-
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty", "Test",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-
 		Authentication result = aap.authenticate(token);
-
 		assertThat(token).isEqualTo(result);
 	}
 

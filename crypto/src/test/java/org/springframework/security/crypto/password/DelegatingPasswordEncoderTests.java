@@ -69,7 +69,6 @@ public class DelegatingPasswordEncoderTests {
 		this.delegates = new HashMap<>();
 		this.delegates.put(this.bcryptId, this.bcrypt);
 		this.delegates.put("noop", this.noop);
-
 		this.passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
 	}
 
@@ -92,9 +91,7 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenCustomDefaultPasswordEncoderForMatchesThenDelegates() {
 		String encodedPassword = "{unmapped}" + this.rawPassword;
 		this.passwordEncoder.setDefaultPasswordEncoderForMatches(this.invalidId);
-
 		assertThat(this.passwordEncoder.matches(this.rawPassword, encodedPassword)).isFalse();
-
 		verify(this.invalidId).matches(this.rawPassword, encodedPassword);
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
@@ -102,16 +99,13 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void encodeWhenValidThenUsesIdForEncode() {
 		given(this.bcrypt.encode(this.rawPassword)).willReturn(this.encodedPassword);
-
 		assertThat(this.passwordEncoder.encode(this.rawPassword)).isEqualTo(this.bcryptEncodedPassword);
 	}
 
 	@Test
 	public void matchesWhenBCryptThenDelegatesToBCrypt() {
 		given(this.bcrypt.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
-
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.bcryptEncodedPassword)).isTrue();
-
 		verify(this.bcrypt).matches(this.rawPassword, this.encodedPassword);
 		verifyZeroInteractions(this.noop);
 	}
@@ -119,9 +113,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenNoopThenDelegatesToNoop() {
 		given(this.noop.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
-
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.noopEncodedPassword)).isTrue();
-
 		verify(this.noop).matches(this.rawPassword, this.encodedPassword);
 		verifyZeroInteractions(this.bcrypt);
 	}
@@ -131,7 +123,6 @@ public class DelegatingPasswordEncoderTests {
 		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{unmapped}" + this.rawPassword))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("There is no PasswordEncoder mapped for the id \"unmapped\"");
-
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
@@ -140,7 +131,6 @@ public class DelegatingPasswordEncoderTests {
 		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
-
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
@@ -149,7 +139,6 @@ public class DelegatingPasswordEncoderTests {
 		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
-
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
@@ -158,7 +147,6 @@ public class DelegatingPasswordEncoderTests {
 		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("There is no PasswordEncoder mapped for the id \"\"");
-
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
@@ -167,20 +155,16 @@ public class DelegatingPasswordEncoderTests {
 		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
-
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenIdIsNullThenFalse() {
 		this.delegates = new Hashtable<>(this.delegates);
-
 		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
-
 		assertThatThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
-
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
@@ -189,9 +173,7 @@ public class DelegatingPasswordEncoderTests {
 		this.delegates.put(null, this.invalidId);
 		this.passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
 		given(this.invalidId.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
-
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.encodedPassword)).isTrue();
-
 		verify(this.invalidId).matches(this.rawPassword, this.encodedPassword);
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
@@ -219,23 +201,19 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void upgradeEncodingWhenSameIdAndEncoderFalseThenEncoderDecidesFalse() {
 		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isFalse();
-
 		verify(this.bcrypt).upgradeEncoding(this.encodedPassword);
 	}
 
 	@Test
 	public void upgradeEncodingWhenSameIdAndEncoderTrueThenEncoderDecidesTrue() {
 		given(this.bcrypt.upgradeEncoding(any())).willReturn(true);
-
 		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isTrue();
-
 		verify(this.bcrypt).upgradeEncoding(this.encodedPassword);
 	}
 
 	@Test
 	public void upgradeEncodingWhenDifferentIdThenTrue() {
 		assertThat(this.passwordEncoder.upgradeEncoding(this.noopEncodedPassword)).isTrue();
-
 		verifyZeroInteractions(this.bcrypt);
 	}
 

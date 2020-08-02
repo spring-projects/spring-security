@@ -59,7 +59,6 @@ public class AccessDeniedConfigTests {
 	@Test
 	public void configureWhenAccessDeniedHandlerIsMissingLeadingSlashThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("NoLeadingSlash"));
-
 		assertThatThrownBy(() -> context.autowire()).isInstanceOf(BeanCreationException.class)
 				.hasMessageContaining("errorPage must begin with '/'");
 	}
@@ -67,16 +66,13 @@ public class AccessDeniedConfigTests {
 	@Test
 	@WithMockUser
 	public void configureWhenAccessDeniedHandlerRefThenAutowire() throws Exception {
-
 		this.spring.configLocations(this.xml("AccessDeniedHandler")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().is(HttpStatus.GONE_410));
 	}
 
 	@Test
 	public void configureWhenAccessDeniedHandlerUsesPathAndRefThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("UsesPathAndRef"));
-
 		assertThatThrownBy(() -> context.autowire()).isInstanceOf(BeanDefinitionParsingException.class)
 				.hasMessageContaining("attribute error-page cannot be used together with the 'ref' attribute");
 	}
@@ -90,7 +86,6 @@ public class AccessDeniedConfigTests {
 		@Override
 		public void handle(HttpServletRequest request, HttpServletResponse response,
 				AccessDeniedException accessDeniedException) {
-
 			response.setStatus(HttpStatus.GONE_410);
 		}
 

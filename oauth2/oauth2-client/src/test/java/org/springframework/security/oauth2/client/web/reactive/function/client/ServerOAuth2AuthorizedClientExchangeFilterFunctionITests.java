@@ -92,7 +92,6 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		final ServerOAuth2AuthorizedClientRepository delegate = new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(
 				new InMemoryReactiveOAuth2AuthorizedClientService(this.clientRegistrationRepository));
 		this.authorizedClientRepository = spy(new ServerOAuth2AuthorizedClientRepository() {
-
 			@Override
 			public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId,
 					Authentication principal, ServerWebExchange exchange) {
@@ -110,7 +109,6 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 					ServerWebExchange exchange) {
 				return delegate.removeAuthorizedClient(clientRegistrationId, principal, exchange);
 			}
-
 		});
 		this.authorizedClientFilter = new ServerOAuth2AuthorizedClientExchangeFilterFunction(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
@@ -135,21 +133,17 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		String clientResponse = "{\n" + "	\"attribute1\": \"value1\",\n" + "	\"attribute2\": \"value2\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
-
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().tokenUri(this.serverUrl)
 				.build();
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(clientRegistration));
-
 		this.webClient.get().uri(this.serverUrl)
 				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
 						.clientRegistrationId(clientRegistration.getRegistrationId()))
 				.retrieve().bodyToMono(String.class)
 				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
-
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
-
 		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
 				.forClass(OAuth2AuthorizedClient.class);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(),
@@ -162,15 +156,12 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		String accessTokenResponse = "{\n" + "	\"access_token\": \"refreshed-access-token\",\n"
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		String clientResponse = "{\n" + "	\"attribute1\": \"value1\",\n" + "	\"attribute2\": \"value2\"\n" + "}\n";
-
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
-
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().tokenUri(this.serverUrl)
 				.build();
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(clientRegistration));
-
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant expiresAt = issuedAt.plus(Duration.ofHours(1));
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
@@ -180,16 +171,13 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				this.authentication.getName(), accessToken, refreshToken);
 		doReturn(Mono.just(authorizedClient)).when(this.authorizedClientRepository).loadAuthorizedClient(
 				eq(clientRegistration.getRegistrationId()), eq(this.authentication), eq(this.exchange));
-
 		this.webClient.get().uri(this.serverUrl)
 				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
 						.clientRegistrationId(clientRegistration.getRegistrationId()))
 				.retrieve().bodyToMono(String.class)
 				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
-
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
-
 		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
 				.forClass(OAuth2AuthorizedClient.class);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(),
@@ -205,25 +193,20 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
 				+ "   \"scope\": \"read write\"\n" + "}\n";
 		String clientResponse = "{\n" + "	\"attribute1\": \"value1\",\n" + "	\"attribute2\": \"value2\"\n" + "}\n";
-
 		// Client 1
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
-
 		ClientRegistration clientRegistration1 = TestClientRegistrations.clientCredentials().registrationId("client-1")
 				.tokenUri(this.serverUrl).build();
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration1.getRegistrationId())))
 				.willReturn(Mono.just(clientRegistration1));
-
 		// Client 2
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
-
 		ClientRegistration clientRegistration2 = TestClientRegistrations.clientCredentials().registrationId("client-2")
 				.tokenUri(this.serverUrl).build();
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration2.getRegistrationId())))
 				.willReturn(Mono.just(clientRegistration2));
-
 		this.webClient.get().uri(this.serverUrl)
 				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
 						.clientRegistrationId(clientRegistration1.getRegistrationId()))
@@ -234,9 +217,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 						.retrieve().bodyToMono(String.class))
 				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
-
 		assertThat(this.server.getRequestCount()).isEqualTo(4);
-
 		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
 				.forClass(OAuth2AuthorizedClient.class);
 		verify(this.authorizedClientRepository, times(2)).saveAuthorizedClient(authorizedClientCaptor.capture(),
@@ -258,12 +239,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		this.server.enqueue(new MockResponse().setResponseCode(HttpStatus.UNAUTHORIZED.value()));
 		this.server.enqueue(jsonResponse(accessTokenResponse));
 		this.server.enqueue(jsonResponse(clientResponse));
-
 		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials().tokenUri(this.serverUrl)
 				.build();
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
 				.willReturn(Mono.just(clientRegistration));
-
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.scopes("read", "write");
 		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration,
@@ -271,29 +250,22 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		doReturn(Mono.just(authorizedClient)).doReturn(Mono.empty()).when(this.authorizedClientRepository)
 				.loadAuthorizedClient(eq(clientRegistration.getRegistrationId()), eq(this.authentication),
 						eq(this.exchange));
-
 		Mono<String> requestMono = this.webClient.get().uri(this.serverUrl)
 				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
 						.clientRegistrationId(clientRegistration.getRegistrationId()))
 				.retrieve().bodyToMono(String.class)
 				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		// first try should fail, and remove the cached authorized client
 		assertThatCode(requestMono::block).isInstanceOfSatisfying(WebClientResponseException.class,
 				(e) -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
-
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
-
 		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), any(), any());
 		verify(this.authorizedClientRepository).removeAuthorizedClient(eq(clientRegistration.getRegistrationId()),
 				eq(this.authentication), eq(this.exchange));
-
 		// second try should retrieve the authorized client and succeed
 		requestMono.block();
-
 		assertThat(this.server.getRequestCount()).isEqualTo(3);
-
 		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
 				.forClass(OAuth2AuthorizedClient.class);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(),

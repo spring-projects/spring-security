@@ -108,7 +108,6 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(this.authentication);
 		SecurityContextHolder.setContext(securityContext);
-
 		this.registration1 = ClientRegistration.withRegistrationId("client1").clientId("client-1")
 				.clientSecret("secret").clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -268,24 +267,19 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(clientCredentialsAuthorizedClientProvider);
 		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager);
-
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).build();
 		given(clientCredentialsTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
 				.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("clientCredentialsClient",
 				OAuth2AuthorizedClient.class);
-
 		OAuth2AuthorizedClient authorizedClient = (OAuth2AuthorizedClient) this.argumentResolver
 				.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null);
-
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.registration2);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName);
 		assertThat(authorizedClient.getAccessToken()).isSameAs(accessTokenResponse.getAccessToken());
-
 		verify(this.authorizedClientRepository).saveAuthorizedClient(eq(authorizedClient), eq(this.authentication),
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -301,7 +295,6 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(passwordAuthorizedClientProvider);
-
 		// Set custom contextAttributesMapper
 		authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> {
 			Map<String, Object> contextAttributes = new HashMap<>();
@@ -314,28 +307,21 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 			}
 			return contextAttributes;
 		});
-
 		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager);
-
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).build();
 		given(passwordTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
-
 		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
 				.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("passwordClient", OAuth2AuthorizedClient.class);
-
 		this.request.setParameter(OAuth2ParameterNames.USERNAME, "username");
 		this.request.setParameter(OAuth2ParameterNames.PASSWORD, "password");
-
 		OAuth2AuthorizedClient authorizedClient = (OAuth2AuthorizedClient) this.argumentResolver
 				.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null);
-
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.registration3);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName);
 		assertThat(authorizedClient.getAccessToken()).isSameAs(accessTokenResponse.getAccessToken());
-
 		verify(this.authorizedClientRepository).saveAuthorizedClient(eq(authorizedClient), eq(this.authentication),
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}

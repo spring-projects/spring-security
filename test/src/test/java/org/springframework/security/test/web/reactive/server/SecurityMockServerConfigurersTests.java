@@ -68,9 +68,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 	@Test
 	public void mockUserWhenDefaultsThenSuccess() {
 		this.client.mutateWith(SecurityMockServerConfigurers.mockUser()).get().exchange().expectStatus().isOk();
-
 		Principal actual = this.controller.removePrincipal();
-
 		assertPrincipalCreatedFromUserDetails(actual, this.userBuilder.build());
 	}
 
@@ -81,9 +79,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 				.apply(SecurityMockServerConfigurers.springSecurity()).apply(SecurityMockServerConfigurers.mockUser())
 				.configureClient().defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 		this.client.get().exchange().expectStatus().isOk();
-
 		Principal actual = this.controller.removePrincipal();
-
 		assertPrincipalCreatedFromUserDetails(actual, this.userBuilder.build());
 	}
 
@@ -91,9 +87,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 	public void mockUserStringWhenLocalThenSuccess() {
 		this.client.mutateWith(SecurityMockServerConfigurers.mockUser(this.userBuilder.build().getUsername())).get()
 				.exchange().expectStatus().isOk();
-
 		Principal actual = this.controller.removePrincipal();
-
 		assertPrincipalCreatedFromUserDetails(actual, this.userBuilder.build());
 	}
 
@@ -103,9 +97,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 		this.client
 				.mutateWith(SecurityMockServerConfigurers.mockUser("admin").password("secret").roles("USER", "ADMIN"))
 				.get().exchange().expectStatus().isOk();
-
 		Principal actual = this.controller.removePrincipal();
-
 		assertPrincipalCreatedFromUserDetails(actual, this.userBuilder.build());
 	}
 
@@ -114,9 +106,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 		UserDetails userDetails = this.userBuilder.build();
 		this.client.mutateWith(SecurityMockServerConfigurers.mockUser(userDetails)).get().exchange().expectStatus()
 				.isOk();
-
 		Principal actual = this.controller.removePrincipal();
-
 		assertPrincipalCreatedFromUserDetails(actual, this.userBuilder.build());
 	}
 
@@ -124,9 +114,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 	public void csrfWhenMutateWithThenDisablesCsrf() {
 		this.client.post().exchange().expectStatus().isEqualTo(HttpStatus.FORBIDDEN).expectBody()
 				.consumeWith((b) -> assertThat(new String(b.getResponseBody())).contains("CSRF"));
-
 		this.client.mutateWith(SecurityMockServerConfigurers.csrf()).post().exchange().expectStatus().isOk();
-
 	}
 
 	@Test
@@ -134,9 +122,7 @@ public class SecurityMockServerConfigurersTests extends AbstractMockServerConfig
 		this.client = WebTestClient.bindToController(this.controller).webFilter(new CsrfWebFilter())
 				.apply(SecurityMockServerConfigurers.springSecurity()).apply(SecurityMockServerConfigurers.csrf())
 				.configureClient().build();
-
 		this.client.get().exchange().expectStatus().isOk();
-
 	}
 
 }

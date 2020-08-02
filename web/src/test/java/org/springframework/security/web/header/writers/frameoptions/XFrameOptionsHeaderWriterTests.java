@@ -43,9 +43,7 @@ public class XFrameOptionsHeaderWriterTests {
 	public void writeHeadersWhenWhiteList() {
 		WhiteListedAllowFromStrategy whitelist = new WhiteListedAllowFromStrategy(Arrays.asList("example.com"));
 		XFrameOptionsHeaderWriter writer = new XFrameOptionsHeaderWriter(whitelist);
-
 		writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderValue(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}
 

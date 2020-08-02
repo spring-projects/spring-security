@@ -96,7 +96,6 @@ public class OAuth2ClientSpecTests {
 		given(repository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
 		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
-
 		this.client.get().uri("/").exchange().expectStatus().is3xxRedirection();
 	}
 
@@ -110,7 +109,6 @@ public class OAuth2ClientSpecTests {
 		given(repository.findByRegistrationId(any()))
 				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
 		given(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(Mono.empty());
-
 		this.client.get().uri("/").exchange().expectStatus().is3xxRedirection();
 	}
 
@@ -118,14 +116,11 @@ public class OAuth2ClientSpecTests {
 	public void oauth2ClientWhenCustomObjectsThenUsed() {
 		this.spring.register(ClientRegistrationConfig.class, OAuth2ClientCustomConfig.class,
 				AuthorizedClientController.class).autowire();
-
 		OAuth2ClientCustomConfig config = this.spring.getContext().getBean(OAuth2ClientCustomConfig.class);
-
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
 		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
 		ServerRequestCache requestCache = config.requestCache;
-
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.redirectUri("/authorize/oauth2/code/registration-id").build();
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
@@ -133,22 +128,18 @@ public class OAuth2ClientSpecTests {
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
-
 		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(
 				this.registration, authorizationExchange, accessToken);
-
 		given(authorizationRequestRepository.loadAuthorizationRequest(any()))
 				.willReturn(Mono.just(authorizationRequest));
 		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		given(manager.authenticate(any())).willReturn(Mono.just(result));
 		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
-
 		this.client.get()
 				.uri((uriBuilder) -> uriBuilder.path("/authorize/oauth2/code/registration-id")
 						.queryParam(OAuth2ParameterNames.CODE, "code").queryParam(OAuth2ParameterNames.STATE, "state")
 						.build())
 				.exchange().expectStatus().is3xxRedirection();
-
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
 		verify(requestCache).getRedirectUri(any());
@@ -158,15 +149,12 @@ public class OAuth2ClientSpecTests {
 	public void oauth2ClientWhenCustomObjectsInLambdaThenUsed() {
 		this.spring.register(ClientRegistrationConfig.class, OAuth2ClientInLambdaCustomConfig.class,
 				AuthorizedClientController.class).autowire();
-
 		OAuth2ClientInLambdaCustomConfig config = this.spring.getContext()
 				.getBean(OAuth2ClientInLambdaCustomConfig.class);
-
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
 		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
 		ServerRequestCache requestCache = config.requestCache;
-
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.redirectUri("/authorize/oauth2/code/registration-id").build();
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
@@ -174,22 +162,18 @@ public class OAuth2ClientSpecTests {
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
-
 		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(
 				this.registration, authorizationExchange, accessToken);
-
 		given(authorizationRequestRepository.loadAuthorizationRequest(any()))
 				.willReturn(Mono.just(authorizationRequest));
 		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		given(manager.authenticate(any())).willReturn(Mono.just(result));
 		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
-
 		this.client.get()
 				.uri((uriBuilder) -> uriBuilder.path("/authorize/oauth2/code/registration-id")
 						.queryParam(OAuth2ParameterNames.CODE, "code").queryParam(OAuth2ParameterNames.STATE, "state")
 						.build())
 				.exchange().expectStatus().is3xxRedirection();
-
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
 		verify(requestCache).getRedirectUri(any());

@@ -44,9 +44,7 @@ public class CompositeHeaderWriterTests {
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		HeaderWriter one = mock(HeaderWriter.class);
 		HeaderWriter two = mock(HeaderWriter.class);
-
 		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(Arrays.asList(one, two));
-
 		headerWriter.writeHeaders(request, response);
 		verify(one).writeHeaders(request, response);
 		verify(two).writeHeaders(request, response);

@@ -74,19 +74,15 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 				authorizationResponse);
 		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = new OAuth2AuthorizationCodeGrantRequest(
 				clientRegistration, authorizationExchange);
-
 		RequestEntity<?> requestEntity = this.converter.convert(authorizationCodeGrantRequest);
-
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
-
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
 		assertThat(headers.getContentType())
 				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
-
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
 				.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
@@ -101,35 +97,27 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 	public void convertWhenPkceGrantRequestValidThenConverts() {
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.clientAuthenticationMethod(null)
 				.clientSecret(null).build();
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(PkceParameterNames.CODE_VERIFIER, "code-verifier-1234");
-
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, "code-challenge-1234");
 		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
-
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestBuilder.attributes(attributes)
 				.additionalParameters(additionalParameters).build();
-
 		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBuilder.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
 		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = new OAuth2AuthorizationCodeGrantRequest(
 				clientRegistration, authorizationExchange);
-
 		RequestEntity<?> requestEntity = this.converter.convert(authorizationCodeGrantRequest);
-
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
 		assertThat(requestEntity.getUrl().toASCIIString())
 				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
-
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
 		assertThat(headers.getContentType())
 				.isEqualTo(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isNull();
-
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
 				.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE.getValue());

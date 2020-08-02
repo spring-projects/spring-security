@@ -94,19 +94,15 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	public void resolveArgumentWhenIsAuthenticationThenObtainsPrincipal() {
 		MethodParameter parameter = this.authenticationPrincipal.arg(String.class);
 		given(this.authentication.getPrincipal()).willReturn("user");
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThat(argument.block()).isEqualTo(this.authentication.getPrincipal());
 	}
 
 	@Test
 	public void resolveArgumentWhenIsEmptyThenMonoEmpty() {
 		MethodParameter parameter = this.authenticationPrincipal.arg(String.class);
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange);
-
 		assertThat(argument).isNotNull();
 		assertThat(argument.block()).isNull();
 	}
@@ -115,10 +111,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	public void resolveArgumentWhenMonoIsAuthenticationThenObtainsPrincipal() {
 		MethodParameter parameter = this.authenticationPrincipal.arg(Mono.class, String.class);
 		given(this.authentication.getPrincipal()).willReturn("user");
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThat(argument.cast(Mono.class).block().block()).isEqualTo(this.authentication.getPrincipal());
 	}
 
@@ -127,10 +121,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("authenticationPrincipalNoGeneric").build()
 				.arg(Mono.class);
 		given(this.authentication.getPrincipal()).willReturn("user");
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThat(argument.cast(Mono.class).block().block()).isEqualTo(this.authentication.getPrincipal());
 	}
 
@@ -139,10 +131,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		MyUser user = new MyUser(3L);
 		MethodParameter parameter = this.spel.arg(Long.class);
 		given(this.authentication.getPrincipal()).willReturn(user);
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThat(argument.block()).isEqualTo(user.getId());
 	}
 
@@ -152,10 +142,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		MethodParameter parameter = this.bean.arg(Long.class);
 		given(this.authentication.getPrincipal()).willReturn(user);
 		given(this.beanResolver.resolve(any(), eq("beanName"))).willReturn(new Bean());
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThat(argument.block()).isEqualTo(user.getId());
 	}
 
@@ -163,10 +151,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	public void resolveArgumentWhenMetaThenObtainsPrincipal() {
 		MethodParameter parameter = this.meta.arg(String.class);
 		given(this.authentication.getPrincipal()).willReturn("user");
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThat(argument.block()).isEqualTo("user");
 	}
 
@@ -175,10 +161,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenImplicit").build()
 				.arg(Integer.class);
 		given(this.authentication.getPrincipal()).willReturn("user");
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThat(argument.block()).isNull();
 	}
 
@@ -187,10 +171,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitFalse").build()
 				.arg(Integer.class);
 		given(this.authentication.getPrincipal()).willReturn("user");
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThat(argument.block()).isNull();
 	}
 
@@ -199,10 +181,8 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitTrue").build()
 				.arg(Integer.class);
 		given(this.authentication.getPrincipal()).willReturn("user");
-
 		Mono<Object> argument = this.resolver.resolveArgument(parameter, this.bindingContext, this.exchange)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
-
 		assertThatThrownBy(() -> argument.block()).isInstanceOf(ClassCastException.class);
 	}
 

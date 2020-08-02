@@ -51,7 +51,6 @@ public class AbstractSecurityExpressionHandlerTests {
 	@Test
 	public void beanNamesAreCorrectlyResolved() {
 		this.handler.setApplicationContext(new AnnotationConfigApplicationContext(TestConfiguration.class));
-
 		Expression expression = this.handler.getExpressionParser()
 				.parseExpression("@number10.compareTo(@number20) < 0");
 		assertThat(expression.getValue(this.handler.createEvaluationContext(mock(Authentication.class), new Object())))

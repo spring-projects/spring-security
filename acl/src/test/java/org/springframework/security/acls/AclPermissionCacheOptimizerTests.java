@@ -54,9 +54,7 @@ public class AclPermissionCacheOptimizerTests {
 		ObjectIdentity[] oids = { new ObjectIdentityImpl("A", "1"), new ObjectIdentityImpl("A", "2") };
 		given(oidStrat.getObjectIdentity(dos[0])).willReturn(oids[0]);
 		given(oidStrat.getObjectIdentity(dos[2])).willReturn(oids[1]);
-
 		pco.cachePermissionsFor(mock(Authentication.class), Arrays.asList(dos));
-
 		// AclService should be invoked with the list of required Oids
 		verify(service).readAclsById(eq(Arrays.asList(oids)), any(List.class));
 	}
@@ -69,9 +67,7 @@ public class AclPermissionCacheOptimizerTests {
 		SidRetrievalStrategy sids = mock(SidRetrievalStrategy.class);
 		pco.setObjectIdentityRetrievalStrategy(oids);
 		pco.setSidRetrievalStrategy(sids);
-
 		pco.cachePermissionsFor(mock(Authentication.class), Collections.emptyList());
-
 		verifyZeroInteractions(service, sids, oids);
 	}
 

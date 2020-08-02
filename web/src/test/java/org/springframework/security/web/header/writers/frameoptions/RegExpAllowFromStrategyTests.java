@@ -44,15 +44,12 @@ public class RegExpAllowFromStrategyTests {
 		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy("^https://([a-z0-9]*?\\.)test\\.com");
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		request.setParameter("from", "https://www.test.com");
 		String result1 = strategy.getAllowFromValue(request);
 		assertThat(result1).isEqualTo("https://www.test.com");
-
 		request.setParameter("from", "https://www.test.com");
 		String result2 = strategy.getAllowFromValue(request);
 		assertThat(result2).isEqualTo("https://www.test.com");
-
 		request.setParameter("from", "https://test.foobar.com");
 		String result3 = strategy.getAllowFromValue(request);
 		assertThat(result3).isEqualTo("DENY");

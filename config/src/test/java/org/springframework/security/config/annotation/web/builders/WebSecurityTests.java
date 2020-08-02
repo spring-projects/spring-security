@@ -75,66 +75,44 @@ public class WebSecurityTests {
 	@Test
 	public void ignoringMvcMatcher() throws Exception {
 		loadConfig(MvcMatcherConfig.class, LegacyMvcMatchingConfig.class);
-
 		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setRequestURI("/path.html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setRequestURI("/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setRequestURI("/other");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@Test
 	public void ignoringMvcMatcherServletPath() throws Exception {
 		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
-
 		this.request.setServletPath("/spring");
 		this.request.setRequestURI("/spring/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setServletPath("/spring");
 		this.request.setRequestURI("/spring/path.html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setServletPath("/spring");
 		this.request.setRequestURI("/spring/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setServletPath("/other");
 		this.request.setRequestURI("/other/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
@@ -143,7 +121,6 @@ public class WebSecurityTests {
 		this.context.register(configs);
 		this.context.setServletContext(new MockServletContext());
 		this.context.refresh();
-
 		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 

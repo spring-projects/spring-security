@@ -97,7 +97,6 @@ public class JdbcAclServiceTests {
 		given(this.lookupStrategy.readAclsById(anyList(), anyList())).willReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 1);
 		List<Sid> sids = Arrays.<Sid>asList(new PrincipalSid("user"));
-
 		this.aclService.readAclById(objectIdentity, sids);
 	}
 
@@ -108,7 +107,6 @@ public class JdbcAclServiceTests {
 		Object[] args = { "1", "org.springframework.security.acls.jdbc.JdbcAclServiceTests$MockLongIdDomainObject" };
 		given(this.jdbcOperations.query(anyString(), eq(args), any(RowMapper.class))).willReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 1L);
-
 		List<ObjectIdentity> objectIdentities = this.aclService.findChildren(objectIdentity);
 		assertThat(objectIdentities.size()).isEqualTo(1);
 		assertThat(objectIdentities.get(0).getIdentifier()).isEqualTo("5577");
@@ -117,7 +115,6 @@ public class JdbcAclServiceTests {
 	@Test
 	public void findNoChildren() {
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 1L);
-
 		List<ObjectIdentity> objectIdentities = this.aclService.findChildren(objectIdentity);
 		assertThat(objectIdentities).isNull();
 	}
@@ -125,7 +122,6 @@ public class JdbcAclServiceTests {
 	@Test
 	public void findChildrenWithoutIdType() {
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 4711L);
-
 		List<ObjectIdentity> objectIdentities = this.aclServiceIntegration.findChildren(objectIdentity);
 		assertThat(objectIdentities.size()).isEqualTo(1);
 		assertThat(objectIdentities.get(0).getType()).isEqualTo(MockUntypedIdDomainObject.class.getName());
@@ -135,7 +131,6 @@ public class JdbcAclServiceTests {
 	@Test
 	public void findChildrenForUnknownObject() {
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 33);
-
 		List<ObjectIdentity> objectIdentities = this.aclServiceIntegration.findChildren(objectIdentity);
 		assertThat(objectIdentities).isNull();
 	}
@@ -143,7 +138,6 @@ public class JdbcAclServiceTests {
 	@Test
 	public void findChildrenOfIdTypeLong() {
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl("location", "US-PAL");
-
 		List<ObjectIdentity> objectIdentities = this.aclServiceIntegration.findChildren(objectIdentity);
 		assertThat(objectIdentities.size()).isEqualTo(2);
 		assertThat(objectIdentities.get(0).getType()).isEqualTo(MockLongIdDomainObject.class.getName());
@@ -155,7 +149,6 @@ public class JdbcAclServiceTests {
 	@Test
 	public void findChildrenOfIdTypeString() {
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl("location", "US");
-
 		this.aclServiceIntegration.setAclClassIdSupported(true);
 		List<ObjectIdentity> objectIdentities = this.aclServiceIntegration.findChildren(objectIdentity);
 		assertThat(objectIdentities.size()).isEqualTo(1);
@@ -166,7 +159,6 @@ public class JdbcAclServiceTests {
 	@Test
 	public void findChildrenOfIdTypeUUID() {
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockUntypedIdDomainObject.class, 5000L);
-
 		this.aclServiceIntegration.setAclClassIdSupported(true);
 		List<ObjectIdentity> objectIdentities = this.aclServiceIntegration.findChildren(objectIdentity);
 		assertThat(objectIdentities.size()).isEqualTo(1);

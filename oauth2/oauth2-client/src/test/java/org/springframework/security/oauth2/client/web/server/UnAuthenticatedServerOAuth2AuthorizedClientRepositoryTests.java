@@ -62,7 +62,6 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 	}
 
 	// loadAuthorizedClient
-
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdNullThenIllegalArgumentException() {
 		this.clientRegistrationId = null;
@@ -96,7 +95,6 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 	@Test
 	public void loadAuthorizedClientWhenFoundThenFound() {
 		this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block();
-
 		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
 				.block()).isEqualTo(this.authorizedClient);
 	}
@@ -107,10 +105,8 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 				.registrationId("other-client-registration").build();
 		OAuth2AuthorizedClient otherAuthorizedClient = new OAuth2AuthorizedClient(otherClientRegistration,
 				"anonymousUser", this.authorizedClient.getAccessToken());
-
 		this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block();
 		this.repository.saveAuthorizedClient(otherAuthorizedClient, this.authentication, this.exchange).block();
-
 		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
 				.block()).isEqualTo(this.authorizedClient);
 	}
@@ -119,13 +115,11 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 	public void loadAuthorizedClientWhenAnonymousThenFound() {
 		this.authentication = this.anonymous;
 		this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block();
-
 		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
 				.block()).isEqualTo(this.authorizedClient);
 	}
 
 	// saveAuthorizedClient
-
 	@Test
 	public void saveAuthorizedClientWhenAuthorizedClientNullThenIllegalArgumentException() {
 		this.authorizedClient = null;
@@ -151,7 +145,6 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 	}
 
 	// removeAuthorizedClient
-
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdNullThenIllegalArgumentException() {
 		this.clientRegistrationId = null;
@@ -180,7 +173,6 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepositoryTests {
 	public void removeAuthorizedClientWhenFoundThenFound() {
 		this.repository.saveAuthorizedClient(this.authorizedClient, this.authentication, this.exchange).block();
 		this.repository.removeAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange).block();
-
 		assertThat(this.repository.loadAuthorizedClient(this.clientRegistrationId, this.authentication, this.exchange)
 				.block()).isNull();
 	}

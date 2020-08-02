@@ -47,7 +47,6 @@ public class CookieMixinTests extends AbstractMixinTests {
 		+ "\"domain\": null"
 	+ "}";
 	// @formatter:on
-
 	@Test
 	public void serializeCookie() throws JsonProcessingException, JSONException {
 		Cookie cookie = new Cookie("demo", "cookie1");

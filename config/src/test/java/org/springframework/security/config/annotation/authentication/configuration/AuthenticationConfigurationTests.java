@@ -88,7 +88,6 @@ public class AuthenticationConfigurationTests {
 	public void orderingAutowiredOnEnableGlobalMethodSecurity() {
 		this.spring.register(AuthenticationTestConfiguration.class, GlobalMethodSecurityAutowiredConfig.class,
 				ServicesConfig.class).autowire();
-
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		this.service.run();
@@ -98,7 +97,6 @@ public class AuthenticationConfigurationTests {
 	public void orderingAutowiredOnEnableWebSecurity() {
 		this.spring.register(AuthenticationTestConfiguration.class, WebSecurityConfig.class,
 				GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class).autowire();
-
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		this.service.run();
@@ -108,7 +106,6 @@ public class AuthenticationConfigurationTests {
 	public void orderingAutowiredOnEnableWebMvcSecurity() {
 		this.spring.register(AuthenticationTestConfiguration.class, WebMvcSecurityConfig.class,
 				GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class).autowire();
-
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		this.service.run();
@@ -117,7 +114,6 @@ public class AuthenticationConfigurationTests {
 	@Test
 	public void getAuthenticationManagerWhenNoAuthenticationThenNull() throws Exception {
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class).autowire();
-
 		assertThat(this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager())
 				.isNull();
 	}
@@ -126,7 +122,6 @@ public class AuthenticationConfigurationTests {
 	public void getAuthenticationManagerWhenNoOpGlobalAuthenticationConfigurerAdapterThenNull() throws Exception {
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
 				NoOpGlobalAuthenticationConfigurerAdapter.class).autowire();
-
 		assertThat(this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager())
 				.isNull();
 	}
@@ -136,10 +131,8 @@ public class AuthenticationConfigurationTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
 				UserGlobalAuthenticationConfigurerAdapter.class).autowire();
-
 		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-
 		assertThat(authentication.authenticate(token).getName()).isEqualTo(token.getName());
 	}
 
@@ -148,11 +141,9 @@ public class AuthenticationConfigurationTests {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
 				AuthenticationManagerBeanConfig.class).autowire();
-
 		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
 		given(authentication.authenticate(token)).willReturn(TestAuthentication.authenticatedUser());
-
 		assertThat(authentication.authenticate(token).getName()).isEqualTo(token.getName());
 	}
 
@@ -173,13 +164,10 @@ public class AuthenticationConfigurationTests {
 		config.setGlobalAuthenticationConfigurers(Arrays.asList(new ConfiguresInMemoryConfigurerAdapter(),
 				new BootGlobalAuthenticationConfigurerAdapter()));
 		AuthenticationManager authenticationManager = config.getAuthenticationManager();
-
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-
 		assertThatThrownBy(
 				() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password")))
 						.isInstanceOf(AuthenticationException.class);
-
 	}
 
 	@Test
@@ -188,7 +176,6 @@ public class AuthenticationConfigurationTests {
 		AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
 		config.setGlobalAuthenticationConfigurers(Arrays.asList(new BootGlobalAuthenticationConfigurerAdapter()));
 		AuthenticationManager authenticationManager = config.getAuthenticationManager();
-
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password"));
 	}
 
@@ -198,17 +185,14 @@ public class AuthenticationConfigurationTests {
 		this.spring.register(Sec2531Config.class).autowire();
 		ObjectPostProcessor<Object> opp = this.spring.getContext().getBean(ObjectPostProcessor.class);
 		given(opp.postProcess(any())).willAnswer((a) -> a.getArgument(0));
-
 		AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
 		config.getAuthenticationManager();
-
 		verify(opp).postProcess(any(ProxyFactoryBean.class));
 	}
 
 	@Test
 	public void getAuthenticationManagerWhenSec2822ThenCannotForceAuthenticationAlreadyBuilt() throws Exception {
 		this.spring.register(Sec2822WebSecurity.class, Sec2822UseAuth.class, Sec2822Config.class).autowire();
-
 		this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
 		// no exception
 	}
@@ -222,9 +206,7 @@ public class AuthenticationConfigurationTests {
 		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
 		given(uds.loadUserByUsername("user")).willReturn(PasswordEncodedUser.user(), PasswordEncodedUser.user());
-
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-
 		assertThatThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")))
 				.isInstanceOf(AuthenticationException.class);
 	}
@@ -239,9 +221,7 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(uds.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
-
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-
 		assertThatThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")))
 				.isInstanceOf(AuthenticationException.class);
 	}
@@ -257,9 +237,7 @@ public class AuthenticationConfigurationTests {
 		given(manager.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
 		given(manager.updatePassword(any(), any())).willReturn(user);
-
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-
 		verify(manager).updatePassword(eq(user), startsWith("{bcrypt}"));
 	}
 
@@ -272,7 +250,6 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(ap.supports(any())).willReturn(true);
 		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
-
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 	}
 
@@ -285,7 +262,6 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(ap.supports(any())).willReturn(true);
 		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
-
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 	}
 
@@ -314,9 +290,7 @@ public class AuthenticationConfigurationTests {
 			throws Exception {
 		this.spring.register(AuthenticationConfigurationSubclass.class).autowire();
 		AuthenticationManagerBuilder ap = this.spring.getContext().getBean(AuthenticationManagerBuilder.class);
-
 		this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
-
 		assertThatThrownBy(ap::build).isInstanceOf(AlreadyBuiltException.class);
 	}
 
@@ -447,15 +421,11 @@ public class AuthenticationConfigurationTests {
 			if (auth.isConfigured()) {
 				return;
 			}
-
 			UserDetails user = User.withUserDetails(PasswordEncodedUser.user()).username("boot").build();
-
 			List<UserDetails> users = Arrays.asList(user);
 			InMemoryUserDetailsManager inMemory = new InMemoryUserDetailsManager(users);
-
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(inMemory);
-
 			auth.authenticationProvider(provider);
 		}
 

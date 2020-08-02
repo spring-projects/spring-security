@@ -63,22 +63,16 @@ public class CompositeServerHttpHeadersWriterTests {
 	@Test
 	public void writeHttpHeadersWhenErrorNoErrorThenError() {
 		given(this.writer1.writeHttpHeaders(this.exchange)).willReturn(Mono.error(new RuntimeException()));
-
 		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
-
 		StepVerifier.create(result).expectError().verify();
-
 		verify(this.writer1).writeHttpHeaders(this.exchange);
 	}
 
 	@Test
 	public void writeHttpHeadersWhenErrorErrorThenError() {
 		given(this.writer1.writeHttpHeaders(this.exchange)).willReturn(Mono.error(new RuntimeException()));
-
 		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
-
 		StepVerifier.create(result).expectError().verify();
-
 		verify(this.writer1).writeHttpHeaders(this.exchange);
 	}
 
@@ -86,11 +80,8 @@ public class CompositeServerHttpHeadersWriterTests {
 	public void writeHttpHeadersWhenNoErrorThenNoError() {
 		given(this.writer1.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
 		given(this.writer2.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
-
 		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
-
 		StepVerifier.create(result).expectComplete().verify();
-
 		verify(this.writer1).writeHttpHeaders(this.exchange);
 		verify(this.writer2).writeHttpHeaders(this.exchange);
 	}
@@ -106,9 +97,7 @@ public class CompositeServerHttpHeadersWriterTests {
 			assertThat(slowDone.get()).describedAs("ServerLogoutHandler should be executed sequentially").isTrue();
 		});
 		CompositeServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(slow, second);
-
 		writer.writeHttpHeaders(this.exchange).block();
-
 		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
 

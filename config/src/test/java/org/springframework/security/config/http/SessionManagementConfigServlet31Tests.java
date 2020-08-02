@@ -90,40 +90,29 @@ public class SessionManagementConfigServlet31Tests {
 		request.setMethod("POST");
 		request.setParameter("username", "user");
 		request.setParameter("password", "password");
-
 		request.getSession().setAttribute("attribute1", "value1");
-
 		String id = request.getSession().getId();
-
 		loadContext("<http>\n" + "        <form-login/>\n" + "        <session-management/>\n"
 				+ "        <csrf disabled='true'/>\n" + "    </http>" + XML_AUTHENTICATION_MANAGER);
-
 		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
-
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
 	}
 
 	@Test
 	public void changeSessionId() throws Exception {
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.getSession();
 		request.setServletPath("/login");
 		request.setMethod("POST");
 		request.setParameter("username", "user");
 		request.setParameter("password", "password");
-
 		String id = request.getSession().getId();
-
 		loadContext("<http>\n" + "        <form-login/>\n"
 				+ "        <session-management session-fixation-protection='changeSessionId'/>\n"
 				+ "        <csrf disabled='true'/>\n" + "    </http>" + XML_AUTHENTICATION_MANAGER);
-
 		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
-
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
-
 	}
 
 	private void loadContext(String context) {
@@ -135,7 +124,6 @@ public class SessionManagementConfigServlet31Tests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(this.request, this.response);
 		repo.loadContext(requestResponseHolder);
-
 		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
 		securityContextImpl.setAuthentication(auth);
 		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());

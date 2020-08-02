@@ -88,14 +88,12 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 
 	@Test
 	public void oauth2LoginWhenUsingDefaultsThenProducesDefaultAuthentication() throws Exception {
-
 		this.mvc.perform(get("/name").with(oauth2Login())).andExpect(content().string("user"));
 		this.mvc.perform(get("/admin/id-token/name").with(oauth2Login())).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void oauth2LoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient() throws Exception {
-
 		this.mvc.perform(get("/client-id").with(oauth2Login())).andExpect(content().string("test-client"));
 	}
 
@@ -119,10 +117,8 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 				Collections.singletonMap("custom-attribute", "test-subject"), "custom-attribute");
 		this.mvc.perform(get("/attributes/custom-attribute").with(oauth2Login().oauth2User(oauth2User)))
 				.andExpect(content().string("test-subject"));
-
 		this.mvc.perform(get("/name").with(oauth2Login().oauth2User(oauth2User)))
 				.andExpect(content().string("test-subject"));
-
 		this.mvc.perform(get("/client-name").with(oauth2Login().oauth2User(oauth2User)))
 				.andExpect(content().string("test-subject"));
 	}
@@ -138,7 +134,6 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 	public void oauth2LoginWhenOAuth2UserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("SCOPE_read"),
 				Collections.singletonMap("username", "user"), "username");
-
 		this.mvc.perform(get("/attributes/sub")
 				.with(oauth2Login().attributes((a) -> a.put("sub", "bar")).oauth2User(oauth2User)))
 				.andExpect(status().isOk()).andExpect(content().string("no-attribute"));
@@ -193,14 +188,12 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 			@GetMapping("/attributes/{attribute}")
 			String attributes(@AuthenticationPrincipal OAuth2User oauth2User,
 					@PathVariable("attribute") String attribute) {
-
 				return Optional.ofNullable((String) oauth2User.getAttribute(attribute)).orElse("no-attribute");
 			}
 
 			@GetMapping("/admin/scopes")
 			List<String> scopes(
 					@AuthenticationPrincipal(expression = "authorities") Collection<GrantedAuthority> authorities) {
-
 				return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 			}
 

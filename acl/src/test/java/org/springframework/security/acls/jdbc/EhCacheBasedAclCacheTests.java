@@ -82,12 +82,10 @@ public class EhCacheBasedAclCacheTests {
 		this.myCache = new EhCacheBasedAclCache(this.cache,
 				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()),
 				new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
-
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
-
 		this.acl = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 	}
 
@@ -111,7 +109,6 @@ public class EhCacheBasedAclCacheTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			ObjectIdentity obj = null;
 			this.myCache.evictFromCache(obj);
@@ -119,7 +116,6 @@ public class EhCacheBasedAclCacheTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			Serializable id = null;
 			this.myCache.getFromCache(id);
@@ -127,7 +123,6 @@ public class EhCacheBasedAclCacheTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			ObjectIdentity obj = null;
 			this.myCache.getFromCache(obj);
@@ -135,7 +130,6 @@ public class EhCacheBasedAclCacheTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			MutableAcl acl = null;
 			this.myCache.putInCache(acl);
@@ -154,17 +148,13 @@ public class EhCacheBasedAclCacheTests {
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
 		oos.writeObject(this.acl);
 		oos.close();
-
 		FileInputStream fis = new FileInputStream(file);
 		ObjectInputStream ois = new ObjectInputStream(fis);
 		MutableAcl retrieved = (MutableAcl) ois.readObject();
 		ois.close();
-
 		assertThat(retrieved).isEqualTo(this.acl);
-
 		Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", retrieved);
 		assertThat(retrieved1).isNull();
-
 		Object retrieved2 = FieldUtils.getProtectedFieldValue("permissionGrantingStrategy", retrieved);
 		assertThat(retrieved2).isNull();
 	}
@@ -172,14 +162,12 @@ public class EhCacheBasedAclCacheTests {
 	@Test
 	public void clearCache() {
 		this.myCache.clearCache();
-
 		verify(this.cache).removeAll();
 	}
 
 	@Test
 	public void putInCache() {
 		this.myCache.putInCache(this.acl);
-
 		verify(this.cache, times(2)).put(this.element.capture());
 		assertThat(this.element.getValue().getKey()).isEqualTo(this.acl.getId());
 		assertThat(this.element.getValue().getObjectValue()).isEqualTo(this.acl);
@@ -192,29 +180,21 @@ public class EhCacheBasedAclCacheTests {
 		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
-
 		ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, 2L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
 		MutableAcl parentAcl = new AclImpl(identityParent, 2L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		this.acl.setParent(parentAcl);
-
 		this.myCache.putInCache(this.acl);
-
 		verify(this.cache, times(4)).put(this.element.capture());
-
 		List<Element> allValues = this.element.getAllValues();
-
 		assertThat(allValues.get(0).getKey()).isEqualTo(parentAcl.getObjectIdentity());
 		assertThat(allValues.get(0).getObjectValue()).isEqualTo(parentAcl);
-
 		assertThat(allValues.get(1).getKey()).isEqualTo(parentAcl.getId());
 		assertThat(allValues.get(1).getObjectValue()).isEqualTo(parentAcl);
-
 		assertThat(allValues.get(2).getKey()).isEqualTo(this.acl.getObjectIdentity());
 		assertThat(allValues.get(2).getObjectValue()).isEqualTo(this.acl);
-
 		assertThat(allValues.get(3).getKey()).isEqualTo(this.acl.getId());
 		assertThat(allValues.get(3).getObjectValue()).isEqualTo(this.acl);
 	}
@@ -222,21 +202,16 @@ public class EhCacheBasedAclCacheTests {
 	@Test
 	public void getFromCacheSerializable() {
 		given(this.cache.get(this.acl.getId())).willReturn(new Element(this.acl.getId(), this.acl));
-
 		assertThat(this.myCache.getFromCache(this.acl.getId())).isEqualTo(this.acl);
 	}
 
 	@Test
 	public void getFromCacheSerializablePopulatesTransient() {
 		given(this.cache.get(this.acl.getId())).willReturn(new Element(this.acl.getId(), this.acl));
-
 		this.myCache.putInCache(this.acl);
-
 		ReflectionTestUtils.setField(this.acl, "permissionGrantingStrategy", null);
 		ReflectionTestUtils.setField(this.acl, "aclAuthorizationStrategy", null);
-
 		MutableAcl fromCache = this.myCache.getFromCache(this.acl.getId());
-
 		assertThat(ReflectionTestUtils.getField(fromCache, "aclAuthorizationStrategy")).isNotNull();
 		assertThat(ReflectionTestUtils.getField(fromCache, "permissionGrantingStrategy")).isNotNull();
 	}
@@ -244,21 +219,16 @@ public class EhCacheBasedAclCacheTests {
 	@Test
 	public void getFromCacheObjectIdentity() {
 		given(this.cache.get(this.acl.getId())).willReturn(new Element(this.acl.getId(), this.acl));
-
 		assertThat(this.myCache.getFromCache(this.acl.getId())).isEqualTo(this.acl);
 	}
 
 	@Test
 	public void getFromCacheObjectIdentityPopulatesTransient() {
 		given(this.cache.get(this.acl.getObjectIdentity())).willReturn(new Element(this.acl.getId(), this.acl));
-
 		this.myCache.putInCache(this.acl);
-
 		ReflectionTestUtils.setField(this.acl, "permissionGrantingStrategy", null);
 		ReflectionTestUtils.setField(this.acl, "aclAuthorizationStrategy", null);
-
 		MutableAcl fromCache = this.myCache.getFromCache(this.acl.getObjectIdentity());
-
 		assertThat(ReflectionTestUtils.getField(fromCache, "aclAuthorizationStrategy")).isNotNull();
 		assertThat(ReflectionTestUtils.getField(fromCache, "permissionGrantingStrategy")).isNotNull();
 	}
@@ -266,9 +236,7 @@ public class EhCacheBasedAclCacheTests {
 	@Test
 	public void evictCacheSerializable() {
 		given(this.cache.get(this.acl.getObjectIdentity())).willReturn(new Element(this.acl.getId(), this.acl));
-
 		this.myCache.evictFromCache(this.acl.getObjectIdentity());
-
 		verify(this.cache).remove(this.acl.getId());
 		verify(this.cache).remove(this.acl.getObjectIdentity());
 	}
@@ -276,9 +244,7 @@ public class EhCacheBasedAclCacheTests {
 	@Test
 	public void evictCacheObjectIdentity() {
 		given(this.cache.get(this.acl.getId())).willReturn(new Element(this.acl.getId(), this.acl));
-
 		this.myCache.evictFromCache(this.acl.getId());
-
 		verify(this.cache).remove(this.acl.getId());
 		verify(this.cache).remove(this.acl.getObjectIdentity());
 	}

@@ -74,16 +74,13 @@ public class AnonymousAuthenticationFilterTests {
 		// Put an Authentication object into the SecurityContextHolder
 		Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		SecurityContextHolder.getContext().setAuthentication(originalAuth);
-
 		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-
 		// Test
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("x");
 		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
 				new MockFilterChain(true));
-
 		// Ensure filter didn't change our original object
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(originalAuth);
 	}
@@ -93,12 +90,10 @@ public class AnonymousAuthenticationFilterTests {
 		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 		filter.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("x");
 		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
 				new MockFilterChain(true));
-
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(auth.getPrincipal()).isEqualTo("anonymousUsername");
 		assertThat(AuthorityUtils.authorityListToSet(auth.getAuthorities())).contains("ROLE_ANONYMOUS");

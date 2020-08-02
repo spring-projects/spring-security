@@ -134,7 +134,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenValidThenReturnsOk() {
 		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
@@ -142,7 +141,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenExpiredThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyConfig.class).autowire();
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.expired)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
@@ -151,7 +149,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenUnsignedThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyConfig.class).autowire();
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.unsignedToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
@@ -160,7 +157,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenEmptyBearerTokenThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyConfig.class).autowire();
-
 		this.client.get().headers((headers) -> headers.add("Authorization", "Bearer ")).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
@@ -169,7 +165,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenValidTokenAndPublicKeyInLambdaThenReturnsOk() {
 		this.spring.register(PublicKeyInLambdaConfig.class, RootController.class).autowire();
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
@@ -177,7 +172,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenExpiredTokenAndPublicKeyInLambdaThenReturnsInvalidToken() {
 		this.spring.register(PublicKeyInLambdaConfig.class).autowire();
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.expired)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
@@ -186,7 +180,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenValidUsingPlaceholderThenReturnsOk() {
 		this.spring.register(PlaceholderConfig.class, RootController.class).autowire();
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
@@ -194,22 +187,17 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenCustomDecoderThenAuthenticatesAccordingly() {
 		this.spring.register(CustomDecoderConfig.class, RootController.class).autowire();
-
 		ReactiveJwtDecoder jwtDecoder = this.spring.getContext().getBean(ReactiveJwtDecoder.class);
 		given(jwtDecoder.decode(anyString())).willReturn(Mono.just(this.jwt));
-
 		this.client.get().headers((headers) -> headers.setBearerAuth("token")).exchange().expectStatus().isOk();
-
 		verify(jwtDecoder).decode(anyString());
 	}
 
 	@Test
 	public void getWhenUsingJwkSetUriThenConsultsAccordingly() {
 		this.spring.register(JwkSetUriConfig.class, RootController.class).autowire();
-
 		MockWebServer mockWebServer = this.spring.getContext().getBean(MockWebServer.class);
 		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadTokenWithKid)).exchange()
 				.expectStatus().isOk();
 	}
@@ -217,10 +205,8 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenUsingJwkSetUriInLambdaThenConsultsAccordingly() {
 		this.spring.register(JwkSetUriInLambdaConfig.class, RootController.class).autowire();
-
 		MockWebServer mockWebServer = this.spring.getContext().getBean(MockWebServer.class);
 		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadTokenWithKid)).exchange()
 				.expectStatus().isOk();
 	}
@@ -228,12 +214,10 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenUsingCustomAuthenticationManagerThenUsesItAccordingly() {
 		this.spring.register(CustomAuthenticationManagerConfig.class).autowire();
-
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 				.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(any(Authentication.class)))
 				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
@@ -242,12 +226,10 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenUsingCustomAuthenticationManagerInLambdaThenUsesItAccordingly() {
 		this.spring.register(CustomAuthenticationManagerInLambdaConfig.class).autowire();
-
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 				.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(any(Authentication.class)))
 				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
@@ -256,18 +238,14 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenUsingCustomAuthenticationManagerResolverThenUsesItAccordingly() {
 		this.spring.register(CustomAuthenticationManagerResolverConfig.class).autowire();
-
 		ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver = this.spring
 				.getContext().getBean(ReactiveAuthenticationManagerResolver.class);
-
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 				.getBean(ReactiveAuthenticationManager.class);
-
 		given(authenticationManagerResolver.resolve(any(ServerWebExchange.class)))
 				.willReturn(Mono.just(authenticationManager));
 		given(authenticationManager.authenticate(any(Authentication.class)))
 				.willReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isUnauthorized().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
@@ -276,7 +254,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void postWhenSignedThenReturnsOk() {
 		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
-
 		this.client.post().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
@@ -284,7 +261,6 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenTokenHasInsufficientScopeThenReturnsInsufficientScope() {
 		this.spring.register(DenyAllConfig.class, RootController.class).autowire();
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isForbidden().expectHeader()
 				.value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"insufficient_scope\""));
@@ -293,21 +269,18 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void postWhenMissingTokenThenReturnsForbidden() {
 		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
-
 		this.client.post().exchange().expectStatus().isForbidden();
 	}
 
 	@Test
 	public void getWhenCustomBearerTokenServerAuthenticationConverterThenResponds() {
 		this.spring.register(CustomBearerTokenServerAuthenticationConverter.class, RootController.class).autowire();
-
 		this.client.get().cookie("TOKEN", this.messageReadToken).exchange().expectStatus().isOk();
 	}
 
 	@Test
 	public void getWhenSignedAndCustomConverterThenConverts() {
 		this.spring.register(CustomJwtAuthenticationConverterConfig.class, RootController.class).autowire();
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
@@ -315,14 +288,12 @@ public class OAuth2ResourceServerSpecTests {
 	@Test
 	public void getWhenCustomBearerTokenEntryPointThenResponds() {
 		this.spring.register(CustomErrorHandlingConfig.class).autowire();
-
 		this.client.get().uri("/authenticated").exchange().expectStatus().isEqualTo(HttpStatus.I_AM_A_TEAPOT);
 	}
 
 	@Test
 	public void getWhenCustomBearerTokenDeniedHandlerThenResponds() {
 		this.spring.register(CustomErrorHandlingConfig.class).autowire();
-
 		this.client.get().uri("/unobtainable").headers((headers) -> headers.setBearerAuth(this.messageReadToken))
 				.exchange().expectStatus().isEqualTo(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED);
 	}
@@ -332,14 +303,11 @@ public class OAuth2ResourceServerSpecTests {
 		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
 		ServerHttpSecurity http = new ServerHttpSecurity();
 		http.setApplicationContext(context);
-
 		ReactiveJwtDecoder beanWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		ReactiveJwtDecoder dslWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		context.registerBean(ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
-
 		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
 		jwt.jwtDecoder(dslWiredJwtDecoder);
-
 		assertThat(jwt.getJwtDecoder()).isEqualTo(dslWiredJwtDecoder);
 	}
 
@@ -348,15 +316,12 @@ public class OAuth2ResourceServerSpecTests {
 		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
 		ServerHttpSecurity http = new ServerHttpSecurity();
 		http.setApplicationContext(context);
-
 		ReactiveJwtDecoder beanWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		ReactiveJwtDecoder dslWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		context.registerBean("firstJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
 		context.registerBean("secondJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
-
 		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
 		jwt.jwtDecoder(dslWiredJwtDecoder);
-
 		assertThat(jwt.getJwtDecoder()).isEqualTo(dslWiredJwtDecoder);
 	}
 
@@ -365,13 +330,10 @@ public class OAuth2ResourceServerSpecTests {
 		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
 		ServerHttpSecurity http = new ServerHttpSecurity();
 		http.setApplicationContext(context);
-
 		ReactiveJwtDecoder beanWiredJwtDecoder = mock(ReactiveJwtDecoder.class);
 		context.registerBean("firstJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
 		context.registerBean("secondJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
-
 		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-
 		assertThatCode(() -> jwt.getJwtDecoder()).isInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
 
@@ -380,9 +342,7 @@ public class OAuth2ResourceServerSpecTests {
 		GenericWebApplicationContext context = autowireWebServerGenericWebApplicationContext();
 		ServerHttpSecurity http = new ServerHttpSecurity();
 		http.setApplicationContext(context);
-
 		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-
 		assertThatCode(() -> jwt.getJwtDecoder()).isInstanceOf(NoSuchBeanDefinitionException.class);
 	}
 
@@ -391,7 +351,6 @@ public class OAuth2ResourceServerSpecTests {
 		this.spring.register(IntrospectionConfig.class, RootController.class).autowire();
 		this.spring.getContext().getBean(MockWebServer.class)
 				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
@@ -401,7 +360,6 @@ public class OAuth2ResourceServerSpecTests {
 		this.spring.register(IntrospectionInLambdaConfig.class, RootController.class).autowire();
 		this.spring.getContext().getBean(MockWebServer.class)
 				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
-
 		this.client.get().headers((headers) -> headers.setBearerAuth(this.messageReadToken)).exchange().expectStatus()
 				.isOk();
 	}
@@ -440,7 +398,6 @@ public class OAuth2ResourceServerSpecTests {
 	private static RSAPublicKey publicKey() {
 		String modulus = "26323220897278656456354815752829448539647589990395639665273015355787577386000316054335559633864476469390247312823732994485311378484154955583861993455004584140858982659817218753831620205191028763754231454775026027780771426040997832758235764611119743390612035457533732596799927628476322029280486807310749948064176545712270582940917249337311592011920620009965129181413510845780806191965771671528886508636605814099711121026468495328702234901200169245493126030184941412539949521815665744267183140084667383643755535107759061065656273783542590997725982989978433493861515415520051342321336460543070448417126615154138673620797";
 		String exponent = "65537";
-
 		RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(exponent));
 		RSAPublicKey rsaPublicKey = null;
 		try {
@@ -537,14 +494,12 @@ public class OAuth2ResourceServerSpecTests {
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			String jwkSetUri = mockWebServer().url("/.well-known/jwks.json").toString();
-
 			// @formatter:off
 			http
 				.oauth2ResourceServer()
 					.jwt()
 						.jwkSetUri(jwkSetUri);
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -569,7 +524,6 @@ public class OAuth2ResourceServerSpecTests {
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			String jwkSetUri = mockWebServer().url("/.well-known/jwks.json").toString();
-
 			// @formatter:off
 			http
 				.oauth2ResourceServer((oauth2ResourceServer) ->
@@ -580,7 +534,6 @@ public class OAuth2ResourceServerSpecTests {
 						)
 				);
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -609,7 +562,6 @@ public class OAuth2ResourceServerSpecTests {
 				.oauth2ResourceServer()
 					.jwt();
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -635,7 +587,6 @@ public class OAuth2ResourceServerSpecTests {
 					.jwt()
 						.publicKey(publicKey());
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -653,7 +604,6 @@ public class OAuth2ResourceServerSpecTests {
 					.jwt()
 						.authenticationManager(authenticationManager());
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -680,7 +630,6 @@ public class OAuth2ResourceServerSpecTests {
 						)
 				);
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -705,7 +654,6 @@ public class OAuth2ResourceServerSpecTests {
 				.oauth2ResourceServer()
 					.authenticationManagerResolver(authenticationManagerResolver());
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -737,7 +685,6 @@ public class OAuth2ResourceServerSpecTests {
 					.jwt()
 						.publicKey(publicKey());
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -765,19 +712,16 @@ public class OAuth2ResourceServerSpecTests {
 						.jwtAuthenticationConverter(jwtAuthenticationConverter())
 						.publicKey(publicKey());
 			// @formatter:on
-
 			return http.build();
 		}
 
 		@Bean
 		Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
-
 			JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 			converter.setJwtGrantedAuthoritiesConverter((jwt) -> {
 				String[] claims = ((String) jwt.getClaims().get("scope")).split(" ");
 				return Stream.of(claims).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 			});
-
 			return new ReactiveJwtAuthenticationConverterAdapter(converter);
 		}
 
@@ -801,7 +745,6 @@ public class OAuth2ResourceServerSpecTests {
 					.jwt()
 						.publicKey(publicKey());
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -816,7 +759,6 @@ public class OAuth2ResourceServerSpecTests {
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			String introspectionUri = mockWebServer().url("/introspect").toString();
-
 			// @formatter:off
 			http
 				.oauth2ResourceServer()
@@ -824,7 +766,6 @@ public class OAuth2ResourceServerSpecTests {
 						.introspectionUri(introspectionUri)
 						.introspectionClientCredentials("client", "secret");
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -849,7 +790,6 @@ public class OAuth2ResourceServerSpecTests {
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			String introspectionUri = mockWebServer().url("/introspect").toString();
-
 			// @formatter:off
 			http
 				.oauth2ResourceServer((oauth2ResourceServer) ->
@@ -861,7 +801,6 @@ public class OAuth2ResourceServerSpecTests {
 						)
 				);
 			// @formatter:on
-
 			return http.build();
 		}
 
@@ -892,7 +831,6 @@ public class OAuth2ResourceServerSpecTests {
 					.authenticationManagerResolver(mock(ReactiveAuthenticationManagerResolver.class))
 					.opaqueToken();
 			// @formatter:on
-
 			return http.build();
 		}
 

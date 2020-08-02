@@ -55,7 +55,6 @@ public class DefaultServiceAuthenticationDetailsTests {
 		this.request.setRequestURI("/cas-sample/secure/");
 		this.artifactPattern = DefaultServiceAuthenticationDetails
 				.createArtifactPattern(ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER);
-
 	}
 
 	@After

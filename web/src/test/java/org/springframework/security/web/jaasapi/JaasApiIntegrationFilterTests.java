@@ -77,7 +77,6 @@ public class JaasApiIntegrationFilterTests {
 		this.filter = new JaasApiIntegrationFilter();
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
-
 		this.authenticatedSubject = new Subject();
 		this.authenticatedSubject.getPrincipals().add(() -> "principal");
 		this.authenticatedSubject.getPrivateCredentials().add("password");
@@ -99,7 +98,6 @@ public class JaasApiIntegrationFilterTests {
 			}
 		};
 		this.testConfiguration = new Configuration() {
-
 			@Override
 			public void refresh() {
 			}
@@ -115,7 +113,6 @@ public class JaasApiIntegrationFilterTests {
 		ctx.login();
 		this.token = new JaasAuthenticationToken("username", "password",
 				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
-
 		// just in case someone forgot to clear the context
 		SecurityContextHolder.clearContext();
 	}
@@ -194,14 +191,12 @@ public class JaasApiIntegrationFilterTests {
 
 	private void assertJaasSubjectEquals(final Subject expectedValue) throws Exception {
 		MockFilterChain chain = new MockFilterChain() {
-
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
 				// See if the subject was updated
 				Subject currentSubject = Subject.getSubject(AccessController.getContext());
 				assertThat(currentSubject).isEqualTo(expectedValue);
-
 				// run so we know the chain was executed
 				super.doFilter(request, response);
 			}

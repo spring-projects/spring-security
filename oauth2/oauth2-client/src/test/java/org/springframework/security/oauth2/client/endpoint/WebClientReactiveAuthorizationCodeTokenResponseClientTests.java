@@ -63,9 +63,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-
 		String tokenUri = this.server.url("/oauth2/token").toString();
-
 		this.clientRegistration = TestClientRegistrations.clientRegistration().tokenUri(tokenUri);
 	}
 
@@ -82,18 +80,13 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 				+ "   \"custom_parameter_1\": \"custom-value-1\",\n" + "   \"custom_parameter_2\": \"custom-value-2\"\n"
 				+ "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
-
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(authorizationCodeGrantRequest()).block();
 		String body = this.server.takeRequest().getBody().readUtf8();
-
 		assertThat(body).isEqualTo(
 				"grant_type=authorization_code&code=code&redirect_uri=%7BbaseUrl%7D%2F%7Baction%7D%2Foauth2%2Fcode%2F%7BregistrationId%7D");
-
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
-
 		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
 		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
@@ -184,10 +177,8 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
-
 		this.server.enqueue(
 				jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
 				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
 						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
@@ -200,7 +191,6 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		String accessTokenErrorResponse = "{}";
 		this.server.enqueue(
 				jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
 				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("server_error");
 	}
@@ -209,9 +199,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"not-bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
-
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
 				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_token_response");
 	}
@@ -222,12 +210,9 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
 				+ "   \"scope\": \"openid profile\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
 		this.clientRegistration.scope("openid", "profile", "email", "address");
-
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(authorizationCodeGrantRequest()).block();
-
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("openid", "profile");
 	}
 
@@ -236,12 +221,9 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
 		this.clientRegistration.scope("openid", "profile", "email", "address");
-
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(authorizationCodeGrantRequest()).block();
-
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("openid", "profile", "email",
 				"address");
 	}
@@ -272,19 +254,14 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	public void setCustomWebClientThenCustomWebClientIsUsed() {
 		WebClient customClient = mock(WebClient.class);
 		given(customClient.post()).willReturn(WebClient.builder().build().post());
-
 		this.tokenResponseClient.setWebClient(customClient);
-
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
 				+ "   \"scope\": \"openid profile\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
 		this.clientRegistration.scope("openid", "profile", "email", "address");
-
 		OAuth2AccessTokenResponse response = this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest())
 				.block();
-
 		verify(customClient, atLeastOnce()).post();
 	}
 
@@ -294,10 +271,8 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-
 		this.tokenResponseClient.getTokenResponse(pkceAuthorizationCodeGrantRequest()).block();
 		String body = this.server.takeRequest().getBody().readUtf8();
-
 		assertThat(body).isEqualTo(
 				"grant_type=authorization_code&client_id=client-id&code=code&redirect_uri=%7BbaseUrl%7D%2F%7Baction%7D%2Foauth2%2Fcode%2F%7BregistrationId%7D&code_verifier=code-verifier-1234");
 	}
@@ -305,14 +280,11 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	private OAuth2AuthorizationCodeGrantRequest pkceAuthorizationCodeGrantRequest() {
 		ClientRegistration registration = this.clientRegistration.clientAuthenticationMethod(null).clientSecret(null)
 				.build();
-
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(PkceParameterNames.CODE_VERIFIER, "code-verifier-1234");
-
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, "code-challenge-1234");
 		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
-
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.clientId(registration.getClientId()).state("state")
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())

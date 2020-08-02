@@ -69,10 +69,8 @@ public class DelegatingServerAuthenticationEntryPointTests {
 		given(this.delegate2.commence(this.exchange, this.e)).willReturn(expectedResult);
 		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(new DelegateEntry(this.matcher1, this.delegate1),
 				new DelegateEntry(this.matcher2, this.delegate2));
-
 		Mono<Void> actualResult = this.entryPoint.commence(this.exchange, this.e);
 		actualResult.block();
-
 		verifyZeroInteractions(this.delegate1);
 		verify(this.delegate2).commence(this.exchange, this.e);
 	}
@@ -82,9 +80,7 @@ public class DelegatingServerAuthenticationEntryPointTests {
 		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.entryPoint = new DelegatingServerAuthenticationEntryPoint(
 				new DelegateEntry(this.matcher1, this.delegate1));
-
 		this.entryPoint.commence(this.exchange, this.e).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 		verifyZeroInteractions(this.delegate1);
 	}

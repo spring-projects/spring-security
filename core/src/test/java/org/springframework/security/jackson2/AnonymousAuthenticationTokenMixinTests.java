@@ -48,7 +48,6 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 		+ "\"authorities\": " + SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON
 	+ "}";
 	// @formatter:on
-
 	@Test
 	public void serializeAnonymousAuthenticationTokenTest() throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();

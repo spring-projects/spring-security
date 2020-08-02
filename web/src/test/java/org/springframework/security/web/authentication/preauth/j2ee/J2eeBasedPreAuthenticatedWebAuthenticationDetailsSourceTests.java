@@ -125,7 +125,6 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		List<GrantedAuthority> gas = details.getGrantedAuthorities();
 		assertThat(gas).as("Granted authorities should not be null").isNotNull();
 		assertThat(gas).hasSize(expectedRoles.length);
-
 		Collection<String> expectedRolesColl = Arrays.asList(expectedRoles);
 		Collection<String> gasRolesSet = new HashSet<>();
 		for (GrantedAuthority grantedAuthority : gas) {
@@ -140,7 +139,6 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 		J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource result = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
 		result.setMappableRolesRetriever(getMappableRolesRetriever(mappedRoles));
 		result.setUserRoles2GrantedAuthoritiesMapper(getJ2eeUserRoles2GrantedAuthoritiesMapper());
-
 		try {
 			result.afterPropertiesSet();
 		}
@@ -167,7 +165,6 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 
 	private HttpServletRequest getRequest(final String userName, final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
-
 			private Set<String> roles = new HashSet<>(Arrays.asList(aRoles));
 
 			@Override

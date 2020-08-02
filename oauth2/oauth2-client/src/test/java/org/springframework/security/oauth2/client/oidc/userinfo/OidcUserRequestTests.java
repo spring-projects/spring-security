@@ -82,7 +82,6 @@ public class OidcUserRequestTests {
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OidcUserRequest userRequest = new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken,
 				this.additionalParameters);
-
 		assertThat(userRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(userRequest.getAccessToken()).isEqualTo(this.accessToken);
 		assertThat(userRequest.getIdToken()).isEqualTo(this.idToken);

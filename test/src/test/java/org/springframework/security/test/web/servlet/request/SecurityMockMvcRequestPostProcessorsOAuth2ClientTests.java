@@ -93,14 +93,12 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 	@Test
 	public void oauth2ClientWhenUsingDefaultsThenException() throws Exception {
-
 		assertThatCode(() -> oauth2Client().postProcessRequest(new MockHttpServletRequest()))
 				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("ClientRegistration");
 	}
 
 	@Test
 	public void oauth2ClientWhenUsingDefaultsThenProducesDefaultAuthorizedClient() throws Exception {
-
 		this.mvc.perform(get("/access-token").with(oauth2Client("registration-id")))
 				.andExpect(content().string("access-token"));
 		this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
@@ -109,7 +107,6 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 	@Test
 	public void oauth2ClientWhenClientRegistrationThenUses() throws Exception {
-
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
 				.registrationId("registration-id").clientId("client-id").build();
 		this.mvc.perform(get("/client-id").with(oauth2Client().clientRegistration(clientRegistration)))
@@ -118,7 +115,6 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 	@Test
 	public void oauth2ClientWhenClientRegistrationConsumerThenUses() throws Exception {
-
 		this.mvc.perform(get("/client-id")
 				.with(oauth2Client("registration-id").clientRegistration((c) -> c.clientId("client-id"))))
 				.andExpect(content().string("client-id"));
@@ -141,7 +137,6 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 	public void oauth2ClientWhenUsedOnceThenDoesNotAffectRemainingTests() throws Exception {
 		this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
 				.andExpect(content().string("test-client"));
-
 		OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(TestClientRegistrations.clientRegistration().build(),
 				"sub", TestOAuth2AccessTokens.noScopes());
 		OAuth2AuthorizedClientRepository repository = this.context.getBean(OAuth2AuthorizedClientRepository.class);

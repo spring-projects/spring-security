@@ -71,7 +71,6 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String registrationId = "client-registration-id-1";
 		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration().registrationId(registrationId);
 		this.accessToken = TestOAuth2AccessTokens.noScopes();
-
 		Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
 		customUserTypes.put(registrationId, CustomOAuth2User.class);
 		this.userService = new CustomUserTypesOAuth2UserService(customUserTypes);
@@ -116,7 +115,6 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	public void loadUserWhenCustomUserTypeNotFoundThenReturnNull() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
 				.registrationId("other-client-registration-id-1").build();
-
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 		assertThat(user).isNull();
 	}
@@ -126,20 +124,15 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		String userInfoResponse = "{\n" + "	\"id\": \"12345\",\n" + "   \"name\": \"first last\",\n"
 				+ "   \"login\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
-
 		String userInfoUri = this.server.url("/user").toString();
-
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
-
 		assertThat(user.getName()).isEqualTo("first last");
 		assertThat(user.getAttributes().size()).isEqualTo(4);
 		assertThat((String) user.getAttribute("id")).isEqualTo("12345");
 		assertThat((String) user.getAttribute("name")).isEqualTo("first last");
 		assertThat((String) user.getAttribute("login")).isEqualTo("user1");
 		assertThat((String) user.getAttribute("email")).isEqualTo("user1@example.com");
-
 		assertThat(user.getAuthorities().size()).isEqualTo(1);
 		assertThat(user.getAuthorities().iterator().next().getAuthority()).isEqualTo("ROLE_USER");
 	}
@@ -149,16 +142,12 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(
 				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
-
 		String userInfoResponse = "{\n" + "	\"id\": \"12345\",\n" + "   \"name\": \"first last\",\n"
 				+ "   \"login\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n";
 		// "}\n"; // Make the JSON invalid/malformed
 		this.server.enqueue(jsonResponse(userInfoResponse));
-
 		String userInfoUri = this.server.url("/user").toString();
-
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
@@ -167,13 +156,9 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(
 				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
-
 		this.server.enqueue(new MockResponse().setResponseCode(500));
-
 		String userInfoUri = this.server.url("/user").toString();
-
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
@@ -182,11 +167,8 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(
 				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
-
 		String userInfoUri = "https://invalid-provider.com/user";
-
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 

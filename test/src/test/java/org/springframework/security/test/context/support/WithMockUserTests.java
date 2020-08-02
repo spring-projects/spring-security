@@ -32,10 +32,8 @@ public class WithMockUserTests {
 		assertThat(mockUser.password()).isEqualTo("password");
 		assertThat(mockUser.roles()).containsOnly("USER");
 		assertThat(mockUser.setupBefore()).isEqualByComparingTo(TestExecutionEvent.TEST_METHOD);
-
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(Annotated.class,
 				WithSecurityContext.class);
-
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
@@ -43,7 +41,6 @@ public class WithMockUserTests {
 	public void findMergedAnnotationWhenSetupExplicitThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupExplicit.class,
 				WithSecurityContext.class);
-
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_METHOD);
 	}
 
@@ -51,7 +48,6 @@ public class WithMockUserTests {
 	public void findMergedAnnotationWhenSetupOverriddenThenOverridden() {
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(SetupOverridden.class,
 				WithSecurityContext.class);
-
 		assertThat(context.setupBefore()).isEqualTo(TestExecutionEvent.TEST_EXECUTION);
 	}
 

@@ -106,10 +106,8 @@ public class SecurityReactorContextConfigurationTests {
 		RequestContextHolder
 				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
-
 		String testKey = "test_key";
 		String testValue = "test_value";
-
 		BaseSubscriber<Object> parent = new BaseSubscriber<Object>() {
 			@Override
 			public Context currentContext() {
@@ -117,9 +115,7 @@ public class SecurityReactorContextConfigurationTests {
 			}
 		};
 		CoreSubscriber<Object> subscriber = this.subscriberRegistrar.createSubscriberIfNecessary(parent);
-
 		Context resultContext = subscriber.currentContext();
-
 		assertThat(resultContext.getOrEmpty(testKey)).hasValue(testValue);
 		Map<Object, Object> securityContextAttributes = resultContext
 				.getOrDefault(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, null);
@@ -134,7 +130,6 @@ public class SecurityReactorContextConfigurationTests {
 		RequestContextHolder
 				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
-
 		Context parentContext = Context.of(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES,
 				new HashMap<>());
 		BaseSubscriber<Object> parent = new BaseSubscriber<Object>() {
@@ -144,7 +139,6 @@ public class SecurityReactorContextConfigurationTests {
 			}
 		};
 		CoreSubscriber<Object> subscriber = this.subscriberRegistrar.createSubscriberIfNecessary(parent);
-
 		Context resultContext = subscriber.currentContext();
 		assertThat(resultContext).isSameAs(parentContext);
 	}
@@ -189,7 +183,6 @@ public class SecurityReactorContextConfigurationTests {
 				return null;
 			}
 		});
-
 		CoreSubscriber<Object> subscriber = this.subscriberRegistrar
 				.createSubscriberIfNecessary(Operators.emptySubscriber());
 		assertThat(subscriber).isInstanceOf(SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.class);
@@ -200,14 +193,11 @@ public class SecurityReactorContextConfigurationTests {
 		// Trigger the importing of SecurityReactorContextConfiguration via
 		// OAuth2ImportSelector
 		this.spring.register(SecurityConfig.class).autowire();
-
 		// Setup for SecurityReactorContextSubscriberRegistrar
 		RequestContextHolder
 				.setRequestAttributes(new ServletRequestAttributes(this.servletRequest, this.servletResponse));
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
-
 		ClientResponse clientResponseOk = ClientResponse.create(HttpStatus.OK).build();
-
 		ExchangeFilterFunction filter = (req, next) -> Mono.subscriberContext()
 				.filter((ctx) -> ctx.hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
 				.map((ctx) -> ctx.get(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES)).cast(Map.class)
@@ -221,18 +211,14 @@ public class SecurityReactorContextConfigurationTests {
 						return ClientResponse.create(HttpStatus.NOT_FOUND).build();
 					}
 				});
-
 		ClientRequest clientRequest = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		MockExchangeFunction exchange = new MockExchangeFunction();
-
 		Map<Object, Object> expectedContextAttributes = new HashMap<>();
 		expectedContextAttributes.put(HttpServletRequest.class, this.servletRequest);
 		expectedContextAttributes.put(HttpServletResponse.class, this.servletResponse);
 		expectedContextAttributes.put(Authentication.class, this.authentication);
-
 		Mono<ClientResponse> clientResponseMono = filter.filter(clientRequest, exchange)
 				.flatMap((response) -> filter.filter(clientRequest, exchange));
-
 		StepVerifier.create(clientResponseMono).expectAccessibleContext()
 				.contains(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, expectedContextAttributes)
 				.then().expectNext(clientResponseOk).verifyComplete();

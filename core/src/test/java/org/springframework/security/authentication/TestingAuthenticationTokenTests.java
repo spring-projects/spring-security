@@ -32,7 +32,6 @@ public class TestingAuthenticationTokenTests {
 	@Test
 	public void constructorWhenNoAuthoritiesThenUnauthenticated() {
 		TestingAuthenticationToken unauthenticated = new TestingAuthenticationToken("principal", "credentials");
-
 		assertThat(unauthenticated.isAuthenticated()).isFalse();
 	}
 
@@ -40,7 +39,6 @@ public class TestingAuthenticationTokenTests {
 	public void constructorWhenArityAuthoritiesThenAuthenticated() {
 		TestingAuthenticationToken authenticated = new TestingAuthenticationToken("principal", "credentials",
 				"authority");
-
 		assertThat(authenticated.isAuthenticated()).isTrue();
 	}
 
@@ -48,7 +46,6 @@ public class TestingAuthenticationTokenTests {
 	public void constructorWhenCollectionAuthoritiesThenAuthenticated() {
 		TestingAuthenticationToken authenticated = new TestingAuthenticationToken("principal", "credentials",
 				Arrays.asList(new SimpleGrantedAuthority("authority")));
-
 		assertThat(authenticated.isAuthenticated()).isTrue();
 	}
 

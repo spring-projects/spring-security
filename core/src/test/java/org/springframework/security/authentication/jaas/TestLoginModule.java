@@ -52,14 +52,11 @@ public class TestLoginModule implements LoginModule {
 	@SuppressWarnings("unchecked")
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 		this.subject = subject;
-
 		try {
 			TextInputCallback textCallback = new TextInputCallback("prompt");
 			NameCallback nameCallback = new NameCallback("prompt");
 			PasswordCallback passwordCallback = new PasswordCallback("prompt", false);
-
 			callbackHandler.handle(new Callback[] { textCallback, nameCallback, passwordCallback });
-
 			this.password = new String(passwordCallback.getPassword());
 			this.user = nameCallback.getName();
 		}
@@ -73,15 +70,11 @@ public class TestLoginModule implements LoginModule {
 		if (!this.user.equals("user")) {
 			throw new LoginException("Bad User");
 		}
-
 		if (!this.password.equals("password")) {
 			throw new LoginException("Bad Password");
 		}
-
 		this.subject.getPrincipals().add(() -> "TEST_PRINCIPAL");
-
 		this.subject.getPrincipals().add(() -> "NULL_PRINCIPAL");
-
 		return true;
 	}
 

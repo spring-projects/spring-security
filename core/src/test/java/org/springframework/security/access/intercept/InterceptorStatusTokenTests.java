@@ -42,7 +42,6 @@ public class InterceptorStatusTokenTests {
 		MethodInvocation mi = new SimpleMethodInvocation();
 		SecurityContext ctx = SecurityContextHolder.createEmptyContext();
 		InterceptorStatusToken token = new InterceptorStatusToken(ctx, true, attr, mi);
-
 		assertThat(token.isContextHolderRefreshRequired()).isTrue();
 		assertThat(token.getAttributes()).isEqualTo(attr);
 		assertThat(token.getSecureObject()).isEqualTo(mi);

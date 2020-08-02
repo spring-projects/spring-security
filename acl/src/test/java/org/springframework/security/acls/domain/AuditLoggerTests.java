@@ -76,7 +76,6 @@ public class AuditLoggerTests {
 	@Test
 	public void successIsLoggedIfAceRequiresSuccessAudit() {
 		given(this.ace.isAuditSuccess()).willReturn(true);
-
 		this.logger.logIfNeeded(true, this.ace);
 		assertThat(this.bytes.toString()).startsWith("GRANTED due to ACE");
 	}

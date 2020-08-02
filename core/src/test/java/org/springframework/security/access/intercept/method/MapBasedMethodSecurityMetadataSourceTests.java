@@ -64,7 +64,6 @@ public class MapBasedMethodSecurityMetadataSourceTests {
 	public void methodsWithDifferentArgumentsAreMatchedCorrectly() {
 		this.mds.addSecureMethod(MockService.class, this.someMethodInteger, this.ROLE_A);
 		this.mds.addSecureMethod(MockService.class, this.someMethodString, this.ROLE_B);
-
 		assertThat(this.mds.getAttributes(this.someMethodInteger, MockService.class)).isEqualTo(this.ROLE_A);
 		assertThat(this.mds.getAttributes(this.someMethodString, MockService.class)).isEqualTo(this.ROLE_B);
 	}

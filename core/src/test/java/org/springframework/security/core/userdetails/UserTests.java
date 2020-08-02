@@ -44,7 +44,6 @@ public class UserTests {
 	@Test
 	public void equalsReturnsTrueIfUsernamesAreTheSame() {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
-
 		assertThat(user1).isNotNull();
 		assertThat(user1).isNotEqualTo("A STRING");
 		assertThat(user1).isEqualTo(user1);
@@ -56,7 +55,6 @@ public class UserTests {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
 		Set<UserDetails> users = new HashSet<>();
 		users.add(user1);
-
 		assertThat(users).contains(new User("rod", "koala", true, true, true, true, ROLE_12));
 		assertThat(users).contains(new User("rod", "anotherpass", false, false, false, false,
 				AuthorityUtils.createAuthorityList("ROLE_X")));
@@ -66,7 +64,6 @@ public class UserTests {
 	@Test
 	public void testNoArgConstructorDoesntExist() {
 		Class<User> clazz = User.class;
-
 		try {
 			clazz.getDeclaredConstructor((Class[]) null);
 			fail("Should have thrown NoSuchMethodException");
@@ -83,14 +80,12 @@ public class UserTests {
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			new User("rod", null, true, true, true, true, ROLE_12);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 		}
-
 		try {
 			List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
 			auths.add(null);
@@ -145,9 +140,7 @@ public class UserTests {
 	@Test
 	public void withUserDetailsWhenAllEnabled() {
 		User expected = new User("rob", "pass", true, true, true, true, ROLE_12);
-
 		UserDetails actual = User.withUserDetails(expected).build();
-
 		assertThat(actual.getUsername()).isEqualTo(expected.getUsername());
 		assertThat(actual.getPassword()).isEqualTo(expected.getPassword());
 		assertThat(actual.getAuthorities()).isEqualTo(expected.getAuthorities());
@@ -160,9 +153,7 @@ public class UserTests {
 	@Test
 	public void withUserDetailsWhenAllDisabled() {
 		User expected = new User("rob", "pass", false, false, false, false, ROLE_12);
-
 		UserDetails actual = User.withUserDetails(expected).build();
-
 		assertThat(actual.getUsername()).isEqualTo(expected.getUsername());
 		assertThat(actual.getPassword()).isEqualTo(expected.getPassword());
 		assertThat(actual.getAuthorities()).isEqualTo(expected.getAuthorities());
@@ -175,10 +166,8 @@ public class UserTests {
 	@Test
 	public void withUserWhenDetailsPasswordEncoderThenEncodes() {
 		UserDetails userDetails = User.withUsername("user").password("password").roles("USER").build();
-
 		UserDetails withEncodedPassword = User.withUserDetails(userDetails).passwordEncoder((p) -> p + "encoded")
 				.build();
-
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 
@@ -186,7 +175,6 @@ public class UserTests {
 	public void withUsernameWhenPasswordEncoderAndPasswordThenEncodes() {
 		UserDetails withEncodedPassword = User.withUsername("user").password("password")
 				.passwordEncoder((p) -> p + "encoded").roles("USER").build();
-
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 
@@ -199,7 +187,6 @@ public class UserTests {
 			.roles("USER")
 			.build();
 		// @formatter:on
-
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 
@@ -214,7 +201,6 @@ public class UserTests {
 			.roles("USER")
 			.build();
 		// @formatter:on
-
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
 

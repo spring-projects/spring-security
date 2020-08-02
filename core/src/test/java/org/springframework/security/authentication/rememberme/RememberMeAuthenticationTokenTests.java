@@ -45,17 +45,13 @@ public class RememberMeAuthenticationTokenTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		try {
 			new RememberMeAuthenticationToken("key", null, ROLES_12);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		try {
 			List<GrantedAuthority> authsContainingNull = new ArrayList<>();
 			authsContainingNull.add(null);
@@ -63,7 +59,6 @@ public class RememberMeAuthenticationTokenTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -71,14 +66,12 @@ public class RememberMeAuthenticationTokenTests {
 	public void testEqualsWhenEqual() {
 		RememberMeAuthenticationToken token1 = new RememberMeAuthenticationToken("key", "Test", ROLES_12);
 		RememberMeAuthenticationToken token2 = new RememberMeAuthenticationToken("key", "Test", ROLES_12);
-
 		assertThat(token2).isEqualTo(token1);
 	}
 
 	@Test
 	public void testGetters() {
 		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("key", "Test", ROLES_12);
-
 		assertThat(token.getKeyHash()).isEqualTo("key".hashCode());
 		assertThat(token.getPrincipal()).isEqualTo("Test");
 		assertThat(token.getCredentials()).isEqualTo("");
@@ -92,7 +85,6 @@ public class RememberMeAuthenticationTokenTests {
 		RememberMeAuthenticationToken token1 = new RememberMeAuthenticationToken("key", "Test", ROLES_12);
 		RememberMeAuthenticationToken token2 = new RememberMeAuthenticationToken("key", "DIFFERENT_PRINCIPAL",
 				ROLES_12);
-
 		assertThat(token1.equals(token2)).isFalse();
 	}
 
@@ -101,7 +93,6 @@ public class RememberMeAuthenticationTokenTests {
 		RememberMeAuthenticationToken token1 = new RememberMeAuthenticationToken("key", "Test", ROLES_12);
 		UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password",
 				ROLES_12);
-
 		assertThat(token1.equals(token2)).isFalse();
 	}
 
@@ -109,7 +100,6 @@ public class RememberMeAuthenticationTokenTests {
 	public void testNotEqualsDueToKey() {
 		RememberMeAuthenticationToken token1 = new RememberMeAuthenticationToken("key", "Test", ROLES_12);
 		RememberMeAuthenticationToken token2 = new RememberMeAuthenticationToken("DIFFERENT_KEY", "Test", ROLES_12);
-
 		assertThat(token1.equals(token2)).isFalse();
 	}
 

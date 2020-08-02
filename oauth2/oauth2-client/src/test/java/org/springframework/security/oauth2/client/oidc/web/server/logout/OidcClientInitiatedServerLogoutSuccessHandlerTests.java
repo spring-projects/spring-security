@@ -77,24 +77,19 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	public void logoutWhenOidcRedirectUrlConfiguredThenRedirects() {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
 		this.handler.onLogoutSuccess(f, token).block();
-
 		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?id_token_hint=id-token");
 	}
 
 	@Test
 	public void logoutWhenNotOAuth2AuthenticationThenDefaults() {
 		Authentication token = mock(Authentication.class);
-
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
-
 		this.handler.setLogoutSuccessUrl(URI.create("https://default"));
 		this.handler.onLogoutSuccess(f, token).block();
-
 		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://default");
 	}
 
@@ -102,49 +97,37 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	public void logoutWhenNotOidcUserThenDefaults() {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOAuth2Users.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
-
 		this.handler.setLogoutSuccessUrl(URI.create("https://default"));
 		this.handler.onLogoutSuccess(f, token).block();
-
 		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://default");
 	}
 
 	@Test
 	public void logoutWhenClientRegistrationHasNoEndSessionEndpointThenDefaults() {
-
 		ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 		ReactiveClientRegistrationRepository repository = new InMemoryReactiveClientRegistrationRepository(
 				registration);
 		OidcClientInitiatedServerLogoutSuccessHandler handler = new OidcClientInitiatedServerLogoutSuccessHandler(
 				repository);
-
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, registration.getRegistrationId());
-
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
-
 		handler.setLogoutSuccessUrl(URI.create("https://default"));
 		handler.onLogoutSuccess(f, token).block();
-
 		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://default");
 	}
 
 	@Test
 	public void logoutWhenUsingPostLogoutRedirectUriThenIncludesItInRedirect() {
-
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
-
 		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
 		this.handler.onLogoutSuccess(f, token).block();
-
 		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?" + "id_token_hint=id-token&"
 				+ "post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
 	}
@@ -152,17 +135,14 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	@Test
 	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect()
 			throws IOException, ServletException {
-
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
 		MockServerHttpRequest request = MockServerHttpRequest.get("https://rp.example.org/").build();
 		given(this.exchange.getRequest()).willReturn(request);
 		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
-
 		this.handler.setPostLogoutRedirectUri("{baseUrl}");
 		this.handler.onLogoutSuccess(f, token).block();
-
 		assertThat(redirectedUrl(this.exchange)).isEqualTo(
 				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
 	}

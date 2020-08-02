@@ -76,11 +76,9 @@ public class AuthenticationManagerBuilderTests {
 	public void buildWhenAddAuthenticationProviderThenDoesNotPerformRegistration() throws Exception {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
-
 		AuthenticationManagerBuilder builder = new AuthenticationManagerBuilder(opp);
 		builder.authenticationProvider(provider);
 		builder.build();
-
 		verify(opp, never()).postProcess(provider);
 	}
 
@@ -92,13 +90,11 @@ public class AuthenticationManagerBuilderTests {
 		given(opp.postProcess(any())).willAnswer((a) -> a.getArgument(0));
 		AuthenticationManager am = new AuthenticationManagerBuilder(opp).authenticationEventPublisher(aep)
 				.inMemoryAuthentication().and().build();
-
 		try {
 			am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 		}
 		catch (AuthenticationException success) {
 		}
-
 		verify(aep).publishAuthenticationFailure(any(), any());
 	}
 
@@ -107,9 +103,7 @@ public class AuthenticationManagerBuilderTests {
 		this.spring.register(PasswordEncoderGlobalConfig.class).autowire();
 		AuthenticationManager manager = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-
 		Authentication auth = manager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-
 		assertThat(auth.getName()).isEqualTo("user");
 		assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("ROLE_USER");
 	}
@@ -119,9 +113,7 @@ public class AuthenticationManagerBuilderTests {
 		this.spring.register(PasswordEncoderGlobalConfig.class).autowire();
 		AuthenticationManager manager = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
-
 		Authentication auth = manager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-
 		assertThat(auth.getName()).isEqualTo("user");
 		assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("ROLE_USER");
 	}
@@ -129,9 +121,7 @@ public class AuthenticationManagerBuilderTests {
 	@Test
 	public void authenticationManagerWhenMultipleProvidersThenWorks() throws Exception {
 		this.spring.register(MultiAuthenticationProvidersConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user").withRoles("USER"));
-
 		this.mockMvc.perform(formLogin().user("admin"))
 				.andExpect(authenticated().withUsername("admin").withRoles("USER", "ADMIN"));
 	}
@@ -140,11 +130,9 @@ public class AuthenticationManagerBuilderTests {
 	public void buildWhenAuthenticationProviderThenIsConfigured() throws Exception {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
-
 		AuthenticationManagerBuilder builder = new AuthenticationManagerBuilder(opp);
 		builder.authenticationProvider(provider);
 		builder.build();
-
 		assertThat(builder.isConfigured()).isTrue();
 	}
 
@@ -152,27 +140,22 @@ public class AuthenticationManagerBuilderTests {
 	public void buildWhenParentThenIsConfigured() throws Exception {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);
 		AuthenticationManager parent = mock(AuthenticationManager.class);
-
 		AuthenticationManagerBuilder builder = new AuthenticationManagerBuilder(opp);
 		builder.parentAuthenticationManager(parent);
 		builder.build();
-
 		assertThat(builder.isConfigured()).isTrue();
 	}
 
 	@Test
 	public void buildWhenNotConfiguredThenIsConfiguredFalse() throws Exception {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);
-
 		AuthenticationManagerBuilder builder = new AuthenticationManagerBuilder(opp);
 		builder.build();
-
 		assertThat(builder.isConfigured()).isFalse();
 	}
 
 	public void buildWhenUserFromProperties() throws Exception {
 		this.spring.register(UserFromPropertiesConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin().user("joe", "joespassword"))
 				.andExpect(authenticated().withUsername("joe").withRoles("USER"));
 	}

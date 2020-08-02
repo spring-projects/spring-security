@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Rob Winch
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WithUserDetailsTests.Config.class)
 public class WithUserDetailsTests {

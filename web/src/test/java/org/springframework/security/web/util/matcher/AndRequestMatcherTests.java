@@ -82,7 +82,6 @@ public class AndRequestMatcherTests {
 	public void matchesSingleTrue() {
 		given(this.delegate.matches(this.request)).willReturn(true);
 		this.matcher = new AndRequestMatcher(this.delegate);
-
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
@@ -91,7 +90,6 @@ public class AndRequestMatcherTests {
 		given(this.delegate.matches(this.request)).willReturn(true);
 		given(this.delegate2.matches(this.request)).willReturn(true);
 		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
@@ -99,7 +97,6 @@ public class AndRequestMatcherTests {
 	public void matchesSingleFalse() {
 		given(this.delegate.matches(this.request)).willReturn(false);
 		this.matcher = new AndRequestMatcher(this.delegate);
-
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
@@ -107,7 +104,6 @@ public class AndRequestMatcherTests {
 	public void matchesMultiBothFalse() {
 		given(this.delegate.matches(this.request)).willReturn(false);
 		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
@@ -116,7 +112,6 @@ public class AndRequestMatcherTests {
 		given(this.delegate.matches(this.request)).willReturn(true);
 		given(this.delegate2.matches(this.request)).willReturn(false);
 		this.matcher = new AndRequestMatcher(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 

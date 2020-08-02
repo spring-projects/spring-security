@@ -46,15 +46,12 @@ public class ReactiveMethodSecurityConfigurationTests {
 	@Test
 	public void rolePrefixWithGrantedAuthorityDefaults() throws NoSuchMethodException {
 		this.spring.register(WithRolePrefixConfiguration.class).autowire();
-
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
 				"CUSTOM_ABC");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
-
 		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
 				methodInvocation);
 		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject().getValue();
-
 		assertThat(root.hasRole("ROLE_ABC")).isFalse();
 		assertThat(root.hasRole("ROLE_CUSTOM_ABC")).isFalse();
 		assertThat(root.hasRole("CUSTOM_ABC")).isTrue();
@@ -64,15 +61,12 @@ public class ReactiveMethodSecurityConfigurationTests {
 	@Test
 	public void rolePrefixWithDefaultConfig() throws NoSuchMethodException {
 		this.spring.register(ReactiveMethodSecurityConfiguration.class).autowire();
-
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
 				"ROLE_ABC");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
-
 		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
 				methodInvocation);
 		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject().getValue();
-
 		assertThat(root.hasRole("ROLE_ABC")).isTrue();
 		assertThat(root.hasRole("ABC")).isTrue();
 	}
@@ -80,15 +74,12 @@ public class ReactiveMethodSecurityConfigurationTests {
 	@Test
 	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingEnabled() throws NoSuchMethodException {
 		this.spring.register(SubclassConfig.class).autowire();
-
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
 				"ROLE_ABC");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
-
 		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
 				methodInvocation);
 		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject().getValue();
-
 		assertThat(root.hasRole("ROLE_ABC")).isTrue();
 		assertThat(root.hasRole("ABC")).isTrue();
 	}

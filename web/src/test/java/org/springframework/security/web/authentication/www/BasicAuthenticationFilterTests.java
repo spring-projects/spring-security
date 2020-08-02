@@ -67,11 +67,9 @@ public class BasicAuthenticationFilterTests {
 		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
 		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "koala",
 				AuthorityUtils.createAuthorityList("ROLE_1"));
-
 		this.manager = mock(AuthenticationManager.class);
 		given(this.manager.authenticate(rodRequest)).willReturn(rod);
 		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
-
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
 	}
 
@@ -82,16 +80,12 @@ public class BasicAuthenticationFilterTests {
 
 	@Test
 	public void testFilterIgnoresRequestsContainingNoAuthorizationHeader() throws Exception {
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServletPath("/some_file.html");
 		final MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, chain);
-
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
@@ -110,10 +104,8 @@ public class BasicAuthenticationFilterTests {
 		request.setServletPath("/some_file.html");
 		request.setSession(new MockHttpSession());
 		final MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, chain);
-
 		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		assertThat(response.getStatus()).isEqualTo(401);
@@ -126,7 +118,6 @@ public class BasicAuthenticationFilterTests {
 		request.setServletPath("/some_file.html");
 		request.setSession(new MockHttpSession());
 		final MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, chain);
 		// The filter chain shouldn't proceed
@@ -141,12 +132,10 @@ public class BasicAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
 		request.setServletPath("/some_file.html");
-
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, new MockHttpServletResponse(), chain);
-
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
@@ -159,12 +148,10 @@ public class BasicAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "basic " + new String(Base64.encodeBase64(token.getBytes())));
 		request.setServletPath("/some_file.html");
-
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, new MockHttpServletResponse(), chain);
-
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
@@ -176,11 +163,9 @@ public class BasicAuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
 		request.setServletPath("/some_file.html");
-
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, new MockHttpServletResponse(), chain);
-
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
@@ -188,13 +173,11 @@ public class BasicAuthenticationFilterTests {
 
 	@Test
 	public void testOtherAuthorizationSchemeIsIgnored() throws Exception {
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
 		request.setServletPath("/some_file.html");
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, new MockHttpServletResponse(), chain);
-
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
@@ -216,32 +199,23 @@ public class BasicAuthenticationFilterTests {
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
 		request.setServletPath("/some_file.html");
 		final MockHttpServletResponse response1 = new MockHttpServletResponse();
-
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, response1, chain);
-
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
-
 		// NOW PERFORM FAILED AUTHENTICATION
-
 		token = "otherUser:WRONG_PASSWORD";
 		request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
 		final MockHttpServletResponse response2 = new MockHttpServletResponse();
-
 		chain = mock(FilterChain.class);
 		this.filter.doFilter(request, response2, chain);
-
 		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		request.setServletPath("/some_file.html");
-
 		// Test - the filter chain will not be invoked, as we get a 401 forbidden response
 		MockHttpServletResponse response = response2;
-
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		assertThat(response.getStatus()).isEqualTo(401);
 	}
@@ -253,14 +227,11 @@ public class BasicAuthenticationFilterTests {
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
 		request.setServletPath("/some_file.html");
 		request.setSession(new MockHttpSession());
-
 		this.filter = new BasicAuthenticationFilter(this.manager);
 		assertThat(this.filter.isIgnoreFailure()).isTrue();
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, new MockHttpServletResponse(), chain);
-
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-
 		// Test - the filter chain will be invoked, as we've set ignoreFailure = true
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
@@ -274,10 +245,8 @@ public class BasicAuthenticationFilterTests {
 		request.setSession(new MockHttpSession());
 		assertThat(this.filter.isIgnoreFailure()).isFalse();
 		final MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, chain);
-
 		// Test - the filter chain will not be invoked, as we get a 401 forbidden response
 		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
@@ -287,50 +256,38 @@ public class BasicAuthenticationFilterTests {
 	// SEC-2054
 	@Test
 	public void skippedOnErrorDispatch() throws Exception {
-
 		String token = "bad:credentials";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
 		request.setServletPath("/some_file.html");
 		request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChain chain = mock(FilterChain.class);
-
 		this.filter.doFilter(request, response, chain);
-
 		assertThat(response.getStatus()).isEqualTo(200);
 	}
 
 	@Test
 	public void doFilterWhenTokenAndFilterCharsetMatchDefaultThenAuthenticated() throws Exception {
 		SecurityContextHolder.clearContext();
-
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
 		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
 		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "äöü",
 				AuthorityUtils.createAuthorityList("ROLE_1"));
-
 		this.manager = mock(AuthenticationManager.class);
 		given(this.manager.authenticate(rodRequest)).willReturn(rod);
 		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
-
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
-
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization",
 				"Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.UTF_8))));
 		request.setServletPath("/some_file.html");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		FilterChain chain = mock(FilterChain.class);
-
 		this.filter.doFilter(request, response, chain);
-
 		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
@@ -340,33 +297,25 @@ public class BasicAuthenticationFilterTests {
 	@Test
 	public void doFilterWhenTokenAndFilterCharsetMatchNonDefaultThenAuthenticated() throws Exception {
 		SecurityContextHolder.clearContext();
-
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
 		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
 		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "äöü",
 				AuthorityUtils.createAuthorityList("ROLE_1"));
-
 		this.manager = mock(AuthenticationManager.class);
 		given(this.manager.authenticate(rodRequest)).willReturn(rod);
 		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
-
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
 		this.filter.setCredentialsCharset("ISO-8859-1");
-
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization",
 				"Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.ISO_8859_1))));
 		request.setServletPath("/some_file.html");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		FilterChain chain = mock(FilterChain.class);
-
 		this.filter.doFilter(request, response, chain);
-
 		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
@@ -376,33 +325,25 @@ public class BasicAuthenticationFilterTests {
 	@Test
 	public void doFilterWhenTokenAndFilterCharsetDoNotMatchThenUnauthorized() throws Exception {
 		SecurityContextHolder.clearContext();
-
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
 		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
 		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "äöü",
 				AuthorityUtils.createAuthorityList("ROLE_1"));
-
 		this.manager = mock(AuthenticationManager.class);
 		given(this.manager.authenticate(rodRequest)).willReturn(rod);
 		given(this.manager.authenticate(not(eq(rodRequest)))).willThrow(new BadCredentialsException(""));
-
 		this.filter = new BasicAuthenticationFilter(this.manager, new BasicAuthenticationEntryPoint());
 		this.filter.setCredentialsCharset("ISO-8859-1");
-
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization",
 				"Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.UTF_8))));
 		request.setServletPath("/some_file.html");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		FilterChain chain = mock(FilterChain.class);
-
 		this.filter.doFilter(request, response, chain);
-
 		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
@@ -415,7 +356,6 @@ public class BasicAuthenticationFilterTests {
 		request.setServletPath("/some_file.html");
 		request.setSession(new MockHttpSession());
 		final MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, chain);
 		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));

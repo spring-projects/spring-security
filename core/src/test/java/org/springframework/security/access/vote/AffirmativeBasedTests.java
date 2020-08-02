@@ -56,11 +56,9 @@ public class AffirmativeBasedTests {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setup() {
-
 		this.grant = mock(AccessDecisionVoter.class);
 		this.abstain = mock(AccessDecisionVoter.class);
 		this.deny = mock(AccessDecisionVoter.class);
-
 		given(this.grant.vote(any(Authentication.class), any(Object.class), any(List.class)))
 				.willReturn(AccessDecisionVoter.ACCESS_GRANTED);
 		given(this.abstain.vote(any(Authentication.class), any(Object.class), any(List.class)))
@@ -71,7 +69,6 @@ public class AffirmativeBasedTests {
 
 	@Test
 	public void oneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess() throws Exception {
-
 		this.mgr = new AffirmativeBased(
 				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.grant, this.deny, this.abstain));
 		this.mgr.afterPropertiesSet();
@@ -104,7 +101,6 @@ public class AffirmativeBasedTests {
 		this.mgr = new AffirmativeBased(
 				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.abstain, this.abstain, this.abstain));
 		assertThat(!this.mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check default
-
 		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 
@@ -114,7 +110,6 @@ public class AffirmativeBasedTests {
 				Arrays.<AccessDecisionVoter<? extends Object>>asList(this.abstain, this.abstain, this.abstain));
 		this.mgr.setAllowIfAllAbstainDecisions(true);
 		assertThat(this.mgr.isAllowIfAllAbstainDecisions()).isTrue(); // check changed
-
 		this.mgr.decide(this.user, new Object(), this.attrs);
 	}
 

@@ -86,7 +86,6 @@ public class HelloRSocketITests {
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
 		this.requester = RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies())
 				.connectTcp("localhost", this.server.address().getPort()).block();
-
 		String data = "rob";
 		assertThatCode(() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
 				.isNotNull();
@@ -106,7 +105,6 @@ public class HelloRSocketITests {
 		String hiRob = this.requester.route("secure.retrieve-mono")
 				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
 				.retrieveMono(String.class).block();
-
 		assertThat(hiRob).isEqualTo("Hi rob");
 		assertThat(this.controller.payloads).containsOnly(data);
 	}

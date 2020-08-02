@@ -58,18 +58,14 @@ public class AclImplementationSecurityCheckTests {
 				"ROLE_OWNERSHIP");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
-
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
-
 		Acl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
-
 		aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL);
 		aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_AUDITING);
 		aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-
 		// Create another authorization strategy
 		AclAuthorizationStrategy aclAuthorizationStrategy2 = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_ONE"), new SimpleGrantedAuthority("ROLE_TWO"),
@@ -102,21 +98,17 @@ public class AclImplementationSecurityCheckTests {
 		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
-
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		// Authorization strategy will require a different role for each access
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
-
 		// Let's give the principal the ADMINISTRATION permission, without
 		// granting access
 		MutableAcl aclFirstDeny = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		aclFirstDeny.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), false);
-
 		// The CHANGE_GENERAL test should pass as the principal has ROLE_GENERAL
 		aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_GENERAL);
-
 		// The CHANGE_AUDITING and CHANGE_OWNERSHIP should fail since the
 		// principal doesn't have these authorities,
 		// nor granting access
@@ -132,7 +124,6 @@ public class AclImplementationSecurityCheckTests {
 		}
 		catch (AccessDeniedException expected) {
 		}
-
 		// Add granting access to this principal
 		aclFirstDeny.insertAce(1, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
 		// and try again for CHANGE_AUDITING - the first ACE's granting flag
@@ -143,27 +134,21 @@ public class AclImplementationSecurityCheckTests {
 		}
 		catch (AccessDeniedException expected) {
 		}
-
 		// Create another ACL and give the principal the ADMINISTRATION
 		// permission, with granting access
 		MutableAcl aclFirstAllow = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		aclFirstAllow.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
-
 		// The CHANGE_AUDITING test should pass as there is one ACE with
 		// granting access
-
 		aclAuthorizationStrategy.securityCheck(aclFirstAllow, AclAuthorizationStrategy.CHANGE_AUDITING);
-
 		// Add a deny ACE and test again for CHANGE_AUDITING
 		aclFirstAllow.insertAce(1, BasePermission.ADMINISTRATION, new PrincipalSid(auth), false);
 		try {
 			aclAuthorizationStrategy.securityCheck(aclFirstAllow, AclAuthorizationStrategy.CHANGE_AUDITING);
-
 		}
 		catch (AccessDeniedException notExpected) {
 			fail("It shouldn't have thrown AccessDeniedException");
 		}
-
 		// Create an ACL with no ACE
 		MutableAcl aclNoACE = new AclImpl(identity, 1L, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		try {
@@ -171,12 +156,10 @@ public class AclImplementationSecurityCheckTests {
 			fail("It should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-
 		}
 		// and still grant access for CHANGE_GENERAL
 		try {
 			aclAuthorizationStrategy.securityCheck(aclNoACE, AclAuthorizationStrategy.CHANGE_GENERAL);
-
 		}
 		catch (NotFoundException expected) {
 			fail("It shouldn't have thrown NotFoundException");
@@ -189,19 +172,16 @@ public class AclImplementationSecurityCheckTests {
 		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
-
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100);
 		// Authorization strategy will require a different role for each access
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_ONE"), new SimpleGrantedAuthority("ROLE_TWO"),
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
-
 		// Let's give the principal an ADMINISTRATION permission, with granting
 		// access
 		MutableAcl parentAcl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		parentAcl.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
 		MutableAcl childAcl = new AclImpl(identity, 2, aclAuthorizationStrategy, new ConsoleAuditLogger());
-
 		// Check against the 'child' acl, which doesn't offer any authorization
 		// rights on CHANGE_OWNERSHIP
 		try {
@@ -209,21 +189,17 @@ public class AclImplementationSecurityCheckTests {
 			fail("It should have thrown NotFoundException");
 		}
 		catch (NotFoundException expected) {
-
 		}
-
 		// Link the child with its parent and test again against the
 		// CHANGE_OWNERSHIP right
 		childAcl.setParent(parentAcl);
 		childAcl.setEntriesInheriting(true);
 		try {
 			aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-
 		}
 		catch (NotFoundException expected) {
 			fail("It shouldn't have thrown NotFoundException");
 		}
-
 		// Create a root parent and link it to the middle parent
 		MutableAcl rootParentAcl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger());
 		parentAcl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger());
@@ -233,7 +209,6 @@ public class AclImplementationSecurityCheckTests {
 		childAcl.setParent(parentAcl);
 		try {
 			aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-
 		}
 		catch (NotFoundException expected) {
 			fail("It shouldn't have thrown NotFoundException");
@@ -245,12 +220,10 @@ public class AclImplementationSecurityCheckTests {
 		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_ONE");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
-
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
 				new SimpleGrantedAuthority("ROLE_GENERAL"));
-
 		Acl acl = new AclImpl(identity, 1, aclAuthorizationStrategy,
 				new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), null, null, false,
 				new PrincipalSid(auth));

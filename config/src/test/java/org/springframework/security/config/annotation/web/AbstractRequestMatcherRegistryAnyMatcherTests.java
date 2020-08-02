@@ -77,7 +77,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 				.anyRequest().authenticated()
 				.antMatchers("/demo/**").permitAll();
 			// @formatter:on
-
 		}
 
 	}
@@ -93,7 +92,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 				.anyRequest().authenticated()
 				.mvcMatchers("/demo/**").permitAll();
 			// @formatter:on
-
 		}
 
 	}
@@ -109,7 +107,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 				.anyRequest().authenticated()
 				.regexMatchers(".*").permitAll();
 			// @formatter:on
-
 		}
 
 	}
@@ -125,7 +122,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 				.anyRequest().authenticated()
 				.anyRequest().permitAll();
 			// @formatter:on
-
 		}
 
 	}
@@ -141,7 +137,6 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 				.anyRequest().authenticated()
 				.requestMatchers(new AntPathRequestMatcher("/**")).permitAll();
 			// @formatter:on
-
 		}
 
 	}

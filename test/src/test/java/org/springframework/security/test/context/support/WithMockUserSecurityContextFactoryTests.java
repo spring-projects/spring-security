@@ -49,7 +49,6 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.password()).willReturn("password");
 		given(this.withUser.roles()).willReturn(new String[] { "USER" });
 		given(this.withUser.authorities()).willReturn(new String[] {});
-
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getName())
 				.isEqualTo(this.withUser.value());
 	}
@@ -60,7 +59,6 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.password()).willReturn("password");
 		given(this.withUser.roles()).willReturn(new String[] { "USER" });
 		given(this.withUser.authorities()).willReturn(new String[] {});
-
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getName())
 				.isEqualTo(this.withUser.username());
 	}
@@ -71,7 +69,6 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.password()).willReturn("password");
 		given(this.withUser.roles()).willReturn(new String[] { "USER", "CUSTOM" });
 		given(this.withUser.authorities()).willReturn(new String[] {});
-
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getAuthorities())
 				.extracting("authority").containsOnly("ROLE_USER", "ROLE_CUSTOM");
 	}
@@ -82,7 +79,6 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.password()).willReturn("password");
 		given(this.withUser.roles()).willReturn(new String[] { "USER" });
 		given(this.withUser.authorities()).willReturn(new String[] { "USER", "CUSTOM" });
-
 		assertThat(this.factory.createSecurityContext(this.withUser).getAuthentication().getAuthorities())
 				.extracting("authority").containsOnly("USER", "CUSTOM");
 	}
@@ -92,7 +88,6 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.value()).willReturn("valueUser");
 		given(this.withUser.roles()).willReturn(new String[] { "CUSTOM" });
 		given(this.withUser.authorities()).willReturn(new String[] { "USER", "CUSTOM" });
-
 		this.factory.createSecurityContext(this.withUser);
 	}
 
@@ -101,7 +96,6 @@ public class WithMockUserSecurityContextFactoryTests {
 		given(this.withUser.value()).willReturn("valueUser");
 		given(this.withUser.roles()).willReturn(new String[] { "ROLE_FAIL" });
 		given(this.withUser.authorities()).willReturn(new String[] {});
-
 		this.factory.createSecurityContext(this.withUser);
 	}
 

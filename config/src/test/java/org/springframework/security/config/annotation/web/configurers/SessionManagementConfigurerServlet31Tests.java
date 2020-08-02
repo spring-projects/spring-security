@@ -95,11 +95,8 @@ public class SessionManagementConfigurerServlet31Tests {
 		repository.saveToken(token, request, this.response);
 		request.setParameter(token.getParameterName(), token.getToken());
 		request.getSession().setAttribute("attribute1", "value1");
-
 		loadConfig(SessionManagementDefaultSessionFixationServlet31Config.class);
-
 		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
-
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
 	}
@@ -116,7 +113,6 @@ public class SessionManagementConfigurerServlet31Tests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(this.request, this.response);
 		repo.loadContext(requestResponseHolder);
-
 		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
 		securityContextImpl.setAuthentication(auth);
 		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());

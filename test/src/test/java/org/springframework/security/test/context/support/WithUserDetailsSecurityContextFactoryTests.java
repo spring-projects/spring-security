@@ -68,7 +68,6 @@ public class WithUserDetailsSecurityContextFactoryTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void createSecurityContextEmptyValue() {
-
 		given(this.withUserDetails.value()).willReturn("");
 		this.factory.createSecurityContext(this.withUserDetails);
 	}
@@ -80,7 +79,6 @@ public class WithUserDetailsSecurityContextFactoryTests {
 		given(this.beans.getBean(UserDetailsService.class)).willReturn(this.userDetailsService);
 		given(this.withUserDetails.value()).willReturn(username);
 		given(this.userDetailsService.loadUserByUsername(username)).willReturn(this.userDetails);
-
 		SecurityContext context = this.factory.createSecurityContext(this.withUserDetails);
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(this.userDetails);
@@ -98,7 +96,6 @@ public class WithUserDetailsSecurityContextFactoryTests {
 		given(this.withUserDetails.userDetailsServiceBeanName()).willReturn(beanName);
 		given(this.userDetailsService.loadUserByUsername(username)).willReturn(this.userDetails);
 		given(this.beans.getBean(beanName, UserDetailsService.class)).willReturn(this.userDetailsService);
-
 		SecurityContext context = this.factory.createSecurityContext(this.withUserDetails);
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(this.userDetails);
@@ -111,7 +108,6 @@ public class WithUserDetailsSecurityContextFactoryTests {
 		given(this.withUserDetails.value()).willReturn(username);
 		given(this.beans.getBean(ReactiveUserDetailsService.class)).willReturn(this.reactiveUserDetailsService);
 		given(this.reactiveUserDetailsService.findByUsername(username)).willReturn(Mono.just(this.userDetails));
-
 		SecurityContext context = this.factory.createSecurityContext(this.withUserDetails);
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(this.userDetails);
@@ -127,7 +123,6 @@ public class WithUserDetailsSecurityContextFactoryTests {
 		given(this.beans.getBean(beanName, ReactiveUserDetailsService.class))
 				.willReturn(this.reactiveUserDetailsService);
 		given(this.reactiveUserDetailsService.findByUsername(username)).willReturn(Mono.just(this.userDetails));
-
 		SecurityContext context = this.factory.createSecurityContext(this.withUserDetails);
 		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(this.userDetails);

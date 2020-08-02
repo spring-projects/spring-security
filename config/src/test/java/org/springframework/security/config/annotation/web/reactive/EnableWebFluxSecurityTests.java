@@ -90,9 +90,7 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	public void defaultRequiresAuthentication() {
 		this.spring.register(Config.class).autowire();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-
 		client.get().uri("/").exchange().expectStatus().isUnauthorized().expectBody().isEmpty();
 	}
 
@@ -100,18 +98,14 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	public void defaultMediaAllThenUnAuthorized() {
 		this.spring.register(Config.class).autowire();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-
 		client.get().uri("/").accept(MediaType.ALL).exchange().expectStatus().isUnauthorized().expectBody().isEmpty();
 	}
 
 	@Test
 	public void authenticateWhenBasicThenNoSession() {
 		this.spring.register(Config.class).autowire();
-
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-
 		FluxExchangeResult<String> result = client.get().headers((headers) -> headers.setBasicAuth("user", "password"))
 				.exchange().expectStatus().isOk().returnResult(String.class);
 		result.assertWithDiagnostics(() -> assertThat(result.getResponseCookies().isEmpty()));
@@ -133,7 +127,6 @@ public class EnableWebFluxSecurityTests {
 										.map(SecurityContext::getAuthentication).flatMap((principal) -> exchange
 												.getResponse().writeWith(Mono.just(toDataBuffer(principal.getName())))))
 				.build();
-
 		client.get().uri("/").exchange().expectStatus().isOk().expectBody(String.class)
 				.consumeWith((result) -> assertThat(result.getResponseBody()).isEqualTo(currentPrincipal.getName()));
 	}
@@ -148,7 +141,6 @@ public class EnableWebFluxSecurityTests {
 										.map(SecurityContext::getAuthentication).flatMap((principal) -> exchange
 												.getResponse().writeWith(Mono.just(toDataBuffer(principal.getName())))))
 				.build();
-
 		client.get().uri("/").headers((headers) -> headers.setBasicAuth("user", "password")).exchange().expectStatus()
 				.isOk().expectBody(String.class)
 				.consumeWith((result) -> assertThat(result.getResponseBody()).isEqualTo("user"));
@@ -157,7 +149,6 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	public void requestDataValueProcessor() {
 		this.spring.register(Config.class).autowire();
-
 		ConfigurableApplicationContext context = this.spring.getContext();
 		CsrfRequestDataValueProcessor rdvp = context.getBean(AbstractView.REQUEST_DATA_VALUE_PROCESSOR_BEAN_NAME,
 				CsrfRequestDataValueProcessor.class);
@@ -174,7 +165,6 @@ public class EnableWebFluxSecurityTests {
 										.map(SecurityContext::getAuthentication).flatMap((principal) -> exchange
 												.getResponse().writeWith(Mono.just(toDataBuffer(principal.getName())))))
 				.build();
-
 		client.get().uri("/").headers((headers) -> headers.setBasicAuth("user", "password")).exchange().expectStatus()
 				.isOk().expectBody(String.class)
 				.consumeWith((result) -> assertThat(result.getResponseBody()).isEqualTo("user"));
@@ -184,9 +174,7 @@ public class EnableWebFluxSecurityTests {
 	public void passwordUpdateManagerUsed() {
 		this.spring.register(MapReactiveUserDetailsServiceConfig.class).autowire();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-
 		client.get().uri("/").headers((h) -> h.setBasicAuth("user", "password")).exchange().expectStatus().isOk();
-
 		ReactiveUserDetailsService users = this.spring.getContext().getBean(ReactiveUserDetailsService.class);
 		assertThat(users.findByUsername("user").block().getPassword()).startsWith("{bcrypt}");
 	}
@@ -198,7 +186,6 @@ public class EnableWebFluxSecurityTests {
 				chain) -> Mono.subscriberContext().flatMap((c) -> c.<Mono<Principal>>get(Authentication.class)).flatMap(
 						(principal) -> exchange.getResponse().writeWith(Mono.just(toDataBuffer(principal.getName())))))
 				.build();
-
 		MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
 		data.add("username", "user");
 		data.add("password", "password");
@@ -211,9 +198,7 @@ public class EnableWebFluxSecurityTests {
 	public void multiWorks() {
 		this.spring.register(MultiSecurityHttpConfig.class).autowire();
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.springSecurityFilterChain).build();
-
 		client.get().uri("/api/test").exchange().expectStatus().isUnauthorized().expectBody().isEmpty();
-
 		client.get().uri("/test").exchange().expectStatus().isOk();
 	}
 
@@ -221,9 +206,7 @@ public class EnableWebFluxSecurityTests {
 	@WithMockUser
 	public void authenticationPrincipalArgumentResolverWhenSpelThenWorks() {
 		this.spring.register(AuthenticationPrincipalConfig.class).autowire();
-
 		WebTestClient client = WebTestClient.bindToApplicationContext(this.spring.getContext()).build();
-
 		client.get().uri("/spel").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("user");
 	}
 
@@ -236,20 +219,16 @@ public class EnableWebFluxSecurityTests {
 	@Test
 	public void enableWebFluxSecurityWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
 		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
-
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
 		assertThat(parentBean.getChild()).isSameAs(childBean);
 	}
 
 	@Test
 	public void enableWebFluxSecurityWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
 		this.spring.register(BeanProxyDisabledConfig.class).autowire();
-
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
-
 		assertThat(parentBean.getChild()).isNotSameAs(childBean);
 	}
 

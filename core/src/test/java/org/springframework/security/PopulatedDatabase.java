@@ -37,14 +37,12 @@ public final class PopulatedDatabase {
 		if (dataSource == null) {
 			setupDataSource();
 		}
-
 		return dataSource;
 	}
 
 	private static void setupDataSource() {
 		dataSource = new TestDataSource("springsecuritytest");
 		JdbcTemplate template = new JdbcTemplate(dataSource);
-
 		template.execute(
 				"CREATE TABLE USERS(USERNAME VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,PASSWORD VARCHAR_IGNORECASE(500) NOT NULL,ENABLED BOOLEAN NOT NULL)");
 		template.execute(
@@ -77,18 +75,15 @@ public final class PopulatedDatabase {
 				"INSERT INTO acl_object_identity VALUES (5, 'org.springframework.security.acl.DomainObject:5', 3, 'org.springframework.security.acl.basic.SimpleAclEntry');");
 		template.execute(
 				"INSERT INTO acl_object_identity VALUES (6, 'org.springframework.security.acl.DomainObject:6', 3, 'org.springframework.security.acl.basic.SimpleAclEntry');");
-
 		// ----- BEGIN deviation from normal sample data load script -----
 		template.execute(
 				"INSERT INTO acl_object_identity VALUES (7, 'org.springframework.security.acl.DomainObject:7', 3, 'some.invalid.acl.entry.class');");
-
 		// ----- FINISH deviation from normal sample data load script -----
 		template.execute("INSERT INTO acl_permission VALUES (null, 1, 'ROLE_SUPERVISOR', 1);");
 		template.execute("INSERT INTO acl_permission VALUES (null, 2, 'ROLE_SUPERVISOR', 0);");
 		template.execute("INSERT INTO acl_permission VALUES (null, 2, 'rod', 2);");
 		template.execute("INSERT INTO acl_permission VALUES (null, 3, 'scott', 14);");
 		template.execute("INSERT INTO acl_permission VALUES (null, 6, 'scott', 1);");
-
 		createGroupTables(template);
 		insertGroupData(template);
 	}
@@ -106,13 +101,11 @@ public final class PopulatedDatabase {
 	public static void insertGroupData(JdbcTemplate template) {
 		template.execute("INSERT INTO USERS VALUES('jerry','password',TRUE)");
 		template.execute("INSERT INTO USERS VALUES('tom','password',TRUE)");
-
 		template.execute("INSERT INTO GROUPS VALUES (0, 'GROUP_0')");
 		template.execute("INSERT INTO GROUPS VALUES (1, 'GROUP_1')");
 		template.execute("INSERT INTO GROUPS VALUES (2, 'GROUP_2')");
 		// Group 3 isn't used
 		template.execute("INSERT INTO GROUPS VALUES (3, 'GROUP_3')");
-
 		template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (0, 'ROLE_A')");
 		template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (1, 'ROLE_B')");
 		template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (1, 'ROLE_C')");
@@ -121,7 +114,6 @@ public final class PopulatedDatabase {
 		template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (2, 'ROLE_C')");
 		template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (3, 'ROLE_D')");
 		template.execute("INSERT INTO GROUP_AUTHORITIES VALUES (3, 'ROLE_E')");
-
 		template.execute("INSERT INTO GROUP_MEMBERS VALUES (0, 'jerry', 0)");
 		template.execute("INSERT INTO GROUP_MEMBERS VALUES (1, 'jerry', 1)");
 		// tom has groups with overlapping roles

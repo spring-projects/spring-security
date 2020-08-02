@@ -46,7 +46,6 @@ public class Sec760Tests {
 		p1.setAuthorityGranters(new AuthorityGranter[] { new TestAuthorityGranter() });
 		p1.afterPropertiesSet();
 		testAuthenticate(p1);
-
 		p2.setLoginConfig(new ClassPathResource(resolveConfigFile("/test2.conf")));
 		p2.setLoginContextName("test2");
 		p2.setCallbackHandlers(new JaasAuthenticationCallbackHandler[] { new TestCallbackHandler(),
@@ -59,7 +58,6 @@ public class Sec760Tests {
 	private void testAuthenticate(JaasAuthenticationProvider p1) {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-
 		Authentication auth = p1.authenticate(token);
 		assertThat(auth).isNotNull();
 	}

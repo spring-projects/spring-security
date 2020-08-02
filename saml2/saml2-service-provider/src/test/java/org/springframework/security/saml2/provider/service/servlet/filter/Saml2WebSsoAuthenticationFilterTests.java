@@ -82,12 +82,9 @@ public class Saml2WebSsoAuthenticationFilterTests {
 	@Test
 	public void attemptAuthenticationWhenRegistrationIdDoesNotExistThenThrowsException() {
 		given(this.repository.findByRegistrationId("non-existent-id")).willReturn(null);
-
 		this.filter = new Saml2WebSsoAuthenticationFilter(this.repository, "/some/other/path/{registrationId}");
-
 		this.request.setPathInfo("/some/other/path/non-existent-id");
 		this.request.setParameter("SAMLResponse", "response");
-
 		try {
 			this.filter.attemptAuthentication(this.request, this.response);
 			failBecauseExceptionWasNotThrown(Saml2AuthenticationException.class);

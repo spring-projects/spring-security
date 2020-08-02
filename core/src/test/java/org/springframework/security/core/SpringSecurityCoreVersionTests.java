@@ -63,20 +63,16 @@ public class SpringSecurityCoreVersionTests {
 	public void springVersionIsUpToDate() {
 		// Property is set by the build script
 		String springVersion = System.getProperty("springVersion");
-
 		assertThat(SpringSecurityCoreVersion.MIN_SPRING_VERSION).isEqualTo(springVersion);
 	}
 
 	@Test
 	public void serialVersionMajorAndMinorVersionMatchBuildVersion() {
 		String version = System.getProperty("springSecurityVersion");
-
 		// Strip patch version
 		String serialVersion = String.valueOf(SpringSecurityCoreVersion.SERIAL_VERSION_UID).substring(0, 2);
-
 		assertThat(serialVersion.charAt(0)).isEqualTo(version.charAt(0));
 		assertThat(serialVersion.charAt(1)).isEqualTo(version.charAt(2));
-
 	}
 
 	// SEC-2295
@@ -87,9 +83,7 @@ public class SpringSecurityCoreVersionTests {
 		PowerMockito.spy(SpringVersion.class);
 		PowerMockito.doReturn(version).when(SpringSecurityCoreVersion.class, "getVersion");
 		PowerMockito.doReturn(version).when(SpringVersion.class, "getVersion");
-
 		performChecks();
-
 		verifyZeroInteractions(this.logger);
 	}
 
@@ -99,9 +93,7 @@ public class SpringSecurityCoreVersionTests {
 		PowerMockito.spy(SpringVersion.class);
 		PowerMockito.doReturn("1").when(SpringSecurityCoreVersion.class, "getVersion");
 		PowerMockito.doReturn(null).when(SpringVersion.class, "getVersion");
-
 		performChecks();
-
 		verifyZeroInteractions(this.logger);
 	}
 
@@ -111,9 +103,7 @@ public class SpringSecurityCoreVersionTests {
 		PowerMockito.spy(SpringVersion.class);
 		PowerMockito.doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
 		PowerMockito.doReturn("2").when(SpringVersion.class, "getVersion");
-
 		performChecks();
-
 		verify(this.logger, times(1)).warn(any());
 	}
 
@@ -123,9 +113,7 @@ public class SpringSecurityCoreVersionTests {
 		PowerMockito.spy(SpringVersion.class);
 		PowerMockito.doReturn("4.0.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
 		PowerMockito.doReturn("4.0.0.RELEASE").when(SpringVersion.class, "getVersion");
-
 		performChecks();
-
 		verify(this.logger, never()).warn(any());
 	}
 
@@ -137,9 +125,7 @@ public class SpringSecurityCoreVersionTests {
 		PowerMockito.spy(SpringVersion.class);
 		PowerMockito.doReturn("3.2.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
 		PowerMockito.doReturn("3.2.10.RELEASE").when(SpringVersion.class, "getVersion");
-
 		performChecks(minSpringVersion);
-
 		verify(this.logger, never()).warn(any());
 	}
 
@@ -150,9 +136,7 @@ public class SpringSecurityCoreVersionTests {
 		PowerMockito.doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
 		PowerMockito.doReturn("2").when(SpringVersion.class, "getVersion");
 		System.setProperty(getDisableChecksProperty(), Boolean.TRUE.toString());
-
 		performChecks();
-
 		verifyZeroInteractions(this.logger);
 	}
 

@@ -71,7 +71,6 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 		this.filter.setAuthorizationRequestRepository(this.authzRequestRepository);
 		FilteringWebHandler webHandler = new FilteringWebHandler((e) -> e.getResponse().setComplete(),
 				Arrays.asList(this.filter));
-
 		this.client = WebTestClient.bindToWebHandler(webHandler).build();
 		given(this.clientRepository.findByRegistrationId(this.registration.getRegistrationId()))
 				.willReturn(Mono.just(this.registration));
@@ -88,7 +87,6 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void filterWhenDoesNotMatchThenClientRegistrationRepositoryNotSubscribed() {
 		this.client.get().exchange().expectStatus().isOk();
-
 		verifyZeroInteractions(this.clientRepository, this.authzRequestRepository);
 	}
 

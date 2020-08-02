@@ -75,9 +75,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 	@Test
 	public void securityMappings() {
 		loadConfig(WebSocketSecurityConfig.class);
-
 		clientInboundChannel().send(message("/user/queue/errors", SimpMessageType.SUBSCRIBE));
-
 		try {
 			clientInboundChannel().send(message("/denyAll", SimpMessageType.MESSAGE));
 			fail("Expected Exception");
@@ -140,7 +138,6 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 					.simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
 					.simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE).denyAll() // <5>
 					.anyMessage().denyAll(); // <6>
-
 		}
 
 	}

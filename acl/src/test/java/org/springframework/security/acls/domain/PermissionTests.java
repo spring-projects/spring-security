@@ -62,26 +62,19 @@ public class PermissionTests {
 	@Test
 	public void stringConversion() {
 		this.permissionFactory.registerPublicPermissions(SpecialPermission.class);
-
 		assertThat(BasePermission.READ.toString()).isEqualTo("BasePermission[...............................R=1]");
-
 		assertThat(BasePermission.ADMINISTRATION.toString())
 				.isEqualTo("BasePermission[...........................A....=16]");
-
 		assertThat(new CumulativePermission().set(BasePermission.READ).toString())
 				.isEqualTo("CumulativePermission[...............................R=1]");
-
 		assertThat(
 				new CumulativePermission().set(SpecialPermission.ENTER).set(BasePermission.ADMINISTRATION).toString())
 						.isEqualTo("CumulativePermission[..........................EA....=48]");
-
 		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION).set(BasePermission.READ).toString())
 				.isEqualTo("CumulativePermission[...........................A...R=17]");
-
 		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION).set(BasePermission.READ)
 				.clear(BasePermission.ADMINISTRATION).toString())
 						.isEqualTo("CumulativePermission[...............................R=1]");
-
 		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION).set(BasePermission.READ)
 				.clear(BasePermission.ADMINISTRATION).clear(BasePermission.READ).toString())
 						.isEqualTo("CumulativePermission[................................=0]");

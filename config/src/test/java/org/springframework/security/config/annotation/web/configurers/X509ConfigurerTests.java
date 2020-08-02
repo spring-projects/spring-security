@@ -61,7 +61,6 @@ public class X509ConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnX509AuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(X509AuthenticationFilter.class));
 	}
 
@@ -69,7 +68,6 @@ public class X509ConfigurerTests {
 	public void x509WhenInvokedTwiceThenUsesOriginalSubjectPrincipalRegex() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
 		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
-
 		this.mvc.perform(get("/").with(x509(certificate))).andExpect(authenticated().withUsername("rod"));
 	}
 
@@ -77,7 +75,6 @@ public class X509ConfigurerTests {
 	public void x509WhenConfiguredInLambdaThenUsesDefaults() throws Exception {
 		this.spring.register(DefaultsInLambdaConfig.class).autowire();
 		X509Certificate certificate = loadCert("rod.cer");
-
 		this.mvc.perform(get("/").with(x509(certificate))).andExpect(authenticated().withUsername("rod"));
 	}
 
@@ -85,7 +82,6 @@ public class X509ConfigurerTests {
 	public void x509WhenSubjectPrincipalRegexInLambdaThenUsesRegexToExtractPrincipal() throws Exception {
 		this.spring.register(SubjectPrincipalRegexInLambdaConfig.class).autowire();
 		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
-
 		this.mvc.perform(get("/").with(x509(certificate))).andExpect(authenticated().withUsername("rod"));
 	}
 

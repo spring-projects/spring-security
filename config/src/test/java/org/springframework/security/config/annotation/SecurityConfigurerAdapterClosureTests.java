@@ -43,10 +43,8 @@ public class SecurityConfigurerAdapterClosureTests {
 				return l;
 			}
 		});
-
 		this.conf.init(builder);
 		this.conf.configure(builder);
-
 		assertThat(this.conf.list).contains("a");
 	}
 

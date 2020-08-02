@@ -39,7 +39,6 @@ public class MockFilterConfig implements FilterConfig {
 	@Override
 	public String getInitParameter(String arg0) {
 		Object result = this.map.get(arg0);
-
 		if (result != null) {
 			return (String) result;
 		}

@@ -54,7 +54,6 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	public void writeHeadersWhenNoPolicyDirectivesThenUsesDefault() {
 		ContentSecurityPolicyHeaderWriter noPolicyWriter = new ContentSecurityPolicyHeaderWriter();
 		noPolicyWriter.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Content-Security-Policy")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);
 	}
@@ -62,7 +61,6 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	@Test
 	public void writeHeadersContentSecurityPolicyDefault() {
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Content-Security-Policy")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);
 	}
@@ -71,10 +69,8 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	public void writeHeadersContentSecurityPolicyCustom() {
 		String policyDirectives = "default-src 'self'; " + "object-src plugins1.example.com plugins2.example.com; "
 				+ "script-src trustedscripts.example.com";
-
 		this.writer = new ContentSecurityPolicyHeaderWriter(policyDirectives);
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Content-Security-Policy")).isEqualTo(policyDirectives);
 	}
@@ -84,7 +80,6 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		ContentSecurityPolicyHeaderWriter noPolicyWriter = new ContentSecurityPolicyHeaderWriter();
 		this.writer.setReportOnly(true);
 		noPolicyWriter.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Content-Security-Policy")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);
 	}
@@ -93,7 +88,6 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	public void writeHeadersContentSecurityPolicyReportOnlyDefault() {
 		this.writer.setReportOnly(true);
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Content-Security-Policy-Report-Only")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);
 	}
@@ -101,11 +95,9 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	@Test
 	public void writeHeadersContentSecurityPolicyReportOnlyCustom() {
 		String policyDirectives = "default-src https:; report-uri https://example.com/";
-
 		this.writer = new ContentSecurityPolicyHeaderWriter(policyDirectives);
 		this.writer.setReportOnly(true);
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Content-Security-Policy-Report-Only")).isEqualTo(policyDirectives);
 	}

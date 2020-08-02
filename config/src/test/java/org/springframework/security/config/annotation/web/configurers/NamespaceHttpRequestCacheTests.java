@@ -68,9 +68,7 @@ public class NamespaceHttpRequestCacheTests {
 	@Test
 	public void requestWhenDefaultConfigurationThenUsesHttpSessionRequestCache() throws Exception {
 		this.spring.register(DefaultRequestCacheRefConfig.class).autowire();
-
 		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isForbidden()).andReturn();
-
 		HttpSession session = result.getRequest().getSession(false);
 		assertThat(session).isNotNull();
 		assertThat(session.getAttribute("SPRING_SECURITY_SAVED_REQUEST")).isNotNull();

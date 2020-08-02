@@ -63,10 +63,8 @@ public class SecurityMockMvcConfigurerTests {
 	public void beforeMockMvcCreatedOverrideBean() throws Exception {
 		returnFilterBean();
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(this.filter);
-
 		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
-
 		assertFilterAdded(this.filter);
 		verify(this.servletContext).setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, this.filter);
 	}
@@ -75,27 +73,22 @@ public class SecurityMockMvcConfigurerTests {
 	public void beforeMockMvcCreatedBean() throws Exception {
 		returnFilterBean();
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
-
 		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
-
 		assertFilterAdded(this.beanFilter);
 	}
 
 	@Test
 	public void beforeMockMvcCreatedNoBean() throws Exception {
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(this.filter);
-
 		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
-
 		assertFilterAdded(this.filter);
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void beforeMockMvcCreatedNoFilter() {
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
-
 		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
 	}

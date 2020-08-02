@@ -51,25 +51,18 @@ public class HttpConfigTests {
 
 	@Test
 	public void getWhenUsingMinimalConfigurationThenRedirectsToLogin() throws Exception {
-
 		this.spring.configLocations(this.xml("Minimal")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isFound()).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@Test
 	public void getWhenUsingMinimalConfigurationThenPreventsSessionAsUrlParameter() throws Exception {
-
 		this.spring.configLocations(this.xml("Minimal")).autowire();
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
-
 		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
 		});
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}

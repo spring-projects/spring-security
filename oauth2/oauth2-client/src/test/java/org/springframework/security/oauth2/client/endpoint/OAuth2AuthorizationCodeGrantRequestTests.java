@@ -58,7 +58,6 @@ public class OAuth2AuthorizationCodeGrantRequestTests {
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = new OAuth2AuthorizationCodeGrantRequest(
 				this.clientRegistration, this.authorizationExchange);
-
 		assertThat(authorizationCodeGrantRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationCodeGrantRequest.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authorizationCodeGrantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);

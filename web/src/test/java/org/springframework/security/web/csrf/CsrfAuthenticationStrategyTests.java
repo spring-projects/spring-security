@@ -77,7 +77,6 @@ public class CsrfAuthenticationStrategyTests {
 		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
-
 		verify(this.csrfTokenRepository).saveToken(null, this.request, this.response);
 		verify(this.csrfTokenRepository).saveToken(eq(this.generatedToken), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
@@ -93,16 +92,13 @@ public class CsrfAuthenticationStrategyTests {
 	@Test
 	public void delaySavingCsrf() {
 		this.strategy = new CsrfAuthenticationStrategy(new LazyCsrfTokenRepository(this.csrfTokenRepository));
-
 		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
 		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
-
 		verify(this.csrfTokenRepository).saveToken(null, this.request, this.response);
 		verify(this.csrfTokenRepository, never()).saveToken(eq(this.generatedToken), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
-
 		CsrfToken tokenInRequest = (CsrfToken) this.request.getAttribute(CsrfToken.class.getName());
 		tokenInRequest.getToken();
 		verify(this.csrfTokenRepository).saveToken(eq(this.generatedToken), any(HttpServletRequest.class),
@@ -113,7 +109,6 @@ public class CsrfAuthenticationStrategyTests {
 	public void logoutRemovesNoActionIfNullToken() {
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
-
 		verify(this.csrfTokenRepository, never()).saveToken(any(CsrfToken.class), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}

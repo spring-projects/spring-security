@@ -43,7 +43,6 @@ public class StaticServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenSingleHeaderThenWritesHeader() {
 		this.writer.writeHttpHeaders(this.exchange);
-
 		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 				.containsOnly(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
@@ -52,9 +51,7 @@ public class StaticServerHttpHeadersWriterTests {
 	public void writeHeadersWhenSingleHeaderAndHeaderWrittenThenSuccess() {
 		String headerValue = "other";
 		this.headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
-
 		this.writer.writeHttpHeaders(this.exchange);
-
 		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 				.containsOnly(headerValue);
 	}
@@ -65,9 +62,7 @@ public class StaticServerHttpHeadersWriterTests {
 				.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
 				.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
 				.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE).build();
-
 		this.writer.writeHttpHeaders(this.exchange);
-
 		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL))
 				.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
 		assertThat(this.headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
@@ -79,14 +74,11 @@ public class StaticServerHttpHeadersWriterTests {
 	public void writeHeadersWhenMultiHeaderAndSingleWrittenThenNoHeadersOverridden() {
 		String headerValue = "other";
 		this.headers.set(HttpHeaders.CACHE_CONTROL, headerValue);
-
 		this.writer = StaticServerHttpHeadersWriter.builder()
 				.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
 				.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
 				.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE).build();
-
 		this.writer.writeHttpHeaders(this.exchange);
-
 		assertThat(this.headers).hasSize(1);
 		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(headerValue);
 	}

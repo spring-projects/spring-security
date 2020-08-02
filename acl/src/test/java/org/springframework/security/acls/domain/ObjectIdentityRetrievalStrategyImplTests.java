@@ -34,10 +34,8 @@ public class ObjectIdentityRetrievalStrategyImplTests {
 	public void testObjectIdentityCreation() {
 		MockIdDomainObject domain = new MockIdDomainObject();
 		domain.setId(1);
-
 		ObjectIdentityRetrievalStrategy retStrategy = new ObjectIdentityRetrievalStrategyImpl();
 		ObjectIdentity identity = retStrategy.getObjectIdentity(domain);
-
 		assertThat(identity).isNotNull();
 		assertThat(new ObjectIdentityImpl(domain)).isEqualTo(identity);
 	}

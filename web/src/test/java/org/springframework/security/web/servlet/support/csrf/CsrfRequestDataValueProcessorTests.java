@@ -49,10 +49,8 @@ public class CsrfRequestDataValueProcessorTests {
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.processor = new CsrfRequestDataValueProcessor();
-
 		this.token = new DefaultCsrfToken("1", "a", "b");
 		this.request.setAttribute(CsrfToken.class.getName(), this.token);
-
 		this.expected.put(this.token.getParameterName(), this.token.getToken());
 	}
 
@@ -132,7 +130,6 @@ public class CsrfRequestDataValueProcessorTests {
 		this.request.setAttribute(CsrfToken.class.getName(), token);
 		Map<String, String> expected = new HashMap<>();
 		expected.put(token.getParameterName(), token.getToken());
-
 		RequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
 		assertThat(processor.getExtraHiddenFields(this.request)).isEqualTo(expected);
 	}

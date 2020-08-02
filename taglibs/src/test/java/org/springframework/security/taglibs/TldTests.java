@@ -32,17 +32,12 @@ public class TldTests {
 	@Test
 	public void testTldVersionIsCorrect() throws Exception {
 		String SPRING_SECURITY_VERSION = "springSecurityVersion";
-
 		String version = System.getProperty(SPRING_SECURITY_VERSION);
-
 		File securityTld = new File("src/main/resources/META-INF/security.tld");
-
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(securityTld);
-
 		String tlibVersion = document.getElementsByTagName("tlib-version").item(0).getTextContent();
-
 		assertThat(version).startsWith(tlibVersion);
 	}
 

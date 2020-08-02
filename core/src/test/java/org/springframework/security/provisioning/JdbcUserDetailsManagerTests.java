@@ -97,7 +97,6 @@ public class JdbcUserDetailsManagerTests {
 		this.manager.setChangePasswordSql(JdbcUserDetailsManager.DEF_CHANGE_PASSWORD_SQL);
 		this.manager.initDao();
 		this.template = this.manager.getJdbcTemplate();
-
 		this.template.execute("create table users(username varchar(20) not null primary key,"
 				+ "password varchar(20) not null, enabled boolean not null)");
 		this.template
@@ -121,7 +120,6 @@ public class JdbcUserDetailsManagerTests {
 		this.template.execute("alter table users add column acc_locked boolean default false not null");
 		this.template.execute("alter table users add column acc_expired boolean default false not null");
 		this.template.execute("alter table users add column creds_expired boolean default false not null");
-
 		this.manager.setUsersByUsernameQuery(
 				"select username,password,enabled, acc_locked, acc_expired, creds_expired from users where username = ?");
 		this.manager.setCreateUserSql(
@@ -133,22 +131,17 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void createUserInsertsCorrectData() {
 		this.manager.createUser(joe);
-
 		UserDetails joe2 = this.manager.loadUserByUsername("joe");
-
 		assertThat(joe2).isEqualTo(joe);
 	}
 
 	@Test
 	public void createUserInsertsCorrectDataWithLocking() {
 		setUpAccLockingColumns();
-
 		UserDetails user = new User("joe", "pass", true, false, true, false,
 				AuthorityUtils.createAuthorityList("A", "B"));
 		this.manager.createUser(user);
-
 		UserDetails user2 = this.manager.loadUserByUsername(user.getUsername());
-
 		assertThat(user2).isEqualToComparingFieldByField(user);
 	}
 
@@ -156,7 +149,6 @@ public class JdbcUserDetailsManagerTests {
 	public void deleteUserRemovesUserDataAndAuthoritiesAndClearsCache() {
 		insertJoe();
 		this.manager.deleteUser("joe");
-
 		assertThat(this.template.queryForList(SELECT_JOE_SQL)).isEmpty();
 		assertThat(this.template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
 		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
@@ -167,11 +159,8 @@ public class JdbcUserDetailsManagerTests {
 		insertJoe();
 		User newJoe = new User("joe", "newpassword", false, true, true, true,
 				AuthorityUtils.createAuthorityList(new String[] { "D", "F", "E" }));
-
 		this.manager.updateUser(newJoe);
-
 		UserDetails joe = this.manager.loadUserByUsername("joe");
-
 		assertThat(joe).isEqualTo(newJoe);
 		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
 	}
@@ -179,16 +168,11 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void updateUserChangesDataCorrectlyAndClearsCacheWithLocking() {
 		setUpAccLockingColumns();
-
 		insertJoe();
-
 		User newJoe = new User("joe", "newpassword", false, false, false, true,
 				AuthorityUtils.createAuthorityList("D", "F", "E"));
-
 		this.manager.updateUser(newJoe);
-
 		UserDetails joe = this.manager.loadUserByUsername(newJoe.getUsername());
-
 		assertThat(joe).isEqualToComparingFieldByField(newJoe);
 		assertThat(this.cache.getUserMap().containsKey(newJoe.getUsername())).isFalse();
 	}
@@ -216,7 +200,6 @@ public class JdbcUserDetailsManagerTests {
 		authenticateJoe();
 		this.manager.changePassword("wrongpassword", "newPassword");
 		UserDetails newJoe = this.manager.loadUserByUsername("joe");
-
 		assertThat(newJoe.getPassword()).isEqualTo("newPassword");
 		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
 	}
@@ -227,11 +210,9 @@ public class JdbcUserDetailsManagerTests {
 		Authentication currentAuth = authenticateJoe();
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(currentAuth)).willReturn(currentAuth);
-
 		this.manager.setAuthenticationManager(am);
 		this.manager.changePassword("password", "newPassword");
 		UserDetails newJoe = this.manager.loadUserByUsername("joe");
-
 		assertThat(newJoe.getPassword()).isEqualTo("newPassword");
 		// The password in the context should also be altered
 		Authentication newAuth = SecurityContextHolder.getContext().getAuthentication();
@@ -247,16 +228,13 @@ public class JdbcUserDetailsManagerTests {
 		authenticateJoe();
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
-
 		this.manager.setAuthenticationManager(am);
-
 		try {
 			this.manager.changePassword("password", "newPassword");
 			fail("Expected BadCredentialsException");
 		}
 		catch (BadCredentialsException expected) {
 		}
-
 		// Check password hasn't changed.
 		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 		assertThat(newJoe.getPassword()).isEqualTo("password");
@@ -268,7 +246,6 @@ public class JdbcUserDetailsManagerTests {
 	public void findAllGroupsReturnsExpectedGroupNames() {
 		List<String> groups = this.manager.findAllGroups();
 		assertThat(groups).hasSize(4);
-
 		Collections.sort(groups);
 		assertThat(groups.get(0)).isEqualTo("GROUP_0");
 		assertThat(groups.get(1)).isEqualTo("GROUP_1");
@@ -289,10 +266,8 @@ public class JdbcUserDetailsManagerTests {
 	@SuppressWarnings("unchecked")
 	public void createGroupInsertsCorrectData() {
 		this.manager.createGroup("TEST_GROUP", AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
-
 		List roles = this.template.queryForList("select ga.authority from groups g, group_authorities ga "
 				+ "where ga.group_id = g.id " + "and g.group_name = 'TEST_GROUP'");
-
 		assertThat(roles).hasSize(2);
 	}
 
@@ -302,7 +277,6 @@ public class JdbcUserDetailsManagerTests {
 		this.manager.deleteGroup("GROUP_1");
 		this.manager.deleteGroup("GROUP_2");
 		this.manager.deleteGroup("GROUP_3");
-
 		assertThat(this.template.queryForList("select * from group_authorities")).isEmpty();
 		assertThat(this.template.queryForList("select * from group_members")).isEmpty();
 		assertThat(this.template.queryForList("select id from groups")).isEmpty();
@@ -311,7 +285,6 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void renameGroupIsSuccessful() {
 		this.manager.renameGroup("GROUP_0", "GROUP_X");
-
 		assertThat(this.template.queryForObject("select id from groups where group_name = 'GROUP_X'", Integer.class))
 				.isZero();
 	}
@@ -319,14 +292,12 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void addingGroupUserSetsCorrectData() {
 		this.manager.addUserToGroup("tom", "GROUP_0");
-
 		assertThat(this.template.queryForList("select username from group_members where group_id = 0")).hasSize(2);
 	}
 
 	@Test
 	public void removeUserFromGroupDeletesGroupMemberRow() {
 		this.manager.removeUserFromGroup("jerry", "GROUP_1");
-
 		assertThat(this.template.queryForList("select group_id from group_members where username = 'jerry'"))
 				.hasSize(1);
 	}
@@ -341,7 +312,6 @@ public class JdbcUserDetailsManagerTests {
 	public void addGroupAuthorityInsertsCorrectGroupAuthorityRow() {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_X");
 		this.manager.addGroupAuthority("GROUP_0", auth);
-
 		this.template.queryForObject(
 				"select authority from group_authorities where authority = 'ROLE_X' and group_id = 0", String.class);
 	}
@@ -351,7 +321,6 @@ public class JdbcUserDetailsManagerTests {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_A");
 		this.manager.removeGroupAuthority("GROUP_0", auth);
 		assertThat(this.template.queryForList("select authority from group_authorities where group_id = 0")).isEmpty();
-
 		this.manager.removeGroupAuthority("GROUP_2", auth);
 		assertThat(this.template.queryForList("select authority from group_authorities where group_id = 2")).hasSize(2);
 	}
@@ -388,7 +357,6 @@ public class JdbcUserDetailsManagerTests {
 		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("joe", "password",
 				joe.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(auth);
-
 		return auth;
 	}
 

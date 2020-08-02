@@ -78,18 +78,14 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenCustomAccessDecisionManagerThenAuthorizes() {
 		this.spring.register(CustomAccessDecisionManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
-
 		assertThatThrownBy(() -> this.service.secured()).isInstanceOf(AccessDeniedException.class);
-
 	}
 
 	@Test
 	@WithMockUser
 	public void methodSecurityWhenCustomAfterInvocationManagerThenAuthorizes() {
 		this.spring.register(CustomAfterInvocationManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatThrownBy(() -> this.service.preAuthorizePermitAll()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -97,7 +93,6 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenCustomAuthenticationManagerThenAuthorizes() {
 		this.spring.register(CustomAuthenticationConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(UnsupportedOperationException.class);
 	}
 
@@ -105,15 +100,10 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenJsr250EnabledThenAuthorizes() {
 		this.spring.register(Jsr250Config.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatCode(() -> this.service.preAuthorize()).doesNotThrowAnyException();
-
 		assertThatCode(() -> this.service.secured()).doesNotThrowAnyException();
-
 		assertThatThrownBy(() -> this.service.jsr250()).isInstanceOf(AccessDeniedException.class);
-
 		assertThatCode(() -> this.service.jsr250PermitAll()).doesNotThrowAnyException();
-
 	}
 
 	@Test
@@ -121,11 +111,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	public void methodSecurityWhenCustomMethodSecurityMetadataSourceThenAuthorizes() {
 		this.spring.register(CustomMethodSecurityMetadataSourceConfig.class, MethodSecurityServiceConfig.class)
 				.autowire();
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
-
 		assertThatThrownBy(() -> this.service.secured()).isInstanceOf(AccessDeniedException.class);
-
 		assertThatThrownBy(() -> this.service.jsr250()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -133,12 +120,10 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void contextRefreshWhenUsingAspectJThenAutowire() throws Exception {
 		this.spring.register(AspectJModeConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThat(this.spring.getContext().getBean(
 				Class.forName("org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect")))
 						.isNotNull();
 		assertThat(this.spring.getContext().getBean(AspectJMethodSecurityInterceptor.class)).isNotNull();
-
 		// TODO diagnose why aspectj isn't weaving method security advice around
 		// MethodSecurityServiceImpl
 	}
@@ -146,24 +131,19 @@ public class NamespaceGlobalMethodSecurityTests {
 	@Test
 	public void contextRefreshWhenUsingAspectJAndCustomGlobalMethodSecurityConfigurationThenAutowire()
 			throws Exception {
-
 		this.spring.register(AspectJModeExtendsGMSCConfig.class).autowire();
-
 		assertThat(this.spring.getContext().getBean(
 				Class.forName("org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect")))
 						.isNotNull();
 		assertThat(this.spring.getContext().getBean(AspectJMethodSecurityInterceptor.class)).isNotNull();
-
 	}
 
 	@Test
 	@WithMockUser
 	public void methodSecurityWhenOrderSpecifiedThenConfigured() {
 		this.spring.register(CustomOrderConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThat(this.spring.getContext().getBean("metaDataSourceAdvisor", MethodSecurityMetadataSourceAdvisor.class)
 				.getOrder()).isEqualTo(-135);
-
 		assertThatThrownBy(() -> this.service.jsr250()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -171,10 +151,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenOrderUnspecifiedThenConfiguredToLowestPrecedence() {
 		this.spring.register(DefaultOrderConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThat(this.spring.getContext().getBean("metaDataSourceAdvisor", MethodSecurityMetadataSourceAdvisor.class)
 				.getOrder()).isEqualTo(Ordered.LOWEST_PRECEDENCE);
-
 		assertThatThrownBy(() -> this.service.jsr250()).isInstanceOf(UnsupportedOperationException.class);
 	}
 
@@ -183,10 +161,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	public void methodSecurityWhenOrderUnspecifiedAndCustomGlobalMethodSecurityConfigurationThenConfiguredToLowestPrecedence() {
 		this.spring.register(DefaultOrderExtendsMethodSecurityConfig.class, MethodSecurityServiceConfig.class)
 				.autowire();
-
 		assertThat(this.spring.getContext().getBean("metaDataSourceAdvisor", MethodSecurityMetadataSourceAdvisor.class)
 				.getOrder()).isEqualTo(Ordered.LOWEST_PRECEDENCE);
-
 		assertThatThrownBy(() -> this.service.jsr250()).isInstanceOf(UnsupportedOperationException.class);
 	}
 
@@ -194,11 +170,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenPrePostEnabledThenPreAuthorizes() {
 		this.spring.register(PreAuthorizeConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatCode(() -> this.service.secured()).doesNotThrowAnyException();
-
 		assertThatCode(() -> this.service.jsr250()).doesNotThrowAnyException();
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -206,11 +179,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenPrePostEnabledAndCustomGlobalMethodSecurityConfigurationThenPreAuthorizes() {
 		this.spring.register(PreAuthorizeExtendsGMSCConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatCode(() -> this.service.secured()).doesNotThrowAnyException();
-
 		assertThatCode(() -> this.service.jsr250()).doesNotThrowAnyException();
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -218,10 +188,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenProxyTargetClassThenDoesNotWireToInterface() {
 		this.spring.register(ProxyTargetClassConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		// make sure service was actually proxied
 		assertThat(this.service.getClass().getInterfaces()).doesNotContain(MethodSecurityService.class);
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -229,9 +197,7 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenDefaultProxyThenWiresToInterface() {
 		this.spring.register(DefaultProxyConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThat(this.service.getClass().getInterfaces()).contains(MethodSecurityService.class);
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -239,7 +205,6 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenCustomRunAsManagerThenRunAsWrapsAuthentication() {
 		this.spring.register(CustomRunAsManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThat(this.service.runAs().getAuthorities())
 				.anyMatch((authority) -> "ROLE_RUN_AS_SUPER".equals(authority.getAuthority()));
 	}
@@ -248,13 +213,9 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenSecuredEnabledThenSecures() {
 		this.spring.register(SecuredConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatThrownBy(() -> this.service.secured()).isInstanceOf(AccessDeniedException.class);
-
 		assertThatCode(() -> this.service.securedUser()).doesNotThrowAnyException();
-
 		assertThatCode(() -> this.service.preAuthorize()).doesNotThrowAnyException();
-
 		assertThatCode(() -> this.service.jsr250()).doesNotThrowAnyException();
 	}
 
@@ -269,11 +230,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	@WithMockUser
 	public void methodSecurityWhenImportingGlobalMethodSecurityConfigurationSubclassThenAuthorizes() {
 		this.spring.register(ImportSubclassGMSCConfig.class, MethodSecurityServiceConfig.class).autowire();
-
 		assertThatCode(() -> this.service.secured()).doesNotThrowAnyException();
-
 		assertThatCode(() -> this.service.jsr250()).doesNotThrowAnyException();
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -320,7 +278,6 @@ public class NamespaceGlobalMethodSecurityTests {
 			@Override
 			public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes,
 					Object returnedObject) throws AccessDeniedException {
-
 				throw new AccessDeniedException("custom AfterInvocationManager");
 			}
 
@@ -403,7 +360,6 @@ public class NamespaceGlobalMethodSecurityTests {
 				BeanDefinitionRegistry registry) {
 			BeanDefinitionBuilder advice = BeanDefinitionBuilder.rootBeanDefinition(ExceptingInterceptor.class);
 			registry.registerBeanDefinition("exceptingInterceptor", advice.getBeanDefinition());
-
 			BeanDefinitionBuilder advisor = BeanDefinitionBuilder
 					.rootBeanDefinition(MethodSecurityMetadataSourceAdvisor.class);
 			advisor.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);

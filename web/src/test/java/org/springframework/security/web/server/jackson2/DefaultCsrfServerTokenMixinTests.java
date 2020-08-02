@@ -43,7 +43,6 @@ public class DefaultCsrfServerTokenMixinTests extends AbstractMixinTests {
 			+ "\"token\": \"1\""
 			+ "}";
 	// @formatter:on
-
 	@Test
 	public void defaultCsrfTokenSerializedTest() throws JsonProcessingException, JSONException {
 		DefaultCsrfToken token = new DefaultCsrfToken("csrf-header", "_csrf", "1");

@@ -48,14 +48,12 @@ public class OidcUserAuthorityTests {
 	private static final Map<String, Object> ID_TOKEN_CLAIMS = new HashMap<>();
 
 	private static final Map<String, Object> USER_INFO_CLAIMS = new HashMap<>();
-
 	static {
 		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.ISS, "https://example.com");
 		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.SUB, SUBJECT);
 		USER_INFO_CLAIMS.put(StandardClaimNames.NAME, NAME);
 		USER_INFO_CLAIMS.put(StandardClaimNames.EMAIL, EMAIL);
 	}
-
 	private static final OidcIdToken ID_TOKEN = new OidcIdToken("id-token-value", Instant.EPOCH, Instant.MAX,
 			ID_TOKEN_CLAIMS);
 
@@ -79,7 +77,6 @@ public class OidcUserAuthorityTests {
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		OidcUserAuthority userAuthority = new OidcUserAuthority(AUTHORITY, ID_TOKEN, USER_INFO);
-
 		assertThat(userAuthority.getIdToken()).isEqualTo(ID_TOKEN);
 		assertThat(userAuthority.getUserInfo()).isEqualTo(USER_INFO);
 		assertThat(userAuthority.getAuthority()).isEqualTo(AUTHORITY);

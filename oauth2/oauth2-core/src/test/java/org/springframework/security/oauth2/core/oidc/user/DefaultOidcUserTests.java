@@ -54,14 +54,12 @@ public class DefaultOidcUserTests {
 	private static final Map<String, Object> ID_TOKEN_CLAIMS = new HashMap<>();
 
 	private static final Map<String, Object> USER_INFO_CLAIMS = new HashMap<>();
-
 	static {
 		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.ISS, "https://example.com");
 		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.SUB, SUBJECT);
 		USER_INFO_CLAIMS.put(StandardClaimNames.NAME, NAME);
 		USER_INFO_CLAIMS.put(StandardClaimNames.EMAIL, EMAIL);
 	}
-
 	private static final OidcIdToken ID_TOKEN = new OidcIdToken("id-token-value", Instant.EPOCH, Instant.MAX,
 			ID_TOKEN_CLAIMS);
 
@@ -85,7 +83,6 @@ public class DefaultOidcUserTests {
 	@Test
 	public void constructorWhenAuthoritiesIdTokenProvidedThenCreated() {
 		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN);
-
 		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
 		assertThat(user.getName()).isEqualTo(SUBJECT);
@@ -97,7 +94,6 @@ public class DefaultOidcUserTests {
 	@Test
 	public void constructorWhenAuthoritiesIdTokenNameAttributeKeyProvidedThenCreated() {
 		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN, IdTokenClaimNames.SUB);
-
 		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
 		assertThat(user.getName()).isEqualTo(SUBJECT);
@@ -109,7 +105,6 @@ public class DefaultOidcUserTests {
 	@Test
 	public void constructorWhenAuthoritiesIdTokenUserInfoProvidedThenCreated() {
 		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN, USER_INFO);
-
 		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB,
 				StandardClaimNames.NAME, StandardClaimNames.EMAIL);
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
@@ -124,7 +119,6 @@ public class DefaultOidcUserTests {
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN, USER_INFO, StandardClaimNames.EMAIL);
-
 		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB,
 				StandardClaimNames.NAME, StandardClaimNames.EMAIL);
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);

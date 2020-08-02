@@ -95,7 +95,6 @@ public class SecurityContextLoginModuleTests {
 		this.module.login();
 		assertThat(this.module.logout()).as("Should return true as it succeeds").isTrue();
 		assertThat(this.module.getAuthentication()).as("Authentication should be null").isNull();
-
 		assertThat(this.subject.getPrincipals().contains(this.auth))
 				.withFailMessage("Principals should not contain the authentication after logout").isFalse();
 	}
@@ -114,10 +113,8 @@ public class SecurityContextLoginModuleTests {
 	@Test
 	public void testNullAuthenticationInSecurityContextIgnored() throws Exception {
 		this.module = new SecurityContextLoginModule();
-
 		Map<String, String> options = new HashMap<>();
 		options.put("ignoreMissingAuthentication", "true");
-
 		this.module.initialize(this.subject, null, null, options);
 		SecurityContextHolder.getContext().setAuthentication(null);
 		assertThat(this.module.login()).as("Should return false and ask to be ignored").isFalse();

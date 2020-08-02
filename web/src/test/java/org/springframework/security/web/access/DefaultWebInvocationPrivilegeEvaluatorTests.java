@@ -101,10 +101,8 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	public void deniesAccessIfAccessDecisionManagerDoes() {
 		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-
 		willThrow(new AccessDeniedException("")).given(this.adm).decide(any(Authentication.class), anyObject(),
 				anyList());
-
 		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isFalse();
 	}
 

@@ -54,9 +54,7 @@ public class AbstractAccessDecisionManagerTests {
 		List list = new Vector();
 		list.add(new DenyVoter());
 		list.add(new MockStringOnlyVoter());
-
 		MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
-
 		assertThat(mock.supports(String.class)).isTrue();
 		assertThat(!mock.supports(Integer.class)).isTrue();
 	}
@@ -68,12 +66,9 @@ public class AbstractAccessDecisionManagerTests {
 		DenyAgainVoter denyVoter = new DenyAgainVoter();
 		list.add(voter);
 		list.add(denyVoter);
-
 		MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
-
 		ConfigAttribute attr = new SecurityConfig("DENY_AGAIN_FOR_SURE");
 		assertThat(mock.supports(attr)).isTrue();
-
 		ConfigAttribute badAttr = new SecurityConfig("WE_DONT_SUPPORT_THIS");
 		assertThat(!mock.supports(badAttr)).isTrue();
 	}
@@ -92,13 +87,11 @@ public class AbstractAccessDecisionManagerTests {
 	@Test
 	public void testRejectsEmptyList() {
 		List list = new Vector();
-
 		try {
 			new MockDecisionManagerImpl(list);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -109,7 +102,6 @@ public class AbstractAccessDecisionManagerTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -126,7 +118,6 @@ public class AbstractAccessDecisionManagerTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 

@@ -94,14 +94,12 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 
 	@Test
 	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthentication() throws Exception {
-
 		this.mvc.perform(get("/name").with(oidcLogin())).andExpect(content().string("user"));
 		this.mvc.perform(get("/admin/id-token/name").with(oidcLogin())).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient() throws Exception {
-
 		this.mvc.perform(get("/access-token").with(oidcLogin())).andExpect(content().string("access-token"));
 	}
 
@@ -128,12 +126,9 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
 				OidcIdToken.withTokenValue("id-token").claim("custom-attribute", "test-subject").build(),
 				"custom-attribute");
-
 		this.mvc.perform(get("/id-token/custom-attribute").with(oidcLogin().oidcUser(oidcUser)))
 				.andExpect(content().string("test-subject"));
-
 		this.mvc.perform(get("/name").with(oidcLogin().oidcUser(oidcUser))).andExpect(content().string("test-subject"));
-
 		this.mvc.perform(get("/client-name").with(oidcLogin().oidcUser(oidcUser)))
 				.andExpect(content().string("test-subject"));
 	}
@@ -143,7 +138,6 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("SCOPE_read"),
 				TestOidcIdTokens.idToken().build());
-
 		this.mvc.perform(get("/id-token/sub").with(oidcLogin().idToken((i) -> i.subject("foo")).oidcUser(oidcUser)))
 				.andExpect(status().isOk()).andExpect(content().string("subject"));
 		this.mvc.perform(get("/id-token/sub").with(oidcLogin().oidcUser(oidcUser).idToken((i) -> i.subject("bar"))))

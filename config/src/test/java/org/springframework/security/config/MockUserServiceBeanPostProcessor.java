@@ -37,7 +37,6 @@ public class MockUserServiceBeanPostProcessor implements BeanPostProcessor {
 		if (bean instanceof PostProcessedMockUserDetailsService) {
 			((PostProcessedMockUserDetailsService) bean).setPostProcessorWasHere("Hello from the post processor!");
 		}
-
 		return bean;
 	}
 

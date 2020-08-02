@@ -39,13 +39,11 @@ public class RemoteAuthenticationProviderTests {
 	public void testExceptionsGetPassedBackToCaller() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
-
 		try {
 			provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
 			fail("Should have thrown RemoteAuthenticationException");
 		}
 		catch (RemoteAuthenticationException expected) {
-
 		}
 	}
 
@@ -59,25 +57,20 @@ public class RemoteAuthenticationProviderTests {
 	@Test
 	public void testStartupChecksAuthenticationManagerSet() throws Exception {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-
 		try {
 			provider.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
-
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 		provider.afterPropertiesSet();
-
 	}
 
 	@Test
 	public void testSuccessfulAuthenticationCreatesObject() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
-
 		Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
 		assertThat(result.getPrincipal()).isEqualTo("rod");
 		assertThat(result.getCredentials()).isEqualTo("password");
@@ -88,14 +81,12 @@ public class RemoteAuthenticationProviderTests {
 	public void testNullCredentialsDoesNotCauseNullPointerException() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
-
 		try {
 			provider.authenticate(new UsernamePasswordAuthenticationToken("rod", null));
 			fail("Expected Exception");
 		}
 		catch (RemoteAuthenticationException success) {
 		}
-
 	}
 
 	@Test

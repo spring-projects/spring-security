@@ -78,7 +78,6 @@ public class HttpsRedirectWebFilterTests {
 		given(matcher.matches(any(ServerWebExchange.class)))
 				.willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
-
 		ServerWebExchange exchange = get("http://localhost:8080");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(exchange.getResponse().getStatusCode()).isNull();
@@ -89,12 +88,10 @@ public class HttpsRedirectWebFilterTests {
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
 		given(matcher.matches(any(ServerWebExchange.class))).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
-
 		ServerWebExchange exchange = get("http://localhost:8080");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(statusCode(exchange)).isEqualTo(302);
 		assertThat(redirectedUrl(exchange)).isEqualTo("https://localhost:8443");
-
 		verify(matcher).matches(any(ServerWebExchange.class));
 	}
 
@@ -103,12 +100,10 @@ public class HttpsRedirectWebFilterTests {
 		PortMapper portMapper = mock(PortMapper.class);
 		given(portMapper.lookupHttpsPort(314)).willReturn(159);
 		this.filter.setPortMapper(portMapper);
-
 		ServerWebExchange exchange = get("http://localhost:314");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(statusCode(exchange)).isEqualTo(302);
 		assertThat(redirectedUrl(exchange)).isEqualTo("https://localhost:159");
-
 		verify(portMapper).lookupHttpsPort(314);
 	}
 

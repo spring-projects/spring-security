@@ -38,7 +38,6 @@ public class Sec2196Tests {
 	public void genericMethodsProtected() {
 		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
 				+ "<b:bean class='" + Service.class.getName() + "'/>");
-
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
 		Service service = this.context.getBean(Service.class);
@@ -49,7 +48,6 @@ public class Sec2196Tests {
 	public void genericMethodsAllowed() {
 		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
 				+ "<b:bean class='" + Service.class.getName() + "'/>");
-
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken("test", "pass", "saveUsers"));
 		Service service = this.context.getBean(Service.class);

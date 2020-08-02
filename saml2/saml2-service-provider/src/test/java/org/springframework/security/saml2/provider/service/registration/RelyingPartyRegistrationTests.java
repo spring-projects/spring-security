@@ -80,7 +80,6 @@ public class RelyingPartyRegistrationTests {
 				.assertingPartyDetails((assertingParty) -> assertingParty.entityId("entity-id")
 						.singleSignOnServiceLocation("location"))
 				.credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())).build();
-
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 	}
 

@@ -70,18 +70,14 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 	@Test
 	public void writeHeadersOnMatch() {
 		given(this.matcher.matches(this.request)).willReturn(true);
-
 		this.headerWriter.writeHeaders(this.request, this.response);
-
 		verify(this.delegate).writeHeaders(this.request, this.response);
 	}
 
 	@Test
 	public void writeHeadersOnNoMatch() {
 		given(this.matcher.matches(this.request)).willReturn(false);
-
 		this.headerWriter.writeHeaders(this.request, this.response);
-
 		verify(this.delegate, times(0)).writeHeaders(this.request, this.response);
 	}
 

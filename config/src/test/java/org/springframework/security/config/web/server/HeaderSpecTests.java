@@ -77,39 +77,32 @@ public class HeaderSpecTests {
 	@Test
 	public void headersWhenDisableThenNoSecurityHeaders() {
 		new HashSet<>(this.expectedHeaders.keySet()).forEach(this::expectHeaderNamesNotPresent);
-
 		this.http.headers().disable();
-
 		assertHeaders();
 	}
 
 	@Test
 	public void headersWhenDisableInLambdaThenNoSecurityHeaders() {
 		new HashSet<>(this.expectedHeaders.keySet()).forEach(this::expectHeaderNamesNotPresent);
-
 		this.http.headers((headers) -> headers.disable());
-
 		assertHeaders();
 	}
 
 	@Test
 	public void headersWhenDisableAndInvokedExplicitlyThenDefautsUsed() {
 		this.http.headers().disable().headers();
-
 		assertHeaders();
 	}
 
 	@Test
 	public void headersWhenDefaultsThenAllDefaultsWritten() {
 		this.http.headers();
-
 		assertHeaders();
 	}
 
 	@Test
 	public void headersWhenDefaultsInLambdaThenAllDefaultsWritten() {
 		this.http.headers(withDefaults());
-
 		assertHeaders();
 	}
 
@@ -117,7 +110,6 @@ public class HeaderSpecTests {
 	public void headersWhenCacheDisableThenCacheNotWritten() {
 		expectHeaderNamesNotPresent(HttpHeaders.CACHE_CONTROL, HttpHeaders.PRAGMA, HttpHeaders.EXPIRES);
 		this.http.headers().cache().disable();
-
 		assertHeaders();
 	}
 
@@ -125,7 +117,6 @@ public class HeaderSpecTests {
 	public void headersWhenCacheDisableInLambdaThenCacheNotWritten() {
 		expectHeaderNamesNotPresent(HttpHeaders.CACHE_CONTROL, HttpHeaders.PRAGMA, HttpHeaders.EXPIRES);
 		this.http.headers((headers) -> headers.cache((cache) -> cache.disable()));
-
 		assertHeaders();
 	}
 
@@ -133,7 +124,6 @@ public class HeaderSpecTests {
 	public void headersWhenContentOptionsDisableThenContentTypeOptionsNotWritten() {
 		expectHeaderNamesNotPresent(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS);
 		this.http.headers().contentTypeOptions().disable();
-
 		assertHeaders();
 	}
 
@@ -142,7 +132,6 @@ public class HeaderSpecTests {
 		expectHeaderNamesNotPresent(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS);
 		this.http
 				.headers((headers) -> headers.contentTypeOptions((contentTypeOptions) -> contentTypeOptions.disable()));
-
 		assertHeaders();
 	}
 
@@ -150,7 +139,6 @@ public class HeaderSpecTests {
 	public void headersWhenHstsDisableThenHstsNotWritten() {
 		expectHeaderNamesNotPresent(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
 		this.http.headers().hsts().disable();
-
 		assertHeaders();
 	}
 
@@ -158,7 +146,6 @@ public class HeaderSpecTests {
 	public void headersWhenHstsDisableInLambdaThenHstsNotWritten() {
 		expectHeaderNamesNotPresent(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
 		this.http.headers((headers) -> headers.hsts((hsts) -> hsts.disable()));
-
 		assertHeaders();
 	}
 
@@ -168,7 +155,6 @@ public class HeaderSpecTests {
 		this.expectedHeaders.add(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				"max-age=60");
 		this.http.headers().hsts().maxAge(Duration.ofSeconds(60)).includeSubdomains(false);
-
 		assertHeaders();
 	}
 
@@ -179,7 +165,6 @@ public class HeaderSpecTests {
 				"max-age=60");
 		this.http.headers(
 				(headers) -> headers.hsts((hsts) -> hsts.maxAge(Duration.ofSeconds(60)).includeSubdomains(false)));
-
 		assertHeaders();
 	}
 
@@ -189,7 +174,6 @@ public class HeaderSpecTests {
 		this.expectedHeaders.add(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				"max-age=60 ; includeSubDomains ; preload");
 		this.http.headers().hsts().maxAge(Duration.ofSeconds(60)).preload(true);
-
 		assertHeaders();
 	}
 
@@ -199,7 +183,6 @@ public class HeaderSpecTests {
 		this.expectedHeaders.add(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
 				"max-age=60 ; includeSubDomains ; preload");
 		this.http.headers((headers) -> headers.hsts((hsts) -> hsts.maxAge(Duration.ofSeconds(60)).preload(true)));
-
 		assertHeaders();
 	}
 
@@ -207,7 +190,6 @@ public class HeaderSpecTests {
 	public void headersWhenFrameOptionsDisableThenFrameOptionsNotWritten() {
 		expectHeaderNamesNotPresent(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS);
 		this.http.headers().frameOptions().disable();
-
 		assertHeaders();
 	}
 
@@ -215,7 +197,6 @@ public class HeaderSpecTests {
 	public void headersWhenFrameOptionsDisableInLambdaThenFrameOptionsNotWritten() {
 		expectHeaderNamesNotPresent(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS);
 		this.http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.disable()));
-
 		assertHeaders();
 	}
 
@@ -223,7 +204,6 @@ public class HeaderSpecTests {
 	public void headersWhenFrameOptionsModeThenFrameOptionsCustomMode() {
 		this.expectedHeaders.set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, "SAMEORIGIN");
 		this.http.headers().frameOptions().mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN);
-
 		assertHeaders();
 	}
 
@@ -232,7 +212,6 @@ public class HeaderSpecTests {
 		this.expectedHeaders.set(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, "SAMEORIGIN");
 		this.http.headers((headers) -> headers.frameOptions(
 				(frameOptions) -> frameOptions.mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN)));
-
 		assertHeaders();
 	}
 
@@ -240,7 +219,6 @@ public class HeaderSpecTests {
 	public void headersWhenXssProtectionDisableThenXssProtectionNotWritten() {
 		expectHeaderNamesNotPresent("X-Xss-Protection");
 		this.http.headers().xssProtection().disable();
-
 		assertHeaders();
 	}
 
@@ -248,7 +226,6 @@ public class HeaderSpecTests {
 	public void headersWhenXssProtectionDisableInLambdaThenXssProtectionNotWritten() {
 		expectHeaderNamesNotPresent("X-Xss-Protection");
 		this.http.headers((headers) -> headers.xssProtection((xssProtection) -> xssProtection.disable()));
-
 		assertHeaders();
 	}
 
@@ -256,9 +233,7 @@ public class HeaderSpecTests {
 	public void headersWhenFeaturePolicyEnabledThenFeaturePolicyWritten() {
 		String policyDirectives = "Feature-Policy";
 		this.expectedHeaders.add(FeaturePolicyServerHttpHeadersWriter.FEATURE_POLICY, policyDirectives);
-
 		this.http.headers().featurePolicy(policyDirectives);
-
 		assertHeaders();
 	}
 
@@ -267,9 +242,7 @@ public class HeaderSpecTests {
 		String policyDirectives = "default-src 'self'";
 		this.expectedHeaders.add(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY,
 				policyDirectives);
-
 		this.http.headers().contentSecurityPolicy(policyDirectives);
-
 		assertHeaders();
 	}
 
@@ -278,9 +251,7 @@ public class HeaderSpecTests {
 		String expectedPolicyDirectives = "default-src 'self'";
 		this.expectedHeaders.add(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY,
 				expectedPolicyDirectives);
-
 		this.http.headers((headers) -> headers.contentSecurityPolicy(withDefaults()));
-
 		assertHeaders();
 	}
 
@@ -289,10 +260,8 @@ public class HeaderSpecTests {
 		String policyDirectives = "default-src 'self' *.trusted.com";
 		this.expectedHeaders.add(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY,
 				policyDirectives);
-
 		this.http.headers((headers) -> headers.contentSecurityPolicy(
 				(contentSecurityPolicy) -> contentSecurityPolicy.policyDirectives(policyDirectives)));
-
 		assertHeaders();
 	}
 
@@ -301,7 +270,6 @@ public class HeaderSpecTests {
 		this.expectedHeaders.add(ReferrerPolicyServerHttpHeadersWriter.REFERRER_POLICY,
 				ReferrerPolicy.NO_REFERRER.getPolicy());
 		this.http.headers().referrerPolicy();
-
 		assertHeaders();
 	}
 
@@ -310,7 +278,6 @@ public class HeaderSpecTests {
 		this.expectedHeaders.add(ReferrerPolicyServerHttpHeadersWriter.REFERRER_POLICY,
 				ReferrerPolicy.NO_REFERRER.getPolicy());
 		this.http.headers((headers) -> headers.referrerPolicy(withDefaults()));
-
 		assertHeaders();
 	}
 
@@ -319,7 +286,6 @@ public class HeaderSpecTests {
 		this.expectedHeaders.add(ReferrerPolicyServerHttpHeadersWriter.REFERRER_POLICY,
 				ReferrerPolicy.NO_REFERRER_WHEN_DOWNGRADE.getPolicy());
 		this.http.headers().referrerPolicy(ReferrerPolicy.NO_REFERRER_WHEN_DOWNGRADE);
-
 		assertHeaders();
 	}
 
@@ -329,7 +295,6 @@ public class HeaderSpecTests {
 				ReferrerPolicy.NO_REFERRER_WHEN_DOWNGRADE.getPolicy());
 		this.http.headers((headers) -> headers
 				.referrerPolicy((referrerPolicy) -> referrerPolicy.policy(ReferrerPolicy.NO_REFERRER_WHEN_DOWNGRADE)));
-
 		assertHeaders();
 	}
 
@@ -337,10 +302,7 @@ public class HeaderSpecTests {
 	public void headersWhenCustomHeadersWriter() {
 		this.expectedHeaders.add(CUSTOM_HEADER, CUSTOM_VALUE);
 		this.http.headers((headers) -> headers.writer((exchange) -> Mono.just(exchange)
-				.doOnNext((it) -> it.getResponse().getHeaders().add(CUSTOM_HEADER, CUSTOM_VALUE)).then()
-
-		));
-
+				.doOnNext((it) -> it.getResponse().getHeaders().add(CUSTOM_HEADER, CUSTOM_VALUE)).then()));
 		assertHeaders();
 	}
 
@@ -355,9 +317,7 @@ public class HeaderSpecTests {
 		WebTestClient client = buildClient();
 		FluxExchangeResult<String> response = client.get().uri("https://example.com/").exchange()
 				.returnResult(String.class);
-
 		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
-
 		if (!this.expectedHeaders.isEmpty()) {
 			assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(this.expectedHeaders);
 		}

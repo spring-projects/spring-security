@@ -102,7 +102,6 @@ public class OidcIdTokenValidatorTests {
 		 * issuer in the ID Token, the validation must fail
 		 */
 		this.registration = this.registration.issuerUri("https://somethingelse.com");
-
 		assertThat(this.validateIdToken()).hasSize(1).extracting(OAuth2Error::getDescription)
 				.allMatch((msg) -> msg.contains(IdTokenClaimNames.ISS));
 	}
@@ -114,7 +113,6 @@ public class OidcIdTokenValidatorTests {
 		 * in the ID Token, the validation must succeed
 		 */
 		this.registration = this.registration.issuerUri("https://example.com");
-
 		assertThat(this.validateIdToken()).isEmpty();
 	}
 

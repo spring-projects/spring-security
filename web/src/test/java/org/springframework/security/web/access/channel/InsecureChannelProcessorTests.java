@@ -45,13 +45,10 @@ public class InsecureChannelProcessorTests {
 		request.setServletPath("/servlet");
 		request.setScheme("http");
 		request.setServerPort(8080);
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
-
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"));
-
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
 
@@ -65,14 +62,11 @@ public class InsecureChannelProcessorTests {
 		request.setScheme("https");
 		request.setSecure(true);
 		request.setServerPort(8443);
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
-
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.decide(fi,
 				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL" }));
-
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
 
@@ -80,13 +74,11 @@ public class InsecureChannelProcessorTests {
 	public void testDecideRejectsNulls() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.afterPropertiesSet();
-
 		try {
 			processor.decide(null, null);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -96,7 +88,6 @@ public class InsecureChannelProcessorTests {
 		assertThat(processor.getInsecureKeyword()).isEqualTo("REQUIRES_INSECURE_CHANNEL");
 		processor.setInsecureKeyword("X");
 		assertThat(processor.getInsecureKeyword()).isEqualTo("X");
-
 		assertThat(processor.getEntryPoint() != null).isTrue();
 		processor.setEntryPoint(null);
 		assertThat(processor.getEntryPoint() == null).isTrue();
@@ -106,7 +97,6 @@ public class InsecureChannelProcessorTests {
 	public void testMissingEntryPoint() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.setEntryPoint(null);
-
 		try {
 			processor.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
@@ -120,7 +110,6 @@ public class InsecureChannelProcessorTests {
 	public void testMissingSecureChannelKeyword() throws Exception {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.setInsecureKeyword(null);
-
 		try {
 			processor.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
@@ -128,9 +117,7 @@ public class InsecureChannelProcessorTests {
 		catch (IllegalArgumentException expected) {
 			assertThat(expected.getMessage()).isEqualTo("insecureKeyword required");
 		}
-
 		processor.setInsecureKeyword("");
-
 		try {
 			processor.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");

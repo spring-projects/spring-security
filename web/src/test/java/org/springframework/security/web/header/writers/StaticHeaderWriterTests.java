@@ -78,7 +78,6 @@ public class StaticHeaderWriterTests {
 		String headerName = "X-header";
 		String headerValue = "foo";
 		StaticHeadersWriter factory = new StaticHeadersWriter(headerName, headerValue);
-
 		factory.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeaderValues(headerName)).isEqualTo(Arrays.asList(headerValue));
 	}
@@ -88,9 +87,7 @@ public class StaticHeaderWriterTests {
 		Header pragma = new Header("Pragma", "no-cache");
 		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store", "must-revalidate");
 		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma, cacheControl));
-
 		factory.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(2);
 		assertThat(this.response.getHeaderValues(pragma.getName())).isEqualTo(pragma.getValues());
 		assertThat(this.response.getHeaderValues(cacheControl.getName())).isEqualTo(cacheControl.getValues());
@@ -106,11 +103,9 @@ public class StaticHeaderWriterTests {
 		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store", "must-revalidate");
 		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma, cacheControl));
 		factory.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(2);
 		assertThat(this.response.getHeader("Pragma")).isSameAs(pragmaValue);
 		assertThat(this.response.getHeader("Cache-Control")).isSameAs(cacheControlValue);
-
 	}
 
 }

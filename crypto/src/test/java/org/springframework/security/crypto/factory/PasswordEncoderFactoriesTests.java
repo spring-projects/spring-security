@@ -35,7 +35,6 @@ public class PasswordEncoderFactoriesTests {
 	@Test
 	public void encodeWhenDefaultThenBCryptUsed() {
 		String encodedPassword = this.encoder.encode(this.rawPassword);
-
 		assertThat(encodedPassword).startsWith("{bcrypt}");
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
 	}

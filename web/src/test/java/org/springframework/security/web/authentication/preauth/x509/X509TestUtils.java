@@ -94,10 +94,8 @@ public final class X509TestUtils {
 				+ "lcKwXuDRBWciODK/xWhvQbaegGJ1BtXcEHtvNjrUJLwSMDSr+U5oUYdMohG0h1iJ\n"
 				+ "R+JQc49I33o2cTc77wfEWLtVdXAyYY4GSJR6VfgvV40x85ItaNS3HHfT/aXU1x4m\n"
 				+ "W9YQkWlA6t0blGlC+ghTOY1JbgWnEfXMmVgg9a9cWaYQ+NQwqA==\n" + "-----END CERTIFICATE-----";
-
 		ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-
 		return (X509Certificate) cf.generateCertificate(in);
 	}
 
@@ -134,7 +132,6 @@ public final class X509TestUtils {
 				+ "-----END CERTIFICATE-----\n";
 		ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-
 		return (X509Certificate) cf.generateCertificate(in);
 	}
 

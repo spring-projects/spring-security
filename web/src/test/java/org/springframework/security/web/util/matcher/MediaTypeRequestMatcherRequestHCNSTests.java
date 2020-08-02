@@ -52,21 +52,17 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	public void mediaAllMatches() {
 		this.request.addHeader("Accept", MediaType.ALL_VALUE);
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_HTML);
-
 		assertThat(this.matcher.matches(this.request)).isTrue();
-
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.APPLICATION_XHTML_XML);
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
 	// ignoreMediaTypeAll
-
 	@Test
 	public void mediaAllIgnoreMediaTypeAll() {
 		this.request.addHeader("Accept", MediaType.ALL_VALUE);
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_HTML);
 		this.matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
@@ -75,18 +71,15 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 		this.request.addHeader("Accept", MediaType.ALL_VALUE + "," + MediaType.TEXT_HTML_VALUE);
 		this.matcher = new MediaTypeRequestMatcher(this.negotiationStrategy, MediaType.TEXT_HTML);
 		this.matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
 	// JavaDoc
-
 	@Test
 	public void javadocJsonJson() {
 		this.request.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
 		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(this.negotiationStrategy,
 				MediaType.APPLICATION_JSON);
-
 		assertThat(matcher.matches(this.request)).isTrue();
 	}
 
@@ -95,7 +88,6 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 		this.request.addHeader("Accept", MediaType.ALL_VALUE);
 		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(this.negotiationStrategy,
 				MediaType.APPLICATION_JSON);
-
 		assertThat(matcher.matches(this.request)).isTrue();
 	}
 

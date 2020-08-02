@@ -61,14 +61,11 @@ public class MethodInvocationUtilsTests {
 		AdvisedTarget t = new AdvisedTarget();
 		// Just lie about interfaces
 		t.setInterfaces(new Class[] { Serializable.class, MethodInvocation.class, Blah.class });
-
 		MethodInvocation mi = MethodInvocationUtils.create(t, "blah");
 		assertThat(mi).isNotNull();
-
 		t.setProxyTargetClass(true);
 		mi = MethodInvocationUtils.create(t, "blah");
 		assertThat(mi).isNotNull();
-
 		assertThat(MethodInvocationUtils.create(t, "blah", "non-existent arg")).isNull();
 	}
 

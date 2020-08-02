@@ -113,9 +113,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		// we didn't do anything because it should cause a ClassCastException (as verified
 		// below)
 		TestingAuthenticationToken token = new TestingAuthenticationToken("a", "b");
-
 		assertThatCode(() -> this.manager.authenticate(token)).doesNotThrowAnyException();
-
 		assertThatThrownBy(() -> this.manager.authenticate(token).block()).isInstanceOf(Throwable.class);
 	}
 
@@ -157,10 +155,8 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
 		given(this.userService.loadUser(any())).willReturn(Mono.just(user));
-
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken())
 				.block();
-
 		assertThat(result.getPrincipal()).isEqualTo(user);
 		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
@@ -179,9 +175,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 				Collections.singletonMap("user", "rob"), "user");
 		ArgumentCaptor<OAuth2UserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OAuth2UserRequest.class);
 		given(this.userService.loadUser(userRequestArgCaptor.capture())).willReturn(Mono.just(user));
-
 		this.manager.authenticate(loginToken()).block();
-
 		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters())
 				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
@@ -199,10 +193,8 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		given(authoritiesMapper.mapAuthorities(anyCollection()))
 				.willAnswer((Answer<List<GrantedAuthority>>) (invocation) -> mappedAuthorities);
 		this.manager.setAuthoritiesMapper(authoritiesMapper);
-
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken())
 				.block();
-
 		assertThat(result.getAuthorities()).isEqualTo(mappedAuthorities);
 	}
 

@@ -56,7 +56,6 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 				.builder().add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz))
 				.build();
-
 		assertThat(manager.check(Mono.empty(), this.exchange).block()).isEqualTo(expected);
 	}
 
@@ -67,7 +66,6 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 		PayloadExchangeMatcherReactiveAuthorizationManager manager = PayloadExchangeMatcherReactiveAuthorizationManager
 				.builder().add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz))
 				.build();
-
 		assertThat(manager.check(Mono.empty(), this.exchange).block()).isEqualTo(expected);
 	}
 
@@ -80,7 +78,6 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 				.add(new PayloadExchangeMatcherEntry<>((e) -> PayloadExchangeMatcher.MatchResult.notMatch(),
 						this.authz2))
 				.build();
-
 		assertThat(manager.check(Mono.empty(), this.exchange).block()).isEqualTo(expected);
 	}
 
@@ -93,7 +90,6 @@ public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 				.add(new PayloadExchangeMatcherEntry<>((e) -> PayloadExchangeMatcher.MatchResult.notMatch(),
 						this.authz))
 				.add(new PayloadExchangeMatcherEntry<>(PayloadExchangeMatchers.anyExchange(), this.authz2)).build();
-
 		assertThat(manager.check(Mono.empty(), this.exchange).block()).isEqualTo(expected);
 	}
 

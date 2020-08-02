@@ -64,7 +64,6 @@ public class RedirectServerAuthenticationEntryPointTests {
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.entryPoint.commence(this.exchange, this.exception);
-
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isNull();
 		assertThat(this.exchange.getSession().block().isStarted()).isFalse();
 	}
@@ -72,9 +71,7 @@ public class RedirectServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-
 		this.entryPoint.commence(this.exchange, this.exception).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location);
 	}
@@ -85,9 +82,7 @@ public class RedirectServerAuthenticationEntryPointTests {
 		given(this.redirectStrategy.sendRedirect(any(), any())).willReturn(redirectResult.mono());
 		this.entryPoint.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-
 		this.entryPoint.commence(this.exchange, this.exception).block();
-
 		redirectResult.assertWasSubscribed();
 	}
 

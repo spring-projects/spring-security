@@ -69,9 +69,7 @@ public class OAuth2ErrorHttpMessageConverterTests {
 		String errorResponse = "{\n" + "	\"error\": \"unauthorized_client\",\n"
 				+ "   \"error_description\": \"The client is not authorized\",\n"
 				+ "   \"error_uri\": \"https://tools.ietf.org/html/rfc6749#section-5.2\"\n" + "}\n";
-
 		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
-
 		OAuth2Error oauth2Error = this.messageConverter.readInternal(OAuth2Error.class, response);
 		assertThat(oauth2Error.getErrorCode()).isEqualTo("unauthorized_client");
 		assertThat(oauth2Error.getDescription()).isEqualTo("The client is not authorized");
@@ -84,9 +82,7 @@ public class OAuth2ErrorHttpMessageConverterTests {
 		String errorResponse = "{\n" + "	\"error\": \"unauthorized_client\",\n"
 				+ "   \"error_description\": \"The client is not authorized\",\n" + "   \"error_codes\": [65001],\n"
 				+ "   \"error_uri\": \"https://tools.ietf.org/html/rfc6749#section-5.2\"\n" + "}\n";
-
 		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
-
 		OAuth2Error oauth2Error = this.messageConverter.readInternal(OAuth2Error.class, response);
 		assertThat(oauth2Error.getErrorCode()).isEqualTo("unauthorized_client");
 		assertThat(oauth2Error.getDescription()).isEqualTo("The client is not authorized");
@@ -98,11 +94,8 @@ public class OAuth2ErrorHttpMessageConverterTests {
 		Converter errorConverter = mock(Converter.class);
 		given(errorConverter.convert(any())).willThrow(RuntimeException.class);
 		this.messageConverter.setErrorConverter(errorConverter);
-
 		String errorResponse = "{}";
-
 		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
-
 		assertThatThrownBy(() -> this.messageConverter.readInternal(OAuth2Error.class, response))
 				.isInstanceOf(HttpMessageNotReadableException.class)
 				.hasMessageContaining("An error occurred reading the OAuth 2.0 Error");
@@ -112,11 +105,9 @@ public class OAuth2ErrorHttpMessageConverterTests {
 	public void writeInternalWhenOAuth2ErrorThenWriteErrorResponse() throws Exception {
 		OAuth2Error oauth2Error = new OAuth2Error("unauthorized_client", "The client is not authorized",
 				"https://tools.ietf.org/html/rfc6749#section-5.2");
-
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 		this.messageConverter.writeInternal(oauth2Error, outputMessage);
 		String errorResponse = outputMessage.getBodyAsString();
-
 		assertThat(errorResponse).contains("\"error\":\"unauthorized_client\"");
 		assertThat(errorResponse).contains("\"error_description\":\"The client is not authorized\"");
 		assertThat(errorResponse).contains("\"error_uri\":\"https://tools.ietf.org/html/rfc6749#section-5.2\"");
@@ -127,12 +118,9 @@ public class OAuth2ErrorHttpMessageConverterTests {
 		Converter errorParametersConverter = mock(Converter.class);
 		given(errorParametersConverter.convert(any())).willThrow(RuntimeException.class);
 		this.messageConverter.setErrorParametersConverter(errorParametersConverter);
-
 		OAuth2Error oauth2Error = new OAuth2Error("unauthorized_client", "The client is not authorized",
 				"https://tools.ietf.org/html/rfc6749#section-5.2");
-
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-
 		assertThatThrownBy(() -> this.messageConverter.writeInternal(oauth2Error, outputMessage))
 				.isInstanceOf(HttpMessageNotWritableException.class)
 				.hasMessageContaining("An error occurred writing the OAuth 2.0 Error");

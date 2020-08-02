@@ -50,7 +50,6 @@ public class WebTestClientWebConnection implements WebConnection {
 		Assert.notNull(webTestClient, "MockMvc must not be null");
 		Assert.notNull(webClient, "WebClient must not be null");
 		validateContextPath(contextPath);
-
 		this.webClient = webClient;
 		this.webTestClient = webTestClient;
 		this.contextPath = contextPath;
@@ -82,7 +81,6 @@ public class WebTestClientWebConnection implements WebConnection {
 	@Override
 	public WebResponse getResponse(WebRequest webRequest) throws IOException {
 		long startTime = System.currentTimeMillis();
-
 		FluxExchangeResult<String> exchangeResult = this.requestBuilder.getResponse(webRequest);
 		webRequest.setUrl(exchangeResult.getUrl().toURL());
 		return new MockWebResponseBuilder(startTime, webRequest, exchangeResult).build();

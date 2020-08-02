@@ -61,9 +61,7 @@ public class SessionManagementFilterTests {
 		SessionManagementFilter filter = new SessionManagementFilter(repo);
 		HttpServletRequest request = new MockHttpServletRequest();
 		String sessionId = request.getSession().getId();
-
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-
 		assertThat(request.getSession().getId()).isEqualTo(sessionId);
 	}
 
@@ -76,9 +74,7 @@ public class SessionManagementFilterTests {
 		SessionManagementFilter filter = new SessionManagementFilter(repo, strategy);
 		HttpServletRequest request = new MockHttpServletRequest();
 		authenticateUser();
-
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-
 		verifyZeroInteractions(strategy);
 	}
 
@@ -88,9 +84,7 @@ public class SessionManagementFilterTests {
 		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
 		SessionManagementFilter filter = new SessionManagementFilter(repo, strategy);
 		HttpServletRequest request = new MockHttpServletRequest();
-
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-
 		verifyZeroInteractions(strategy);
 	}
 
@@ -102,9 +96,7 @@ public class SessionManagementFilterTests {
 		SessionManagementFilter filter = new SessionManagementFilter(repo, strategy);
 		HttpServletRequest request = new MockHttpServletRequest();
 		authenticateUser();
-
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-
 		verify(strategy).onAuthentication(any(Authentication.class), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 		// Check that it is only applied once to the request
@@ -117,7 +109,6 @@ public class SessionManagementFilterTests {
 		SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		// repo will return false to containsContext()
 		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
-
 		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
 		SessionManagementFilter filter = new SessionManagementFilter(repo, strategy);
 		filter.setAuthenticationFailureHandler(failureHandler);
@@ -128,7 +119,6 @@ public class SessionManagementFilterTests {
 		SessionAuthenticationException exception = new SessionAuthenticationException("Failure");
 		willThrow(exception).given(strategy).onAuthentication(SecurityContextHolder.getContext().getAuthentication(),
 				request, response);
-
 		filter.doFilter(request, response, fc);
 		verifyZeroInteractions(fc);
 		verify(failureHandler).onAuthenticationFailure(request, response, exception);
@@ -144,10 +134,8 @@ public class SessionManagementFilterTests {
 		request.setRequestedSessionId("xxx");
 		request.setRequestedSessionIdValid(false);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		filter.doFilter(request, response, new MockFilterChain());
 		assertThat(response.getRedirectedUrl()).isNull();
-
 		// Now set a redirect URL
 		request = new MockHttpServletRequest();
 		request.setRequestedSessionId("xxx");
@@ -158,7 +146,6 @@ public class SessionManagementFilterTests {
 		FilterChain fc = mock(FilterChain.class);
 		filter.doFilter(request, response, fc);
 		verifyZeroInteractions(fc);
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("/timedOut");
 	}
 
@@ -170,9 +157,7 @@ public class SessionManagementFilterTests {
 		filter.setTrustResolver(trustResolver);
 		HttpServletRequest request = new MockHttpServletRequest();
 		authenticateUser();
-
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-
 		verify(trustResolver).isAnonymous(any(Authentication.class));
 	}
 

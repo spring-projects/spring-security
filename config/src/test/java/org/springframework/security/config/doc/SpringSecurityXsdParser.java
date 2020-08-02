@@ -60,7 +60,6 @@ public class SpringSecurityXsdParser {
 	 */
 	private Map<String, Element> elements(XmlNode node) {
 		Map<String, Element> elementNameToElement = new HashMap<>();
-
 		node.children().forEach((child) -> {
 			if ("element".equals(child.simpleName())) {
 				Element e = elmt(child);
@@ -70,7 +69,6 @@ public class SpringSecurityXsdParser {
 				elementNameToElement.putAll(elements(child));
 			}
 		});
-
 		return elementNameToElement;
 	}
 
@@ -90,7 +88,6 @@ public class SpringSecurityXsdParser {
 				attrs.addAll(attrs(c));
 			}
 		});
-
 		return attrs;
 	}
 
@@ -102,7 +99,6 @@ public class SpringSecurityXsdParser {
 	 */
 	private Collection<Attribute> attrgrps(XmlNode element) {
 		Collection<Attribute> attrgrp = new ArrayList<>();
-
 		element.children().forEach((c) -> {
 			if (!"element".equals(c.simpleName())) {
 				if ("attributeGroup".equals(c.simpleName())) {
@@ -120,7 +116,6 @@ public class SpringSecurityXsdParser {
 				}
 			}
 		});
-
 		return attrgrp;
 	}
 
@@ -129,7 +124,6 @@ public class SpringSecurityXsdParser {
 		while (!"schema".equals(root.simpleName())) {
 			root = root.parent().get();
 		}
-
 		return expand(root).filter((node) -> name.equals(node.attribute("name"))).findFirst()
 				.orElseThrow(IllegalArgumentException::new);
 	}
@@ -185,12 +179,10 @@ public class SpringSecurityXsdParser {
 			name = name.split(":")[1];
 			n = findNode(n, name);
 		}
-
 		if (this.elementNameToElement.containsKey(name)) {
 			return this.elementNameToElement.get(name);
 		}
 		this.attrElmts.add(name);
-
 		Element e = new Element();
 		e.setName(n.attribute("name"));
 		e.setDesc(desc(n));
@@ -199,15 +191,12 @@ public class SpringSecurityXsdParser {
 		e.getAttrs().addAll(attrgrps(n));
 		e.getAttrs().forEach((attr) -> attr.setElmt(e));
 		e.getChildElmts().values().forEach((element) -> element.getParentElmts().put(e.getName(), e));
-
 		String subGrpName = n.attribute("substitutionGroup");
 		if (!StringUtils.isEmpty(subGrpName)) {
 			Element subGrp = elmt(findNode(n, subGrpName.split(":")[1]));
 			subGrp.getSubGrps().add(e);
 		}
-
 		this.elementNameToElement.put(name, e);
-
 		return e;
 	}
 

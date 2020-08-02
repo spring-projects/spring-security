@@ -174,11 +174,9 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenJwtFailsValidationThenReturnsCorrespondingErrorMessage() {
 		OAuth2Error failure = new OAuth2Error("mock-error", "mock-description", "mock-uri");
-
 		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(OAuth2TokenValidatorResult.failure(failure));
 		this.jwtDecoder.setJwtValidator(jwtValidator);
-
 		assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("mock-description");
 	}
@@ -188,11 +186,9 @@ public class NimbusJwtDecoderTests {
 		OAuth2Error firstFailure = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 		OAuth2Error secondFailure = new OAuth2Error("another-error", "another-description", "another-uri");
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(firstFailure, secondFailure);
-
 		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 		this.jwtDecoder.setJwtValidator(jwtValidator);
-
 		assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("mock-description")
 				.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure));
@@ -202,13 +198,11 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenReadingErrorPickTheFirstErrorMessage() {
 		OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 		this.jwtDecoder.setJwtValidator(jwtValidator);
-
 		OAuth2Error errorEmpty = new OAuth2Error("mock-error", "", "mock-uri");
 		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
 		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(errorEmpty, error, error2);
 		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
-
 		Assertions.assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("mock-description");
 	}
@@ -218,7 +212,6 @@ public class NimbusJwtDecoderTests {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
 		this.jwtDecoder.setClaimSetConverter(claimSetConverter);
-
 		Jwt jwt = this.jwtDecoder.decode(SIGNED_JWT);
 		assertThat(jwt.getClaims().size()).isEqualTo(1);
 		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
@@ -229,9 +222,7 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenClaimSetConverterFailsThenBadJwtException() {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		this.jwtDecoder.setClaimSetConverter(claimSetConverter);
-
 		given(claimSetConverter.convert(any(Map.class))).willThrow(new IllegalArgumentException("bad conversion"));
-
 		assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(BadJwtException.class);
 	}
 
@@ -255,7 +246,6 @@ public class NimbusJwtDecoderTests {
 		try (MockWebServer server = new MockWebServer()) {
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
-
 			server.shutdown();
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtException.class)
 					.isNotInstanceOf(BadJwtException.class)
@@ -269,12 +259,10 @@ public class NimbusJwtDecoderTests {
 			Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).cache(cache).build();
-
 			server.shutdown();
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtException.class)
 					.isNotInstanceOf(BadJwtException.class)
 					.hasMessageContaining("An error occurred while attempting to decode the Jwt");
-
 		}
 	}
 
@@ -530,7 +518,6 @@ public class NimbusJwtDecoderTests {
 		assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtException.class)
 				.isNotInstanceOf(BadJwtException.class)
 				.hasMessageContaining("An error occurred while attempting to decode the Jwt");
-
 	}
 
 	// gh-8730
@@ -595,7 +582,6 @@ public class NimbusJwtDecoderTests {
 
 		@Override
 		public JWTClaimsSet process(SignedJWT signedJWT, SecurityContext context) throws BadJOSEException {
-
 			try {
 				return signedJWT.getJWTClaimsSet();
 			}

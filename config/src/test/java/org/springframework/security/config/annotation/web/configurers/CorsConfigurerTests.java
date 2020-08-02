@@ -73,7 +73,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void getWhenCrossOriginAnnotationThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(MvcCorsConfig.class).autowire();
-
 		this.mvc.perform(get("/").header(HttpHeaders.ORIGIN, "https://example.com"))
 				.andExpect(header().exists("Access-Control-Allow-Origin"))
 				.andExpect(header().exists("X-Content-Type-Options"));
@@ -82,7 +81,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void optionsWhenCrossOriginAnnotationThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(MvcCorsConfig.class).autowire();
-
 		this.mvc.perform(options("/")
 				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
 				.header(HttpHeaders.ORIGIN, "https://example.com")).andExpect(status().isOk())
@@ -93,7 +91,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void getWhenDefaultsInLambdaAndCrossOriginAnnotationThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(MvcCorsInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/").header(HttpHeaders.ORIGIN, "https://example.com"))
 				.andExpect(header().exists("Access-Control-Allow-Origin"))
 				.andExpect(header().exists("X-Content-Type-Options"));
@@ -102,7 +99,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void optionsWhenDefaultsInLambdaAndCrossOriginAnnotationThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(MvcCorsInLambdaConfig.class).autowire();
-
 		this.mvc.perform(options("/")
 				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
 				.header(HttpHeaders.ORIGIN, "https://example.com")).andExpect(status().isOk())
@@ -113,7 +109,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void getWhenCorsConfigurationSourceBeanThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(ConfigSourceConfig.class).autowire();
-
 		this.mvc.perform(get("/").header(HttpHeaders.ORIGIN, "https://example.com"))
 				.andExpect(header().exists("Access-Control-Allow-Origin"))
 				.andExpect(header().exists("X-Content-Type-Options"));
@@ -122,7 +117,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void optionsWhenCorsConfigurationSourceBeanThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(ConfigSourceConfig.class).autowire();
-
 		this.mvc.perform(options("/")
 				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
 				.header(HttpHeaders.ORIGIN, "https://example.com")).andExpect(status().isOk())
@@ -134,7 +128,6 @@ public class CorsConfigurerTests {
 	public void getWhenMvcCorsInLambdaConfigAndCorsConfigurationSourceBeanThenRespondsWithCorsHeaders()
 			throws Exception {
 		this.spring.register(ConfigSourceInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/").header(HttpHeaders.ORIGIN, "https://example.com"))
 				.andExpect(header().exists("Access-Control-Allow-Origin"))
 				.andExpect(header().exists("X-Content-Type-Options"));
@@ -144,7 +137,6 @@ public class CorsConfigurerTests {
 	public void optionsWhenMvcCorsInLambdaConfigAndCorsConfigurationSourceBeanThenRespondsWithCorsHeaders()
 			throws Exception {
 		this.spring.register(ConfigSourceInLambdaConfig.class).autowire();
-
 		this.mvc.perform(options("/")
 				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
 				.header(HttpHeaders.ORIGIN, "https://example.com")).andExpect(status().isOk())
@@ -155,7 +147,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void getWhenCorsFilterBeanThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(CorsFilterConfig.class).autowire();
-
 		this.mvc.perform(get("/").header(HttpHeaders.ORIGIN, "https://example.com"))
 				.andExpect(header().exists("Access-Control-Allow-Origin"))
 				.andExpect(header().exists("X-Content-Type-Options"));
@@ -164,7 +155,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void optionsWhenCorsFilterBeanThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(CorsFilterConfig.class).autowire();
-
 		this.mvc.perform(options("/")
 				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
 				.header(HttpHeaders.ORIGIN, "https://example.com")).andExpect(status().isOk())
@@ -175,7 +165,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void getWhenConfigSourceInLambdaConfigAndCorsFilterBeanThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(CorsFilterInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/").header(HttpHeaders.ORIGIN, "https://example.com"))
 				.andExpect(header().exists("Access-Control-Allow-Origin"))
 				.andExpect(header().exists("X-Content-Type-Options"));
@@ -184,7 +173,6 @@ public class CorsConfigurerTests {
 	@Test
 	public void optionsWhenConfigSourceInLambdaConfigAndCorsFilterBeanThenRespondsWithCorsHeaders() throws Exception {
 		this.spring.register(CorsFilterInLambdaConfig.class).autowire();
-
 		this.mvc.perform(options("/")
 				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
 				.header(HttpHeaders.ORIGIN, "https://example.com")).andExpect(status().isOk())

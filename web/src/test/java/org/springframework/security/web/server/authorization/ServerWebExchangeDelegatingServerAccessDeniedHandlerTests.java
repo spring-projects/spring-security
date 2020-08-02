@@ -57,13 +57,10 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 		given(matcher.matches(this.exchange)).willReturn(MatchResult.notMatch());
 		given(handler.handle(this.exchange, null)).willReturn(Mono.empty());
 		given(this.accessDeniedHandler.handle(this.exchange, null)).willReturn(Mono.empty());
-
 		this.entries.add(new DelegateEntry(matcher, handler));
 		this.delegator = new ServerWebExchangeDelegatingServerAccessDeniedHandler(this.entries);
 		this.delegator.setDefaultAccessDeniedHandler(this.accessDeniedHandler);
-
 		this.delegator.handle(this.exchange, null).block();
-
 		verify(this.accessDeniedHandler).handle(this.exchange, null);
 		verify(handler, never()).handle(this.exchange, null);
 	}
@@ -77,14 +74,11 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 		given(firstMatcher.matches(this.exchange)).willReturn(MatchResult.match());
 		given(firstHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 		given(secondHandler.handle(this.exchange, null)).willReturn(Mono.empty());
-
 		this.entries.add(new DelegateEntry(firstMatcher, firstHandler));
 		this.entries.add(new DelegateEntry(secondMatcher, secondHandler));
 		this.delegator = new ServerWebExchangeDelegatingServerAccessDeniedHandler(this.entries);
 		this.delegator.setDefaultAccessDeniedHandler(this.accessDeniedHandler);
-
 		this.delegator.handle(this.exchange, null).block();
-
 		verify(firstHandler).handle(this.exchange, null);
 		verify(secondHandler, never()).handle(this.exchange, null);
 		verify(this.accessDeniedHandler, never()).handle(this.exchange, null);
@@ -101,13 +95,10 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 		given(secondMatcher.matches(this.exchange)).willReturn(MatchResult.match());
 		given(firstHandler.handle(this.exchange, null)).willReturn(Mono.empty());
 		given(secondHandler.handle(this.exchange, null)).willReturn(Mono.empty());
-
 		this.entries.add(new DelegateEntry(firstMatcher, firstHandler));
 		this.entries.add(new DelegateEntry(secondMatcher, secondHandler));
 		this.delegator = new ServerWebExchangeDelegatingServerAccessDeniedHandler(this.entries);
-
 		this.delegator.handle(this.exchange, null).block();
-
 		verify(secondHandler).handle(this.exchange, null);
 		verify(firstHandler, never()).handle(this.exchange, null);
 		verify(this.accessDeniedHandler, never()).handle(this.exchange, null);

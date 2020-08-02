@@ -44,7 +44,6 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenNotOAuth2AuthenticationExceptionThenBearer() {
 		this.entryPoint.commence(this.exchange, new BadCredentialsException("")).block();
-
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE)).isEqualTo("Bearer");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
@@ -52,9 +51,7 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenRealmNameThenHasRealmName() {
 		this.entryPoint.setRealmName("Realm");
-
 		this.entryPoint.commence(this.exchange, new BadCredentialsException("")).block();
-
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
 				.isEqualTo("Bearer realm=\"Realm\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -64,9 +61,7 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 	public void commenceWhenOAuth2AuthenticationExceptionThenContainsErrorInformation() {
 		OAuth2Error oauthError = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(oauthError);
-
 		this.entryPoint.commence(this.exchange, exception).block();
-
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
 				.isEqualTo("Bearer error=\"invalid_request\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -76,9 +71,7 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 	public void commenceWhenOAuth2ErrorCompleteThenContainsErrorInformation() {
 		OAuth2Error oauthError = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, "Oops", "https://example.com");
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(oauthError);
-
 		this.entryPoint.commence(this.exchange, exception).block();
-
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE)).isEqualTo(
 				"Bearer error=\"invalid_request\", error_description=\"Oops\", error_uri=\"https://example.com\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
@@ -89,9 +82,7 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 		OAuth2Error oauthError = new BearerTokenError(OAuth2ErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST, "Oops",
 				"https://example.com");
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(oauthError);
-
 		this.entryPoint.commence(this.exchange, exception).block();
-
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE)).isEqualTo(
 				"Bearer error=\"invalid_request\", error_description=\"Oops\", error_uri=\"https://example.com\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -100,7 +91,6 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenNoSubscriberThenNothingHappens() {
 		this.entryPoint.commence(this.exchange, new BadCredentialsException(""));
-
 		assertThat(getResponse().getHeaders()).isEmpty();
 		assertThat(getResponse().getStatusCode()).isNull();
 	}

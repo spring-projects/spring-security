@@ -37,7 +37,6 @@ public class ExceptionMappingAuthenticationFailureHandlerTests {
 		fh.setDefaultFailureUrl("/failed");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		fh.onAuthenticationFailure(new MockHttpServletRequest(), response, new BadCredentialsException(""));
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("/failed");
 	}
 
@@ -50,7 +49,6 @@ public class ExceptionMappingAuthenticationFailureHandlerTests {
 		fh.setDefaultFailureUrl("/failed");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		fh.onAuthenticationFailure(new MockHttpServletRequest(), response, new BadCredentialsException(""));
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("/badcreds");
 	}
 

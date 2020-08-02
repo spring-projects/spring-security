@@ -41,7 +41,6 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	@Test
 	public void testGetRequestMatcherIsTypeRegexMatcher() {
 		List<RequestMatcher> requestMatchers = this.registry.regexMatchers(HttpMethod.GET, "/a.*");
-
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(RegexRequestMatcher.class);
 		}
@@ -50,7 +49,6 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	@Test
 	public void testRequestMatcherIsTypeRegexMatcher() {
 		List<RequestMatcher> requestMatchers = this.registry.regexMatchers("/a.*");
-
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(RegexRequestMatcher.class);
 		}
@@ -59,7 +57,6 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	@Test
 	public void testGetRequestMatcherIsTypeAntPathRequestMatcher() {
 		List<RequestMatcher> requestMatchers = this.registry.antMatchers(HttpMethod.GET, "/a.*");
-
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(AntPathRequestMatcher.class);
 		}
@@ -68,7 +65,6 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	@Test
 	public void testRequestMatcherIsTypeAntPathRequestMatcher() {
 		List<RequestMatcher> requestMatchers = this.registry.antMatchers("/a.*");
-
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(AntPathRequestMatcher.class);
 		}

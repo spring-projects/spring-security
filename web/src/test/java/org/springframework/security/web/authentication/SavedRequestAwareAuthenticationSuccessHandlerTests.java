@@ -35,11 +35,9 @@ public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 	@Test
 	public void defaultUrlMuststartWithSlashOrHttpScheme() {
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
-
 		handler.setDefaultTargetUrl("/acceptableRelativeUrl");
 		handler.setDefaultTargetUrl("https://some.site.org/index.html");
 		handler.setDefaultTargetUrl("https://some.site.org/index.html");
-
 		try {
 			handler.setDefaultTargetUrl("missingSlash");
 			fail("Shouldn't accept default target without leading slash");
@@ -58,12 +56,10 @@ public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		given(savedRequest.getRedirectUrl()).willReturn(redirectUrl);
 		given(requestCache.getRequest(request, response)).willReturn(savedRequest);
-
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
 		handler.setRequestCache(requestCache);
 		handler.setRedirectStrategy(redirectStrategy);
 		handler.onAuthenticationSuccess(request, response, mock(Authentication.class));
-
 		verify(redirectStrategy).sendRedirect(request, response, redirectUrl);
 	}
 

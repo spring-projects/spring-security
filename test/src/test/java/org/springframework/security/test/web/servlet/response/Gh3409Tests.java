@@ -69,7 +69,6 @@ public class Gh3409Tests {
 		this.mockMvc
 			.perform(get("/public/")
 			.with(securityContext(new SecurityContextImpl())));
-
 		this.mockMvc
 			.perform(get("/public/"))
 			.andExpect(unauthenticated());
@@ -82,7 +81,6 @@ public class Gh3409Tests {
 		this.mockMvc
 			.perform(get("/")
 			.with(securityContext(new SecurityContextImpl())));
-
 		this.mockMvc
 			.perform(get("/"))
 			.andExpect(unauthenticated());
@@ -104,7 +102,6 @@ public class Gh3409Tests {
 				.formLogin().and()
 				.httpBasic();
 			// @formatter:on
-
 		}
 
 	}

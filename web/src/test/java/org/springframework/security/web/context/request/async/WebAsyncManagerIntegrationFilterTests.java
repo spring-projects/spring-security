@@ -72,16 +72,13 @@ public class WebAsyncManagerIntegrationFilterTests {
 	@Before
 	public void setUp() {
 		this.filterChain = new MockFilterChain();
-
 		this.threadFactory = new JoinableThreadFactory();
 		SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
 		executor.setThreadFactory(this.threadFactory);
-
 		this.asyncManager = WebAsyncUtils.getAsyncManager(this.request);
 		this.asyncManager.setAsyncWebRequest(this.asyncWebRequest);
 		this.asyncManager.setTaskExecutor(executor);
 		given(this.request.getAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE)).willReturn(this.asyncManager);
-
 		this.filter = new WebAsyncManagerIntegrationFilter();
 	}
 
@@ -101,7 +98,6 @@ public class WebAsyncManagerIntegrationFilterTests {
 			}
 		});
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
-
 		VerifyingCallable verifyingCallable = new VerifyingCallable();
 		this.asyncManager.startCallableProcessing(verifyingCallable);
 		this.threadFactory.join();
@@ -120,7 +116,6 @@ public class WebAsyncManagerIntegrationFilterTests {
 		});
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		SecurityContextHolder.setContext(this.securityContext);
-
 		VerifyingCallable verifyingCallable = new VerifyingCallable();
 		this.asyncManager.startCallableProcessing(verifyingCallable);
 		this.threadFactory.join();

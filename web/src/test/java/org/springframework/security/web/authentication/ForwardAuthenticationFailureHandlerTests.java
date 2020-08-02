@@ -48,13 +48,10 @@ public class ForwardAuthenticationFailureHandlerTests {
 	@Test
 	public void responseIsForwarded() throws Exception {
 		ForwardAuthenticationFailureHandler fafh = new ForwardAuthenticationFailureHandler("/forwardUrl");
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		AuthenticationException e = mock(AuthenticationException.class);
-
 		fafh.onAuthenticationFailure(request, response, e);
-
 		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
 		assertThat(request.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isEqualTo(e);
 	}

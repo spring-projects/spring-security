@@ -62,7 +62,6 @@ public class Md4PasswordEncoderTests {
 		String rawPassword = "password";
 		Md4PasswordEncoder md4 = new Md4PasswordEncoder();
 		String encodedPassword = md4.encode(rawPassword);
-
 		assertThat(md4.matches(rawPassword, encodedPassword)).isTrue();
 	}
 

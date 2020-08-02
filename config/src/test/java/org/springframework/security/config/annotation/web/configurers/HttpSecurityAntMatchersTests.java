@@ -73,9 +73,7 @@ public class HttpSecurityAntMatchersTests {
 	public void antMatchersMethodAndNoPatterns() throws Exception {
 		loadConfig(AntMatchersNoPatternsConfig.class);
 		this.request.setMethod("POST");
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
@@ -84,9 +82,7 @@ public class HttpSecurityAntMatchersTests {
 	public void antMatchersMethodAndEmptyPatterns() throws Exception {
 		loadConfig(AntMatchersEmptyPatternsConfig.class);
 		this.request.setMethod("POST");
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
@@ -94,7 +90,6 @@ public class HttpSecurityAntMatchersTests {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);
 		this.context.refresh();
-
 		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 

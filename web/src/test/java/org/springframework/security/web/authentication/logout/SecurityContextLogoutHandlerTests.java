@@ -46,9 +46,7 @@ public class SecurityContextLogoutHandlerTests {
 	public void setUp() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
-
 		this.handler = new SecurityContextLogoutHandler();
-
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(
 				new TestingAuthenticationToken("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
@@ -74,7 +72,6 @@ public class SecurityContextLogoutHandlerTests {
 		SecurityContext beforeContext = SecurityContextHolder.getContext();
 		Authentication beforeAuthentication = beforeContext.getAuthentication();
 		this.handler.logout(this.request, this.response, SecurityContextHolder.getContext().getAuthentication());
-
 		assertThat(beforeContext.getAuthentication()).isNotNull();
 		assertThat(beforeContext.getAuthentication()).isSameAs(beforeAuthentication);
 	}

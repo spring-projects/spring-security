@@ -84,7 +84,6 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void loadConfigWhenRequestSecureThenDefaultSecurityHeadersReturned() throws Exception {
 		this.spring.register(HeadersArePopulatedByDefaultConfig.class).autowire();
-
 		this.mockMvc.perform(get("/").secure(true)).andExpect(header().string("X-Content-Type-Options", "nosniff"))
 				.andExpect(header().string("X-Frame-Options", "DENY"))
 				.andExpect(header().string("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains"))
@@ -96,9 +95,7 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void loadConfigWhenRequestAuthenticateThenAuthenticationEventPublished() throws Exception {
 		this.spring.register(InMemoryAuthWithWebSecurityConfigurerAdapter.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
-
 		assertThat(InMemoryAuthWithWebSecurityConfigurerAdapter.EVENTS).isNotEmpty();
 		assertThat(InMemoryAuthWithWebSecurityConfigurerAdapter.EVENTS).hasSize(1);
 	}
@@ -106,9 +103,7 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void loadConfigWhenInMemoryConfigureProtectedThenPasswordUpgraded() throws Exception {
 		this.spring.register(InMemoryConfigureProtectedConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
-
 		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
 		assertThat(uds.loadUserByUsername("user").getPassword()).startsWith("{bcrypt}");
 	}
@@ -116,9 +111,7 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void loadConfigWhenInMemoryConfigureGlobalThenPasswordUpgraded() throws Exception {
 		this.spring.register(InMemoryConfigureGlobalConfig.class).autowire();
-
 		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
-
 		UserDetailsService uds = this.spring.getContext().getBean(UserDetailsService.class);
 		assertThat(uds.loadUserByUsername("user").getPassword()).startsWith("{bcrypt}");
 	}
@@ -128,10 +121,8 @@ public class WebSecurityConfigurerAdapterTests {
 		OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN = mock(
 				ContentNegotiationStrategy.class);
 		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class).autowire();
-
 		OverrideContentNegotiationStrategySharedObjectConfig securityConfig = this.spring.getContext()
 				.getBean(OverrideContentNegotiationStrategySharedObjectConfig.class);
-
 		assertThat(securityConfig.contentNegotiationStrategySharedObject).isNotNull();
 		assertThat(securityConfig.contentNegotiationStrategySharedObject)
 				.isSameAs(OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN);
@@ -140,10 +131,8 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void loadConfigWhenDefaultContentNegotiationStrategyThenHeaderContentNegotiationStrategy() {
 		this.spring.register(ContentNegotiationStrategyDefaultSharedObjectConfig.class).autowire();
-
 		ContentNegotiationStrategyDefaultSharedObjectConfig securityConfig = this.spring.getContext()
 				.getBean(ContentNegotiationStrategyDefaultSharedObjectConfig.class);
-
 		assertThat(securityConfig.contentNegotiationStrategySharedObject).isNotNull();
 		assertThat(securityConfig.contentNegotiationStrategySharedObject)
 				.isInstanceOf(HeaderContentNegotiationStrategy.class);
@@ -152,9 +141,7 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void loadConfigWhenUserDetailsServiceHasCircularReferenceThenStillLoads() {
 		this.spring.register(RequiresUserDetailsServiceConfig.class, UserDetailsServiceConfig.class).autowire();
-
 		MyFilter myFilter = this.spring.getContext().getBean(MyFilter.class);
-
 		assertThatCode(() -> myFilter.userDetailsService.loadUserByUsername("user")).doesNotThrowAnyException();
 		assertThatExceptionOfType(UsernameNotFoundException.class)
 				.isThrownBy(() -> myFilter.userDetailsService.loadUserByUsername("admin"));
@@ -164,10 +151,8 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void loadConfigWhenSharedObjectsCreatedThenApplicationContextAdded() {
 		this.spring.register(ApplicationContextSharedObjectConfig.class).autowire();
-
 		ApplicationContextSharedObjectConfig securityConfig = this.spring.getContext()
 				.getBean(ApplicationContextSharedObjectConfig.class);
-
 		assertThat(securityConfig.applicationContextSharedObject).isNotNull();
 		assertThat(securityConfig.applicationContextSharedObject).isSameAs(this.spring.getContext());
 	}
@@ -176,9 +161,7 @@ public class WebSecurityConfigurerAdapterTests {
 	public void loadConfigWhenCustomAuthenticationTrustResolverBeanThenOverridesDefault() {
 		CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN = mock(AuthenticationTrustResolver.class);
 		this.spring.register(CustomTrustResolverConfig.class).autowire();
-
 		CustomTrustResolverConfig securityConfig = this.spring.getContext().getBean(CustomTrustResolverConfig.class);
-
 		assertThat(securityConfig.authenticationTrustResolverSharedObject).isNotNull();
 		assertThat(securityConfig.authenticationTrustResolverSharedObject)
 				.isSameAs(CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN);
@@ -195,12 +178,9 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void performWhenUsingAuthenticationEventPublisherBeanThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationEventPublisherBean.class).autowire();
-
 		AuthenticationEventPublisher authenticationEventPublisher = this.spring.getContext()
 				.getBean(AuthenticationEventPublisher.class);
-
 		this.mockMvc.perform(get("/").with(httpBasic("user", "password")));
-
 		verify(authenticationEventPublisher).publishAuthenticationSuccess(any(Authentication.class));
 	}
 
@@ -208,14 +188,11 @@ public class WebSecurityConfigurerAdapterTests {
 	@Test
 	public void performWhenUsingAuthenticationEventPublisherInDslThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationEventPublisherDsl.class).autowire();
-
 		AuthenticationEventPublisher authenticationEventPublisher = CustomAuthenticationEventPublisherDsl.EVENT_PUBLISHER;
-
 		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))); // fails since
 																			// no
 																			// providers
 																			// configured
-
 		verify(authenticationEventPublisher).publishAuthenticationFailure(any(AuthenticationException.class),
 				any(Authentication.class));
 	}

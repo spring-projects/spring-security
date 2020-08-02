@@ -44,14 +44,11 @@ public class RoleHierarchyUtilsTests {
 				"ROLE_B > ROLE_D" + EOL +
 				"ROLE_C > ROLE_D" + EOL;
 		// @formatter:on
-
 		Map<String, List<String>> roleHierarchyMap = new TreeMap<>();
 		roleHierarchyMap.put("ROLE_A", Arrays.asList("ROLE_B", "ROLE_C"));
 		roleHierarchyMap.put("ROLE_B", Arrays.asList("ROLE_D"));
 		roleHierarchyMap.put("ROLE_C", Arrays.asList("ROLE_D"));
-
 		String roleHierarchy = RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
-
 		assertThat(roleHierarchy).isEqualTo(expectedRoleHierarchy);
 	}
 
@@ -69,7 +66,6 @@ public class RoleHierarchyUtilsTests {
 	public void roleHierarchyFromMapWhenRoleNullThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put(null, Arrays.asList("ROLE_B", "ROLE_C"));
-
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
 	}
 
@@ -77,7 +73,6 @@ public class RoleHierarchyUtilsTests {
 	public void roleHierarchyFromMapWhenRoleEmptyThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("", Arrays.asList("ROLE_B", "ROLE_C"));
-
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
 	}
 
@@ -85,7 +80,6 @@ public class RoleHierarchyUtilsTests {
 	public void roleHierarchyFromMapWhenImpliedRolesNullThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", null);
-
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
 	}
 
@@ -93,7 +87,6 @@ public class RoleHierarchyUtilsTests {
 	public void roleHierarchyFromMapWhenImpliedRolesEmptyThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", Collections.<String>emptyList());
-
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
 	}
 

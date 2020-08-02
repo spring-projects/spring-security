@@ -82,18 +82,14 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenValidThenSuccess() {
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(this.tokenResponse.build()));
-
 		OAuth2AuthorizationCodeAuthenticationToken result = authenticate();
-
 		assertThat(result).isNotNull();
 	}
 
 	@Test
 	public void authenticateWhenEmptyThenEmpty() {
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.empty());
-
 		OAuth2AuthorizationCodeAuthenticationToken result = authenticate();
-
 		assertThat(result).isNull();
 	}
 
@@ -101,7 +97,6 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	public void authenticateWhenOAuth2AuthorizationExceptionThenOAuth2AuthorizationException() {
 		given(this.accessTokenResponseClient.getTokenResponse(any()))
 				.willReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
-
 		assertThatCode(() -> authenticate()).isInstanceOf(OAuth2AuthorizationException.class);
 	}
 

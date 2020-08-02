@@ -43,24 +43,20 @@ public class HttpSessionRequestCacheTests {
 	@Test
 	public void originalGetRequestDoesntMatchIncomingPost() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
 		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
 		assertThat(cache.getRequest(request, response)).isNotNull();
-
 		MockHttpServletRequest newRequest = new MockHttpServletRequest("POST", "/destination");
 		newRequest.setSession(request.getSession());
 		assertThat(cache.getMatchingRequest(newRequest, response)).isNull();
-
 	}
 
 	@Test
 	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 		cache.setRequestMatcher((request) -> request.getMethod().equals("GET"));
-
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
@@ -75,16 +71,13 @@ public class HttpSessionRequestCacheTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		HttpSessionRequestCache cache = new HttpSessionRequestCache() {
-
 			@Override
 			public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 				request.getSession().setAttribute(SAVED_REQUEST,
 						new CustomSavedRequest(new DefaultSavedRequest(request, new PortResolverImpl())));
 			}
-
 		};
 		cache.saveRequest(request, response);
-
 		cache.saveRequest(request, response);
 		assertThat(cache.getRequest(request, response)).isInstanceOf(CustomSavedRequest.class);
 	}
@@ -93,14 +86,11 @@ public class HttpSessionRequestCacheTests {
 	public void testCustomSessionAttrName() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 		cache.setSessionAttrName("CUSTOM_SAVED_REQUEST");
-
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-
 		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNull();
 		assertThat(request.getSession().getAttribute("CUSTOM_SAVED_REQUEST")).isNotNull();
-
 	}
 
 	private static final class CustomSavedRequest implements SavedRequest {

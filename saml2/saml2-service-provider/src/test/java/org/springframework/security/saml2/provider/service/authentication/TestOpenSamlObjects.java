@@ -85,7 +85,6 @@ final class TestOpenSamlObjects {
 	static {
 		OpenSamlInitializationService.initialize();
 	}
-
 	private static String USERNAME = "test@saml.user";
 
 	private static String DESTINATION = "https://localhost/login/saml2/sso/idp-alias";
@@ -128,7 +127,6 @@ final class TestOpenSamlObjects {
 		assertion.setIssuer(issuer(issuerEntityId));
 		assertion.setSubject(subject(username));
 		assertion.setConditions(conditions());
-
 		SubjectConfirmation subjectConfirmation = subjectConfirmation();
 		subjectConfirmation.setMethod(SubjectConfirmation.METHOD_BEARER);
 		SubjectConfirmationData confirmationData = subjectConfirmationData(recipientEntityId);
@@ -146,11 +144,9 @@ final class TestOpenSamlObjects {
 
 	static Subject subject(String principalName) {
 		Subject subject = build(Subject.DEFAULT_ELEMENT_NAME);
-
 		if (principalName != null) {
 			subject.setNameID(nameId(principalName));
 		}
-
 		return subject;
 	}
 
@@ -216,7 +212,6 @@ final class TestOpenSamlObjects {
 		catch (MarshallingException | SignatureException | SecurityException ex) {
 			throw new Saml2Exception(ex);
 		}
-
 		return signable;
 	}
 
@@ -234,7 +229,6 @@ final class TestOpenSamlObjects {
 		catch (MarshallingException | SignatureException | SecurityException ex) {
 			throw new Saml2Exception(ex);
 		}
-
 		return signable;
 	}
 
@@ -287,32 +281,25 @@ final class TestOpenSamlObjects {
 	private static Encrypter getEncrypter(X509Certificate certificate) {
 		String dataAlgorithm = XMLCipherParameters.AES_256;
 		String keyAlgorithm = XMLCipherParameters.RSA_1_5;
-
 		BasicCredential dataCredential = new BasicCredential(SECRET_KEY);
 		DataEncryptionParameters dataEncryptionParameters = new DataEncryptionParameters();
 		dataEncryptionParameters.setEncryptionCredential(dataCredential);
 		dataEncryptionParameters.setAlgorithm(dataAlgorithm);
-
 		Credential credential = CredentialSupport.getSimpleCredential(certificate, null);
 		KeyEncryptionParameters keyEncryptionParameters = new KeyEncryptionParameters();
 		keyEncryptionParameters.setEncryptionCredential(credential);
 		keyEncryptionParameters.setAlgorithm(keyAlgorithm);
-
 		Encrypter encrypter = new Encrypter(dataEncryptionParameters, keyEncryptionParameters);
 		Encrypter.KeyPlacement keyPlacement = Encrypter.KeyPlacement.valueOf("PEER");
 		encrypter.setKeyPlacement(keyPlacement);
-
 		return encrypter;
 	}
 
 	static List<AttributeStatement> attributeStatements() {
 		List<AttributeStatement> attributeStatements = new ArrayList<>();
-
 		AttributeStatementBuilder attributeStatementBuilder = new AttributeStatementBuilder();
 		AttributeBuilder attributeBuilder = new AttributeBuilder();
-
 		AttributeStatement attrStmt1 = attributeStatementBuilder.buildObject();
-
 		Attribute emailAttr = attributeBuilder.buildObject();
 		emailAttr.setName("email");
 		XSAny email1 = new XSAnyBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME);
@@ -322,32 +309,26 @@ final class TestOpenSamlObjects {
 		email2.setTextContent("doe.john@example.com");
 		emailAttr.getAttributeValues().add(email2);
 		attrStmt1.getAttributes().add(emailAttr);
-
 		Attribute nameAttr = attributeBuilder.buildObject();
 		nameAttr.setName("name");
 		XSString name = new XSStringBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
 		name.setValue("John Doe");
 		nameAttr.getAttributeValues().add(name);
 		attrStmt1.getAttributes().add(nameAttr);
-
 		Attribute ageAttr = attributeBuilder.buildObject();
 		ageAttr.setName("age");
 		XSInteger age = new XSIntegerBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSInteger.TYPE_NAME);
 		age.setValue(21);
 		ageAttr.getAttributeValues().add(age);
 		attrStmt1.getAttributes().add(ageAttr);
-
 		attributeStatements.add(attrStmt1);
-
 		AttributeStatement attrStmt2 = attributeStatementBuilder.buildObject();
-
 		Attribute websiteAttr = attributeBuilder.buildObject();
 		websiteAttr.setName("website");
 		XSURI uri = new XSURIBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSURI.TYPE_NAME);
 		uri.setValue("https://johndoe.com/");
 		websiteAttr.getAttributeValues().add(uri);
 		attrStmt2.getAttributes().add(websiteAttr);
-
 		Attribute registeredAttr = attributeBuilder.buildObject();
 		registeredAttr.setName("registered");
 		XSBoolean registered = new XSBooleanBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME,
@@ -355,7 +336,6 @@ final class TestOpenSamlObjects {
 		registered.setValue(new XSBooleanValue(true, false));
 		registeredAttr.getAttributeValues().add(registered);
 		attrStmt2.getAttributes().add(registeredAttr);
-
 		Attribute registeredDateAttr = attributeBuilder.buildObject();
 		registeredDateAttr.setName("registeredDate");
 		XSDateTime registeredDate = new XSDateTimeBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME,
@@ -363,9 +343,7 @@ final class TestOpenSamlObjects {
 		registeredDate.setValue(DateTime.parse("1970-01-01T00:00:00Z"));
 		registeredDateAttr.getAttributeValues().add(registeredDate);
 		attrStmt2.getAttributes().add(registeredDateAttr);
-
 		attributeStatements.add(attrStmt2);
-
 		return attributeStatements;
 	}
 

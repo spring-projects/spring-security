@@ -50,9 +50,7 @@ public class FormLoginBeanDefinitionParserTests {
 
 	@Test
 	public void getLoginWhenAutoConfigThenShowsDefaultLoginPage() throws Exception {
-
 		this.spring.configLocations(this.xml("Simple")).autowire();
-
 		String expectedContent = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
@@ -71,23 +69,18 @@ public class FormLoginBeanDefinitionParserTests {
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 				+ "      </form>\n" + "</div>\n" + "</body></html>";
-
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
 	}
 
 	@Test
 	public void getLogoutWhenAutoConfigThenShowsDefaultLogoutPage() throws Exception {
-
 		this.spring.configLocations(this.xml("AutoConfig")).autowire();
-
 		this.mvc.perform(get("/logout")).andExpect(content().string(containsString("action=\"/logout\"")));
 	}
 
 	@Test
 	public void getLoginWhenConfiguredWithCustomAttributesThenLoginPageReflects() throws Exception {
-
 		this.spring.configLocations(this.xml("WithCustomAttributes")).autowire();
-
 		String expectedContent = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
@@ -106,17 +99,13 @@ public class FormLoginBeanDefinitionParserTests {
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 				+ "      </form>\n" + "</div>\n" + "</body></html>";
-
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
-
 		this.mvc.perform(get("/logout")).andExpect(status().is3xxRedirection());
 	}
 
 	@Test
 	public void getLoginWhenConfiguredForOpenIdThenLoginPageReflects() throws Exception {
-
 		this.spring.configLocations(this.xml("WithOpenId")).autowire();
-
 		String expectedContent = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
@@ -142,15 +131,12 @@ public class FormLoginBeanDefinitionParserTests {
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 				+ "      </form>\n" + "</div>\n" + "</body></html>";
-
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
 	}
 
 	@Test
 	public void getLoginWhenConfiguredForOpenIdWithCustomAttributesThenLoginPageReflects() throws Exception {
-
 		this.spring.configLocations(this.xml("WithOpenIdCustomAttributes")).autowire();
-
 		String expectedContent = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
 				+ "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
@@ -176,15 +162,12 @@ public class FormLoginBeanDefinitionParserTests {
 				+ "        </p>\n"
 				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 				+ "      </form>\n" + "</div>\n" + "</body></html>";
-
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
 	}
 
 	@Test
 	public void failedLoginWhenConfiguredWithCustomAuthenticationFailureThenForwardsAccordingly() throws Exception {
-
 		this.spring.configLocations(this.xml("WithAuthenticationFailureForwardUrl")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "bob").param("password", "invalidpassword"))
 				.andExpect(status().isOk()).andExpect(forwardedUrl("/failure_forward_url"))
 				.andExpect(request().attribute(WebAttributes.AUTHENTICATION_EXCEPTION, not(nullValue())));
@@ -192,9 +175,7 @@ public class FormLoginBeanDefinitionParserTests {
 
 	@Test
 	public void successfulLoginWhenConfiguredWithCustomAuthenticationSuccessThenForwardsAccordingly() throws Exception {
-
 		this.spring.configLocations(this.xml("WithAuthenticationSuccessForwardUrl")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password"))
 				.andExpect(status().isOk()).andExpect(forwardedUrl("/success_forward_url"));
 	}

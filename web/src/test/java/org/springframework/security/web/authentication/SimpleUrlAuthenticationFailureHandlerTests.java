@@ -40,7 +40,6 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		assertThat(afh.getRedirectStrategy()).isSameAs(rs);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		afh.onAuthenticationFailure(request, response, mock(AuthenticationException.class));
 		assertThat(response.getStatus()).isEqualTo(401);
 	}
@@ -51,9 +50,7 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		afh.setDefaultFailureUrl("/target");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		AuthenticationException e = mock(AuthenticationException.class);
-
 		afh.onAuthenticationFailure(request, response, e);
 		assertThat(request.getSession().getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isSameAs(e);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/target");
@@ -66,7 +63,6 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		assertThat(afh.isAllowSessionCreation()).isFalse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		afh.onAuthenticationFailure(request, response, mock(AuthenticationException.class));
 		assertThat(request.getSession(false)).isNull();
 	}
@@ -77,11 +73,9 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
 		SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler("/target");
 		afh.setUseForward(true);
 		assertThat(afh.isUseForward()).isTrue();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		AuthenticationException e = mock(AuthenticationException.class);
-
 		afh.onAuthenticationFailure(request, response, e);
 		assertThat(request.getSession(false)).isNull();
 		assertThat(response.getRedirectedUrl()).isNull();

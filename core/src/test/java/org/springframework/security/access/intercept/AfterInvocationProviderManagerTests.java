@@ -51,25 +51,19 @@ public class AfterInvocationProviderManagerTests {
 		manager.setProviders(list);
 		assertThat(manager.getProviders()).isEqualTo(list);
 		manager.afterPropertiesSet();
-
 		List<ConfigAttribute> attr1 = SecurityConfig.createList(new String[] { "GIVE_ME_SWAP1" });
 		List<ConfigAttribute> attr2 = SecurityConfig.createList(new String[] { "GIVE_ME_SWAP2" });
 		List<ConfigAttribute> attr3 = SecurityConfig.createList(new String[] { "GIVE_ME_SWAP3" });
 		List<ConfigAttribute> attr2and3 = SecurityConfig.createList(new String[] { "GIVE_ME_SWAP2", "GIVE_ME_SWAP3" });
 		List<ConfigAttribute> attr4 = SecurityConfig.createList(new String[] { "NEVER_CAUSES_SWAP" });
-
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr1, "content-before-swapping"))
 				.isEqualTo("swap1");
-
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr2, "content-before-swapping"))
 				.isEqualTo("swap2");
-
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr3, "content-before-swapping"))
 				.isEqualTo("swap3");
-
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr4, "content-before-swapping"))
 				.isEqualTo("content-before-swapping");
-
 		assertThat(manager.decide(null, new SimpleMethodInvocation(), attr2and3, "content-before-swapping"))
 				.isEqualTo("swap3");
 	}
@@ -78,7 +72,6 @@ public class AfterInvocationProviderManagerTests {
 	public void testRejectsEmptyProvidersList() {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
 		List list = new Vector();
-
 		try {
 			manager.setProviders(list);
 			fail("Should have thrown IllegalArgumentException");
@@ -95,7 +88,6 @@ public class AfterInvocationProviderManagerTests {
 		list.add(new MockAfterInvocationProvider("swap1", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
 		list.add(45);
 		list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
-
 		try {
 			manager.setProviders(list);
 			fail("Should have thrown IllegalArgumentException");
@@ -108,7 +100,6 @@ public class AfterInvocationProviderManagerTests {
 	@Test
 	public void testRejectsNullProvidersList() throws Exception {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
-
 		try {
 			manager.afterPropertiesSet();
 			fail("Should have thrown IllegalArgumentException");
@@ -127,7 +118,6 @@ public class AfterInvocationProviderManagerTests {
 		list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
 		manager.setProviders(list);
 		manager.afterPropertiesSet();
-
 		assertThat(manager.supports(new SecurityConfig("UNKNOWN_ATTRIB"))).isFalse();
 		assertThat(manager.supports(new SecurityConfig("GIVE_ME_SWAP2"))).isTrue();
 	}
@@ -141,7 +131,6 @@ public class AfterInvocationProviderManagerTests {
 		list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
 		manager.setProviders(list);
 		manager.afterPropertiesSet();
-
 		// assertFalse(manager.supports(FilterInvocation.class));
 		assertThat(manager.supports(MethodInvocation.class)).isTrue();
 	}
@@ -171,7 +160,6 @@ public class AfterInvocationProviderManagerTests {
 			if (config.contains(this.configAttribute)) {
 				return this.forceReturnObject;
 			}
-
 			return returnedObject;
 		}
 

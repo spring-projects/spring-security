@@ -58,12 +58,10 @@ public class BasicLookupStrategyTestsDbHelper {
 		else {
 			connectionUrl = "jdbc:hsqldb:mem:lookupstrategytestWithAclClassIdType";
 			sqlClassPathResource = ACL_SCHEMA_SQL_FILE_WITH_ACL_CLASS_ID;
-
 		}
 		this.dataSource = new SingleConnectionDataSource(connectionUrl, "sa", "", true);
 		this.dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
 		this.jdbcTemplate = new JdbcTemplate(this.dataSource);
-
 		Resource resource = new ClassPathResource(sqlClassPathResource);
 		String sql = new String(FileCopyUtils.copyToByteArray(resource.getInputStream()));
 		this.jdbcTemplate.execute(sql);

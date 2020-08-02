@@ -52,12 +52,10 @@ public class ApplicationConfig {
 		vendorAdapter.setDatabase(Database.HSQL);
 		vendorAdapter.setGenerateDdl(true);
 		vendorAdapter.setShowSql(true);
-
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setPackagesToScan(User.class.getPackage().getName());
 		factory.setDataSource(dataSource());
-
 		return factory;
 	}
 

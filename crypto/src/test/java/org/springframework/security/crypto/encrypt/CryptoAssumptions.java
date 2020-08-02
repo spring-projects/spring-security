@@ -52,7 +52,6 @@ public final class CryptoAssumptions {
 			throw new AssumptionViolatedException(cipherAlgorithm + " padding not available, skipping test", ex);
 		}
 		Assume.assumeTrue("AES key length of 256 not allowed, skipping test", aes256Available);
-
 	}
 
 }

@@ -71,7 +71,6 @@ public class MessageExpressionVoterTests {
 	public void setup() {
 		this.attributes = Arrays
 				.<ConfigAttribute>asList(new MessageExpressionConfigAttribute(this.expression, this.matcher));
-
 		this.voter = new MessageExpressionVoter();
 	}
 
@@ -127,10 +126,8 @@ public class MessageExpressionVoterTests {
 		given(this.expressionHandler.createEvaluationContext(this.authentication, this.message))
 				.willReturn(this.evaluationContext);
 		given(this.expression.getValue(this.evaluationContext, Boolean.class)).willReturn(true);
-
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes))
 				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
-
 		verify(this.expressionHandler).createEvaluationContext(this.authentication, this.message);
 	}
 
@@ -144,7 +141,6 @@ public class MessageExpressionVoterTests {
 		this.attributes = Arrays.<ConfigAttribute>asList(configAttribute);
 		given(configAttribute.postProcess(this.evaluationContext, this.message)).willReturn(this.evaluationContext);
 		given(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).willReturn(true);
-
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes))
 				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 		verify(configAttribute).postProcess(this.evaluationContext, this.message);

@@ -63,7 +63,6 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 	public void requestWhenUsingFilterThenBearerTokenPropagated() throws Exception {
 		BearerTokenAuthentication authentication = TestBearerTokenAuthentications.bearer();
 		this.spring.register(BearerFilterConfig.class, WebServerConfig.class, Controller.class).autowire();
-
 		this.mockMvc.perform(get("/token").with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
 				.andExpect(status().isOk()).andExpect(content().string("Bearer token"));
 	}
@@ -73,7 +72,6 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 	public void requestWhenNotUsingFilterThenBearerTokenNotPropagated() throws Exception {
 		BearerTokenAuthentication authentication = TestBearerTokenAuthentications.bearer();
 		this.spring.register(BearerFilterlessConfig.class, WebServerConfig.class, Controller.class).autowire();
-
 		this.mockMvc.perform(get("/token").with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
 				.andExpect(status().isOk()).andExpect(content().string(""));
 	}
@@ -155,7 +153,6 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 			String header = request.getHeader("Authorization");
 			if (StringUtils.isBlank(header)) {
 				return response;
-
 			}
 			return response.setBody(header);
 		}

@@ -122,7 +122,6 @@ public class CsrfRequestDataValueProcessorTests {
 		this.exchange.getAttributes().put(CsrfRequestDataValueProcessor.DEFAULT_CSRF_ATTR_NAME, token);
 		Map<String, String> expected = new HashMap<>();
 		expected.put(token.getParameterName(), token.getToken());
-
 		CsrfRequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
 		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(expected);
 	}

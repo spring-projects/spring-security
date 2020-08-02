@@ -78,7 +78,6 @@ public class OAuth2AuthorizeRequestTests {
 					attrs.put("name1", "value1");
 					attrs.put("name2", "value2");
 				}).build();
-
 		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.clientRegistration.getRegistrationId());
 		assertThat(authorizeRequest.getAuthorizedClient()).isNull();
 		assertThat(authorizeRequest.getPrincipal()).isEqualTo(this.principal);
@@ -92,7 +91,6 @@ public class OAuth2AuthorizeRequestTests {
 					attrs.put("name1", "value1");
 					attrs.put("name2", "value2");
 				}).build();
-
 		assertThat(authorizeRequest.getClientRegistrationId())
 				.isEqualTo(this.authorizedClient.getClientRegistration().getRegistrationId());
 		assertThat(authorizeRequest.getAuthorizedClient()).isEqualTo(this.authorizedClient);
@@ -105,7 +103,6 @@ public class OAuth2AuthorizeRequestTests {
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal("principalName")
 				.build();
-
 		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.clientRegistration.getRegistrationId());
 		assertThat(authorizeRequest.getAuthorizedClient()).isNull();
 		assertThat(authorizeRequest.getPrincipal().getName()).isEqualTo("principalName");

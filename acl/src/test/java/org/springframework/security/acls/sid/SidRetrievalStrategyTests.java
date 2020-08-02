@@ -50,16 +50,13 @@ public class SidRetrievalStrategyTests {
 	public void correctSidsAreRetrieved() {
 		SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();
 		List<Sid> sids = retrStrategy.getSids(this.authentication);
-
 		assertThat(sids).isNotNull();
 		assertThat(sids).hasSize(4);
 		assertThat(sids.get(0)).isNotNull();
 		assertThat(sids.get(0) instanceof PrincipalSid).isTrue();
-
 		for (int i = 1; i < sids.size(); i++) {
 			assertThat(sids.get(i) instanceof GrantedAuthoritySid).isTrue();
 		}
-
 		assertThat(((PrincipalSid) sids.get(0)).getPrincipal()).isEqualTo("scott");
 		assertThat(((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority()).isEqualTo("A");
 		assertThat(((GrantedAuthoritySid) sids.get(2)).getGrantedAuthority()).isEqualTo("B");
@@ -72,7 +69,6 @@ public class SidRetrievalStrategyTests {
 		List rhAuthorities = AuthorityUtils.createAuthorityList("D");
 		given(rh.getReachableGrantedAuthorities(anyCollection())).willReturn(rhAuthorities);
 		SidRetrievalStrategy strat = new SidRetrievalStrategyImpl(rh);
-
 		List<Sid> sids = strat.getSids(this.authentication);
 		assertThat(sids).hasSize(2);
 		assertThat(sids.get(0)).isNotNull();

@@ -44,7 +44,6 @@ public class SimpMessageTypeMatcherTests {
 	public void matchesMessageMessageTrue() {
 		Message<String> message = MessageBuilder.withPayload("Hi")
 				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE).build();
-
 		assertThat(this.matcher.matches(message)).isTrue();
 	}
 
@@ -52,14 +51,12 @@ public class SimpMessageTypeMatcherTests {
 	public void matchesMessageConnectFalse() {
 		Message<String> message = MessageBuilder.withPayload("Hi")
 				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.CONNECT).build();
-
 		assertThat(this.matcher.matches(message)).isFalse();
 	}
 
 	@Test
 	public void matchesMessageNullFalse() {
 		Message<String> message = MessageBuilder.withPayload("Hi").build();
-
 		assertThat(this.matcher.matches(message)).isFalse();
 	}
 

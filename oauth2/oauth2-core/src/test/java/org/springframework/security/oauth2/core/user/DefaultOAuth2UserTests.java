@@ -79,7 +79,6 @@ public class DefaultOAuth2UserTests {
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
 		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
-
 		assertThat(user.getName()).isEqualTo(USERNAME);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);

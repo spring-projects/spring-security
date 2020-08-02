@@ -60,10 +60,8 @@ public class AuthorizationPayloadInterceptorTests {
 	@Test
 	public void interceptWhenAuthenticationEmptyAndSubscribedThenException() {
 		given(this.chain.next(any())).willReturn(this.chainResult.mono());
-
 		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
 				AuthenticatedReactiveAuthorizationManager.authenticated());
-
 		StepVerifier.create(interceptor.intercept(this.exchange, this.chain))
 				.then(() -> this.chainResult.assertWasNotSubscribed())
 				.verifyError(AuthenticationCredentialsNotFoundException.class);
@@ -73,9 +71,7 @@ public class AuthorizationPayloadInterceptorTests {
 	public void interceptWhenAuthenticationNotSubscribedAndEmptyThenCompletes() {
 		given(this.chain.next(any())).willReturn(this.chainResult.mono());
 		given(this.authorizationManager.verify(any(), any())).willReturn(this.managerResult.mono());
-
 		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(this.authorizationManager);
-
 		StepVerifier.create(interceptor.intercept(this.exchange, this.chain))
 				.then(() -> this.chainResult.assertWasSubscribed()).verifyComplete();
 	}
@@ -83,14 +79,11 @@ public class AuthorizationPayloadInterceptorTests {
 	@Test
 	public void interceptWhenNotAuthorizedThenException() {
 		given(this.chain.next(any())).willReturn(this.chainResult.mono());
-
 		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
 				AuthorityReactiveAuthorizationManager.hasRole("USER"));
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password"));
-
 		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
-
 		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasNotSubscribed())
 				.verifyError(AccessDeniedException.class);
 	}
@@ -98,14 +91,11 @@ public class AuthorizationPayloadInterceptorTests {
 	@Test
 	public void interceptWhenAuthorizedThenContinues() {
 		given(this.chain.next(any())).willReturn(this.chainResult.mono());
-
 		AuthorizationPayloadInterceptor interceptor = new AuthorizationPayloadInterceptor(
 				AuthenticatedReactiveAuthorizationManager.authenticated());
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-
 		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
-
 		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasSubscribed()).verifyComplete();
 	}
 

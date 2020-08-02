@@ -68,9 +68,7 @@ public class ServerWebExchangeMatchersTests {
 	@Test
 	public void anyExchangeWhenMockThenMatches() {
 		ServerWebExchange mockExchange = mock(ServerWebExchange.class);
-
 		assertThat(ServerWebExchangeMatchers.anyExchange().matches(mockExchange).block().isMatch()).isTrue();
-
 		verifyZeroInteractions(mockExchange);
 	}
 

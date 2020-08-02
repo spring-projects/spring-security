@@ -63,7 +63,6 @@ public class GrantedAuthorityDefaultsXmlTests {
 	@Before
 	public void setup() {
 		setup("USER");
-
 		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
@@ -80,22 +79,17 @@ public class GrantedAuthorityDefaultsXmlTests {
 		SecurityContext context = SecurityContextHolder.getContext();
 		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				context);
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	@Test
 	public void doFilterDenied() throws Exception {
 		setup("DENIED");
-
 		SecurityContext context = SecurityContextHolder.getContext();
 		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				context);
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
@@ -112,14 +106,12 @@ public class GrantedAuthorityDefaultsXmlTests {
 	@Test(expected = AccessDeniedException.class)
 	public void messageDenied() {
 		setup("DENIED");
-
 		this.messageService.getMessage();
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void jsrMessageDenied() {
 		setup("DENIED");
-
 		this.messageService.getJsrMessage();
 	}
 
@@ -129,9 +121,7 @@ public class GrantedAuthorityDefaultsXmlTests {
 		SecurityContext context = SecurityContextHolder.getContext();
 		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				context);
-
 		this.chain = new MockFilterChain() {
-
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
@@ -140,11 +130,8 @@ public class GrantedAuthorityDefaultsXmlTests {
 				assertThat(httpRequest.isUserInRole("INVALID")).isFalse();
 				super.doFilter(request, response);
 			}
-
 		};
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.chain.getRequest()).isNotNull();
 	}
 

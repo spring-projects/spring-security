@@ -55,11 +55,8 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(Mono.just(authority));
 		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
-
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
-
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
-
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes).isNotNull().containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 				.containsEntry(OAuth2IntrospectionClaimNames.AUDIENCE,
@@ -72,7 +69,6 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 				.containsEntry(OAuth2IntrospectionClaimNames.SUBJECT, "Z5O3upPC88QrAjx00dis")
 				.containsEntry(OAuth2IntrospectionClaimNames.USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
-
 		assertThat(result.getAuthorities()).extracting("authority").containsExactly("SCOPE_read", "SCOPE_write",
 				"SCOPE_dolphin");
 	}
@@ -84,13 +80,10 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willReturn(Mono.just(authority));
 		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
-
 		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
 		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
-
 		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes).isNotNull().doesNotContainKey(OAuth2IntrospectionClaimNames.SCOPE);
-
 		assertThat(result.getAuthorities()).isEmpty();
 	}
 
@@ -100,7 +93,6 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		given(introspector.introspect(any()))
 				.willReturn(Mono.error(new OAuth2IntrospectionException("with \"invalid\" chars")));
 		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
-
 		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")).block())
 				.isInstanceOf(AuthenticationServiceException.class);
 	}

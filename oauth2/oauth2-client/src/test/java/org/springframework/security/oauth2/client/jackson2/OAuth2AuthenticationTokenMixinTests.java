@@ -73,7 +73,6 @@ public class OAuth2AuthenticationTokenMixinTests {
 		String expectedJson = asJson(authentication);
 		String json = this.mapper.writeValueAsString(authentication);
 		JSONAssert.assertEquals(expectedJson, json, true);
-
 		// OAuth2User
 		authentication = TestOAuth2AuthenticationTokens.authenticated();
 		expectedJson = asJson(authentication);
@@ -125,7 +124,6 @@ public class OAuth2AuthenticationTokenMixinTests {
 		OidcUserInfo expectedUserInfo = expectedOidcUser.getUserInfo();
 		OidcUserInfo userInfo = oidcUser.getUserInfo();
 		assertThat(userInfo.getClaims()).containsExactlyEntriesOf(expectedUserInfo.getClaims());
-
 		// OAuth2User
 		expectedAuthentication = TestOAuth2AuthenticationTokens.authenticated();
 		json = asJson(expectedAuthentication);

@@ -50,7 +50,6 @@ public class NegatedRequestMatcherTests {
 	public void matchesDelegateFalse() {
 		given(this.delegate.matches(this.request)).willReturn(false);
 		this.matcher = new NegatedRequestMatcher(this.delegate);
-
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
@@ -58,7 +57,6 @@ public class NegatedRequestMatcherTests {
 	public void matchesDelegateTrue() {
 		given(this.delegate.matches(this.request)).willReturn(true);
 		this.matcher = new NegatedRequestMatcher(this.delegate);
-
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 

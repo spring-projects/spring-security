@@ -70,23 +70,17 @@ public class CsrfWebFilterTests {
 	public void filterWhenGetThenSessionNotCreatedAndChainContinues() {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
 		given(this.chain.filter(this.get)).willReturn(chainResult.mono());
-
 		Mono<Void> result = this.csrfFilter.filter(this.get, this.chain);
-
 		StepVerifier.create(result).verifyComplete();
-
 		Mono<Boolean> isSessionStarted = this.get.getSession().map(WebSession::isStarted);
 		StepVerifier.create(isSessionStarted).expectNext(false).verifyComplete();
-
 		chainResult.assertWasSubscribed();
 	}
 
 	@Test
 	public void filterWhenPostAndNoTokenThenCsrfException() {
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
-
 		StepVerifier.create(result).verifyComplete();
-
 		assertThat(this.post.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -94,11 +88,8 @@ public class CsrfWebFilterTests {
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestMissingTokenThenCsrfException() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
-
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
-
 		StepVerifier.create(result).verifyComplete();
-
 		assertThat(this.post.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -108,11 +99,8 @@ public class CsrfWebFilterTests {
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
 				.body(this.token.getParameterName() + "=" + this.token.getToken() + "INVALID"));
-
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
-
 		StepVerifier.create(result).verifyComplete();
-
 		assertThat(this.post.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -120,18 +108,14 @@ public class CsrfWebFilterTests {
 	public void filterWhenPostAndEstablishedCsrfTokenAndRequestParamValidTokenThenContinues() {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
 		given(this.chain.filter(any())).willReturn(chainResult.mono());
-
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		this.post = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
 						.body(this.token.getParameterName() + "=" + this.token.getToken()));
-
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
-
 		StepVerifier.create(result).verifyComplete();
-
 		chainResult.assertWasSubscribed();
 	}
 
@@ -141,11 +125,8 @@ public class CsrfWebFilterTests {
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		this.post = MockServerWebExchange.from(
 				MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken() + "INVALID"));
-
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
-
 		StepVerifier.create(result).verifyComplete();
-
 		assertThat(this.post.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
@@ -153,17 +134,13 @@ public class CsrfWebFilterTests {
 	public void filterWhenPostAndEstablishedCsrfTokenAndHeaderValidTokenThenContinues() {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
 		given(this.chain.filter(any())).willReturn(chainResult.mono());
-
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
 		this.post = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
-
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
-
 		StepVerifier.create(result).verifyComplete();
-
 		chainResult.assertWasSubscribed();
 	}
 
@@ -172,7 +149,6 @@ public class CsrfWebFilterTests {
 	public void matchesRequireCsrfProtectionWhenNonStandardHTTPMethodIsUsed() {
 		MockServerWebExchange nonStandardHttpExchange = MockServerWebExchange
 				.from(MockServerHttpRequest.method("non-standard-http-method", "/"));
-
 		ServerWebExchangeMatcher serverWebExchangeMatcher = CsrfWebFilter.DEFAULT_CSRF_MATCHER;
 		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpExchange).map(MatchResult::isMatch).block())
 				.isTrue();
@@ -182,14 +158,11 @@ public class CsrfWebFilterTests {
 	public void doFilterWhenSkipExchangeInvokedThenSkips() {
 		PublisherProbe<Void> chainResult = PublisherProbe.empty();
 		given(this.chain.filter(any())).willReturn(chainResult.mono());
-
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
 		this.csrfFilter.setRequireCsrfProtectionMatcher(matcher);
-
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/post").build());
 		CsrfWebFilter.skipExchange(exchange);
 		this.csrfFilter.filter(exchange, this.chain).block();
-
 		verifyZeroInteractions(matcher);
 	}
 
@@ -197,9 +170,7 @@ public class CsrfWebFilterTests {
 	public void filterWhenMultipartFormDataAndNotEnabledThenDenied() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
-
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-
 		client.post().uri("/").contentType(MediaType.MULTIPART_FORM_DATA)
 				.body(BodyInserters.fromMultipartData(this.token.getParameterName(), this.token.getToken())).exchange()
 				.expectStatus().isForbidden();
@@ -211,9 +182,7 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setTokenFromMultipartDataEnabled(true);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
-
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-
 		client.post().uri("/").contentType(MediaType.MULTIPART_FORM_DATA)
 				.body(BodyInserters.fromMultipartData(this.token.getParameterName(), this.token.getToken())).exchange()
 				.expectStatus().is2xxSuccessful();
@@ -225,9 +194,7 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setTokenFromMultipartDataEnabled(true);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
 		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
-
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-
 		client.post().uri("/").contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
 				.is2xxSuccessful();
@@ -238,9 +205,7 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		this.csrfFilter.setTokenFromMultipartDataEnabled(true);
 		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
-
 		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
-
 		client.post().uri("/").contentType(MediaType.MULTIPART_MIXED)
 				.bodyValue(this.token.getParameterName() + "=" + this.token.getToken()).exchange().expectStatus()
 				.isForbidden();

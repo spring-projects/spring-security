@@ -110,13 +110,11 @@ public class GlobalMethodSecurityConfigurationTests {
 	@Test
 	public void methodSecurityAuthenticationManagerPublishesEvent() {
 		this.spring.register(InMemoryAuthWithGlobalMethodSecurityConfig.class).autowire();
-
 		try {
 			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("foo", "bar"));
 		}
 		catch (AuthenticationException ex) {
 		}
-
 		assertThat(this.events.getEvents()).extracting(Object::getClass)
 				.containsOnly((Class) AuthenticationFailureBadCredentialsEvent.class);
 	}
@@ -125,14 +123,10 @@ public class GlobalMethodSecurityConfigurationTests {
 	@WithMockUser
 	public void methodSecurityWhenAuthenticationTrustResolverIsBeanThenAutowires() {
 		this.spring.register(CustomTrustResolverConfig.class).autowire();
-
 		AuthenticationTrustResolver trustResolver = this.spring.getContext().getBean(AuthenticationTrustResolver.class);
 		given(trustResolver.isAnonymous(any())).willReturn(true, false);
-
 		assertThatThrownBy(() -> this.service.preAuthorizeNotAnonymous()).isInstanceOf(AccessDeniedException.class);
-
 		this.service.preAuthorizeNotAnonymous();
-
 		verify(trustResolver, atLeastOnce()).isAnonymous(any());
 	}
 
@@ -142,9 +136,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	public void defaultWebSecurityExpressionHandlerHasBeanResolverSet() {
 		this.spring.register(ExpressionHandlerHasBeanResolverSetConfig.class).autowire();
 		Authz authz = this.spring.getContext().getBean(Authz.class);
-
 		assertThatThrownBy(() -> this.service.preAuthorizeBean(false)).isInstanceOf(AccessDeniedException.class);
-
 		this.service.preAuthorizeBean(true);
 	}
 
@@ -152,9 +144,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	@WithMockUser
 	public void methodSecuritySupportsAnnotaitonsOnInterfaceParamerNames() {
 		this.spring.register(MethodSecurityServiceConfig.class).autowire();
-
 		assertThatThrownBy(() -> this.service.postAnnotation("deny")).isInstanceOf(AccessDeniedException.class);
-
 		this.service.postAnnotation("grant");
 		// no exception
 	}
@@ -165,17 +155,14 @@ public class GlobalMethodSecurityConfigurationTests {
 		this.spring.register(AutowirePermissionEvaluatorConfig.class).autowire();
 		PermissionEvaluator permission = this.spring.getContext().getBean(PermissionEvaluator.class);
 		given(permission.hasPermission(any(), eq("something"), eq("read"))).willReturn(true, false);
-
 		this.service.hasPermission("something");
 		// no exception
-
 		assertThatThrownBy(() -> this.service.hasPermission("something")).isInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void multiPermissionEvaluatorConfig() {
 		this.spring.register(MultiPermissionEvaluatorConfig.class).autowire();
-
 		// no exception
 	}
 
@@ -184,7 +171,6 @@ public class GlobalMethodSecurityConfigurationTests {
 	@WithMockUser
 	public void enableGlobalMethodSecurityWorksOnSuperclass() {
 		this.spring.register(ChildConfig.class).autowire();
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
@@ -200,7 +186,6 @@ public class GlobalMethodSecurityConfigurationTests {
 				child.register(Sec2479ChildConfig.class);
 				child.refresh();
 				this.spring.context(child).autowire();
-
 				assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 			}
 		}
@@ -209,9 +194,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	@Test
 	public void enableGlobalMethodSecurityDoesNotTriggerEagerInitializationOfBeansInGlobalAuthenticationConfigurer() {
 		this.spring.register(Sec2815Config.class).autowire();
-
 		MockBeanPostProcessor pp = this.spring.getContext().getBean(MockBeanPostProcessor.class);
-
 		assertThat(pp.beforeInit).containsKeys("dataSource");
 		assertThat(pp.afterInit).containsKeys("dataSource");
 	}
@@ -220,9 +203,9 @@ public class GlobalMethodSecurityConfigurationTests {
 	@Test
 	public void globalSecurityProxiesSecurity() {
 		this.spring.register(Sec3005Config.class).autowire();
-
 		assertThat(this.service.getClass()).matches((c) -> !Proxy.isProxyClass(c), "is not proxy class");
 	}
+
 	//
 	// // gh-3797
 	// def preAuthorizeBeanSpel() {
@@ -241,14 +224,11 @@ public class GlobalMethodSecurityConfigurationTests {
 	// thrown(AccessDeniedException)
 	// }
 	//
-
 	@Test
 	@WithMockUser
 	public void preAuthorizeBeanSpel() {
 		this.spring.register(PreAuthorizeBeanSpelConfig.class).autowire();
-
 		assertThatThrownBy(() -> this.service.preAuthorizeBean(false)).isInstanceOf(AccessDeniedException.class);
-
 		this.service.preAuthorizeBean(true);
 	}
 
@@ -257,7 +237,6 @@ public class GlobalMethodSecurityConfigurationTests {
 	@WithMockUser
 	public void roleHierarchy() {
 		this.spring.register(RoleHierarchyConfig.class).autowire();
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 		this.service.preAuthorizeAdmin();
 	}
@@ -266,12 +245,9 @@ public class GlobalMethodSecurityConfigurationTests {
 	@WithMockUser(authorities = "ROLE:USER")
 	public void grantedAuthorityDefaultsAutowires() {
 		this.spring.register(CustomGrantedAuthorityConfig.class).autowire();
-
 		CustomGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
 				.getBean(CustomGrantedAuthorityConfig.CustomAuthorityService.class);
-
 		assertThatThrownBy(() -> this.service.preAuthorize()).isInstanceOf(AccessDeniedException.class);
-
 		customService.customPrefixRoleUser();
 		// no exception
 	}
@@ -280,12 +256,9 @@ public class GlobalMethodSecurityConfigurationTests {
 	@WithMockUser(authorities = "USER")
 	public void grantedAuthorityDefaultsWithEmptyRolePrefix() {
 		this.spring.register(EmptyRolePrefixGrantedAuthorityConfig.class).autowire();
-
 		EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
 				.getBean(EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService.class);
-
 		assertThatThrownBy(() -> this.service.securedUser()).isInstanceOf(AccessDeniedException.class);
-
 		customService.emptyPrefixRoleUser();
 		// no exception
 	}
@@ -297,7 +270,6 @@ public class GlobalMethodSecurityConfigurationTests {
 				.getBean(MethodInterceptor.class);
 		MethodSecurityMetadataSource methodSecurityMetadataSource = this.spring.getContext()
 				.getBean(MethodSecurityMetadataSource.class);
-
 		assertThat(methodInterceptor.getSecurityMetadataSource()).isSameAs(methodSecurityMetadataSource);
 	}
 

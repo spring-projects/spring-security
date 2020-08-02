@@ -48,9 +48,7 @@ public class HeaderWriterServerLogoutHandlerTests {
 		WebFilterExchange filterExchange = mock(WebFilterExchange.class);
 		given(filterExchange.getExchange()).willReturn(serverWebExchange);
 		Authentication authentication = mock(Authentication.class);
-
 		handler.logout(filterExchange, authentication);
-
 		verify(headersWriter).writeHttpHeaders(serverWebExchange);
 	}
 

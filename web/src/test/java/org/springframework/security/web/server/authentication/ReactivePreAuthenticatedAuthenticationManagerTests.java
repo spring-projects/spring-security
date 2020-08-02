@@ -63,7 +63,6 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 	@Test
 	public void returnsAuthenticatedTokenForValidAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.validAccount));
-
 		Authentication authentication = this.manager.authenticate(tokenForUser(this.validAccount.getUsername()))
 				.block();
 		assertThat(authentication.isAuthenticated()).isEqualTo(true);
@@ -72,28 +71,24 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 	@Test(expected = UsernameNotFoundException.class)
 	public void returnsNullForNonExistingAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.empty());
-
 		this.manager.authenticate(tokenForUser(this.nonExistingAccount.getUsername())).block();
 	}
 
 	@Test(expected = LockedException.class)
 	public void throwsExceptionForLockedAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.lockedAccount));
-
 		this.manager.authenticate(tokenForUser(this.lockedAccount.getUsername())).block();
 	}
 
 	@Test(expected = DisabledException.class)
 	public void throwsExceptionForDisabledAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.disabledAccount));
-
 		this.manager.authenticate(tokenForUser(this.disabledAccount.getUsername())).block();
 	}
 
 	@Test(expected = AccountExpiredException.class)
 	public void throwsExceptionForExpiredAccount() {
 		given(this.mockUserDetailsService.findByUsername(anyString())).willReturn(Mono.just(this.expiredAccount));
-
 		this.manager.authenticate(tokenForUser(this.expiredAccount.getUsername())).block();
 	}
 
@@ -101,7 +96,6 @@ public class ReactivePreAuthenticatedAuthenticationManagerTests {
 	public void throwsExceptionForAccountWithExpiredCredentials() {
 		given(this.mockUserDetailsService.findByUsername(anyString()))
 				.willReturn(Mono.just(this.accountWithExpiredCredentials));
-
 		this.manager.authenticate(tokenForUser(this.accountWithExpiredCredentials.getUsername())).block();
 	}
 

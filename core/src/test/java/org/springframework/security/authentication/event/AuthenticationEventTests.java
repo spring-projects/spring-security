@@ -37,7 +37,6 @@ public class AuthenticationEventTests {
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
 				"Credentials");
 		authentication.setDetails("127.0.0.1");
-
 		return authentication;
 	}
 
@@ -60,13 +59,11 @@ public class AuthenticationEventTests {
 	@Test
 	public void testRejectsNullAuthentication() {
 		AuthenticationException exception = new DisabledException("TEST");
-
 		try {
 			new AuthenticationFailureDisabledEvent(null, exception);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 
@@ -77,7 +74,6 @@ public class AuthenticationEventTests {
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 

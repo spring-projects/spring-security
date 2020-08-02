@@ -56,7 +56,6 @@ public class Issue55Tests {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this");
 		this.spring.register(WebSecurityConfigurerAdapterDefaultsAuthManagerConfig.class);
 		this.spring.getContext().getBean(FilterChainProxy.class);
-
 		FilterSecurityInterceptor filter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 0);
 		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
 	}
@@ -67,10 +66,8 @@ public class Issue55Tests {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this");
 		this.spring.register(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig.class);
 		this.spring.getContext().getBean(FilterChainProxy.class);
-
 		FilterSecurityInterceptor filter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class, 0);
 		assertThat(filter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
-
 		FilterSecurityInterceptor secondFilter = (FilterSecurityInterceptor) findFilter(FilterSecurityInterceptor.class,
 				1);
 		assertThat(secondFilter.getAuthenticationManager().authenticate(token))

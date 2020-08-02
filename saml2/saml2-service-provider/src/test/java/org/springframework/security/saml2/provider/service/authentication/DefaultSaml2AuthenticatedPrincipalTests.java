@@ -73,14 +73,10 @@ public class DefaultSaml2AuthenticatedPrincipalTests {
 	public void getAttributeWhenDistinctValuesThenReturnsValues() {
 		final Boolean registered = true;
 		final Instant registeredDate = Instant.ofEpochMilli(DateTime.parse("1970-01-01T00:00:00Z").getMillis());
-
 		Map<String, List<Object>> attributes = new LinkedHashMap<>();
 		attributes.put("registration", Arrays.asList(registered, registeredDate));
-
 		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", attributes);
-
 		List<Object> registrationInfo = principal.getAttribute("registration");
-
 		assertThat(registrationInfo).isNotNull();
 		assertThat((Boolean) registrationInfo.get(0)).isEqualTo(registered);
 		assertThat((Instant) registrationInfo.get(1)).isEqualTo(registeredDate);

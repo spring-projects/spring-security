@@ -71,7 +71,6 @@ public class OpenIDLoginConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnOpenIDAuthenticationFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(OpenIDAuthenticationFilter.class));
 	}
 
@@ -79,14 +78,12 @@ public class OpenIDLoginConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnOpenIDAuthenticationProvider() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(OpenIDAuthenticationProvider.class));
 	}
 
 	@Test
 	public void openidLoginWhenInvokedTwiceThenUsesOriginalLoginPage() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverrideConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login/custom"));
 	}
@@ -94,7 +91,6 @@ public class OpenIDLoginConfigurerTests {
 	@Test
 	public void requestWhenOpenIdLoginPageInLambdaThenRedirectsToLoginPAge() throws Exception {
 		this.spring.register(OpenIdLoginPageInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login/custom"));
 	}
@@ -109,18 +105,14 @@ public class OpenIDLoginConfigurerTests {
 		given(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
 				any())).willReturn(mockAuthRequest);
 		this.spring.register(OpenIdAttributesInLambdaConfig.class).autowire();
-
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
-
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-
 			MvcResult mvcResult = this.mvc.perform(
 					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
 					.andExpect(status().isFound()).andReturn();
-
 			Object attributeObject = mvcResult.getRequest().getSession()
 					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);
@@ -147,18 +139,14 @@ public class OpenIDLoginConfigurerTests {
 		given(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
 				any())).willReturn(mockAuthRequest);
 		this.spring.register(OpenIdAttributesNullNameConfig.class).autowire();
-
 		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
-
 			server.enqueue(new MockResponse().addHeader(YadisResolver.YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
-
 			MvcResult mvcResult = this.mvc.perform(
 					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
 					.andExpect(status().isFound()).andReturn();
-
 			Object attributeObject = mvcResult.getRequest().getSession()
 					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);

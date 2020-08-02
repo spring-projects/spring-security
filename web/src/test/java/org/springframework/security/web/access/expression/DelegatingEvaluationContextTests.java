@@ -56,7 +56,6 @@ public class DelegatingEvaluationContextTests {
 	public void getRootObject() {
 		TypedValue expected = mock(TypedValue.class);
 		given(this.delegate.getRootObject()).willReturn(expected);
-
 		assertThat(this.context.getRootObject()).isEqualTo(expected);
 	}
 
@@ -64,7 +63,6 @@ public class DelegatingEvaluationContextTests {
 	public void getConstructorResolvers() {
 		List<ConstructorResolver> expected = new ArrayList<>();
 		given(this.delegate.getConstructorResolvers()).willReturn(expected);
-
 		assertThat(this.context.getConstructorResolvers()).isEqualTo(expected);
 	}
 
@@ -72,7 +70,6 @@ public class DelegatingEvaluationContextTests {
 	public void getMethodResolvers() {
 		List<MethodResolver> expected = new ArrayList<>();
 		given(this.delegate.getMethodResolvers()).willReturn(expected);
-
 		assertThat(this.context.getMethodResolvers()).isEqualTo(expected);
 	}
 
@@ -80,16 +77,13 @@ public class DelegatingEvaluationContextTests {
 	public void getPropertyAccessors() {
 		List<PropertyAccessor> expected = new ArrayList<>();
 		given(this.delegate.getPropertyAccessors()).willReturn(expected);
-
 		assertThat(this.context.getPropertyAccessors()).isEqualTo(expected);
 	}
 
 	@Test
 	public void getTypeLocator() {
-
 		TypeLocator expected = mock(TypeLocator.class);
 		given(this.delegate.getTypeLocator()).willReturn(expected);
-
 		assertThat(this.context.getTypeLocator()).isEqualTo(expected);
 	}
 
@@ -97,7 +91,6 @@ public class DelegatingEvaluationContextTests {
 	public void getTypeConverter() {
 		TypeConverter expected = mock(TypeConverter.class);
 		given(this.delegate.getTypeConverter()).willReturn(expected);
-
 		assertThat(this.context.getTypeConverter()).isEqualTo(expected);
 	}
 
@@ -105,7 +98,6 @@ public class DelegatingEvaluationContextTests {
 	public void getTypeComparator() {
 		TypeComparator expected = mock(TypeComparator.class);
 		given(this.delegate.getTypeComparator()).willReturn(expected);
-
 		assertThat(this.context.getTypeComparator()).isEqualTo(expected);
 	}
 
@@ -113,7 +105,6 @@ public class DelegatingEvaluationContextTests {
 	public void getOperatorOverloader() {
 		OperatorOverloader expected = mock(OperatorOverloader.class);
 		given(this.delegate.getOperatorOverloader()).willReturn(expected);
-
 		assertThat(this.context.getOperatorOverloader()).isEqualTo(expected);
 	}
 
@@ -121,7 +112,6 @@ public class DelegatingEvaluationContextTests {
 	public void getBeanResolver() {
 		BeanResolver expected = mock(BeanResolver.class);
 		given(this.delegate.getBeanResolver()).willReturn(expected);
-
 		assertThat(this.context.getBeanResolver()).isEqualTo(expected);
 	}
 
@@ -129,9 +119,7 @@ public class DelegatingEvaluationContextTests {
 	public void setVariable() {
 		String name = "name";
 		String value = "value";
-
 		this.context.setVariable(name, value);
-
 		verify(this.delegate).setVariable(name, value);
 	}
 
@@ -140,7 +128,6 @@ public class DelegatingEvaluationContextTests {
 		String name = "name";
 		String expected = "expected";
 		given(this.delegate.lookupVariable(name)).willReturn(expected);
-
 		assertThat(this.context.lookupVariable(name)).isEqualTo(expected);
 	}
 

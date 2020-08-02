@@ -54,7 +54,6 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		+ "\"domain\": null"
 	+ "}]]";
 	// @formatter:on
-
 	// @formatter:off
 	private static final String REQUEST_JSON = "{" +
 		"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
@@ -74,7 +73,6 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		+ "\"serverPort\": 80"
 	+ "}";
 	// @formatter:on
-
 	@Test
 	public void matchRequestBuildWithConstructorAndBuilder() {
 		DefaultSavedRequest request = new DefaultSavedRequest.Builder()
@@ -86,7 +84,6 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
 		mockRequest.setCookies(new Cookie("SESSION", "123456789"));
 		mockRequest.addHeader("x-auth-token", "12");
-
 		assert request.doesRequestMatch(mockRequest, new PortResolverImpl());
 	}
 

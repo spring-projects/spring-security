@@ -88,7 +88,6 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnSecurityContextHolderAwareRequestFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor)
 				.postProcess(any(SecurityContextHolderAwareRequestFilter.class));
 	}
@@ -97,14 +96,12 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void configureWhenUsingDefaultsThenAuthenticationManagerIsNotNull() {
 		this.spring.register(ServletApiConfig.class).autowire();
-
 		assertThat(this.spring.getContext().getBean("customAuthenticationManager")).isNotNull();
 	}
 
 	@Test
 	public void configureWhenUsingDefaultsThenAuthenticationEntryPointIsLogin() throws Exception {
 		this.spring.register(ServletApiConfig.class).autowire();
-
 		this.mvc.perform(formLogin()).andExpect(status().isFound());
 	}
 
@@ -112,7 +109,6 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void configureWhenUsingDefaultsThenRolePrefixIsSet() throws Exception {
 		this.spring.register(ServletApiConfig.class, AdminController.class).autowire();
-
 		this.mvc.perform(
 				get("/admin").with(authentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"))))
 				.andExpect(status().isOk());
@@ -121,9 +117,7 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void requestWhenCustomAuthenticationEntryPointThenEntryPointUsed() throws Exception {
 		this.spring.register(CustomEntryPointConfig.class).autowire();
-
 		this.mvc.perform(get("/"));
-
 		verify(CustomEntryPointConfig.ENTRYPOINT).commence(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
@@ -131,11 +125,9 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void servletApiWhenInvokedTwiceThenUsesOriginalRole() throws Exception {
 		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class, AdminController.class).autowire();
-
 		this.mvc.perform(
 				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
 				.andExpect(status().isOk());
-
 		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
 				.andExpect(status().isForbidden());
 	}
@@ -143,16 +135,13 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void configureWhenSharedObjectTrustResolverThenTrustResolverUsed() throws Exception {
 		this.spring.register(SharedTrustResolverConfig.class).autowire();
-
 		this.mvc.perform(get("/"));
-
 		verify(SharedTrustResolverConfig.TR, atLeastOnce()).isAnonymous(any());
 	}
 
 	@Test
 	public void requestWhenServletApiWithDefaultsInLambdaThenUsesDefaultRolePrefix() throws Exception {
 		this.spring.register(ServletApiWithDefaultsInLambdaConfig.class, AdminController.class).autowire();
-
 		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
 				.andExpect(status().isOk());
 	}
@@ -160,11 +149,9 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void requestWhenRolePrefixInLambdaThenUsesCustomRolePrefix() throws Exception {
 		this.spring.register(RolePrefixInLambdaConfig.class, AdminController.class).autowire();
-
 		this.mvc.perform(
 				get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
 				.andExpect(status().isOk());
-
 		this.mvc.perform(get("/admin").with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
 				.andExpect(status().isForbidden());
 	}
@@ -172,18 +159,13 @@ public class ServletApiConfigurerTests {
 	@Test
 	public void checkSecurityContextAwareAndLogoutFilterHasSameSizeAndHasLogoutSuccessEventPublishingLogoutHandler() {
 		this.spring.register(ServletApiWithLogoutConfig.class);
-
 		SecurityContextHolderAwareRequestFilter scaFilter = getFilter(SecurityContextHolderAwareRequestFilter.class);
 		LogoutFilter logoutFilter = getFilter(LogoutFilter.class);
-
 		LogoutHandler lfLogoutHandler = getFieldValue(logoutFilter, "handler");
 		assertThat(lfLogoutHandler).isInstanceOf(CompositeLogoutHandler.class);
-
 		List<LogoutHandler> scaLogoutHandlers = getFieldValue(scaFilter, "logoutHandlers");
 		List<LogoutHandler> lfLogoutHandlers = getFieldValue(lfLogoutHandler, "logoutHandlers");
-
 		assertThat(scaLogoutHandlers).hasSameSizeAs(lfLogoutHandlers);
-
 		assertThat(scaLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
 		assertThat(lfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
 	}

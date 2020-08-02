@@ -54,7 +54,6 @@ public class PasswordPolicyAwareContextSourceTests {
 				if ("manager".equals(env.get(Context.SECURITY_PRINCIPAL))) {
 					return PasswordPolicyAwareContextSourceTests.this.ctx;
 				}
-
 				return null;
 			}
 		};
@@ -71,7 +70,6 @@ public class PasswordPolicyAwareContextSourceTests {
 	@Test(expected = UncategorizedLdapException.class)
 	public void standardExceptionIsPropagatedWhenExceptionRaisedAndNoControlsAreSet() throws Exception {
 		willThrow(new NamingException("some LDAP exception")).given(this.ctx).reconnect(any(Control[].class));
-
 		this.ctxSource.getContext("user", "ignored");
 	}
 
@@ -79,9 +77,7 @@ public class PasswordPolicyAwareContextSourceTests {
 	public void lockedPasswordPolicyControlRaisesPasswordPolicyException() throws Exception {
 		given(this.ctx.getResponseControls()).willReturn(new Control[] {
 				new PasswordPolicyResponseControl(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL) });
-
 		willThrow(new NamingException("locked message")).given(this.ctx).reconnect(any(Control[].class));
-
 		this.ctxSource.getContext("user", "ignored");
 	}
 

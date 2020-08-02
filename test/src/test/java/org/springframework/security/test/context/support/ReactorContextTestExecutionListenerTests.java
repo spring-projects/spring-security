@@ -20,7 +20,6 @@ package org.springframework.security.test.context.support;
  * @author Rob Winch
  * @since 5.0
  */
-
 import java.util.concurrent.ForkJoinPool;
 
 import org.junit.After;
@@ -60,20 +59,15 @@ public class ReactorContextTestExecutionListenerTests {
 	@Test
 	public void beforeTestMethodWhenSecurityContextEmptyThenReactorContextNull() throws Exception {
 		this.listener.beforeTestMethod(this.testContext);
-
 		Mono<?> result = ReactiveSecurityContextHolder.getContext();
-
 		StepVerifier.create(result).verifyComplete();
 	}
 
 	@Test
 	public void beforeTestMethodWhenNullAuthenticationThenReactorContextNull() throws Exception {
 		TestSecurityContextHolder.setContext(new SecurityContextImpl());
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		Mono<?> result = ReactiveSecurityContextHolder.getContext();
-
 		StepVerifier.create(result).verifyComplete();
 	}
 
@@ -82,9 +76,7 @@ public class ReactorContextTestExecutionListenerTests {
 		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("user", "password",
 				"ROLE_USER");
 		TestSecurityContextHolder.setAuthentication(expectedAuthentication);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		assertAuthentication(expectedAuthentication);
 	}
 
@@ -94,9 +86,7 @@ public class ReactorContextTestExecutionListenerTests {
 				"ROLE_USER");
 		SecurityContext context = new CustomContext(expectedAuthentication);
 		TestSecurityContextHolder.setContext(context);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		assertSecurityContext(context);
 	}
 
@@ -108,13 +98,10 @@ public class ReactorContextTestExecutionListenerTests {
 		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password",
 				"ROLE_USER");
 		TestSecurityContextHolder.setAuthentication(contextHolder);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		Mono<Authentication> authentication = Mono.just("any")
 				.flatMap((s) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expectedAuthentication));
-
 		StepVerifier.create(authentication).expectNext(expectedAuthentication).verifyComplete();
 	}
 
@@ -125,39 +112,31 @@ public class ReactorContextTestExecutionListenerTests {
 		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password",
 				"ROLE_USER");
 		TestSecurityContextHolder.setAuthentication(contextHolder);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		Mono<Authentication> authentication = Mono.just("any")
 				.flatMap((s) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication))
 				.subscriberContext(ReactiveSecurityContextHolder.clearContext());
-
 		StepVerifier.create(authentication).verifyComplete();
 	}
 
 	@Test
 	public void afterTestMethodWhenSecurityContextEmptyThenNoError() throws Exception {
 		this.listener.beforeTestMethod(this.testContext);
-
 		this.listener.afterTestMethod(this.testContext);
 	}
 
 	@Test
 	public void afterTestMethodWhenSetupThenReactorContextNull() throws Exception {
 		beforeTestMethodWhenAuthenticationThenReactorContextHasAuthentication();
-
 		this.listener.afterTestMethod(this.testContext);
-
 		assertThat(Mono.subscriberContext().block().isEmpty()).isTrue();
 	}
 
 	@Test
 	public void afterTestMethodWhenDifferentHookIsRegistered() throws Exception {
 		Object obj = new Object();
-
 		Hooks.onLastOperator("CUSTOM_HOOK", (p) -> Mono.just(obj));
 		this.listener.afterTestMethod(this.testContext);
-
 		Object result = Mono.subscriberContext().block();
 		assertThat(result).isEqualTo(obj);
 	}
@@ -176,22 +155,18 @@ public class ReactorContextTestExecutionListenerTests {
 		TestingAuthenticationToken contextHolder = new TestingAuthenticationToken("contextHolder", "password",
 				"ROLE_USER");
 		TestSecurityContextHolder.setAuthentication(contextHolder);
-
 		this.listener.beforeTestMethod(this.testContext);
-
 		ForkJoinPool.commonPool().submit(() -> assertAuthentication(contextHolder)).join();
 	}
 
 	public void assertAuthentication(Authentication expected) {
 		Mono<Authentication> authentication = ReactiveSecurityContextHolder.getContext()
 				.map(SecurityContext::getAuthentication);
-
 		StepVerifier.create(authentication).expectNext(expected).verifyComplete();
 	}
 
 	private void assertSecurityContext(SecurityContext expected) {
 		Mono<SecurityContext> securityContext = ReactiveSecurityContextHolder.getContext();
-
 		StepVerifier.create(securityContext).expectNext(expected).verifyComplete();
 	}
 

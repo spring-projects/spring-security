@@ -53,7 +53,6 @@ public class EhCacheBasedUserCacheTests {
 	private Ehcache getCache() {
 		Ehcache cache = cacheManager.getCache("ehcacheusercachetests");
 		cache.removeAll();
-
 		return cache;
 	}
 
@@ -67,15 +66,12 @@ public class EhCacheBasedUserCacheTests {
 		EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
 		cache.setCache(getCache());
 		cache.afterPropertiesSet();
-
 		// Check it gets stored in the cache
 		cache.putUserInCache(getUser());
 		assertThat(getUser().getPassword()).isEqualTo(cache.getUserFromCache(getUser().getUsername()).getPassword());
-
 		// Check it gets removed from the cache
 		cache.removeUserFromCache(getUser());
 		assertThat(cache.getUserFromCache(getUser().getUsername())).isNull();
-
 		// Check it doesn't return values for null or unknown users
 		assertThat(cache.getUserFromCache(null)).isNull();
 		assertThat(cache.getUserFromCache("UNKNOWN_USER")).isNull();
@@ -84,10 +80,8 @@ public class EhCacheBasedUserCacheTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void startupDetectsMissingCache() throws Exception {
 		EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
-
 		cache.afterPropertiesSet();
 		fail("Should have thrown IllegalArgumentException");
-
 		Ehcache myCache = getCache();
 		cache.setCache(myCache);
 		assertThat(cache.getCache()).isEqualTo(myCache);

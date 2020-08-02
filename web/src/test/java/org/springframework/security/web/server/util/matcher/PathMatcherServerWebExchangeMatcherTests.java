@@ -62,7 +62,6 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
 		this.exchange = MockServerWebExchange.from(request);
 		this.path = "/path";
-
 		this.matcher = new PathPatternParserServerWebExchangeMatcher(this.pattern);
 	}
 
@@ -81,14 +80,12 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		given(this.pattern.matches(any())).willReturn(true);
 		given(this.pattern.matchAndExtract(any())).willReturn(this.pathMatchInfo);
 		given(this.pathMatchInfo.getUriVariables()).willReturn(new HashMap<>());
-
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void matchesWhenPathMatcherFalseThenReturnFalse() {
 		given(this.pattern.matches(any())).willReturn(false);
-
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 	}
 
@@ -99,7 +96,6 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		given(this.pattern.matches(any())).willReturn(true);
 		given(this.pattern.matchAndExtract(any())).willReturn(this.pathMatchInfo);
 		given(this.pathMatchInfo.getUriVariables()).willReturn(new HashMap<>());
-
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
 	}
 
@@ -108,9 +104,7 @@ public class PathMatcherServerWebExchangeMatcherTests {
 		HttpMethod method = HttpMethod.OPTIONS;
 		assertThat(this.exchange.getRequest().getMethod()).isNotEqualTo(method);
 		this.matcher = new PathPatternParserServerWebExchangeMatcher(this.pattern, method);
-
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
-
 		verifyZeroInteractions(this.pattern);
 	}
 

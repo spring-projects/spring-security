@@ -89,7 +89,6 @@ public class DebugFilterTests {
 	@Test
 	public void doFilterProcessesRequests() throws Exception {
 		this.filter.doFilter(this.request, this.response, this.filterChain);
-
 		verify(this.logger).info(anyString());
 		verify(this.request).setAttribute(this.requestAttr, Boolean.TRUE);
 		verify(this.fcp).doFilter(this.requestCaptor.capture(), eq(this.response), eq(this.filterChain));
@@ -102,9 +101,7 @@ public class DebugFilterTests {
 	public void doFilterProcessesForwardedRequests() throws Exception {
 		given(this.request.getAttribute(this.requestAttr)).willReturn(Boolean.TRUE);
 		HttpServletRequest request = new DebugRequestWrapper(this.request);
-
 		this.filter.doFilter(request, this.response, this.filterChain);
-
 		verify(this.logger).info(anyString());
 		verify(this.fcp).doFilter(request, this.response, this.filterChain);
 		verify(this.request, never()).removeAttribute(this.requestAttr);
@@ -114,9 +111,7 @@ public class DebugFilterTests {
 	public void doFilterDoesNotWrapWithDebugRequestWrapperAgain() throws Exception {
 		given(this.request.getAttribute(this.requestAttr)).willReturn(Boolean.TRUE);
 		HttpServletRequest fireWalledRequest = new HttpServletRequestWrapper(new DebugRequestWrapper(this.request));
-
 		this.filter.doFilter(fireWalledRequest, this.response, this.filterChain);
-
 		verify(this.fcp).doFilter(fireWalledRequest, this.response, this.filterChain);
 	}
 
@@ -129,11 +124,8 @@ public class DebugFilterTests {
 		request.addHeader("A", "A Value");
 		request.addHeader("A", "Another Value");
 		request.addHeader("B", "B Value");
-
 		this.filter.doFilter(request, this.response, this.filterChain);
-
 		verify(this.logger).info(this.logCaptor.capture());
-
 		assertThat(this.logCaptor.getValue()).isEqualTo("Request received for GET '/path/':\n" + "\n" + request + "\n"
 				+ "\n" + "servletPath:/path\n" + "pathInfo:/\n" + "headers: \n" + "A: A Value, Another Value\n"
 				+ "B: B Value\n" + "\n" + "\n" + "Security filter chain: no match");

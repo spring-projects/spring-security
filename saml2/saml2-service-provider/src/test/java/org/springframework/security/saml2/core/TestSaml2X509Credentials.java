@@ -135,7 +135,6 @@ public final class TestSaml2X509Credentials {
 	}
 
 	private static X509Certificate spCertificate() {
-
 		return certificate(
 				"-----BEGIN CERTIFICATE-----\n" + "MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMC\n"
 						+ "VVMxEzARBgNVBAgMCldhc2hpbmd0b24xEjAQBgNVBAcMCVZhbmNvdXZlcjEdMBsG\n"

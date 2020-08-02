@@ -81,7 +81,6 @@ public class OAuth2LoginAuthenticationWebFilterTests {
 	@Test
 	public void onAuthenticationSuccessWhenOAuth2LoginAuthenticationTokenThenSavesAuthorizedClient() {
 		this.filter.onAuthenticationSuccess(loginToken(), this.webFilterExchange).block();
-
 		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), any(), any());
 	}
 

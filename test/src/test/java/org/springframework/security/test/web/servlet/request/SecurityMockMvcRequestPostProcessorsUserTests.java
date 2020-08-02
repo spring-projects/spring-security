@@ -81,9 +81,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	@Test
 	public void userWithDefaults() {
 		String username = "userabc";
-
 		user(username).postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
@@ -96,9 +94,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	@Test
 	public void userWithCustom() {
 		String username = "customuser";
-
 		user(username).roles("CUSTOM", "ADMIN").password("newpass").postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
@@ -112,9 +108,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	@Test
 	public void userCustomAuthoritiesVarargs() {
 		String username = "customuser";
-
 		user(username).authorities(this.authority1, this.authority2).postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
@@ -130,9 +124,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	@Test
 	public void userCustomAuthoritiesList() {
 		String username = "customuser";
-
 		user(username).authorities(Arrays.asList(this.authority1, this.authority2)).postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();

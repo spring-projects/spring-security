@@ -57,7 +57,6 @@ public class DefaultAuthenticationEventPublisherTests {
 		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
 		this.publisher.setApplicationEventPublisher(appPublisher);
 		Authentication a = mock(Authentication.class);
-
 		Exception cause = new Exception();
 		Object extraInfo = new Object();
 		this.publisher.publishAuthenticationFailure(new BadCredentialsException(""), a);
@@ -94,7 +93,6 @@ public class DefaultAuthenticationEventPublisherTests {
 		this.publisher.setApplicationEventPublisher(appPublisher);
 		this.publisher.publishAuthenticationSuccess(mock(Authentication.class));
 		verify(appPublisher).publishEvent(isA(AuthenticationSuccessEvent.class));
-
 		this.publisher.setApplicationEventPublisher(null);
 		// Should be ignored with null app publisher
 		this.publisher.publishAuthenticationSuccess(mock(Authentication.class));
@@ -107,7 +105,6 @@ public class DefaultAuthenticationEventPublisherTests {
 		p.put(MockAuthenticationException.class.getName(), AuthenticationFailureDisabledEvent.class.getName());
 		this.publisher.setAdditionalExceptionMappings(p);
 		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
-
 		this.publisher.setApplicationEventPublisher(appPublisher);
 		this.publisher.publishAuthenticationFailure(new MockAuthenticationException("test"),
 				mock(Authentication.class));
@@ -129,7 +126,6 @@ public class DefaultAuthenticationEventPublisherTests {
 		p.put(MockAuthenticationException.class.getName(), AuthenticationFailureDisabledEvent.class.getName());
 		this.publisher.setAdditionalExceptionMappings(p);
 		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
-
 		this.publisher.setApplicationEventPublisher(appPublisher);
 		this.publisher.publishAuthenticationFailure(new AuthenticationException("") {
 		}, mock(Authentication.class));
@@ -166,7 +162,6 @@ public class DefaultAuthenticationEventPublisherTests {
 		mappings.put(MockAuthenticationException.class, AuthenticationFailureDisabledEvent.class);
 		this.publisher.setAdditionalExceptionMappings(mappings);
 		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
-
 		this.publisher.setApplicationEventPublisher(appPublisher);
 		this.publisher.publishAuthenticationFailure(new MockAuthenticationException("test"),
 				mock(Authentication.class));
@@ -184,7 +179,6 @@ public class DefaultAuthenticationEventPublisherTests {
 		this.publisher = new DefaultAuthenticationEventPublisher();
 		this.publisher.setDefaultAuthenticationFailureEvent(AuthenticationFailureBadCredentialsEvent.class);
 		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
-
 		this.publisher.setApplicationEventPublisher(appPublisher);
 		this.publisher.publishAuthenticationFailure(new AuthenticationException("") {
 		}, mock(Authentication.class));

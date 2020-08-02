@@ -55,9 +55,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	@WithMockUser(roles = "ANYTHING")
 	public void getWhenAccessDeniedOverriddenThenCustomizesResponseByRequest() throws Exception {
 		this.spring.register(RequestMatcherBasedAccessDeniedHandlerConfig.class).autowire();
-
 		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
-
 		this.mvc.perform(get("/goodbye")).andExpect(status().isForbidden());
 	}
 
@@ -65,9 +63,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	@WithMockUser(roles = "ANYTHING")
 	public void getWhenAccessDeniedOverriddenInLambdaThenCustomizesResponseByRequest() throws Exception {
 		this.spring.register(RequestMatcherBasedAccessDeniedHandlerInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
-
 		this.mvc.perform(get("/goodbye")).andExpect(status().isForbidden());
 	}
 
@@ -75,9 +71,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 	@WithMockUser(roles = "ANYTHING")
 	public void getWhenAccessDeniedOverriddenByOnlyOneHandlerThenAllRequestsUseThatHandler() throws Exception {
 		this.spring.register(SingleRequestMatcherAccessDeniedHandlerConfig.class).autowire();
-
 		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
-
 		this.mvc.perform(get("/goodbye")).andExpect(status().isIAmATeapot());
 	}
 

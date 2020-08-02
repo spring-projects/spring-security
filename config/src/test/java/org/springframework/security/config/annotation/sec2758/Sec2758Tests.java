@@ -68,20 +68,15 @@ public class Sec2758Tests {
 	@WithMockUser(authorities = "CUSTOM")
 	@Test
 	public void requestWhenNullifyingRolePrefixThenPassivityRestored() throws Exception {
-
 		this.spring.register(SecurityConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@WithMockUser(authorities = "CUSTOM")
 	@Test
 	public void methodSecurityWhenNullifyingRolePrefixThenPassivityRestored() {
-
 		this.spring.register(SecurityConfig.class).autowire();
-
 		assertThatCode(() -> this.service.doJsr250()).doesNotThrowAnyException();
-
 		assertThatCode(() -> this.service.doPreAuthorize()).doesNotThrowAnyException();
 	}
 

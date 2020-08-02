@@ -38,7 +38,6 @@ public class RunAsImplAuthenticationProviderTests {
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 		provider.setKey("hello_world");
-
 		provider.authenticate(token);
 	}
 
@@ -48,11 +47,8 @@ public class RunAsImplAuthenticationProviderTests {
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 		provider.setKey("my_password");
-
 		Authentication result = provider.authenticate(token);
-
 		Assert.assertTrue("Should have returned RunAsUserToken", result instanceof RunAsUserToken);
-
 		RunAsUserToken resultCast = (RunAsUserToken) result;
 		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
 	}
@@ -60,7 +56,6 @@ public class RunAsImplAuthenticationProviderTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testStartupFailsIfNoKey() throws Exception {
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
-
 		provider.afterPropertiesSet();
 	}
 

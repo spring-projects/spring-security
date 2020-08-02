@@ -94,9 +94,7 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-
 		String hiRob = this.requester.route("secure.retrieve-mono").data("rob").retrieveMono(String.class).block();
-
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
@@ -105,7 +103,6 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-
 		assertThatCode(() -> this.requester.route("secure.admin.retrieve-mono").data("data").retrieveMono(String.class)
 				.block()).isInstanceOf(ApplicationErrorException.class);
 	}
@@ -116,12 +113,10 @@ public class RSocketMessageHandlerConnectionITests {
 		this.requester = requester()
 				.setupMetadata(connectCredentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-
 		String hiRob = this.requester.route("secure.admin.retrieve-mono")
 				.metadata(new UsernamePasswordMetadata("admin", "password"),
 						UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.data("rob").retrieveMono(String.class).block();
-
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
@@ -131,12 +126,10 @@ public class RSocketMessageHandlerConnectionITests {
 		this.requester = requester()
 				.setupMetadata(connectCredentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-
 		String hiUser = this.requester.route("secure.authority.retrieve-mono")
 				.metadata(new UsernamePasswordMetadata("admin", "password"),
 						UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.data("Felipe").retrieveMono(String.class).block();
-
 		assertThat(hiUser).isEqualTo("Hi Felipe");
 	}
 
@@ -144,7 +137,6 @@ public class RSocketMessageHandlerConnectionITests {
 	public void connectWhenNotAuthenticated() {
 		this.requester = requester().connectTcp(this.server.address().getHostName(), this.server.address().getPort())
 				.block();
-
 		assertThatCode(() -> this.requester.route("retrieve-mono").data("data").retrieveMono(String.class).block())
 				.isNotNull();
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
@@ -156,7 +148,6 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("evil", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-
 		assertThatCode(() -> this.requester.route("retrieve-mono").data("data").retrieveMono(String.class).block())
 				.isNotNull();
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
@@ -168,7 +159,6 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-
 		assertThatCode(() -> this.requester.route("prohibit").data("data").retrieveMono(String.class).block())
 				.isInstanceOf(ApplicationErrorException.class);
 	}
@@ -178,9 +168,7 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-
 		String hiRob = this.requester.route("anyroute").data("rob").retrieveMono(String.class).block();
-
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
@@ -189,9 +177,7 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("admin", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-
 		String hiEbert = this.requester.route("management.users").data("admin").retrieveMono(String.class).block();
-
 		assertThat(hiEbert).isEqualTo("Hi admin");
 	}
 

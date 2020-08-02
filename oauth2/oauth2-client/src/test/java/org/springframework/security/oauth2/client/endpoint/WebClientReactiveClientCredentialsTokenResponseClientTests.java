@@ -56,7 +56,6 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-
 		this.clientRegistration = TestClientRegistrations.clientCredentials()
 				.tokenUri(this.server.url("/oauth2/token").uri().toASCIIString());
 	}
@@ -74,11 +73,9 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\",\n" + "  \"scope\":\"create\"\n" + "}");
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(
 				this.clientRegistration.build());
-
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		RecordedRequest actualRequest = this.server.takeRequest();
 		String body = actualRequest.getUtf8Body();
-
 		assertThat(response.getAccessToken()).isNotNull();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
@@ -92,13 +89,10 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		enqueueJson("{\n" + "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
 				+ "  \"token_type\":\"bearer\",\n" + "  \"expires_in\":3600,\n"
 				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\",\n" + "  \"scope\":\"create\"\n" + "}");
-
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
-
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		RecordedRequest actualRequest = this.server.takeRequest();
 		String body = actualRequest.getUtf8Body();
-
 		assertThat(response.getAccessToken()).isNotNull();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
 		assertThat(body).isEqualTo(
@@ -112,9 +106,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 				+ "  \"token_type\":\"bearer\",\n" + "  \"expires_in\":3600,\n"
 				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n" + "}");
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
-
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
-
 		assertThat(response.getAccessToken().getScopes()).isEqualTo(registration.getScopes());
 	}
 
@@ -127,16 +119,13 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	public void setWebClientCustomThenCustomClientIsUsed() {
 		WebClient customClient = mock(WebClient.class);
 		given(customClient.post()).willReturn(WebClient.builder().build().post());
-
 		this.client.setWebClient(customClient);
 		ClientRegistration registration = this.clientRegistration.build();
 		enqueueJson("{\n" + "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
 				+ "  \"token_type\":\"bearer\",\n" + "  \"expires_in\":3600,\n"
 				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n" + "}");
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
-
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
-
 		verify(customClient, atLeastOnce()).post();
 	}
 
@@ -144,15 +133,12 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	public void getTokenResponseWhenInvalidResponse() throws WebClientResponseException {
 		ClientRegistration registration = this.clientRegistration.build();
 		enqueueUnexpectedResponse();
-
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
-
 		assertThatThrownBy(() -> this.client.getTokenResponse(request).block())
 				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
 						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
 				.hasMessageContaining("[invalid_token_response]")
 				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
-
 	}
 
 	private void enqueueUnexpectedResponse() {

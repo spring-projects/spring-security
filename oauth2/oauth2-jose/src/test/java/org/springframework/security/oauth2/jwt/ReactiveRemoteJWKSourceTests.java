@@ -74,7 +74,6 @@ public class ReactiveRemoteJWKSourceTests {
 	public void setup() {
 		this.server = new MockWebServer();
 		this.source = new ReactiveRemoteJWKSource(this.server.url("/").toString());
-
 		this.server.enqueue(new MockResponse().setBody(this.keys));
 		this.selector = new JWKSelector(this.matcher);
 	}
@@ -82,17 +81,14 @@ public class ReactiveRemoteJWKSourceTests {
 	@Test
 	public void getWhenMultipleRequestThenCached() {
 		given(this.matcher.matches(any())).willReturn(true);
-
 		this.source.get(this.selector).block();
 		this.source.get(this.selector).block();
-
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
 	}
 
 	@Test
 	public void getWhenMatchThenCreatesKeys() {
 		given(this.matcher.matches(any())).willReturn(true);
-
 		List<JWK> keys = this.source.get(this.selector).block();
 		assertThat(keys).hasSize(2);
 		JWK key1 = keys.get(0);
@@ -100,7 +96,6 @@ public class ReactiveRemoteJWKSourceTests {
 		assertThat(key1.getAlgorithm().getName()).isEqualTo("RS256");
 		assertThat(key1.getKeyType()).isEqualTo(KeyType.RSA);
 		assertThat(key1.getKeyUse()).isEqualTo(KeyUse.SIGNATURE);
-
 		JWK key2 = keys.get(1);
 		assertThat(key2.getKeyID()).isEqualTo("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77");
 		assertThat(key2.getAlgorithm().getName()).isEqualTo("RS256");
@@ -112,7 +107,6 @@ public class ReactiveRemoteJWKSourceTests {
 	public void getWhenNoMatchAndNoKeyIdThenEmpty() {
 		given(this.matcher.matches(any())).willReturn(false);
 		given(this.matcher.getKeyIDs()).willReturn(Collections.emptySet());
-
 		assertThat(this.source.get(this.selector).block()).isEmpty();
 	}
 
@@ -121,9 +115,7 @@ public class ReactiveRemoteJWKSourceTests {
 		this.server.enqueue(new MockResponse().setBody(this.keys2));
 		given(this.matcher.matches(any())).willReturn(false, false, true);
 		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("rotated"));
-
 		List<JWK> keys = this.source.get(this.selector).block();
-
 		assertThat(keys).hasSize(1);
 		assertThat(keys.get(0).getKeyID()).isEqualTo("rotated");
 	}
@@ -133,9 +125,7 @@ public class ReactiveRemoteJWKSourceTests {
 		this.server.enqueue(new MockResponse().setBody(this.keys2));
 		given(this.matcher.matches(any())).willReturn(false, false, false);
 		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("rotated"));
-
 		List<JWK> keys = this.source.get(this.selector).block();
-
 		assertThat(keys).isEmpty();
 	}
 
@@ -143,7 +133,6 @@ public class ReactiveRemoteJWKSourceTests {
 	public void getWhenNoMatchAndKeyIdMatchThenEmpty() {
 		given(this.matcher.matches(any())).willReturn(false);
 		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
-
 		assertThat(this.source.get(this.selector).block()).isEmpty();
 	}
 

@@ -94,7 +94,6 @@ public class DelegatingServerLogoutHandlerTests {
 	public void logoutWhenSingleThenExecuted() {
 		DelegatingServerLogoutHandler handler = new DelegatingServerLogoutHandler(this.delegate1);
 		handler.logout(this.exchange, this.authentication).block();
-
 		this.delegate1Result.assertWasSubscribed();
 	}
 
@@ -102,7 +101,6 @@ public class DelegatingServerLogoutHandlerTests {
 	public void logoutWhenMultipleThenExecuted() {
 		DelegatingServerLogoutHandler handler = new DelegatingServerLogoutHandler(this.delegate1, this.delegate2);
 		handler.logout(this.exchange, this.authentication).block();
-
 		this.delegate1Result.assertWasSubscribed();
 		this.delegate2Result.assertWasSubscribed();
 	}
@@ -118,9 +116,7 @@ public class DelegatingServerLogoutHandlerTests {
 			assertThat(slowDone.get()).describedAs("ServerLogoutHandler should be executed sequentially").isTrue();
 		});
 		DelegatingServerLogoutHandler handler = new DelegatingServerLogoutHandler(slow, second);
-
 		handler.logout(this.exchange, this.authentication).block();
-
 		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
 

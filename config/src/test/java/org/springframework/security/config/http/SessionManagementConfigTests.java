@@ -92,52 +92,41 @@ public class SessionManagementConfigTests {
 	@Test
 	public void requestWhenCreateSessionAlwaysThenAlwaysCreatesSession() throws Exception {
 		this.spring.configLocations(this.xml("CreateSessionAlways")).autowire();
-
 		MockHttpServletRequest request = get("/").buildRequest(this.servletContext());
 		MockHttpServletResponse response = request(request, this.spring.getContext());
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_OK);
 		assertThat(request.getSession(false)).isNotNull();
 	}
 
 	@Test
 	public void requestWhenCreateSessionIsSetToNeverThenDoesNotCreateSessionOnLoginChallenge() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionNever")).autowire();
-
 		MockHttpServletRequest request = get("/auth").buildRequest(this.servletContext());
 		MockHttpServletResponse response = request(request, this.spring.getContext());
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(request.getSession(false)).isNull();
 	}
 
 	@Test
 	public void requestWhenCreateSessionIsSetToNeverThenDoesNotCreateSessionOnLogin() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionNever")).autowire();
-
 		MockHttpServletRequest request = post("/login").param("username", "user").param("password", "password")
 				.buildRequest(this.servletContext());
 		request = csrf().postProcessRequest(request);
 		MockHttpServletResponse response = request(request, this.spring.getContext());
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(request.getSession(false)).isNull();
 	}
 
 	@Test
 	public void requestWhenCreateSessionIsSetToNeverThenUsesExistingSession() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionNever")).autowire();
-
 		MockHttpServletRequest request = post("/login").param("username", "user").param("password", "password")
 				.buildRequest(this.servletContext());
 		request = csrf().postProcessRequest(request);
 		MockHttpSession session = new MockHttpSession();
 		request.setSession(session);
 		MockHttpServletResponse response = request(request, this.spring.getContext());
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(request.getSession(false)).isNotNull();
 		assertThat(request.getSession(false)
@@ -146,72 +135,56 @@ public class SessionManagementConfigTests {
 
 	@Test
 	public void requestWhenCreateSessionIsSetToStatelessThenDoesNotCreateSessionOnLoginChallenge() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionStateless")).autowire();
-
 		this.mvc.perform(get("/auth")).andExpect(status().isFound()).andExpect(session().exists(false));
 	}
 
 	@Test
 	public void requestWhenCreateSessionIsSetToStatelessThenDoesNotCreateSessionOnLogin() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionStateless")).autowire();
-
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
 				.andExpect(status().isFound()).andExpect(session().exists(false));
 	}
 
 	@Test
 	public void requestWhenCreateSessionIsSetToStatelessThenIgnoresExistingSession() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionStateless")).autowire();
-
 		MvcResult result = this.mvc
 				.perform(post("/login").param("username", "user").param("password", "password")
 						.session(new MockHttpSession()).with(csrf()))
 				.andExpect(status().isFound()).andExpect(session()).andReturn();
-
 		assertThat(result.getRequest().getSession(false)
 				.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)).isNull();
 	}
 
 	@Test
 	public void requestWhenCreateSessionIsSetToIfRequiredThenDoesNotCreateSessionOnPublicInvocation() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionIfRequired")).autowire();
-
 		ServletContext servletContext = this.mvc.getDispatcherServlet().getServletContext();
 		MockHttpServletRequest request = get("/").buildRequest(servletContext);
 		MockHttpServletResponse response = request(request, this.spring.getContext());
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_OK);
 		assertThat(request.getSession(false)).isNull();
 	}
 
 	@Test
 	public void requestWhenCreateSessionIsSetToIfRequiredThenCreatesSessionOnLoginChallenge() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionIfRequired")).autowire();
-
 		ServletContext servletContext = this.mvc.getDispatcherServlet().getServletContext();
 		MockHttpServletRequest request = get("/auth").buildRequest(servletContext);
 		MockHttpServletResponse response = request(request, this.spring.getContext());
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(request.getSession(false)).isNotNull();
 	}
 
 	@Test
 	public void requestWhenCreateSessionIsSetToIfRequiredThenCreatesSessionOnLogin() throws Exception {
-
 		this.spring.configLocations(this.xml("CreateSessionIfRequired")).autowire();
-
 		ServletContext servletContext = this.mvc.getDispatcherServlet().getServletContext();
 		MockHttpServletRequest request = post("/login").param("username", "user").param("password", "password")
 				.buildRequest(servletContext);
 		request = csrf().postProcessRequest(request);
 		MockHttpServletResponse response = request(request, this.spring.getContext());
-
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
 		assertThat(request.getSession(false)).isNotNull();
 	}
@@ -221,12 +194,9 @@ public class SessionManagementConfigTests {
 	 */
 	@Test
 	public void requestWhenRejectingUserBasedOnMaxSessionsExceededThenDoesNotCreateSession() throws Exception {
-
 		this.spring.configLocations(this.xml("Sec1208")).autowire();
-
 		this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(status().isOk())
 				.andExpect(session());
-
 		this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(status().isUnauthorized())
 				.andExpect(session().exists(false));
 	}
@@ -237,9 +207,7 @@ public class SessionManagementConfigTests {
 	@Test
 	public void requestWhenSessionFixationProtectionDisabledAndConcurrencyControlEnabledThenSessionNotInvalidated()
 			throws Exception {
-
 		this.spring.configLocations(this.xml("Sec2137")).autowire();
-
 		MockHttpSession session = new MockHttpSession();
 		this.mvc.perform(get("/auth").session(session).with(httpBasic("user", "password"))).andExpect(status().isOk())
 				.andExpect(session().id(session.getId()));
@@ -248,15 +216,12 @@ public class SessionManagementConfigTests {
 	@Test
 	public void autowireWhenExportingSessionRegistryBeanThenAvailableForWiring() {
 		this.spring.configLocations(this.xml("ConcurrencyControlSessionRegistryAlias")).autowire();
-
 		this.sessionRegistryIsValid();
 	}
 
 	@Test
 	public void requestWhenExpiredUrlIsSetThenInvalidatesSessionAndRedirects() throws Exception {
-
 		this.spring.configLocations(this.xml("ConcurrencyControlExpiredUrl")).autowire();
-
 		this.mvc.perform(get("/auth").session(this.expiredSession()).with(httpBasic("user", "password")))
 				.andExpect(redirectedUrl("/expired")).andExpect(session().exists(false));
 	}
@@ -264,9 +229,7 @@ public class SessionManagementConfigTests {
 	@Test
 	public void requestWhenConcurrencyControlAndCustomLogoutHandlersAreSetThenAllAreInvokedWhenSessionExpires()
 			throws Exception {
-
 		this.spring.configLocations(this.xml("ConcurrencyControlLogoutAndRememberMeHandlers")).autowire();
-
 		this.mvc.perform(get("/auth").session(this.expiredSession()).with(httpBasic("user", "password")))
 				.andExpect(status().isOk()).andExpect(cookie().maxAge("testCookie", 0))
 				.andExpect(cookie().exists("rememberMeCookie")).andExpect(session().valid(true));
@@ -274,9 +237,7 @@ public class SessionManagementConfigTests {
 
 	@Test
 	public void requestWhenConcurrencyControlAndRememberMeAreSetThenInvokedWhenSessionExpires() throws Exception {
-
 		this.spring.configLocations(this.xml("ConcurrencyControlRememberMeHandler")).autowire();
-
 		this.mvc.perform(get("/auth").session(this.expiredSession()).with(httpBasic("user", "password")))
 				.andExpect(status().isOk()).andExpect(cookie().exists("rememberMeCookie"))
 				.andExpect(session().exists(false));
@@ -287,25 +248,18 @@ public class SessionManagementConfigTests {
 	 */
 	@Test
 	public void autowireWhenConcurrencyControlIsSetThenLogoutHandlersGetAuthenticationObject() throws Exception {
-
 		this.spring.configLocations(this.xml("ConcurrencyControlCustomLogoutHandler")).autowire();
-
 		MvcResult result = this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(session())
 				.andReturn();
-
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
-
 		SessionRegistry sessionRegistry = this.spring.getContext().getBean(SessionRegistry.class);
 		sessionRegistry.getSessionInformation(session.getId()).expireNow();
-
 		this.mvc.perform(get("/auth").session(session)).andExpect(header().string("X-Username", "user"));
 	}
 
 	@Test
 	public void requestWhenConcurrencyControlIsSetThenDefaultsToResponseBodyExpirationResponse() throws Exception {
-
 		this.spring.configLocations(this.xml("ConcurrencyControlSessionRegistryAlias")).autowire();
-
 		this.mvc.perform(get("/auth").session(this.expiredSession()).with(httpBasic("user", "password")))
 				.andExpect(content().string("This session has been expired (possibly due to multiple concurrent "
 						+ "logins being attempted as the same user)."));
@@ -313,71 +267,53 @@ public class SessionManagementConfigTests {
 
 	@Test
 	public void requestWhenCustomSessionAuthenticationStrategyThenInvokesOnAuthentication() throws Exception {
-
 		this.spring.configLocations(this.xml("SessionAuthenticationStrategyRef")).autowire();
-
 		this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(status().isIAmATeapot());
 	}
 
 	@Test
 	public void autowireWhenSessionRegistryRefIsSetThenAvailableForWiring() {
 		this.spring.configLocations(this.xml("ConcurrencyControlSessionRegistryRef")).autowire();
-
 		this.sessionRegistryIsValid();
 	}
 
 	@Test
 	public void requestWhenMaxSessionsIsSetThenErrorsWhenExceeded() throws Exception {
-
 		this.spring.configLocations(this.xml("ConcurrencyControlMaxSessions")).autowire();
-
 		this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(status().isOk());
-
 		this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(status().isOk());
-
 		this.mvc.perform(get("/auth").with(httpBasic("user", "password"))).andExpect(redirectedUrl("/max-exceeded"));
 	}
 
 	@Test
 	public void autowireWhenSessionFixationProtectionIsNoneAndCsrfDisabledThenSessionManagementFilterIsNotWired() {
-
 		this.spring.configLocations(this.xml("NoSessionManagementFilter")).autowire();
-
 		assertThat(this.getFilter(SessionManagementFilter.class)).isNull();
 	}
 
 	@Test
 	public void requestWhenSessionFixationProtectionIsNoneThenSessionNotInvalidated() throws Exception {
-
 		this.spring.configLocations(this.xml("SessionFixationProtectionNone")).autowire();
-
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
-
 		this.mvc.perform(get("/auth").session(session).with(httpBasic("user", "password")))
 				.andExpect(session().id(sessionId));
 	}
 
 	@Test
 	public void requestWhenSessionFixationProtectionIsMigrateSessionThenSessionIsReplaced() throws Exception {
-
 		this.spring.configLocations(this.xml("SessionFixationProtectionMigrateSession")).autowire();
-
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
-
 		MvcResult result = this.mvc.perform(get("/auth").session(session).with(httpBasic("user", "password")))
 				.andExpect(session()).andReturn();
-
 		assertThat(result.getRequest().getSession(false).getId()).isNotEqualTo(sessionId);
 	}
 
 	@Test
 	public void requestWhenSessionFixationProtectionIsNoneAndInvalidSessionUrlIsSetThenStillRedirectsOnInvalidSession()
 			throws Exception {
-
 		this.spring.configLocations(this.xml("SessionFixationProtectionNoneWithInvalidSessionUrl")).autowire();
-
 		this.mvc.perform(get("/auth").with((request) -> {
 			request.setRequestedSessionId("1");
 			request.setRequestedSessionIdValid(false);
@@ -387,9 +323,7 @@ public class SessionManagementConfigTests {
 
 	private void sessionRegistryIsValid() {
 		SessionRegistry sessionRegistry = this.spring.getContext().getBean("sessionRegistry", SessionRegistry.class);
-
 		assertThat(sessionRegistry).isNotNull();
-
 		assertThat(this.getFilter(ConcurrentSessionFilter.class)).returns(sessionRegistry,
 				this::extractSessionRegistry);
 		assertThat(this.getFilter(UsernamePasswordAuthenticationFilter.class)).returns(sessionRegistry,
@@ -433,37 +367,26 @@ public class SessionManagementConfigTests {
 	 */
 	@Test
 	public void checkConcurrencyAndLogoutFilterHasSameSizeAndHasLogoutSuccessEventPublishingLogoutHandler() {
-
 		this.spring.configLocations(this.xml("ConcurrencyControlLogoutAndRememberMeHandlers")).autowire();
-
 		ConcurrentSessionFilter concurrentSessionFilter = getFilter(ConcurrentSessionFilter.class);
 		LogoutFilter logoutFilter = getFilter(LogoutFilter.class);
-
 		LogoutHandler csfLogoutHandler = getFieldValue(concurrentSessionFilter, "handlers");
 		LogoutHandler lfLogoutHandler = getFieldValue(logoutFilter, "handler");
-
 		assertThat(csfLogoutHandler).isInstanceOf(CompositeLogoutHandler.class);
 		assertThat(lfLogoutHandler).isInstanceOf(CompositeLogoutHandler.class);
-
 		List<LogoutHandler> csfLogoutHandlers = getFieldValue(csfLogoutHandler, "logoutHandlers");
 		List<LogoutHandler> lfLogoutHandlers = getFieldValue(lfLogoutHandler, "logoutHandlers");
-
 		assertThat(csfLogoutHandlers).hasSameSizeAs(lfLogoutHandlers);
-
 		assertThat(csfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
 		assertThat(lfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
 	}
 
 	private static MockHttpServletResponse request(MockHttpServletRequest request, ApplicationContext context)
 			throws IOException, ServletException {
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		FilterChainProxy proxy = context.getBean(FilterChainProxy.class);
-
 		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
 		});
-
 		return response;
 	}
 
@@ -481,7 +404,6 @@ public class SessionManagementConfigTests {
 
 	private List<Filter> getFilters() {
 		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
-
 		return proxy.getFilters("/");
 	}
 
@@ -499,7 +421,6 @@ public class SessionManagementConfigTests {
 		@Override
 		public void onAuthentication(Authentication authentication, HttpServletRequest request,
 				HttpServletResponse response) throws SessionAuthenticationException {
-
 			response.setStatus(org.springframework.http.HttpStatus.I_AM_A_TEAPOT.value());
 		}
 
@@ -514,13 +435,11 @@ public class SessionManagementConfigTests {
 
 		@Override
 		public void loginFail(HttpServletRequest request, HttpServletResponse response) {
-
 		}
 
 		@Override
 		public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 				Authentication successfulAuthentication) {
-
 		}
 
 		@Override
@@ -574,11 +493,8 @@ public class SessionManagementConfigTests {
 				assertThat(result.getRequest().getSession(false)).isNull();
 				return;
 			}
-
 			assertThat(result.getRequest().getSession(false)).isNotNull();
-
 			MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
-
 			if (this.valid != null) {
 				if (this.valid) {
 					assertThat(session.isInvalid()).isFalse();
@@ -587,7 +503,6 @@ public class SessionManagementConfigTests {
 					assertThat(session.isInvalid()).isTrue();
 				}
 			}
-
 			if (this.id != null) {
 				assertThat(session.getId()).isEqualTo(this.id);
 			}

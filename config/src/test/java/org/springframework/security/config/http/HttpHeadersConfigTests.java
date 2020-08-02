@@ -51,7 +51,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class HttpHeadersConfigTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/HttpHeadersConfigTests";
-
 	static final Map<String, String> defaultHeaders = ImmutableMap.<String, String>builder()
 			.put("X-Content-Type-Options", "nosniff").put("X-Frame-Options", "DENY")
 			.put("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains")
@@ -66,39 +65,28 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenHeadersDisabledThenResponseExcludesAllSecureHeaders() throws Exception {
-
 		this.spring.configLocations(this.xml("HeadersDisabled")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(excludesDefaults());
 	}
 
 	@Test
 	public void requestWhenHeadersDisabledViaPlaceholderThenResponseExcludesAllSecureHeaders() throws Exception {
-
 		System.setProperty("security.headers.disabled", "true");
-
 		this.spring.configLocations(this.xml("DisabledWithPlaceholder")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(excludesDefaults());
 	}
 
 	@Test
 	public void requestWhenHeadersEnabledViaPlaceholderThenResponseIncludesAllSecureHeaders() throws Exception {
-
 		System.setProperty("security.headers.disabled", "false");
-
 		this.spring.configLocations(this.xml("DisabledWithPlaceholder")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includesDefaults());
 	}
 
 	@Test
 	public void requestWhenHeadersDisabledRefMissingPlaceholderThenResponseIncludesAllSecureHeaders() throws Exception {
-
 		System.clearProperty("security.headers.disabled");
-
 		this.spring.configLocations(this.xml("DisabledWithPlaceholder")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includesDefaults());
 	}
 
@@ -111,28 +99,21 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenHeadersEnabledThenResponseContainsAllSecureHeaders() throws Exception {
-
 		this.spring.configLocations(this.xml("DefaultConfig")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includesDefaults());
 	}
 
 	@Test
 	public void requestWhenHeadersElementUsedThenResponseContainsAllSecureHeaders() throws Exception {
-
 		this.spring.configLocations(this.xml("HeadersEnabled")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includesDefaults());
 	}
 
 	@Test
 	public void requestWhenFrameOptionsConfiguredThenIncludesHeader() throws Exception {
-
 		Map<String, String> headers = new HashMap(defaultHeaders);
 		headers.put("X-Frame-Options", "SAMEORIGIN");
-
 		this.spring.configLocations(this.xml("WithFrameOptions")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(headers));
 	}
 
@@ -141,86 +122,63 @@ public class HttpHeadersConfigTests {
 	 */
 	@Test
 	public void requestWhenDefaultsDisabledWithNoOverrideThenExcludesAllSecureHeaders() throws Exception {
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithNoOverride")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(excludesDefaults());
 	}
 
 	@Test
 	public void requestWhenDefaultsDisabledWithPlaceholderTrueThenExcludesAllSecureHeaders() throws Exception {
-
 		System.setProperty("security.headers.defaults.disabled", "true");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithPlaceholder")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(excludesDefaults());
 	}
 
 	@Test
 	public void requestWhenDefaultsDisabledWithPlaceholderFalseThenIncludeAllSecureHeaders() throws Exception {
-
 		System.setProperty("security.headers.defaults.disabled", "false");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithPlaceholder")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includesDefaults());
 	}
 
 	@Test
 	public void requestWhenDefaultsDisabledWithPlaceholderMissingThenIncludeAllSecureHeaders() throws Exception {
-
 		System.clearProperty("security.headers.defaults.disabled");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithPlaceholder")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includesDefaults());
 	}
 
 	@Test
 	public void requestWhenUsingContentTypeOptionsThenDefaultsToNoSniff() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-Content-Type-Options");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithContentTypeOptions")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk())
 				.andExpect(header().string("X-Content-Type-Options", "nosniff")).andExpect(excludes(excludedHeaders));
 	}
 
 	@Test
 	public void requestWhenUsingFrameOptionsThenDefaultsToDeny() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-Frame-Options");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithFrameOptions")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(header().string("X-Frame-Options", "DENY"))
 				.andExpect(excludes(excludedHeaders));
 	}
 
 	@Test
 	public void requestWhenUsingFrameOptionsDenyThenRespondsWithDeny() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-Frame-Options");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithFrameOptionsDeny")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(header().string("X-Frame-Options", "DENY"))
 				.andExpect(excludes(excludedHeaders));
 	}
 
 	@Test
 	public void requestWhenUsingFrameOptionsSameOriginThenRespondsWithSameOrigin() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-Frame-Options");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithFrameOptionsSameOrigin")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk())
 				.andExpect(header().string("X-Frame-Options", "SAMEORIGIN")).andExpect(excludes(excludedHeaders));
 	}
@@ -249,12 +207,9 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenUsingFrameOptionsAllowFromThenRespondsWithAllowFrom() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-Frame-Options");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithFrameOptionsAllowFrom")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk())
 				.andExpect(header().string("X-Frame-Options", "ALLOW-FROM https://example.org"))
 				.andExpect(excludes(excludedHeaders));
@@ -262,34 +217,26 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenUsingFrameOptionsAllowFromWhitelistThenRespondsWithAllowFrom() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-Frame-Options");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithFrameOptionsAllowFromWhitelist")).autowire();
-
 		this.mvc.perform(get("/").param("from", "https://example.org")).andExpect(status().isOk())
 				.andExpect(header().string("X-Frame-Options", "ALLOW-FROM https://example.org"))
 				.andExpect(excludes(excludedHeaders));
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(header().string("X-Frame-Options", "DENY"))
 				.andExpect(excludes(excludedHeaders));
 	}
 
 	@Test
 	public void requestWhenUsingCustomHeaderThenRespondsWithThatHeader() throws Exception {
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithCustomHeader")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(header().string("a", "b"))
 				.andExpect(header().string("c", "d")).andExpect(excludesDefaults());
 	}
 
 	@Test
 	public void requestWhenUsingCustomHeaderWriterThenRespondsWithThatHeader() throws Exception {
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithCustomHeaderWriter")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(header().string("abc", "def"))
 				.andExpect(excludesDefaults());
 	}
@@ -309,36 +256,27 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenUsingXssProtectionThenDefaultsToModeBlock() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-XSS-Protection");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithXssProtection")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk())
 				.andExpect(header().string("X-XSS-Protection", "1; mode=block")).andExpect(excludes(excludedHeaders));
 	}
 
 	@Test
 	public void requestWhenEnablingXssProtectionThenDefaultsToModeBlock() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-XSS-Protection");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithXssProtectionEnabled")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk())
 				.andExpect(header().string("X-XSS-Protection", "1; mode=block")).andExpect(excludes(excludedHeaders));
 	}
 
 	@Test
 	public void requestWhenDisablingXssProtectionThenDefaultsToZero() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("X-XSS-Protection");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithXssProtectionDisabled")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(header().string("X-XSS-Protection", "0"))
 				.andExpect(excludes(excludedHeaders));
 	}
@@ -353,24 +291,18 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenUsingCacheControlThenRespondsWithCorrespondingHeaders() throws Exception {
-
 		Map<String, String> includedHeaders = ImmutableMap.<String, String>builder()
 				.put("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate").put("Expires", "0")
 				.put("Pragma", "no-cache").build();
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithCacheControl")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(includes(includedHeaders));
 	}
 
 	@Test
 	public void requestWhenUsingHstsThenRespondsWithHstsHeader() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("Strict-Transport-Security");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHsts")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk())
 				.andExpect(header().string("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains"))
 				.andExpect(excludes(excludedHeaders));
@@ -378,20 +310,15 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void insecureRequestWhenUsingHstsThenExcludesHstsHeader() throws Exception {
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHsts")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(excludesDefaults());
 	}
 
 	@Test
 	public void insecureRequestWhenUsingCustomHstsRequestMatcherThenIncludesHstsHeader() throws Exception {
-
 		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
 		excludedHeaders.remove("Strict-Transport-Security");
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithCustomHstsRequestMatcher")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk())
 				.andExpect(header().string("Strict-Transport-Security", "max-age=1"))
 				.andExpect(excludes(excludedHeaders));
@@ -414,7 +341,6 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void requestWhenUsingHpkpThenIncludesHpkpHeader() throws Exception {
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHpkp")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk())
 				.andExpect(header().string("Public-Key-Pins-Report-Only",
 						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\""))
@@ -424,7 +350,6 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void requestWhenUsingHpkpDefaultsThenIncludesHpkpHeaderUsingSha256() throws Exception {
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHpkpDefaults")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk())
 				.andExpect(header().string("Public-Key-Pins-Report-Only",
 						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\""))
@@ -434,7 +359,6 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void insecureRequestWhenUsingHpkpThenExcludesHpkpHeader() throws Exception {
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHpkpDefaults")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk())
 				.andExpect(header().doesNotExist("Public-Key-Pins-Report-Only")).andExpect(excludesDefaults());
 	}
@@ -442,7 +366,6 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void requestWhenUsingHpkpCustomMaxAgeThenIncludesHpkpHeaderAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHpkpMaxAge")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk())
 				.andExpect(header().string("Public-Key-Pins-Report-Only",
 						"max-age=604800 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\""))
@@ -452,7 +375,6 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void requestWhenUsingHpkpReportThenIncludesHpkpHeaderAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHpkpReport")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk())
 				.andExpect(header().string("Public-Key-Pins",
 						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\""))
@@ -462,7 +384,6 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void requestWhenUsingHpkpIncludeSubdomainsThenIncludesHpkpHeaderAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHpkpIncludeSubdomains")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(header().string(
 				"Public-Key-Pins-Report-Only",
 				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; includeSubDomains"))
@@ -472,7 +393,6 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void requestWhenUsingHpkpReportUriThenIncludesHpkpHeaderAccordingly() throws Exception {
 		this.spring.configLocations(this.xml("DefaultsDisabledWithHpkpReportUri")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(header().string(
 				"Public-Key-Pins-Report-Only",
 				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.net/pkp-report\""))
@@ -481,68 +401,51 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenCacheControlDisabledThenExcludesHeader() throws Exception {
-
 		Collection<String> cacheControl = Arrays.asList("Cache-Control", "Expires", "Pragma");
 		Map<String, String> allButCacheControl = remove(defaultHeaders, cacheControl);
-
 		this.spring.configLocations(this.xml("CacheControlDisabled")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(allButCacheControl))
 				.andExpect(excludes(cacheControl));
 	}
 
 	@Test
 	public void requestWhenContentTypeOptionsDisabledThenExcludesHeader() throws Exception {
-
 		Collection<String> contentTypeOptions = Arrays.asList("X-Content-Type-Options");
 		Map<String, String> allButContentTypeOptions = remove(defaultHeaders, contentTypeOptions);
-
 		this.spring.configLocations(this.xml("ContentTypeOptionsDisabled")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(allButContentTypeOptions))
 				.andExpect(excludes(contentTypeOptions));
 	}
 
 	@Test
 	public void requestWhenHstsDisabledThenExcludesHeader() throws Exception {
-
 		Collection<String> hsts = Arrays.asList("Strict-Transport-Security");
 		Map<String, String> allButHsts = remove(defaultHeaders, hsts);
-
 		this.spring.configLocations(this.xml("HstsDisabled")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(allButHsts))
 				.andExpect(excludes(hsts));
 	}
 
 	@Test
 	public void requestWhenHpkpDisabledThenExcludesHeader() throws Exception {
-
 		this.spring.configLocations(this.xml("HpkpDisabled")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includesDefaults());
 	}
 
 	@Test
 	public void requestWhenFrameOptionsDisabledThenExcludesHeader() throws Exception {
-
 		Collection<String> frameOptions = Arrays.asList("X-Frame-Options");
 		Map<String, String> allButFrameOptions = remove(defaultHeaders, frameOptions);
-
 		this.spring.configLocations(this.xml("FrameOptionsDisabled")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(allButFrameOptions))
 				.andExpect(excludes(frameOptions));
 	}
 
 	@Test
 	public void requestWhenXssProtectionDisabledThenExcludesHeader() throws Exception {
-
 		Collection<String> xssProtection = Arrays.asList("X-XSS-Protection");
 		Map<String, String> allButXssProtection = remove(defaultHeaders, xssProtection);
-
 		this.spring.configLocations(this.xml("XssProtectionDisabled")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(allButXssProtection))
 				.andExpect(excludes(xssProtection));
 	}
@@ -589,29 +492,22 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenContentSecurityPolicyDirectivesConfiguredThenIncludesDirectives() throws Exception {
-
 		Map<String, String> includedHeaders = new HashMap<>(defaultHeaders);
 		includedHeaders.put("Content-Security-Policy", "default-src 'self'");
-
 		this.spring.configLocations(this.xml("ContentSecurityPolicyWithPolicyDirectives")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(includedHeaders));
 	}
 
 	@Test
 	public void requestWhenHeadersDisabledAndContentSecurityPolicyConfiguredThenExcludesHeader() throws Exception {
-
 		this.spring.configLocations(this.xml("HeadersDisabledWithContentSecurityPolicy")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(excludesDefaults())
 				.andExpect(excludes("Content-Security-Policy"));
 	}
 
 	@Test
 	public void requestWhenDefaultsDisabledAndContentSecurityPolicyConfiguredThenIncludesHeader() throws Exception {
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithContentSecurityPolicy")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(excludesDefaults())
 				.andExpect(header().string("Content-Security-Policy", "default-src 'self'"));
 	}
@@ -626,30 +522,23 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void requestWhenContentSecurityPolicyConfiguredWithReportOnlyThenIncludesReportOnlyHeader()
 			throws Exception {
-
 		Map<String, String> includedHeaders = new HashMap<>(defaultHeaders);
 		includedHeaders.put("Content-Security-Policy-Report-Only",
 				"default-src https:; report-uri https://example.org/");
-
 		this.spring.configLocations(this.xml("ContentSecurityPolicyWithReportOnly")).autowire();
-
 		this.mvc.perform(get("/").secure(true)).andExpect(status().isOk()).andExpect(includes(includedHeaders));
 	}
 
 	@Test
 	public void requestWhenReferrerPolicyConfiguredThenResponseDefaultsToNoReferrer() throws Exception {
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithReferrerPolicy")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(excludesDefaults())
 				.andExpect(header().string("Referrer-Policy", "no-referrer"));
 	}
 
 	@Test
 	public void requestWhenReferrerPolicyConfiguredWithSameOriginThenRespondsWithSameOrigin() throws Exception {
-
 		this.spring.configLocations(this.xml("DefaultsDisabledWithReferrerPolicySameOrigin")).autowire();
-
 		this.mvc.perform(get("/")).andExpect(status().isOk()).andExpect(excludesDefaults())
 				.andExpect(header().string("Referrer-Policy", "same-origin"));
 	}
@@ -684,11 +573,9 @@ public class HttpHeadersConfigTests {
 
 	private static <K, V> Map<K, V> remove(Map<K, V> map, Collection<K> keys) {
 		Map<K, V> copy = new HashMap<>(map);
-
 		for (K key : keys) {
 			copy.remove(key);
 		}
-
 		return copy;
 	}
 

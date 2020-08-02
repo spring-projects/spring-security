@@ -58,7 +58,6 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 		provider.setObjectIdentityRetrievalStrategy(mock(ObjectIdentityRetrievalStrategy.class));
 		provider.setProcessDomainObjectClass(Object.class);
 		provider.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
-
 		Object returned = provider.decide(mock(Authentication.class), new Object(),
 				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"),
 				new ArrayList(Arrays.asList(new Object(), new Object())));
@@ -76,7 +75,6 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 		AclEntryAfterInvocationCollectionFilteringProvider provider = new AclEntryAfterInvocationCollectionFilteringProvider(
 				mock(AclService.class), Arrays.asList(mock(Permission.class)));
 		Object returned = new Object();
-
 		assertThat(returned).isSameAs(provider.decide(mock(Authentication.class), new Object(),
 				Collections.<ConfigAttribute>emptyList(), returned));
 	}
@@ -86,7 +84,6 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 		AclService service = mock(AclService.class);
 		AclEntryAfterInvocationCollectionFilteringProvider provider = new AclEntryAfterInvocationCollectionFilteringProvider(
 				service, Arrays.asList(mock(Permission.class)));
-
 		assertThat(provider.decide(mock(Authentication.class), new Object(),
 				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null)).isNull();
 		verify(service, never()).readAclById(any(ObjectIdentity.class), any(List.class));

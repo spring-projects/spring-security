@@ -52,7 +52,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
-
 		filter.doFilter(request, response, chain);
 	}
 
@@ -64,7 +63,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("cat");
@@ -80,7 +78,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setPrincipalRequestHeader("myUsernameHeader");
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("wolfman");
@@ -96,7 +93,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		filter.setCredentialsRequestHeader("myCredentialsHeader");
 		request.addHeader("SM_USER", "cat");
 		request.addHeader("myCredentialsHeader", "catspassword");
-
 		filter.doFilter(request, response, chain);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("catspassword");
@@ -131,7 +127,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		MockFilterChain chain = new MockFilterChain();
 		RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
-
 		filter.doFilter(request, response, chain);
 	}
 
@@ -153,7 +148,6 @@ public class RequestHeaderAuthenticationFilterTests {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		given(am.authenticate(any(Authentication.class)))
 				.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
-
 		return am;
 	}
 

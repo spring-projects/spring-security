@@ -48,15 +48,12 @@ public class DenyAgainVoter implements AccessDecisionVoter<Object> {
 	@Override
 	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		Iterator<ConfigAttribute> iter = attributes.iterator();
-
 		while (iter.hasNext()) {
 			ConfigAttribute attribute = iter.next();
-
 			if (this.supports(attribute)) {
 				return ACCESS_DENIED;
 			}
 		}
-
 		return ACCESS_ABSTAIN;
 	}
 

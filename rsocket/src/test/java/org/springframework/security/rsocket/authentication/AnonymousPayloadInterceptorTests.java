@@ -81,11 +81,8 @@ public class AnonymousPayloadInterceptorTests {
 	@Test
 	public void interceptWhenNoAuthenticationThenAnonymousAuthentication() {
 		AuthenticationPayloadInterceptorChain chain = new AuthenticationPayloadInterceptorChain();
-
 		this.interceptor.intercept(this.exchange, chain).block();
-
 		Authentication authentication = chain.getAuthentication();
-
 		assertThat(authentication).isInstanceOf(AnonymousAuthenticationToken.class);
 	}
 
@@ -93,12 +90,9 @@ public class AnonymousPayloadInterceptorTests {
 	public void interceptWhenAuthenticationThenOriginalAuthentication() {
 		AuthenticationPayloadInterceptorChain chain = new AuthenticationPayloadInterceptorChain();
 		TestingAuthenticationToken expected = new TestingAuthenticationToken("test", "password");
-
 		this.interceptor.intercept(this.exchange, chain)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expected)).block();
-
 		Authentication authentication = chain.getAuthentication();
-
 		assertThat(authentication).isEqualTo(expected);
 	}
 

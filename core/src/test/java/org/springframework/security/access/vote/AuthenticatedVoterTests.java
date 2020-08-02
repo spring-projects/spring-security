@@ -82,13 +82,11 @@ public class AuthenticatedVoterTests {
 	@Test
 	public void testSetterRejectsNull() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-
 		try {
 			voter.setAuthenticationTrustResolver(null);
 			fail("Expected IAE");
 		}
 		catch (IllegalArgumentException expected) {
-
 		}
 	}
 

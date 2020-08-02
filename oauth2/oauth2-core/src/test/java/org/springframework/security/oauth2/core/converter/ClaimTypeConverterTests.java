@@ -70,7 +70,6 @@ public class ClaimTypeConverterTests {
 				TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)));
 		Converter<Object, ?> mapStringObjectConverter = getConverter(TypeDescriptor.map(Map.class,
 				TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class)));
-
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put(STRING_CLAIM, stringConverter);
 		claimTypeConverters.put(BOOLEAN_CLAIM, booleanConverter);
@@ -117,7 +116,6 @@ public class ClaimTypeConverterTests {
 		mapIntegerObject.put(1, "value1");
 		Map<String, Object> mapStringObject = new HashMap<>();
 		mapStringObject.put("1", "value1");
-
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(STRING_CLAIM, Boolean.TRUE);
 		claims.put(BOOLEAN_CLAIM, "true");
@@ -126,9 +124,7 @@ public class ClaimTypeConverterTests {
 		claims.put(COLLECTION_STRING_CLAIM, listNumber);
 		claims.put(LIST_STRING_CLAIM, listNumber);
 		claims.put(MAP_STRING_OBJECT_CLAIM, mapIntegerObject);
-
 		claims = this.claimTypeConverter.convert(claims);
-
 		assertThat(claims.get(STRING_CLAIM)).isEqualTo("true");
 		assertThat(claims.get(BOOLEAN_CLAIM)).isEqualTo(Boolean.TRUE);
 		assertThat(claims.get(INSTANT_CLAIM)).isEqualTo(instant);
@@ -147,7 +143,6 @@ public class ClaimTypeConverterTests {
 		List<String> listString = Lists.list("1", "2", "3", "4");
 		Map<String, Object> mapStringObject = new HashMap<>();
 		mapStringObject.put("1", "value1");
-
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(STRING_CLAIM, string);
 		claims.put(BOOLEAN_CLAIM, bool);
@@ -156,9 +151,7 @@ public class ClaimTypeConverterTests {
 		claims.put(COLLECTION_STRING_CLAIM, listString);
 		claims.put(LIST_STRING_CLAIM, listString);
 		claims.put(MAP_STRING_OBJECT_CLAIM, mapStringObject);
-
 		claims = this.claimTypeConverter.convert(claims);
-
 		assertThat(claims.get(STRING_CLAIM)).isSameAs(string);
 		assertThat(claims.get(BOOLEAN_CLAIM)).isSameAs(bool);
 		assertThat(claims.get(INSTANT_CLAIM)).isSameAs(instant);
@@ -172,9 +165,7 @@ public class ClaimTypeConverterTests {
 	public void convertWhenConverterNotAvailableThenDoesNotConvert() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("claim1", "value1");
-
 		claims = this.claimTypeConverter.convert(claims);
-
 		assertThat(claims.get("claim1")).isSameAs("value1");
 	}
 

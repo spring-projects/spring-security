@@ -50,10 +50,8 @@ public class AclPermissionEvaluatorTests {
 		pe.setObjectIdentityRetrievalStrategy(oidStrategy);
 		pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 		Acl acl = mock(Acl.class);
-
 		given(service.readAclById(any(ObjectIdentity.class), anyList())).willReturn(acl);
 		given(acl.isGranted(anyList(), anyList(), eq(false))).willReturn(true);
-
 		assertThat(pe.hasPermission(mock(Authentication.class), new Object(), "READ")).isTrue();
 	}
 
@@ -61,7 +59,6 @@ public class AclPermissionEvaluatorTests {
 	public void resolvePermissionNonEnglishLocale() {
 		Locale systemLocale = Locale.getDefault();
 		Locale.setDefault(new Locale("tr"));
-
 		AclService service = mock(AclService.class);
 		AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
 		ObjectIdentity oid = mock(ObjectIdentity.class);
@@ -70,12 +67,9 @@ public class AclPermissionEvaluatorTests {
 		pe.setObjectIdentityRetrievalStrategy(oidStrategy);
 		pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 		Acl acl = mock(Acl.class);
-
 		given(service.readAclById(any(ObjectIdentity.class), anyList())).willReturn(acl);
 		given(acl.isGranted(anyList(), anyList(), eq(false))).willReturn(true);
-
 		assertThat(pe.hasPermission(mock(Authentication.class), new Object(), "write")).isTrue();
-
 		Locale.setDefault(systemLocale);
 	}
 

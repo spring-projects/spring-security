@@ -38,7 +38,6 @@ public class DefaultLogoutPageGeneratingFilterTests {
 	@Test
 	public void doFilterWhenNoHiddenInputsThenPageRendered() throws Exception {
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object()).addFilter(this.filter).build();
-
 		mockMvc.perform(get("/logout")).andExpect(content().string("<!DOCTYPE html>\n" + "<html lang=\"en\">\n"
 				+ "  <head>\n" + "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
@@ -58,7 +57,6 @@ public class DefaultLogoutPageGeneratingFilterTests {
 	public void doFilterWhenHiddenInputsSetThenHiddenInputsRendered() throws Exception {
 		this.filter.setResolveHiddenInputs((r) -> Collections.singletonMap("_csrf", "csrf-token-1"));
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object()).addFilters(this.filter).build();
-
 		mockMvc.perform(get("/logout")).andExpect(
 				content().string(containsString("<input name=\"_csrf\" type=\"hidden\" value=\"csrf-token-1\" />")));
 	}
@@ -66,7 +64,6 @@ public class DefaultLogoutPageGeneratingFilterTests {
 	@Test
 	public void doFilterWhenRequestContextThenActionContainsRequestContext() throws Exception {
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object()).addFilters(this.filter).build();
-
 		mockMvc.perform(get("/context/logout").contextPath("/context"))
 				.andExpect(content().string(containsString("action=\"/context/logout\"")));
 	}

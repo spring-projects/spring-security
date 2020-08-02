@@ -45,9 +45,7 @@ public class TestSecurityContextHolderTests {
 	public void clearContextClearsBoth() {
 		SecurityContextHolder.setContext(this.context);
 		TestSecurityContextHolder.setContext(this.context);
-
 		TestSecurityContextHolder.clearContext();
-
 		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.context);
 		assertThat(TestSecurityContextHolder.getContext()).isNotSameAs(this.context);
 	}
@@ -61,7 +59,6 @@ public class TestSecurityContextHolderTests {
 	@Test
 	public void setContextSetsBoth() {
 		TestSecurityContextHolder.setContext(this.context);
-
 		assertThat(TestSecurityContextHolder.getContext()).isSameAs(this.context);
 		assertThat(SecurityContextHolder.getContext()).isSameAs(this.context);
 	}
@@ -69,9 +66,7 @@ public class TestSecurityContextHolderTests {
 	@Test
 	public void setContextWithAuthentication() {
 		Authentication authentication = mock(Authentication.class);
-
 		TestSecurityContextHolder.setAuthentication(authentication);
-
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
 	}
 

@@ -63,7 +63,6 @@ final class HtmlUnitWebTestClient {
 		contentType(request, webRequest);
 		cookies(request, webRequest);
 		headers(request, webRequest);
-
 		return content(request, webRequest).exchange().returnResult(String.class);
 	}
 
@@ -109,7 +108,6 @@ final class HtmlUnitWebTestClient {
 				request.cookie(cookieName, cookieValue);
 			}
 		}
-
 		Set<com.gargoylesoftware.htmlunit.util.Cookie> managedCookies = this.webClient.getCookies(webRequest.getUrl());
 		for (com.gargoylesoftware.htmlunit.util.Cookie cookie : managedCookies) {
 			request.cookie(cookie.getName(), cookie.getValue());
@@ -156,10 +154,8 @@ final class HtmlUnitWebTestClient {
 						.headers((headers) -> headers.addAll(request.headers()))
 						.cookies((cookies) -> cookies.addAll(request.cookies()))
 						.attributes((attributes) -> attributes.putAll(request.attributes())).build();
-
 				return next.exchange(redirect).flatMap((r) -> redirectIfNecessary(request, next, r));
 			}
-
 			return Mono.just(response);
 		}
 

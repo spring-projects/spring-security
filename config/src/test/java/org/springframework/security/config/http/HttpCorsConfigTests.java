@@ -66,36 +66,27 @@ public class HttpCorsConfigTests {
 
 	@Test
 	public void getWhenUsingCorsThenDoesSpringSecurityCorsHandshake() throws Exception {
-
 		this.spring.configLocations(this.xml("WithCors")).autowire();
-
 		this.mvc.perform(get("/").with(this.approved())).andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-
 		this.mvc.perform(options("/").with(this.preflight())).andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenUsingCustomCorsConfigurationSourceThenDoesSpringSecurityCorsHandshake() throws Exception {
-
 		this.spring.configLocations(this.xml("WithCorsConfigurationSource")).autowire();
-
 		this.mvc.perform(get("/").with(this.approved())).andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-
 		this.mvc.perform(options("/").with(this.preflight())).andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
 	}
 
 	@Test
 	public void getWhenUsingCustomCorsFilterThenDoesSPringSecurityCorsHandshake() throws Exception {
-
 		this.spring.configLocations(this.xml("WithCorsFilter")).autowire();
-
 		this.mvc.perform(get("/").with(this.approved())).andExpect(corsResponseHeaders())
 				.andExpect((status().isIAmATeapot()));
-
 		this.mvc.perform(options("/").with(this.preflight())).andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
 	}
@@ -115,12 +106,10 @@ public class HttpCorsConfigTests {
 	private RequestPostProcessor cors(boolean preflight) {
 		return (request) -> {
 			request.addHeader(HttpHeaders.ORIGIN, "https://example.com");
-
 			if (preflight) {
 				request.setMethod(HttpMethod.OPTIONS.name());
 				request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name());
 			}
-
 			return request;
 		};
 	}
@@ -149,7 +138,6 @@ public class HttpCorsConfigTests {
 			CorsConfiguration configuration = new CorsConfiguration();
 			configuration.setAllowedOrigins(Arrays.asList("*"));
 			configuration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
-
 			super.registerCorsConfiguration("/**", configuration);
 		}
 

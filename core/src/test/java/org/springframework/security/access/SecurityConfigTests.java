@@ -53,23 +53,17 @@ public class SecurityConfigTests {
 		SecurityConfig security1 = new SecurityConfig("TEST");
 		SecurityConfig security2 = new SecurityConfig("TEST");
 		assertThat(security2).isEqualTo(security1);
-
 		// SEC-311: Must observe symmetry requirement of Object.equals(Object) contract
 		String securityString1 = "TEST";
 		assertThat(securityString1).isNotSameAs(security1);
-
 		String securityString2 = "NOT_EQUAL";
 		assertThat(!security1.equals(securityString2)).isTrue();
-
 		SecurityConfig security3 = new SecurityConfig("NOT_EQUAL");
 		assertThat(!security1.equals(security3)).isTrue();
-
 		MockConfigAttribute mock1 = new MockConfigAttribute("TEST");
 		assertThat(security1).isEqualTo(mock1);
-
 		MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
 		assertThat(security1).isNotEqualTo(mock2);
-
 		Integer int1 = 987;
 		assertThat(security1).isNotEqualTo(int1);
 	}

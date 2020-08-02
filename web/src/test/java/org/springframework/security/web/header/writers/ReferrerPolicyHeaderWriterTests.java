@@ -52,7 +52,6 @@ public class ReferrerPolicyHeaderWriterTests {
 	@Test
 	public void writeHeadersReferrerPolicyDefault() {
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Referrer-Policy")).isEqualTo(this.DEFAULT_REFERRER_POLICY);
 	}
@@ -60,9 +59,7 @@ public class ReferrerPolicyHeaderWriterTests {
 	@Test
 	public void writeHeadersReferrerPolicyCustom() {
 		this.writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.SAME_ORIGIN);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Referrer-Policy")).isEqualTo("same-origin");
 	}

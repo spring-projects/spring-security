@@ -74,7 +74,6 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 		assertThat(this.appContext.getBeansOfType(ApplicationListener.class)).hasSize(1);
 		assertThat(this.appContext.getBeanNamesForType(ApplicationListener.class)).hasSize(1);
 		this.appContext.publishEvent(new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "")));
-
 		assertThat(this.target).isInstanceOf(ApplicationListener.class);
 	}
 
@@ -93,7 +92,6 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.doSomething();
 	}
 
@@ -102,7 +100,6 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
-
 		this.target.doSomething();
 	}
 

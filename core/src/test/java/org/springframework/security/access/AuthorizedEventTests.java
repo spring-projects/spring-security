@@ -37,7 +37,6 @@ public class AuthorizedEventTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNulls2() {
-
 		new AuthorizedEvent(new SimpleMethodInvocation(), null, new UsernamePasswordAuthenticationToken("foo", "bar"));
 	}
 

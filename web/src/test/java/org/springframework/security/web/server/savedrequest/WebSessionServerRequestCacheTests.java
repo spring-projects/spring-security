@@ -41,9 +41,7 @@ public class WebSessionServerRequestCacheTests {
 		MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
-
 		URI saved = this.cache.getRedirectUri(exchange).block();
-
 		assertThat(saved).isEqualTo(exchange.getRequest().getURI());
 	}
 
@@ -52,9 +50,7 @@ public class WebSessionServerRequestCacheTests {
 		MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("/secured/").queryParam("key", "value").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
-
 		URI saved = this.cache.getRedirectUri(exchange).block();
-
 		assertThat(saved).isEqualTo(exchange.getRequest().getURI());
 	}
 
@@ -63,9 +59,7 @@ public class WebSessionServerRequestCacheTests {
 		MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("/favicon.png").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
-
 		URI saved = this.cache.getRedirectUri(exchange).block();
-
 		assertThat(saved).isNull();
 	}
 
@@ -73,7 +67,6 @@ public class WebSessionServerRequestCacheTests {
 	public void saveRequestGetRequestWhenPostThenNotFound() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();
-
 		assertThat(this.cache.getRedirectUri(exchange).block()).isNull();
 	}
 
@@ -82,9 +75,7 @@ public class WebSessionServerRequestCacheTests {
 		this.cache.setSaveRequestMatcher((e) -> ServerWebExchangeMatcher.MatchResult.match());
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();
-
 		URI saved = this.cache.getRedirectUri(exchange).block();
-
 		assertThat(saved).isEqualTo(exchange.getRequest().getURI());
 	}
 
@@ -93,9 +84,7 @@ public class WebSessionServerRequestCacheTests {
 		MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
-
 		ServerHttpRequest saved = this.cache.removeMatchingRequest(exchange).block();
-
 		assertThat(saved.getURI()).isEqualTo(exchange.getRequest().getURI());
 	}
 
@@ -103,9 +92,7 @@ public class WebSessionServerRequestCacheTests {
 	public void removeRequestGetRequestWhenDefaultThenNotFound() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/"));
 		this.cache.saveRequest(exchange).block();
-
 		this.cache.removeMatchingRequest(exchange).block();
-
 		assertThat(this.cache.getRedirectUri(exchange).block()).isNull();
 	}
 

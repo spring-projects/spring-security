@@ -58,16 +58,13 @@ public class DefaultServerRedirectStrategyTests {
 	@Test
 	public void sendRedirectWhenNoSubscribersThenNoActions() {
 		this.strategy.sendRedirect(this.exchange, this.location);
-
 		verifyZeroInteractions(this.exchange);
 	}
 
 	@Test
 	public void sendRedirectWhenNoContextPathThenStatusAndLocationSet() {
 		this.exchange = exchange(MockServerHttpRequest.get("/"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
@@ -75,9 +72,7 @@ public class DefaultServerRedirectStrategyTests {
 	@Test
 	public void sendRedirectWhenContextPathSetThenStatusAndLocationSet() {
 		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation())
 				.hasPath("/context" + this.location.getPath());
@@ -87,9 +82,7 @@ public class DefaultServerRedirectStrategyTests {
 	public void sendRedirectWhenContextPathSetAndAbsoluteURLThenStatusAndLocationSet() {
 		this.location = URI.create("https://example.com/foo/bar");
 		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
@@ -98,9 +91,7 @@ public class DefaultServerRedirectStrategyTests {
 	public void sendRedirectWhenContextPathSetAndDisabledThenStatusAndLocationSet() {
 		this.strategy.setContextRelative(false);
 		this.exchange = exchange(MockServerHttpRequest.get("/context/foo").contextPath("/context"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}
@@ -110,9 +101,7 @@ public class DefaultServerRedirectStrategyTests {
 		HttpStatus status = HttpStatus.MOVED_PERMANENTLY;
 		this.strategy.setHttpStatus(status);
 		this.exchange = exchange(MockServerHttpRequest.get("/"));
-
 		this.strategy.sendRedirect(this.exchange, this.location).block();
-
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(status);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location.getPath());
 	}

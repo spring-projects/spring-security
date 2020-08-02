@@ -100,15 +100,11 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		String serverUrl = this.server.url("/").toString();
-
 		String discoveryResponse = OIDC_DISCOVERY_RESPONSE.replace("${issuer-uri}", serverUrl);
 		this.server.enqueue(jsonResponse(discoveryResponse));
-
 		String contextConfig = ISSUER_URI_XML_CONFIG.replace("${issuer-uri}", serverUrl);
 		this.spring.context(contextConfig).autowire();
-
 		assertThat(this.clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
-
 		ClientRegistration googleRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
 		assertThat(googleRegistration).isNotNull();
 		assertThat(googleRegistration.getRegistrationId()).isEqualTo("google-login");
@@ -120,7 +116,6 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getScopes())
 				.isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
 		assertThat(googleRegistration.getClientName()).isEqualTo(serverUrl);
-
 		ProviderDetails googleProviderDetails = googleRegistration.getProviderDetails();
 		assertThat(googleProviderDetails).isNotNull();
 		assertThat(googleProviderDetails.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
@@ -138,9 +133,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 	public void parseWhenMultipleClientsConfiguredThenAvailableInRepository() {
 		this.spring.configLocations(ClientRegistrationsBeanDefinitionParserTests.xml("MultiClientRegistration"))
 				.autowire();
-
 		assertThat(this.clientRegistrationRepository).isInstanceOf(InMemoryClientRegistrationRepository.class);
-
 		ClientRegistration googleRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
 		assertThat(googleRegistration).isNotNull();
 		assertThat(googleRegistration.getRegistrationId()).isEqualTo("google-login");
@@ -152,7 +145,6 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getScopes())
 				.isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
 		assertThat(googleRegistration.getClientName()).isEqualTo("Google");
-
 		ProviderDetails googleProviderDetails = googleRegistration.getProviderDetails();
 		assertThat(googleProviderDetails).isNotNull();
 		assertThat(googleProviderDetails.getAuthorizationUri())
@@ -165,7 +157,6 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleProviderDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("sub");
 		assertThat(googleProviderDetails.getJwkSetUri()).isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
 		assertThat(googleProviderDetails.getIssuerUri()).isEqualTo("https://accounts.google.com");
-
 		ClientRegistration githubRegistration = this.clientRegistrationRepository.findByRegistrationId("github-login");
 		assertThat(githubRegistration).isNotNull();
 		assertThat(githubRegistration.getRegistrationId()).isEqualTo("github-login");
@@ -177,7 +168,6 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getScopes())
 				.isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
 		assertThat(githubRegistration.getClientName()).isEqualTo("Github");
-
 		ProviderDetails githubProviderDetails = githubRegistration.getProviderDetails();
 		assertThat(githubProviderDetails).isNotNull();
 		assertThat(githubProviderDetails.getAuthorizationUri()).isEqualTo("https://github.com/login/oauth/authorize");

@@ -60,16 +60,13 @@ public class SpringSecurityLdapTemplateTests {
 		String searchResultName = "ldap://example.com/dc=springframework,dc=org";
 		Object[] params = new Object[] {};
 		DirContextAdapter searchResultObject = mock(DirContextAdapter.class);
-
 		given(this.ctx.search(any(DistinguishedName.class), eq(filter), eq(params), this.searchControls.capture()))
 				.willReturn(this.resultsEnum);
 		given(this.resultsEnum.hasMore()).willReturn(true, false);
 		given(this.resultsEnum.next()).willReturn(this.searchResult);
 		given(this.searchResult.getObject()).willReturn(searchResultObject);
-
 		SpringSecurityLdapTemplate.searchForSingleEntryInternal(this.ctx, mock(SearchControls.class), base, filter,
 				params);
-
 		assertThat(this.searchControls.getValue().getReturningObjFlag()).isTrue();
 	}
 

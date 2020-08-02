@@ -54,39 +54,29 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void genericsSuperclassDeclarationsAreIncludedWhenSubclassesOverride() {
 		Method method = null;
-
 		try {
 			method = DepartmentServiceImpl.class.getMethod("someUserMethod3", new Class[] { Department.class });
 		}
 		catch (NoSuchMethodException unexpected) {
 			fail("Should be a superMethod called 'someUserMethod3' on class!");
 		}
-
 		Collection<ConfigAttribute> attrs = this.mds.findAttributes(method, DepartmentServiceImpl.class);
-
 		assertThat(attrs).isNotNull();
-
 		// expect 1 attribute
 		assertThat(attrs.size() == 1).as("Did not find 1 attribute").isTrue();
-
 		// should have 1 SecurityConfig
 		for (ConfigAttribute sc : attrs) {
 			assertThat(sc.getAttribute()).as("Found an incorrect role").isEqualTo("ROLE_ADMIN");
 		}
-
 		Method superMethod = null;
-
 		try {
 			superMethod = DepartmentServiceImpl.class.getMethod("someUserMethod3", new Class[] { Entity.class });
 		}
 		catch (NoSuchMethodException unexpected) {
 			fail("Should be a superMethod called 'someUserMethod3' on class!");
 		}
-
 		Collection<ConfigAttribute> superAttrs = this.mds.findAttributes(superMethod, DepartmentServiceImpl.class);
-
 		assertThat(superAttrs).isNotNull();
-
 		// This part of the test relates to SEC-274
 		// expect 1 attribute
 		assertThat(superAttrs).as("Did not find 1 attribute").hasSize(1);
@@ -99,41 +89,31 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	@Test
 	public void classLevelAttributesAreFound() {
 		Collection<ConfigAttribute> attrs = this.mds.findAttributes(BusinessService.class);
-
 		assertThat(attrs).isNotNull();
-
 		// expect 1 annotation
 		assertThat(attrs).hasSize(1);
-
 		// should have 1 SecurityConfig
 		SecurityConfig sc = (SecurityConfig) attrs.toArray()[0];
-
 		assertThat(sc.getAttribute()).isEqualTo("ROLE_USER");
 	}
 
 	@Test
 	public void methodLevelAttributesAreFound() {
 		Method method = null;
-
 		try {
 			method = BusinessService.class.getMethod("someUserAndAdminMethod", new Class[] {});
 		}
 		catch (NoSuchMethodException unexpected) {
 			fail("Should be a method called 'someUserAndAdminMethod' on class!");
 		}
-
 		Collection<ConfigAttribute> attrs = this.mds.findAttributes(method, BusinessService.class);
-
 		// expect 2 attributes
 		assertThat(attrs).hasSize(2);
-
 		boolean user = false;
 		boolean admin = false;
-
 		// should have 2 SecurityConfigs
 		for (ConfigAttribute sc : attrs) {
 			assertThat(sc).isInstanceOf(SecurityConfig.class);
-
 			if (sc.getAttribute().equals("ROLE_USER")) {
 				user = true;
 			}
@@ -141,7 +121,6 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 				admin = true;
 			}
 		}
-
 		// expect to have ROLE_USER and ROLE_ADMIN
 		assertThat(user).isEqualTo(admin).isTrue();
 	}
@@ -159,9 +138,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	public void annotatedAnnotationAtClassLevelIsDetected() throws Exception {
 		MockMethodInvocation annotatedAtClassLevel = new MockMethodInvocation(new AnnotatedAnnotationAtClassLevel(),
 				ReturnVoid.class, "doSomething", List.class);
-
 		ConfigAttribute[] attrs = this.mds.getAttributes(annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs).extracting("attribute").containsOnly("CUSTOM");
 	}
@@ -170,9 +147,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	public void annotatedAnnotationAtInterfaceLevelIsDetected() throws Exception {
 		MockMethodInvocation annotatedAtInterfaceLevel = new MockMethodInvocation(
 				new AnnotatedAnnotationAtInterfaceLevel(), ReturnVoid2.class, "doSomething", List.class);
-
 		ConfigAttribute[] attrs = this.mds.getAttributes(annotatedAtInterfaceLevel).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs).extracting("attribute").containsOnly("CUSTOM");
 	}
@@ -182,7 +157,6 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		MockMethodInvocation annotatedAtMethodLevel = new MockMethodInvocation(new AnnotatedAnnotationAtMethodLevel(),
 				ReturnVoid.class, "doSomething", List.class);
 		ConfigAttribute[] attrs = this.mds.getAttributes(annotatedAtMethodLevel).toArray(new ConfigAttribute[0]);
-
 		assertThat(attrs).hasSize(1);
 		assertThat(attrs).extracting("attribute").containsOnly("CUSTOM");
 	}
@@ -223,7 +197,6 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	}
 
 	// SEC-1491 Related classes. PoC for custom annotation with enum value.
-
 	@CustomSecurityAnnotation(SecurityEnum.ADMIN)
 	interface CustomAnnotatedService {
 
@@ -262,7 +235,6 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 		@Override
 		public Collection<? extends ConfigAttribute> extractAttributes(CustomSecurityAnnotation securityAnnotation) {
 			SecurityEnum[] values = securityAnnotation.value();
-
 			return EnumSet.copyOf(Arrays.asList(values));
 		}
 

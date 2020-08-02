@@ -58,7 +58,6 @@ public class SecurityJackson2ModulesTests {
 	public void readValueWhenExplicitDefaultTypingAfterSecuritySetupThenReadsAsSpecificType() throws Exception {
 		this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-
 		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
@@ -68,14 +67,12 @@ public class SecurityJackson2ModulesTests {
 		this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 		SecurityJackson2Modules.enableDefaultTyping(this.mapper);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-
 		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
 	@Test
 	public void readValueWhenAnnotatedThenReadsAsSpecificType() throws Exception {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlistedButAnnotated\",\"property\":\"bar\"}";
-
 		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlistedButAnnotated.class);
 	}
 
@@ -83,7 +80,6 @@ public class SecurityJackson2ModulesTests {
 	public void readValueWhenMixinProvidedThenReadsAsSpecificType() throws Exception {
 		this.mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-
 		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
 	}
 
@@ -91,7 +87,6 @@ public class SecurityJackson2ModulesTests {
 	public void readValueWhenHashMapThenReadsAsSpecificType() throws Exception {
 		this.mapper.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class);
 		String content = "{\"@class\":\"java.util.HashMap\"}";
-
 		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(HashMap.class);
 	}
 

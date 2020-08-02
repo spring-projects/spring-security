@@ -56,7 +56,6 @@ public class ChannelSecurityConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnInsecureChannelProcessor() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(InsecureChannelProcessor.class));
 	}
 
@@ -64,7 +63,6 @@ public class ChannelSecurityConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnSecureChannelProcessor() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SecureChannelProcessor.class));
 	}
 
@@ -72,7 +70,6 @@ public class ChannelSecurityConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnChannelDecisionManagerImpl() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ChannelDecisionManagerImpl.class));
 	}
 
@@ -80,21 +77,18 @@ public class ChannelSecurityConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnChannelProcessingFilter() {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ChannelProcessingFilter.class));
 	}
 
 	@Test
 	public void requiresChannelWhenInvokesTwiceThenUsesOriginalRequiresSecure() throws Exception {
 		this.spring.register(DuplicateInvocationsDoesNotOverrideConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
 	}
 
 	@Test
 	public void requestWhenRequiresChannelConfiguredInLambdaThenRedirectsToHttps() throws Exception {
 		this.spring.register(RequiresChannelInLambdaConfig.class).autowire();
-
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/"));
 	}
 

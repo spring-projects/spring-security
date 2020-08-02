@@ -69,11 +69,9 @@ public class JwtTests {
 	private static final Map<String, Object> CLAIMS;
 
 	private static final String JWT_TOKEN_VALUE = "jwt-token-value";
-
 	static {
 		HEADERS = new HashMap<>();
 		HEADERS.put("alg", JwsAlgorithms.RS256);
-
 		CLAIMS = new HashMap<>();
 		CLAIMS.put(ISS_CLAIM, ISS_VALUE);
 		CLAIMS.put(SUB_CLAIM, SUB_VALUE);
@@ -105,7 +103,6 @@ public class JwtTests {
 	public void constructorWhenParametersProvidedAndValidThenCreated() {
 		Jwt jwt = new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), HEADERS,
 				CLAIMS);
-
 		assertThat(jwt.getTokenValue()).isEqualTo(JWT_TOKEN_VALUE);
 		assertThat(jwt.getHeaders()).isEqualTo(HEADERS);
 		assertThat(jwt.getClaims()).isEqualTo(CLAIMS);

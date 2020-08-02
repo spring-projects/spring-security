@@ -45,7 +45,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * @author Rob Winch
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
@@ -66,7 +65,6 @@ public class Sec2935Tests {
 	public void postProcessorUserNoUser() throws Exception {
 		this.mvc.perform(get("/admin/abc").with(user("user").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user"));
-
 		this.mvc.perform(get("/admin/abc")).andExpect(status().isUnauthorized()).andExpect(unauthenticated());
 	}
 
@@ -74,7 +72,6 @@ public class Sec2935Tests {
 	public void postProcessorUserOtherUser() throws Exception {
 		this.mvc.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user1"));
-
 		this.mvc.perform(get("/admin/abc").with(user("user2").roles("USER"))).andExpect(status().isForbidden())
 				.andExpect(authenticated().withUsername("user2"));
 	}
@@ -84,7 +81,6 @@ public class Sec2935Tests {
 	public void postProcessorUserWithMockUser() throws Exception {
 		this.mvc.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user1"));
-
 		this.mvc.perform(get("/admin/abc")).andExpect(status().isForbidden())
 				.andExpect(authenticated().withUsername("user"));
 	}
@@ -94,10 +90,8 @@ public class Sec2935Tests {
 	public void defaultRequest() throws Exception {
 		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity())
 				.defaultRequest(get("/").with(user("default"))).build();
-
 		this.mvc.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user1"));
-
 		this.mvc.perform(get("/admin/abc")).andExpect(status().isForbidden())
 				.andExpect(authenticated().withUsername("default"));
 	}
@@ -108,10 +102,8 @@ public class Sec2935Tests {
 	public void defaultRequestOverridesWithMockUser() throws Exception {
 		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity())
 				.defaultRequest(get("/").with(user("default"))).build();
-
 		this.mvc.perform(get("/admin/abc").with(user("user1").roles("ADMIN", "USER"))).andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user1"));
-
 		this.mvc.perform(get("/admin/abc")).andExpect(status().isForbidden())
 				.andExpect(authenticated().withUsername("default"));
 	}

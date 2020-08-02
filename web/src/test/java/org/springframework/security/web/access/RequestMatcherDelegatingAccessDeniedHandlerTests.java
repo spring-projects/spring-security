@@ -58,9 +58,7 @@ public class RequestMatcherDelegatingAccessDeniedHandlerTests {
 		given(matcher.matches(this.request)).willReturn(false);
 		this.deniedHandlers.put(matcher, handler);
 		this.delegator = new RequestMatcherDelegatingAccessDeniedHandler(this.deniedHandlers, this.accessDeniedHandler);
-
 		this.delegator.handle(this.request, null, null);
-
 		verify(this.accessDeniedHandler).handle(this.request, null, null);
 		verify(handler, never()).handle(this.request, null, null);
 	}
@@ -75,9 +73,7 @@ public class RequestMatcherDelegatingAccessDeniedHandlerTests {
 		this.deniedHandlers.put(firstMatcher, firstHandler);
 		this.deniedHandlers.put(secondMatcher, secondHandler);
 		this.delegator = new RequestMatcherDelegatingAccessDeniedHandler(this.deniedHandlers, this.accessDeniedHandler);
-
 		this.delegator.handle(this.request, null, null);
-
 		verify(firstHandler).handle(this.request, null, null);
 		verify(secondHandler, never()).handle(this.request, null, null);
 		verify(this.accessDeniedHandler, never()).handle(this.request, null, null);
@@ -95,9 +91,7 @@ public class RequestMatcherDelegatingAccessDeniedHandlerTests {
 		this.deniedHandlers.put(firstMatcher, firstHandler);
 		this.deniedHandlers.put(secondMatcher, secondHandler);
 		this.delegator = new RequestMatcherDelegatingAccessDeniedHandler(this.deniedHandlers, this.accessDeniedHandler);
-
 		this.delegator.handle(this.request, null, null);
-
 		verify(secondHandler).handle(this.request, null, null);
 		verify(firstHandler, never()).handle(this.request, null, null);
 		verify(this.accessDeniedHandler, never()).handle(this.request, null, null);

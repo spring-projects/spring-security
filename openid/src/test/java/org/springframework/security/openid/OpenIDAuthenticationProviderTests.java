@@ -57,12 +57,9 @@ public class OpenIDAuthenticationProviderTests {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 		provider.setAuthoritiesMapper(new NullAuthoritiesMapper());
-
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.CANCELLED, USERNAME, "",
 				null);
-
 		assertThat(preAuth.isAuthenticated()).isFalse();
-
 		try {
 			provider.authenticate(preAuth);
 			fail("Should throw an AuthenticationException");
@@ -81,11 +78,8 @@ public class OpenIDAuthenticationProviderTests {
 	public void testAuthenticateError() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
-
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.ERROR, USERNAME, "", null);
-
 		assertThat(preAuth.isAuthenticated()).isFalse();
-
 		try {
 			provider.authenticate(preAuth);
 			fail("Should throw an AuthenticationException");
@@ -105,11 +99,8 @@ public class OpenIDAuthenticationProviderTests {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setAuthenticationUserDetailsService(
 				new UserDetailsByNameServiceWrapper<>(new MockUserDetailsService()));
-
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
-
 		assertThat(preAuth.isAuthenticated()).isFalse();
-
 		try {
 			provider.authenticate(preAuth);
 			fail("Should throw an AuthenticationException");
@@ -128,12 +119,9 @@ public class OpenIDAuthenticationProviderTests {
 	public void testAuthenticateSetupNeeded() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
-
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SETUP_NEEDED, USERNAME, "",
 				null);
-
 		assertThat(preAuth.isAuthenticated()).isFalse();
-
 		try {
 			provider.authenticate(preAuth);
 			fail("Should throw an AuthenticationException");
@@ -153,13 +141,9 @@ public class OpenIDAuthenticationProviderTests {
 	public void testAuthenticateSuccess() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
-
 		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS, USERNAME, "", null);
-
 		assertThat(preAuth.isAuthenticated()).isFalse();
-
 		Authentication postAuth = provider.authenticate(preAuth);
-
 		assertThat(postAuth).isNotNull();
 		assertThat(postAuth instanceof OpenIDAuthenticationToken).isTrue();
 		assertThat(postAuth.isAuthenticated()).isTrue();
@@ -174,7 +158,6 @@ public class OpenIDAuthenticationProviderTests {
 	@Test
 	public void testDetectsMissingAuthoritiesPopulator() throws Exception {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-
 		try {
 			provider.afterPropertiesSet();
 			fail("Should have thrown Exception");
@@ -193,7 +176,6 @@ public class OpenIDAuthenticationProviderTests {
 	public void testDoesntSupport() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
-
 		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isFalse();
 	}
 
@@ -206,7 +188,6 @@ public class OpenIDAuthenticationProviderTests {
 	public void testIgnoresUserPassAuthToken() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
-
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(USERNAME, "password");
 		assertThat(provider.authenticate(token)).isNull();
 	}
@@ -220,7 +201,6 @@ public class OpenIDAuthenticationProviderTests {
 	public void testSupports() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
-
 		assertThat(provider.supports(OpenIDAuthenticationToken.class)).isTrue();
 	}
 
@@ -234,7 +214,6 @@ public class OpenIDAuthenticationProviderTests {
 		catch (IllegalArgumentException ex) {
 			// expected
 		}
-
 		provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 		provider.afterPropertiesSet();

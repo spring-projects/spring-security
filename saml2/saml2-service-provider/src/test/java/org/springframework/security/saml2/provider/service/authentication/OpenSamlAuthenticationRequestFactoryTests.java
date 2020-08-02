@@ -103,7 +103,6 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createRedirectAuthenticationRequestWhenNotSignRequestThenNoSignatureIsPresent() {
-
 		this.context = this.contextBuilder.relayState("Relay State Value")
 				.relyingPartyRegistration(
 						RelyingPartyRegistration.withRelyingPartyRegistration(this.relyingPartyRegistration)
@@ -173,7 +172,6 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		given(authnRequestConsumerResolver.apply(this.context)).willReturn((authnRequest) -> {
 		});
 		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
-
 		this.factory.createPostAuthenticationRequest(this.context);
 		verify(authnRequestConsumerResolver).apply(this.context);
 	}
@@ -185,7 +183,6 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		given(authnRequestConsumerResolver.apply(this.context)).willReturn((authnRequest) -> {
 		});
 		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
-
 		this.factory.createRedirectAuthenticationRequest(this.context);
 		verify(authnRequestConsumerResolver).apply(this.context);
 	}

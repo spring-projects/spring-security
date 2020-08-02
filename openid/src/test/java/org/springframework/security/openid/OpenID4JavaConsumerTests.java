@@ -62,22 +62,16 @@ public class OpenID4JavaConsumerTests {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		AuthRequest authReq = mock(AuthRequest.class);
 		DiscoveryInformation di = mock(DiscoveryInformation.class);
-
 		given(mgr.authenticate(any(DiscoveryInformation.class), any(), any())).willReturn(authReq);
 		given(mgr.associate(any())).willReturn(di);
-
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new MockAttributesFactory());
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		consumer.beginConsumption(request, "", "", "");
-
 		assertThat(request.getSession().getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST"))
 				.isEqualTo(this.attributes);
 		assertThat(request.getSession().getAttribute(DiscoveryInformation.class.getName())).isEqualTo(di);
-
 		// Check with empty attribute fetch list
 		consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
-
 		request = new MockHttpServletRequest();
 		consumer.beginConsumption(request, "", "", "");
 	}
@@ -94,7 +88,6 @@ public class OpenID4JavaConsumerTests {
 	public void messageOrConsumerAuthenticationExceptionRaisesOpenIDException() throws Exception {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
-
 		given(mgr.authenticate(ArgumentMatchers.<DiscoveryInformation>any(), any(), any()))
 				.willThrow(new MessageException("msg"), new ConsumerException("msg"));
 		try {
@@ -103,7 +96,6 @@ public class OpenID4JavaConsumerTests {
 		}
 		catch (OpenIDConsumerException expected) {
 		}
-
 		try {
 			consumer.beginConsumption(new MockHttpServletRequest(), "", "", "");
 			fail("OpenIDConsumerException was not thrown");
@@ -118,15 +110,10 @@ public class OpenID4JavaConsumerTests {
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
 		VerificationResult vr = mock(VerificationResult.class);
 		DiscoveryInformation di = mock(DiscoveryInformation.class);
-
 		given(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class))).willReturn(vr);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		request.getSession().setAttribute(DiscoveryInformation.class.getName(), di);
-
 		OpenIDAuthenticationToken auth = consumer.endConsumption(request);
-
 		assertThat(auth.getStatus()).isEqualTo(OpenIDAuthenticationStatus.FAILURE);
 	}
 
@@ -134,34 +121,28 @@ public class OpenID4JavaConsumerTests {
 	public void verificationExceptionsRaiseOpenIDException() throws Exception {
 		ConsumerManager mgr = mock(ConsumerManager.class);
 		OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new NullAxFetchListFactory());
-
 		given(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class)))
 				.willThrow(new MessageException(""), new AssociationException(""), new DiscoveryException(""));
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("x=5");
-
 		try {
 			consumer.endConsumption(request);
 			fail("OpenIDConsumerException was not thrown");
 		}
 		catch (OpenIDConsumerException expected) {
 		}
-
 		try {
 			consumer.endConsumption(request);
 			fail("OpenIDConsumerException was not thrown");
 		}
 		catch (OpenIDConsumerException expected) {
 		}
-
 		try {
 			consumer.endConsumption(request);
 			fail("OpenIDConsumerException was not thrown");
 		}
 		catch (OpenIDConsumerException expected) {
 		}
-
 	}
 
 	@SuppressWarnings("serial")
@@ -173,18 +154,13 @@ public class OpenID4JavaConsumerTests {
 		DiscoveryInformation di = mock(DiscoveryInformation.class);
 		Identifier id = (Identifier) () -> "id";
 		Message msg = mock(Message.class);
-
 		given(mgr.verify(any(), any(ParameterList.class), any(DiscoveryInformation.class))).willReturn(vr);
 		given(vr.getVerifiedId()).willReturn(id);
 		given(vr.getAuthResponse()).willReturn(msg);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
-
 		request.getSession().setAttribute(DiscoveryInformation.class.getName(), di);
 		request.getSession().setAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST", this.attributes);
-
 		OpenIDAuthenticationToken auth = consumer.endConsumption(request);
-
 		assertThat(auth.getStatus()).isEqualTo(OpenIDAuthenticationStatus.SUCCESS);
 	}
 
@@ -196,9 +172,7 @@ public class OpenID4JavaConsumerTests {
 		given(msg.hasExtension(AxMessage.OPENID_NS_AX)).willReturn(true);
 		given(msg.getExtension(AxMessage.OPENID_NS_AX)).willReturn(fr);
 		given(fr.getAttributeValues("a")).willReturn(Arrays.asList("x", "y"));
-
 		List<OpenIDAttribute> fetched = consumer.fetchAxAttributes(msg, this.attributes);
-
 		assertThat(fetched).hasSize(1);
 		assertThat(fetched.get(0).getValues()).hasSize(2);
 	}
@@ -211,7 +185,6 @@ public class OpenID4JavaConsumerTests {
 		given(msg.hasExtension(AxMessage.OPENID_NS_AX)).willReturn(true);
 		given(msg.getExtension(AxMessage.OPENID_NS_AX)).willThrow(new MessageException(""));
 		given(fr.getAttributeValues("a")).willReturn(Arrays.asList("x", "y"));
-
 		consumer.fetchAxAttributes(msg, this.attributes);
 	}
 

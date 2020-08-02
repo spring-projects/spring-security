@@ -104,18 +104,14 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoUriNullThenUserInfoNotRetrieved() {
 		this.registration.userInfoUri(null);
-
 		OidcUser user = this.userService.loadUser(userRequest()).block();
-
 		assertThat(user.getUserInfo()).isNull();
 	}
 
 	@Test
 	public void loadUserWhenOAuth2UserEmptyThenNullUserInfo() {
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.empty());
-
 		OidcUser user = this.userService.loadUser(userRequest()).block();
-
 		assertThat(user.getUserInfo()).isNull();
 	}
 
@@ -124,7 +120,6 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
-
 		assertThatCode(() -> this.userService.loadUser(userRequest()).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
@@ -137,7 +132,6 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
-
 		assertThatCode(() -> this.userService.loadUser(userRequest()).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
@@ -150,7 +144,6 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
-
 		assertThat(this.userService.loadUser(userRequest()).block().getUserInfo()).isNotNull();
 	}
 
@@ -163,7 +156,6 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
-
 		assertThat(this.userService.loadUser(userRequest()).block().getName()).isEqualTo("rob");
 	}
 
@@ -175,18 +167,13 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
-
 		OidcUserRequest userRequest = userRequest();
-
 		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(
 				Function.class);
 		this.userService.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
-
 		given(customClaimTypeConverterFactory.apply(same(userRequest.getClientRegistration())))
 				.willReturn(new ClaimTypeConverter(OidcReactiveOAuth2UserService.createDefaultClaimTypeConverters()));
-
 		this.userService.loadUser(userRequest).block().getUserInfo();
-
 		verify(customClaimTypeConverterFactory).apply(same(userRequest.getClientRegistration()));
 	}
 
@@ -196,7 +183,6 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OidcUserRequest request = new OidcUserRequest(TestClientRegistrations.clientRegistration().build(),
 				TestOAuth2AccessTokens.scopes("message:read", "message:write"), TestOidcIdTokens.idToken().build());
 		OidcUser user = userService.loadUser(request).block();
-
 		assertThat(user.getAuthorities()).hasSize(3);
 		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
 		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);
@@ -210,7 +196,6 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OidcUserRequest request = new OidcUserRequest(TestClientRegistrations.clientRegistration().build(),
 				TestOAuth2AccessTokens.noScopes(), TestOidcIdTokens.idToken().build());
 		OidcUser user = userService.loadUser(request).block();
-
 		assertThat(user.getAuthorities()).hasSize(1);
 		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
 		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);

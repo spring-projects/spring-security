@@ -37,7 +37,6 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	@Test(expected = IllegalArgumentException.class)
 	public final void afterPropertiesSet() {
 		PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-
 		provider.afterPropertiesSet();
 	}
 
@@ -120,7 +119,6 @@ public class PreAuthenticatedAuthenticationProviderTests {
 			if (aUserDetails != null && aUserDetails.getUsername().equals(token.getName())) {
 				return aUserDetails;
 			}
-
 			throw new UsernameNotFoundException("notfound");
 		};
 	}

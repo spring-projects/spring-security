@@ -82,7 +82,6 @@ public class OrRequestMatcherTests {
 	public void matchesSingleTrue() {
 		given(this.delegate.matches(this.request)).willReturn(true);
 		this.matcher = new OrRequestMatcher(this.delegate);
-
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
@@ -90,7 +89,6 @@ public class OrRequestMatcherTests {
 	public void matchesMultiTrue() {
 		given(this.delegate.matches(this.request)).willReturn(true);
 		this.matcher = new OrRequestMatcher(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
@@ -98,7 +96,6 @@ public class OrRequestMatcherTests {
 	public void matchesSingleFalse() {
 		given(this.delegate.matches(this.request)).willReturn(false);
 		this.matcher = new OrRequestMatcher(this.delegate);
-
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
@@ -107,7 +104,6 @@ public class OrRequestMatcherTests {
 		given(this.delegate.matches(this.request)).willReturn(false);
 		given(this.delegate2.matches(this.request)).willReturn(false);
 		this.matcher = new OrRequestMatcher(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
 
@@ -115,7 +111,6 @@ public class OrRequestMatcherTests {
 	public void matchesMultiSingleFalse() {
 		given(this.delegate.matches(this.request)).willReturn(true);
 		this.matcher = new OrRequestMatcher(this.delegate, this.delegate2);
-
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 

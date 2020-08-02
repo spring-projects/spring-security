@@ -139,7 +139,6 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 		Mono<OAuth2AuthorizedClient> saveAndLoad = this.authorizedClientService
 				.saveAuthorizedClient(authorizedClient, this.principal)
 				.then(this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
-
 		StepVerifier.create(saveAndLoad).expectNext(authorizedClient).verifyComplete();
 	}
 
@@ -198,7 +197,6 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 		Mono<Void> saveAndDeleteAndLoad = this.authorizedClientService
 				.saveAuthorizedClient(authorizedClient, this.principal).then(this.authorizedClientService
 						.removeAuthorizedClient(this.clientRegistrationId, this.principalName));
-
 		StepVerifier.create(saveAndDeleteAndLoad).verifyComplete();
 	}
 
@@ -213,7 +211,6 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 				.then(this.authorizedClientService.removeAuthorizedClient(this.clientRegistrationId,
 						this.principalName))
 				.then(this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
-
 		StepVerifier.create(saveAndDeleteAndLoad).verifyComplete();
 	}
 
