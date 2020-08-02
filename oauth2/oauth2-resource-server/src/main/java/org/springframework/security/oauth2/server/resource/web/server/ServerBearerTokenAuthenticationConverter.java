@@ -52,7 +52,7 @@ public class ServerBearerTokenAuthenticationConverter
 	private boolean allowUriQueryParameter = false;
 
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
-		return Mono.justOrEmpty(token(exchange.getRequest()))
+		return Mono.fromCallable(() -> token(exchange.getRequest()))
 			.map(token -> {
 				if (token.isEmpty()) {
 					BearerTokenError error = invalidTokenError();
