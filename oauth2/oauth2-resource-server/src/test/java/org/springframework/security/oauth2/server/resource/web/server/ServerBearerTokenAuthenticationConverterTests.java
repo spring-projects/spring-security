@@ -142,6 +142,17 @@ public class ServerBearerTokenAuthenticationConverterTests {
 				.hasMessageContaining(("Bearer token is malformed"));
 	}
 
+	// gh-8865
+	@Test
+	public void resolveWhenHeaderWithInvalidCharactersIsPresentAndNotSubscribedThenNoneExceptionIsThrown() {
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest
+				.get("/")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer an\"invalid\"token");
+
+		assertThatCode(() -> this.converter.convert(MockServerWebExchange.from(request)))
+				.doesNotThrowAnyException();
+	}
+
 	@Test
 	public void resolveWhenValidHeaderIsPresentTogetherWithQueryParameterThenAuthenticationExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest
