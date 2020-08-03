@@ -314,7 +314,7 @@ public class OpenSamlAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenDecryptionKeysAreMissingThenThrowAuthenticationException() throws Exception {
 		this.exception.expect(
-				authenticationMatcher(Saml2ErrorCodes.DECRYPTION_ERROR, "No valid decryption credentials found.")
+				authenticationMatcher(Saml2ErrorCodes.DECRYPTION_ERROR, "Failed to decrypt EncryptedData")
 		);
 
 		Response response = response();

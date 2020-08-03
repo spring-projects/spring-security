@@ -288,9 +288,9 @@ public class Saml2LoginIntegrationTests {
 				.andExpect(unauthenticated())
 				.andExpect(
 						saml2AuthenticationExceptionMatcher(
-								"invalid_signature",
+								"invalid_issuer",
 								containsString(
-										"Invalid signature for SAML Response"
+										"Invalid issuer"
 								)
 						)
 				);
