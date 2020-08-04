@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,17 @@ import org.springframework.util.Assert;
  * <li>{@link ClientRegistrationRepository}</li>
  * </ul>
  *
+ * @deprecated It is not recommended to use the implicit flow
+ * due to the inherent risks of returning access tokens in an HTTP redirect
+ * without any confirmation that it has been received by the client.
+ * See reference <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0 Implicit Grant</a>.
+ *
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
  */
+@Deprecated
 public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> extends
 	AbstractHttpConfigurer<ImplicitGrantConfigurer<B>, B> {
 
