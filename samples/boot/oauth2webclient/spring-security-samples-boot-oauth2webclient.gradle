@@ -8,7 +8,7 @@ dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	compile 'org.springframework.boot:spring-boot-starter-web'
 	compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
-	compile 'io.projectreactor.netty:reactor-netty'
+	compile 'io.projectreactor.netty:reactor-netty-http'
 
 	testCompile project(':spring-security-test')
 	testCompile 'org.springframework.boot:spring-boot-starter-test'

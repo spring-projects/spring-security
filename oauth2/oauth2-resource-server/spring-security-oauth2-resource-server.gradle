@@ -16,6 +16,6 @@ dependencies {
 	testCompile project(path: ':spring-security-oauth2-jose', configuration: 'tests')
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
-	testCompile 'io.projectreactor.netty:reactor-netty'
+	testCompile 'io.projectreactor.netty:reactor-netty-http'
 	testCompile 'io.projectreactor:reactor-test'
 }

@@ -47,7 +47,7 @@ dependencies {
 	testCompile powerMock2Dependencies
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'ch.qos.logback:logback-classic'
-	testCompile 'io.projectreactor.netty:reactor-netty'
+	testCompile 'io.projectreactor.netty:reactor-netty-http'
 	testCompile 'io.rsocket:rsocket-transport-netty'
 	testCompile 'javax.annotation:jsr250-api:1.0'
 	testCompile 'javax.xml.bind:jaxb-api'
