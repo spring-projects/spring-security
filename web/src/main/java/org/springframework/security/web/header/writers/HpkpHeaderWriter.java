@@ -174,19 +174,17 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		if (this.requestMatcher.matches(request)) {
-			if (!this.pins.isEmpty()) {
-				String headerName = this.reportOnly ? HPKP_RO_HEADER_NAME : HPKP_HEADER_NAME;
-				if (!response.containsHeader(headerName)) {
-					response.setHeader(headerName, this.hpkpHeaderValue);
-				}
-			}
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Not injecting HPKP header since there aren't any pins");
-			}
-		}
-		else if (this.logger.isDebugEnabled()) {
+		if (!this.requestMatcher.matches(request)) {
 			this.logger.debug("Not injecting HPKP header since it wasn't a secure connection");
+			return;
+		}
+		if (this.pins.isEmpty()) {
+			this.logger.debug("Not injecting HPKP header since there aren't any pins");
+			return;
+		}
+		String headerName = (this.reportOnly) ? HPKP_RO_HEADER_NAME : HPKP_HEADER_NAME;
+		if (!response.containsHeader(headerName)) {
+			response.setHeader(headerName, this.hpkpHeaderValue);
 		}
 	}
 
@@ -294,9 +292,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * @throws IllegalArgumentException if maxAgeInSeconds is negative
 	 */
 	public void setMaxAgeInSeconds(long maxAgeInSeconds) {
-		if (maxAgeInSeconds < 0) {
-			throw new IllegalArgumentException("maxAgeInSeconds must be non-negative. Got " + maxAgeInSeconds);
-		}
+		Assert.isTrue(maxAgeInSeconds > 0, () -> "maxAgeInSeconds must be non-negative. Got " + maxAgeInSeconds);
 		this.maxAgeInSeconds = maxAgeInSeconds;
 		updateHpkpHeaderValue();
 	}
@@ -414,11 +410,11 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	public void setReportUri(String reportUri) {
 		try {
 			this.reportUri = new URI(reportUri);
+			updateHpkpHeaderValue();
 		}
 		catch (URISyntaxException ex) {
 			throw new IllegalArgumentException(ex);
 		}
-		updateHpkpHeaderValue();
 	}
 
 	private void updateHpkpHeaderValue() {

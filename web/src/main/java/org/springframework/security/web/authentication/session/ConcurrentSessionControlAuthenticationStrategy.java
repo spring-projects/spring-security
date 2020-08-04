@@ -94,26 +94,19 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) {
-
-		final List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getPrincipal(),
-				false);
-
+		List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getPrincipal(), false);
 		int sessionCount = sessions.size();
 		int allowedSessions = getMaximumSessionsForThisUser(authentication);
-
 		if (sessionCount < allowedSessions) {
 			// They haven't got too many login sessions running at present
 			return;
 		}
-
 		if (allowedSessions == -1) {
 			// We permit unlimited logins
 			return;
 		}
-
 		if (sessionCount == allowedSessions) {
 			HttpSession session = request.getSession(false);
-
 			if (session != null) {
 				// Only permit it though if this request is associated with one of the
 				// already registered sessions
@@ -126,7 +119,6 @@ public class ConcurrentSessionControlAuthenticationStrategy
 			// If the session is null, a new one will be created by the parent class,
 			// exceeding the allowed number
 		}
-
 		allowableSessionsExceeded(sessions, allowedSessions, this.sessionRegistry);
 	}
 
@@ -157,7 +149,6 @@ public class ConcurrentSessionControlAuthenticationStrategy
 					this.messages.getMessage("ConcurrentSessionControlAuthenticationStrategy.exceededAllowed",
 							new Object[] { allowableSessions }, "Maximum sessions of {0} for this principal exceeded"));
 		}
-
 		// Determine least recently used sessions, and mark them for invalidation
 		sessions.sort(Comparator.comparing(SessionInformation::getLastRequest));
 		int maximumSessionsExceededBy = sessions.size() - allowableSessions + 1;

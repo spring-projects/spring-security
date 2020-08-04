@@ -60,12 +60,10 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
 		String principal = request.getHeader(this.principalRequestHeader);
-
 		if (principal == null && this.exceptionIfHeaderMissing) {
 			throw new PreAuthenticatedCredentialsNotFoundException(
 					this.principalRequestHeader + " header not found in request.");
 		}
-
 		return principal;
 	}
 
@@ -79,7 +77,6 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 		if (this.credentialsRequestHeader != null) {
 			return request.getHeader(this.credentialsRequestHeader);
 		}
-
 		return "N/A";
 	}
 

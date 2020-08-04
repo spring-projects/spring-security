@@ -74,10 +74,8 @@ final class RequestWrapper extends FirewalledRequest {
 		if (path == null) {
 			return null;
 		}
-
-		int scIndex = path.indexOf(';');
-
-		if (scIndex < 0) {
+		int semicolonIndex = path.indexOf(';');
+		if (semicolonIndex < 0) {
 			int doubleSlashIndex = path.indexOf("//");
 			if (doubleSlashIndex < 0) {
 				// Most likely case, no parameters in any segment and no '//', so no
@@ -85,29 +83,23 @@ final class RequestWrapper extends FirewalledRequest {
 				return path;
 			}
 		}
-
-		StringTokenizer st = new StringTokenizer(path, "/");
+		StringTokenizer tokenizer = new StringTokenizer(path, "/");
 		StringBuilder stripped = new StringBuilder(path.length());
-
 		if (path.charAt(0) == '/') {
 			stripped.append('/');
 		}
-
-		while (st.hasMoreTokens()) {
-			String segment = st.nextToken();
-			scIndex = segment.indexOf(';');
-
-			if (scIndex >= 0) {
-				segment = segment.substring(0, scIndex);
+		while (tokenizer.hasMoreTokens()) {
+			String segment = tokenizer.nextToken();
+			semicolonIndex = segment.indexOf(';');
+			if (semicolonIndex >= 0) {
+				segment = segment.substring(0, semicolonIndex);
 			}
 			stripped.append(segment).append('/');
 		}
-
 		// Remove the trailing slash if the original path didn't have one
 		if (path.charAt(path.length() - 1) != '/') {
 			stripped.deleteCharAt(stripped.length() - 1);
 		}
-
 		return stripped.toString();
 	}
 

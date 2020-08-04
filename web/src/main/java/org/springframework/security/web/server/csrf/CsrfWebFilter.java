@@ -31,6 +31,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -115,12 +116,11 @@ public class CsrfWebFilter implements WebFilter {
 		if (Boolean.TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER))) {
 			return chain.filter(exchange).then(Mono.empty());
 		}
-
-		return this.requireCsrfProtectionMatcher.matches(exchange).filter((matchResult) -> matchResult.isMatch())
+		return this.requireCsrfProtectionMatcher.matches(exchange).filter(MatchResult::isMatch)
 				.filter((matchResult) -> !exchange.getAttributes().containsKey(CsrfToken.class.getName()))
 				.flatMap((m) -> validateToken(exchange)).flatMap((m) -> continueFilterChain(exchange, chain))
 				.switchIfEmpty(continueFilterChain(exchange, chain).then(Mono.empty()))
-				.onErrorResume(CsrfException.class, (e) -> this.accessDeniedHandler.handle(exchange, e));
+				.onErrorResume(CsrfException.class, (ex) -> this.accessDeniedHandler.handle(exchange, ex));
 	}
 
 	public static void skipExchange(ServerWebExchange exchange) {
@@ -181,7 +181,7 @@ public class CsrfWebFilter implements WebFilter {
 		@Override
 		public Mono<MatchResult> matches(ServerWebExchange exchange) {
 			return Mono.just(exchange.getRequest()).flatMap((r) -> Mono.justOrEmpty(r.getMethod()))
-					.filter((m) -> ALLOWED_METHODS.contains(m)).flatMap((m) -> MatchResult.notMatch())
+					.filter(ALLOWED_METHODS::contains).flatMap((m) -> MatchResult.notMatch())
 					.switchIfEmpty(MatchResult.match());
 		}
 

@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -116,7 +117,6 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 			UrlPathHelper urlPathHelper) {
 		Assert.hasText(pattern, "Pattern cannot be null or empty");
 		this.caseSensitive = caseSensitive;
-
 		if (pattern.equals(MATCH_ALL) || pattern.equals("**")) {
 			pattern = MATCH_ALL;
 			this.matcher = null;
@@ -133,7 +133,6 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 				this.matcher = new SpringAntMatcher(pattern, caseSensitive);
 			}
 		}
-
 		this.pattern = pattern;
 		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
 		this.urlPathHelper = urlPathHelper;
@@ -149,28 +148,17 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 	public boolean matches(HttpServletRequest request) {
 		if (this.httpMethod != null && StringUtils.hasText(request.getMethod())
 				&& this.httpMethod != valueOf(request.getMethod())) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Request '" + request.getMethod() + " " + getRequestPath(request) + "'"
-						+ " doesn't match '" + this.httpMethod + " " + this.pattern + "'");
-			}
-
+			logger.debug(LogMessage.of(() -> "Request '" + request.getMethod() + " " + getRequestPath(request) + "'"
+					+ " doesn't match '" + this.httpMethod + " " + this.pattern + "'"));
 			return false;
 		}
-
 		if (this.pattern.equals(MATCH_ALL)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Request '" + getRequestPath(request) + "' matched by universal pattern '/**'");
-			}
-
+			logger.debug(LogMessage
+					.of(() -> "Request '" + getRequestPath(request) + "' matched by universal pattern '/**'"));
 			return true;
 		}
-
 		String url = getRequestPath(request);
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Checking match of request : '" + url + "'; against '" + this.pattern + "'");
-		}
-
+		logger.debug(LogMessage.format("Checking match of request : '%s'; against '%s'", url, this.pattern));
 		return this.matcher.matches(url);
 	}
 
@@ -194,12 +182,10 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 			return this.urlPathHelper.getPathWithinApplication(request);
 		}
 		String url = request.getServletPath();
-
 		String pathInfo = request.getPathInfo();
 		if (pathInfo != null) {
 			url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
 		}
-
 		return url;
 	}
 
@@ -212,7 +198,6 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 		if (!(obj instanceof AntPathRequestMatcher)) {
 			return false;
 		}
-
 		AntPathRequestMatcher other = (AntPathRequestMatcher) obj;
 		return this.pattern.equals(other.pattern) && this.httpMethod == other.httpMethod
 				&& this.caseSensitive == other.caseSensitive;
@@ -230,13 +215,10 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Ant [pattern='").append(this.pattern).append("'");
-
 		if (this.httpMethod != null) {
 			sb.append(", ").append(this.httpMethod);
 		}
-
 		sb.append("]");
-
 		return sb.toString();
 	}
 
@@ -251,9 +233,8 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 			return HttpMethod.valueOf(method);
 		}
 		catch (IllegalArgumentException ex) {
+			return null;
 		}
-
-		return null;
 	}
 
 	private interface Matcher {
@@ -306,7 +287,7 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 		private final boolean caseSensitive;
 
 		private SubpathMatcher(String subpath, boolean caseSensitive) {
-			assert !subpath.contains("*");
+			Assert.isTrue(!subpath.contains("*"), "subpath cannot contain \"*\"");
 			this.subpath = caseSensitive ? subpath : subpath.toLowerCase();
 			this.length = subpath.length();
 			this.caseSensitive = caseSensitive;

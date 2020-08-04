@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -99,13 +100,10 @@ public class DefaultSavedRequest implements SavedRequest {
 	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver) {
 		Assert.notNull(request, "Request required");
 		Assert.notNull(portResolver, "PortResolver required");
-
 		// Cookies
 		addCookies(request.getCookies());
-
 		// Headers
 		Enumeration<String> names = request.getHeaderNames();
-
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
 			// Skip If-Modified-Since and If-None-Match header. SEC-1412, SEC-1624.
@@ -113,18 +111,14 @@ public class DefaultSavedRequest implements SavedRequest {
 				continue;
 			}
 			Enumeration<String> values = request.getHeaders(name);
-
 			while (values.hasMoreElements()) {
 				this.addHeader(name, values.nextElement());
 			}
 		}
-
 		// Locales
 		addLocales(request.getLocales());
-
 		// Parameters
 		addParameters(request.getParameterMap());
-
 		// Primitives
 		this.method = request.getMethod();
 		this.pathInfo = request.getPathInfo();
@@ -170,8 +164,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	private void addHeader(String name, String value) {
-		List<String> values = this.headers.computeIfAbsent(name, (k) -> new ArrayList<>());
-
+		List<String> values = this.headers.computeIfAbsent(name, (key) -> new ArrayList<>());
 		values.add(value);
 	}
 
@@ -200,9 +193,7 @@ public class DefaultSavedRequest implements SavedRequest {
 					this.addParameter(paramName, (String[]) paramValues);
 				}
 				else {
-					if (logger.isWarnEnabled()) {
-						logger.warn("ServletRequest.getParameterMap() returned non-String array");
-					}
+					logger.warn("ServletRequest.getParameterMap() returned non-String array");
 				}
 			}
 		}
@@ -221,44 +212,34 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @return true if the request is deemed to match this one.
 	 */
 	public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
-
 		if (!propertyEquals("pathInfo", this.pathInfo, request.getPathInfo())) {
 			return false;
 		}
-
 		if (!propertyEquals("queryString", this.queryString, request.getQueryString())) {
 			return false;
 		}
-
 		if (!propertyEquals("requestURI", this.requestURI, request.getRequestURI())) {
 			return false;
 		}
-
 		if (!"GET".equals(request.getMethod()) && "GET".equals(this.method)) {
 			// A save GET should not match an incoming non-GET method
 			return false;
 		}
-
 		if (!propertyEquals("serverPort", this.serverPort, portResolver.getServerPort(request))) {
 			return false;
 		}
-
 		if (!propertyEquals("requestURL", this.requestURL, request.getRequestURL().toString())) {
 			return false;
 		}
-
 		if (!propertyEquals("scheme", this.scheme, request.getScheme())) {
 			return false;
 		}
-
 		if (!propertyEquals("serverName", this.serverName, request.getServerName())) {
 			return false;
 		}
-
 		if (!propertyEquals("contextPath", this.contextPath, request.getContextPath())) {
 			return false;
 		}
-
 		return propertyEquals("servletPath", this.servletPath, request.getServletPath());
 
 	}
@@ -270,11 +251,9 @@ public class DefaultSavedRequest implements SavedRequest {
 	@Override
 	public List<Cookie> getCookies() {
 		List<Cookie> cookieList = new ArrayList<>(this.cookies.size());
-
 		for (SavedCookie savedCookie : this.cookies) {
 			cookieList.add(savedCookie.getCookie());
 		}
-
 		return cookieList;
 	}
 
@@ -296,12 +275,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	@Override
 	public List<String> getHeaderValues(String name) {
 		List<String> values = this.headers.get(name);
-
-		if (values == null) {
-			return Collections.emptyList();
-		}
-
-		return values;
+		return (values != null) ? values : Collections.emptyList();
 	}
 
 	@Override
@@ -362,35 +336,19 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	private boolean propertyEquals(String log, Object arg1, Object arg2) {
 		if ((arg1 == null) && (arg2 == null)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(log + ": both null (property equals)");
-			}
-
+			logger.debug(LogMessage.format("%s: both null (property equals)", log));
 			return true;
 		}
-
 		if (arg1 == null || arg2 == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property not equals)");
-			}
-
+			logger.debug(LogMessage.format("%s: arg1=%s; arg2=%s (property not equals)", log, arg1, arg2));
 			return false;
 		}
-
 		if (arg1.equals(arg2)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property equals)");
-			}
-
+			logger.debug(LogMessage.format("%s: arg1=%s; arg2=%s (property equals)", log, arg1, arg2));
 			return true;
 		}
-		else {
-			if (logger.isDebugEnabled()) {
-				logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property not equals)");
-			}
-
-			return false;
-		}
+		logger.debug(LogMessage.format("%s: arg1=%s; arg2=%s (property not equals)", log, arg1, arg2));
+		return false;
 	}
 
 	@Override
@@ -514,7 +472,6 @@ public class DefaultSavedRequest implements SavedRequest {
 				savedRequest.locales.addAll(this.locales);
 			}
 			savedRequest.addParameters(this.parameters);
-
 			this.headers.remove(HEADER_IF_MODIFIED_SINCE);
 			this.headers.remove(HEADER_IF_NONE_MATCH);
 			for (Map.Entry<String, List<String>> entry : this.headers.entrySet()) {

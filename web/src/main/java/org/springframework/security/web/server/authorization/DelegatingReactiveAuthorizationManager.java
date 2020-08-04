@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -51,11 +52,9 @@ public final class DelegatingReactiveAuthorizationManager implements ReactiveAut
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
 		return Flux.fromIterable(this.mappings).concatMap((mapping) -> mapping.getMatcher().matches(exchange)
 				.filter(MatchResult::isMatch).map(MatchResult::getVariables).flatMap((variables) -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug(
-								"Checking authorization on '" + exchange.getRequest().getPath().pathWithinApplication()
-										+ "' using " + mapping.getEntry());
-					}
+					logger.debug(LogMessage.of(() -> "Checking authorization on '"
+							+ exchange.getRequest().getPath().pathWithinApplication() + "' using "
+							+ mapping.getEntry()));
 					return mapping.getEntry().check(authentication, new AuthorizationContext(exchange, variables));
 				})).next().defaultIfEmpty(new AuthorizationDecision(false));
 	}

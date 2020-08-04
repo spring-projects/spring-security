@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -47,7 +48,7 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	}
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
-		logger.info("Creating filter chain: " + requestMatcher + ", " + filters);
+		logger.info(LogMessage.format("Creating filter chain: %s, %s", requestMatcher, filters));
 		this.requestMatcher = requestMatcher;
 		this.filters = new ArrayList<>(filters);
 	}

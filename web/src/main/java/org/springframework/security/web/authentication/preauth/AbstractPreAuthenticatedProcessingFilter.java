@@ -28,6 +28,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
@@ -124,16 +125,11 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger
-					.debug("Checking secure context token: " + SecurityContextHolder.getContext().getAuthentication());
-		}
-
+		this.logger.debug(LogMessage
+				.of(() -> "Checking secure context token: " + SecurityContextHolder.getContext().getAuthentication()));
 		if (this.requiresAuthenticationRequestMatcher.matches((HttpServletRequest) request)) {
 			doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
 		}
-
 		chain.doFilter(request, response);
 	}
 
@@ -156,21 +152,15 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 * @return true if the principal has changed, else false
 	 */
 	protected boolean principalChanged(HttpServletRequest request, Authentication currentAuthentication) {
-
 		Object principal = getPreAuthenticatedPrincipal(request);
-
 		if ((principal instanceof String) && currentAuthentication.getName().equals(principal)) {
 			return false;
 		}
-
 		if (principal != null && principal.equals(currentAuthentication.getPrincipal())) {
 			return false;
 		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger
-					.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
-		}
+		this.logger.debug(LogMessage.format("Pre-authenticated principal has changed to %s and will be reauthenticated",
+				principal));
 		return true;
 	}
 
@@ -179,35 +169,24 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 */
 	private void doAuthenticate(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		Authentication authResult;
-
 		Object principal = getPreAuthenticatedPrincipal(request);
-		Object credentials = getPreAuthenticatedCredentials(request);
-
 		if (principal == null) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("No pre-authenticated principal found in request");
-			}
-
+			this.logger.debug("No pre-authenticated principal found in request");
 			return;
 		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("preAuthenticatedPrincipal = " + principal + ", trying to authenticate");
-		}
-
+		this.logger.debug(LogMessage.format("preAuthenticatedPrincipal = %s, trying to authenticate", principal));
+		Object credentials = getPreAuthenticatedCredentials(request);
 		try {
-			PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(principal,
-					credentials);
-			authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
-			authResult = this.authenticationManager.authenticate(authRequest);
-			successfulAuthentication(request, response, authResult);
+			PreAuthenticatedAuthenticationToken authenticationRequest = new PreAuthenticatedAuthenticationToken(
+					principal, credentials);
+			authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+			Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest);
+			successfulAuthentication(request, response, authenticationResult);
 		}
-		catch (AuthenticationException failed) {
-			unsuccessfulAuthentication(request, response, failed);
-
+		catch (AuthenticationException ex) {
+			unsuccessfulAuthentication(request, response, ex);
 			if (!this.continueFilterChainOnUnsuccessfulAuthentication) {
-				throw failed;
+				throw ex;
 			}
 		}
 	}
@@ -218,15 +197,11 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 */
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			Authentication authResult) throws IOException, ServletException {
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Authentication success: " + authResult);
-		}
+		this.logger.debug(LogMessage.format("Authentication success: %s", authResult));
 		SecurityContextHolder.getContext().setAuthentication(authResult);
-		// Fire event
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
-
 		if (this.authenticationSuccessHandler != null) {
 			this.authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
 		}
@@ -241,12 +216,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Cleared security context due to exception", failed);
-		}
+		this.logger.debug("Cleared security context due to exception", failed);
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
-
 		if (this.authenticationFailureHandler != null) {
 			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
@@ -355,36 +326,27 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-
 			Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-
 			if (currentUser == null) {
 				return true;
 			}
-
 			if (!AbstractPreAuthenticatedProcessingFilter.this.checkForPrincipalChanges) {
 				return false;
 			}
-
 			if (!principalChanged(request, currentUser)) {
 				return false;
 			}
-
 			AbstractPreAuthenticatedProcessingFilter.this.logger
 					.debug("Pre-authenticated principal has changed and will be reauthenticated");
-
 			if (AbstractPreAuthenticatedProcessingFilter.this.invalidateSessionOnPrincipalChange) {
 				SecurityContextHolder.clearContext();
-
 				HttpSession session = request.getSession(false);
-
 				if (session != null) {
 					AbstractPreAuthenticatedProcessingFilter.this.logger.debug("Invalidating existing session");
 					session.invalidate();
 					request.getSession();
 				}
 			}
-
 			return true;
 		}
 

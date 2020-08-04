@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.Assert;
@@ -50,9 +51,7 @@ public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 			ServerHttpResponse response = exchange.getResponse();
 			response.setStatusCode(this.httpStatus);
 			URI newLocation = createLocation(exchange, location);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Redirecting to '" + newLocation + "'");
-			}
+			logger.debug(LogMessage.format("Redirecting to '%s'", newLocation));
 			response.getHeaders().setLocation(newLocation);
 		});
 	}

@@ -74,10 +74,8 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws ServletException, IOException {
 		SavedRequest savedRequest = this.requestCache.getRequest(request, response);
-
 		if (savedRequest == null) {
 			super.onAuthenticationSuccess(request, response, authentication);
-
 			return;
 		}
 		String targetUrlParameter = getTargetUrlParameter();
@@ -85,12 +83,9 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
 				|| (targetUrlParameter != null && StringUtils.hasText(request.getParameter(targetUrlParameter)))) {
 			this.requestCache.removeRequest(request, response);
 			super.onAuthenticationSuccess(request, response, authentication);
-
 			return;
 		}
-
 		clearAuthenticationAttributes(request);
-
 		// Use the DefaultSavedRequest URL
 		String targetUrl = savedRequest.getRedirectUrl();
 		this.logger.debug("Redirecting to DefaultSavedRequest Url: " + targetUrl);

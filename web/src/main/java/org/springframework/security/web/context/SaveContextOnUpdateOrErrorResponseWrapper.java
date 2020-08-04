@@ -44,7 +44,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommit
 
 	private boolean contextSaved = false;
 
-	/* See SEC-1052 */
+	// See SEC-1052
 	private final boolean disableUrlRewriting;
 
 	/**

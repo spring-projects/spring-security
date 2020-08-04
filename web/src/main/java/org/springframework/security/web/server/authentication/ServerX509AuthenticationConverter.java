@@ -50,28 +50,16 @@ public class ServerX509AuthenticationConverter implements ServerAuthenticationCo
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		SslInfo sslInfo = exchange.getRequest().getSslInfo();
 		if (sslInfo == null) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("No SslInfo provided with a request, skipping x509 authentication");
-			}
-
+			this.logger.debug("No SslInfo provided with a request, skipping x509 authentication");
 			return Mono.empty();
 		}
-
 		if (sslInfo.getPeerCertificates() == null || sslInfo.getPeerCertificates().length == 0) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("No peer certificates found in SslInfo, skipping x509 authentication");
-			}
-
+			this.logger.debug("No peer certificates found in SslInfo, skipping x509 authentication");
 			return Mono.empty();
 		}
-
 		X509Certificate clientCertificate = sslInfo.getPeerCertificates()[0];
 		Object principal = this.principalExtractor.extractPrincipal(clientCertificate);
-
-		PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(principal,
-				clientCertificate);
-
-		return Mono.just(authRequest);
+		return Mono.just(new PreAuthenticatedAuthenticationToken(principal, clientCertificate));
 	}
 
 }

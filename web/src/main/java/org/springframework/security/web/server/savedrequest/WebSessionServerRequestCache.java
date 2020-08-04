@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -72,9 +73,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 				.flatMap((m) -> exchange.getSession()).map(WebSession::getAttributes).doOnNext((attrs) -> {
 					String requestPath = pathInApplication(exchange.getRequest());
 					attrs.put(this.sessionAttrName, requestPath);
-					if (logger.isDebugEnabled()) {
-						logger.debug("Request added to WebSession: '" + requestPath + "'");
-					}
+					logger.debug(LogMessage.format("Request added to WebSession: '%s'", requestPath));
 				}).then();
 	}
 
@@ -91,9 +90,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 			String requestPath = pathInApplication(exchange.getRequest());
 			boolean removed = attributes.remove(this.sessionAttrName, requestPath);
 			if (removed) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Request removed from WebSession: '" + requestPath + "'");
-				}
+				logger.debug(LogMessage.format("Request removed from WebSession: '%s'", requestPath));
 			}
 			return removed;
 		}).map((attributes) -> exchange.getRequest());

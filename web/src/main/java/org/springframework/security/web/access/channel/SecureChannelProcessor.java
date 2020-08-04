@@ -56,7 +56,6 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
 	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
 			throws IOException, ServletException {
 		Assert.isTrue((invocation != null) && (config != null), "Nulls cannot be provided");
-
 		for (ConfigAttribute attribute : config) {
 			if (supports(attribute)) {
 				if (!invocation.getHttpRequest().isSecure()) {

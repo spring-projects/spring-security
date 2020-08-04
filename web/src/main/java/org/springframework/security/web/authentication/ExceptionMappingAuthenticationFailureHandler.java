@@ -49,7 +49,6 @@ public class ExceptionMappingAuthenticationFailureHandler extends SimpleUrlAuthe
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 		String url = this.failureUrlMap.get(exception.getClass().getName());
-
 		if (url != null) {
 			getRedirectStrategy().sendRedirect(request, response, url);
 		}

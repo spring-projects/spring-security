@@ -100,10 +100,21 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 
 	public enum ReferrerPolicy {
 
-		NO_REFERRER("no-referrer"), NO_REFERRER_WHEN_DOWNGRADE("no-referrer-when-downgrade"), SAME_ORIGIN(
-				"same-origin"), ORIGIN("origin"), STRICT_ORIGIN("strict-origin"), ORIGIN_WHEN_CROSS_ORIGIN(
-						"origin-when-cross-origin"), STRICT_ORIGIN_WHEN_CROSS_ORIGIN(
-								"strict-origin-when-cross-origin"), UNSAFE_URL("unsafe-url");
+		NO_REFERRER("no-referrer"),
+
+		NO_REFERRER_WHEN_DOWNGRADE("no-referrer-when-downgrade"),
+
+		SAME_ORIGIN("same-origin"),
+
+		ORIGIN("origin"),
+
+		STRICT_ORIGIN("strict-origin"),
+
+		ORIGIN_WHEN_CROSS_ORIGIN("origin-when-cross-origin"),
+
+		STRICT_ORIGIN_WHEN_CROSS_ORIGIN("strict-origin-when-cross-origin"),
+
+		UNSAFE_URL("unsafe-url");
 
 		private static final Map<String, ReferrerPolicy> REFERRER_POLICIES;
 
@@ -115,7 +126,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 			REFERRER_POLICIES = Collections.unmodifiableMap(referrerPolicies);
 		}
 
-		private String policy;
+		private final String policy;
 
 		ReferrerPolicy(String policy) {
 			this.policy = policy;

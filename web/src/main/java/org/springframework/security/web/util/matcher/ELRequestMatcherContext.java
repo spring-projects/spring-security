@@ -34,15 +34,7 @@ class ELRequestMatcherContext {
 
 	public boolean hasHeader(String headerName, String value) {
 		String header = this.request.getHeader(headerName);
-		if (!StringUtils.hasText(header)) {
-			return false;
-		}
-
-		if (header.contains(value)) {
-			return true;
-		}
-
-		return false;
+		return StringUtils.hasText(header) && header.contains(value);
 	}
 
 }

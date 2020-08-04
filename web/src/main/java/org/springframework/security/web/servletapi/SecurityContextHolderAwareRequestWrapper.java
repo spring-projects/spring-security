@@ -88,12 +88,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 */
 	private Authentication getAuthentication() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		if (!this.trustResolver.isAnonymous(auth)) {
-			return auth;
-		}
-
-		return null;
+		return (!this.trustResolver.isAnonymous(auth)) ? auth : null;
 	}
 
 	/**
@@ -105,15 +100,12 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	@Override
 	public String getRemoteUser() {
 		Authentication auth = getAuthentication();
-
 		if ((auth == null) || (auth.getPrincipal() == null)) {
 			return null;
 		}
-
 		if (auth.getPrincipal() instanceof UserDetails) {
 			return ((UserDetails) auth.getPrincipal()).getUsername();
 		}
-
 		return auth.getPrincipal().toString();
 	}
 
@@ -125,37 +117,29 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	@Override
 	public Principal getUserPrincipal() {
 		Authentication auth = getAuthentication();
-
 		if ((auth == null) || (auth.getPrincipal() == null)) {
 			return null;
 		}
-
 		return auth;
 	}
 
 	private boolean isGranted(String role) {
 		Authentication auth = getAuthentication();
-
 		if (this.rolePrefix != null && role != null && !role.startsWith(this.rolePrefix)) {
 			role = this.rolePrefix + role;
 		}
-
 		if ((auth == null) || (auth.getPrincipal() == null)) {
 			return false;
 		}
-
 		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-
 		if (authorities == null) {
 			return false;
 		}
-
 		for (GrantedAuthority grantedAuthority : authorities) {
 			if (role.equals(grantedAuthority.getAuthority())) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 

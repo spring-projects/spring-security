@@ -23,6 +23,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.util.UrlUtils;
@@ -57,37 +58,29 @@ public class HttpSessionRequestCache implements RequestCache {
 	 */
 	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
-		if (this.requestMatcher.matches(request)) {
-			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver);
-
-			if (this.createSessionAllowed || request.getSession(false) != null) {
-				// Store the HTTP request itself. Used by
-				// AbstractAuthenticationProcessingFilter
-				// for redirection after successful authentication (SEC-29)
-				request.getSession().setAttribute(this.sessionAttrName, savedRequest);
-				this.logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
-			}
-		}
-		else {
+		if (!this.requestMatcher.matches(request)) {
 			this.logger.debug("Request not saved as configured RequestMatcher did not match");
+			return;
+		}
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver);
+		if (this.createSessionAllowed || request.getSession(false) != null) {
+			// Store the HTTP request itself. Used by
+			// AbstractAuthenticationProcessingFilter
+			// for redirection after successful authentication (SEC-29)
+			request.getSession().setAttribute(this.sessionAttrName, savedRequest);
+			this.logger.debug(LogMessage.format("DefaultSavedRequest added to Session: %s", savedRequest));
 		}
 	}
 
 	@Override
 	public SavedRequest getRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
-
-		if (session != null) {
-			return (SavedRequest) session.getAttribute(this.sessionAttrName);
-		}
-
-		return null;
+		return (session != null) ? (SavedRequest) session.getAttribute(this.sessionAttrName) : null;
 	}
 
 	@Override
 	public void removeRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
-
 		if (session != null) {
 			this.logger.debug("Removing DefaultSavedRequest from session if present");
 			session.removeAttribute(this.sessionAttrName);
@@ -97,14 +90,11 @@ public class HttpSessionRequestCache implements RequestCache {
 	@Override
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		SavedRequest saved = getRequest(request, response);
-
 		if (!matchesSavedRequest(request, saved)) {
 			this.logger.debug("saved request doesn't match");
 			return null;
 		}
-
 		removeRequest(request, response);
-
 		return new SavedRequestAwareWrapper(saved, request);
 	}
 
@@ -112,12 +102,10 @@ public class HttpSessionRequestCache implements RequestCache {
 		if (savedRequest == null) {
 			return false;
 		}
-
 		if (savedRequest instanceof DefaultSavedRequest) {
 			DefaultSavedRequest defaultSavedRequest = (DefaultSavedRequest) savedRequest;
 			return defaultSavedRequest.doesRequestMatch(request, this.portResolver);
 		}
-
 		String currentUrl = UrlUtils.buildFullRequestUrl(request);
 		return savedRequest.getRedirectUrl().equals(currentUrl);
 	}

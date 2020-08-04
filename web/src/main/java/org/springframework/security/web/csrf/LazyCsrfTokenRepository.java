@@ -87,11 +87,8 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 
 	private HttpServletResponse getResponse(HttpServletRequest request) {
 		HttpServletResponse response = (HttpServletResponse) request.getAttribute(HTTP_RESPONSE_ATTR);
-		if (response == null) {
-			throw new IllegalArgumentException(
-					"The HttpServletRequest attribute must contain an HttpServletResponse for the attribute "
-							+ HTTP_RESPONSE_ATTR);
-		}
+		Assert.notNull(response, () -> "The HttpServletRequest attribute must contain an HttpServletResponse "
+				+ "for the attribute " + HTTP_RESPONSE_ATTR);
 		return response;
 	}
 
@@ -166,7 +163,6 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 			if (this.tokenRepository == null) {
 				return;
 			}
-
 			synchronized (this) {
 				if (this.tokenRepository != null) {
 					this.tokenRepository.saveToken(this.delegate, this.request, this.response);

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -52,15 +53,11 @@ public abstract class AbstractRequestParameterAllowFromStrategy implements Allow
 	@Override
 	public String getAllowFromValue(HttpServletRequest request) {
 		String allowFromOrigin = request.getParameter(this.allowFromParameterName);
-		if (this.log.isDebugEnabled()) {
-			this.log.debug("Supplied origin '" + allowFromOrigin + "'");
-		}
+		this.log.debug(LogMessage.format("Supplied origin '%s'", allowFromOrigin));
 		if (StringUtils.hasText(allowFromOrigin) && allowed(allowFromOrigin)) {
 			return allowFromOrigin;
 		}
-		else {
-			return "DENY";
-		}
+		return "DENY";
 	}
 
 	/**

@@ -47,26 +47,18 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 	@Deprecated
 	public Mono<Authentication> apply(ServerWebExchange exchange) {
 		ServerHttpRequest request = exchange.getRequest();
-
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 		if (!StringUtils.startsWithIgnoreCase(authorization, "basic ")) {
 			return Mono.empty();
 		}
-
 		String credentials = (authorization.length() <= BASIC.length()) ? ""
 				: authorization.substring(BASIC.length(), authorization.length());
-		byte[] decodedCredentials = base64Decode(credentials);
-		String decodedAuthz = new String(decodedCredentials);
-		String[] userParts = decodedAuthz.split(":", 2);
-
-		if (userParts.length != 2) {
+		String decoded = new String(base64Decode(credentials));
+		String[] parts = decoded.split(":", 2);
+		if (parts.length != 2) {
 			return Mono.empty();
 		}
-
-		String username = userParts[0];
-		String password = userParts[1];
-
-		return Mono.just(new UsernamePasswordAuthenticationToken(username, password));
+		return Mono.just(new UsernamePasswordAuthenticationToken(parts[0], parts[1]));
 	}
 
 	private byte[] base64Decode(String value) {

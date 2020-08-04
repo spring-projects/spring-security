@@ -20,9 +20,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebSession;
 
 /**
  * Stores the {@link SecurityContext} in the
@@ -59,31 +61,22 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 		return exchange.getSession().doOnNext((session) -> {
 			if (context == null) {
 				session.getAttributes().remove(this.springSecurityContextAttrName);
-				if (logger.isDebugEnabled()) {
-					logger.debug("Removed SecurityContext stored in WebSession: '" + session + "'");
-				}
+				logger.debug(LogMessage.format("Removed SecurityContext stored in WebSession: '%s'", session));
 			}
 			else {
 				session.getAttributes().put(this.springSecurityContextAttrName, context);
-				if (logger.isDebugEnabled()) {
-					logger.debug("Saved SecurityContext '" + context + "' in WebSession: '" + session + "'");
-				}
+				logger.debug(LogMessage.format("Saved SecurityContext '%s' in WebSession: '%s'", context, session));
 			}
-		}).flatMap((session) -> session.changeSessionId());
+		}).flatMap(WebSession::changeSessionId);
 	}
 
 	@Override
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
 		return exchange.getSession().flatMap((session) -> {
 			SecurityContext context = (SecurityContext) session.getAttribute(this.springSecurityContextAttrName);
-			if (logger.isDebugEnabled()) {
-				if (context == null) {
-					logger.debug("No SecurityContext found in WebSession: '" + session + "'");
-				}
-				else {
-					logger.debug("Found SecurityContext '" + context + "' in WebSession: '" + session + "'");
-				}
-			}
+			logger.debug((context != null)
+					? LogMessage.format("Found SecurityContext '%s' in WebSession: '%s'", context, session)
+					: LogMessage.format("No SecurityContext found in WebSession: '%s'", session));
 			return Mono.justOrEmpty(context);
 		});
 	}

@@ -25,6 +25,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.UrlUtils;
@@ -83,25 +84,20 @@ public class LogoutFilter extends GenericFilterBean {
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		if (requiresLogout(request, response)) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Logging out user '" + auth + "' and transferring to logout destination");
-			}
-
+			this.logger.debug(LogMessage.format("Logging out user '%s' and transferring to logout destination", auth));
 			this.handler.logout(request, response, auth);
-
 			this.logoutSuccessHandler.onLogoutSuccess(request, response, auth);
-
 			return;
 		}
-
 		chain.doFilter(request, response);
 	}
 

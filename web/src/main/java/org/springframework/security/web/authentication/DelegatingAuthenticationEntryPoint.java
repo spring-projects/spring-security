@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.ELRequestMatcher;
@@ -62,7 +63,7 @@ import org.springframework.util.Assert;
  */
 public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private static final Log logger = LogFactory.getLog(DelegatingAuthenticationEntryPoint.class);
 
 	private final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
 
@@ -75,25 +76,16 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-
 		for (RequestMatcher requestMatcher : this.entryPoints.keySet()) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Trying to match using " + requestMatcher);
-			}
+			logger.debug(LogMessage.format("Trying to match using %s", requestMatcher));
 			if (requestMatcher.matches(request)) {
 				AuthenticationEntryPoint entryPoint = this.entryPoints.get(requestMatcher);
-				if (this.logger.isDebugEnabled()) {
-					this.logger.debug("Match found! Executing " + entryPoint);
-				}
+				logger.debug(LogMessage.format("Match found! Executing %s", entryPoint));
 				entryPoint.commence(request, response, authException);
 				return;
 			}
 		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("No match found. Using default entry point " + this.defaultEntryPoint);
-		}
-
+		logger.debug(LogMessage.format("No match found. Using default entry point %s", this.defaultEntryPoint));
 		// No EntryPoint matched, use defaultEntryPoint
 		this.defaultEntryPoint.commence(request, response, authException);
 	}

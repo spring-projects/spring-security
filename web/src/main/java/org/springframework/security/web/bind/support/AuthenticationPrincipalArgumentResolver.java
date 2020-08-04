@@ -105,9 +105,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 			if (authPrincipal.errorOnInvalidType()) {
 				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
 		return principal;
 	}

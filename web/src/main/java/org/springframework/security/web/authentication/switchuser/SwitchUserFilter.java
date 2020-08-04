@@ -34,6 +34,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -149,7 +150,6 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 			Assert.isNull(this.successHandler, "You cannot set both successHandler and targetUrl");
 			this.successHandler = new SimpleUrlAuthenticationSuccessHandler(this.targetUrl);
 		}
-
 		if (this.failureHandler == null) {
 			this.failureHandler = (this.switchFailureUrl != null)
 					? new SimpleUrlAuthenticationFailureHandler(this.switchFailureUrl)
@@ -161,20 +161,20 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		// check for switch or exit request
 		if (requiresSwitchUser(request)) {
 			// if set, attempt switch and store original
 			try {
 				Authentication targetUser = attemptSwitchUser(request);
-
 				// update the current context to the new target user
 				SecurityContextHolder.getContext().setAuthentication(targetUser);
-
 				// redirect to target url
 				this.successHandler.onAuthenticationSuccess(request, response, targetUser);
 			}
@@ -182,22 +182,17 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 				this.logger.debug("Switch User failed", ex);
 				this.failureHandler.onAuthenticationFailure(request, response, ex);
 			}
-
 			return;
 		}
-		else if (requiresExitUser(request)) {
+		if (requiresExitUser(request)) {
 			// get the original authentication object (if exists)
 			Authentication originalUser = attemptExitUser(request);
-
 			// update the current context back to the original user
 			SecurityContextHolder.getContext().setAuthentication(originalUser);
-
 			// redirect to target url
 			this.successHandler.onAuthenticationSuccess(request, response, originalUser);
-
 			return;
 		}
-
 		chain.doFilter(request, response);
 	}
 
@@ -214,33 +209,19 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	 */
 	protected Authentication attemptSwitchUser(HttpServletRequest request) throws AuthenticationException {
 		UsernamePasswordAuthenticationToken targetUserRequest;
-
 		String username = request.getParameter(this.usernameParameter);
-
-		if (username == null) {
-			username = "";
-		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Attempt to switch to user [" + username + "]");
-		}
-
+		username = (username != null) ? username : "";
+		this.logger.debug(LogMessage.format("Attempt to switch to user [%s]", username));
 		UserDetails targetUser = this.userDetailsService.loadUserByUsername(username);
 		this.userDetailsChecker.check(targetUser);
-
 		// OK, create the switch user token
 		targetUserRequest = createSwitchUserToken(request, targetUser);
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Switch User Token [" + targetUserRequest + "]");
-		}
-
+		this.logger.debug(LogMessage.format("Switch User Token [%s]", targetUserRequest));
 		// publish event
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
 					SecurityContextHolder.getContext().getAuthentication(), targetUser));
 		}
-
 		return targetUserRequest;
 	}
 
@@ -256,35 +237,28 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 			throws AuthenticationCredentialsNotFoundException {
 		// need to check to see if the current user has a SwitchUserGrantedAuthority
 		Authentication current = SecurityContextHolder.getContext().getAuthentication();
-
-		if (null == current) {
+		if (current == null) {
 			throw new AuthenticationCredentialsNotFoundException(this.messages
 					.getMessage("SwitchUserFilter.noCurrentUser", "No current user associated with this request"));
 		}
-
 		// check to see if the current user did actual switch to another user
 		// if so, get the original source user so we can switch back
 		Authentication original = getSourceAuthentication(current);
-
 		if (original == null) {
 			this.logger.debug("Could not find original user Authentication object!");
 			throw new AuthenticationCredentialsNotFoundException(this.messages.getMessage(
 					"SwitchUserFilter.noOriginalAuthentication", "Could not find original Authentication object"));
 		}
-
 		// get the source user details
 		UserDetails originalUser = null;
 		Object obj = original.getPrincipal();
-
 		if ((obj != null) && obj instanceof UserDetails) {
 			originalUser = (UserDetails) obj;
 		}
-
 		// publish event
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(current, originalUser));
 		}
-
 		return original;
 	}
 
@@ -299,43 +273,36 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	 */
 	private UsernamePasswordAuthenticationToken createSwitchUserToken(HttpServletRequest request,
 			UserDetails targetUser) {
-
 		UsernamePasswordAuthenticationToken targetUserRequest;
-
 		// grant an additional authority that contains the original Authentication object
 		// which will be used to 'exit' from the current switched user.
-
-		Authentication currentAuth;
-
-		try {
-			// SEC-1763. Check first if we are already switched.
-			currentAuth = attemptExitUser(request);
-		}
-		catch (AuthenticationCredentialsNotFoundException ex) {
-			currentAuth = SecurityContextHolder.getContext().getAuthentication();
-		}
-
-		GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(this.switchAuthorityRole, currentAuth);
-
+		Authentication currentAuthentication = getCurrentAuthentication(request);
+		GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(this.switchAuthorityRole,
+				currentAuthentication);
 		// get the original authorities
 		Collection<? extends GrantedAuthority> orig = targetUser.getAuthorities();
-
 		// Allow subclasses to change the authorities to be granted
 		if (this.switchUserAuthorityChanger != null) {
-			orig = this.switchUserAuthorityChanger.modifyGrantedAuthorities(targetUser, currentAuth, orig);
+			orig = this.switchUserAuthorityChanger.modifyGrantedAuthorities(targetUser, currentAuthentication, orig);
 		}
-
 		// add the new switch user authority
 		List<GrantedAuthority> newAuths = new ArrayList<>(orig);
 		newAuths.add(switchAuthority);
-
 		// create the new authentication token
 		targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(), newAuths);
-
 		// set details
 		targetUserRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
-
 		return targetUserRequest;
+	}
+
+	private Authentication getCurrentAuthentication(HttpServletRequest request) {
+		try {
+			// SEC-1763. Check first if we are already switched.
+			return attemptExitUser(request);
+		}
+		catch (AuthenticationCredentialsNotFoundException ex) {
+			return SecurityContextHolder.getContext().getAuthentication();
+		}
 	}
 
 	/**
@@ -349,10 +316,8 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	 */
 	private Authentication getSourceAuthentication(Authentication current) {
 		Authentication original = null;
-
 		// iterate over granted authorities and find the 'switch user' authority
 		Collection<? extends GrantedAuthority> authorities = current.getAuthorities();
-
 		for (GrantedAuthority auth : authorities) {
 			// check for switch user type of authority
 			if (auth instanceof SwitchUserGrantedAuthority) {
@@ -360,7 +325,6 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 				this.logger.debug("Found original switch user granted authority [" + original + "]");
 			}
 		}
-
 		return original;
 	}
 

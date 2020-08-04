@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -80,24 +81,19 @@ public class AnonymousAuthenticationWebFilter implements WebFilter {
 		return ReactiveSecurityContextHolder.getContext().switchIfEmpty(Mono.defer(() -> {
 			Authentication authentication = createAuthentication(exchange);
 			SecurityContext securityContext = new SecurityContextImpl(authentication);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Populated SecurityContext with anonymous token: '" + authentication + "'");
-			}
+			logger.debug(LogMessage.format("Populated SecurityContext with anonymous token: '%s'", authentication));
 			return chain.filter(exchange)
 					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
 					.then(Mono.empty());
 		})).flatMap((securityContext) -> {
-			if (logger.isDebugEnabled()) {
-				logger.debug("SecurityContext contains anonymous token: '" + securityContext.getAuthentication() + "'");
-			}
+			logger.debug(LogMessage.format("SecurityContext contains anonymous token: '%s'",
+					securityContext.getAuthentication()));
 			return chain.filter(exchange);
 		});
 	}
 
 	protected Authentication createAuthentication(ServerWebExchange exchange) {
-		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(this.key, this.principal,
-				this.authorities);
-		return auth;
+		return new AnonymousAuthenticationToken(this.key, this.principal, this.authorities);
 	}
 
 }

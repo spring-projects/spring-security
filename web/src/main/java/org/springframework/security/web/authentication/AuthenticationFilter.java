@@ -84,7 +84,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 			AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-
 		this.authenticationManagerResolver = authenticationManagerResolver;
 		this.authenticationConverter = authenticationConverter;
 	}
@@ -142,19 +141,16 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-
 		try {
 			Authentication authenticationResult = attemptAuthentication(request, response);
 			if (authenticationResult == null) {
 				filterChain.doFilter(request, response);
 				return;
 			}
-
 			HttpSession session = request.getSession(false);
 			if (session != null) {
 				request.changeSessionId();
 			}
-
 			successfulAuthentication(request, response, filterChain, authenticationResult);
 		}
 		catch (AuthenticationException ex) {
@@ -182,13 +178,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		if (authentication == null) {
 			return null;
 		}
-
 		AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
 		Authentication authenticationResult = authenticationManager.authenticate(authentication);
 		if (authenticationResult == null) {
 			throw new ServletException("AuthenticationManager should not return null Authentication object.");
 		}
-
 		return authenticationResult;
 	}
 

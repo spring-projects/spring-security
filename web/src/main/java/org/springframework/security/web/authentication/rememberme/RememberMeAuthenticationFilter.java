@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
@@ -86,66 +87,50 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
-		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			Authentication rememberMeAuth = this.rememberMeServices.autoLogin(request, response);
-
-			if (rememberMeAuth != null) {
-				// Attempt authenticaton via AuthenticationManager
-				try {
-					rememberMeAuth = this.authenticationManager.authenticate(rememberMeAuth);
-
-					// Store to SecurityContextHolder
-					SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
-
-					onSuccessfulAuthentication(request, response, rememberMeAuth);
-
-					if (this.logger.isDebugEnabled()) {
-						this.logger.debug("SecurityContextHolder populated with remember-me token: '"
-								+ SecurityContextHolder.getContext().getAuthentication() + "'");
-					}
-
-					// Fire event
-					if (this.eventPublisher != null) {
-						this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
-								SecurityContextHolder.getContext().getAuthentication(), this.getClass()));
-					}
-
-					if (this.successHandler != null) {
-						this.successHandler.onAuthenticationSuccess(request, response, rememberMeAuth);
-
-						return;
-					}
-
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		if (SecurityContextHolder.getContext().getAuthentication() != null) {
+			this.logger.debug(LogMessage
+					.of(() -> "SecurityContextHolder not populated with remember-me token, as it already contained: '"
+							+ SecurityContextHolder.getContext().getAuthentication() + "'"));
+			chain.doFilter(request, response);
+			return;
+		}
+		Authentication rememberMeAuth = this.rememberMeServices.autoLogin(request, response);
+		if (rememberMeAuth != null) {
+			// Attempt authenticaton via AuthenticationManager
+			try {
+				rememberMeAuth = this.authenticationManager.authenticate(rememberMeAuth);
+				// Store to SecurityContextHolder
+				SecurityContextHolder.getContext().setAuthentication(rememberMeAuth);
+				onSuccessfulAuthentication(request, response, rememberMeAuth);
+				this.logger.debug(LogMessage.of(() -> "SecurityContextHolder populated with remember-me token: '"
+						+ SecurityContextHolder.getContext().getAuthentication() + "'"));
+				if (this.eventPublisher != null) {
+					this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
+							SecurityContextHolder.getContext().getAuthentication(), this.getClass()));
 				}
-				catch (AuthenticationException authenticationException) {
-					if (this.logger.isDebugEnabled()) {
-						this.logger.debug("SecurityContextHolder not populated with remember-me token, as "
-								+ "AuthenticationManager rejected Authentication returned by RememberMeServices: '"
-								+ rememberMeAuth + "'; invalidating remember-me token", authenticationException);
-					}
-
-					this.rememberMeServices.loginFail(request, response);
-
-					onUnsuccessfulAuthentication(request, response, authenticationException);
+				if (this.successHandler != null) {
+					this.successHandler.onAuthenticationSuccess(request, response, rememberMeAuth);
+					return;
 				}
 			}
-
-			chain.doFilter(request, response);
-		}
-		else {
-			if (this.logger.isDebugEnabled()) {
-				this.logger
-						.debug("SecurityContextHolder not populated with remember-me token, as it already contained: '"
-								+ SecurityContextHolder.getContext().getAuthentication() + "'");
+			catch (AuthenticationException ex) {
+				this.logger.debug(LogMessage
+						.format("SecurityContextHolder not populated with remember-me token, as AuthenticationManager "
+								+ "rejected Authentication returned by RememberMeServices: '%s'; "
+								+ "invalidating remember-me token", rememberMeAuth),
+						ex);
+				this.rememberMeServices.loginFail(request, response);
+				onUnsuccessfulAuthentication(request, response, ex);
 			}
-
-			chain.doFilter(request, response);
 		}
+		chain.doFilter(request, response);
 	}
 
 	/**

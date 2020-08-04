@@ -24,7 +24,6 @@ import java.io.Serializable;
  * @author Rob Winch
  * @since 3.2
  * @see DefaultCsrfToken
- *
  */
 public interface CsrfToken extends Serializable {
 

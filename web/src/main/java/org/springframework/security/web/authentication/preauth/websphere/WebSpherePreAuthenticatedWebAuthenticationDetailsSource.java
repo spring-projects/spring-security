@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.Attributes2GrantedAuthoritiesMapper;
@@ -68,9 +69,8 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource implements
 		List<String> webSphereGroups = this.wasHelper.getGroupsForCurrentUser();
 		Collection<? extends GrantedAuthority> userGas = this.webSphereGroups2GrantedAuthoritiesMapper
 				.getGrantedAuthorities(webSphereGroups);
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: " + userGas);
-		}
+		this.logger.debug(
+				LogMessage.format("WebSphere groups: %s mapped to Granted Authorities: %s", webSphereGroups, userGas));
 		return userGas;
 	}
 

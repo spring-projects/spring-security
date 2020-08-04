@@ -69,30 +69,13 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		String tokenValue = (token != null) ? token.getToken() : "";
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
-		if (this.secure == null) {
-			cookie.setSecure(request.isSecure());
-		}
-		else {
-			cookie.setSecure(this.secure);
-		}
-
-		if (this.cookiePath != null && !this.cookiePath.isEmpty()) {
-			cookie.setPath(this.cookiePath);
-		}
-		else {
-			cookie.setPath(this.getRequestContext(request));
-		}
-		if (token == null) {
-			cookie.setMaxAge(0);
-		}
-		else {
-			cookie.setMaxAge(-1);
-		}
+		cookie.setSecure((this.secure != null) ? this.secure : request.isSecure());
+		cookie.setPath(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request));
+		cookie.setMaxAge((token != null) ? -1 : 0);
 		cookie.setHttpOnly(this.cookieHttpOnly);
-		if (this.cookieDomain != null && !this.cookieDomain.isEmpty()) {
+		if (StringUtils.hasLength(this.cookieDomain)) {
 			cookie.setDomain(this.cookieDomain);
 		}
-
 		response.addCookie(cookie);
 	}
 

@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -45,9 +46,7 @@ public final class OrRequestMatcher implements RequestMatcher {
 	 */
 	public OrRequestMatcher(List<RequestMatcher> requestMatchers) {
 		Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
-		if (requestMatchers.contains(null)) {
-			throw new IllegalArgumentException("requestMatchers cannot contain null values");
-		}
+		Assert.isTrue(!requestMatchers.contains(null), "requestMatchers cannot contain null values");
 		this.requestMatchers = requestMatchers;
 	}
 
@@ -62,9 +61,7 @@ public final class OrRequestMatcher implements RequestMatcher {
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		for (RequestMatcher matcher : this.requestMatchers) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Trying to match using " + matcher);
-			}
+			this.logger.debug(LogMessage.format("Trying to match using %s", matcher));
 			if (matcher.matches(request)) {
 				this.logger.debug("matched");
 				return true;

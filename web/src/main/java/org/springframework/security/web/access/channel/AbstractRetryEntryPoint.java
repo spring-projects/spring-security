@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
@@ -43,10 +44,14 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 
 	private PortResolver portResolver = new PortResolverImpl();
 
-	/** The scheme ("http://" or "https://") */
+	/**
+	 * The scheme ("http://" or "https://")
+	 */
 	private final String scheme;
 
-	/** The standard port for the scheme (80 for http, 443 for https) */
+	/**
+	 * The standard port for the scheme (80 for http, 443 for https)
+	 */
 	private final int standardPort;
 
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
@@ -60,21 +65,14 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String queryString = request.getQueryString();
 		String redirectUrl = request.getRequestURI() + ((queryString != null) ? ("?" + queryString) : "");
-
 		Integer currentPort = this.portResolver.getServerPort(request);
 		Integer redirectPort = getMappedPort(currentPort);
-
 		if (redirectPort != null) {
 			boolean includePort = redirectPort != this.standardPort;
-
-			redirectUrl = this.scheme + request.getServerName() + ((includePort) ? (":" + redirectPort) : "")
-					+ redirectUrl;
+			String port = (includePort) ? (":" + redirectPort) : "";
+			redirectUrl = this.scheme + request.getServerName() + port + redirectUrl;
 		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Redirecting to: " + redirectUrl);
-		}
-
+		this.logger.debug(LogMessage.format("Redirecting to: %s", redirectUrl));
 		this.redirectStrategy.sendRedirect(request, response, redirectUrl);
 	}
 

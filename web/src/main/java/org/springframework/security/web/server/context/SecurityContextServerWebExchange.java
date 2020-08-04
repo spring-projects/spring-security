@@ -44,7 +44,7 @@ public class SecurityContextServerWebExchange extends ServerWebExchangeDecorator
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends Principal> Mono<T> getPrincipal() {
-		return this.context.map((c) -> (T) c.getAuthentication());
+		return this.context.map((context) -> (T) context.getAuthentication());
 	}
 
 }

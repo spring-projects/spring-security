@@ -72,37 +72,31 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext,
 			ServerWebExchange exchange) {
 		ReactiveAdapter adapter = getAdapterRegistry().getAdapter(parameter.getParameterType());
-		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).flatMap((a) -> {
-			Object p = resolvePrincipal(parameter, a.getPrincipal());
-			Mono<Object> principal = Mono.justOrEmpty(p);
-			return (adapter != null) ? Mono.just(adapter.fromPublisher(principal)) : principal;
-		});
+		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
+				.flatMap((authentication) -> {
+					Mono<Object> principal = Mono
+							.justOrEmpty(resolvePrincipal(parameter, authentication.getPrincipal()));
+					return (adapter != null) ? Mono.just(adapter.fromPublisher(principal)) : principal;
+				});
 	}
 
 	private Object resolvePrincipal(MethodParameter parameter, Object principal) {
-		AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
-
-		String expressionToParse = authPrincipal.expression();
+		AuthenticationPrincipal annotation = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
+		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(principal);
 			context.setVariable("this", principal);
 			context.setBeanResolver(this.beanResolver);
-
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			principal = expression.getValue(context);
 		}
-
 		if (isInvalidType(parameter, principal)) {
-
-			if (authPrincipal.errorOnInvalidType()) {
+			if (annotation.errorOnInvalidType()) {
 				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
-
 		return principal;
 	}
 

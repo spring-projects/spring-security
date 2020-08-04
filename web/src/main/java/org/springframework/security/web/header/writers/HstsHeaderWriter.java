@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -148,14 +149,13 @@ public final class HstsHeaderWriter implements HeaderWriter {
 
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		if (this.requestMatcher.matches(request)) {
-			if (!response.containsHeader(HSTS_HEADER_NAME)) {
-				response.setHeader(HSTS_HEADER_NAME, this.hstsHeaderValue);
-			}
+		if (!this.requestMatcher.matches(request)) {
+			this.logger.debug(LogMessage.format(
+					"Not injecting HSTS header since it did not match the requestMatcher %s", this.requestMatcher));
+			return;
 		}
-		else if (this.logger.isDebugEnabled()) {
-			this.logger.debug(
-					"Not injecting HSTS header since it did not match the requestMatcher " + this.requestMatcher);
+		if (!response.containsHeader(HSTS_HEADER_NAME)) {
+			response.setHeader(HSTS_HEADER_NAME, this.hstsHeaderValue);
 		}
 	}
 
@@ -188,9 +188,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 * @throws IllegalArgumentException if maxAgeInSeconds is negative
 	 */
 	public void setMaxAgeInSeconds(long maxAgeInSeconds) {
-		if (maxAgeInSeconds < 0) {
-			throw new IllegalArgumentException("maxAgeInSeconds must be non-negative. Got " + maxAgeInSeconds);
-		}
+		Assert.isTrue(maxAgeInSeconds >= 0, () -> "maxAgeInSeconds must be non-negative. Got " + maxAgeInSeconds);
 		this.maxAgeInSeconds = maxAgeInSeconds;
 		updateHstsHeaderValue();
 	}

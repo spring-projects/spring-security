@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 public final class UrlUtils {
 
+	private static final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*", Pattern.CASE_INSENSITIVE);
+
 	private UrlUtils() {
 	}
 
@@ -47,12 +49,9 @@ public final class UrlUtils {
 	 */
 	public static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String requestURI,
 			String queryString) {
-
 		scheme = scheme.toLowerCase();
-
 		StringBuilder url = new StringBuilder();
 		url.append(scheme).append("://").append(serverName);
-
 		// Only add port if not default
 		if ("http".equals(scheme)) {
 			if (serverPort != 80) {
@@ -64,15 +63,12 @@ public final class UrlUtils {
 				url.append(":").append(serverPort);
 			}
 		}
-
 		// Use the requestURI as it is encoded (RFC 3986) and hence suitable for
 		// redirects.
 		url.append(requestURI);
-
 		if (queryString != null) {
 			url.append("?").append(queryString);
 		}
-
 		return url.toString();
 	}
 
@@ -104,9 +100,7 @@ public final class UrlUtils {
 	 */
 	private static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
 			String queryString) {
-
 		StringBuilder url = new StringBuilder();
-
 		if (servletPath != null) {
 			url.append(servletPath);
 			if (pathInfo != null) {
@@ -116,11 +110,9 @@ public final class UrlUtils {
 		else {
 			url.append(requestURI.substring(contextPath.length()));
 		}
-
 		if (queryString != null) {
 			url.append("?").append(queryString);
 		}
-
 		return url.toString();
 	}
 
@@ -136,12 +128,7 @@ public final class UrlUtils {
 	 * defined in RFC 1738.
 	 */
 	public static boolean isAbsoluteUrl(String url) {
-		if (url == null) {
-			return false;
-		}
-		final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*", Pattern.CASE_INSENSITIVE);
-
-		return ABSOLUTE_URL.matcher(url).matches();
+		return (url != null) ? ABSOLUTE_URL.matcher(url).matches() : false;
 	}
 
 }

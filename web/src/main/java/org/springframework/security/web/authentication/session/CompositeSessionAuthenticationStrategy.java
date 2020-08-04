@@ -25,6 +25,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -63,10 +64,7 @@ public class CompositeSessionAuthenticationStrategy implements SessionAuthentica
 	public CompositeSessionAuthenticationStrategy(List<SessionAuthenticationStrategy> delegateStrategies) {
 		Assert.notEmpty(delegateStrategies, "delegateStrategies cannot be null or empty");
 		for (SessionAuthenticationStrategy strategy : delegateStrategies) {
-			if (strategy == null) {
-				throw new IllegalArgumentException(
-						"delegateStrategies cannot contain null entires. Got " + delegateStrategies);
-			}
+			Assert.notNull(strategy, () -> "delegateStrategies cannot contain null entires. Got " + delegateStrategies);
 		}
 		this.delegateStrategies = delegateStrategies;
 	}
@@ -75,9 +73,7 @@ public class CompositeSessionAuthenticationStrategy implements SessionAuthentica
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {
 		for (SessionAuthenticationStrategy delegate : this.delegateStrategies) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Delegating to " + delegate);
-			}
+			this.logger.debug(LogMessage.format("Delegating to %s", delegate));
 			delegate.onAuthentication(authentication, request, response);
 		}
 	}

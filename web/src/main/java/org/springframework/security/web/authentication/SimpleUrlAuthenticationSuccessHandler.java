@@ -59,7 +59,6 @@ public class SimpleUrlAuthenticationSuccessHandler extends AbstractAuthenticatio
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-
 		handle(request, response, authentication);
 		clearAuthenticationAttributes(request);
 	}
@@ -70,12 +69,9 @@ public class SimpleUrlAuthenticationSuccessHandler extends AbstractAuthenticatio
 	 */
 	protected final void clearAuthenticationAttributes(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-
-		if (session == null) {
-			return;
+		if (session != null) {
+			session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
 		}
-
-		session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
 	}
 
 }

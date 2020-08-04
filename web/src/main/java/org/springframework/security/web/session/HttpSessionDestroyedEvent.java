@@ -47,11 +47,8 @@ public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
 	@Override
 	public List<SecurityContext> getSecurityContexts() {
 		HttpSession session = getSession();
-
 		Enumeration<String> attributes = session.getAttributeNames();
-
 		ArrayList<SecurityContext> contexts = new ArrayList<>();
-
 		while (attributes.hasMoreElements()) {
 			String attributeName = attributes.nextElement();
 			Object attributeValue = session.getAttribute(attributeName);
@@ -59,7 +56,6 @@ public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
 				contexts.add((SecurityContext) attributeValue);
 			}
 		}
-
 		return contexts;
 	}
 

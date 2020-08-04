@@ -65,17 +65,11 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		this.beanResolver = beanResolver;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext,
 			ServerWebExchange exchange) {
@@ -84,10 +78,10 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		if (reactiveSecurityContext == null) {
 			return null;
 		}
-		return reactiveSecurityContext.flatMap((a) -> {
-			Object p = resolveSecurityContext(parameter, a);
-			Mono<Object> o = Mono.justOrEmpty(p);
-			return (adapter != null) ? Mono.just(adapter.fromPublisher(o)) : o;
+		return reactiveSecurityContext.flatMap((securityContext) -> {
+			Mono<Object> resolvedSecurityContext = Mono.justOrEmpty(resolveSecurityContext(parameter, securityContext));
+			return (adapter != null) ? Mono.just(adapter.fromPublisher(resolvedSecurityContext))
+					: resolvedSecurityContext;
 		});
 
 	}
@@ -100,32 +94,24 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	 * @return the resolved object from expression.
 	 */
 	private Object resolveSecurityContext(MethodParameter parameter, SecurityContext securityContext) {
-		CurrentSecurityContext securityContextAnnotation = findMethodAnnotation(CurrentSecurityContext.class,
-				parameter);
-
+		CurrentSecurityContext annotation = findMethodAnnotation(CurrentSecurityContext.class, parameter);
 		Object securityContextResult = securityContext;
-
-		String expressionToParse = securityContextAnnotation.expression();
+		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
 			context.setBeanResolver(this.beanResolver);
-
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContextResult = expression.getValue(context);
 		}
-
 		if (isInvalidType(parameter, securityContextResult)) {
-			if (securityContextAnnotation.errorOnInvalidType()) {
+			if (annotation.errorOnInvalidType()) {
 				throw new ClassCastException(
 						securityContextResult + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
-
 		return securityContextResult;
 	}
 

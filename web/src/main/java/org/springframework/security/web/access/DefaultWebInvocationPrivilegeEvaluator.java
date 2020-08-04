@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -47,7 +48,6 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 				"AbstractSecurityInterceptor does not support FilterInvocations");
 		Assert.notNull(securityInterceptor.getAccessDecisionManager(),
 				"AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");
-
 		this.securityInterceptor = securityInterceptor;
 	}
 
@@ -82,34 +82,23 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 	@Override
 	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 		Assert.notNull(uri, "uri parameter is required");
-
-		FilterInvocation fi = new FilterInvocation(contextPath, uri, method);
-		Collection<ConfigAttribute> attrs = this.securityInterceptor.obtainSecurityMetadataSource().getAttributes(fi);
-
-		if (attrs == null) {
-			if (this.securityInterceptor.isRejectPublicInvocations()) {
-				return false;
-			}
-
-			return true;
+		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method);
+		Collection<ConfigAttribute> attributes = this.securityInterceptor.obtainSecurityMetadataSource()
+				.getAttributes(filterInvocation);
+		if (attributes == null) {
+			return (!this.securityInterceptor.isRejectPublicInvocations());
 		}
-
 		if (authentication == null) {
 			return false;
 		}
-
 		try {
-			this.securityInterceptor.getAccessDecisionManager().decide(authentication, fi, attrs);
+			this.securityInterceptor.getAccessDecisionManager().decide(authentication, filterInvocation, attributes);
+			return true;
 		}
-		catch (AccessDeniedException unauthorized) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(fi.toString() + " denied for " + authentication.toString(), unauthorized);
-			}
-
+		catch (AccessDeniedException ex) {
+			logger.debug(LogMessage.format("%s denied for %s", filterInvocation, authentication), ex);
 			return false;
 		}
-
-		return true;
 	}
 
 }

@@ -80,29 +80,17 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 		if (header == null) {
 			return null;
 		}
-
 		header = header.trim();
 		if (!StringUtils.startsWithIgnoreCase(header, AUTHENTICATION_SCHEME_BASIC)) {
 			return null;
 		}
-
 		if (header.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
 			throw new BadCredentialsException("Empty basic authentication token");
 		}
-
 		byte[] base64Token = header.substring(6).getBytes(StandardCharsets.UTF_8);
-		byte[] decoded;
-		try {
-			decoded = Base64.getDecoder().decode(base64Token);
-		}
-		catch (IllegalArgumentException ex) {
-			throw new BadCredentialsException("Failed to decode basic authentication token");
-		}
-
+		byte[] decoded = decode(base64Token);
 		String token = new String(decoded, getCredentialsCharset(request));
-
 		int delim = token.indexOf(":");
-
 		if (delim == -1) {
 			throw new BadCredentialsException("Invalid basic authentication token");
 		}
@@ -110,6 +98,15 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 				token.substring(delim + 1));
 		result.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return result;
+	}
+
+	private byte[] decode(byte[] base64Token) {
+		try {
+			return Base64.getDecoder().decode(base64Token);
+		}
+		catch (IllegalArgumentException ex) {
+			throw new BadCredentialsException("Failed to decode basic authentication token");
+		}
 	}
 
 	protected Charset getCredentialsCharset(HttpServletRequest request) {

@@ -17,7 +17,6 @@
 package org.springframework.security.web.servletapi;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 import javax.servlet.AsyncContext;
@@ -225,15 +224,19 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 				super.login(username, password);
 				return;
 			}
-			Authentication authentication;
-			try {
-				authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-			}
-			catch (AuthenticationException loginFailed) {
-				SecurityContextHolder.clearContext();
-				throw new ServletException(loginFailed.getMessage(), loginFailed);
-			}
+			Authentication authentication = getAuthentication(authManager, username, password);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
+		}
+
+		private Authentication getAuthentication(AuthenticationManager authManager, String username, String password)
+				throws ServletException {
+			try {
+				return authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+			}
+			catch (AuthenticationException ex) {
+				SecurityContextHolder.clearContext();
+				throw new ServletException(ex.getMessage(), ex);
+			}
 		}
 
 		@Override
@@ -252,8 +255,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		}
 
 		private boolean isAuthenticated() {
-			Principal userPrincipal = getUserPrincipal();
-			return userPrincipal != null;
+			return getUserPrincipal() != null;
 		}
 
 	}

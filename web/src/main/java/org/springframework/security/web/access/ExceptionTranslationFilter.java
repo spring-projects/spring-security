@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -107,14 +108,15 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		try {
 			chain.doFilter(request, response);
-
 			this.logger.debug("Chain processed normally");
 		}
 		catch (IOException ex) {
@@ -123,36 +125,34 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		catch (Exception ex) {
 			// Try to extract a SpringSecurityException from the stacktrace
 			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
-			RuntimeException ase = (AuthenticationException) this.throwableAnalyzer
+			RuntimeException securityException = (AuthenticationException) this.throwableAnalyzer
 					.getFirstThrowableOfType(AuthenticationException.class, causeChain);
-
-			if (ase == null) {
-				ase = (AccessDeniedException) this.throwableAnalyzer
+			if (securityException == null) {
+				securityException = (AccessDeniedException) this.throwableAnalyzer
 						.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
 			}
-
-			if (ase != null) {
-				if (response.isCommitted()) {
-					throw new ServletException(
-							"Unable to handle the Spring Security Exception because the response is already committed.",
-							ex);
-				}
-				handleSpringSecurityException(request, response, chain, ase);
+			if (securityException == null) {
+				rethrow(ex);
 			}
-			else {
-				// Rethrow ServletExceptions and RuntimeExceptions as-is
-				if (ex instanceof ServletException) {
-					throw (ServletException) ex;
-				}
-				else if (ex instanceof RuntimeException) {
-					throw (RuntimeException) ex;
-				}
-
-				// Wrap other Exceptions. This shouldn't actually happen
-				// as we've already covered all the possibilities for doFilter
-				throw new RuntimeException(ex);
+			if (response.isCommitted()) {
+				throw new ServletException("Unable to handle the Spring Security Exception "
+						+ "because the response is already committed.", ex);
 			}
+			handleSpringSecurityException(request, response, chain, securityException);
 		}
+	}
+
+	private void rethrow(Exception ex) throws ServletException {
+		// Rethrow ServletExceptions and RuntimeExceptions as-is
+		if (ex instanceof ServletException) {
+			throw (ServletException) ex;
+		}
+		if (ex instanceof RuntimeException) {
+			throw (RuntimeException) ex;
+		}
+		// Wrap other Exceptions. This shouldn't actually happen
+		// as we've already covered all the possibilities for doFilter
+		throw new RuntimeException(ex);
 	}
 
 	public AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -166,32 +166,36 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 	private void handleSpringSecurityException(HttpServletRequest request, HttpServletResponse response,
 			FilterChain chain, RuntimeException exception) throws IOException, ServletException {
 		if (exception instanceof AuthenticationException) {
-			this.logger.debug("Authentication exception occurred; redirecting to authentication entry point",
-					exception);
-
-			sendStartAuthentication(request, response, chain, (AuthenticationException) exception);
+			handleAuthenticationException(request, response, chain, (AuthenticationException) exception);
 		}
 		else if (exception instanceof AccessDeniedException) {
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			if (this.authenticationTrustResolver.isAnonymous(authentication)
-					|| this.authenticationTrustResolver.isRememberMe(authentication)) {
-				this.logger.debug(
-						"Access is denied (user is " + (this.authenticationTrustResolver.isAnonymous(authentication)
-								? "anonymous" : "not fully authenticated")
-								+ "); redirecting to authentication entry point",
-						exception);
+			handleAccessDeniedException(request, response, chain, (AccessDeniedException) exception);
+		}
+	}
 
-				sendStartAuthentication(request, response, chain,
-						new InsufficientAuthenticationException(
-								this.messages.getMessage("ExceptionTranslationFilter.insufficientAuthentication",
-										"Full authentication is required to access this resource")));
-			}
-			else {
-				this.logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler",
-						exception);
+	private void handleAuthenticationException(HttpServletRequest request, HttpServletResponse response,
+			FilterChain chain, AuthenticationException exception) throws ServletException, IOException {
+		this.logger.debug("Authentication exception occurred; redirecting to authentication entry point", exception);
+		sendStartAuthentication(request, response, chain, exception);
+	}
 
-				this.accessDeniedHandler.handle(request, response, (AccessDeniedException) exception);
-			}
+	private void handleAccessDeniedException(HttpServletRequest request, HttpServletResponse response,
+			FilterChain chain, AccessDeniedException exception) throws ServletException, IOException {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		boolean isAnonymous = this.authenticationTrustResolver.isAnonymous(authentication);
+		if (isAnonymous || this.authenticationTrustResolver.isRememberMe(authentication)) {
+			this.logger.debug(LogMessage
+					.of(() -> "Access is denied (user is " + (isAnonymous ? "anonymous" : "not fully authenticated")
+							+ "); redirecting to authentication entry point"),
+					exception);
+			sendStartAuthentication(request, response, chain,
+					new InsufficientAuthenticationException(
+							this.messages.getMessage("ExceptionTranslationFilter.insufficientAuthentication",
+									"Full authentication is required to access this resource")));
+		}
+		else {
+			this.logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler", exception);
+			this.accessDeniedHandler.handle(request, response, exception);
 		}
 	}
 
@@ -232,7 +236,6 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		@Override
 		protected void initExtractorMap() {
 			super.initExtractorMap();
-
 			registerExtractor(ServletException.class, (throwable) -> {
 				ThrowableAnalyzer.verifyThrowableHierarchy(throwable, ServletException.class);
 				return ((ServletException) throwable).getRootCause();

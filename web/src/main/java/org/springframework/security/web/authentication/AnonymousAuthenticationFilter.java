@@ -26,6 +26,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.Authentication;
@@ -85,31 +86,24 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
-
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			SecurityContextHolder.getContext().setAuthentication(createAuthentication((HttpServletRequest) req));
-
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Populated SecurityContextHolder with anonymous token: '"
-						+ SecurityContextHolder.getContext().getAuthentication() + "'");
-			}
+			this.logger.debug(LogMessage.of(() -> "Populated SecurityContextHolder with anonymous token: '"
+					+ SecurityContextHolder.getContext().getAuthentication() + "'"));
 		}
 		else {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("SecurityContextHolder not populated with anonymous token, as it already contained: '"
-						+ SecurityContextHolder.getContext().getAuthentication() + "'");
-			}
+			this.logger.debug(LogMessage
+					.of(() -> "SecurityContextHolder not populated with anonymous token, as it already contained: '"
+							+ SecurityContextHolder.getContext().getAuthentication() + "'"));
 		}
-
 		chain.doFilter(req, res);
 	}
 
 	protected Authentication createAuthentication(HttpServletRequest request) {
-		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(this.key, this.principal,
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(this.key, this.principal,
 				this.authorities);
-		auth.setDetails(this.authenticationDetailsSource.buildDetails(request));
-
-		return auth;
+		token.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		return token;
 	}
 
 	public void setAuthenticationDetailsSource(

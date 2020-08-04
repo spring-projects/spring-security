@@ -22,6 +22,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -43,6 +44,7 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
+import org.springframework.util.Assert;
 
 /**
  * This <tt>MappableAttributesRetriever</tt> implementation reads the list of defined J2EE
@@ -82,17 +84,17 @@ public class WebXmlMappableAttributesRetriever
 		Resource webXml = this.resourceLoader.getResource("/WEB-INF/web.xml");
 		Document doc = getDocument(webXml.getInputStream());
 		NodeList webApp = doc.getElementsByTagName("web-app");
-		if (webApp.getLength() != 1) {
-			throw new IllegalArgumentException("Failed to find 'web-app' element in resource" + webXml);
-		}
+		Assert.isTrue(webApp.getLength() == 1, () -> "Failed to find 'web-app' element in resource" + webXml);
 		NodeList securityRoles = ((Element) webApp.item(0)).getElementsByTagName("security-role");
+		List<String> roleNames = getRoleNames(webXml, securityRoles);
+		this.mappableAttributes = Collections.unmodifiableSet(new HashSet<>(roleNames));
+	}
 
+	private List<String> getRoleNames(Resource webXml, NodeList securityRoles) {
 		ArrayList<String> roleNames = new ArrayList<>();
-
 		for (int i = 0; i < securityRoles.getLength(); i++) {
-			Element secRoleElt = (Element) securityRoles.item(i);
-			NodeList roles = secRoleElt.getElementsByTagName("role-name");
-
+			Element securityRoleElement = (Element) securityRoles.item(i);
+			NodeList roles = securityRoleElement.getElementsByTagName("role-name");
 			if (roles.getLength() > 0) {
 				String roleName = roles.item(0).getTextContent().trim();
 				roleNames.add(roleName);
@@ -102,22 +104,19 @@ public class WebXmlMappableAttributesRetriever
 				this.logger.info("No security-role elements found in " + webXml);
 			}
 		}
-
-		this.mappableAttributes = Collections.unmodifiableSet(new HashSet<>(roleNames));
+		return roleNames;
 	}
 
 	/**
 	 * @return Document for the specified InputStream
 	 */
 	private Document getDocument(InputStream aStream) {
-		Document doc;
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setValidating(false);
-			DocumentBuilder db = factory.newDocumentBuilder();
-			db.setEntityResolver(new MyEntityResolver());
-			doc = db.parse(aStream);
-			return doc;
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			builder.setEntityResolver(new MyEntityResolver());
+			return builder.parse(aStream);
 		}
 		catch (FactoryConfigurationError | IOException | SAXException | ParserConfigurationException ex) {
 			throw new RuntimeException("Unable to parse document object", ex);

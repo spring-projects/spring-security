@@ -50,35 +50,35 @@ public final class DebugFilter implements Filter {
 
 	static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName().concat(".FILTERED");
 
-	private final FilterChainProxy fcp;
+	private final FilterChainProxy filterChainProxy;
 
 	private final Logger logger = new Logger();
 
-	public DebugFilter(FilterChainProxy fcp) {
-		this.fcp = fcp;
+	public DebugFilter(FilterChainProxy filterChainProxy) {
+		this.filterChainProxy = filterChainProxy;
 	}
 
 	@Override
-	public void doFilter(ServletRequest srvltRequest, ServletResponse srvltResponse, FilterChain filterChain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
-		if (!(srvltRequest instanceof HttpServletRequest) || !(srvltResponse instanceof HttpServletResponse)) {
+		if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
 			throw new ServletException("DebugFilter just supports HTTP requests");
 		}
-		HttpServletRequest request = (HttpServletRequest) srvltRequest;
-		HttpServletResponse response = (HttpServletResponse) srvltResponse;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, filterChain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws IOException, ServletException {
 		List<Filter> filters = getFilters(request);
 		this.logger.info("Request received for " + request.getMethod() + " '" + UrlUtils.buildRequestUrl(request)
 				+ "':\n\n" + request + "\n\n" + "servletPath:" + request.getServletPath() + "\n" + "pathInfo:"
 				+ request.getPathInfo() + "\n" + "headers: \n" + formatHeaders(request) + "\n\n"
 				+ formatFilters(filters));
-
 		if (request.getAttribute(ALREADY_FILTERED_ATTR_NAME) == null) {
 			invokeWithWrappedRequest(request, response, filterChain);
 		}
 		else {
-			this.fcp.doFilter(request, response, filterChain);
+			this.filterChainProxy.doFilter(request, response, filterChain);
 		}
 	}
 
@@ -87,7 +87,7 @@ public final class DebugFilter implements Filter {
 		request.setAttribute(ALREADY_FILTERED_ATTR_NAME, Boolean.TRUE);
 		request = new DebugRequestWrapper(request);
 		try {
-			this.fcp.doFilter(request, response, filterChain);
+			this.filterChainProxy.doFilter(request, response, filterChain);
 		}
 		finally {
 			request.removeAttribute(ALREADY_FILTERED_ATTR_NAME);
@@ -134,7 +134,7 @@ public final class DebugFilter implements Filter {
 	}
 
 	private List<Filter> getFilters(HttpServletRequest request) {
-		for (SecurityFilterChain chain : this.fcp.getFilterChains()) {
+		for (SecurityFilterChain chain : this.filterChainProxy.getFilterChains()) {
 			if (chain.matches(request)) {
 				return chain.getFilters();
 			}
@@ -163,11 +163,9 @@ public final class DebugFilter implements Filter {
 		public HttpSession getSession() {
 			boolean sessionExists = super.getSession(false) != null;
 			HttpSession session = super.getSession();
-
 			if (!sessionExists) {
 				DebugRequestWrapper.logger.info("New HTTP session created: " + session.getId(), true);
 			}
-
 			return session;
 		}
 

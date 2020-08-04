@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -125,11 +126,9 @@ public class SwitchUserWebFilter implements WebFilter {
 			@Nullable ServerAuthenticationFailureHandler failureHandler) {
 		Assert.notNull(userDetailsService, "userDetailsService must be specified");
 		Assert.notNull(successHandler, "successHandler must be specified");
-
 		this.userDetailsService = userDetailsService;
 		this.successHandler = successHandler;
 		this.failureHandler = failureHandler;
-
 		this.securityContextRepository = new WebSessionServerSecurityContextRepository();
 		this.userDetailsChecker = new AccountStatusUserDetailsChecker();
 	}
@@ -147,17 +146,10 @@ public class SwitchUserWebFilter implements WebFilter {
 			@Nullable String failureTargetUrl) {
 		Assert.notNull(userDetailsService, "userDetailsService must be specified");
 		Assert.notNull(successTargetUrl, "successTargetUrl must be specified");
-
 		this.userDetailsService = userDetailsService;
 		this.successHandler = new RedirectServerAuthenticationSuccessHandler(successTargetUrl);
-
-		if (failureTargetUrl != null) {
-			this.failureHandler = new RedirectServerAuthenticationFailureHandler(failureTargetUrl);
-		}
-		else {
-			this.failureHandler = null;
-		}
-
+		this.failureHandler = (failureTargetUrl != null)
+				? new RedirectServerAuthenticationFailureHandler(failureTargetUrl) : null;
 		this.securityContextRepository = new WebSessionServerSecurityContextRepository();
 		this.userDetailsChecker = new AccountStatusUserDetailsChecker();
 	}
@@ -165,7 +157,6 @@ public class SwitchUserWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-
 		return switchUser(webFilterExchange).switchIfEmpty(Mono.defer(() -> exitSwitchUser(webFilterExchange)))
 				.switchIfEmpty(Mono.defer(() -> chain.filter(exchange).then(Mono.empty())))
 				.flatMap((authentication) -> onAuthenticationSuccess(authentication, webFilterExchange))
@@ -185,10 +176,10 @@ public class SwitchUserWebFilter implements WebFilter {
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
 				.flatMap((matchResult) -> ReactiveSecurityContextHolder.getContext())
 				.map(SecurityContext::getAuthentication).flatMap((currentAuthentication) -> {
-					final String username = getUsername(webFilterExchange.getExchange());
+					String username = getUsername(webFilterExchange.getExchange());
 					return attemptSwitchUser(currentAuthentication, username);
-				}).onErrorResume(AuthenticationException.class, (e) -> onAuthenticationFailure(e, webFilterExchange)
-						.then(Mono.error(new SwitchUserAuthenticationException(e))));
+				}).onErrorResume(AuthenticationException.class, (ex) -> onAuthenticationFailure(ex, webFilterExchange)
+						.then(Mono.error(new SwitchUserAuthenticationException(ex))));
 	}
 
 	/**
@@ -220,11 +211,7 @@ public class SwitchUserWebFilter implements WebFilter {
 	@NonNull
 	private Mono<Authentication> attemptSwitchUser(Authentication currentAuthentication, String userName) {
 		Assert.notNull(userName, "The userName can not be null.");
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Attempt to switch to user [" + userName + "]");
-		}
-
+		this.logger.debug(LogMessage.format("Attempt to switch to user [%s]", userName));
 		return this.userDetailsService.findByUsername(userName)
 				.switchIfEmpty(Mono.error(this::noTargetAuthenticationException))
 				.doOnNext(this.userDetailsChecker::check)
@@ -233,19 +220,17 @@ public class SwitchUserWebFilter implements WebFilter {
 
 	@NonNull
 	private Authentication attemptExitUser(Authentication currentAuthentication) {
-		final Optional<Authentication> sourceAuthentication = extractSourceAuthentication(currentAuthentication);
-
+		Optional<Authentication> sourceAuthentication = extractSourceAuthentication(currentAuthentication);
 		if (!sourceAuthentication.isPresent()) {
 			this.logger.debug("Could not find original user Authentication object!");
 			throw noOriginalAuthenticationException();
 		}
-
 		return sourceAuthentication.get();
 	}
 
 	private Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
-		final ServerWebExchange exchange = webFilterExchange.getExchange();
-		final SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
+		ServerWebExchange exchange = webFilterExchange.getExchange();
+		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
 		return this.securityContextRepository.save(exchange, securityContext)
 				.then(this.successHandler.onAuthenticationSuccess(webFilterExchange, authentication))
 				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
@@ -259,21 +244,18 @@ public class SwitchUserWebFilter implements WebFilter {
 	}
 
 	private Authentication createSwitchUserToken(UserDetails targetUser, Authentication currentAuthentication) {
-		final Optional<Authentication> sourceAuthentication = extractSourceAuthentication(currentAuthentication);
-
+		Optional<Authentication> sourceAuthentication = extractSourceAuthentication(currentAuthentication);
 		if (sourceAuthentication.isPresent()) {
 			// SEC-1763. Check first if we are already switched.
-			this.logger.info("Found original switch user granted authority [" + sourceAuthentication.get() + "]");
+			this.logger.info(
+					LogMessage.format("Found original switch user granted authority [%s]", sourceAuthentication.get()));
 			currentAuthentication = sourceAuthentication.get();
 		}
-
-		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR,
+		GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR,
 				currentAuthentication);
-		final Collection<? extends GrantedAuthority> targetUserAuthorities = targetUser.getAuthorities();
-
-		final List<GrantedAuthority> extendedTargetUserAuthorities = new ArrayList<>(targetUserAuthorities);
+		Collection<? extends GrantedAuthority> targetUserAuthorities = targetUser.getAuthorities();
+		List<GrantedAuthority> extendedTargetUserAuthorities = new ArrayList<>(targetUserAuthorities);
 		extendedTargetUserAuthorities.add(switchAuthority);
-
 		return new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(),
 				extendedTargetUserAuthorities);
 	}
@@ -291,7 +273,7 @@ public class SwitchUserWebFilter implements WebFilter {
 		// iterate over granted authorities and find the 'switch user' authority
 		for (GrantedAuthority authority : currentAuthentication.getAuthorities()) {
 			if (authority instanceof SwitchUserGrantedAuthority) {
-				final SwitchUserGrantedAuthority switchAuthority = (SwitchUserGrantedAuthority) authority;
+				SwitchUserGrantedAuthority switchAuthority = (SwitchUserGrantedAuthority) authority;
 				return Optional.of(switchAuthority.getSource());
 			}
 		}

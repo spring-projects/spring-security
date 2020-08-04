@@ -16,8 +16,11 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -87,25 +90,24 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	@Override
 	public PersistentRememberMeToken getTokenForSeries(String seriesId) {
 		try {
-			return getJdbcTemplate().queryForObject(this.tokensBySeriesSql,
-					(rs, rowNum) -> new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3),
-							rs.getTimestamp(4)),
-					seriesId);
+			return getJdbcTemplate().queryForObject(this.tokensBySeriesSql, this::createRememberMeToken, seriesId);
 		}
-		catch (EmptyResultDataAccessException zeroResults) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Querying token for series '" + seriesId + "' returned no results.", zeroResults);
-			}
+		catch (EmptyResultDataAccessException ex) {
+			this.logger.debug(LogMessage.format("Querying token for series '%s' returned no results.", seriesId), ex);
 		}
-		catch (IncorrectResultSizeDataAccessException moreThanOne) {
-			this.logger.error("Querying token for series '" + seriesId + "' returned more than one value. Series"
-					+ " should be unique");
+		catch (IncorrectResultSizeDataAccessException ex) {
+			this.logger.error(LogMessage.format(
+					"Querying token for series '%s' returned more than one value. Series" + " should be unique",
+					seriesId));
 		}
 		catch (DataAccessException ex) {
 			this.logger.error("Failed to load token for series " + seriesId, ex);
 		}
-
 		return null;
+	}
+
+	private PersistentRememberMeToken createRememberMeToken(ResultSet rs, int rowNum) throws SQLException {
+		return new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4));
 	}
 
 	@Override

@@ -40,7 +40,6 @@ public interface ChannelProcessor {
 	/**
 	 * Decided whether the presented {@link FilterInvocation} provides the appropriate
 	 * level of channel security based on the requested list of <tt>ConfigAttribute</tt>s.
-	 *
 	 */
 	void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException, ServletException;
 

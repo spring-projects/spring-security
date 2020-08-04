@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -76,10 +77,9 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 				response.setHeader(CLEAR_SITE_DATA_HEADER, this.headerValue);
 			}
 		}
-		else if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Not injecting Clear-Site-Data header since it did not match the " + "requestMatcher "
-					+ this.requestMatcher);
-		}
+		this.logger.debug(
+				LogMessage.format("Not injecting Clear-Site-Data header since it did not match the requestMatcher %s",
+						this.requestMatcher));
 	}
 
 	private String transformToHeaderValue(Directive... directives) {
@@ -97,14 +97,19 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * <p>
-	 * Represents the directive values expected by the {@link ClearSiteDataHeaderWriter}
-	 * </p>
-	 * .
+	 * Represents the directive values expected by the {@link ClearSiteDataHeaderWriter}.
 	 */
 	public enum Directive {
 
-		CACHE("cache"), COOKIES("cookies"), STORAGE("storage"), EXECUTION_CONTEXTS("executionContexts"), ALL("*");
+		CACHE("cache"),
+
+		COOKIES("cookies"),
+
+		STORAGE("storage"),
+
+		EXECUTION_CONTEXTS("executionContexts"),
+
+		ALL("*");
 
 		private final String headerValue;
 

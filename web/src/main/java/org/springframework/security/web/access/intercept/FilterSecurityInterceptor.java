@@ -78,8 +78,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		FilterInvocation fi = new FilterInvocation(request, response, chain);
-		invoke(fi);
+		invoke(new FilterInvocation(request, response, chain));
 	}
 
 	public FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
@@ -100,30 +99,30 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 		return FilterInvocation.class;
 	}
 
-	public void invoke(FilterInvocation fi) throws IOException, ServletException {
-		if ((fi.getRequest() != null) && (fi.getRequest().getAttribute(FILTER_APPLIED) != null)
-				&& this.observeOncePerRequest) {
+	public void invoke(FilterInvocation filterInvocation) throws IOException, ServletException {
+		if (isApplied(filterInvocation) && this.observeOncePerRequest) {
 			// filter already applied to this request and user wants us to observe
 			// once-per-request handling, so don't re-do security checking
-			fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+			filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
+			return;
 		}
-		else {
-			// first time this request being called, so perform security checking
-			if (fi.getRequest() != null && this.observeOncePerRequest) {
-				fi.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
-			}
-
-			InterceptorStatusToken token = super.beforeInvocation(fi);
-
-			try {
-				fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
-			}
-			finally {
-				super.finallyInvocation(token);
-			}
-
-			super.afterInvocation(token, null);
+		// first time this request being called, so perform security checking
+		if (filterInvocation.getRequest() != null && this.observeOncePerRequest) {
+			filterInvocation.getRequest().setAttribute(FILTER_APPLIED, Boolean.TRUE);
 		}
+		InterceptorStatusToken token = super.beforeInvocation(filterInvocation);
+		try {
+			filterInvocation.getChain().doFilter(filterInvocation.getRequest(), filterInvocation.getResponse());
+		}
+		finally {
+			super.finallyInvocation(token);
+		}
+		super.afterInvocation(token, null);
+	}
+
+	private boolean isApplied(FilterInvocation filterInvocation) {
+		return (filterInvocation.getRequest() != null)
+				&& (filterInvocation.getRequest().getAttribute(FILTER_APPLIED) != null);
 	}
 
 	/**

@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -206,52 +207,39 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * </ol>
 	 */
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
-
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		if (!requiresAuthentication(request, response)) {
 			chain.doFilter(request, response);
-
 			return;
 		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Request is to process authentication");
-		}
-
-		Authentication authResult;
-
+		this.logger.debug("Request is to process authentication");
 		try {
-			authResult = attemptAuthentication(request, response);
-			if (authResult == null) {
+			Authentication authenticationResult = attemptAuthentication(request, response);
+			if (authenticationResult == null) {
 				// return immediately as subclass has indicated that it hasn't completed
-				// authentication
 				return;
 			}
-			this.sessionStrategy.onAuthentication(authResult, request, response);
+			this.sessionStrategy.onAuthentication(authenticationResult, request, response);
+			// Authentication success
+			if (this.continueChainBeforeSuccessfulAuthentication) {
+				chain.doFilter(request, response);
+			}
+			successfulAuthentication(request, response, chain, authenticationResult);
 		}
 		catch (InternalAuthenticationServiceException failed) {
 			this.logger.error("An internal error occurred while trying to authenticate the user.", failed);
 			unsuccessfulAuthentication(request, response, failed);
-
-			return;
 		}
-		catch (AuthenticationException failed) {
+		catch (AuthenticationException ex) {
 			// Authentication failed
-			unsuccessfulAuthentication(request, response, failed);
-
-			return;
+			unsuccessfulAuthentication(request, response, ex);
 		}
-
-		// Authentication success
-		if (this.continueChainBeforeSuccessfulAuthentication) {
-			chain.doFilter(request, response);
-		}
-
-		successfulAuthentication(request, response, chain, authResult);
 	}
 
 	/**
@@ -316,20 +304,13 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 */
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
-		}
-
+		this.logger.debug(
+				LogMessage.format("Authentication success. Updating SecurityContextHolder to contain: %s", authResult));
 		SecurityContextHolder.getContext().setAuthentication(authResult);
-
 		this.rememberMeServices.loginSuccess(request, response, authResult);
-
-		// Fire event
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
-
 		this.successHandler.onAuthenticationSuccess(request, response, authResult);
 	}
 
@@ -347,15 +328,12 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
-
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("Authentication request failed: " + failed.toString(), failed);
 			this.logger.debug("Updated SecurityContextHolder to contain null Authentication");
 			this.logger.debug("Delegating to authentication failure handler " + this.failureHandler);
 		}
-
 		this.rememberMeServices.loginFail(request, response);
-
 		this.failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 

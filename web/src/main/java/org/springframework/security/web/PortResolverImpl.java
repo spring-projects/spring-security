@@ -45,24 +45,19 @@ public class PortResolverImpl implements PortResolver {
 	@Override
 	public int getServerPort(ServletRequest request) {
 		int serverPort = request.getServerPort();
-		Integer portLookup = null;
-
 		String scheme = request.getScheme().toLowerCase();
+		Integer mappedPort = getMappedPort(serverPort, scheme);
+		return (mappedPort != null) ? mappedPort : serverPort;
+	}
 
+	private Integer getMappedPort(int serverPort, String scheme) {
 		if ("http".equals(scheme)) {
-			portLookup = this.portMapper.lookupHttpPort(serverPort);
-
+			return this.portMapper.lookupHttpPort(serverPort);
 		}
-		else if ("https".equals(scheme)) {
-			portLookup = this.portMapper.lookupHttpsPort(serverPort);
+		if ("https".equals(scheme)) {
+			return this.portMapper.lookupHttpsPort(serverPort);
 		}
-
-		if (portLookup != null) {
-			// IE 6 bug
-			serverPort = portLookup;
-		}
-
-		return serverPort;
+		return null;
 	}
 
 	public void setPortMapper(PortMapper portMapper) {

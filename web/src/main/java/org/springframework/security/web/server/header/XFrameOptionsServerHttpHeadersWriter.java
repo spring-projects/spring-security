@@ -18,6 +18,7 @@ package org.springframework.security.web.server.header;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
@@ -67,6 +68,7 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 		 * content in any frame.
 		 */
 		DENY,
+
 		/**
 		 * A browser receiving content with this header field MUST NOT display this
 		 * content in any frame from a page of different origin than the content itself.
@@ -79,9 +81,9 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 	}
 
 	private static ServerHttpHeadersWriter createDelegate(Mode mode) {
-		// @formatter:off
-		return StaticServerHttpHeadersWriter.builder().header(X_FRAME_OPTIONS, mode.name()).build();
-		// @formatter:on
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(X_FRAME_OPTIONS, mode.name());
+		return builder.build();
 
 	}
 

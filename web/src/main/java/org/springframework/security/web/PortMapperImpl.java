@@ -56,7 +56,6 @@ public class PortMapperImpl implements PortMapper {
 				return httpPort;
 			}
 		}
-
 		return null;
 	}
 
@@ -88,24 +87,19 @@ public class PortMapperImpl implements PortMapper {
 	 */
 	public void setPortMappings(Map<String, String> newMappings) {
 		Assert.notNull(newMappings, "A valid list of HTTPS port mappings must be provided");
-
 		this.httpsPortMappings.clear();
-
 		for (Map.Entry<String, String> entry : newMappings.entrySet()) {
 			Integer httpPort = Integer.valueOf(entry.getKey());
 			Integer httpsPort = Integer.valueOf(entry.getValue());
-
-			if ((httpPort < 1) || (httpPort > 65535) || (httpsPort < 1) || (httpsPort > 65535)) {
-				throw new IllegalArgumentException(
-						"one or both ports out of legal range: " + httpPort + ", " + httpsPort);
-			}
-
+			Assert.isTrue(isInPortRange(httpPort) && isInPortRange(httpsPort),
+					() -> "one or both ports out of legal range: " + httpPort + ", " + httpsPort);
 			this.httpsPortMappings.put(httpPort, httpsPort);
 		}
+		Assert.isTrue(!this.httpsPortMappings.isEmpty(), "must map at least one port");
+	}
 
-		if (this.httpsPortMappings.size() < 1) {
-			throw new IllegalArgumentException("must map at least one port");
-		}
+	private boolean isInPortRange(int port) {
+		return port >= 1 && port <= 65535;
 	}
 
 }

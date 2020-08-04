@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
@@ -101,7 +102,6 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 			HttpServletRequest request = event.getRequest();
 			HttpServletResponse response = event.getResponse();
 			SessionInformation info = event.getSessionInformation();
-
 			this.redirectStrategy.sendRedirect(request, response, determineExpiredUrl(request, info));
 		};
 	}
@@ -120,35 +120,30 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		HttpSession session = request.getSession(false);
-
 		if (session != null) {
 			SessionInformation info = this.sessionRegistry.getSessionInformation(session.getId());
-
 			if (info != null) {
 				if (info.isExpired()) {
 					// Expired - abort processing
-					if (this.logger.isDebugEnabled()) {
-						this.logger.debug("Requested session ID " + request.getRequestedSessionId() + " has expired.");
-					}
+					this.logger.debug(LogMessage
+							.of(() -> "Requested session ID " + request.getRequestedSessionId() + " has expired."));
 					doLogout(request, response);
-
 					this.sessionInformationExpiredStrategy
 							.onExpiredSessionDetected(new SessionInformationExpiredEvent(info, request, response));
 					return;
 				}
-				else {
-					// Non-expired - update last request date/time
-					this.sessionRegistry.refreshLastRequest(info.getSessionId());
-				}
+				// Non-expired - update last request date/time
+				this.sessionRegistry.refreshLastRequest(info.getSessionId());
 			}
 		}
-
 		chain.doFilter(request, response);
 	}
 

@@ -127,17 +127,13 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Mvc [pattern='").append(this.pattern).append("'");
-
 		if (this.servletPath != null) {
 			sb.append(", servletPath='").append(this.servletPath).append("'");
 		}
-
 		if (this.method != null) {
 			sb.append(", ").append(this.method);
 		}
-
 		sb.append("]");
-
 		return sb.toString();
 	}
 
