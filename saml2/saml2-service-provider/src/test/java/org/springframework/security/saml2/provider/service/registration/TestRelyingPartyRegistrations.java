@@ -48,5 +48,13 @@ public class TestRelyingPartyRegistrations {
 						.credentials(c -> c.add(verificationCertificate));
 	}
 
-
+	public static RelyingPartyRegistration.Builder noCredentials() {
+		return RelyingPartyRegistration.withRegistrationId("registration-id")
+				.entityId("rp-entity-id")
+				.assertionConsumerServiceLocation("https://rp.example.org/acs")
+				.assertingPartyDetails(party -> party
+						.entityId("ap-entity-id")
+						.singleSignOnServiceLocation("https://ap.example.org/sso")
+				);
+	}
 }

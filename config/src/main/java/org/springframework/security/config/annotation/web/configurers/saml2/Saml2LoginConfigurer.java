@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
@@ -38,6 +39,8 @@ import org.springframework.security.saml2.provider.service.servlet.filter.Saml2W
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -106,9 +109,24 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 
 	private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
+	private AuthenticationConverter authenticationConverter;
 	private AuthenticationManager authenticationManager;
 
 	private Saml2WebSsoAuthenticationFilter saml2WebSsoAuthenticationFilter;
+
+	/**
+	 * Use this {@link AuthenticationConverter} when converting incoming requests to an {@link Authentication}.
+	 * By default the {@link Saml2AuthenticationTokenConverter} is used.
+	 *
+	 * @param authenticationConverter the {@link AuthenticationConverter} to use
+	 * @return the {@link Saml2LoginConfigurer} for further configuration
+	 * @since 5.4
+	 */
+	public Saml2LoginConfigurer<B> authenticationConverter(AuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
+		return this;
+	}
 
 	/**
 	 * Allows a configuration of a {@link AuthenticationManager} to be used during SAML 2 authentication.
@@ -187,7 +205,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 		}
 
 		saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(
-				this.relyingPartyRegistrationRepository,
+				getAuthenticationConverter(http),
 				this.loginProcessingUrl
 		);
 		setAuthenticationFilter(saml2WebSsoAuthenticationFilter);
@@ -239,6 +257,14 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 		else {
 			saml2WebSsoAuthenticationFilter.setAuthenticationManager(this.authenticationManager);
 		}
+	}
+
+	private AuthenticationConverter getAuthenticationConverter(B http) {
+		if (this.authenticationConverter == null) {
+			return new Saml2AuthenticationTokenConverter(
+					new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository));
+		}
+		return this.authenticationConverter;
 	}
 
 	private void registerDefaultAuthenticationProvider(B http) {

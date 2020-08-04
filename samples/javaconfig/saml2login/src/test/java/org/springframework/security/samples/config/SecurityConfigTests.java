@@ -55,7 +55,7 @@ public class SecurityConfigTests {
 				)
 				.findFirst()
 				.get();
-		for (String field : Arrays.asList("requiresAuthenticationRequestMatcher", "matcher")) {
+		for (String field : Arrays.asList("requiresAuthenticationRequestMatcher")) {
 			final Object matcher = ReflectionTestUtils.getField(filter, field);
 			final Object pattern = ReflectionTestUtils.getField(matcher, "pattern");
 			Assert.assertEquals("loginProcessingUrl mismatch", "/sample/jc/saml2/sso/{registrationId}", pattern);
