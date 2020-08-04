@@ -47,7 +47,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -345,7 +344,7 @@ public class NimbusReactiveJwtDecoderTests {
 				.jwtProcessorCustomizer(
 						(p) -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
 				.build();
-		AssertionsForClassTypes.assertThatCode(() -> decoder.decode(this.rsa256).block())
+		assertThatCode(() -> decoder.decode(this.rsa256).block())
 				.isInstanceOf(BadJwtException.class)
 				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
 	}
