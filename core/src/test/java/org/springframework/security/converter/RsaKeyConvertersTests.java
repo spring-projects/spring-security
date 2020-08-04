@@ -24,10 +24,11 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Test;
 
 import org.springframework.core.convert.converter.Converter;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link RsaKeyConverters}
@@ -98,7 +99,7 @@ public class RsaKeyConvertersTests {
 
 	@Test
 	public void pkcs8WhenConvertingPkcs1PrivateKeyThenIllegalArgumentException() {
-		AssertionsForClassTypes.assertThatCode(() -> this.pkcs8.convert(toInputStream(PKCS1_PRIVATE_KEY)))
+		assertThatCode(() -> this.pkcs8.convert(toInputStream(PKCS1_PRIVATE_KEY)))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -110,7 +111,7 @@ public class RsaKeyConvertersTests {
 
 	@Test
 	public void x509WhenConvertingDerEncodedX509PublicKeyThenIllegalArgumentException() {
-		AssertionsForClassTypes.assertThatCode(() -> this.x509.convert(toInputStream(MALFORMED_X509_KEY)))
+		assertThatCode(() -> this.x509.convert(toInputStream(MALFORMED_X509_KEY)))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 

@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +34,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -200,8 +200,7 @@ public class EnableReactiveMethodSecurityTests {
 		given(this.delegate.fluxPreAuthorizeHasRoleFindById(1L)).willReturn(Flux.just("result"));
 		Flux<String> findById = this.messageService.fluxPreAuthorizeHasRoleFindById(1L)
 				.subscriberContext(this.withAdmin);
-		StepVerifier.create(findById).consumeNextWith((s) -> AssertionsForClassTypes.assertThat(s).isEqualTo("result"))
-				.verifyComplete();
+		StepVerifier.create(findById).consumeNextWith((s) -> assertThat(s).isEqualTo("result")).verifyComplete();
 	}
 
 	@Test
@@ -305,8 +304,7 @@ public class EnableReactiveMethodSecurityTests {
 		given(this.delegate.publisherPreAuthorizeHasRoleFindById(1L)).willReturn(publisherJust("result"));
 		Publisher<String> findById = Flux.from(this.messageService.publisherPreAuthorizeHasRoleFindById(1L))
 				.subscriberContext(this.withAdmin);
-		StepVerifier.create(findById).consumeNextWith((s) -> AssertionsForClassTypes.assertThat(s).isEqualTo("result"))
-				.verifyComplete();
+		StepVerifier.create(findById).consumeNextWith((s) -> assertThat(s).isEqualTo("result")).verifyComplete();
 	}
 
 	@Test
