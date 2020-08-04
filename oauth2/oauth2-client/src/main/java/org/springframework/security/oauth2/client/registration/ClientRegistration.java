@@ -47,7 +47,7 @@ public final class ClientRegistration implements Serializable {
 	private String registrationId;
 	private String clientId;
 	private String clientSecret;
-	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
+	private ClientAuthenticationMethod clientAuthenticationMethod;
 	private AuthorizationGrantType authorizationGrantType;
 	private String redirectUriTemplate;
 	private Set<String> scopes = Collections.emptySet();
@@ -298,7 +298,7 @@ public final class ClientRegistration implements Serializable {
 		private String registrationId;
 		private String clientId;
 		private String clientSecret;
-		private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
+		private ClientAuthenticationMethod clientAuthenticationMethod;
 		private AuthorizationGrantType authorizationGrantType;
 		private String redirectUriTemplate;
 		private Set<String> scopes;
@@ -564,12 +564,16 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.registrationId = this.registrationId;
 			clientRegistration.clientId = this.clientId;
 			clientRegistration.clientSecret = StringUtils.hasText(this.clientSecret) ? this.clientSecret : "";
-			clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
-			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType) &&
-					!StringUtils.hasText(this.clientSecret)) {
-				clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.NONE;
+			if (this.clientAuthenticationMethod != null) {
+				clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
+			} else {
+				if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType) &&
+						!StringUtils.hasText(this.clientSecret)) {
+					clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.NONE;
+				} else {
+					clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
+				}
 			}
-
 			clientRegistration.authorizationGrantType = this.authorizationGrantType;
 			clientRegistration.redirectUriTemplate = this.redirectUriTemplate;
 			clientRegistration.scopes = this.scopes;

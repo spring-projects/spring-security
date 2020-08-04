@@ -315,6 +315,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	private OAuth2AuthorizationCodeGrantRequest pkceAuthorizationCodeGrantRequest() {
 		ClientRegistration registration = this.clientRegistration
+				.clientAuthenticationMethod(null)
 				.clientSecret(null)
 				.build();
 

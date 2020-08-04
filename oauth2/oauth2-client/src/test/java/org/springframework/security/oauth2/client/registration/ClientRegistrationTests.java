@@ -771,4 +771,19 @@ public class ClientRegistrationTests {
 		assertThat(updated.getProviderDetails().getConfigurationMetadata())
 				.containsOnlyKeys("a-new-config").containsValue("a-new-value");
 	}
+
+	// gh-8903
+	@Test
+	public void buildWhenCustomClientAuthenticationMethodProvidedThenSet() {
+		ClientAuthenticationMethod clientAuthenticationMethod = new ClientAuthenticationMethod("tls_client_auth");
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.clientAuthenticationMethod(clientAuthenticationMethod)
+				.redirectUriTemplate(REDIRECT_URI)
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.build();
+		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(clientAuthenticationMethod);
+	}
 }
