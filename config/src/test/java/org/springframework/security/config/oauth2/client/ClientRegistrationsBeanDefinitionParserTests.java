@@ -151,7 +151,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getClientSecret()).isEqualTo("google-client-secret");
 		assertThat(googleRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(googleRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(googleRegistration.getRedirectUriTemplate()).isEqualTo("{baseUrl}/{action}/oauth2/code/{registrationId}");
+		assertThat(googleRegistration.getRedirectUri()).isEqualTo("{baseUrl}/{action}/oauth2/code/{registrationId}");
 		assertThat(googleRegistration.getScopes()).isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
 		assertThat(googleRegistration.getClientName()).isEqualTo(serverUrl);
 
@@ -181,7 +181,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getClientSecret()).isEqualTo("google-client-secret");
 		assertThat(googleRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(googleRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(googleRegistration.getRedirectUriTemplate()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}");
+		assertThat(googleRegistration.getRedirectUri()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}");
 		assertThat(googleRegistration.getScopes()).isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
 		assertThat(googleRegistration.getClientName()).isEqualTo("Google");
 
@@ -205,7 +205,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(githubRegistration.getClientSecret()).isEqualTo("github-client-secret");
 		assertThat(githubRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(githubRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(githubRegistration.getRedirectUriTemplate()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}");
+		assertThat(githubRegistration.getRedirectUri()).isEqualTo("{baseUrl}/login/oauth2/code/{registrationId}");
 		assertThat(googleRegistration.getScopes()).isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
 		assertThat(githubRegistration.getClientName()).isEqualTo("Github");
 

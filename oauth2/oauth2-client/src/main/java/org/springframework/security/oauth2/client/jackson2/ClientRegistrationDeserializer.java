@@ -67,7 +67,7 @@ final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegist
 				.authorizationGrantType(
 						AUTHORIZATION_GRANT_TYPE_CONVERTER.convert(
 								findObjectNode(clientRegistrationNode, "authorizationGrantType")))
-				.redirectUriTemplate(findStringValue(clientRegistrationNode, "redirectUriTemplate"))
+				.redirectUri(findStringValue(clientRegistrationNode, "redirectUri"))
 				.scope(findValue(clientRegistrationNode, "scopes", SET_TYPE_REFERENCE, mapper))
 				.clientName(findStringValue(clientRegistrationNode, "clientName"))
 				.authorizationUri(findStringValue(providerDetailsNode, "authorizationUri"))

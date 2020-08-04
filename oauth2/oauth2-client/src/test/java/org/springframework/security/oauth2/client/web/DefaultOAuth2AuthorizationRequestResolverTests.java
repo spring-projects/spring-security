@@ -184,7 +184,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
 		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
-				clientRegistration.getRedirectUriTemplate());
+				clientRegistration.getRedirectUri());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
@@ -198,7 +198,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUri());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"http://localhost:8080/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
@@ -213,7 +213,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUri());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"https://localhost:8081/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
@@ -228,7 +228,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUri());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
@@ -243,7 +243,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUri());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"https://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
@@ -258,7 +258,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUri());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"https://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
@@ -274,7 +274,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
 		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(
-				clientRegistration.getRedirectUriTemplate());
+				clientRegistration.getRedirectUri());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
@@ -518,7 +518,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 	private static ClientRegistration.Builder fineRedirectUriTemplateClientRegistration() {
 		return ClientRegistration.withRegistrationId("fine-redirect-uri-template-client-registration")
-				.redirectUriTemplate("{baseScheme}://{baseHost}{basePort}{basePath}/{action}/oauth2/code/{registrationId}")
+				.redirectUri("{baseScheme}://{baseHost}{basePort}{basePath}/{action}/oauth2/code/{registrationId}")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.scope("read:user")

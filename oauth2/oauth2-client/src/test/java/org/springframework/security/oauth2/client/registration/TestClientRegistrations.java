@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 public class TestClientRegistrations {
 	public static ClientRegistration.Builder clientRegistration() {
 		return ClientRegistration.withRegistrationId("registration-id")
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
+			.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.scope("read:user")
@@ -43,7 +43,7 @@ public class TestClientRegistrations {
 
 	public static ClientRegistration.Builder clientRegistration2() {
 		return ClientRegistration.withRegistrationId("registration-id-2")
-				.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
+				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.scope("read:user")

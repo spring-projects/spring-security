@@ -101,7 +101,7 @@ public enum CommonOAuth2Provider {
 		ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(registrationId);
 		builder.clientAuthenticationMethod(method);
 		builder.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
-		builder.redirectUriTemplate(redirectUri);
+		builder.redirectUri(redirectUri);
 		return builder;
 	}
 

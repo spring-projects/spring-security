@@ -60,7 +60,7 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 			Instant.now().plus(Duration.ofDays(1)));
 
 	private ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(this.clientRegistrationId)
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
+			.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.scope("read:user")

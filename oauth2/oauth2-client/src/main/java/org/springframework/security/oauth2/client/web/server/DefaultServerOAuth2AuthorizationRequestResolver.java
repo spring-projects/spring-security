@@ -184,7 +184,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 	}
 
 	/**
-	 * Expands the {@link ClientRegistration#getRedirectUriTemplate()} with following provided variables:<br/>
+	 * Expands the {@link ClientRegistration#getRedirectUri()} with following provided variables:<br/>
 	 * - baseUrl (e.g. https://localhost/app) <br/>
 	 * - baseScheme (e.g. https) <br/>
 	 * - baseHost (e.g. localhost) <br/>
@@ -195,7 +195,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 	 * <p/>
 	 * Null variables are provided as empty strings.
 	 * <p/>
-	 * Default redirectUriTemplate is: {@link org.springframework.security.config.oauth2.client}.CommonOAuth2Provider#DEFAULT_REDIRECT_URL
+	 * Default redirectUri is: {@code org.springframework.security.config.oauth2.client.CommonOAuth2Provider#DEFAULT_REDIRECT_URL}
 	 *
 	 * @return expanded URI
 	 */
@@ -230,7 +230,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 		}
 		uriVariables.put("action", action);
 
-		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
+		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
 				.buildAndExpand(uriVariables)
 				.toUriString();
 	}

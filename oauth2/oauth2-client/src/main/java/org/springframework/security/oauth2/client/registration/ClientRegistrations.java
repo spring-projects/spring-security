@@ -244,7 +244,7 @@ public final class ClientRegistrations {
 				.scope(scopes)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.clientAuthenticationMethod(method)
-				.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
+				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.authorizationUri(metadata.getAuthorizationEndpointURI().toASCIIString())
 				.providerConfigurationMetadata(configurationMetadata)
 				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())

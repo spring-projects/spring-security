@@ -67,7 +67,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(null)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
@@ -84,7 +84,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
@@ -100,7 +100,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
-		assertThat(registration.getRedirectUriTemplate()).isEqualTo(REDIRECT_URI);
+		assertThat(registration.getRedirectUri()).isEqualTo(REDIRECT_URI);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
@@ -118,7 +118,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
@@ -135,7 +135,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
@@ -152,7 +152,7 @@ public class ClientRegistrationTests {
 				.clientSecret(null)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
@@ -169,7 +169,7 @@ public class ClientRegistrationTests {
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
@@ -186,7 +186,7 @@ public class ClientRegistrationTests {
 				.clientId(CLIENT_ID)
 				.clientSecret(null)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
@@ -203,7 +203,7 @@ public class ClientRegistrationTests {
 				.clientId(CLIENT_ID)
 				.clientSecret(" ")
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
@@ -222,7 +222,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(null)
+			.redirectUri(null)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
@@ -240,7 +240,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope((String[]) null)
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI)
@@ -257,7 +257,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(null)
 			.tokenUri(TOKEN_URI)
@@ -274,7 +274,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(null)
@@ -291,7 +291,7 @@ public class ClientRegistrationTests {
 				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
@@ -308,7 +308,7 @@ public class ClientRegistrationTests {
 			.clientSecret(CLIENT_SECRET)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope("scope1")
 			.authorizationUri(AUTHORIZATION_URI)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
@@ -325,7 +325,7 @@ public class ClientRegistrationTests {
 				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
 				.clientName(CLIENT_NAME)
@@ -339,7 +339,7 @@ public class ClientRegistrationTests {
 				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
@@ -359,7 +359,7 @@ public class ClientRegistrationTests {
 				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
@@ -377,7 +377,7 @@ public class ClientRegistrationTests {
 		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
@@ -387,7 +387,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
 		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.IMPLICIT);
-		assertThat(registration.getRedirectUriTemplate()).isEqualTo(REDIRECT_URI);
+		assertThat(registration.getRedirectUri()).isEqualTo(REDIRECT_URI);
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
 		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(AuthenticationMethod.FORM);
@@ -399,7 +399,7 @@ public class ClientRegistrationTests {
 		ClientRegistration.withRegistrationId(null)
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
@@ -412,7 +412,7 @@ public class ClientRegistrationTests {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(null)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
@@ -425,7 +425,7 @@ public class ClientRegistrationTests {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-			.redirectUriTemplate(null)
+			.redirectUri(null)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(AUTHORIZATION_URI)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
@@ -439,7 +439,7 @@ public class ClientRegistrationTests {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope((String[]) null)
 			.authorizationUri(AUTHORIZATION_URI)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
@@ -452,7 +452,7 @@ public class ClientRegistrationTests {
 		ClientRegistration.withRegistrationId(REGISTRATION_ID)
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-			.redirectUriTemplate(REDIRECT_URI)
+			.redirectUri(REDIRECT_URI)
 			.scope(SCOPES.toArray(new String[0]))
 			.authorizationUri(null)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
@@ -465,7 +465,7 @@ public class ClientRegistrationTests {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
 				.clientId(CLIENT_ID)
 				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
@@ -482,7 +482,7 @@ public class ClientRegistrationTests {
 				.clientSecret(CLIENT_SECRET)
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.scope(SCOPES.toArray(new String[0]))
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
@@ -726,8 +726,8 @@ public class ClientRegistrationTests {
 				.isEqualTo(updated.getClientAuthenticationMethod());
 		assertThat(clientRegistration.getAuthorizationGrantType())
 				.isEqualTo(updated.getAuthorizationGrantType());
-		assertThat(clientRegistration.getRedirectUriTemplate())
-				.isEqualTo(updated.getRedirectUriTemplate());
+		assertThat(clientRegistration.getRedirectUri())
+				.isEqualTo(updated.getRedirectUri());
 		assertThat(clientRegistration.getScopes()).isEqualTo(updated.getScopes());
 
 		ClientRegistration.ProviderDetails providerDetails = clientRegistration.getProviderDetails();
@@ -780,7 +780,7 @@ public class ClientRegistrationTests {
 				.clientId(CLIENT_ID)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.clientAuthenticationMethod(clientAuthenticationMethod)
-				.redirectUriTemplate(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI)
 				.authorizationUri(AUTHORIZATION_URI)
 				.tokenUri(TOKEN_URI)
 				.build();

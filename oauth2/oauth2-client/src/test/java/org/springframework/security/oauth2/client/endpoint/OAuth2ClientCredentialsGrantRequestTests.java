@@ -55,7 +55,7 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("registration-1")
 				.clientId("client-1")
 				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-				.redirectUriTemplate("https://localhost:8080/redirect-uri")
+				.redirectUri("https://localhost:8080/redirect-uri")
 				.authorizationUri("https://provider.com/oauth2/auth")
 				.clientName("Client 1")
 				.build();

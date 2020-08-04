@@ -106,7 +106,7 @@ public class OAuth2ClientConfigurerTests {
 			.clientSecret("secret")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/client-1")
+			.redirectUri("{baseUrl}/client-1")
 			.scope("user")
 			.authorizationUri("https://provider.com/oauth2/authorize")
 			.tokenUri("https://provider.com/oauth2/token")

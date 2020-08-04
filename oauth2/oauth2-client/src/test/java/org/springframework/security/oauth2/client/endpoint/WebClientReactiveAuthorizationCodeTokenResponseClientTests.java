@@ -252,13 +252,13 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 				.clientId(registration.getClientId())
 				.state("state")
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(registration.getRedirectUriTemplate())
+				.redirectUri(registration.getRedirectUri())
 				.scopes(registration.getScopes())
 				.build();
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponse
 				.success("code")
 				.state("state")
-				.redirectUri(registration.getRedirectUriTemplate())
+				.redirectUri(registration.getRedirectUri())
 				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);
@@ -331,7 +331,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 				.clientId(registration.getClientId())
 				.state("state")
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(registration.getRedirectUriTemplate())
+				.redirectUri(registration.getRedirectUri())
 				.scopes(registration.getScopes())
 				.attributes(attributes)
 				.additionalParameters(additionalParameters)
@@ -339,7 +339,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponse
 				.success("code")
 				.state("state")
-				.redirectUri(registration.getRedirectUriTemplate())
+				.redirectUri(registration.getRedirectUri())
 				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);

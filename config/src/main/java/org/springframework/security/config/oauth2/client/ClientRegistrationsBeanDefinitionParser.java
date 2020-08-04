@@ -114,7 +114,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 					.map(AuthorizationGrantType::new)
 					.ifPresent(builder::authorizationGrantType);
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_REDIRECT_URI))
-					.ifPresent(builder::redirectUriTemplate);
+					.ifPresent(builder::redirectUri);
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_SCOPE))
 					.map(StringUtils::commaDelimitedListToSet)
 					.ifPresent(builder::scope);

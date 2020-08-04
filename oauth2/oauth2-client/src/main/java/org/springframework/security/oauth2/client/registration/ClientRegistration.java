@@ -49,7 +49,7 @@ public final class ClientRegistration implements Serializable {
 	private String clientSecret;
 	private ClientAuthenticationMethod clientAuthenticationMethod;
 	private AuthorizationGrantType authorizationGrantType;
-	private String redirectUriTemplate;
+	private String redirectUri;
 	private Set<String> scopes = Collections.emptySet();
 	private ProviderDetails providerDetails = new ProviderDetails();
 	private String clientName;
@@ -106,10 +106,32 @@ public final class ClientRegistration implements Serializable {
 	/**
 	 * Returns the uri (or uri template) for the redirection endpoint.
 	 *
-	 * @return the uri for the redirection endpoint
+	 * @deprecated Use {@link #getRedirectUri()} instead
+	 * @return the uri (or uri template) for the redirection endpoint
 	 */
+	@Deprecated
 	public String getRedirectUriTemplate() {
-		return this.redirectUriTemplate;
+		return getRedirectUri();
+	}
+
+	/**
+	 * Returns the uri (or uri template) for the redirection endpoint.
+	 *
+	 * <br />
+	 * The supported uri template variables are: {baseScheme}, {baseHost}, {basePort}, {basePath} and {registrationId}.
+	 *
+	 * <br />
+	 * <b>NOTE:</b> {baseUrl} is also supported, which is the same as {baseScheme}://{baseHost}{basePort}{basePath}.
+	 *
+	 * <br />
+	 * Configuring uri template variables is especially useful when the client is running behind a Proxy Server.
+	 * This ensures that the X-Forwarded-* headers are used when expanding the redirect-uri.
+	 *
+	 * @since 5.4
+	 * @return the uri (or uri template) for the redirection endpoint
+	 */
+	public String getRedirectUri() {
+		return this.redirectUri;
 	}
 
 	/**
@@ -147,7 +169,7 @@ public final class ClientRegistration implements Serializable {
 			+ ", clientSecret='" + this.clientSecret + '\''
 			+ ", clientAuthenticationMethod=" + this.clientAuthenticationMethod
 			+ ", authorizationGrantType=" + this.authorizationGrantType
-			+ ", redirectUriTemplate='" + this.redirectUriTemplate + '\''
+			+ ", redirectUri='" + this.redirectUri + '\''
 			+ ", scopes=" + this.scopes
 			+ ", providerDetails=" + this.providerDetails
 			+ ", clientName='" + this.clientName
@@ -300,7 +322,7 @@ public final class ClientRegistration implements Serializable {
 		private String clientSecret;
 		private ClientAuthenticationMethod clientAuthenticationMethod;
 		private AuthorizationGrantType authorizationGrantType;
-		private String redirectUriTemplate;
+		private String redirectUri;
 		private Set<String> scopes;
 		private String authorizationUri;
 		private String tokenUri;
@@ -322,7 +344,7 @@ public final class ClientRegistration implements Serializable {
 			this.clientSecret = clientRegistration.clientSecret;
 			this.clientAuthenticationMethod = clientRegistration.clientAuthenticationMethod;
 			this.authorizationGrantType = clientRegistration.authorizationGrantType;
-			this.redirectUriTemplate = clientRegistration.redirectUriTemplate;
+			this.redirectUri = clientRegistration.redirectUri;
 			this.scopes = clientRegistration.scopes == null ? null : new HashSet<>(clientRegistration.scopes);
 			this.authorizationUri = clientRegistration.providerDetails.authorizationUri;
 			this.tokenUri = clientRegistration.providerDetails.tokenUri;
@@ -397,11 +419,34 @@ public final class ClientRegistration implements Serializable {
 		/**
 		 * Sets the uri (or uri template) for the redirection endpoint.
 		 *
-		 * @param redirectUriTemplate the uri for the redirection endpoint
+		 * @deprecated Use {@link #redirectUri(String)} instead
+		 * @param redirectUriTemplate the uri (or uri template) for the redirection endpoint
 		 * @return the {@link Builder}
 		 */
+		@Deprecated
 		public Builder redirectUriTemplate(String redirectUriTemplate) {
-			this.redirectUriTemplate = redirectUriTemplate;
+			return redirectUri(redirectUriTemplate);
+		}
+
+		/**
+		 * Sets the uri (or uri template) for the redirection endpoint.
+		 *
+		 * <br />
+		 * The supported uri template variables are: {baseScheme}, {baseHost}, {basePort}, {basePath} and {registrationId}.
+		 *
+		 * <br />
+		 * <b>NOTE:</b> {baseUrl} is also supported, which is the same as {baseScheme}://{baseHost}{basePort}{basePath}.
+		 *
+		 * <br />
+		 * Configuring uri template variables is especially useful when the client is running behind a Proxy Server.
+		 * This ensures that the X-Forwarded-* headers are used when expanding the redirect-uri.
+		 *
+		 * @since 5.4
+		 * @param redirectUri the uri (or uri template) for the redirection endpoint
+		 * @return the {@link Builder}
+		 */
+		public Builder redirectUri(String redirectUri) {
+			this.redirectUri = redirectUri;
 			return this;
 		}
 
@@ -575,7 +620,7 @@ public final class ClientRegistration implements Serializable {
 				}
 			}
 			clientRegistration.authorizationGrantType = this.authorizationGrantType;
-			clientRegistration.redirectUriTemplate = this.redirectUriTemplate;
+			clientRegistration.redirectUri = this.redirectUri;
 			clientRegistration.scopes = this.scopes;
 
 			ProviderDetails providerDetails = clientRegistration.new ProviderDetails();
@@ -600,7 +645,7 @@ public final class ClientRegistration implements Serializable {
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
+			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
 		}
@@ -610,7 +655,7 @@ public final class ClientRegistration implements Serializable {
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.IMPLICIT.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.hasText(this.redirectUriTemplate, "redirectUriTemplate cannot be empty");
+			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 		}
 

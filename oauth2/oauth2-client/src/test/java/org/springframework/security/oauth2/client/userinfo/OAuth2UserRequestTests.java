@@ -48,7 +48,7 @@ public class OAuth2UserRequestTests {
 				.clientSecret("secret")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate("https://client.com")
+				.redirectUri("https://client.com")
 				.scope(new LinkedHashSet<>(Arrays.asList("scope1", "scope2")))
 				.authorizationUri("https://provider.com/oauth2/authorization")
 				.tokenUri("https://provider.com/oauth2/token")

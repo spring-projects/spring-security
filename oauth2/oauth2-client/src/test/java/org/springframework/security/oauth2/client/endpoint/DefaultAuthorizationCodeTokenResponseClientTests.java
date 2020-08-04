@@ -61,7 +61,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 				.clientSecret("secret")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate("https://client.com/callback/client-1")
+				.redirectUri("https://client.com/callback/client-1")
 				.scope("read", "write")
 				.authorizationUri("https://provider.com/oauth2/authorize")
 				.tokenUri(tokenUri)
@@ -295,13 +295,13 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 				.clientId(clientRegistration.getClientId())
 				.state("state-1234")
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(clientRegistration.getRedirectUriTemplate())
+				.redirectUri(clientRegistration.getRedirectUri())
 				.scopes(clientRegistration.getScopes())
 				.build();
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponse
 				.success("code-1234")
 				.state("state-1234")
-				.redirectUri(clientRegistration.getRedirectUriTemplate())
+				.redirectUri(clientRegistration.getRedirectUri())
 				.build();
 		OAuth2AuthorizationExchange authorizationExchange =
 				new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse);
@@ -320,7 +320,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 				.clientSecret(registration.getClientSecret())
 				.clientAuthenticationMethod(registration.getClientAuthenticationMethod())
 				.authorizationGrantType(registration.getAuthorizationGrantType())
-				.redirectUriTemplate(registration.getRedirectUriTemplate())
+				.redirectUri(registration.getRedirectUri())
 				.scope(registration.getScopes())
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
 				.tokenUri(registration.getProviderDetails().getTokenUri())

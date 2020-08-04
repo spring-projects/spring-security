@@ -114,7 +114,7 @@ The following table outlines the mapping of the Spring Boot 2.x OAuth Client pro
 |`authorizationGrantType`
 
 |`spring.security.oauth2.client.registration._[registrationId]_.redirect-uri`
-|`redirectUriTemplate`
+|`redirectUri`
 
 |`spring.security.oauth2.client.registration._[registrationId]_.scope`
 |`scopes`
@@ -266,7 +266,7 @@ public class OAuth2LoginConfig {
 			.clientSecret("google-client-secret")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+			.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
 			.scope("openid", "profile", "email", "address", "phone")
 			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
 			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
@@ -360,7 +360,7 @@ public class OAuth2LoginConfig {
 			.clientSecret("google-client-secret")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+			.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
 			.scope("openid", "profile", "email", "address", "phone")
 			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
 			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
@@ -403,7 +403,7 @@ class OAuth2LoginConfig {
                 .clientSecret("google-client-secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+                .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
                 .scope("openid", "profile", "email", "address", "phone")
                 .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
                 .tokenUri("https://www.googleapis.com/oauth2/v4/token")
@@ -854,7 +854,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 
 [IMPORTANT]
 ====
-You also need to ensure the `ClientRegistration.redirectUriTemplate` matches the custom Authorization Response `baseUri`.
+You also need to ensure the `ClientRegistration.redirectUri` matches the custom Authorization Response `baseUri`.
 
 The following listing shows an example:
 
@@ -863,7 +863,7 @@ The following listing shows an example:
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 	.clientId("google-client-id")
 	.clientSecret("google-client-secret")
-	.redirectUriTemplate("{baseUrl}/login/oauth2/callback/{registrationId}")
+	.redirectUri("{baseUrl}/login/oauth2/callback/{registrationId}")
 	.build();
 ----
 ====

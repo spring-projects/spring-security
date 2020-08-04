@@ -65,7 +65,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		this.registration3 = TestClientRegistrations.clientRegistration()
 			.registrationId("registration-3")
 			.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-			.redirectUriTemplate("{baseUrl}/authorize/oauth2/implicit/{registrationId}")
+			.redirectUri("{baseUrl}/authorize/oauth2/implicit/{registrationId}")
 			.build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
 			this.registration1, this.registration2, this.registration3);

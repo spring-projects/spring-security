@@ -124,8 +124,8 @@ public class OAuth2AuthorizedClientMixinTests {
 				.isEqualTo(expectedClientRegistration.getClientAuthenticationMethod());
 		assertThat(clientRegistration.getAuthorizationGrantType())
 				.isEqualTo(expectedClientRegistration.getAuthorizationGrantType());
-		assertThat(clientRegistration.getRedirectUriTemplate())
-				.isEqualTo(expectedClientRegistration.getRedirectUriTemplate());
+		assertThat(clientRegistration.getRedirectUri())
+				.isEqualTo(expectedClientRegistration.getRedirectUri());
 		assertThat(clientRegistration.getScopes())
 				.isEqualTo(expectedClientRegistration.getScopes());
 		assertThat(clientRegistration.getProviderDetails().getAuthorizationUri())
@@ -194,8 +194,8 @@ public class OAuth2AuthorizedClientMixinTests {
 				.isEqualTo(expectedClientRegistration.getClientAuthenticationMethod());
 		assertThat(clientRegistration.getAuthorizationGrantType())
 				.isEqualTo(expectedClientRegistration.getAuthorizationGrantType());
-		assertThat(clientRegistration.getRedirectUriTemplate())
-				.isEqualTo(expectedClientRegistration.getRedirectUriTemplate());
+		assertThat(clientRegistration.getRedirectUri())
+				.isEqualTo(expectedClientRegistration.getRedirectUri());
 		assertThat(clientRegistration.getScopes())
 				.isEqualTo(expectedClientRegistration.getScopes());
 		assertThat(clientRegistration.getProviderDetails().getAuthorizationUri())
@@ -263,7 +263,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				"    \"authorizationGrantType\": {\n" +
 				"      \"value\": \"" + clientRegistration.getAuthorizationGrantType().getValue() + "\"\n" +
 				"    },\n" +
-				"    \"redirectUriTemplate\": \"" + clientRegistration.getRedirectUriTemplate() + "\",\n" +
+				"    \"redirectUri\": \"" + clientRegistration.getRedirectUri() + "\",\n" +
 				"    \"scopes\": [\n" +
 				"      \"java.util.Collections$UnmodifiableSet\",\n" +
 				"      [" + scopes + "]\n" +

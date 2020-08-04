@@ -57,7 +57,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTest {
 	private String clientRegistrationId = "github";
 
 	private ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(this.clientRegistrationId)
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
+			.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.scope("read:user")

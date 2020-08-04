@@ -213,7 +213,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 				.clientSecret("secret")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+				.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
 				.scope("user")
 				.authorizationUri("https://provider.com/oauth2/authorize")
 				.tokenUri("https://provider.com/oauth2/token")
@@ -455,7 +455,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		uriVariables.put("action", "login");
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
-		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
+		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
 				.buildAndExpand(uriVariables)
 				.toUriString();
 	}

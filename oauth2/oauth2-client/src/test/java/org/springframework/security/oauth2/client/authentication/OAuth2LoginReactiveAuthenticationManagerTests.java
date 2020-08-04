@@ -215,11 +215,11 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 				.state("state")
 				.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(clientRegistration.getRedirectUriTemplate())
+				.redirectUri(clientRegistration.getRedirectUri())
 				.scopes(clientRegistration.getScopes())
 				.build();
 		OAuth2AuthorizationResponse authorizationResponse = this.authorizationResponseBldr
-				.redirectUri(clientRegistration.getRedirectUriTemplate())
+				.redirectUri(clientRegistration.getRedirectUri())
 				.build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
 				authorizationResponse);

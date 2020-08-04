@@ -114,7 +114,7 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		ClientRegistration clientRegistration = CommonOAuth2Provider.GOOGLE.getBuilder("google")
 				.clientId("google-client-id")
 				.clientSecret("google-client-secret")
-				.redirectUriTemplate("http://localhost/callback/google")
+				.redirectUri("http://localhost/callback/google")
 				.scope("scope1", "scope2")
 				.build();
 		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(clientRegistration);
@@ -238,7 +238,7 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		return OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.clientId(clientRegistration.getClientId())
-				.redirectUri(clientRegistration.getRedirectUriTemplate())
+				.redirectUri(clientRegistration.getRedirectUri())
 				.scopes(clientRegistration.getScopes())
 				.state("state")
 				.attributes(attributes)

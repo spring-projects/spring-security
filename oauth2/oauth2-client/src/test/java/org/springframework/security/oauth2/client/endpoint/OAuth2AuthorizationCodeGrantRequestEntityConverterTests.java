@@ -51,7 +51,7 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 				.clientSecret("secret")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate("https://client.com/callback/client-1")
+				.redirectUri("https://client.com/callback/client-1")
 				.scope("read", "write")
 				.authorizationUri("https://provider.com/oauth2/authorize")
 				.tokenUri("https://provider.com/oauth2/token")
@@ -99,7 +99,7 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.CODE)).isEqualTo("code-1234");
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.CLIENT_ID)).isNull();
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.REDIRECT_URI)).isEqualTo(
-				clientRegistration.getRedirectUriTemplate());
+				clientRegistration.getRedirectUri());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -145,7 +145,7 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 				AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.CODE)).isEqualTo("code-1234");
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.REDIRECT_URI)).isEqualTo(
-				clientRegistration.getRedirectUriTemplate());
+				clientRegistration.getRedirectUri());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.CLIENT_ID)).isEqualTo("client-1");
 		assertThat(formParameters.getFirst(PkceParameterNames.CODE_VERIFIER)).isEqualTo("code-verifier-1234");
 	}
