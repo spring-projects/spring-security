@@ -84,7 +84,7 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
 		mockRequest.setCookies(new Cookie("SESSION", "123456789"));
 		mockRequest.addHeader("x-auth-token", "12");
-		assert request.doesRequestMatch(mockRequest, new PortResolverImpl());
+		assertThat(request.doesRequestMatch(mockRequest, new PortResolverImpl())).isTrue();
 	}
 
 	@Test
