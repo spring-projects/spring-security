@@ -28,7 +28,8 @@ import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2Error;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -54,14 +55,12 @@ public class OAuth2ErrorHttpMessageConverterTests {
 
 	@Test
 	public void setErrorConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.messageConverter.setErrorConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.messageConverter.setErrorConverter(null));
 	}
 
 	@Test
 	public void setErrorParametersConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.messageConverter.setErrorParametersConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.messageConverter.setErrorParametersConverter(null));
 	}
 
 	@Test
@@ -96,9 +95,9 @@ public class OAuth2ErrorHttpMessageConverterTests {
 		this.messageConverter.setErrorConverter(errorConverter);
 		String errorResponse = "{}";
 		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
-		assertThatThrownBy(() -> this.messageConverter.readInternal(OAuth2Error.class, response))
-				.isInstanceOf(HttpMessageNotReadableException.class)
-				.hasMessageContaining("An error occurred reading the OAuth 2.0 Error");
+		assertThatExceptionOfType(HttpMessageNotReadableException.class)
+				.isThrownBy(() -> this.messageConverter.readInternal(OAuth2Error.class, response))
+				.withMessageContaining("An error occurred reading the OAuth 2.0 Error");
 	}
 
 	@Test
@@ -121,9 +120,9 @@ public class OAuth2ErrorHttpMessageConverterTests {
 		OAuth2Error oauth2Error = new OAuth2Error("unauthorized_client", "The client is not authorized",
 				"https://tools.ietf.org/html/rfc6749#section-5.2");
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-		assertThatThrownBy(() -> this.messageConverter.writeInternal(oauth2Error, outputMessage))
-				.isInstanceOf(HttpMessageNotWritableException.class)
-				.hasMessageContaining("An error occurred writing the OAuth 2.0 Error");
+		assertThatExceptionOfType(HttpMessageNotWritableException.class)
+				.isThrownBy(() -> this.messageConverter.writeInternal(oauth2Error, outputMessage))
+				.withMessageContaining("An error occurred writing the OAuth 2.0 Error");
 	}
 
 }

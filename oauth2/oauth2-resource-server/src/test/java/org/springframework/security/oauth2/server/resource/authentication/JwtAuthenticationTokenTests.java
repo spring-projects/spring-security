@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link JwtAuthenticationToken}
@@ -54,8 +54,8 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenJwtIsNullThenThrowsException() {
-		assertThatCode(() -> new JwtAuthenticationToken(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("token cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtAuthenticationToken(null))
+				.withMessageContaining("token cannot be null");
 	}
 
 	@Test

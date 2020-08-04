@@ -36,7 +36,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,8 +59,8 @@ public class AccessDeniedConfigTests {
 	@Test
 	public void configureWhenAccessDeniedHandlerIsMissingLeadingSlashThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("NoLeadingSlash"));
-		assertThatThrownBy(() -> context.autowire()).isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("errorPage must begin with '/'");
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> context.autowire())
+				.withMessageContaining("errorPage must begin with '/'");
 	}
 
 	@Test
@@ -73,8 +73,8 @@ public class AccessDeniedConfigTests {
 	@Test
 	public void configureWhenAccessDeniedHandlerUsesPathAndRefThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("UsesPathAndRef"));
-		assertThatThrownBy(() -> context.autowire()).isInstanceOf(BeanDefinitionParsingException.class)
-				.hasMessageContaining("attribute error-page cannot be used together with the 'ref' attribute");
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() -> context.autowire())
+				.withMessageContaining("attribute error-page cannot be used together with the 'ref' attribute");
 	}
 
 	private String xml(String configName) {

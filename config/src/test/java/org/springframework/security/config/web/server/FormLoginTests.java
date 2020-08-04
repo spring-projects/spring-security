@@ -47,8 +47,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -294,7 +293,7 @@ public class FormLoginTests {
 		}
 
 		public DefaultLoginPage assertLoginFormNotPresent() {
-			assertThatThrownBy(() -> loginForm().username("")).isInstanceOf(NoSuchElementException.class);
+			assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> loginForm().username(""));
 			return this;
 		}
 
@@ -353,7 +352,7 @@ public class FormLoginTests {
 			}
 
 			public OAuth2Login assertClientRegistrationByName(String clientName) {
-				assertThatCode(() -> findClientRegistrationByName(clientName)).doesNotThrowAnyException();
+				findClientRegistrationByName(clientName);
 				return this;
 			}
 

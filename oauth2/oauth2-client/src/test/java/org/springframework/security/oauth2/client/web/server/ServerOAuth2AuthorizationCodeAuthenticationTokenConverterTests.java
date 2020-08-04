@@ -39,7 +39,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -85,7 +85,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 	@Test
 	public void applyWhenAuthorizationRequestEmptyThenOAuth2AuthorizationException() {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any())).willReturn(Mono.empty());
-		assertThatThrownBy(() -> applyConverter()).isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> applyConverter());
 	}
 
 	@Test
@@ -93,8 +93,8 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 		this.authorizationRequest.attributes(Map::clear);
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(this.authorizationRequest.build()));
-		assertThatThrownBy(() -> applyConverter()).isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining(
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> applyConverter())
+				.withMessageContaining(
 						ServerOAuth2AuthorizationCodeAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 
@@ -103,8 +103,8 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 		given(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
 				.willReturn(Mono.just(this.authorizationRequest.build()));
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
-		assertThatThrownBy(() -> applyConverter()).isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining(
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> applyConverter())
+				.withMessageContaining(
 						ServerOAuth2AuthorizationCodeAuthenticationTokenConverter.CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 	}
 

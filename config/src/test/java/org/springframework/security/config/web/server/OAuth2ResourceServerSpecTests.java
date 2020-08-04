@@ -80,7 +80,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -334,7 +334,7 @@ public class OAuth2ResourceServerSpecTests {
 		context.registerBean("firstJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
 		context.registerBean("secondJwtDecoder", ReactiveJwtDecoder.class, () -> beanWiredJwtDecoder);
 		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		assertThatCode(() -> jwt.getJwtDecoder()).isInstanceOf(NoUniqueBeanDefinitionException.class);
+		assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() -> jwt.getJwtDecoder());
 	}
 
 	@Test
@@ -343,7 +343,7 @@ public class OAuth2ResourceServerSpecTests {
 		ServerHttpSecurity http = new ServerHttpSecurity();
 		http.setApplicationContext(context);
 		ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec jwt = http.oauth2ResourceServer().jwt();
-		assertThatCode(() -> jwt.getJwtDecoder()).isInstanceOf(NoSuchBeanDefinitionException.class);
+		assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() -> jwt.getJwtDecoder());
 	}
 
 	@Test
@@ -366,8 +366,9 @@ public class OAuth2ResourceServerSpecTests {
 
 	@Test
 	public void configureWhenUsingBothAuthenticationManagerResolverAndOpaqueThenWiringException() {
-		assertThatCode(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasMessageContaining("authenticationManagerResolver");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
+				.withMessageContaining("authenticationManagerResolver");
 	}
 
 	private static Dispatcher requiresAuth(String username, String password, String response) {

@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Josh Cummings
@@ -63,12 +63,12 @@ public class JwtIssuerValidatorTests {
 
 	@Test
 	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> this.validator.validate(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.validator.validate(null));
 	}
 
 	@Test
 	public void constructorWhenNullIssuerIsGivenThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> new JwtIssuerValidator(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtIssuerValidator(null));
 	}
 
 }

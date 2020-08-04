@@ -33,9 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -85,7 +83,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void setSchedulerWhenNullThenIllegalArgumentException() {
-		assertThatCode(() -> this.manager.setScheduler(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.manager.setScheduler(null));
 	}
 
 	@Test
@@ -125,7 +123,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
 				this.user.getPassword());
-		assertThatThrownBy(() -> this.manager.authenticate(token).block()).isInstanceOf(BadCredentialsException.class);
+		assertThatExceptionOfType(BadCredentialsException.class)
+				.isThrownBy(() -> this.manager.authenticate(token).block());
 		verifyZeroInteractions(this.userDetailsPasswordService);
 	}
 

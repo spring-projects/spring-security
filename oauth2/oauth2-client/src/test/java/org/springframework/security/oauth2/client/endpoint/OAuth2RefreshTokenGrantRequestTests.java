@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2RefreshTokenGrantRequest}.
@@ -55,20 +55,23 @@ public class OAuth2RefreshTokenGrantRequestTests {
 
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(null, this.accessToken, this.refreshToken))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistration cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2RefreshTokenGrantRequest(null, this.accessToken, this.refreshToken))
+				.withMessage("clientRegistration cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.clientRegistration, null, this.refreshToken))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("accessToken cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.clientRegistration, null, this.refreshToken))
+				.withMessage("accessToken cannot be null");
 	}
 
 	@Test
 	public void constructorWhenRefreshTokenIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.clientRegistration, this.accessToken, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("refreshToken cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.clientRegistration, this.accessToken, null))
+				.withMessage("refreshToken cannot be null");
 	}
 
 	@Test

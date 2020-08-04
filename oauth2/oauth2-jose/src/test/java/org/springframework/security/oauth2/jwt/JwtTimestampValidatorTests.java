@@ -32,7 +32,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests verifying {@link JwtTimestampValidator}
@@ -137,12 +137,12 @@ public class JwtTimestampValidatorTests {
 	@Test
 	public void setClockWhenInvokedWithNullThenThrowsIllegalArgumentException() {
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
-		assertThatCode(() -> jwtValidator.setClock(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> jwtValidator.setClock(null));
 	}
 
 	@Test
 	public void constructorWhenInvokedWithNullDurationThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> new JwtTimestampValidator(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtTimestampValidator(null));
 	}
 
 }

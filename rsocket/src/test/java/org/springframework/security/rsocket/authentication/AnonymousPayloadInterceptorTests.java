@@ -33,7 +33,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.rsocket.api.PayloadExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -54,28 +54,28 @@ public class AnonymousPayloadInterceptorTests {
 	@Test
 	public void constructorKeyWhenKeyNullThenException() {
 		String key = null;
-		assertThatCode(() -> new AnonymousPayloadInterceptor(key)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousPayloadInterceptor(key));
 	}
 
 	@Test
 	public void constructorKeyPrincipalAuthoritiesWhenKeyNullThenException() {
 		String key = null;
-		assertThatCode(() -> new AnonymousPayloadInterceptor(key, "principal",
-				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousPayloadInterceptor(key, "principal",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 	}
 
 	@Test
 	public void constructorKeyPrincipalAuthoritiesWhenPrincipalNullThenException() {
 		Object principal = null;
-		assertThatCode(() -> new AnonymousPayloadInterceptor("key", principal,
-				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AnonymousPayloadInterceptor("key", principal,
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 	}
 
 	@Test
 	public void constructorKeyPrincipalAuthoritiesWhenAuthoritiesNullThenException() {
 		List<GrantedAuthority> authorities = null;
-		assertThatCode(() -> new AnonymousPayloadInterceptor("key", "principal", authorities))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AnonymousPayloadInterceptor("key", "principal", authorities));
 	}
 
 	@Test

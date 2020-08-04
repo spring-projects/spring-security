@@ -96,8 +96,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -178,30 +179,31 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void constructorWhenAuthorizedClientManagerIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new ServerOAuth2AuthorizedClientExchangeFilterFunction(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ServerOAuth2AuthorizedClientExchangeFilterFunction(null));
 	}
 
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientCredentialsTokenResponseClient cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(null))
+				.withMessage("clientCredentialsTokenResponseClient cannot be null");
 	}
 
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
-		assertThatThrownBy(() -> this.function
-				.setClientCredentialsTokenResponseClient(new WebClientReactiveClientCredentialsTokenResponseClient()))
-						.isInstanceOf(IllegalStateException.class).hasMessage(
-								"The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
-										+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
+		assertThatIllegalStateException()
+				.isThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(
+						new WebClientReactiveClientCredentialsTokenResponseClient()))
+				.withMessage(
+						"The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
+								+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
 
 	@Test
 	public void setAccessTokenExpiresSkewWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
-		assertThatThrownBy(() -> this.function.setAccessTokenExpiresSkew(Duration.ofSeconds(30)))
-				.isInstanceOf(IllegalStateException.class).hasMessage(
+		assertThatIllegalStateException()
+				.isThrownBy(() -> this.function.setAccessTokenExpiresSkew(Duration.ofSeconds(30))).withMessage(
 						"The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
 								+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
@@ -405,11 +407,11 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
-					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token");
-					assertThat(e).hasNoCause();
-					assertThat(e).hasMessageContaining("[invalid_token]");
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+					assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token");
+					assertThat(ex).hasNoCause();
+					assertThat(ex).hasMessageContaining("[invalid_token]");
 				});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
@@ -431,17 +433,18 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		WebClientResponseException exception = WebClientResponseException.create(HttpStatus.UNAUTHORIZED.value(),
 				HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8);
 		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
-		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
-				.subscriberContext(serverWebExchange()).block()).isEqualTo(exception);
+		assertThatExceptionOfType(WebClientResponseException.class).isThrownBy(() -> this.function
+				.filter(request, throwingExchangeFunction).subscriberContext(serverWebExchange()).block())
+				.isEqualTo(exception);
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
-					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token");
-					assertThat(e).hasCause(exception);
-					assertThat(e).hasMessageContaining("[invalid_token]");
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+					assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token");
+					assertThat(ex).hasCause(exception);
+					assertThat(ex).hasMessageContaining("[invalid_token]");
 				});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
@@ -466,11 +469,11 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
-					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(e.getError().getErrorCode()).isEqualTo("insufficient_scope");
-					assertThat(e).hasNoCause();
-					assertThat(e).hasMessageContaining("[insufficient_scope]");
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+					assertThat(ex.getError().getErrorCode()).isEqualTo("insufficient_scope");
+					assertThat(ex).hasNoCause();
+					assertThat(ex).hasMessageContaining("[insufficient_scope]");
 				});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
@@ -492,17 +495,18 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		WebClientResponseException exception = WebClientResponseException.create(HttpStatus.FORBIDDEN.value(),
 				HttpStatus.FORBIDDEN.getReasonPhrase(), HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8);
 		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
-		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
-				.subscriberContext(serverWebExchange()).block()).isEqualTo(exception);
+		assertThatExceptionOfType(WebClientResponseException.class).isThrownBy(() -> this.function
+				.filter(request, throwingExchangeFunction).subscriberContext(serverWebExchange()).block())
+				.isEqualTo(exception);
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
-					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(e.getError().getErrorCode()).isEqualTo("insufficient_scope");
-					assertThat(e).hasCause(exception);
-					assertThat(e).hasMessageContaining("[insufficient_scope]");
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+					assertThat(ex.getError().getErrorCode()).isEqualTo("insufficient_scope");
+					assertThat(ex).hasCause(exception);
+					assertThat(ex).hasMessageContaining("[insufficient_scope]");
 				});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
@@ -533,14 +537,14 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 		assertThat(this.authorizationExceptionCaptor.getValue())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, (e) -> {
-					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
-					assertThat(e.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
-					assertThat(e.getError().getDescription())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+					assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+					assertThat(ex.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+					assertThat(ex.getError().getDescription())
 							.isEqualTo("The request requires higher privileges than provided by the access token.");
-					assertThat(e.getError().getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
-					assertThat(e).hasNoCause();
-					assertThat(e).hasMessageContaining(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+					assertThat(ex.getError().getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
+					assertThat(ex).hasNoCause();
+					assertThat(ex).hasMessageContaining(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 				});
 		assertThat(this.authenticationCaptor.getValue()).isInstanceOf(AnonymousAuthenticationToken.class);
 		assertThat(this.attributesCaptor.getValue())
@@ -562,8 +566,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizationException exception = new OAuth2AuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, null, null));
 		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
-		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
-				.subscriberContext(serverWebExchange()).block()).isEqualTo(exception);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> this.function
+				.filter(request, throwingExchangeFunction).subscriberContext(serverWebExchange()).block())
+				.isEqualTo(exception);
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());

@@ -51,7 +51,8 @@ import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -94,22 +95,22 @@ public class PayloadInterceptorRSocketTests {
 	public void constructorWhenNullDelegateThenException() {
 		this.delegate = null;
 		List<PayloadInterceptor> interceptors = Arrays.asList(this.interceptor);
-		assertThatCode(() -> new PayloadInterceptorRSocket(this.delegate, interceptors, this.metadataMimeType,
-				this.dataMimeType)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new PayloadInterceptorRSocket(this.delegate, interceptors,
+				this.metadataMimeType, this.dataMimeType));
 	}
 
 	@Test
 	public void constructorWhenNullInterceptorsThenException() {
 		List<PayloadInterceptor> interceptors = null;
-		assertThatCode(() -> new PayloadInterceptorRSocket(this.delegate, interceptors, this.metadataMimeType,
-				this.dataMimeType)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new PayloadInterceptorRSocket(this.delegate, interceptors,
+				this.metadataMimeType, this.dataMimeType));
 	}
 
 	@Test
 	public void constructorWhenEmptyInterceptorsThenException() {
 		List<PayloadInterceptor> interceptors = Collections.emptyList();
-		assertThatCode(() -> new PayloadInterceptorRSocket(this.delegate, interceptors, this.metadataMimeType,
-				this.dataMimeType)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new PayloadInterceptorRSocket(this.delegate, interceptors,
+				this.metadataMimeType, this.dataMimeType));
 	}
 
 	// single interceptor
@@ -177,7 +178,8 @@ public class PayloadInterceptorRSocketTests {
 		given(this.interceptor.intercept(any(), any())).willReturn(Mono.error(expected));
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
 				Arrays.asList(this.interceptor), this.metadataMimeType, this.dataMimeType);
-		assertThatCode(() -> interceptor.requestResponse(this.payload).block()).isEqualTo(expected);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> interceptor.requestResponse(this.payload).block()).isEqualTo(expected);
 		verify(this.interceptor).intercept(this.exchange.capture(), any());
 		assertThat(this.exchange.getValue().getPayload()).isEqualTo(this.payload);
 		verifyZeroInteractions(this.delegate);
@@ -376,7 +378,8 @@ public class PayloadInterceptorRSocketTests {
 		given(this.interceptor.intercept(any(), any())).willReturn(Mono.error(expected));
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
 				Arrays.asList(this.interceptor, this.interceptor2), this.metadataMimeType, this.dataMimeType);
-		assertThatCode(() -> interceptor.fireAndForget(this.payload).block()).isEqualTo(expected);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> interceptor.fireAndForget(this.payload).block()).isEqualTo(expected);
 		verify(this.interceptor).intercept(this.exchange.capture(), any());
 		assertThat(this.exchange.getValue().getPayload()).isEqualTo(this.payload);
 		verifyZeroInteractions(this.interceptor2);
@@ -390,7 +393,8 @@ public class PayloadInterceptorRSocketTests {
 		given(this.interceptor2.intercept(any(), any())).willReturn(Mono.error(expected));
 		PayloadInterceptorRSocket interceptor = new PayloadInterceptorRSocket(this.delegate,
 				Arrays.asList(this.interceptor, this.interceptor2), this.metadataMimeType, this.dataMimeType);
-		assertThatCode(() -> interceptor.fireAndForget(this.payload).block()).isEqualTo(expected);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> interceptor.fireAndForget(this.payload).block()).isEqualTo(expected);
 		verify(this.interceptor).intercept(this.exchange.capture(), any());
 		assertThat(this.exchange.getValue().getPayload()).isEqualTo(this.payload);
 		verify(this.interceptor2).intercept(any(), any());

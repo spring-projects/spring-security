@@ -36,7 +36,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link LdapUserDetailsManager#changePassword}, specifically relating to the
@@ -63,8 +63,8 @@ public class LdapUserDetailsManagerModifyPasswordTests {
 	@Test
 	@WithMockUser(username = "bob", password = "bobspassword", authorities = "ROLE_USER")
 	public void changePasswordWhenOldPasswordIsIncorrectThenThrowsException() {
-		assertThatCode(() -> this.userDetailsManager.changePassword("wrongoldpassword", "bobsnewpassword"))
-				.isInstanceOf(BadCredentialsException.class);
+		assertThatExceptionOfType(BadCredentialsException.class)
+				.isThrownBy(() -> this.userDetailsManager.changePassword("wrongoldpassword", "bobsnewpassword"));
 	}
 
 	@Test

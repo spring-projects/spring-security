@@ -36,7 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -320,14 +320,16 @@ public class HeadersConfigurerTests {
 
 	@Test
 	public void configureWhenContentSecurityPolicyEmptyThenException() {
-		assertThatThrownBy(() -> this.spring.register(ContentSecurityPolicyInvalidConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(ContentSecurityPolicyInvalidConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenContentSecurityPolicyEmptyInLambdaThenException() {
-		assertThatThrownBy(() -> this.spring.register(ContentSecurityPolicyInvalidInLambdaConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(ContentSecurityPolicyInvalidInLambdaConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -381,8 +383,9 @@ public class HeadersConfigurerTests {
 
 	@Test
 	public void configureWhenFeaturePolicyEmptyThenException() {
-		assertThatThrownBy(() -> this.spring.register(FeaturePolicyInvalidConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(FeaturePolicyInvalidConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

@@ -21,7 +21,7 @@ import java.time.Instant;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OidcUserInfo}
@@ -51,8 +51,8 @@ public class OidcIdTokenBuilderTests {
 		assertThat(idToken.getExpiresAt()).isSameAs(now);
 		idToken = idTokenBuilder.expiresAt(now).build();
 		assertThat(idToken.getExpiresAt()).isSameAs(now);
-		assertThatCode(() -> idTokenBuilder.claim(IdTokenClaimNames.EXP, "not an instant").build())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> idTokenBuilder.claim(IdTokenClaimNames.EXP, "not an instant").build());
 	}
 
 	@Test
@@ -63,8 +63,8 @@ public class OidcIdTokenBuilderTests {
 		assertThat(idToken.getIssuedAt()).isSameAs(now);
 		idToken = idTokenBuilder.issuedAt(now).build();
 		assertThat(idToken.getIssuedAt()).isSameAs(now);
-		assertThatCode(() -> idTokenBuilder.claim(IdTokenClaimNames.IAT, "not an instant").build())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> idTokenBuilder.claim(IdTokenClaimNames.IAT, "not an instant").build());
 	}
 
 	@Test

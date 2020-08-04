@@ -34,7 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -71,23 +71,23 @@ public class DelegatingServerLogoutHandlerTests {
 
 	@Test
 	public void constructorWhenNullVargsThenIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingServerLogoutHandler((ServerLogoutHandler[]) null))
-				.isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("delegates cannot be null or empty")
-				.hasNoCause();
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingServerLogoutHandler((ServerLogoutHandler[]) null))
+				.withMessage("delegates cannot be null or empty").withNoCause();
 	}
 
 	@Test
 	public void constructorWhenNullListThenIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingServerLogoutHandler((List<ServerLogoutHandler>) null))
-				.isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("delegates cannot be null or empty")
-				.hasNoCause();
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingServerLogoutHandler((List<ServerLogoutHandler>) null))
+				.withMessage("delegates cannot be null or empty").withNoCause();
 	}
 
 	@Test
 	public void constructorWhenEmptyThenIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingServerLogoutHandler(new ServerLogoutHandler[0]))
-				.isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("delegates cannot be null or empty")
-				.hasNoCause();
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingServerLogoutHandler(new ServerLogoutHandler[0]))
+				.withMessage("delegates cannot be null or empty").withNoCause();
 	}
 
 	@Test

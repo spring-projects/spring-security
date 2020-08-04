@@ -34,7 +34,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -134,11 +134,11 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		ClientRegistration registration = this.clientRegistration.build();
 		enqueueUnexpectedResponse();
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
-		assertThatThrownBy(() -> this.client.getTokenResponse(request).block())
-				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
-				.hasMessageContaining("[invalid_token_response]")
-				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.client.getTokenResponse(request).block())
+				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+				.withMessageContaining("[invalid_token_response]")
+				.withMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}
 
 	private void enqueueUnexpectedResponse() {

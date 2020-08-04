@@ -111,7 +111,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
@@ -296,8 +296,8 @@ public class MiscHttpConfigTests {
 
 	@Test
 	public void configureWhenTwoFiltersWithSameOrderThenException() {
-		assertThatCode(() -> this.spring.configLocations(xml("CollidingFilters")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("CollidingFilters")).autowire());
 	}
 
 	@Test
@@ -319,8 +319,8 @@ public class MiscHttpConfigTests {
 
 	@Test
 	public void configureWhenUsingInvalidLogoutSuccessUrlThenThrowsException() {
-		assertThatCode(() -> this.spring.configLocations(xml("InvalidLogoutSuccessUrl")).autowire())
-				.isInstanceOf(BeanCreationException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("InvalidLogoutSuccessUrl")).autowire());
 	}
 
 	@Test
@@ -432,9 +432,8 @@ public class MiscHttpConfigTests {
 
 	@Test
 	public void configureWhenUserDetailsServiceInParentContextThenLocatesSuccessfully() {
-		assertThatCode(
-				() -> this.spring.configLocations(MiscHttpConfigTests.xml("MissingUserDetailsService")).autowire())
-						.isInstanceOf(BeansException.class);
+		assertThatExceptionOfType(BeansException.class).isThrownBy(
+				() -> this.spring.configLocations(MiscHttpConfigTests.xml("MissingUserDetailsService")).autowire());
 		try (XmlWebApplicationContext parent = new XmlWebApplicationContext()) {
 			parent.setConfigLocations(MiscHttpConfigTests.xml("AutoConfig"));
 			parent.refresh();

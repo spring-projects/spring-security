@@ -59,7 +59,7 @@ import org.springframework.security.web.util.UrlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -122,33 +122,34 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(null, this.authorizedClientService))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationFilter(null, this.authorizedClientService));
 	}
 
 	@Test
 	public void constructorWhenAuthorizedClientServiceIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, null));
 	}
 
 	@Test
 	public void constructorWhenAuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
-				(OAuth2AuthorizedClientRepository) null, OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
+						(OAuth2AuthorizedClientRepository) null,
+						OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI));
 	}
 
 	@Test
 	public void constructorWhenFilterProcessesUrlIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
-				this.authorizedClientRepository, null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
+						this.authorizedClientRepository, null));
 	}
 
 	@Test
 	public void setAuthorizationRequestRepositoryWhenAuthorizationRequestRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.filter.setAuthorizationRequestRepository(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthorizationRequestRepository(null));
 	}
 
 	@Test

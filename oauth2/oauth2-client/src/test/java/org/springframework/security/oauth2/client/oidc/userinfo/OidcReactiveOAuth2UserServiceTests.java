@@ -53,8 +53,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
@@ -97,8 +97,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 
 	@Test
 	public void setClaimTypeConverterFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.userService.setClaimTypeConverterFactory(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.setClaimTypeConverterFactory(null));
 	}
 
 	@Test
@@ -120,8 +119,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				Collections.singletonMap("user", "rob"), "user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
-		assertThatCode(() -> this.userService.loadUser(userRequest()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService.loadUser(userRequest()).block());
 	}
 
 	@Test
@@ -132,8 +131,8 @@ public class OidcReactiveOAuth2UserServiceTests {
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), attributes,
 				"user");
 		given(this.oauth2UserService.loadUser(any())).willReturn(Mono.just(oauth2User));
-		assertThatCode(() -> this.userService.loadUser(userRequest()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService.loadUser(userRequest()).block());
 	}
 
 	@Test

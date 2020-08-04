@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -93,8 +93,9 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 	@Test
 	public void oauth2ClientWhenUsingDefaultsThenException() throws Exception {
-		assertThatCode(() -> oauth2Client().postProcessRequest(new MockHttpServletRequest()))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("ClientRegistration");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> oauth2Client().postProcessRequest(new MockHttpServletRequest()))
+				.withMessageContaining("ClientRegistration");
 	}
 
 	@Test

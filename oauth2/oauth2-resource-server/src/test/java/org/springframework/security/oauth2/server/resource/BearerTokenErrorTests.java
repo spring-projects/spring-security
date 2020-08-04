@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link BearerTokenError}
@@ -53,20 +53,20 @@ public class BearerTokenErrorTests {
 
 	@Test
 	public void constructorWithErrorCodeAndHttpStatusWhenErrorCodeIsNullThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(null, TEST_HTTP_STATUS, null, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("errorCode cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenError(null, TEST_HTTP_STATUS, null, null))
+				.withMessage("errorCode cannot be empty");
 	}
 
 	@Test
 	public void constructorWithErrorCodeAndHttpStatusWhenErrorCodeIsEmptyThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError("", TEST_HTTP_STATUS, null, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("errorCode cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenError("", TEST_HTTP_STATUS, null, null))
+				.withMessage("errorCode cannot be empty");
 	}
 
 	@Test
 	public void constructorWithErrorCodeAndHttpStatusWhenHttpStatusIsNullThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, null, null, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("httpStatus cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenError(TEST_ERROR_CODE, null, null, null))
+				.withMessage("httpStatus cannot be null");
 	}
 
 	@Test
@@ -82,48 +82,52 @@ public class BearerTokenErrorTests {
 
 	@Test
 	public void constructorWithAllParametersWhenErrorCodeIsNullThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(null, TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI, TEST_SCOPE))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("errorCode cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenError(null, TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI, TEST_SCOPE))
+				.withMessage("errorCode cannot be empty");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenErrorCodeIsEmptyThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError("", TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI, TEST_SCOPE))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("errorCode cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenError("", TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI, TEST_SCOPE))
+				.withMessage("errorCode cannot be empty");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenHttpStatusIsNullThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, null, TEST_DESCRIPTION, TEST_URI, TEST_SCOPE))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("httpStatus cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenError(TEST_ERROR_CODE, null, TEST_DESCRIPTION, TEST_URI, TEST_SCOPE))
+				.withMessage("httpStatus cannot be null");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenErrorCodeIsInvalidThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE + "\"", TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI,
-				TEST_SCOPE)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("errorCode")
-						.hasMessageContaining("RFC 6750");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenError(TEST_ERROR_CODE + "\"",
+				TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI, TEST_SCOPE)).withMessageContaining("errorCode")
+				.withMessageContaining("RFC 6750");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenDescriptionIsInvalidThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION + "\"", TEST_URI,
-				TEST_SCOPE)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("description")
-						.hasMessageContaining("RFC 6750");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS,
+				TEST_DESCRIPTION + "\"", TEST_URI, TEST_SCOPE)).withMessageContaining("description")
+				.withMessageContaining("RFC 6750");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenErrorUriIsInvalidThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI + "\"",
-				TEST_SCOPE)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("errorUri")
-						.hasMessageContaining("RFC 6750");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION,
+						TEST_URI + "\"", TEST_SCOPE))
+				.withMessageContaining("errorUri").withMessageContaining("RFC 6750");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenScopeIsInvalidThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI,
-				TEST_SCOPE + "\"")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("scope")
-						.hasMessageContaining("RFC 6750");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS,
+				TEST_DESCRIPTION, TEST_URI, TEST_SCOPE + "\"")).withMessageContaining("scope")
+				.withMessageContaining("RFC 6750");
 	}
 
 }

@@ -35,7 +35,7 @@ import org.springframework.web.server.adapter.DefaultServerWebExchange;
 import org.springframework.web.server.i18n.AcceptHeaderLocaleContextResolver;
 import org.springframework.web.server.session.WebSessionManager;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -61,8 +61,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 	@Test
 	public void loadAuthorizationRequestWhenNullExchangeThenIllegalArgumentException() {
 		this.exchange = null;
-		assertThatThrownBy(() -> this.repository.loadAuthorizationRequest(this.exchange))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.loadAuthorizationRequest(this.exchange));
 	}
 
 	@Test
@@ -121,23 +120,23 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 	@Test
 	public void saveAuthorizationRequestWhenAuthorizationRequestNullThenThrowsIllegalArgumentException() {
 		this.authorizationRequest = null;
-		assertThatThrownBy(() -> this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
 		assertSessionStartedIs(false);
 	}
 
 	@Test
 	public void saveAuthorizationRequestWhenExchangeNullThenThrowsIllegalArgumentException() {
 		this.exchange = null;
-		assertThatThrownBy(() -> this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
 	}
 
 	@Test
 	public void removeAuthorizationRequestWhenExchangeNullThenThrowsIllegalArgumentException() {
 		this.exchange = null;
-		assertThatThrownBy(() -> this.repository.removeAuthorizationRequest(this.exchange))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.repository.removeAuthorizationRequest(this.exchange));
 	}
 
 	@Test

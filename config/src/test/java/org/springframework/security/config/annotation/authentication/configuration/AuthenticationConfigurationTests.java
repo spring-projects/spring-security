@@ -63,7 +63,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
@@ -165,9 +165,8 @@ public class AuthenticationConfigurationTests {
 				new BootGlobalAuthenticationConfigurerAdapter()));
 		AuthenticationManager authenticationManager = config.getAuthenticationManager();
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatThrownBy(
-				() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password")))
-						.isInstanceOf(AuthenticationException.class);
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password")));
 	}
 
 	@Test
@@ -207,8 +206,8 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(uds.loadUserByUsername("user")).willReturn(PasswordEncodedUser.user(), PasswordEncodedUser.user());
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")))
-				.isInstanceOf(AuthenticationException.class);
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")));
 	}
 
 	@Test
@@ -222,8 +221,8 @@ public class AuthenticationConfigurationTests {
 		given(uds.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
 		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")))
-				.isInstanceOf(AuthenticationException.class);
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")));
 	}
 
 	@Test
@@ -291,7 +290,7 @@ public class AuthenticationConfigurationTests {
 		this.spring.register(AuthenticationConfigurationSubclass.class).autowire();
 		AuthenticationManagerBuilder ap = this.spring.getContext().getBean(AuthenticationManagerBuilder.class);
 		this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
-		assertThatThrownBy(ap::build).isInstanceOf(AlreadyBuiltException.class);
+		assertThatExceptionOfType(AlreadyBuiltException.class).isThrownBy(ap::build);
 	}
 
 	@EnableGlobalMethodSecurity(securedEnabled = true)

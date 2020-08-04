@@ -33,7 +33,7 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -54,21 +54,22 @@ public class NamespaceHttpFirewallTests {
 	@Test
 	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() {
 		this.rule.register(HttpFirewallConfig.class).autowire();
-		assertThatCode(() -> this.mvc.perform(get("/public/../private/"))).isInstanceOf(RequestRejectedException.class);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.mvc.perform(get("/public/../private/")));
 	}
 
 	@Test
 	public void requestWithCustomFirewallThenBehaviorMatchesNamespace() {
 		this.rule.register(CustomHttpFirewallConfig.class).autowire();
-		assertThatCode(() -> this.mvc.perform(get("/").param("deny", "true")))
-				.isInstanceOf(RequestRejectedException.class);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
 	}
 
 	@Test
 	public void requestWithCustomFirewallBeanThenBehaviorMatchesNamespace() {
 		this.rule.register(CustomHttpFirewallBeanConfig.class).autowire();
-		assertThatCode(() -> this.mvc.perform(get("/").param("deny", "true")))
-				.isInstanceOf(RequestRejectedException.class);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
 	}
 
 	@EnableWebSecurity

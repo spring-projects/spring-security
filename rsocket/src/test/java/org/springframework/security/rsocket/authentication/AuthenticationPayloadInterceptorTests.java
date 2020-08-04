@@ -53,7 +53,7 @@ import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -76,7 +76,7 @@ public class AuthenticationPayloadInterceptorTests {
 
 	@Test
 	public void constructorWhenAuthenticationManagerNullThenException() {
-		assertThatCode(() -> new AuthenticationPayloadInterceptor(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AuthenticationPayloadInterceptor(null));
 	}
 
 	@Test

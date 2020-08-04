@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import org.springframework.core.convert.converter.Converter;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link RsaKeyConverters}
@@ -99,8 +99,7 @@ public class RsaKeyConvertersTests {
 
 	@Test
 	public void pkcs8WhenConvertingPkcs1PrivateKeyThenIllegalArgumentException() {
-		assertThatCode(() -> this.pkcs8.convert(toInputStream(PKCS1_PRIVATE_KEY)))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.pkcs8.convert(toInputStream(PKCS1_PRIVATE_KEY)));
 	}
 
 	@Test
@@ -111,8 +110,7 @@ public class RsaKeyConvertersTests {
 
 	@Test
 	public void x509WhenConvertingDerEncodedX509PublicKeyThenIllegalArgumentException() {
-		assertThatCode(() -> this.x509.convert(toInputStream(MALFORMED_X509_KEY)))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.x509.convert(toInputStream(MALFORMED_X509_KEY)));
 	}
 
 	private static InputStream toInputStream(String string) {

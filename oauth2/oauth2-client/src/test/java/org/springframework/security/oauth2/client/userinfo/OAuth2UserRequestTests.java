@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2UserRequest}.
@@ -63,14 +63,12 @@ public class OAuth2UserRequestTests {
 
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2UserRequest(null, this.accessToken))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2UserRequest(null, this.accessToken));
 	}
 
 	@Test
 	public void constructorWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2UserRequest(this.clientRegistration, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2UserRequest(this.clientRegistration, null));
 	}
 
 	@Test

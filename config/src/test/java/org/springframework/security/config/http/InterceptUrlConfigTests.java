@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -151,26 +151,26 @@ public class InterceptUrlConfigTests {
 
 	@Test
 	public void configureWhenUsingAntMatcherAndServletPathThenThrowsException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("AntMatcherServletPath")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("AntMatcherServletPath")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingRegexMatcherAndServletPathThenThrowsException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("RegexMatcherServletPath")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("RegexMatcherServletPath")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingCiRegexMatcherAndServletPathThenThrowsException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("CiRegexMatcherServletPath")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("CiRegexMatcherServletPath")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingDefaultMatcherAndServletPathThenThrowsException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("DefaultMatcherServletPath")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultMatcherServletPath")).autowire());
 	}
 
 	private MockServletContext mockServletContext(String servletPath) {

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Rule;
 import org.junit.Test;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -131,32 +132,37 @@ public class OAuth2ClientConfigurationTests {
 	// gh-5321
 	@Test
 	public void loadContextWhenOAuth2AuthorizedClientRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
 				() -> this.spring.register(OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig.class).autowire())
-						.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
-						.hasMessageContaining("Expected single matching bean of type '"
-								+ OAuth2AuthorizedClientRepository.class.getName()
+				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).withMessageContaining(
+						"Expected single matching bean of type '" + OAuth2AuthorizedClientRepository.class.getName()
 								+ "' but found 2: authorizedClientRepository1,authorizedClientRepository2");
 	}
 
 	@Test
 	public void loadContextWhenClientRegistrationRepositoryNotRegisteredThenThrowNoSuchBeanDefinitionException() {
-		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryNotRegisteredConfig.class).autowire())
-				.hasRootCauseInstanceOf(NoSuchBeanDefinitionException.class).hasMessageContaining(
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(
+						() -> this.spring.register(ClientRegistrationRepositoryNotRegisteredConfig.class).autowire())
+				.withRootCauseInstanceOf(NoSuchBeanDefinitionException.class).withMessageContaining(
 						"No qualifying bean of type '" + ClientRegistrationRepository.class.getName() + "' available");
 	}
 
 	@Test
 	public void loadContextWhenClientRegistrationRepositoryRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
-		assertThatThrownBy(() -> this.spring.register(ClientRegistrationRepositoryRegisteredTwiceConfig.class)
-				.autowire()).hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).hasMessageContaining(
-						"expected single matching bean but found 2: clientRegistrationRepository1,clientRegistrationRepository2");
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(
+						() -> this.spring.register(ClientRegistrationRepositoryRegisteredTwiceConfig.class).autowire())
+				.withMessageContaining(
+						"expected single matching bean but found 2: clientRegistrationRepository1,clientRegistrationRepository2")
+				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
 
 	@Test
 	public void loadContextWhenAccessTokenResponseClientRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
-		assertThatThrownBy(() -> this.spring.register(AccessTokenResponseClientRegisteredTwiceConfig.class).autowire())
-				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).hasMessageContaining(
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(() -> this.spring.register(AccessTokenResponseClientRegisteredTwiceConfig.class).autowire())
+				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).withMessageContaining(
 						"expected single matching bean but found 2: accessTokenResponseClient1,accessTokenResponseClient2");
 	}
 

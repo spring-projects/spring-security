@@ -36,7 +36,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link BearerTokenAuthentication}
@@ -90,14 +90,14 @@ public class BearerTokenAuthenticationTests {
 
 	@Test
 	public void constructorWhenTokenIsNullThenThrowsException() {
-		assertThatCode(() -> new BearerTokenAuthentication(this.principal, null, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("token cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenAuthentication(this.principal, null, null))
+				.withMessageContaining("token cannot be null");
 	}
 
 	@Test
 	public void constructorWhenCredentialIsNullThenThrowsException() {
-		assertThatCode(() -> new BearerTokenAuthentication(null, this.token, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("principal cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenAuthentication(null, this.token, null))
+				.withMessageContaining("principal cannot be null");
 	}
 
 	@Test
@@ -140,7 +140,7 @@ public class BearerTokenAuthenticationTests {
 		JSONObject attributes = new JSONObject(Collections.singletonMap("iss", new URL("https://idp.example.com")));
 		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(attributes, null);
 		BearerTokenAuthentication token = new BearerTokenAuthentication(principal, this.token, null);
-		assertThatCode(token::toString).doesNotThrowAnyException();
+		token.toString();
 	}
 
 }

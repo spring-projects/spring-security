@@ -49,8 +49,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -90,30 +90,30 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 	@Test
 	public void constructorWhenAuthenticationManagerNullThenIllegalArgumentException() {
 		this.authenticationManager = null;
-		assertThatCode(() -> new OAuth2AuthorizationCodeGrantWebFilter(this.authenticationManager,
-				this.clientRegistrationRepository, this.authorizedClientRepository))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantWebFilter(this.authenticationManager,
+						this.clientRegistrationRepository, this.authorizedClientRepository));
 	}
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryNullThenIllegalArgumentException() {
 		this.clientRegistrationRepository = null;
-		assertThatCode(() -> new OAuth2AuthorizationCodeGrantWebFilter(this.authenticationManager,
-				this.clientRegistrationRepository, this.authorizedClientRepository))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantWebFilter(this.authenticationManager,
+						this.clientRegistrationRepository, this.authorizedClientRepository));
 	}
 
 	@Test
 	public void constructorWhenAuthorizedClientRepositoryNullThenIllegalArgumentException() {
 		this.authorizedClientRepository = null;
-		assertThatCode(() -> new OAuth2AuthorizationCodeGrantWebFilter(this.authenticationManager,
-				this.clientRegistrationRepository, this.authorizedClientRepository))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantWebFilter(this.authenticationManager,
+						this.clientRegistrationRepository, this.authorizedClientRepository));
 	}
 
 	@Test
 	public void setRequestCacheWhenRequestCacheIsNullThenThrowIllegalArgumentException() {
-		assertThatCode(() -> this.filter.setRequestCache(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequestCache(null));
 	}
 
 	@Test
@@ -267,10 +267,10 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-		assertThatThrownBy(() -> this.filter.filter(exchange, chain).block())
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError()).extracting("errorCode")
-				.isEqualTo("client_registration_not_found");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.filter.filter(exchange, chain).block())
+				.satisfies((ex) -> assertThat(ex.getError()).extracting("errorCode")
+						.isEqualTo("client_registration_not_found"));
 		verifyNoInteractions(this.authenticationManager);
 	}
 
@@ -292,10 +292,9 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
 		DefaultWebFilterChain chain = new DefaultWebFilterChain((e) -> e.getResponse().setComplete(),
 				Collections.emptyList());
-		assertThatThrownBy(() -> this.filter.filter(exchange, chain).block())
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError()).extracting("errorCode")
-				.isEqualTo("authorization_error");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.filter.filter(exchange, chain).block())
+				.satisfies((ex) -> assertThat(ex.getError()).extracting("errorCode").isEqualTo("authorization_error"));
 	}
 
 	private static OAuth2AuthorizationRequest createOAuth2AuthorizationRequest(

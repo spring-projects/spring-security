@@ -39,8 +39,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -65,8 +65,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void setAuthorizationRequestCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.resolver.setAuthorizationRequestCustomizer(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.resolver.setAuthorizationRequestCustomizer(null));
 	}
 
 	@Test
@@ -77,9 +76,9 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	@Test
 	public void resolveWhenClientRegistrationNotFoundMatchThenBadRequest() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
-		ResponseStatusException expected = catchThrowableOfType(() -> resolve("/oauth2/authorization/not-found-id"),
-				ResponseStatusException.class);
-		assertThat(expected.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+		assertThatExceptionOfType(ResponseStatusException.class)
+				.isThrownBy(() -> resolve("/oauth2/authorization/not-found-id"))
+				.satisfies((ex) -> assertThat(ex.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
 	}
 
 	@Test

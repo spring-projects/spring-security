@@ -42,7 +42,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -157,30 +157,29 @@ public class BearerTokenAuthenticationFilterTests {
 	@Test
 	public void setAuthenticationEntryPointWhenNullThenThrowsException() {
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
-		assertThatCode(() -> filter.setAuthenticationEntryPoint(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("authenticationEntryPoint cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAuthenticationEntryPoint(null))
+				.withMessageContaining("authenticationEntryPoint cannot be null");
 	}
 
 	@Test
 	public void setBearerTokenResolverWhenNullThenThrowsException() {
 		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(this.authenticationManager);
-		assertThatCode(() -> filter.setBearerTokenResolver(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("bearerTokenResolver cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setBearerTokenResolver(null))
+				.withMessageContaining("bearerTokenResolver cannot be null");
 	}
 
 	@Test
 	public void constructorWhenNullAuthenticationManagerThenThrowsException() {
-		assertThatCode(() -> new BearerTokenAuthenticationFilter((AuthenticationManager) null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("authenticationManager cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new BearerTokenAuthenticationFilter((AuthenticationManager) null))
+				.withMessageContaining("authenticationManager cannot be null");
 	}
 
 	@Test
 	public void constructorWhenNullAuthenticationManagerResolverThenThrowsException() {
-		assertThatCode(
+		assertThatIllegalArgumentException().isThrownBy(
 				() -> new BearerTokenAuthenticationFilter((AuthenticationManagerResolver<HttpServletRequest>) null))
-						.isInstanceOf(IllegalArgumentException.class)
-						.hasMessageContaining("authenticationManagerResolver cannot be null");
+				.withMessageContaining("authenticationManagerResolver cannot be null");
 	}
 
 	private BearerTokenAuthenticationFilter addMocks(BearerTokenAuthenticationFilter filter) {

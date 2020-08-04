@@ -36,7 +36,8 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -63,14 +64,13 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 
 	@Test
 	public void setTokenResponseConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.messageConverter.setTokenResponseConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.messageConverter.setTokenResponseConverter(null));
 	}
 
 	@Test
 	public void setTokenResponseParametersConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.messageConverter.setTokenResponseParametersConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.messageConverter.setTokenResponseParametersConverter(null));
 	}
 
 	@Test
@@ -141,9 +141,9 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 		this.messageConverter.setTokenResponseConverter(tokenResponseConverter);
 		String tokenResponse = "{}";
 		MockClientHttpResponse response = new MockClientHttpResponse(tokenResponse.getBytes(), HttpStatus.OK);
-		assertThatThrownBy(() -> this.messageConverter.readInternal(OAuth2AccessTokenResponse.class, response))
-				.isInstanceOf(HttpMessageNotReadableException.class)
-				.hasMessageContaining("An error occurred reading the OAuth 2.0 Access Token Response");
+		assertThatExceptionOfType(HttpMessageNotReadableException.class)
+				.isThrownBy(() -> this.messageConverter.readInternal(OAuth2AccessTokenResponse.class, response))
+				.withMessageContaining("An error occurred reading the OAuth 2.0 Access Token Response");
 	}
 
 	@Test
@@ -177,9 +177,9 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(Instant.now().plusSeconds(3600).toEpochMilli())
 				.build();
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-		assertThatThrownBy(() -> this.messageConverter.writeInternal(accessTokenResponse, outputMessage))
-				.isInstanceOf(HttpMessageNotWritableException.class)
-				.hasMessageContaining("An error occurred writing the OAuth 2.0 Access Token Response");
+		assertThatExceptionOfType(HttpMessageNotWritableException.class)
+				.isThrownBy(() -> this.messageConverter.writeInternal(accessTokenResponse, outputMessage))
+				.withMessageContaining("An error occurred writing the OAuth 2.0 Access Token Response");
 	}
 
 }

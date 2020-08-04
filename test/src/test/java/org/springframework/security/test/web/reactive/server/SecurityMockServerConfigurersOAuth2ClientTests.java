@@ -44,7 +44,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -76,8 +76,9 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 	@Test
 	public void oauth2ClientWhenUsingDefaultsThenException() throws Exception {
 		WebHttpHandlerBuilder builder = WebHttpHandlerBuilder.webHandler(new DispatcherHandler());
-		assertThatCode(() -> SecurityMockServerConfigurers.mockOAuth2Client().beforeServerCreated(builder))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("ClientRegistration");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> SecurityMockServerConfigurers.mockOAuth2Client().beforeServerCreated(builder))
+				.withMessageContaining("ClientRegistration");
 	}
 
 	@Test

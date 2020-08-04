@@ -25,7 +25,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link DefaultBearerTokenResolver}.
@@ -93,16 +93,16 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenHeaderWithMissingTokenIsPresentThenAuthenticationExceptionIsThrown() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer ");
-		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining(("Bearer token is malformed"));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+				.withMessageContaining(("Bearer token is malformed"));
 	}
 
 	@Test
 	public void resolveWhenHeaderWithInvalidCharactersIsPresentThenAuthenticationExceptionIsThrown() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer an\"invalid\"token");
-		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining(("Bearer token is malformed"));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+				.withMessageContaining(("Bearer token is malformed"));
 	}
 
 	@Test
@@ -112,8 +112,8 @@ public class DefaultBearerTokenResolverTests {
 		request.setMethod("POST");
 		request.setContentType("application/x-www-form-urlencoded");
 		request.addParameter("access_token", TEST_TOKEN);
-		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("Found multiple bearer tokens in the request");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	@Test
@@ -122,16 +122,16 @@ public class DefaultBearerTokenResolverTests {
 		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
 		request.setMethod("GET");
 		request.addParameter("access_token", TEST_TOKEN);
-		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("Found multiple bearer tokens in the request");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	@Test
 	public void resolveWhenRequestContainsTwoAccessTokenParametersThenAuthenticationExceptionIsThrown() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter("access_token", "token1", "token2");
-		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("Found multiple bearer tokens in the request");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	@Test

@@ -36,7 +36,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link WebClientReactivePasswordTokenResponseClient}.
@@ -70,14 +71,12 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 
 	@Test
 	public void setWebClientWhenClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.setWebClient(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setWebClient(null));
 	}
 
 	@Test
 	public void getTokenResponseWhenRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(null).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.getTokenResponse(null).block());
 	}
 
 	@Test
@@ -134,12 +133,12 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
-				.hasMessageContaining("[invalid_token_response]")
-				.hasMessageContaining("An error occurred parsing the Access Token response")
-				.hasCauseInstanceOf(Throwable.class);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
+				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+				.withMessageContaining("[invalid_token_response]")
+				.withMessageContaining("An error occurred parsing the Access Token response")
+				.withCauseInstanceOf(Throwable.class);
 	}
 
 	@Test
@@ -164,10 +163,10 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
-				.hasMessageContaining("[unauthorized_client]");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
+				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+				.withMessageContaining("[unauthorized_client]");
 	}
 
 	@Test
@@ -175,11 +174,11 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
-				.hasMessageContaining("[invalid_token_response]")
-				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
+				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+				.withMessageContaining("[invalid_token_response]")
+				.withMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}
 
 	private MockResponse jsonResponse(String json) {

@@ -96,8 +96,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
@@ -436,8 +435,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	@Test
 	public void configureWhenDecoderAndJwkSetUriThenException() {
-		assertThatThrownBy(() -> this.spring.configLocations(xml("JwtDecoderAndJwkSetUri")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("JwtDecoderAndJwkSetUri")).autowire());
 	}
 
 	@Test
@@ -554,14 +553,14 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	@Test
 	public void configureWhenOnlyIntrospectionUrlThenException() {
-		assertThatCode(() -> this.spring.configLocations(xml("OpaqueTokenHalfConfigured")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("OpaqueTokenHalfConfigured")).autowire());
 	}
 
 	@Test
 	public void configureWhenIntrospectorAndIntrospectionUriThenError() {
-		assertThatCode(() -> this.spring.configLocations(xml("OpaqueTokenAndIntrospectionUri")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("OpaqueTokenAndIntrospectionUri")).autowire());
 	}
 
 	@Test
@@ -642,22 +641,23 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 	@Test
 	public void configuredWhenMissingJwtAuthenticationProviderThenWiringException() {
-		assertThatCode(() -> this.spring.configLocations(xml("Jwtless")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class).hasMessageContaining("Please select one");
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("Jwtless")).autowire())
+				.withMessageContaining("Please select one");
 	}
 
 	@Test
 	public void configureWhenMissingJwkSetUriThenWiringException() {
-		assertThatCode(() -> this.spring.configLocations(xml("JwtHalfConfigured")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class).hasMessageContaining("Please specify either");
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("JwtHalfConfigured")).autowire())
+				.withMessageContaining("Please specify either");
 	}
 
 	@Test
 	public void configureWhenUsingBothAuthenticationManagerResolverAndJwtThenException() {
-		assertThatCode(
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(
 				() -> this.spring.configLocations(xml("AuthenticationManagerResolverPlusOtherConfig")).autowire())
-						.isInstanceOf(BeanDefinitionParsingException.class)
-						.hasMessageContaining("authentication-manager-resolver-ref");
+				.withMessageContaining("authentication-manager-resolver-ref");
 	}
 
 	@Test

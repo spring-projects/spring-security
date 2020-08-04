@@ -38,7 +38,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link ReactiveJwtDecoders}
@@ -91,43 +93,48 @@ public class ReactiveJwtDecodersTests {
 	public void issuerWhenResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
 		prepareConfigurationResponse();
 		ReactiveJwtDecoder decoder = ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer);
-		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH).block()).isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("The iss claim is not valid");
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> decoder.decode(ISSUER_MISMATCH).block())
+				.withMessageContaining("The iss claim is not valid");
 	}
 
 	@Test
 	public void issuerWhenOidcFallbackResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
 		prepareConfigurationResponseOidc();
 		ReactiveJwtDecoder decoder = ReactiveJwtDecoders.fromIssuerLocation(this.issuer);
-		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH).block()).isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("The iss claim is not valid");
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> decoder.decode(ISSUER_MISMATCH).block())
+				.withMessageContaining("The iss claim is not valid");
 	}
 
 	@Test
 	public void issuerWhenOAuth2ResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
 		prepareConfigurationResponseOAuth2();
 		ReactiveJwtDecoder decoder = ReactiveJwtDecoders.fromIssuerLocation(this.issuer);
-		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH).block()).isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("The iss claim is not valid");
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> decoder.decode(ISSUER_MISMATCH).block())
+				.withMessageContaining("The iss claim is not valid");
 	}
 
 	@Test
 	public void issuerWhenResponseIsNonCompliantThenThrowsRuntimeException() {
 		prepareConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
-		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer))
-				.isInstanceOf(RuntimeException.class);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer));
 	}
 
 	@Test
 	public void issuerWhenOidcFallbackResponseIsNonCompliantThenThrowsRuntimeException() {
 		prepareConfigurationResponseOidc("{ \"missing_required_keys\" : \"and_values\" }");
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer)).isInstanceOf(RuntimeException.class);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer));
 	}
 
 	@Test
 	public void issuerWhenOAuth2ResponseIsNonCompliantThenThrowsRuntimeException() {
 		prepareConfigurationResponseOAuth2("{ \"missing_required_keys\" : \"and_values\" }");
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer)).isInstanceOf(RuntimeException.class);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer));
 	}
 
 	// gh-7512
@@ -135,8 +142,8 @@ public class ReactiveJwtDecodersTests {
 	public void issuerWhenResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException()
 			throws JsonMappingException, JsonProcessingException {
 		prepareConfigurationResponse(this.buildResponseWithMissingJwksUri());
-		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("The public JWK set URI must not be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer))
+				.withMessage("The public JWK set URI must not be null");
 	}
 
 	// gh-7512
@@ -144,8 +151,8 @@ public class ReactiveJwtDecodersTests {
 	public void issuerWhenOidcFallbackResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException()
 			throws JsonMappingException, JsonProcessingException {
 		prepareConfigurationResponseOidc(this.buildResponseWithMissingJwksUri());
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("The public JWK set URI must not be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer))
+				.withMessage("The public JWK set URI must not be null");
 	}
 
 	// gh-7512
@@ -153,64 +160,62 @@ public class ReactiveJwtDecodersTests {
 	public void issuerWhenOAuth2ResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException()
 			throws JsonMappingException, JsonProcessingException {
 		prepareConfigurationResponseOAuth2(this.buildResponseWithMissingJwksUri());
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("The public JWK set URI must not be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer))
+				.withMessage("The public JWK set URI must not be null");
 	}
 
 	@Test
 	public void issuerWhenResponseIsMalformedThenThrowsRuntimeException() {
 		prepareConfigurationResponse("malformed");
-		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer))
-				.isInstanceOf(RuntimeException.class);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer));
 	}
 
 	@Test
 	public void issuerWhenOidcFallbackResponseIsMalformedThenThrowsRuntimeException() {
 		prepareConfigurationResponseOidc("malformed");
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer)).isInstanceOf(RuntimeException.class);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer));
 	}
 
 	@Test
 	public void issuerWhenOAuth2ResponseIsMalformedThenThrowsRuntimeException() {
 		prepareConfigurationResponseOAuth2("malformed");
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer)).isInstanceOf(RuntimeException.class);
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer));
 	}
 
 	@Test
 	public void issuerWhenRespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
 		prepareConfigurationResponse(String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer + "/wrong", this.issuer));
-		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer))
-				.isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> ReactiveJwtDecoders.fromOidcIssuerLocation(this.issuer));
 	}
 
 	@Test
 	public void issuerWhenOidcFallbackRespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
 		prepareConfigurationResponseOidc(String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer + "/wrong", this.issuer));
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer))
-				.isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer));
 	}
 
 	@Test
 	public void issuerWhenOAuth2RespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
 		prepareConfigurationResponseOAuth2(
 				String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer + "/wrong", this.issuer));
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer))
-				.isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation(this.issuer));
 	}
 
 	@Test
 	public void issuerWhenRequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException() throws Exception {
 		this.server.shutdown();
-		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation("https://issuer"))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> ReactiveJwtDecoders.fromOidcIssuerLocation("https://issuer"));
 	}
 
 	@Test
 	public void issuerWhenOidcFallbackRequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException()
 			throws Exception {
 		this.server.shutdown();
-		assertThatCode(() -> ReactiveJwtDecoders.fromIssuerLocation("https://issuer"))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> ReactiveJwtDecoders.fromIssuerLocation("https://issuer"));
 	}
 
 	private void prepareConfigurationResponse() {

@@ -62,7 +62,7 @@ import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -121,31 +121,32 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationCodeGrantFilter(null, this.authorizedClientRepository,
-				this.authenticationManager)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AuthorizationCodeGrantFilter(null,
+				this.authorizedClientRepository, this.authenticationManager));
 	}
 
 	@Test
 	public void constructorWhenAuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationCodeGrantFilter(this.clientRegistrationRepository, null,
-				this.authenticationManager)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantFilter(this.clientRegistrationRepository, null,
+						this.authenticationManager));
 	}
 
 	@Test
 	public void constructorWhenAuthenticationManagerIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationCodeGrantFilter(this.clientRegistrationRepository,
-				this.authorizedClientRepository, null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantFilter(this.clientRegistrationRepository,
+						this.authorizedClientRepository, null));
 	}
 
 	@Test
 	public void setAuthorizationRequestRepositoryWhenAuthorizationRequestRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.filter.setAuthorizationRequestRepository(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthorizationRequestRepository(null));
 	}
 
 	@Test
 	public void setRequestCacheWhenRequestCacheIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.filter.setRequestCache(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequestCache(null));
 	}
 
 	@Test

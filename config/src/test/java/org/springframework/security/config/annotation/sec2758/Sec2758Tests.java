@@ -44,7 +44,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -76,8 +75,8 @@ public class Sec2758Tests {
 	@Test
 	public void methodSecurityWhenNullifyingRolePrefixThenPassivityRestored() {
 		this.spring.register(SecurityConfig.class).autowire();
-		assertThatCode(() -> this.service.doJsr250()).doesNotThrowAnyException();
-		assertThatCode(() -> this.service.doPreAuthorize()).doesNotThrowAnyException();
+		this.service.doJsr250();
+		this.service.doPreAuthorize();
 	}
 
 	@EnableWebSecurity

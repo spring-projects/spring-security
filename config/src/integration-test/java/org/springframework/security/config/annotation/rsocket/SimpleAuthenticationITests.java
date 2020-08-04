@@ -52,7 +52,7 @@ import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -93,8 +93,8 @@ public class SimpleAuthenticationITests {
 		this.requester = RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies())
 				.connectTcp("localhost", this.server.address().getPort()).block();
 		String data = "rob";
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
-				.isInstanceOf(ApplicationErrorException.class);
+		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(
+				() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block());
 		assertThat(this.controller.payloads).isEmpty();
 	}
 

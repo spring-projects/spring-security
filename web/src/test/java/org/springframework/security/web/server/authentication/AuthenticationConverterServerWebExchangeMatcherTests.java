@@ -29,7 +29,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -82,13 +83,13 @@ public class AuthenticationConverterServerWebExchangeMatcherTests {
 	@Test
 	public void matchesWhenNullThenThrowsException() {
 		given(this.converter.convert(any())).willReturn(null);
-		assertThatCode(() -> this.matcher.matches(this.exchange).block()).isInstanceOf(NullPointerException.class);
+		assertThatNullPointerException().isThrownBy(() -> this.matcher.matches(this.exchange).block());
 	}
 
 	@Test
 	public void matchesWhenExceptionThenPropagates() {
 		given(this.converter.convert(any())).willThrow(RuntimeException.class);
-		assertThatCode(() -> this.matcher.matches(this.exchange).block()).isInstanceOf(RuntimeException.class);
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> this.matcher.matches(this.exchange).block());
 	}
 
 }

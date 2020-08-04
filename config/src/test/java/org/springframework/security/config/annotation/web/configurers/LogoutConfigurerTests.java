@@ -36,7 +36,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -66,26 +66,30 @@ public class LogoutConfigurerTests {
 
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerInLambdaThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerInLambdaConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerInLambdaConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullMatcherConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullMatcherConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherInLambdaThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullMatcherInLambdaConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullMatcherInLambdaConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -161,14 +165,16 @@ public class LogoutConfigurerTests {
 	// SEC-3170
 	@Test
 	public void configureWhenLogoutHandlerNullThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullLogoutHandlerConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullLogoutHandlerConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenLogoutHandlerNullInLambdaThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullLogoutHandlerInLambdaConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullLogoutHandlerInLambdaConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	// SEC-3170

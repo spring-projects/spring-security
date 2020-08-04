@@ -35,7 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -73,9 +73,11 @@ public class EnableReactiveMethodSecurityTests {
 
 	@Test
 	public void notPublisherPreAuthorizeFindByIdThenThrowsIllegalStateException() {
-		assertThatThrownBy(() -> this.messageService.notPublisherPreAuthorizeFindById(1L))
-				.isInstanceOf(IllegalStateException.class).extracting(Throwable::getMessage).isEqualTo(
-						"The returnType class java.lang.String on public abstract java.lang.String org.springframework.security.config.annotation.method.configuration.ReactiveMessageService.notPublisherPreAuthorizeFindById(long) must return an instance of org.reactivestreams.Publisher (i.e. Mono / Flux) in order to support Reactor Context");
+		assertThatIllegalStateException().isThrownBy(() -> this.messageService.notPublisherPreAuthorizeFindById(1L))
+				.withMessage("The returnType class java.lang.String on public abstract java.lang.String "
+						+ "org.springframework.security.config.annotation.method.configuration.ReactiveMessageService"
+						+ ".notPublisherPreAuthorizeFindById(long) must return an instance of org.reactivestreams"
+						+ ".Publisher (i.e. Mono / Flux) in order to support Reactor Context");
 	}
 
 	@Test

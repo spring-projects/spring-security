@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link HeaderBearerTokenResolver}
@@ -38,14 +38,14 @@ public class HeaderBearerTokenResolverTests {
 
 	@Test
 	public void constructorWhenHeaderNullThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new HeaderBearerTokenResolver(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("header cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderBearerTokenResolver(null))
+				.withMessage("header cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenHeaderEmptyThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new HeaderBearerTokenResolver("")).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("header cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderBearerTokenResolver(""))
+				.withMessage("header cannot be empty");
 	}
 
 	@Test

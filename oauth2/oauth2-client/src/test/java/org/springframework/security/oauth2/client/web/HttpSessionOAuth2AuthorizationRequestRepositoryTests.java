@@ -30,7 +30,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link HttpSessionOAuth2AuthorizationRequestRepository}.
@@ -110,23 +110,23 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 	@Test
 	public void saveAuthorizationRequestWhenHttpServletRequestIsNullThenThrowIllegalArgumentException() {
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest().build();
-		assertThatThrownBy(() -> this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest,
-				null, new MockHttpServletResponse())).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizationRequestRepository
+				.saveAuthorizationRequest(authorizationRequest, null, new MockHttpServletResponse()));
 	}
 
 	@Test
 	public void saveAuthorizationRequestWhenHttpServletResponseIsNullThenThrowIllegalArgumentException() {
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest().build();
-		assertThatThrownBy(() -> this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest,
-				new MockHttpServletRequest(), null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizationRequestRepository
+				.saveAuthorizationRequest(authorizationRequest, new MockHttpServletRequest(), null));
 	}
 
 	@Test
 	public void saveAuthorizationRequestWhenStateNullThenThrowIllegalArgumentException() {
 		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest().state(null).build();
-		assertThatThrownBy(() -> this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest,
-				new MockHttpServletRequest(), new MockHttpServletResponse()))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest,
+						new MockHttpServletRequest(), new MockHttpServletResponse()));
 	}
 
 	@Test
@@ -185,15 +185,14 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 
 	@Test
 	public void removeAuthorizationRequestWhenHttpServletRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizationRequestRepository.removeAuthorizationRequest(null,
-				new MockHttpServletResponse())).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizationRequestRepository
+				.removeAuthorizationRequest(null, new MockHttpServletResponse()));
 	}
 
 	@Test
 	public void removeAuthorizationRequestWhenHttpServletResponseIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizationRequestRepository
-				.removeAuthorizationRequest(new MockHttpServletRequest(), null))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizationRequestRepository
+				.removeAuthorizationRequest(new MockHttpServletRequest(), null));
 	}
 
 	@Test

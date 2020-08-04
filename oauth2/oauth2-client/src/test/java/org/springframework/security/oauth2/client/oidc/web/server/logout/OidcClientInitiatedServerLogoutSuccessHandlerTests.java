@@ -42,7 +42,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -149,14 +149,12 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 
 	@Test
 	public void setPostLogoutRedirectUriWhenGivenNullThenThrowsException() {
-		assertThatThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null));
 	}
 
 	@Test
 	public void setPostLogoutRedirectUriTemplateWhenGivenNullThenThrowsException() {
-		assertThatThrownBy(() -> this.handler.setPostLogoutRedirectUri((String) null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((String) null));
 	}
 
 	private String redirectedUrl(ServerWebExchange exchange) {

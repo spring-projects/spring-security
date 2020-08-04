@@ -39,7 +39,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultAuthorizationCodeTokenResponseClient}.
@@ -74,20 +75,17 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void setRequestEntityConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.setRequestEntityConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setRequestEntityConverter(null));
 	}
 
 	@Test
 	public void setRestOperationsWhenRestOperationsIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.setRestOperations(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setRestOperations(null));
 	}
 
 	@Test
 	public void getTokenResponseWhenRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.getTokenResponse(null));
 	}
 
 	@Test
@@ -151,22 +149,22 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"not-bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining(
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
+				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.hasMessageContaining("tokenType cannot be null");
+				.withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndMissingTokenTypeParameterThenThrowOAuth2AuthorizationException() {
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining(
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
+				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.hasMessageContaining("tokenType cannot be null");
+				.withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
@@ -195,8 +193,9 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() {
 		String invalidTokenUri = "https://invalid-provider.com/oauth2/token";
 		ClientRegistration clientRegistration = this.from(this.clientRegistration).tokenUri(invalidTokenUri).build();
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest(
-				clientRegistration))).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining(
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(
+				() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest(clientRegistration)))
+				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
@@ -209,8 +208,9 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 				+ "   \"custom_parameter_2\": \"custom-value-2\"\n";
 		// "}\n"; // Make the JSON invalid/malformed
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
-				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining(
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
+				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
 	}
 
@@ -218,16 +218,18 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
-				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("[unauthorized_client]");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
+				.withMessageContaining("[unauthorized_client]");
 	}
 
 	@Test
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
 		this.server.enqueue(new MockResponse().setResponseCode(500));
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
-				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining(
-						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest()))
+				.withMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve "
+						+ "the OAuth 2.0 Access Token Response");
 	}
 
 	private OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest() {

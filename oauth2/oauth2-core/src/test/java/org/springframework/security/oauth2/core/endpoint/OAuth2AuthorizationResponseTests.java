@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.core.endpoint;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link OAuth2AuthorizationResponse}.
@@ -52,9 +51,7 @@ public class OAuth2AuthorizationResponseTests {
 
 	@Test
 	public void buildSuccessResponseWhenStateIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(
-				() -> OAuth2AuthorizationResponse.success(AUTH_CODE).redirectUri(REDIRECT_URI).state(null).build())
-						.doesNotThrowAnyException();
+		OAuth2AuthorizationResponse.success(AUTH_CODE).redirectUri(REDIRECT_URI).state(null).build();
 	}
 
 	@Test
@@ -84,9 +81,7 @@ public class OAuth2AuthorizationResponseTests {
 
 	@Test
 	public void buildErrorResponseWhenStateIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(
-				() -> OAuth2AuthorizationResponse.error(ERROR_CODE).redirectUri(REDIRECT_URI).state(null).build())
-						.doesNotThrowAnyException();
+		OAuth2AuthorizationResponse.error(ERROR_CODE).redirectUri(REDIRECT_URI).state(null).build();
 	}
 
 	@Test

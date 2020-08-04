@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
@@ -343,8 +343,9 @@ public class CsrfConfigurerTests {
 	// SEC-2749
 	@Test
 	public void configureWhenRequireCsrfProtectionMatcherNullThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullRequireCsrfProtectionMatcherConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullRequireCsrfProtectionMatcherConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -356,8 +357,9 @@ public class CsrfConfigurerTests {
 
 	@Test
 	public void getWhenNullAuthenticationStrategyThenException() {
-		assertThatThrownBy(() -> this.spring.register(NullAuthenticationStrategy.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullAuthenticationStrategy.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

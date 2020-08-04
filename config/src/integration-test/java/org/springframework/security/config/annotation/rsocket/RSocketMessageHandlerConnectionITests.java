@@ -21,6 +21,7 @@ import java.util.List;
 
 import io.rsocket.RSocketFactory;
 import io.rsocket.exceptions.ApplicationErrorException;
+import io.rsocket.exceptions.RejectedSetupException;
 import io.rsocket.frame.decoder.PayloadDecoder;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
@@ -49,7 +50,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -103,8 +104,8 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-		assertThatCode(() -> this.requester.route("secure.admin.retrieve-mono").data("data").retrieveMono(String.class)
-				.block()).isInstanceOf(ApplicationErrorException.class);
+		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(() -> this.requester
+				.route("secure.admin.retrieve-mono").data("data").retrieveMono(String.class).block());
 	}
 
 	@Test
@@ -137,10 +138,11 @@ public class RSocketMessageHandlerConnectionITests {
 	public void connectWhenNotAuthenticated() {
 		this.requester = requester().connectTcp(this.server.address().getHostName(), this.server.address().getPort())
 				.block();
-		assertThatCode(() -> this.requester.route("retrieve-mono").data("data").retrieveMono(String.class).block())
-				.isNotNull();
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(() -> this.requester.route("retrieve-mono").data("data").retrieveMono(String.class).block())
+				.matches((ex) -> ex instanceof RejectedSetupException
+						|| ex.getClass().toString().contains("ReactiveException"));
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
-		// .isInstanceOf(RejectedSetupException.class);
 	}
 
 	@Test
@@ -148,10 +150,11 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("evil", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-		assertThatCode(() -> this.requester.route("retrieve-mono").data("data").retrieveMono(String.class).block())
-				.isNotNull();
+		assertThatExceptionOfType(Exception.class)
+				.isThrownBy(() -> this.requester.route("retrieve-mono").data("data").retrieveMono(String.class).block())
+				.matches((ex) -> ex instanceof RejectedSetupException
+						|| ex.getClass().toString().contains("ReactiveException"));
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
-		// .isInstanceOf(RejectedSetupException.class);
 	}
 
 	@Test
@@ -159,8 +162,8 @@ public class RSocketMessageHandlerConnectionITests {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		this.requester = requester().setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
 				.connectTcp(this.server.address().getHostName(), this.server.address().getPort()).block();
-		assertThatCode(() -> this.requester.route("prohibit").data("data").retrieveMono(String.class).block())
-				.isInstanceOf(ApplicationErrorException.class);
+		assertThatExceptionOfType(ApplicationErrorException.class)
+				.isThrownBy(() -> this.requester.route("prohibit").data("data").retrieveMono(String.class).block());
 	}
 
 	@Test

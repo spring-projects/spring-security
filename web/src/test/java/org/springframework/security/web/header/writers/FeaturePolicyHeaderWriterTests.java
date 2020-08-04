@@ -23,7 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link FeaturePolicyHeaderWriter}.
@@ -59,14 +59,14 @@ public class FeaturePolicyHeaderWriterTests {
 
 	@Test
 	public void createWriterWithNullDirectivesShouldThrowException() {
-		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("policyDirectives must not be null or empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new FeaturePolicyHeaderWriter(null))
+				.withMessage("policyDirectives must not be null or empty");
 	}
 
 	@Test
 	public void createWriterWithEmptyDirectivesShouldThrowException() {
-		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter("")).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("policyDirectives must not be null or empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new FeaturePolicyHeaderWriter(""))
+				.withMessage("policyDirectives must not be null or empty");
 	}
 
 	@Test

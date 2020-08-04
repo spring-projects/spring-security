@@ -34,7 +34,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequestMixin}.
@@ -79,8 +79,8 @@ public class OAuth2AuthorizationRequestMixinTests {
 	@Test
 	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
 		String json = asJson(this.authorizationRequestBuilder.build());
-		assertThatThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthorizationRequest.class))
-				.isInstanceOf(JsonProcessingException.class);
+		assertThatExceptionOfType(JsonProcessingException.class)
+				.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthorizationRequest.class));
 	}
 
 	@Test
@@ -128,8 +128,9 @@ public class OAuth2AuthorizationRequestMixinTests {
 	public void deserializeWhenInvalidAuthorizationGrantTypeThenThrowJsonParseException() {
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestBuilder.build();
 		String json = asJson(authorizationRequest).replace("authorization_code", "client_credentials");
-		assertThatThrownBy(() -> this.mapper.readValue(json, OAuth2AuthorizationRequest.class))
-				.isInstanceOf(JsonParseException.class).hasMessageContaining("Invalid authorizationGrantType");
+		assertThatExceptionOfType(JsonParseException.class)
+				.isThrownBy(() -> this.mapper.readValue(json, OAuth2AuthorizationRequest.class))
+				.withMessageContaining("Invalid authorizationGrantType");
 	}
 
 	private static String asJson(OAuth2AuthorizationRequest authorizationRequest) {

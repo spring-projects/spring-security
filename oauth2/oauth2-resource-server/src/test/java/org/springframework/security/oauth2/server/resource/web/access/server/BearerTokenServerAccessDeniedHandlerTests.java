@@ -33,7 +33,6 @@ import org.springframework.security.oauth2.server.resource.authentication.Abstra
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -86,7 +85,7 @@ public class BearerTokenServerAccessDeniedHandlerTests {
 
 	@Test
 	public void setRealmNameWhenNullRealmNameThenNoExceptionThrown() {
-		assertThatCode(() -> this.accessDeniedHandler.setRealmName(null)).doesNotThrowAnyException();
+		this.accessDeniedHandler.setRealmName(null);
 	}
 
 	static class TestingOAuth2TokenAuthenticationToken

@@ -26,7 +26,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultOAuth2AuthenticatedPrincipal}
@@ -43,10 +43,10 @@ public class DefaultOAuth2AuthenticatedPrincipalTests {
 
 	@Test
 	public void constructorWhenAttributesIsNullOrEmptyThenIllegalArgumentException() {
-		assertThatCode(() -> new DefaultOAuth2AuthenticatedPrincipal(null, this.authorities))
-				.isInstanceOf(IllegalArgumentException.class);
-		assertThatCode(() -> new DefaultOAuth2AuthenticatedPrincipal(Collections.emptyMap(), this.authorities))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultOAuth2AuthenticatedPrincipal(null, this.authorities));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DefaultOAuth2AuthenticatedPrincipal(Collections.emptyMap(), this.authorities));
 	}
 
 	@Test

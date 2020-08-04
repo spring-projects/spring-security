@@ -30,7 +30,6 @@ import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link BearerTokenAccessDeniedHandlerTests}
@@ -85,7 +84,7 @@ public class BearerTokenAccessDeniedHandlerTests {
 
 	@Test
 	public void setRealmNameWhenNullRealmNameThenNoExceptionThrown() {
-		assertThatCode(() -> this.accessDeniedHandler.setRealmName(null)).doesNotThrowAnyException();
+		this.accessDeniedHandler.setRealmName(null);
 	}
 
 	static class TestingOAuth2TokenAuthenticationToken

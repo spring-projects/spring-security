@@ -37,7 +37,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultPasswordTokenResponseClient}.
@@ -72,20 +73,17 @@ public class DefaultPasswordTokenResponseClientTests {
 
 	@Test
 	public void setRequestEntityConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.setRequestEntityConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setRequestEntityConverter(null));
 	}
 
 	@Test
 	public void setRestOperationsWhenRestOperationsIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.setRestOperations(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.setRestOperations(null));
 	}
 
 	@Test
 	public void getTokenResponseWhenRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tokenResponseClient.getTokenResponse(null));
 	}
 
 	@Test
@@ -141,11 +139,11 @@ public class DefaultPasswordTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining(
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest))
+				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.hasMessageContaining("tokenType cannot be null");
+				.withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
@@ -169,8 +167,9 @@ public class DefaultPasswordTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("[unauthorized_client]");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest))
+				.withMessageContaining("[unauthorized_client]");
 	}
 
 	@Test
@@ -178,9 +177,10 @@ public class DefaultPasswordTokenResponseClientTests {
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
 				this.clientRegistrationBuilder.build(), this.username, this.password);
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest))
-				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining(
-						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest))
+				.withMessageContaining("[invalid_token_response] An error occurred while attempting to "
+						+ "retrieve the OAuth 2.0 Access Token Response");
 	}
 
 	private MockResponse jsonResponse(String json) {

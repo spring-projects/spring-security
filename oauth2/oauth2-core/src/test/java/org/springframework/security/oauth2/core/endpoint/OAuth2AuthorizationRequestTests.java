@@ -28,8 +28,7 @@ import org.junit.Test;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequest}.
@@ -51,50 +50,47 @@ public class OAuth2AuthorizationRequestTests {
 
 	@Test
 	public void buildWhenAuthorizationUriIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(null)
-				.clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(null)
+						.clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE).build());
 	}
 
 	@Test
 	public void buildWhenClientIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI)
-				.clientId(null).redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI)
+						.clientId(null).redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE).build());
 	}
 
 	@Test
 	public void buildWhenRedirectUriIsNullForImplicitThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationRequest.implicit().authorizationUri(AUTHORIZATION_URI)
-				.clientId(CLIENT_ID).redirectUri(null).scopes(SCOPES).state(STATE).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> OAuth2AuthorizationRequest.implicit().authorizationUri(AUTHORIZATION_URI)
+						.clientId(CLIENT_ID).redirectUri(null).scopes(SCOPES).state(STATE).build());
 	}
 
 	@Test
 	public void buildWhenRedirectUriIsNullForAuthorizationCodeThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI)
-				.clientId(CLIENT_ID).redirectUri(null).scopes(SCOPES).state(STATE).build()).doesNotThrowAnyException();
+		OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID)
+				.redirectUri(null).scopes(SCOPES).state(STATE).build();
 	}
 
 	@Test
 	public void buildWhenScopesIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI)
-				.clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(null).state(STATE).build())
-						.doesNotThrowAnyException();
+		OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI).scopes(null).state(STATE).build();
 	}
 
 	@Test
 	public void buildWhenStateIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI)
-				.clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES).state(null).build())
-						.doesNotThrowAnyException();
+		OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI).scopes(SCOPES).state(null).build();
 	}
 
 	@Test
 	public void buildWhenAdditionalParametersEmptyThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI)
-				.clientId(CLIENT_ID).redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE)
-				.additionalParameters(Map::clear).build()).doesNotThrowAnyException();
+		OAuth2AuthorizationRequest.authorizationCode().authorizationUri(AUTHORIZATION_URI).clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI).scopes(SCOPES).state(STATE).additionalParameters(Map::clear).build();
 	}
 
 	@Test
@@ -189,7 +185,7 @@ public class OAuth2AuthorizationRequestTests {
 
 	@Test
 	public void fromWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationRequest.from(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> OAuth2AuthorizationRequest.from(null));
 	}
 
 	@Test

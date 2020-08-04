@@ -69,7 +69,7 @@ import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -397,16 +397,14 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Test
 	public void setValidationContextConverterWhenNullThenIllegalArgument() {
-		assertThatCode(() -> this.provider.setValidationContextConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.provider.setValidationContextConverter(null));
 	}
 
 	@Test
 	public void setConditionValidatorsWhenNullOrEmptyThenIllegalArgument() {
-		assertThatCode(() -> this.provider.setConditionValidators(null)).isInstanceOf(IllegalArgumentException.class);
-
-		assertThatCode(() -> this.provider.setConditionValidators(Collections.emptyList()))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.provider.setConditionValidators(null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.provider.setConditionValidators(Collections.emptyList()));
 	}
 
 	private <T extends XMLObject> T build(QName qName) {

@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2ClientCredentialsGrantRequest}.
@@ -45,8 +45,7 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(null));
 	}
 
 	@Test
@@ -55,8 +54,8 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 				.clientId("client-1").authorizationGrantType(AuthorizationGrantType.IMPLICIT)
 				.redirectUri("https://localhost:8080/redirect-uri").authorizationUri("https://provider.com/oauth2/auth")
 				.clientName("Client 1").build();
-		assertThatThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(clientRegistration))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage(
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(clientRegistration)).withMessage(
 						"clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");
 	}
 

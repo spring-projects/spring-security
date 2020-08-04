@@ -33,8 +33,8 @@ import org.springframework.security.test.context.annotation.SecurityTestExecutio
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -54,16 +54,17 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 	@WithMockUser
 	public void methodSecurityWhenUsingCustomPermissionEvaluatorThenPreAuthorizesAccordingly() {
 		this.spring.register(CustomAccessDecisionManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
-		assertThatCode(() -> this.service.hasPermission("granted")).doesNotThrowAnyException();
-		assertThatThrownBy(() -> this.service.hasPermission("denied")).isInstanceOf(AccessDeniedException.class);
+		assertThat(this.service.hasPermission("granted")).isNull();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.service.hasPermission("denied"));
 	}
 
 	@Test
 	@WithMockUser
 	public void methodSecurityWhenUsingCustomPermissionEvaluatorThenPostAuthorizesAccordingly() {
 		this.spring.register(CustomAccessDecisionManagerConfig.class, MethodSecurityServiceConfig.class).autowire();
-		assertThatCode(() -> this.service.postHasPermission("granted")).doesNotThrowAnyException();
-		assertThatThrownBy(() -> this.service.postHasPermission("denied")).isInstanceOf(AccessDeniedException.class);
+		assertThat(this.service.postHasPermission("granted")).isNull();
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.service.postHasPermission("denied"));
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)

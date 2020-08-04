@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -76,40 +76,36 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 	@Test
 	public void constructorNullClientRegistrationRepositoryThenThrowsIllegalArgumentException() {
 		this.clientRegistrationRepository = null;
-		assertThatThrownBy(() -> new InMemoryReactiveOAuth2AuthorizedClientService(this.clientRegistrationRepository))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new InMemoryReactiveOAuth2AuthorizedClientService(this.clientRegistrationRepository));
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdNullThenIllegalArgumentException() {
 		this.clientRegistrationId = null;
-		assertThatThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdEmptyThenIllegalArgumentException() {
 		this.clientRegistrationId = "";
-		assertThatThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenPrincipalNameNullThenIllegalArgumentException() {
 		this.principalName = null;
-		assertThatThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenPrincipalNameEmptyThenIllegalArgumentException() {
 		this.principalName = "";
-		assertThatThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
 	}
 
 	@Test
@@ -145,8 +141,8 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 	@Test
 	public void saveAuthorizedClientWhenAuthorizedClientNullThenIllegalArgumentException() {
 		OAuth2AuthorizedClient authorizedClient = null;
-		assertThatThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, this.principal))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, this.principal));
 	}
 
 	@Test
@@ -154,38 +150,36 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
 				this.principalName, this.accessToken);
 		this.principal = null;
-		assertThatThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, this.principal))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, this.principal));
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdNullThenIllegalArgumentException() {
 		this.clientRegistrationId = null;
-		assertThatThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdEmptyThenIllegalArgumentException() {
 		this.clientRegistrationId = "";
-		assertThatThrownBy(
-				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> this.authorizedClientService.loadAuthorizedClient(this.clientRegistrationId, this.principalName));
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenPrincipalNameNullThenIllegalArgumentException() {
 		this.principalName = null;
-		assertThatThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(this.clientRegistrationId,
-				this.principalName)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientService
+				.removeAuthorizedClient(this.clientRegistrationId, this.principalName));
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenPrincipalNameEmptyThenIllegalArgumentException() {
 		this.principalName = "";
-		assertThatThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(this.clientRegistrationId,
-				this.principalName)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientService
+				.removeAuthorizedClient(this.clientRegistrationId, this.principalName));
 	}
 
 	@Test

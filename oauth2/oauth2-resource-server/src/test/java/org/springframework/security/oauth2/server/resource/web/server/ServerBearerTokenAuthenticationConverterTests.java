@@ -31,8 +31,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -80,12 +79,13 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenValidHeaderIsEmptyStringThenTokenIsResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer ");
-		OAuth2AuthenticationException expected = catchThrowableOfType(() -> convertToToken(request),
-				OAuth2AuthenticationException.class);
-		BearerTokenError error = (BearerTokenError) expected.getError();
-		assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_TOKEN);
-		assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
-		assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> convertToToken(request))
+				.satisfies((ex) -> {
+					BearerTokenError error = (BearerTokenError) ex.getError();
+					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_TOKEN);
+					assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
+					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+				});
 	}
 
 	@Test
@@ -112,16 +112,16 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenHeaderWithMissingTokenIsPresentThenAuthenticationExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer ");
-		assertThatCode(() -> convertToToken(request)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining(("Bearer token is malformed"));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> convertToToken(request))
+				.withMessageContaining(("Bearer token is malformed"));
 	}
 
 	@Test
 	public void resolveWhenHeaderWithInvalidCharactersIsPresentThenAuthenticationExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer an\"invalid\"token");
-		assertThatCode(() -> convertToToken(request)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining(("Bearer token is malformed"));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> convertToToken(request))
+				.withMessageContaining(("Bearer token is malformed"));
 	}
 
 	// gh-8865
@@ -129,15 +129,15 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenHeaderWithInvalidCharactersIsPresentAndNotSubscribedThenNoneExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").header(HttpHeaders.AUTHORIZATION,
 				"Bearer an\"invalid\"token");
-		assertThatCode(() -> this.converter.convert(MockServerWebExchange.from(request))).doesNotThrowAnyException();
+		this.converter.convert(MockServerWebExchange.from(request));
 	}
 
 	@Test
 	public void resolveWhenValidHeaderIsPresentTogetherWithQueryParameterThenAuthenticationExceptionIsThrown() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
 				.queryParam("access_token", TEST_TOKEN).header(HttpHeaders.AUTHORIZATION, "Bearer " + TEST_TOKEN);
-		assertThatCode(() -> convertToToken(request)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("Found multiple bearer tokens in the request");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> convertToToken(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	@Test
@@ -153,12 +153,13 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	public void resolveWhenQueryParameterIsEmptyAndSupportedThenOAuth2AuthenticationException() {
 		this.converter.setAllowUriQueryParameter(true);
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/").queryParam("access_token", "");
-		OAuth2AuthenticationException expected = catchThrowableOfType(() -> convertToToken(request),
-				OAuth2AuthenticationException.class);
-		BearerTokenError error = (BearerTokenError) expected.getError();
-		assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_TOKEN);
-		assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
-		assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> convertToToken(request))
+				.satisfies((ex) -> {
+					BearerTokenError error = (BearerTokenError) ex.getError();
+					assertThat(error.getErrorCode()).isEqualTo(BearerTokenErrorCodes.INVALID_TOKEN);
+					assertThat(error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
+					assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+				});
 	}
 
 	@Test

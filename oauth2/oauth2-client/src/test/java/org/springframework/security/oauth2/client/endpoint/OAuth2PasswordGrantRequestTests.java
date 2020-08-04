@@ -23,7 +23,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2PasswordGrantRequest}.
@@ -41,32 +41,37 @@ public class OAuth2PasswordGrantRequestTests {
 
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2PasswordGrantRequest(null, this.username, this.password))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistration cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2PasswordGrantRequest(null, this.username, this.password))
+				.withMessage("clientRegistration cannot be null");
 	}
 
 	@Test
 	public void constructorWhenUsernameIsEmptyThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2PasswordGrantRequest(this.clientRegistration, null, this.password))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("username cannot be empty");
-		assertThatThrownBy(() -> new OAuth2PasswordGrantRequest(this.clientRegistration, "", this.password))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("username cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2PasswordGrantRequest(this.clientRegistration, null, this.password))
+				.withMessage("username cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2PasswordGrantRequest(this.clientRegistration, "", this.password))
+				.withMessage("username cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenPasswordIsEmptyThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2PasswordGrantRequest(this.clientRegistration, this.username, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("password cannot be empty");
-		assertThatThrownBy(() -> new OAuth2PasswordGrantRequest(this.clientRegistration, this.username, ""))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("password cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2PasswordGrantRequest(this.clientRegistration, this.username, null))
+				.withMessage("password cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2PasswordGrantRequest(this.clientRegistration, this.username, ""))
+				.withMessage("password cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenClientRegistrationInvalidGrantTypeThenThrowIllegalArgumentException() {
 		ClientRegistration registration = TestClientRegistrations.clientCredentials().build();
-		assertThatThrownBy(() -> new OAuth2PasswordGrantRequest(registration, this.username, this.password))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistration.authorizationGrantType must be AuthorizationGrantType.PASSWORD");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2PasswordGrantRequest(registration, this.username, this.password))
+				.withMessage("clientRegistration.authorizationGrantType must be AuthorizationGrantType.PASSWORD");
 	}
 
 	@Test

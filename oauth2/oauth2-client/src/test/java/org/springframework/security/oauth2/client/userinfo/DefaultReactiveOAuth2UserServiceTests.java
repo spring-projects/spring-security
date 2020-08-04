@@ -51,7 +51,7 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -95,7 +95,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoUriIsNullThenThrowOAuth2AuthenticationException() {
 		this.clientRegistration.userInfoUri(null);
-		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies((t) -> assertThat(t)
+		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies((ex) -> assertThat(ex)
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("missing_user_info_uri"))
 				.verify();
 	}
@@ -103,7 +103,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserNameAttributeNameIsNullThenThrowOAuth2AuthenticationException() {
 		this.clientRegistration.userNameAttributeName(null);
-		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies((t) -> assertThat(t)
+		StepVerifier.create(this.userService.loadUser(oauth2UserRequest())).expectErrorSatisfies((ex) -> assertThat(ex)
 				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("missing_user_name_attribute"))
 				.verify();
 	}
@@ -169,23 +169,25 @@ public class DefaultReactiveOAuth2UserServiceTests {
 				+ "   \"address\": \"address\",\n" + "   \"email\": \"user1@example.com\"\n";
 		// "}\n"; // Make the JSON invalid/malformed
 		enqueueApplicationJsonBody(userInfoResponse);
-		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("invalid_user_info_response");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
+				.withMessageContaining("invalid_user_info_response");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() {
 		this.server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setResponseCode(500).setBody("{}"));
-		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("invalid_user_info_response");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
+				.withMessageContaining("invalid_user_info_response");
 	}
 
 	@Test
 	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() {
 		this.clientRegistration.userInfoUri("https://invalid-provider.com/user");
-		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
-				.isInstanceOf(AuthenticationServiceException.class);
+		assertThatExceptionOfType(AuthenticationServiceException.class)
+				.isThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block());
 	}
 
 	@Test
@@ -224,11 +226,11 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		response.setBody("invalid content type");
 		this.server.enqueue(response);
 		OAuth2UserRequest userRequest = oauth2UserRequest();
-		assertThatThrownBy(() -> this.userService.loadUser(userRequest).block())
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining(
-						"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource from '"
-								+ userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
-										.getUri()
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.userService.loadUser(userRequest).block()).withMessageContaining(
+						"[invalid_user_info_response] An error occurred while attempting to "
+								+ "retrieve the UserInfo Resource from '" + userRequest.getClientRegistration()
+										.getProviderDetails().getUserInfoEndpoint().getUri()
 								+ "': " + "response contains invalid content type 'text/plain'");
 	}
 

@@ -32,7 +32,7 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OidcUserRequest}.
@@ -62,20 +62,20 @@ public class OidcUserRequestTests {
 
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OidcUserRequest(null, this.accessToken, this.idToken))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OidcUserRequest(null, this.accessToken, this.idToken));
 	}
 
 	@Test
 	public void constructorWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OidcUserRequest(this.clientRegistration, null, this.idToken))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OidcUserRequest(this.clientRegistration, null, this.idToken));
 	}
 
 	@Test
 	public void constructorWhenIdTokenIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OidcUserRequest(this.clientRegistration, this.accessToken, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OidcUserRequest(this.clientRegistration, this.accessToken, null));
 	}
 
 	@Test

@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -92,18 +92,17 @@ public class IpAddressMatcherTests {
 	@Test
 	public void ipv4RequiredAddressMaskTooLongThenIllegalArgumentException() {
 		String ipv4AddressWithTooLongMask = "192.168.1.104/33";
-		assertThatCode(() -> new IpAddressMatcher(ipv4AddressWithTooLongMask))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage(
-						String.format("IP address %s is too short for bitmask of " + "length %d", "192.168.1.104", 33));
+		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(ipv4AddressWithTooLongMask))
+				.withMessage(String.format("IP address %s is too short for bitmask of length %d", "192.168.1.104", 33));
 	}
 
 	// SEC-2576
 	@Test
 	public void ipv6RequiredAddressMaskTooLongThenIllegalArgumentException() {
 		String ipv6AddressWithTooLongMask = "fe80::21f:5bff:fe33:bd68/129";
-		assertThatCode(() -> new IpAddressMatcher(ipv6AddressWithTooLongMask))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage(String.format(
-						"IP address %s is too short for bitmask of " + "length %d", "fe80::21f:5bff:fe33:bd68", 129));
+		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(ipv6AddressWithTooLongMask))
+				.withMessage(String.format("IP address %s is too short for bitmask of length %d",
+						"fe80::21f:5bff:fe33:bd68", 129));
 	}
 
 }

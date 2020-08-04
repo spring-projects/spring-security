@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.springframework.security.saml2.Saml2Exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link RelyingPartyRegistration}
@@ -106,8 +106,8 @@ public class RelyingPartyRegistrationsTests {
 			server.enqueue(new MockResponse().setBody(IDP_SSO_DESCRIPTOR_PAYLOAD).setResponseCode(200));
 			String url = server.url("/").toString();
 			server.shutdown();
-			assertThatCode(() -> RelyingPartyRegistrations.fromMetadataLocation(url))
-					.isInstanceOf(Saml2Exception.class);
+			assertThatExceptionOfType(Saml2Exception.class)
+					.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation(url));
 		}
 	}
 
@@ -116,8 +116,8 @@ public class RelyingPartyRegistrationsTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.enqueue(new MockResponse().setBody("malformed").setResponseCode(200));
 			String url = server.url("/").toString();
-			assertThatCode(() -> RelyingPartyRegistrations.fromMetadataLocation(url))
-					.isInstanceOf(Saml2Exception.class);
+			assertThatExceptionOfType(Saml2Exception.class)
+					.isThrownBy(() -> RelyingPartyRegistrations.fromMetadataLocation(url));
 		}
 	}
 

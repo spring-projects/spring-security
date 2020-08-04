@@ -32,7 +32,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -110,8 +111,7 @@ public class HttpsRedirectWebFilterTests {
 	@Test
 	public void filterWhenRequestIsInsecureAndNoPortMappingThenThrowsIllegalState() {
 		ServerWebExchange exchange = get("http://localhost:1234");
-		assertThatCode(() -> this.filter.filter(exchange, this.chain).block())
-				.isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> this.filter.filter(exchange, this.chain).block());
 	}
 
 	@Test
@@ -124,13 +124,12 @@ public class HttpsRedirectWebFilterTests {
 
 	@Test
 	public void setRequiresTransportSecurityMatcherWhenSetWithNullValueThenThrowsIllegalArgument() {
-		assertThatCode(() -> this.filter.setRequiresHttpsRedirectMatcher(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequiresHttpsRedirectMatcher(null));
 	}
 
 	@Test
 	public void setPortMapperWhenSetWithNullValueThenThrowsIllegalArgument() {
-		assertThatCode(() -> this.filter.setPortMapper(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setPortMapper(null));
 	}
 
 	private String redirectedUrl(ServerWebExchange exchange) {

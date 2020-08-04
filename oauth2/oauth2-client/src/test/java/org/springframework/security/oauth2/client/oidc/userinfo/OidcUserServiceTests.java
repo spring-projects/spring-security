@@ -56,7 +56,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
@@ -113,20 +113,17 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void setOauth2UserServiceWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.userService.setOauth2UserService(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.setOauth2UserService(null));
 	}
 
 	@Test
 	public void setClaimTypeConverterFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.userService.setClaimTypeConverterFactory(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.setClaimTypeConverterFactory(null));
 	}
 
 	@Test
 	public void setAccessibleScopesWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.userService.setAccessibleScopes(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.setAccessibleScopes(null));
 	}
 
 	@Test

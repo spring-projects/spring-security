@@ -41,7 +41,7 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
@@ -86,20 +86,19 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new DefaultOAuth2AuthorizationRequestResolver(null, this.authorizationRequestBaseUri))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new DefaultOAuth2AuthorizationRequestResolver(null, this.authorizationRequestBaseUri));
 	}
 
 	@Test
 	public void constructorWhenAuthorizationRequestBaseUriIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository, null));
 	}
 
 	@Test
 	public void setAuthorizationRequestCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.resolver.setAuthorizationRequestCustomizer(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.resolver.setAuthorizationRequestCustomizer(null));
 	}
 
 	@Test
@@ -135,9 +134,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				+ "-invalid";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
-		assertThatThrownBy(() -> this.resolver.resolve(request)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage(
-						"Invalid Client Registration with Id: " + clientRegistration.getRegistrationId() + "-invalid");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.resolver.resolve(request)).withMessage(
+				"Invalid Client Registration with Id: " + clientRegistration.getRegistrationId() + "-invalid");
 	}
 
 	@Test

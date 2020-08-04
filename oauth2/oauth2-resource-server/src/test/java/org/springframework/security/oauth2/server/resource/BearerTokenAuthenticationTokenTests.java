@@ -19,7 +19,7 @@ package org.springframework.security.oauth2.server.resource;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link BearerTokenAuthenticationToken}
@@ -30,14 +30,14 @@ public class BearerTokenAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenTokenIsNullThenThrowsException() {
-		assertThatCode(() -> new BearerTokenAuthenticationToken(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("token cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenAuthenticationToken(null))
+				.withMessageContaining("token cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenTokenIsEmptyThenThrowsException() {
-		assertThatCode(() -> new BearerTokenAuthenticationToken("")).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("token cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new BearerTokenAuthenticationToken(""))
+				.withMessageContaining("token cannot be empty");
 	}
 
 	@Test

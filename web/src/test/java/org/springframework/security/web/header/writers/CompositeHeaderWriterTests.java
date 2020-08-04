@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import org.springframework.security.web.header.HeaderWriter;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -52,8 +52,7 @@ public class CompositeHeaderWriterTests {
 
 	@Test
 	public void constructorWhenPassingEmptyListThenThrowsException() {
-		assertThatCode(() -> new CompositeHeaderWriter(Collections.emptyList()))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new CompositeHeaderWriter(Collections.emptyList()));
 	}
 
 }

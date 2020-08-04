@@ -29,8 +29,8 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatObject;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -67,8 +67,9 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void constructorWhenAuthorizedClientsIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizedClients cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository, null))
+				.withMessage("authorizedClients cannot be empty");
 	}
 
 	@Test
