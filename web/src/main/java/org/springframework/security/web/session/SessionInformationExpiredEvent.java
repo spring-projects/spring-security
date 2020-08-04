@@ -31,9 +31,9 @@ import org.springframework.util.Assert;
  */
 public final class SessionInformationExpiredEvent extends ApplicationEvent {
 
-	private HttpServletRequest request;
+	private final HttpServletRequest request;
 
-	private HttpServletResponse response;
+	private final HttpServletResponse response;
 
 	/**
 	 * Creates a new instance

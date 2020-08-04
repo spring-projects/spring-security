@@ -29,13 +29,13 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
  */
 public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 
-	// private FilterInvocation filterInvocation;
-	/** Allows direct access to the request object */
+	/**
+	 * Allows direct access to the request object
+	 */
 	public final HttpServletRequest request;
 
 	public WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
 		super(a);
-		// this.filterInvocation = fi;
 		this.request = fi.getRequest();
 	}
 
@@ -47,7 +47,8 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @return true if the IP address of the current request is in the required range.
 	 */
 	public boolean hasIpAddress(String ipAddress) {
-		return (new IpAddressMatcher(ipAddress).matches(this.request));
+		IpAddressMatcher matcher = new IpAddressMatcher(ipAddress);
+		return matcher.matches(this.request);
 	}
 
 }

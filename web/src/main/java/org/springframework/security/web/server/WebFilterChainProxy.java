@@ -52,8 +52,7 @@ public class WebFilterChainProxy implements WebFilter {
 				.filterWhen((securityWebFilterChain) -> securityWebFilterChain.matches(exchange)).next()
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.flatMap((securityWebFilterChain) -> securityWebFilterChain.getWebFilters().collectList())
-				.map((filters) -> new FilteringWebHandler((webHandler) -> chain.filter(webHandler), filters))
-				.map((handler) -> new DefaultWebFilterChain(handler))
+				.map((filters) -> new FilteringWebHandler(chain::filter, filters)).map(DefaultWebFilterChain::new)
 				.flatMap((securedChain) -> securedChain.filter(exchange));
 	}
 

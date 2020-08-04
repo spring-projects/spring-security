@@ -44,18 +44,14 @@ final class DigestAuthUtils {
 		if (str == null) {
 			return null;
 		}
-
 		int len = str.length();
-
 		if (len == 0) {
 			return EMPTY_STRING_ARRAY;
 		}
-
 		List<String> list = new ArrayList<>();
 		int i = 0;
 		int start = 0;
 		boolean match = false;
-
 		while (i < len) {
 			if (str.charAt(i) == '"') {
 				i++;
@@ -83,7 +79,6 @@ final class DigestAuthUtils {
 		if (match) {
 			list.add(str.substring(start, i));
 		}
-
 		return list.toArray(new String[0]);
 	}
 
@@ -108,32 +103,19 @@ final class DigestAuthUtils {
 	static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm, String password,
 			String httpMethod, String uri, String qop, String nonce, String nc, String cnonce)
 			throws IllegalArgumentException {
-		String a1Md5;
 		String a2 = httpMethod + ":" + uri;
+		String a1Md5 = (!passwordAlreadyEncoded) ? DigestAuthUtils.encodePasswordInA1Format(username, realm, password)
+				: password;
 		String a2Md5 = md5Hex(a2);
-
-		if (passwordAlreadyEncoded) {
-			a1Md5 = password;
-		}
-		else {
-			a1Md5 = DigestAuthUtils.encodePasswordInA1Format(username, realm, password);
-		}
-
-		String digest;
-
 		if (qop == null) {
 			// as per RFC 2069 compliant clients (also reaffirmed by RFC 2617)
-			digest = a1Md5 + ":" + nonce + ":" + a2Md5;
+			return md5Hex(a1Md5 + ":" + nonce + ":" + a2Md5);
 		}
-		else if ("auth".equals(qop)) {
+		if ("auth".equals(qop)) {
 			// As per RFC 2617 compliant clients
-			digest = a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + a2Md5;
+			return md5Hex(a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + a2Md5);
 		}
-		else {
-			throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
-		}
-
-		return md5Hex(digest);
+		throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
 	}
 
 	/**
@@ -157,28 +139,15 @@ final class DigestAuthUtils {
 		if ((array == null) || (array.length == 0)) {
 			return null;
 		}
-
 		Map<String, String> map = new HashMap<>();
-
 		for (String s : array) {
-			String postRemove;
-
-			if (removeCharacters == null) {
-				postRemove = s;
-			}
-			else {
-				postRemove = StringUtils.replace(s, removeCharacters, "");
-			}
-
+			String postRemove = (removeCharacters != null) ? StringUtils.replace(s, removeCharacters, "") : s;
 			String[] splitThisArrayElement = split(postRemove, delimiter);
-
 			if (splitThisArrayElement == null) {
 				continue;
 			}
-
 			map.put(splitThisArrayElement[0].trim(), splitThisArrayElement[1].trim());
 		}
-
 		return map;
 	}
 
@@ -196,33 +165,24 @@ final class DigestAuthUtils {
 	static String[] split(String toSplit, String delimiter) {
 		Assert.hasLength(toSplit, "Cannot split a null or empty string");
 		Assert.hasLength(delimiter, "Cannot use a null or empty delimiter to split a string");
-
-		if (delimiter.length() != 1) {
-			throw new IllegalArgumentException("Delimiter can only be one character in length");
-		}
-
+		Assert.isTrue(delimiter.length() == 1, "Delimiter can only be one character in length");
 		int offset = toSplit.indexOf(delimiter);
-
 		if (offset < 0) {
 			return null;
 		}
-
 		String beforeDelimiter = toSplit.substring(0, offset);
 		String afterDelimiter = toSplit.substring(offset + 1);
-
 		return new String[] { beforeDelimiter, afterDelimiter };
 	}
 
 	static String md5Hex(String data) {
-		MessageDigest digest;
 		try {
-			digest = MessageDigest.getInstance("MD5");
+			MessageDigest digest = MessageDigest.getInstance("MD5");
+			return new String(Hex.encode(digest.digest(data.getBytes())));
 		}
 		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No MD5 algorithm available!");
 		}
-
-		return new String(Hex.encode(digest.digest(data.getBytes())));
 	}
 
 }

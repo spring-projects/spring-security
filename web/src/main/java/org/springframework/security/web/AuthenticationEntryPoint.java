@@ -45,7 +45,6 @@ public interface AuthenticationEntryPoint {
 	 * @param request that resulted in an <code>AuthenticationException</code>
 	 * @param response so that the user agent can begin authentication
 	 * @param authException that caused the invocation
-	 *
 	 */
 	void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
 			throws IOException, ServletException;

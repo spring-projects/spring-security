@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -44,12 +45,12 @@ public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher
 
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return this.matcher.matches(exchange).flatMap((m) -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())
-				.doOnNext((it) -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug("matches = " + it.isMatch());
-					}
-				});
+		return this.matcher.matches(exchange).flatMap(this::negate)
+				.doOnNext((matchResult) -> logger.debug(LogMessage.format("matches = %s", matchResult.isMatch())));
+	}
+
+	private Mono<MatchResult> negate(MatchResult matchResult) {
+		return matchResult.isMatch() ? MatchResult.notMatch() : MatchResult.match();
 	}
 
 	@Override

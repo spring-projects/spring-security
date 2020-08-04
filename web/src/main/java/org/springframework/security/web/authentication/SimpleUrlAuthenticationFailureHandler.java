@@ -76,24 +76,19 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-
 		if (this.defaultFailureUrl == null) {
 			this.logger.debug("No failure URL set, sending 401 Unauthorized error");
-
 			response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
+			return;
+		}
+		saveException(request, exception);
+		if (this.forwardToDestination) {
+			this.logger.debug("Forwarding to " + this.defaultFailureUrl);
+			request.getRequestDispatcher(this.defaultFailureUrl).forward(request, response);
 		}
 		else {
-			saveException(request, exception);
-
-			if (this.forwardToDestination) {
-				this.logger.debug("Forwarding to " + this.defaultFailureUrl);
-
-				request.getRequestDispatcher(this.defaultFailureUrl).forward(request, response);
-			}
-			else {
-				this.logger.debug("Redirecting to " + this.defaultFailureUrl);
-				this.redirectStrategy.sendRedirect(request, response, this.defaultFailureUrl);
-			}
+			this.logger.debug("Redirecting to " + this.defaultFailureUrl);
+			this.redirectStrategy.sendRedirect(request, response, this.defaultFailureUrl);
 		}
 	}
 
@@ -108,13 +103,11 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
 	protected final void saveException(HttpServletRequest request, AuthenticationException exception) {
 		if (this.forwardToDestination) {
 			request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
+			return;
 		}
-		else {
-			HttpSession session = request.getSession(false);
-
-			if (session != null || this.allowSessionCreation) {
-				request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
-			}
+		HttpSession session = request.getSession(false);
+		if (session != null || this.allowSessionCreation) {
+			request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
 		}
 	}
 

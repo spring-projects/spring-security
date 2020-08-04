@@ -47,7 +47,6 @@ public final class IpAddressMatcher implements RequestMatcher {
 	 * come.
 	 */
 	public IpAddressMatcher(String ipAddress) {
-
 		if (ipAddress.indexOf('/') > 0) {
 			String[] addressAndMask = StringUtils.split(ipAddress, "/");
 			ipAddress = addressAndMask[0];
@@ -68,33 +67,24 @@ public final class IpAddressMatcher implements RequestMatcher {
 
 	public boolean matches(String address) {
 		InetAddress remoteAddress = parseAddress(address);
-
 		if (!this.requiredAddress.getClass().equals(remoteAddress.getClass())) {
 			return false;
 		}
-
 		if (this.nMaskBits < 0) {
 			return remoteAddress.equals(this.requiredAddress);
 		}
-
 		byte[] remAddr = remoteAddress.getAddress();
 		byte[] reqAddr = this.requiredAddress.getAddress();
-
 		int nMaskFullBytes = this.nMaskBits / 8;
 		byte finalByte = (byte) (0xFF00 >> (this.nMaskBits & 0x07));
-
-		// System.out.println("Mask is " + new sun.misc.HexDumpEncoder().encode(mask));
-
 		for (int i = 0; i < nMaskFullBytes; i++) {
 			if (remAddr[i] != reqAddr[i]) {
 				return false;
 			}
 		}
-
 		if (finalByte != 0) {
 			return (remAddr[nMaskFullBytes] & finalByte) == (reqAddr[nMaskFullBytes] & finalByte);
 		}
-
 		return true;
 	}
 

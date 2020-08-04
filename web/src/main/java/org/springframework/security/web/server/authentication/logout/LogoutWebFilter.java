@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -70,9 +71,7 @@ public class LogoutWebFilter implements WebFilter {
 	}
 
 	private Mono<Void> logout(WebFilterExchange webFilterExchange, Authentication authentication) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Logging out user '" + authentication + "' and transferring to logout destination");
-		}
+		logger.debug(LogMessage.format("Logging out user '%s' and transferring to logout destination", authentication));
 		return this.logoutHandler.logout(webFilterExchange, authentication)
 				.then(this.logoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication))
 				.subscriberContext(ReactiveSecurityContextHolder.clearContext());

@@ -18,6 +18,8 @@ package org.springframework.security.web.server.header;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
@@ -86,16 +88,15 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	 * @param block the new value
 	 */
 	public void setBlock(boolean block) {
-		if (!this.enabled && block) {
-			throw new IllegalArgumentException("Cannot set block to true with enabled false");
-		}
+		Assert.isTrue(this.enabled || !block, "Cannot set block to true with enabled false");
 		this.block = block;
 		updateDelegate();
 	}
 
 	private void updateDelegate() {
-
-		this.delegate = StaticServerHttpHeadersWriter.builder().header(X_XSS_PROTECTION, createHeaderValue()).build();
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(X_XSS_PROTECTION, createHeaderValue());
+		this.delegate = builder.build();
 	}
 
 	private String createHeaderValue() {

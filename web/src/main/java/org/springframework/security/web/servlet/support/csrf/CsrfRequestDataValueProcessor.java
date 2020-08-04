@@ -65,7 +65,6 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 			request.removeAttribute(this.DISABLE_CSRF_TOKEN_ATTR);
 			return Collections.emptyMap();
 		}
-
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		if (token == null) {
 			return Collections.emptyMap();

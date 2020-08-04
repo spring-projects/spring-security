@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
@@ -58,24 +59,15 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 	public Object extractPrincipal(X509Certificate clientCert) {
 		// String subjectDN = clientCert.getSubjectX500Principal().getName();
 		String subjectDN = clientCert.getSubjectDN().getName();
-
-		this.logger.debug("Subject DN is '" + subjectDN + "'");
-
+		this.logger.debug(LogMessage.format("Subject DN is '%s'", subjectDN));
 		Matcher matcher = this.subjectDnPattern.matcher(subjectDN);
-
 		if (!matcher.find()) {
 			throw new BadCredentialsException(this.messages.getMessage("SubjectDnX509PrincipalExtractor.noMatching",
 					new Object[] { subjectDN }, "No matching pattern was found in subject DN: {0}"));
 		}
-
-		if (matcher.groupCount() != 1) {
-			throw new IllegalArgumentException("Regular expression must contain a single group ");
-		}
-
+		Assert.isTrue(matcher.groupCount() == 1, "Regular expression must contain a single group ");
 		String username = matcher.group(1);
-
-		this.logger.debug("Extracted Principal name is '" + username + "'");
-
+		this.logger.debug(LogMessage.format("Extracted Principal name is '%s'", username));
 		return username;
 	}
 

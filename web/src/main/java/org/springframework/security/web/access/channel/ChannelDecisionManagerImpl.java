@@ -64,10 +64,8 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 				return;
 			}
 		}
-
 		for (ChannelProcessor processor : this.channelProcessors) {
 			processor.decide(invocation, config);
-
 			if (invocation.getResponse().isCommitted()) {
 				break;
 			}
@@ -79,11 +77,10 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 	}
 
 	@SuppressWarnings("cast")
-	public void setChannelProcessors(List<?> newList) {
-		Assert.notEmpty(newList, "A list of ChannelProcessors is required");
-		this.channelProcessors = new ArrayList<>(newList.size());
-
-		for (Object currentObject : newList) {
+	public void setChannelProcessors(List<?> channelProcessors) {
+		Assert.notEmpty(channelProcessors, "A list of ChannelProcessors is required");
+		this.channelProcessors = new ArrayList<>(channelProcessors.size());
+		for (Object currentObject : channelProcessors) {
 			Assert.isInstanceOf(ChannelProcessor.class, currentObject, () -> "ChannelProcessor "
 					+ currentObject.getClass().getName() + " must implement ChannelProcessor");
 			this.channelProcessors.add((ChannelProcessor) currentObject);
@@ -95,13 +92,11 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 		if (ANY_CHANNEL.equals(attribute.getAttribute())) {
 			return true;
 		}
-
 		for (ChannelProcessor processor : this.channelProcessors) {
 			if (processor.supports(attribute)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 

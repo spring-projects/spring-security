@@ -77,10 +77,8 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 			int maxAge = !tokenValue.isEmpty() ? -1 : 0;
 			String path = (this.cookiePath != null) ? this.cookiePath : getRequestContext(exchange.getRequest());
 			boolean secure = exchange.getRequest().getSslInfo() != null;
-
 			ResponseCookie cookie = ResponseCookie.from(this.cookieName, tokenValue).domain(this.cookieDomain)
 					.httpOnly(this.cookieHttpOnly).maxAge(maxAge).path(path).secure(secure).build();
-
 			exchange.getResponse().addCookie(cookie);
 		});
 	}

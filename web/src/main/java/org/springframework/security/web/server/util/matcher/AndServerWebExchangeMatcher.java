@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -56,18 +57,13 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		return Mono.defer(() -> {
 			Map<String, Object> variables = new HashMap<>();
-			return Flux.fromIterable(this.matchers).doOnNext((it) -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Trying to match using " + it);
-				}
-			}).flatMap((matcher) -> matcher.matches(exchange))
+			return Flux.fromIterable(this.matchers)
+					.doOnNext((matcher) -> logger.debug(LogMessage.format("Trying to match using %s", matcher)))
+					.flatMap((matcher) -> matcher.matches(exchange))
 					.doOnNext((matchResult) -> variables.putAll(matchResult.getVariables())).all(MatchResult::isMatch)
 					.flatMap((allMatch) -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch())
-					.doOnNext((it) -> {
-						if (logger.isDebugEnabled()) {
-							logger.debug(it.isMatch() ? "All requestMatchers returned true" : "Did not match");
-						}
-					});
+					.doOnNext((matchResult) -> logger
+							.debug(matchResult.isMatch() ? "All requestMatchers returned true" : "Did not match"));
 		});
 	}
 

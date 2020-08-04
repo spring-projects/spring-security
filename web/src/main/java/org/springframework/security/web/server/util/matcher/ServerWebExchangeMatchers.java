@@ -32,6 +32,9 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public abstract class ServerWebExchangeMatchers {
 
+	private ServerWebExchangeMatchers() {
+	}
+
 	/**
 	 * Creates a matcher that matches on the specific method and any of the provided
 	 * patterns.
@@ -75,14 +78,13 @@ public abstract class ServerWebExchangeMatchers {
 		// which otherwise can cause problems with adding multiple entries to an ordered
 		// LinkedHashMap
 		return new ServerWebExchangeMatcher() {
+
 			@Override
 			public Mono<MatchResult> matches(ServerWebExchange exchange) {
 				return ServerWebExchangeMatcher.MatchResult.match();
 			}
-		};
-	}
 
-	private ServerWebExchangeMatchers() {
+		};
 	}
 
 }

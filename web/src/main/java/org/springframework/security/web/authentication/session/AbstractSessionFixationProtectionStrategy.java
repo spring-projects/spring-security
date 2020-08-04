@@ -73,35 +73,26 @@ public abstract class AbstractSessionFixationProtectionStrategy
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) {
 		boolean hadSessionAlready = request.getSession(false) != null;
-
 		if (!hadSessionAlready && !this.alwaysCreateSession) {
 			// Session fixation isn't a problem if there's no session
-
 			return;
 		}
-
 		// Create new session if necessary
 		HttpSession session = request.getSession();
-
 		if (hadSessionAlready && request.isRequestedSessionIdValid()) {
-
 			String originalSessionId;
 			String newSessionId;
 			Object mutex = WebUtils.getSessionMutex(session);
 			synchronized (mutex) {
 				// We need to migrate to a new session
 				originalSessionId = session.getId();
-
 				session = applySessionFixation(request);
 				newSessionId = session.getId();
 			}
-
 			if (originalSessionId.equals(newSessionId)) {
-				this.logger.warn(
-						"Your servlet container did not change the session ID when a new session was created. You will"
-								+ " not be adequately protected against session-fixation attacks");
+				this.logger.warn("Your servlet container did not change the session ID when a new session "
+						+ "was created. You will not be adequately protected against session-fixation attacks");
 			}
-
 			onSessionChange(originalSessionId, session, authentication);
 		}
 	}

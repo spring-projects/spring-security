@@ -46,6 +46,9 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
  */
 class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<PreAuthenticatedAuthenticationToken> {
 
+	private static final TypeReference<List<GrantedAuthority>> GRANTED_AUTHORITY_LIST = new TypeReference<List<GrantedAuthority>>() {
+	};
+
 	/**
 	 * This method construct {@link PreAuthenticatedAuthenticationToken} object from
 	 * serialized json.
@@ -58,28 +61,18 @@ class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<P
 	@Override
 	public PreAuthenticatedAuthenticationToken deserialize(JsonParser jp, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
-		PreAuthenticatedAuthenticationToken token = null;
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
 		Boolean authenticated = readJsonNode(jsonNode, "authenticated").asBoolean();
 		JsonNode principalNode = readJsonNode(jsonNode, "principal");
-		Object principal = null;
-		if (principalNode.isObject()) {
-			principal = mapper.readValue(principalNode.traverse(mapper), Object.class);
-		}
-		else {
-			principal = principalNode.asText();
-		}
+		Object principal = (!principalNode.isObject()) ? principalNode.asText()
+				: mapper.readValue(principalNode.traverse(mapper), Object.class);
 		Object credentials = readJsonNode(jsonNode, "credentials").asText();
 		List<GrantedAuthority> authorities = mapper.readValue(readJsonNode(jsonNode, "authorities").traverse(mapper),
-				new TypeReference<List<GrantedAuthority>>() {
-				});
-		if (authenticated) {
-			token = new PreAuthenticatedAuthenticationToken(principal, credentials, authorities);
-		}
-		else {
-			token = new PreAuthenticatedAuthenticationToken(principal, credentials);
-		}
+				GRANTED_AUTHORITY_LIST);
+		PreAuthenticatedAuthenticationToken token = (!authenticated)
+				? new PreAuthenticatedAuthenticationToken(principal, credentials)
+				: new PreAuthenticatedAuthenticationToken(principal, credentials, authorities);
 		token.setDetails(readJsonNode(jsonNode, "details"));
 		return token;
 	}

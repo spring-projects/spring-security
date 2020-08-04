@@ -18,6 +18,7 @@ package org.springframework.security.web.server.header;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -67,16 +68,12 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 	}
 
 	private ServerHttpHeadersWriter createDelegate() {
-		if (this.policyDirectives != null) {
-			// @formatter:off
-		return StaticServerHttpHeadersWriter.builder()
-				.header(resolveHeader(this.reportOnly), this.policyDirectives)
-				.build();
-		// @formatter:on
-		}
-		else {
+		if (this.policyDirectives == null) {
 			return null;
 		}
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(resolveHeader(this.reportOnly), this.policyDirectives);
+		return builder.build();
 	}
 
 	private static String resolveHeader(boolean reportOnly) {

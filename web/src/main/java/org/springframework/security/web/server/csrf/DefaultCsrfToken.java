@@ -65,23 +65,21 @@ public final class DefaultCsrfToken implements CsrfToken {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
-		if (o == null || !(o instanceof CsrfToken)) {
+		if (obj == null || !(obj instanceof CsrfToken)) {
 			return false;
 		}
-
-		CsrfToken that = (CsrfToken) o;
-
-		if (!getToken().equals(that.getToken())) {
+		CsrfToken other = (CsrfToken) obj;
+		if (!getToken().equals(other.getToken())) {
 			return false;
 		}
-		if (!getParameterName().equals(that.getParameterName())) {
+		if (!getParameterName().equals(other.getParameterName())) {
 			return false;
 		}
-		return getHeaderName().equals(that.getHeaderName());
+		return getHeaderName().equals(other.getHeaderName());
 	}
 
 	@Override

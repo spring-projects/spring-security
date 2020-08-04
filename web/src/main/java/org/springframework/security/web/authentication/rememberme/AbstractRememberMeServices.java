@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -118,47 +119,38 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 	@Override
 	public final Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		String rememberMeCookie = extractRememberMeCookie(request);
-
 		if (rememberMeCookie == null) {
 			return null;
 		}
-
 		this.logger.debug("Remember-me cookie detected");
-
 		if (rememberMeCookie.length() == 0) {
 			this.logger.debug("Cookie was empty");
 			cancelCookie(request, response);
 			return null;
 		}
-
-		UserDetails user = null;
-
 		try {
 			String[] cookieTokens = decodeCookie(rememberMeCookie);
-			user = processAutoLoginCookie(cookieTokens, request, response);
+			UserDetails user = processAutoLoginCookie(cookieTokens, request, response);
 			this.userDetailsChecker.check(user);
-
 			this.logger.debug("Remember-me cookie accepted");
-
 			return createSuccessfulAuthentication(request, user);
 		}
-		catch (CookieTheftException cte) {
+		catch (CookieTheftException ex) {
 			cancelCookie(request, response);
-			throw cte;
+			throw ex;
 		}
-		catch (UsernameNotFoundException noUser) {
-			this.logger.debug("Remember-me login was valid but corresponding user not found.", noUser);
+		catch (UsernameNotFoundException ex) {
+			this.logger.debug("Remember-me login was valid but corresponding user not found.", ex);
 		}
-		catch (InvalidCookieException invalidCookie) {
-			this.logger.debug("Invalid remember-me cookie: " + invalidCookie.getMessage());
+		catch (InvalidCookieException ex) {
+			this.logger.debug("Invalid remember-me cookie: " + ex.getMessage());
 		}
-		catch (AccountStatusException statusInvalid) {
-			this.logger.debug("Invalid UserDetails: " + statusInvalid.getMessage());
+		catch (AccountStatusException ex) {
+			this.logger.debug("Invalid UserDetails: " + ex.getMessage());
 		}
 		catch (RememberMeAuthenticationException ex) {
 			this.logger.debug(ex.getMessage());
 		}
-
 		cancelCookie(request, response);
 		return null;
 	}
@@ -172,17 +164,14 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 	 */
 	protected String extractRememberMeCookie(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
-
 		if ((cookies == null) || (cookies.length == 0)) {
 			return null;
 		}
-
 		for (Cookie cookie : cookies) {
 			if (this.cookieName.equals(cookie.getName())) {
 				return cookie.getValue();
 			}
 		}
-
 		return null;
 	}
 
@@ -216,18 +205,14 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 		for (int j = 0; j < cookieValue.length() % 4; j++) {
 			cookieValue = cookieValue + "=";
 		}
-
 		try {
 			Base64.getDecoder().decode(cookieValue.getBytes());
 		}
 		catch (IllegalArgumentException ex) {
 			throw new InvalidCookieException("Cookie token was not Base64 encoded; value was '" + cookieValue + "'");
 		}
-
 		String cookieAsPlainText = new String(Base64.getDecoder().decode(cookieValue.getBytes()));
-
 		String[] tokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, DELIMITER);
-
 		for (int i = 0; i < tokens.length; i++) {
 			try {
 				tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8.toString());
@@ -236,7 +221,6 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 				this.logger.error(ex.getMessage(), ex);
 			}
 		}
-
 		return tokens;
 	}
 
@@ -254,20 +238,15 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 			catch (UnsupportedEncodingException ex) {
 				this.logger.error(ex.getMessage(), ex);
 			}
-
 			if (i < cookieTokens.length - 1) {
 				sb.append(DELIMITER);
 			}
 		}
-
 		String value = sb.toString();
-
 		sb = new StringBuilder(new String(Base64.getEncoder().encode(value.getBytes())));
-
 		while (sb.charAt(sb.length() - 1) == '=') {
 			sb.deleteCharAt(sb.length() - 1);
 		}
-
 		return sb.toString();
 	}
 
@@ -293,12 +272,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 	@Override
 	public final void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication successfulAuthentication) {
-
 		if (!rememberMeRequested(request, this.parameter)) {
 			this.logger.debug("Remember-me login not requested.");
 			return;
 		}
-
 		onLoginSuccess(request, response, successfulAuthentication);
 	}
 
@@ -324,20 +301,15 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 		if (this.alwaysRemember) {
 			return true;
 		}
-
 		String paramValue = request.getParameter(parameter);
-
 		if (paramValue != null) {
 			if (paramValue.equalsIgnoreCase("true") || paramValue.equalsIgnoreCase("on")
 					|| paramValue.equalsIgnoreCase("yes") || paramValue.equals("1")) {
 				return true;
 			}
 		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Did not send remember-me cookie (principal did not set parameter '" + parameter + "')");
-		}
-
+		this.logger.debug(
+				LogMessage.format("Did not send remember-me cookie (principal did not set parameter '%s')", parameter));
 		return false;
 	}
 
@@ -370,12 +342,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 		if (this.cookieDomain != null) {
 			cookie.setDomain(this.cookieDomain);
 		}
-		if (this.useSecureCookie == null) {
-			cookie.setSecure(request.isSecure());
-		}
-		else {
-			cookie.setSecure(this.useSecureCookie);
-		}
+		cookie.setSecure((this.useSecureCookie != null) ? this.useSecureCookie : request.isSecure());
 		response.addCookie(cookie);
 	}
 
@@ -402,16 +369,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 		if (maxAge < 1) {
 			cookie.setVersion(1);
 		}
-
-		if (this.useSecureCookie == null) {
-			cookie.setSecure(request.isSecure());
-		}
-		else {
-			cookie.setSecure(this.useSecureCookie);
-		}
-
+		cookie.setSecure((this.useSecureCookie != null) ? this.useSecureCookie : request.isSecure());
 		cookie.setHttpOnly(true);
-
 		response.addCookie(cookie);
 	}
 
@@ -426,9 +385,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 	 */
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Logout of user " + ((authentication != null) ? authentication.getName() : "Unknown"));
-		}
+		this.logger.debug(LogMessage
+				.of(() -> "Logout of user " + ((authentication != null) ? authentication.getName() : "Unknown")));
 		cancelCookie(request, response);
 	}
 

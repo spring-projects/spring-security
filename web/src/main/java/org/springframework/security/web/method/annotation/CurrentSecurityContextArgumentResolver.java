@@ -79,17 +79,11 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 
 	private BeanResolver beanResolver;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
@@ -98,29 +92,22 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 			return null;
 		}
 		Object securityContextResult = securityContext;
-
-		CurrentSecurityContext securityContextAnnotation = findMethodAnnotation(CurrentSecurityContext.class,
-				parameter);
-
-		String expressionToParse = securityContextAnnotation.expression();
+		CurrentSecurityContext annotation = findMethodAnnotation(CurrentSecurityContext.class, parameter);
+		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContextResult = expression.getValue(context);
 		}
-
 		if (securityContextResult != null
 				&& !parameter.getParameterType().isAssignableFrom(securityContextResult.getClass())) {
-			if (securityContextAnnotation.errorOnInvalidType()) {
+			if (annotation.errorOnInvalidType()) {
 				throw new ClassCastException(
 						securityContextResult + " is not assignable to " + parameter.getParameterType());
 			}
-			else {
-				return null;
-			}
+			return null;
 		}
 		return securityContextResult;
 	}

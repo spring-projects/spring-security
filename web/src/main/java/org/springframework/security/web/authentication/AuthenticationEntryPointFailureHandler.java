@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 /**
  * Adapts a {@link AuthenticationEntryPoint} into a {@link AuthenticationFailureHandler}
  *
- * @author sbespalov
+ * @author Sergey Bespalov
  * @since 5.2.0
  */
 public class AuthenticationEntryPointFailureHandler implements AuthenticationFailureHandler {

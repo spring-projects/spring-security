@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -48,15 +49,10 @@ public class AuthorizationWebFilter implements WebFilter {
 		return ReactiveSecurityContextHolder.getContext().filter((c) -> c.getAuthentication() != null)
 				.map(SecurityContext::getAuthentication)
 				.as((authentication) -> this.authorizationManager.verify(authentication, exchange))
-				.doOnSuccess((it) -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Authorization successful");
-					}
-				}).doOnError(AccessDeniedException.class, (e) -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Authorization failed: " + e.getMessage());
-					}
-				}).switchIfEmpty(chain.filter(exchange));
+				.doOnSuccess((it) -> logger.debug("Authorization successful"))
+				.doOnError(AccessDeniedException.class,
+						(ex) -> logger.debug(LogMessage.format("Authorization failed: %s", ex.getMessage())))
+				.switchIfEmpty(chain.filter(exchange));
 	}
 
 }

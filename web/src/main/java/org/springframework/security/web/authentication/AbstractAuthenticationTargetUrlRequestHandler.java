@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -84,18 +85,16 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	protected void handle(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException, ServletException {
 		String targetUrl = determineTargetUrl(request, response, authentication);
-
 		if (response.isCommitted()) {
-			this.logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+			this.logger.debug(
+					LogMessage.format("Response has already been committed. Unable to redirect to %s", targetUrl));
 			return;
 		}
-
 		this.redirectStrategy.sendRedirect(request, response, targetUrl);
 	}
 
 	/**
 	 * Builds the target URL according to the logic defined in the main class Javadoc
-	 *
 	 * @since 5.2
 	 */
 	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
@@ -110,30 +109,23 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		if (isAlwaysUseDefaultTargetUrl()) {
 			return this.defaultTargetUrl;
 		}
-
 		// Check for the parameter and use that if available
 		String targetUrl = null;
-
 		if (this.targetUrlParameter != null) {
 			targetUrl = request.getParameter(this.targetUrlParameter);
-
 			if (StringUtils.hasText(targetUrl)) {
 				this.logger.debug("Found targetUrlParameter in request: " + targetUrl);
-
 				return targetUrl;
 			}
 		}
-
 		if (this.useReferer && !StringUtils.hasLength(targetUrl)) {
 			targetUrl = request.getHeader("Referer");
 			this.logger.debug("Using Referer header: " + targetUrl);
 		}
-
 		if (!StringUtils.hasText(targetUrl)) {
 			targetUrl = this.defaultTargetUrl;
 			this.logger.debug("Using default Url: " + targetUrl);
 		}
-
 		return targetUrl;
 	}
 

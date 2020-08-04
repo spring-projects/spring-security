@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 
 /**
  * Holds objects associated with a HTTP filter.
@@ -65,10 +66,7 @@ public class FilterInvocation {
 	private HttpServletResponse response;
 
 	public FilterInvocation(ServletRequest request, ServletResponse response, FilterChain chain) {
-		if ((request == null) || (response == null) || (chain == null)) {
-			throw new IllegalArgumentException("Cannot pass null values to constructor");
-		}
-
+		Assert.isTrue(request != null && response != null && chain != null, "Cannot pass null values to constructor");
 		this.request = (HttpServletRequest) request;
 		this.response = (HttpServletResponse) response;
 		this.chain = chain;
@@ -84,9 +82,7 @@ public class FilterInvocation {
 
 	public FilterInvocation(String contextPath, String servletPath, String pathInfo, String query, String method) {
 		DummyRequest request = new DummyRequest();
-		if (contextPath == null) {
-			contextPath = "/cp";
-		}
+		contextPath = (contextPath != null) ? contextPath : "/cp";
 		request.setContextPath(contextPath);
 		request.setServletPath(servletPath);
 		request.setRequestURI(contextPath + servletPath + ((pathInfo != null) ? pathInfo : ""));
@@ -256,9 +252,7 @@ public class FilterInvocation {
 			if (value == null) {
 				return -1;
 			}
-			else {
-				return Integer.parseInt(value);
-			}
+			return Integer.parseInt(value);
 		}
 
 		void addHeader(String name, String value) {
@@ -267,8 +261,8 @@ public class FilterInvocation {
 
 		@Override
 		public String getParameter(String name) {
-			String[] arr = this.parameters.get(name);
-			return (arr != null && arr.length > 0) ? arr[0] : null;
+			String[] array = this.parameters.get(name);
+			return (array != null && array.length > 0) ? array[0] : null;
 		}
 
 		@Override
@@ -317,7 +311,6 @@ public class FilterInvocation {
 		private Object invokeDefaultMethodForJdk8(Object proxy, Method method, Object[] args) throws Throwable {
 			Constructor<Lookup> constructor = Lookup.class.getDeclaredConstructor(Class.class);
 			constructor.setAccessible(true);
-
 			Class<?> clazz = method.getDeclaringClass();
 			return constructor.newInstance(clazz).in(clazz).unreflectSpecial(method, clazz).bindTo(proxy)
 					.invokeWithArguments(args);

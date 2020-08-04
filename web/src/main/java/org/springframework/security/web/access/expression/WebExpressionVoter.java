@@ -25,6 +25,7 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.util.Assert;
 
 /**
  * Voter which handles web authorisation decisions.
@@ -37,21 +38,19 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
 
 	@Override
-	public int vote(Authentication authentication, FilterInvocation fi, Collection<ConfigAttribute> attributes) {
-		assert authentication != null;
-		assert fi != null;
-		assert attributes != null;
-
-		WebExpressionConfigAttribute weca = findConfigAttribute(attributes);
-
-		if (weca == null) {
+	public int vote(Authentication authentication, FilterInvocation filterInvocation,
+			Collection<ConfigAttribute> attributes) {
+		Assert.notNull(authentication, "authentication must not be null");
+		Assert.notNull(filterInvocation, "filterInvocation must not be null");
+		Assert.notNull(attributes, "attributes must not be null");
+		WebExpressionConfigAttribute webExpressionConfigAttribute = findConfigAttribute(attributes);
+		if (webExpressionConfigAttribute == null) {
 			return ACCESS_ABSTAIN;
 		}
-
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, fi);
-		ctx = weca.postProcess(ctx, fi);
-
-		return ExpressionUtils.evaluateAsBoolean(weca.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED : ACCESS_DENIED;
+		EvaluationContext ctx = webExpressionConfigAttribute.postProcess(
+				this.expressionHandler.createEvaluationContext(authentication, filterInvocation), filterInvocation);
+		return ExpressionUtils.evaluateAsBoolean(webExpressionConfigAttribute.getAuthorizeExpression(), ctx)
+				? ACCESS_GRANTED : ACCESS_DENIED;
 	}
 
 	private WebExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {

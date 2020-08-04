@@ -63,12 +63,10 @@ public class ThrowableAnalyzer {
 		if (class1.isAssignableFrom(class2)) {
 			return 1;
 		}
-		else if (class2.isAssignableFrom(class1)) {
+		if (class2.isAssignableFrom(class1)) {
 			return -1;
 		}
-		else {
-			return class1.getName().compareTo(class2.getName());
-		}
+		return class1.getName().compareTo(class2.getName());
 	};
 
 	/**
@@ -82,7 +80,6 @@ public class ThrowableAnalyzer {
 	 */
 	public ThrowableAnalyzer() {
 		this.extractorMap = new TreeMap<>(CLASS_HIERARCHY_COMPARATOR);
-
 		initExtractorMap();
 	}
 
@@ -97,7 +94,6 @@ public class ThrowableAnalyzer {
 	protected final void registerExtractor(Class<? extends Throwable> throwableType,
 			ThrowableCauseExtractor extractor) {
 		Assert.notNull(extractor, "Invalid extractor: null");
-
 		this.extractorMap.put(throwableType, extractor);
 	}
 
@@ -155,18 +151,13 @@ public class ThrowableAnalyzer {
 	 * @see #initExtractorMap()
 	 */
 	public final Throwable[] determineCauseChain(Throwable throwable) {
-		if (throwable == null) {
-			throw new IllegalArgumentException("Invalid throwable: null");
-		}
-
+		Assert.notNull(throwable, "Invalid throwable: null");
 		List<Throwable> chain = new ArrayList<>();
 		Throwable currentThrowable = throwable;
-
 		while (currentThrowable != null) {
 			chain.add(currentThrowable);
 			currentThrowable = extractCause(currentThrowable);
 		}
-
 		return chain.toArray(new Throwable[0]);
 	}
 
@@ -183,7 +174,6 @@ public class ThrowableAnalyzer {
 				return extractor.extractCause(throwable);
 			}
 		}
-
 		return null;
 	}
 
@@ -206,7 +196,6 @@ public class ThrowableAnalyzer {
 				}
 			}
 		}
-
 		return null;
 	}
 
@@ -226,16 +215,10 @@ public class ThrowableAnalyzer {
 		if (expectedBaseType == null) {
 			return;
 		}
-
-		if (throwable == null) {
-			throw new IllegalArgumentException("Invalid throwable: null");
-		}
+		Assert.notNull(throwable, "Invalid throwable: null");
 		Class<? extends Throwable> throwableType = throwable.getClass();
-
-		if (!expectedBaseType.isAssignableFrom(throwableType)) {
-			throw new IllegalArgumentException("Invalid type: '" + throwableType.getName()
-					+ "'. Has to be a subclass of '" + expectedBaseType.getName() + "'");
-		}
+		Assert.isTrue(expectedBaseType.isAssignableFrom(throwableType), () -> "Invalid type: '"
+				+ throwableType.getName() + "'. Has to be a subclass of '" + expectedBaseType.getName() + "'");
 	}
 
 }

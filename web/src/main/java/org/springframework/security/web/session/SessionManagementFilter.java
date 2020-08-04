@@ -25,6 +25,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
@@ -75,21 +76,20 @@ public class SessionManagementFilter extends GenericFilterBean {
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		if (request.getAttribute(FILTER_APPLIED) != null) {
 			chain.doFilter(request, response);
 			return;
 		}
-
 		request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
-
 		if (!this.securityContextRepository.containsContext(request)) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
 			if (authentication != null && !this.trustResolver.isAnonymous(authentication)) {
 				// The user has been authenticated during the current request, so call the
 				// session strategy
@@ -101,23 +101,19 @@ public class SessionManagementFilter extends GenericFilterBean {
 					this.logger.debug("SessionAuthenticationStrategy rejected the authentication object", ex);
 					SecurityContextHolder.clearContext();
 					this.failureHandler.onAuthenticationFailure(request, response, ex);
-
 					return;
 				}
 				// Eagerly save the security context to make it available for any possible
-				// re-entrant
-				// requests which may occur before the current request completes.
-				// SEC-1396.
+				// re-entrant requests which may occur before the current request
+				// completes. SEC-1396.
 				this.securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
 			}
 			else {
 				// No security context or authentication present. Check for a session
 				// timeout
 				if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
-					if (this.logger.isDebugEnabled()) {
-						this.logger.debug("Requested session ID " + request.getRequestedSessionId() + " is invalid.");
-					}
-
+					this.logger.debug(
+							LogMessage.format("Requested session ID %s is invalid.", request.getRequestedSessionId()));
 					if (this.invalidSessionStrategy != null) {
 						this.invalidSessionStrategy.onInvalidSessionDetected(request, response);
 						return;
@@ -125,7 +121,6 @@ public class SessionManagementFilter extends GenericFilterBean {
 				}
 			}
 		}
-
 		chain.doFilter(request, response);
 	}
 

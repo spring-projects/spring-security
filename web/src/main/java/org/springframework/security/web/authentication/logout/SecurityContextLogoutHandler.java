@@ -23,6 +23,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,16 +62,14 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 		if (this.invalidateHttpSession) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
-				this.logger.debug("Invalidating session: " + session.getId());
+				this.logger.debug(LogMessage.format("Invalidating session: %s", session.getId()));
 				session.invalidate();
 			}
 		}
-
 		if (this.clearAuthentication) {
 			SecurityContext context = SecurityContextHolder.getContext();
 			context.setAuthentication(null);
 		}
-
 		SecurityContextHolder.clearContext();
 	}
 

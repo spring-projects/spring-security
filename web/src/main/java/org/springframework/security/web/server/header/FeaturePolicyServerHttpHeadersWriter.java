@@ -18,6 +18,7 @@ package org.springframework.security.web.server.header;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -49,11 +50,9 @@ public final class FeaturePolicyServerHttpHeadersWriter implements ServerHttpHea
 	}
 
 	private static ServerHttpHeadersWriter createDelegate(String policyDirectives) {
-		// @formatter:off
-		return StaticServerHttpHeadersWriter.builder()
-				.header(FEATURE_POLICY, policyDirectives)
-				.build();
-		// @formatter:on
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(FEATURE_POLICY, policyDirectives);
+		return builder.build();
 	}
 
 }

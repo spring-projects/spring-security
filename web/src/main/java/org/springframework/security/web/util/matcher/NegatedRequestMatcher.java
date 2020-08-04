@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -50,9 +51,7 @@ public class NegatedRequestMatcher implements RequestMatcher {
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		boolean result = !this.requestMatcher.matches(request);
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("matches = " + result);
-		}
+		this.logger.debug(LogMessage.format("matches = %s", result));
 		return result;
 	}
 

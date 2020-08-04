@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.firewall.DefaultRequestRejectedHandler;
 import org.springframework.security.web.firewall.FirewalledRequest;
@@ -173,47 +174,37 @@ public class FilterChainProxy extends GenericFilterBean {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		boolean clearContext = request.getAttribute(FILTER_APPLIED) == null;
-		if (clearContext) {
-			try {
-				request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
-				doFilterInternal(request, response, chain);
-			}
-			catch (RequestRejectedException ex) {
-				this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, ex);
-			}
-			finally {
-				SecurityContextHolder.clearContext();
-				request.removeAttribute(FILTER_APPLIED);
-			}
-		}
-		else {
+		if (!clearContext) {
 			doFilterInternal(request, response, chain);
+			return;
+		}
+		try {
+			request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
+			doFilterInternal(request, response, chain);
+		}
+		catch (RequestRejectedException ex) {
+			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, ex);
+		}
+		finally {
+			SecurityContextHolder.clearContext();
+			request.removeAttribute(FILTER_APPLIED);
 		}
 	}
 
 	private void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-
-		FirewalledRequest fwRequest = this.firewall.getFirewalledRequest((HttpServletRequest) request);
-		HttpServletResponse fwResponse = this.firewall.getFirewalledResponse((HttpServletResponse) response);
-
-		List<Filter> filters = getFilters(fwRequest);
-
+		FirewalledRequest firewallRequest = this.firewall.getFirewalledRequest((HttpServletRequest) request);
+		HttpServletResponse firewallResponse = this.firewall.getFirewalledResponse((HttpServletResponse) response);
+		List<Filter> filters = getFilters(firewallRequest);
 		if (filters == null || filters.size() == 0) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(UrlUtils.buildRequestUrl(fwRequest)
-						+ ((filters != null) ? " has an empty filter list" : " has no matching filters"));
-			}
-
-			fwRequest.reset();
-
-			chain.doFilter(fwRequest, fwResponse);
-
+			logger.debug(LogMessage.of(() -> UrlUtils.buildRequestUrl(firewallRequest)
+					+ ((filters != null) ? " has an empty filter list" : " has no matching filters")));
+			firewallRequest.reset();
+			chain.doFilter(firewallRequest, firewallResponse);
 			return;
 		}
-
-		VirtualFilterChain vfc = new VirtualFilterChain(fwRequest, chain, filters);
-		vfc.doFilter(fwRequest, fwResponse);
+		VirtualFilterChain virtualFilterChain = new VirtualFilterChain(firewallRequest, chain, filters);
+		virtualFilterChain.doFilter(firewallRequest, firewallResponse);
 	}
 
 	/**
@@ -227,7 +218,6 @@ public class FilterChainProxy extends GenericFilterBean {
 				return chain.getFilters();
 			}
 		}
-
 		return null;
 	}
 
@@ -286,7 +276,6 @@ public class FilterChainProxy extends GenericFilterBean {
 		sb.append("Filter Chains: ");
 		sb.append(this.filterChains);
 		sb.append("]");
-
 		return sb.toString();
 	}
 
@@ -317,30 +306,19 @@ public class FilterChainProxy extends GenericFilterBean {
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
 			if (this.currentPosition == this.size) {
-				if (logger.isDebugEnabled()) {
-					logger.debug(UrlUtils.buildRequestUrl(this.firewalledRequest)
-							+ " reached end of additional filter chain; proceeding with original chain");
-				}
-
+				logger.debug(LogMessage.of(() -> UrlUtils.buildRequestUrl(this.firewalledRequest)
+						+ " reached end of additional filter chain; proceeding with original chain"));
 				// Deactivate path stripping as we exit the security filter chain
 				this.firewalledRequest.reset();
-
 				this.originalChain.doFilter(request, response);
+				return;
 			}
-			else {
-				this.currentPosition++;
-
-				Filter nextFilter = this.additionalFilters.get(this.currentPosition - 1);
-
-				if (logger.isDebugEnabled()) {
-					logger.debug(
-							UrlUtils.buildRequestUrl(this.firewalledRequest) + " at position " + this.currentPosition
-									+ " of " + this.size + " in additional filter chain; firing Filter: '"
-									+ nextFilter.getClass().getSimpleName() + "'");
-				}
-
-				nextFilter.doFilter(request, response, this);
-			}
+			this.currentPosition++;
+			Filter nextFilter = this.additionalFilters.get(this.currentPosition - 1);
+			logger.debug(LogMessage.of(() -> UrlUtils.buildRequestUrl(this.firewalledRequest) + " at position "
+					+ this.currentPosition + " of " + this.size + " in additional filter chain; firing Filter: '"
+					+ nextFilter.getClass().getSimpleName() + "'"));
+			nextFilter.doFilter(request, response, this);
 		}
 
 	}

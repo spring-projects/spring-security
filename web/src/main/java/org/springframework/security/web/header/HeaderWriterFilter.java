@@ -68,7 +68,6 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
 		if (this.shouldWriteHeadersEagerly) {
 			doHeadersBefore(request, response, filterChain);
 		}

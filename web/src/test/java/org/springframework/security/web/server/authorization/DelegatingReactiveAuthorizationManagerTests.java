@@ -18,11 +18,12 @@ package org.springframework.security.web.server.authorization;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Mono;
 
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
@@ -40,7 +41,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
 public class DelegatingReactiveAuthorizationManagerTests {
 
 	@Mock
@@ -55,7 +55,6 @@ public class DelegatingReactiveAuthorizationManagerTests {
 	@Mock
 	AuthorityReactiveAuthorizationManager<AuthorizationContext> delegate2;
 
-	@Mock
 	ServerWebExchange exchange;
 
 	@Mock
@@ -68,9 +67,12 @@ public class DelegatingReactiveAuthorizationManagerTests {
 
 	@Before
 	public void setup() {
+		MockitoAnnotations.initMocks(this);
 		this.manager = DelegatingReactiveAuthorizationManager.builder()
 				.add(new ServerWebExchangeMatcherEntry<>(this.match1, this.delegate1))
 				.add(new ServerWebExchangeMatcherEntry<>(this.match2, this.delegate2)).build();
+		MockServerHttpRequest request = MockServerHttpRequest.get("/test").build();
+		this.exchange = MockServerWebExchange.from(request);
 	}
 
 	@Test

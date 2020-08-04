@@ -87,7 +87,6 @@ public final class RequestHeaderRequestMatcher implements RequestMatcher {
 		if (this.expectedHeaderValue == null) {
 			return actualHeaderValue != null;
 		}
-
 		return this.expectedHeaderValue.equals(actualHeaderValue);
 	}
 

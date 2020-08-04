@@ -93,24 +93,20 @@ public class SavedCookie implements Serializable {
 	}
 
 	public Cookie getCookie() {
-		Cookie c = new Cookie(getName(), getValue());
-
+		Cookie cookie = new Cookie(getName(), getValue());
 		if (getComment() != null) {
-			c.setComment(getComment());
+			cookie.setComment(getComment());
 		}
-
 		if (getDomain() != null) {
-			c.setDomain(getDomain());
+			cookie.setDomain(getDomain());
 		}
-
 		if (getPath() != null) {
-			c.setPath(getPath());
+			cookie.setPath(getPath());
 		}
-
-		c.setVersion(getVersion());
-		c.setMaxAge(getMaxAge());
-		c.setSecure(isSecure());
-		return c;
+		cookie.setVersion(getVersion());
+		cookie.setMaxAge(getMaxAge());
+		cookie.setSecure(isSecure());
+		return cookie;
 	}
 
 }

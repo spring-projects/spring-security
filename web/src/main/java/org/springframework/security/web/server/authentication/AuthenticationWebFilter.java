@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
@@ -111,8 +112,8 @@ public class AuthenticationWebFilter implements WebFilter {
 				.flatMap((matchResult) -> this.authenticationConverter.convert(exchange))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.flatMap((token) -> authenticate(exchange, chain, token))
-				.onErrorResume(AuthenticationException.class, (e) -> this.authenticationFailureHandler
-						.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e));
+				.onErrorResume(AuthenticationException.class, (ex) -> this.authenticationFailureHandler
+						.onAuthenticationFailure(new WebFilterExchange(exchange, chain), ex));
 	}
 
 	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
@@ -122,11 +123,8 @@ public class AuthenticationWebFilter implements WebFilter {
 						() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
 				.flatMap((authentication) -> onAuthenticationSuccess(authentication,
 						new WebFilterExchange(exchange, chain)))
-				.doOnError(AuthenticationException.class, (e) -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Authentication failed: " + e.getMessage());
-					}
-				});
+				.doOnError(AuthenticationException.class,
+						(ex) -> logger.debug(LogMessage.format("Authentication failed: %s", ex.getMessage())));
 	}
 
 	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {

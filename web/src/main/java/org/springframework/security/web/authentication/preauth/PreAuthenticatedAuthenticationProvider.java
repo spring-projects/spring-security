@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -50,11 +51,11 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 
 	private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
 
-	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> preAuthenticatedUserDetailsService = null;
+	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> preAuthenticatedUserDetailsService;
 
 	private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
-	private boolean throwExceptionWhenTokenRejected = false;
+	private boolean throwExceptionWhenTokenRejected;
 
 	private int order = -1; // default: same as non-ordered
 
@@ -77,38 +78,27 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("PreAuthenticated authentication request: " + authentication);
-		}
-
+		logger.debug(LogMessage.format("PreAuthenticated authentication request: %s", authentication));
 		if (authentication.getPrincipal() == null) {
 			logger.debug("No pre-authenticated principal found in request.");
-
 			if (this.throwExceptionWhenTokenRejected) {
 				throw new BadCredentialsException("No pre-authenticated principal found in request.");
 			}
 			return null;
 		}
-
 		if (authentication.getCredentials() == null) {
 			logger.debug("No pre-authenticated credentials found in request.");
-
 			if (this.throwExceptionWhenTokenRejected) {
 				throw new BadCredentialsException("No pre-authenticated credentials found in request.");
 			}
 			return null;
 		}
-
-		UserDetails ud = this.preAuthenticatedUserDetailsService
+		UserDetails userDetails = this.preAuthenticatedUserDetailsService
 				.loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
-
-		this.userDetailsChecker.check(ud);
-
-		PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(ud,
-				authentication.getCredentials(), ud.getAuthorities());
+		this.userDetailsChecker.check(userDetails);
+		PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(userDetails,
+				authentication.getCredentials(), userDetails.getAuthorities());
 		result.setDetails(authentication.getDetails());
-
 		return result;
 	}
 

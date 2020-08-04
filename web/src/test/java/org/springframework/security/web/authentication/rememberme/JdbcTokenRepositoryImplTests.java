@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -41,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -133,14 +133,11 @@ public class JdbcTokenRepositoryImplTests {
 	// SEC-1964
 	@Test
 	public void retrievingTokenWithNoSeriesReturnsNull() {
-		given(this.logger.isDebugEnabled()).willReturn(true);
-
 		assertThat(this.repo.getTokenForSeries("missingSeries")).isNull();
-
-		verify(this.logger).isDebugEnabled();
-		verify(this.logger).debug(eq("Querying token for series 'missingSeries' returned no results."),
-				any(EmptyResultDataAccessException.class));
+		ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+		verify(this.logger).debug(captor.capture(), any(EmptyResultDataAccessException.class));
 		verifyNoMoreInteractions(this.logger);
+		assertThat(captor.getValue()).hasToString("Querying token for series 'missingSeries' returned no results.");
 	}
 
 	@Test

@@ -55,10 +55,9 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 */
 	public XFrameOptionsHeaderWriter(XFrameOptionsMode frameOptionsMode) {
 		Assert.notNull(frameOptionsMode, "frameOptionsMode cannot be null");
-		if (XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode)) {
-			throw new IllegalArgumentException(
-					"ALLOW_FROM requires an AllowFromStrategy. Please use FrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) instead");
-		}
+		Assert.isTrue(!XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode),
+				"ALLOW_FROM requires an AllowFromStrategy. Please use "
+						+ "FrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) instead");
 		this.frameOptionsMode = frameOptionsMode;
 		this.allowFromStrategy = null;
 	}
@@ -113,7 +112,10 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 */
 	public enum XFrameOptionsMode {
 
-		DENY("DENY"), SAMEORIGIN("SAMEORIGIN"),
+		DENY("DENY"),
+
+		SAMEORIGIN("SAMEORIGIN"),
+
 		/**
 		 * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern
 		 * browsers. Instead use Content-Security-Policy with the <a href=
@@ -123,7 +125,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 		@Deprecated
 		ALLOW_FROM("ALLOW-FROM");
 
-		private String mode;
+		private final String mode;
 
 		XFrameOptionsMode(String mode) {
 			this.mode = mode;

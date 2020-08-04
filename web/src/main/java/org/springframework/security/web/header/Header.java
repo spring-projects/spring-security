@@ -62,20 +62,18 @@ public final class Header {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
+	public boolean equals(Object obj) {
+		if (this == obj) {
 			return true;
 		}
-		if (o == null || getClass() != o.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-
-		Header header = (Header) o;
-
-		if (!this.headerName.equals(header.headerName)) {
+		Header other = (Header) obj;
+		if (!this.headerName.equals(other.headerName)) {
 			return false;
 		}
-		return this.headerValues.equals(header.headerValues);
+		return this.headerValues.equals(other.headerValues);
 	}
 
 	@Override

@@ -65,18 +65,13 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 	 */
 	public DefaultFilterInvocationSecurityMetadataSource(
 			LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap) {
-
 		this.requestMap = requestMap;
 	}
 
 	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();
-
-		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : this.requestMap.entrySet()) {
-			allAttributes.addAll(entry.getValue());
-		}
-
+		this.requestMap.values().forEach(allAttributes::addAll);
 		return allAttributes;
 	}
 

@@ -20,6 +20,7 @@ import java.security.cert.X509Certificate;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 /**
@@ -32,12 +33,7 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
 		X509Certificate cert = extractClientCertificate(request);
-
-		if (cert == null) {
-			return null;
-		}
-
-		return this.principalExtractor.extractPrincipal(cert);
+		return (cert != null) ? this.principalExtractor.extractPrincipal(cert) : null;
 	}
 
 	@Override
@@ -47,19 +43,11 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 
 	private X509Certificate extractClientCertificate(HttpServletRequest request) {
 		X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
-
 		if (certs != null && certs.length > 0) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("X.509 client authentication certificate:" + certs[0]);
-			}
-
+			this.logger.debug(LogMessage.format("X.509 client authentication certificate:%s", certs[0]));
 			return certs[0];
 		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("No client certificate found in request.");
-		}
-
+		this.logger.debug("No client certificate found in request.");
 		return null;
 	}
 

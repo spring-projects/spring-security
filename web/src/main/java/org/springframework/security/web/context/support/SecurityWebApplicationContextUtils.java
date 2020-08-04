@@ -20,6 +20,7 @@ import java.util.Enumeration;
 
 import javax.servlet.ServletContext;
 
+import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -47,11 +48,10 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 	 * @see ServletContext#getAttributeNames()
 	 */
 	public static WebApplicationContext findRequiredWebApplicationContext(ServletContext servletContext) {
-		WebApplicationContext wac = _findWebApplicationContext(servletContext);
-		if (wac == null) {
-			throw new IllegalStateException("No WebApplicationContext found: no ContextLoaderListener registered?");
-		}
-		return wac;
+		WebApplicationContext webApplicationContext = compatiblyFindWebApplicationContext(servletContext);
+		Assert.state(webApplicationContext != null,
+				"No WebApplicationContext found: no ContextLoaderListener registered?");
+		return webApplicationContext;
 	}
 
 	/**
@@ -59,23 +59,21 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 	 * spring framework 4.1.x.
 	 * @see #findWebApplicationContext(ServletContext)
 	 */
-	private static WebApplicationContext _findWebApplicationContext(ServletContext sc) {
-		WebApplicationContext wac = getWebApplicationContext(sc);
-		if (wac == null) {
+	private static WebApplicationContext compatiblyFindWebApplicationContext(ServletContext sc) {
+		WebApplicationContext webApplicationContext = getWebApplicationContext(sc);
+		if (webApplicationContext == null) {
 			Enumeration<String> attrNames = sc.getAttributeNames();
 			while (attrNames.hasMoreElements()) {
 				String attrName = attrNames.nextElement();
 				Object attrValue = sc.getAttribute(attrName);
 				if (attrValue instanceof WebApplicationContext) {
-					if (wac != null) {
-						throw new IllegalStateException("No unique WebApplicationContext found: more than one "
-								+ "DispatcherServlet registered with publishContext=true?");
-					}
-					wac = (WebApplicationContext) attrValue;
+					Assert.state(webApplicationContext == null, "No unique WebApplicationContext found: more than one "
+							+ "DispatcherServlet registered with publishContext=true?");
+					webApplicationContext = (WebApplicationContext) attrValue;
 				}
 			}
 		}
-		return wac;
+		return webApplicationContext;
 	}
 
 }

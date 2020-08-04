@@ -40,8 +40,12 @@ import org.springframework.security.web.server.csrf.DefaultCsrfToken;
  */
 public class WebServerJackson2Module extends SimpleModule {
 
+	private static final String NAME = WebServerJackson2Module.class.getName();
+
+	private static final Version VERSION = new Version(1, 0, 0, null, null, null);
+
 	public WebServerJackson2Module() {
-		super(WebServerJackson2Module.class.getName(), new Version(1, 0, 0, null, null, null));
+		super(NAME, VERSION);
 	}
 
 	@Override

@@ -51,9 +51,6 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 
 	private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return Mono.just(exchange).filter(this::isInsecure).flatMap(this.requiresHttpsRedirectMatcher::matches)
@@ -80,7 +77,6 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 	 * @param requiresHttpsRedirectMatcher the {@link ServerWebExchangeMatcher} to use
 	 */
 	public void setRequiresHttpsRedirectMatcher(ServerWebExchangeMatcher requiresHttpsRedirectMatcher) {
-
 		Assert.notNull(requiresHttpsRedirectMatcher, "requiresHttpsRedirectMatcher cannot be null");
 		this.requiresHttpsRedirectMatcher = requiresHttpsRedirectMatcher;
 	}
@@ -91,17 +87,12 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 
 	private URI createRedirectUri(ServerWebExchange exchange) {
 		int port = exchange.getRequest().getURI().getPort();
-
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(exchange.getRequest().getURI());
-
 		if (port > 0) {
 			Integer httpsPort = this.portMapper.lookupHttpsPort(port);
-			if (httpsPort == null) {
-				throw new IllegalStateException("HTTP Port '" + port + "' does not have a corresponding HTTPS Port");
-			}
+			Assert.state(httpsPort != null, () -> "HTTP Port '" + port + "' does not have a corresponding HTTPS Port");
 			builder.port(httpsPort);
 		}
-
 		return builder.scheme("https").build().toUri();
 	}
 

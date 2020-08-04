@@ -173,11 +173,8 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
 	 */
 	private void registerFilters(ServletContext servletContext, boolean insertBeforeOtherFilters, Filter... filters) {
 		Assert.notEmpty(filters, "filters cannot be null or empty");
-
 		for (Filter filter : filters) {
-			if (filter == null) {
-				throw new IllegalArgumentException("filters cannot contain null values. Got " + Arrays.asList(filters));
-			}
+			Assert.notNull(filter, () -> "filters cannot contain null values. Got " + Arrays.asList(filters));
 			String filterName = Conventions.getVariableName(filter);
 			registerFilter(servletContext, insertBeforeOtherFilters, filterName, filter);
 		}
@@ -195,10 +192,8 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
 	private void registerFilter(ServletContext servletContext, boolean insertBeforeOtherFilters, String filterName,
 			Filter filter) {
 		Dynamic registration = servletContext.addFilter(filterName, filter);
-		if (registration == null) {
-			throw new IllegalStateException("Duplicate Filter registration for '" + filterName
-					+ "'. Check to ensure the Filter is only configured once.");
-		}
+		Assert.state(registration != null, () -> "Duplicate Filter registration for '" + filterName
+				+ "'. Check to ensure the Filter is only configured once.");
 		registration.setAsyncSupported(isAsyncSecuritySupported());
 		EnumSet<DispatcherType> dispatcherTypes = getSecurityDispatcherTypes();
 		registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters, "/*");

@@ -27,9 +27,11 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.util.Assert;
 
 /**
  * Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the
@@ -68,44 +70,30 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 
 	@Override
 	public void afterPropertiesSet() {
-		if ((this.realmName == null) || "".equals(this.realmName)) {
-			throw new IllegalArgumentException("realmName must be specified");
-		}
-
-		if ((this.key == null) || "".equals(this.key)) {
-			throw new IllegalArgumentException("key must be specified");
-		}
+		Assert.hasLength(this.realmName, "realmName must be specified");
+		Assert.hasLength(this.key, "key must be specified");
 	}
 
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
-		HttpServletResponse httpResponse = response;
-
-		// compute a nonce (do not use remote IP address due to proxy farms)
-		// format of nonce is:
-		// base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
+		// compute a nonce (do not use remote IP address due to proxy farms) format of
+		// nonce is: base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
 		long expiryTime = System.currentTimeMillis() + (this.nonceValiditySeconds * 1000);
 		String signatureValue = DigestAuthUtils.md5Hex(expiryTime + ":" + this.key);
 		String nonceValue = expiryTime + ":" + signatureValue;
 		String nonceValueBase64 = new String(Base64.getEncoder().encode(nonceValue.getBytes()));
-
-		// qop is quality of protection, as defined by RFC 2617.
-		// we do not use opaque due to IE violation of RFC 2617 in not
-		// representing opaque on subsequent requests in same session.
+		// qop is quality of protection, as defined by RFC 2617. We do not use opaque due
+		// to IE violation of RFC 2617 in not representing opaque on subsequent requests
+		// in same session.
 		String authenticateHeader = "Digest realm=\"" + this.realmName + "\", " + "qop=\"auth\", nonce=\""
 				+ nonceValueBase64 + "\"";
-
 		if (authException instanceof NonceExpiredException) {
 			authenticateHeader = authenticateHeader + ", stale=\"true\"";
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("WWW-Authenticate header sent to user agent: " + authenticateHeader);
-		}
-
-		httpResponse.addHeader("WWW-Authenticate", authenticateHeader);
-		httpResponse.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
+		logger.debug(LogMessage.format("WWW-Authenticate header sent to user agent: %s", authenticateHeader));
+		response.addHeader("WWW-Authenticate", authenticateHeader);
+		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
 	public String getKey() {

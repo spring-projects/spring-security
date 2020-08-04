@@ -59,12 +59,10 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
 	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
 		String principal = (String) request.getAttribute(this.principalEnvironmentVariable);
-
 		if (principal == null && this.exceptionIfVariableMissing) {
 			throw new PreAuthenticatedCredentialsNotFoundException(
 					this.principalEnvironmentVariable + " variable not found in request.");
 		}
-
 		return principal;
 	}
 
@@ -78,7 +76,6 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
 		if (this.credentialsEnvironmentVariable != null) {
 			return request.getAttribute(this.credentialsEnvironmentVariable);
 		}
-
 		return "N/A";
 	}
 

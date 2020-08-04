@@ -78,17 +78,14 @@ public class Enumerator<T> implements Enumeration<T> {
 	 * @param clone true to clone iterator
 	 */
 	public Enumerator(Iterator<T> iterator, boolean clone) {
-
 		if (!clone) {
 			this.iterator = iterator;
 		}
 		else {
 			List<T> list = new ArrayList<>();
-
 			while (iterator.hasNext()) {
 				list.add(iterator.next());
 			}
-
 			this.iterator = list.iterator();
 		}
 	}

@@ -73,8 +73,8 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 
 	@Override
 	public Mono<CsrfToken> loadToken(ServerWebExchange exchange) {
-		return exchange.getSession().filter((s) -> s.getAttributes().containsKey(this.sessionAttributeName))
-				.map((s) -> s.getAttribute(this.sessionAttributeName));
+		return exchange.getSession().filter((session) -> session.getAttributes().containsKey(this.sessionAttributeName))
+				.map((session) -> session.getAttribute(this.sessionAttributeName));
 	}
 
 	/**

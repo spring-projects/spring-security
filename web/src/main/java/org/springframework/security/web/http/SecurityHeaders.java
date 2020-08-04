@@ -29,6 +29,9 @@ import org.springframework.util.Assert;
  */
 public final class SecurityHeaders {
 
+	private SecurityHeaders() {
+	}
+
 	/**
 	 * Sets the provided value as a Bearer token in a header with the name of
 	 * {@link HttpHeaders#AUTHORIZATION}
@@ -38,9 +41,6 @@ public final class SecurityHeaders {
 	public static Consumer<HttpHeaders> bearerToken(String bearerTokenValue) {
 		Assert.hasText(bearerTokenValue, "bearerTokenValue cannot be null");
 		return (headers) -> headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + bearerTokenValue);
-	}
-
-	private SecurityHeaders() {
 	}
 
 }

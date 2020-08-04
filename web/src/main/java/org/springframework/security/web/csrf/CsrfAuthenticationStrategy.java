@@ -51,10 +51,8 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 		boolean containsToken = this.csrfTokenRepository.loadToken(request) != null;
 		if (containsToken) {
 			this.csrfTokenRepository.saveToken(null, request, response);
-
 			CsrfToken newToken = this.csrfTokenRepository.generateToken(request);
 			this.csrfTokenRepository.saveToken(newToken, request, response);
-
 			request.setAttribute(CsrfToken.class.getName(), newToken);
 			request.setAttribute(newToken.getParameterName(), newToken);
 		}

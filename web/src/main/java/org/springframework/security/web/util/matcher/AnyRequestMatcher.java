@@ -28,6 +28,9 @@ public final class AnyRequestMatcher implements RequestMatcher {
 
 	public static final RequestMatcher INSTANCE = new AnyRequestMatcher();
 
+	private AnyRequestMatcher() {
+	}
+
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		return true;
@@ -48,9 +51,6 @@ public final class AnyRequestMatcher implements RequestMatcher {
 	@Override
 	public String toString() {
 		return "any request";
-	}
-
-	private AnyRequestMatcher() {
 	}
 
 }

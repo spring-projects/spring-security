@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication.preauth.j2ee;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 /**
@@ -36,9 +37,7 @@ public class J2eePreAuthenticatedProcessingFilter extends AbstractPreAuthenticat
 	@Override
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
 		Object principal = (httpRequest.getUserPrincipal() != null) ? httpRequest.getUserPrincipal().getName() : null;
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("PreAuthenticated J2EE principal: " + principal);
-		}
+		this.logger.debug(LogMessage.format("PreAuthenticated J2EE principal: %s", principal));
 		return principal;
 	}
 

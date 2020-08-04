@@ -77,7 +77,6 @@ public class RequestKey {
 		}
 		sb.append(this.url);
 		sb.append("]");
-
 		return sb.toString();
 	}
 

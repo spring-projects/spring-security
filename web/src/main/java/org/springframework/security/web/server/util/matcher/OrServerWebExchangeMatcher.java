@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -52,21 +53,16 @@ public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return Flux.fromIterable(this.matchers).doOnNext((it) -> {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Trying to match using " + it);
-			}
-		}).flatMap((m) -> m.matches(exchange)).filter(MatchResult::isMatch).next().switchIfEmpty(MatchResult.notMatch())
-				.doOnNext((it) -> {
-					if (logger.isDebugEnabled()) {
-						logger.debug(it.isMatch() ? "matched" : "No matches found");
-					}
-				});
+		return Flux.fromIterable(this.matchers)
+				.doOnNext((matcher) -> logger.debug(LogMessage.format("Trying to match using %s", matcher)))
+				.flatMap((matcher) -> matcher.matches(exchange)).filter(MatchResult::isMatch).next()
+				.switchIfEmpty(MatchResult.notMatch())
+				.doOnNext((matchResult) -> logger.debug(matchResult.isMatch() ? "matched" : "No matches found"));
 	}
 
 	@Override
 	public String toString() {
-		return "OrServerWebExchangeMatcher{" + "matchers=" + this.matchers + '}';
+		return "OrServerWebExchangeMatcher{matchers=" + this.matchers + '}';
 	}
 
 }

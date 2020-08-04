@@ -27,6 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -70,34 +71,26 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 * </p>
 	 */
 	@Override
-	public final void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
+	public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
 
 		Subject subject = obtainSubject(request);
 		if (subject == null && this.createEmptySubject) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug(
-						"Subject returned was null and createEmtpySubject is true; creating new empty subject to run as.");
-			}
+			this.logger.debug("Subject returned was null and createEmtpySubject is true; "
+					+ "creating new empty subject to run as.");
 			subject = new Subject();
 		}
 		if (subject == null) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Subject is null continue running with no Subject.");
-			}
+			this.logger.debug("Subject is null continue running with no Subject.");
 			chain.doFilter(request, response);
 			return;
 		}
-		final PrivilegedExceptionAction<Object> continueChain = () -> {
-			chain.doFilter(request, response);
-			return null;
-		};
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Running as Subject " + subject);
-		}
+		this.logger.debug(LogMessage.format("Running as Subject %s", subject));
 		try {
-			Subject.doAs(subject, continueChain);
+			Subject.doAs(subject, (PrivilegedExceptionAction<Object>) () -> {
+				chain.doFilter(request, response);
+				return null;
+			});
 		}
 		catch (PrivilegedActionException ex) {
 			throw new ServletException(ex.getMessage(), ex);
@@ -121,9 +114,7 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 */
 	protected Subject obtainSubject(ServletRequest request) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Attempting to obtainSubject using authentication : " + authentication);
-		}
+		this.logger.debug(LogMessage.format("Attempting to obtainSubject using authentication : %s", authentication));
 		if (authentication == null) {
 			return null;
 		}

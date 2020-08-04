@@ -39,7 +39,7 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandler implements Ser
 
 	private final List<DelegateEntry> handlers;
 
-	private ServerAccessDeniedHandler defaultHandler = (exchange, e) -> {
+	private ServerAccessDeniedHandler defaultHandler = (exchange, ex) -> {
 		exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
 		return exchange.getResponse().setComplete();
 	};

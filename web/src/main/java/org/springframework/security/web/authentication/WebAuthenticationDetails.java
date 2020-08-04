@@ -44,7 +44,6 @@ public class WebAuthenticationDetails implements Serializable {
 	 */
 	public WebAuthenticationDetails(HttpServletRequest request) {
 		this.remoteAddress = request.getRemoteAddr();
-
 		HttpSession session = request.getSession(false);
 		this.sessionId = (session != null) ? session.getId() : null;
 	}
@@ -62,39 +61,31 @@ public class WebAuthenticationDetails implements Serializable {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof WebAuthenticationDetails) {
-			WebAuthenticationDetails rhs = (WebAuthenticationDetails) obj;
-
-			if ((this.remoteAddress == null) && (rhs.getRemoteAddress() != null)) {
+			WebAuthenticationDetails other = (WebAuthenticationDetails) obj;
+			if ((this.remoteAddress == null) && (other.getRemoteAddress() != null)) {
 				return false;
 			}
-
-			if ((this.remoteAddress != null) && (rhs.getRemoteAddress() == null)) {
+			if ((this.remoteAddress != null) && (other.getRemoteAddress() == null)) {
 				return false;
 			}
-
 			if (this.remoteAddress != null) {
-				if (!this.remoteAddress.equals(rhs.getRemoteAddress())) {
+				if (!this.remoteAddress.equals(other.getRemoteAddress())) {
 					return false;
 				}
 			}
-
-			if ((this.sessionId == null) && (rhs.getSessionId() != null)) {
+			if ((this.sessionId == null) && (other.getSessionId() != null)) {
 				return false;
 			}
-
-			if ((this.sessionId != null) && (rhs.getSessionId() == null)) {
+			if ((this.sessionId != null) && (other.getSessionId() == null)) {
 				return false;
 			}
-
 			if (this.sessionId != null) {
-				if (!this.sessionId.equals(rhs.getSessionId())) {
+				if (!this.sessionId.equals(other.getSessionId())) {
 					return false;
 				}
 			}
-
 			return true;
 		}
-
 		return false;
 	}
 
@@ -118,15 +109,12 @@ public class WebAuthenticationDetails implements Serializable {
 	@Override
 	public int hashCode() {
 		int code = 7654;
-
 		if (this.remoteAddress != null) {
 			code = code * (this.remoteAddress.hashCode() % 7);
 		}
-
 		if (this.sessionId != null) {
 			code = code * (this.sessionId.hashCode() % 7);
 		}
-
 		return code;
 	}
 
@@ -136,7 +124,6 @@ public class WebAuthenticationDetails implements Serializable {
 		sb.append(super.toString()).append(": ");
 		sb.append("RemoteIpAddress: ").append(this.getRemoteAddress()).append("; ");
 		sb.append("SessionId: ").append(this.getSessionId());
-
 		return sb.toString();
 	}
 

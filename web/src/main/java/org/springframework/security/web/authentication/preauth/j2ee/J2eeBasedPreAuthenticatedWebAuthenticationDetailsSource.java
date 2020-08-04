@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.Attributes2GrantedAuthoritiesMapper;
@@ -76,13 +77,11 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	 */
 	protected Collection<String> getUserRoles(HttpServletRequest request) {
 		ArrayList<String> j2eeUserRolesList = new ArrayList<>();
-
 		for (String role : this.j2eeMappableRoles) {
 			if (request.isUserInRole(role)) {
 				j2eeUserRolesList.add(role);
 			}
 		}
-
 		return j2eeUserRolesList;
 	}
 
@@ -93,19 +92,14 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	 */
 	@Override
 	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(HttpServletRequest context) {
-
 		Collection<String> j2eeUserRoles = getUserRoles(context);
-		Collection<? extends GrantedAuthority> userGas = this.j2eeUserRoles2GrantedAuthoritiesMapper
+		Collection<? extends GrantedAuthority> userGrantedAuthorities = this.j2eeUserRoles2GrantedAuthoritiesMapper
 				.getGrantedAuthorities(j2eeUserRoles);
-
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("J2EE roles [" + j2eeUserRoles + "] mapped to Granted Authorities: [" + userGas + "]");
+			this.logger.debug(LogMessage.format("J2EE roles [%s] mapped to Granted Authorities: [%s]", j2eeUserRoles,
+					userGrantedAuthorities));
 		}
-
-		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails result = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-				context, userGas);
-
-		return result;
+		return new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(context, userGrantedAuthorities);
 	}
 
 	/**

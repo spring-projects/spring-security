@@ -23,6 +23,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.core.log.LogMessage;
+
 /**
  * Uses {@code HttpServletRequest.invalidate()} to protect against session fixation
  * attacks.
@@ -82,21 +84,13 @@ public class SessionFixationProtectionStrategy extends AbstractSessionFixationPr
 	final HttpSession applySessionFixation(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		String originalSessionId = session.getId();
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Invalidating session with Id '" + originalSessionId + "' "
-					+ (this.migrateSessionAttributes ? "and" : "without") + " migrating attributes.");
-		}
-
+		this.logger.debug(LogMessage.of(() -> "Invalidating session with Id '" + originalSessionId + "' "
+				+ (this.migrateSessionAttributes ? "and" : "without") + " migrating attributes."));
 		Map<String, Object> attributesToMigrate = extractAttributes(session);
 		int maxInactiveIntervalToMigrate = session.getMaxInactiveInterval();
-
 		session.invalidate();
 		session = request.getSession(true); // we now have a new session
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Started new session: " + session.getId());
-		}
-
+		this.logger.debug(LogMessage.format("Started new session: %s", session.getId()));
 		transferAttributes(attributesToMigrate, session);
 		if (this.migrateSessionAttributes) {
 			session.setMaxInactiveInterval(maxInactiveIntervalToMigrate);
@@ -111,27 +105,22 @@ public class SessionFixationProtectionStrategy extends AbstractSessionFixationPr
 	 */
 	void transferAttributes(Map<String, Object> attributes, HttpSession newSession) {
 		if (attributes != null) {
-			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-				newSession.setAttribute(entry.getKey(), entry.getValue());
-			}
+			attributes.forEach(newSession::setAttribute);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private HashMap<String, Object> createMigratedAttributeMap(HttpSession session) {
 		HashMap<String, Object> attributesToMigrate = new HashMap<>();
-
-		Enumeration enumer = session.getAttributeNames();
-
-		while (enumer.hasMoreElements()) {
-			String key = (String) enumer.nextElement();
+		Enumeration<String> enumeration = session.getAttributeNames();
+		while (enumeration.hasMoreElements()) {
+			String key = enumeration.nextElement();
 			if (!this.migrateSessionAttributes && !key.startsWith("SPRING_SECURITY_")) {
 				// Only retain Spring Security attributes
 				continue;
 			}
 			attributesToMigrate.put(key, session.getAttribute(key));
 		}
-
 		return attributesToMigrate;
 	}
 

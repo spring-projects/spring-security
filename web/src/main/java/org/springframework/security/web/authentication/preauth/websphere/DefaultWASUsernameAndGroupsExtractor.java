@@ -31,6 +31,8 @@ import javax.security.auth.Subject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
+
 /**
  * WebSphere Security helper class to allow retrieval of the current username and groups.
  * <p>
@@ -75,9 +77,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 	 * @return String the security name for the given subject
 	 */
 	private static String getSecurityName(final Subject subject) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Determining Websphere security name for subject " + subject);
-		}
+		logger.debug(LogMessage.format("Determining Websphere security name for subject %s", subject));
 		String userSecurityName = null;
 		if (subject != null) {
 			// SEC-803
@@ -86,9 +86,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 				userSecurityName = (String) invokeMethod(getSecurityNameMethod(), credential);
 			}
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Websphere security name is " + userSecurityName + " for subject " + subject);
-		}
+		logger.debug(LogMessage.format("Websphere security name is %s for subject %s", subject, userSecurityName));
 		return userSecurityName;
 	}
 
@@ -119,38 +117,37 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 	 */
 	@SuppressWarnings("unchecked")
 	private static List<String> getWebSphereGroups(final String securityName) {
-		Context ic = null;
+		Context context = null;
 		try {
 			// TODO: Cache UserRegistry object
-			ic = new InitialContext();
-			Object objRef = ic.lookup(USER_REGISTRY);
+			context = new InitialContext();
+			Object objRef = context.lookup(USER_REGISTRY);
 			Object userReg = invokeMethod(getNarrowMethod(), null, objRef,
 					Class.forName("com.ibm.websphere.security.UserRegistry"));
-			if (logger.isDebugEnabled()) {
-				logger.debug("Determining WebSphere groups for user " + securityName + " using WebSphere UserRegistry "
-						+ userReg);
-			}
-			final Collection groups = (Collection) invokeMethod(getGroupsForUserMethod(), userReg,
+			logger.debug(LogMessage.format("Determining WebSphere groups for user %s using WebSphere UserRegistry %s",
+					securityName, userReg));
+			final Collection<String> groups = (Collection<String>) invokeMethod(getGroupsForUserMethod(), userReg,
 					new Object[] { securityName });
-			if (logger.isDebugEnabled()) {
-				logger.debug("Groups for user " + securityName + ": " + groups.toString());
-			}
-
-			return new ArrayList(groups);
+			logger.debug(LogMessage.format("Groups for user %s: %s", securityName, groups));
+			return new ArrayList<String>(groups);
 		}
 		catch (Exception ex) {
 			logger.error("Exception occured while looking up groups for user", ex);
 			throw new RuntimeException("Exception occured while looking up groups for user", ex);
 		}
 		finally {
-			try {
-				if (ic != null) {
-					ic.close();
-				}
+			closeContext(context);
+		}
+	}
+
+	private static void closeContext(Context context) {
+		try {
+			if (context != null) {
+				context.close();
 			}
-			catch (NamingException ex) {
-				logger.debug("Exception occured while closing context", ex);
-			}
+		}
+		catch (NamingException ex) {
+			logger.debug("Exception occured while closing context", ex);
 		}
 	}
 
@@ -158,30 +155,18 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 		try {
 			return method.invoke(instance, args);
 		}
-		catch (IllegalArgumentException ex) {
-			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
-					+ Arrays.asList(args) + ")", ex);
-			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
-					+ method.getName() + "(" + Arrays.asList(args) + ")", ex);
-		}
-		catch (IllegalAccessException ex) {
-			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
-					+ Arrays.asList(args) + ")", ex);
-			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
-					+ method.getName() + "(" + Arrays.asList(args) + ")", ex);
-		}
-		catch (InvocationTargetException ex) {
-			logger.error("Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
-					+ Arrays.asList(args) + ")", ex);
-			throw new RuntimeException("Error while invoking method " + method.getClass().getName() + "."
-					+ method.getName() + "(" + Arrays.asList(args) + ")", ex);
+		catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException ex) {
+			String message = "Error while invoking method " + method.getClass().getName() + "." + method.getName() + "("
+					+ Arrays.asList(args) + ")";
+			logger.error(message, ex);
+			throw new RuntimeException(message, ex);
 		}
 	}
 
 	private static Method getMethod(String className, String methodName, String[] parameterTypeNames) {
 		try {
 			Class<?> c = Class.forName(className);
-			final int len = parameterTypeNames.length;
+			int len = parameterTypeNames.length;
 			Class<?>[] parameterTypes = new Class[len];
 			for (int i = 0; i < len; i++) {
 				parameterTypes[i] = Class.forName(parameterTypeNames[i]);

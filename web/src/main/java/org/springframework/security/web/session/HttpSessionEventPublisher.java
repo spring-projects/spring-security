@@ -17,6 +17,7 @@
 package org.springframework.security.web.session;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionIdListener;
 import javax.servlet.http.HttpSessionListener;
@@ -25,6 +26,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 
 /**
@@ -59,14 +62,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 	 */
 	@Override
 	public void sessionCreated(HttpSessionEvent event) {
-		HttpSessionCreatedEvent e = new HttpSessionCreatedEvent(event.getSession());
-		Log log = LogFactory.getLog(LOGGER_NAME);
-
-		if (log.isDebugEnabled()) {
-			log.debug("Publishing event: " + e);
-		}
-
-		getContext(event.getSession().getServletContext()).publishEvent(e);
+		extracted(event.getSession(), new HttpSessionCreatedEvent(event.getSession()));
 	}
 
 	/**
@@ -76,26 +72,18 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 	 */
 	@Override
 	public void sessionDestroyed(HttpSessionEvent event) {
-		HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event.getSession());
-		Log log = LogFactory.getLog(LOGGER_NAME);
-
-		if (log.isDebugEnabled()) {
-			log.debug("Publishing event: " + e);
-		}
-
-		getContext(event.getSession().getServletContext()).publishEvent(e);
+		extracted(event.getSession(), new HttpSessionDestroyedEvent(event.getSession()));
 	}
 
 	@Override
 	public void sessionIdChanged(HttpSessionEvent event, String oldSessionId) {
-		HttpSessionIdChangedEvent e = new HttpSessionIdChangedEvent(event.getSession(), oldSessionId);
+		extracted(event.getSession(), new HttpSessionIdChangedEvent(event.getSession(), oldSessionId));
+	}
+
+	private void extracted(HttpSession session, ApplicationEvent e) {
 		Log log = LogFactory.getLog(LOGGER_NAME);
-
-		if (log.isDebugEnabled()) {
-			log.debug("Publishing event: " + e);
-		}
-
-		getContext(event.getSession().getServletContext()).publishEvent(e);
+		log.debug(LogMessage.format("Publishing event: %s", e));
+		getContext(session.getServletContext()).publishEvent(e);
 	}
 
 }

@@ -55,21 +55,34 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 	}
 
 	private void renderLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String page = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n" + "    <meta charset=\"utf-8\">\n"
-				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-				+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
-				+ "    <title>Confirm Log Out?</title>\n"
-				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
-				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
-				+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n"
-				+ "      <form class=\"form-signin\" method=\"post\" action=\"" + request.getContextPath()
-				+ "/logout\">\n" + "        <h2 class=\"form-signin-heading\">Are you sure you want to log out?</h2>\n"
-				+ renderHiddenInputs(request)
-				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Log Out</button>\n"
-				+ "      </form>\n" + "    </div>\n" + "  </body>\n" + "</html>";
-
+		StringBuilder sb = new StringBuilder();
+		sb.append("<!DOCTYPE html>\n");
+		sb.append("<html lang=\"en\">\n");
+		sb.append("  <head>\n");
+		sb.append("    <meta charset=\"utf-8\">\n");
+		sb.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n");
+		sb.append("    <meta name=\"description\" content=\"\">\n");
+		sb.append("    <meta name=\"author\" content=\"\">\n");
+		sb.append("    <title>Confirm Log Out?</title>\n");
+		sb.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
+				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" "
+				+ "crossorigin=\"anonymous\">\n");
+		sb.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
+				+ "rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n");
+		sb.append("  </head>\n");
+		sb.append("  <body>\n");
+		sb.append("     <div class=\"container\">\n");
+		sb.append("      <form class=\"form-signin\" method=\"post\" action=\"" + request.getContextPath()
+				+ "/logout\">\n");
+		sb.append("        <h2 class=\"form-signin-heading\">Are you sure you want to log out?</h2>\n");
+		sb.append(renderHiddenInputs(request)
+				+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Log Out</button>\n");
+		sb.append("      </form>\n");
+		sb.append("    </div>\n");
+		sb.append("  </body>\n");
+		sb.append("</html>");
 		response.setContentType("text/html;charset=UTF-8");
-		response.getWriter().write(page);
+		response.getWriter().write(sb.toString());
 	}
 
 	/**
@@ -86,8 +99,11 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 	private String renderHiddenInputs(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
-			sb.append("<input name=\"").append(input.getKey()).append("\" type=\"hidden\" value=\"")
-					.append(input.getValue()).append("\" />\n");
+			sb.append("<input name=\"");
+			sb.append(input.getKey());
+			sb.append("\" type=\"hidden\" value=\"");
+			sb.append(input.getValue());
+			sb.append("\" />\n");
 		}
 		return sb.toString();
 	}

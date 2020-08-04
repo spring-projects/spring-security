@@ -50,19 +50,17 @@ public class DefaultHttpFirewall implements HttpFirewall {
 
 	@Override
 	public FirewalledRequest getFirewalledRequest(HttpServletRequest request) throws RequestRejectedException {
-		FirewalledRequest fwr = new RequestWrapper(request);
-
-		if (!isNormalized(fwr.getServletPath()) || !isNormalized(fwr.getPathInfo())) {
-			throw new RequestRejectedException("Un-normalized paths are not supported: " + fwr.getServletPath()
-					+ ((fwr.getPathInfo() != null) ? fwr.getPathInfo() : ""));
+		FirewalledRequest firewalledRequest = new RequestWrapper(request);
+		if (!isNormalized(firewalledRequest.getServletPath()) || !isNormalized(firewalledRequest.getPathInfo())) {
+			throw new RequestRejectedException(
+					"Un-normalized paths are not supported: " + firewalledRequest.getServletPath()
+							+ ((firewalledRequest.getPathInfo() != null) ? firewalledRequest.getPathInfo() : ""));
 		}
-
-		String requestURI = fwr.getRequestURI();
+		String requestURI = firewalledRequest.getRequestURI();
 		if (containsInvalidUrlEncodedSlash(requestURI)) {
 			throw new RequestRejectedException("The requestURI cannot contain encoded slash. Got " + requestURI);
 		}
-
-		return fwr;
+		return firewalledRequest;
 	}
 
 	@Override
@@ -89,11 +87,9 @@ public class DefaultHttpFirewall implements HttpFirewall {
 		if (this.allowUrlEncodedSlash || uri == null) {
 			return false;
 		}
-
 		if (uri.contains("%2f") || uri.contains("%2F")) {
 			return true;
 		}
-
 		return false;
 	}
 
@@ -107,22 +103,18 @@ public class DefaultHttpFirewall implements HttpFirewall {
 		if (path == null) {
 			return true;
 		}
-
-		for (int j = path.length(); j > 0;) {
-			int i = path.lastIndexOf('/', j - 1);
-			int gap = j - i;
-
-			if (gap == 2 && path.charAt(i + 1) == '.') {
+		for (int i = path.length(); i > 0;) {
+			int slashIndex = path.lastIndexOf('/', i - 1);
+			int gap = i - slashIndex;
+			if (gap == 2 && path.charAt(slashIndex + 1) == '.') {
 				// ".", "/./" or "/."
 				return false;
 			}
-			else if (gap == 3 && path.charAt(i + 1) == '.' && path.charAt(i + 2) == '.') {
+			if (gap == 3 && path.charAt(slashIndex + 1) == '.' && path.charAt(slashIndex + 2) == '.') {
 				return false;
 			}
-
-			j = i;
+			i = slashIndex;
 		}
-
 		return true;
 	}
 

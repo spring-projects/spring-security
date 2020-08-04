@@ -112,24 +112,28 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.logoutSuccessUrl = DEFAULT_LOGIN_PAGE_URL + "?logout";
 		this.failureUrl = DEFAULT_LOGIN_PAGE_URL + "?" + ERROR_PARAMETER_NAME;
 		if (authFilter != null) {
-			this.formLoginEnabled = true;
-			this.usernameParameter = authFilter.getUsernameParameter();
-			this.passwordParameter = authFilter.getPasswordParameter();
-
-			if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-				this.rememberMeParameter = ((AbstractRememberMeServices) authFilter.getRememberMeServices())
-						.getParameter();
-			}
+			initAuthFilter(authFilter);
 		}
-
 		if (openIDFilter != null) {
-			this.openIdEnabled = true;
-			this.openIDusernameParameter = "openid_identifier";
+			initOpenIdFilter(openIDFilter);
+		}
+	}
 
-			if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-				this.openIDrememberMeParameter = ((AbstractRememberMeServices) openIDFilter.getRememberMeServices())
-						.getParameter();
-			}
+	private void initAuthFilter(UsernamePasswordAuthenticationFilter authFilter) {
+		this.formLoginEnabled = true;
+		this.usernameParameter = authFilter.getUsernameParameter();
+		this.passwordParameter = authFilter.getPasswordParameter();
+		if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
+			this.rememberMeParameter = ((AbstractRememberMeServices) authFilter.getRememberMeServices()).getParameter();
+		}
+	}
+
+	private void initOpenIdFilter(AbstractAuthenticationProcessingFilter openIDFilter) {
+		this.openIdEnabled = true;
+		this.openIDusernameParameter = "openid_identifier";
+		if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
+			this.openIDrememberMeParameter = ((AbstractRememberMeServices) openIDFilter.getRememberMeServices())
+					.getParameter();
 		}
 	}
 
@@ -214,11 +218,13 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		boolean loginError = isErrorPage(request);
 		boolean logoutSuccess = isLogoutSuccess(request);
 		if (isLoginUrlRequest(request) || loginError || logoutSuccess) {
@@ -226,66 +232,69 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			response.setContentType("text/html;charset=UTF-8");
 			response.setContentLength(loginPageHtml.getBytes(StandardCharsets.UTF_8).length);
 			response.getWriter().write(loginPageHtml);
-
 			return;
 		}
-
 		chain.doFilter(request, response);
 	}
 
 	private String generateLoginPageHtml(HttpServletRequest request, boolean loginError, boolean logoutSuccess) {
 		String errorMsg = "Invalid credentials";
-
 		if (loginError) {
 			HttpSession session = request.getSession(false);
-
 			if (session != null) {
 				AuthenticationException ex = (AuthenticationException) session
 						.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
 				errorMsg = (ex != null) ? ex.getMessage() : "Invalid credentials";
 			}
 		}
-
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n" + "    <meta charset=\"utf-8\">\n"
-				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-				+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
-				+ "    <title>Please sign in</title>\n"
-				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
-				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
-				+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n");
-
 		String contextPath = request.getContextPath();
+		StringBuilder sb = new StringBuilder();
+		sb.append("<!DOCTYPE html>\n");
+		sb.append("<html lang=\"en\">\n");
+		sb.append("  <head>\n");
+		sb.append("    <meta charset=\"utf-8\">\n");
+		sb.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n");
+		sb.append("    <meta name=\"description\" content=\"\">\n");
+		sb.append("    <meta name=\"author\" content=\"\">\n");
+		sb.append("    <title>Please sign in</title>\n");
+		sb.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
+				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n");
+		sb.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
+				+ "rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n");
+		sb.append("  </head>\n");
+		sb.append("  <body>\n");
+		sb.append("     <div class=\"container\">\n");
 		if (this.formLoginEnabled) {
 			sb.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath
-					+ this.authenticationUrl + "\">\n"
-					+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-					+ createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n"
-					+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
-					+ "          <input type=\"text\" id=\"username\" name=\"" + this.usernameParameter
-					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" + "        </p>\n"
-					+ "        <p>\n" + "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
-					+ "          <input type=\"password\" id=\"password\" name=\"" + this.passwordParameter
-					+ "\" class=\"form-control\" placeholder=\"Password\" required>\n" + "        </p>\n"
-					+ createRememberMe(this.rememberMeParameter) + renderHiddenInputs(request)
-					+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-					+ "      </form>\n");
+					+ this.authenticationUrl + "\">\n");
+			sb.append("        <h2 class=\"form-signin-heading\">Please sign in</h2>\n");
+			sb.append(createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n");
+			sb.append("          <label for=\"username\" class=\"sr-only\">Username</label>\n");
+			sb.append("          <input type=\"text\" id=\"username\" name=\"" + this.usernameParameter
+					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n");
+			sb.append("        </p>\n");
+			sb.append("        <p>\n");
+			sb.append("          <label for=\"password\" class=\"sr-only\">Password</label>\n");
+			sb.append("          <input type=\"password\" id=\"password\" name=\"" + this.passwordParameter
+					+ "\" class=\"form-control\" placeholder=\"Password\" required>\n");
+			sb.append("        </p>\n");
+			sb.append(createRememberMe(this.rememberMeParameter) + renderHiddenInputs(request));
+			sb.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n");
+			sb.append("      </form>\n");
 		}
-
 		if (this.openIdEnabled) {
 			sb.append("      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"" + contextPath
-					+ this.openIDauthenticationUrl + "\">\n"
-					+ "        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n"
-					+ createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n"
-					+ "          <label for=\"username\" class=\"sr-only\">Identity</label>\n"
-					+ "          <input type=\"text\" id=\"username\" name=\"" + this.openIDusernameParameter
-					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" + "        </p>\n"
-					+ createRememberMe(this.openIDrememberMeParameter) + renderHiddenInputs(request)
-					+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
-					+ "      </form>\n");
+					+ this.openIDauthenticationUrl + "\">\n");
+			sb.append("        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n");
+			sb.append(createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n");
+			sb.append("          <label for=\"username\" class=\"sr-only\">Identity</label>\n");
+			sb.append("          <input type=\"text\" id=\"username\" name=\"" + this.openIDusernameParameter
+					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n");
+			sb.append("        </p>\n");
+			sb.append(createRememberMe(this.openIDrememberMeParameter) + renderHiddenInputs(request));
+			sb.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n");
+			sb.append("      </form>\n");
 		}
-
 		if (this.oauth2LoginEnabled) {
 			sb.append("<h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
 			sb.append(createError(loginError, errorMsg));
@@ -303,7 +312,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			}
 			sb.append("</table>\n");
 		}
-
 		if (this.saml2LoginEnabled) {
 			sb.append("<h2 class=\"form-signin-heading\">Login with SAML 2.0</h2>");
 			sb.append(createError(loginError, errorMsg));
@@ -323,15 +331,17 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		}
 		sb.append("</div>\n");
 		sb.append("</body></html>");
-
 		return sb.toString();
 	}
 
 	private String renderHiddenInputs(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
-			sb.append("<input name=\"").append(input.getKey()).append("\" type=\"hidden\" value=\"")
-					.append(input.getValue()).append("\" />\n");
+			sb.append("<input name=\"");
+			sb.append(input.getKey());
+			sb.append("\" type=\"hidden\" value=\"");
+			sb.append(input.getValue());
+			sb.append("\" />\n");
 		}
 		return sb.toString();
 	}
@@ -356,13 +366,17 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	private static String createError(boolean isError, String message) {
-		return isError ? "<div class=\"alert alert-danger\" role=\"alert\">" + HtmlUtils.htmlEscape(message) + "</div>"
-				: "";
+		if (!isError) {
+			return "";
+		}
+		return "<div class=\"alert alert-danger\" role=\"alert\">" + HtmlUtils.htmlEscape(message) + "</div>";
 	}
 
 	private static String createLogoutSuccess(boolean isLogoutSuccess) {
-		return isLogoutSuccess ? "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>"
-				: "";
+		if (!isLogoutSuccess) {
+			return "";
+		}
+		return "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>";
 	}
 
 	private boolean matches(HttpServletRequest request, String url) {
@@ -371,20 +385,16 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		}
 		String uri = request.getRequestURI();
 		int pathParamIndex = uri.indexOf(';');
-
 		if (pathParamIndex > 0) {
 			// strip everything after the first semi-colon
 			uri = uri.substring(0, pathParamIndex);
 		}
-
 		if (request.getQueryString() != null) {
 			uri += "?" + request.getQueryString();
 		}
-
 		if ("".equals(request.getContextPath())) {
 			return uri.equals(url);
 		}
-
 		return uri.equals(request.getContextPath() + url);
 	}
 

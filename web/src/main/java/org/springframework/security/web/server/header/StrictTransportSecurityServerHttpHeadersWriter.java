@@ -20,6 +20,7 @@ import java.time.Duration;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
@@ -40,9 +41,6 @@ public final class StrictTransportSecurityServerHttpHeadersWriter implements Ser
 
 	private ServerHttpHeadersWriter delegate;
 
-	/**
-	 *
-	 */
 	public StrictTransportSecurityServerHttpHeadersWriter() {
 		setIncludeSubDomains(true);
 		setMaxAge(Duration.ofDays(365L));
@@ -92,8 +90,9 @@ public final class StrictTransportSecurityServerHttpHeadersWriter implements Ser
 	}
 
 	private void updateDelegate() {
-		this.delegate = StaticServerHttpHeadersWriter.builder()
-				.header(STRICT_TRANSPORT_SECURITY, this.maxAge + this.subdomain + this.preload).build();
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(STRICT_TRANSPORT_SECURITY, this.maxAge + this.subdomain + this.preload);
+		this.delegate = builder.build();
 	}
 
 	private boolean isSecure(ServerWebExchange exchange) {

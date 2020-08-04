@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
@@ -41,6 +42,8 @@ import org.springframework.util.StringUtils;
  * @since 3.1
  */
 public final class RegexRequestMatcher implements RequestMatcher {
+
+	private static final int DEFAULT = 0;
 
 	private static final Log logger = LogFactory.getLog(RegexRequestMatcher.class);
 
@@ -65,12 +68,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 * {@link Pattern#CASE_INSENSITIVE} flag set.
 	 */
 	public RegexRequestMatcher(String pattern, String httpMethod, boolean caseInsensitive) {
-		if (caseInsensitive) {
-			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-		}
-		else {
-			this.pattern = Pattern.compile(pattern);
-		}
+		this.pattern = Pattern.compile(pattern, caseInsensitive ? Pattern.CASE_INSENSITIVE : DEFAULT);
 		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
 	}
 
@@ -86,28 +84,20 @@ public final class RegexRequestMatcher implements RequestMatcher {
 		if (this.httpMethod != null && request.getMethod() != null && this.httpMethod != valueOf(request.getMethod())) {
 			return false;
 		}
-
 		String url = request.getServletPath();
 		String pathInfo = request.getPathInfo();
 		String query = request.getQueryString();
-
 		if (pathInfo != null || query != null) {
 			StringBuilder sb = new StringBuilder(url);
-
 			if (pathInfo != null) {
 				sb.append(pathInfo);
 			}
-
 			if (query != null) {
 				sb.append('?').append(query);
 			}
 			url = sb.toString();
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Checking match of request : '" + url + "'; against '" + this.pattern + "'");
-		}
-
+		logger.debug(LogMessage.format("Checking match of request : '%s'; against '%s'", url, this.pattern));
 		return this.pattern.matcher(url).matches();
 	}
 
@@ -122,22 +112,18 @@ public final class RegexRequestMatcher implements RequestMatcher {
 			return HttpMethod.valueOf(method);
 		}
 		catch (IllegalArgumentException ex) {
+			return null;
 		}
-
-		return null;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Regex [pattern='").append(this.pattern).append("'");
-
 		if (this.httpMethod != null) {
 			sb.append(", ").append(this.httpMethod);
 		}
-
 		sb.append("]");
-
 		return sb.toString();
 	}
 

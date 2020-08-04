@@ -58,9 +58,7 @@ public final class ClearSiteDataServerHttpHeadersWriter implements ServerHttpHea
 		if (isSecure(exchange)) {
 			return this.headerWriterDelegate.writeHttpHeaders(exchange);
 		}
-		else {
-			return Mono.empty();
-		}
+		return Mono.empty();
 	}
 
 	/**
@@ -72,7 +70,15 @@ public final class ClearSiteDataServerHttpHeadersWriter implements ServerHttpHea
 	 */
 	public enum Directive {
 
-		CACHE("cache"), COOKIES("cookies"), STORAGE("storage"), EXECUTION_CONTEXTS("executionContexts"), ALL("*");
+		CACHE("cache"),
+
+		COOKIES("cookies"),
+
+		STORAGE("storage"),
+
+		EXECUTION_CONTEXTS("executionContexts"),
+
+		ALL("*");
 
 		private final String headerValue;
 

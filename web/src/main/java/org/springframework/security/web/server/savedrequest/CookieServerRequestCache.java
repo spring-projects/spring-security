@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -75,9 +76,7 @@ public class CookieServerRequestCache implements ServerRequestCache {
 				.map(ServerHttpResponse::getCookies).doOnNext((cookies) -> {
 					ResponseCookie redirectUriCookie = createRedirectUriCookie(exchange.getRequest());
 					cookies.add(REDIRECT_URI_COOKIE_NAME, redirectUriCookie);
-					if (logger.isDebugEnabled()) {
-						logger.debug("Request added to Cookie: " + redirectUriCookie);
-					}
+					logger.debug(LogMessage.format("Request added to Cookie: %s", redirectUriCookie));
 				}).then();
 	}
 
@@ -86,7 +85,7 @@ public class CookieServerRequestCache implements ServerRequestCache {
 		MultiValueMap<String, HttpCookie> cookieMap = exchange.getRequest().getCookies();
 		return Mono.justOrEmpty(cookieMap.getFirst(REDIRECT_URI_COOKIE_NAME)).map(HttpCookie::getValue)
 				.map(CookieServerRequestCache::decodeCookie)
-				.onErrorResume(IllegalArgumentException.class, (e) -> Mono.empty()).map(URI::create);
+				.onErrorResume(IllegalArgumentException.class, (ex) -> Mono.empty()).map(URI::create);
 	}
 
 	@Override
@@ -100,7 +99,6 @@ public class CookieServerRequestCache implements ServerRequestCache {
 		String path = request.getPath().pathWithinApplication().value();
 		String query = request.getURI().getRawQuery();
 		String redirectUri = path + ((query != null) ? "?" + query : "");
-
 		return createResponseCookie(request, encodeCookie(redirectUri), COOKIE_MAX_AGE);
 	}
 
