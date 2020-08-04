@@ -11,6 +11,6 @@ dependencies {
 
 	testCompile powerMock2Dependencies
 	testCompile 'com.squareup.okhttp3:mockwebserver'
-	testCompile 'io.projectreactor.netty:reactor-netty-http'
+	testCompile 'io.projectreactor.netty:reactor-netty'
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
 }
