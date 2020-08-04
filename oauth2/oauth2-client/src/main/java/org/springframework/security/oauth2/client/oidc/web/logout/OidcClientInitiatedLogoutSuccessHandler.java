@@ -132,7 +132,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	 * placeholder, for example:
 	 *
 	 * <pre>
-	 * 	handler.setPostLogoutRedirectUriTemplate("{baseUrl}");
+	 * 	handler.setPostLogoutRedirectUri("{baseUrl}");
 	 * </pre>
 	 *
 	 * will make so that {@code post_logout_redirect_uri} will be set to the base url for the client

@@ -112,7 +112,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 //		this.exception.expect(IllegalArgumentException.class);
 //
 //		String redirectUri = "http:\\example.com";
-//		when(this.clientRegistration.getRedirectUriTemplate()).thenReturn(redirectUri);
+//		when(this.clientRegistration.getRedirectUri()).thenReturn(redirectUri);
 //
 //		this.tokenResponseClient.getTokenResponse(
 //				new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
