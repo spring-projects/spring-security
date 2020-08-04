@@ -616,7 +616,6 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			        .userAuthoritiesMapper(this.userAuthoritiesMapper())
 			        .userService(this.oauth2UserService())
 			        .oidcUserService(this.oidcUserService())
-			        .customUserType(GitHubOAuth2User.class, "github")
 			    )
 			);
 	}
@@ -651,7 +650,6 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                     userAuthoritiesMapper = userAuthoritiesMapper()
                     userService = oauth2UserService()
                     oidcUserService = oidcUserService()
-                    customUserType(GitHubOAuth2User::class.java, "github")
                 }
             }
         }
@@ -875,7 +873,6 @@ return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 The UserInfo Endpoint includes a number of configuration options, as described in the following sub-sections:
 
 * <<oauth2login-advanced-map-authorities, Mapping User Authorities>>
-* <<oauth2login-advanced-custom-user, Configuring a Custom OAuth2User>>
 * <<oauth2login-advanced-oauth2-user-service, OAuth 2.0 UserService>>
 * <<oauth2login-advanced-oidc-user-service, OpenID Connect 1.0 UserService>>
 
@@ -1140,104 +1137,6 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 </http>
 ----
 ====
-
-
-[[oauth2login-advanced-custom-user]]
-===== Configuring a Custom OAuth2User
-
-`CustomUserTypesOAuth2UserService` is an implementation of an `OAuth2UserService` that provides support for custom `OAuth2User` types.
-
-If the default implementation (`DefaultOAuth2User`) does not suit your needs, you can define your own implementation of `OAuth2User`.
-
-The following code demonstrates how you would register a custom `OAuth2User` type for GitHub:
-
-[source,java]
-----
-@EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
-
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
-			.oauth2Login(oauth2 -> oauth2
-			    .userInfoEndpoint(userInfo -> userInfo
-			        .customUserType(GitHubOAuth2User.class, "github")
-			        ...
-			    )
-			);
-	}
-}
-----
-
-The following code shows an example of a custom `OAuth2User` type for GitHub:
-
-[source,java]
-----
-public class GitHubOAuth2User implements OAuth2User {
-	private List<GrantedAuthority> authorities =
-		AuthorityUtils.createAuthorityList("ROLE_USER");
-	private Map<String, Object> attributes;
-	private String id;
-	private String name;
-	private String login;
-	private String email;
-
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return this.authorities;
-	}
-
-	@Override
-	public Map<String, Object> getAttributes() {
-		if (this.attributes == null) {
-			this.attributes = new HashMap<>();
-			this.attributes.put("id", this.getId());
-			this.attributes.put("name", this.getName());
-			this.attributes.put("login", this.getLogin());
-			this.attributes.put("email", this.getEmail());
-		}
-		return attributes;
-	}
-
-	public String getId() {
-		return this.id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getLogin() {
-		return this.login;
-	}
-
-	public void setLogin(String login) {
-		this.login = login;
-	}
-
-	public String getEmail() {
-		return this.email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-}
-----
-
-[TIP]
-`id`, `name`, `login`, and `email` are attributes returned in GitHub's UserInfo Response.
-For detailed information returned from the UserInfo Endpoint, see the API documentation
-for https://developer.github.com/v3/users/#get-the-authenticated-user["Get the authenticated user"].
 
 
 [[oauth2login-advanced-oauth2-user-service]]

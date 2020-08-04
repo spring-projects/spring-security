@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -439,10 +439,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		 * Sets a custom {@link OAuth2User} type and associates it to the provided
 		 * client {@link ClientRegistration#getRegistrationId() registration identifier}.
 		 *
+		 * @deprecated See {@link CustomUserTypesOAuth2UserService} for alternative usage.
+		 *
 		 * @param customUserType a custom {@link OAuth2User} type
 		 * @param clientRegistrationId the client registration identifier
 		 * @return the {@link UserInfoEndpointConfig} for further configuration
 		 */
+		@Deprecated
 		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType, String clientRegistrationId) {
 			Assert.notNull(customUserType, "customUserType cannot be null");
 			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");

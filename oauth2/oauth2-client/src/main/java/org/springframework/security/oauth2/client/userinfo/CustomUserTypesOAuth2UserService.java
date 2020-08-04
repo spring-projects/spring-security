@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,10 @@ import java.util.Map;
  * using a {@code Map} of {@link OAuth2User} type(s) keyed by {@code String},
  * which represents the {@link ClientRegistration#getRegistrationId() Registration Id} of the Client.
  *
+ * @deprecated It is recommended to use a delegation-based strategy of an {@link OAuth2UserService} to support custom {@link OAuth2User} types,
+ * as it provides much greater flexibility compared to this implementation.
+ * See the <a target="_blank" href="https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2login-advanced-map-authorities-oauth2userservice">reference manual</a> for details on how to implement.
+ *
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
@@ -47,6 +51,7 @@ import java.util.Map;
  * @see OAuth2User
  * @see ClientRegistration
  */
+@Deprecated
 public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 
