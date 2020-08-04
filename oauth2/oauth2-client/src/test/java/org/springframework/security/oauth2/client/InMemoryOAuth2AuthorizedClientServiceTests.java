@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatObject;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -80,8 +81,7 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 		given(clientRegistrationRepository.findByRegistrationId(eq(registrationId))).willReturn(this.registration3);
 		InMemoryOAuth2AuthorizedClientService authorizedClientService = new InMemoryOAuth2AuthorizedClientService(
 				clientRegistrationRepository, authorizedClients);
-		assertThat((Object) authorizedClientService.loadAuthorizedClient(registrationId, this.principalName1))
-				.isNotNull();
+		assertThatObject(authorizedClientService.loadAuthorizedClient(registrationId, this.principalName1)).isNotNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatObject;
 
 /**
  * @author Rob Winch
@@ -33,7 +33,7 @@ public class ObjectPostProcessorTests {
 
 	@Test
 	public void convertTypes() {
-		assertThat((Object) PerformConversion.perform(new ArrayList<>())).isInstanceOf(LinkedList.class);
+		assertThatObject(PerformConversion.perform(new ArrayList<>())).isInstanceOf(LinkedList.class);
 	}
 
 	static class ListToLinkedListObjectPostProcessor implements ObjectPostProcessor<List<?>> {
