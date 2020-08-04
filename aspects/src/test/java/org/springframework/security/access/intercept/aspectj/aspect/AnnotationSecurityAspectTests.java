@@ -59,7 +59,8 @@ public class AnnotationSecurityAspectTests {
 
 	private AffirmativeBased adm;
 
-	private @Mock AuthenticationManager authman;
+	@Mock
+	private AuthenticationManager authman;
 
 	private TestingAuthenticationToken anne = new TestingAuthenticationToken("anne", "", "ROLE_A");
 

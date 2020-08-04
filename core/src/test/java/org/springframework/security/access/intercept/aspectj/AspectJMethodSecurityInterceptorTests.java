@@ -68,13 +68,17 @@ public class AspectJMethodSecurityInterceptorTests {
 
 	private AspectJMethodSecurityInterceptor interceptor;
 
-	private @Mock AccessDecisionManager adm;
+	@Mock
+	private AccessDecisionManager adm;
 
-	private @Mock MethodSecurityMetadataSource mds;
+	@Mock
+	private MethodSecurityMetadataSource mds;
 
-	private @Mock AuthenticationManager authman;
+	@Mock
+	private AuthenticationManager authman;
 
-	private @Mock AspectJCallback aspectJCallback;
+	@Mock
+	private AspectJCallback aspectJCallback;
 
 	private ProceedingJoinPoint joinPoint;
 
