@@ -47,7 +47,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -81,8 +82,10 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void postWhenNoUserDetailsServiceThenException() {
 		this.spring.register(NullUserDetailsConfig.class).autowire();
-		assertThatThrownBy(() -> this.mvc.perform(post("/login").param("username", "user").param("password", "password")
-				.param("remember-me", "true").with(csrf()))).hasMessageContaining("UserDetailsService is required");
+		assertThatIllegalStateException()
+				.isThrownBy(() -> this.mvc.perform(post("/login").param("username", "user")
+						.param("password", "password").param("remember-me", "true").with(csrf())))
+				.withMessageContaining("UserDetailsService is required");
 	}
 
 	@Test
@@ -168,9 +171,11 @@ public class RememberMeConfigurerTests {
 
 	@Test
 	public void configureWhenRememberMeCookieNameAndRememberMeServicesThenException() {
-		assertThatThrownBy(() -> this.spring.register(RememberMeCookieNameAndRememberMeServicesConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasRootCauseInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("Can not set rememberMeCookieName and custom rememberMeServices.");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(
+						() -> this.spring.register(RememberMeCookieNameAndRememberMeServicesConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class)
+				.withMessageContaining("Can not set rememberMeCookieName and custom rememberMeServices.");
 	}
 
 	@Test

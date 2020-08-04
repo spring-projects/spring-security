@@ -35,7 +35,8 @@ import org.springframework.security.oauth2.server.resource.introspection.OAuth2I
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -91,13 +92,13 @@ public class OpaqueTokenAuthenticationProviderTests {
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		given(introspector.introspect(any())).willThrow(new OAuth2IntrospectionException("with \"invalid\" chars"));
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
-		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")))
-				.isInstanceOf(AuthenticationServiceException.class);
+		assertThatExceptionOfType(AuthenticationServiceException.class)
+				.isThrownBy(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")));
 	}
 
 	@Test
 	public void constructorWhenIntrospectionClientIsNullThenIllegalArgumentException() {
-		assertThatCode(() -> new OpaqueTokenAuthenticationProvider(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OpaqueTokenAuthenticationProvider(null));
 	}
 
 }

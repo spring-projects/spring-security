@@ -31,7 +31,7 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -117,7 +117,7 @@ public class Saml2MetadataFilterTests {
 
 	@Test
 	public void setRequestMatcherWhenNullThenIllegalArgument() {
-		assertThatCode(() -> this.filter.setRequestMatcher(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequestMatcher(null));
 	}
 
 }

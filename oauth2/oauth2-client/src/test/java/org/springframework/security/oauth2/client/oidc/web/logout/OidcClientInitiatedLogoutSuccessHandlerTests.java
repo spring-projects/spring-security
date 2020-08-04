@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
 import org.springframework.security.oauth2.core.user.TestOAuth2Users;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -137,14 +137,12 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 
 	@Test
 	public void setPostLogoutRedirectUriWhenGivenNullThenThrowsException() {
-		assertThatThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null));
 	}
 
 	@Test
 	public void setPostLogoutRedirectUriTemplateWhenGivenNullThenThrowsException() {
-		assertThatThrownBy(() -> this.handler.setPostLogoutRedirectUri((String) null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((String) null));
 	}
 
 }

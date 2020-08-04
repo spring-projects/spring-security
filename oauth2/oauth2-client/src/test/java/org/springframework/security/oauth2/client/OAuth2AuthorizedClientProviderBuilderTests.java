@@ -39,7 +39,8 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenRe
 import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -82,8 +83,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 
 	@Test
 	public void providerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizedClientProviderBuilder.builder().provider(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> OAuth2AuthorizedClientProviderBuilder.builder().provider(null));
 	}
 
 	@Test
@@ -93,8 +94,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(TestClientRegistrations.clientRegistration().build()).principal(this.principal)
 				.build();
-		assertThatThrownBy(() -> authorizedClientProvider.authorize(authorizationContext))
-				.isInstanceOf(ClientAuthorizationRequiredException.class);
+		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
+				.isThrownBy(() -> authorizedClientProvider.authorize(authorizationContext));
 	}
 
 	@Test
@@ -155,8 +156,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 		// authorization_code
 		OAuth2AuthorizationContext authorizationCodeContext = OAuth2AuthorizationContext
 				.withClientRegistration(clientRegistration).principal(this.principal).build();
-		assertThatThrownBy(() -> authorizedClientProvider.authorize(authorizationCodeContext))
-				.isInstanceOf(ClientAuthorizationRequiredException.class);
+		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
+				.isThrownBy(() -> authorizedClientProvider.authorize(authorizationCodeContext));
 		// refresh_token
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration,
 				this.principal.getName(), expiredAccessToken(), TestOAuth2RefreshTokens.refreshToken());

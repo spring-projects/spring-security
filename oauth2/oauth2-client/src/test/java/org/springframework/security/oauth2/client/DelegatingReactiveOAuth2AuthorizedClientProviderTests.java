@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -42,18 +42,18 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void constructorWhenProvidersIsEmptyThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingReactiveOAuth2AuthorizedClientProvider(
-				new ReactiveOAuth2AuthorizedClientProvider[0])).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> new DelegatingReactiveOAuth2AuthorizedClientProvider(Collections.emptyList()))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingReactiveOAuth2AuthorizedClientProvider(
+				new ReactiveOAuth2AuthorizedClientProvider[0]));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingReactiveOAuth2AuthorizedClientProvider(Collections.emptyList()));
 	}
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
 		DelegatingReactiveOAuth2AuthorizedClientProvider delegate = new DelegatingReactiveOAuth2AuthorizedClientProvider(
 				mock(ReactiveOAuth2AuthorizedClientProvider.class));
-		assertThatThrownBy(() -> delegate.authorize(null).block()).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("context cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> delegate.authorize(null).block())
+				.withMessage("context cannot be null");
 	}
 
 	@Test

@@ -43,7 +43,7 @@ import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -83,25 +83,28 @@ public class PayloadSocketAcceptorTests {
 	@Test
 	public void constructorWhenNullDelegateThenException() {
 		this.delegate = null;
-		assertThatCode(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
 	}
 
 	@Test
 	public void constructorWhenNullInterceptorsThenException() {
 		this.interceptors = null;
-		assertThatCode(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
 	}
 
 	@Test
 	public void constructorWhenEmptyInterceptorsThenException() {
 		this.interceptors = Collections.emptyList();
-		assertThatCode(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
 	}
 
 	@Test
 	public void acceptWhenDataMimeTypeNullThenException() {
-		assertThatCode(() -> this.acceptor.accept(this.setupPayload, this.rSocket).block())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.acceptor.accept(this.setupPayload, this.rSocket).block());
 	}
 
 	@Test

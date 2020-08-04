@@ -47,7 +47,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
@@ -282,8 +282,8 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
-		assertThatThrownBy(() -> filter.doFilter(request, response, chain)).isInstanceOf(ServletException.class)
-				.hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> filter.doFilter(request, response, chain))
+				.withCauseInstanceOf(AccessDeniedException.class);
 		verifyZeroInteractions(this.mockEntryPoint);
 	}
 

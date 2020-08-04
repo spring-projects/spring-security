@@ -49,7 +49,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -362,7 +362,7 @@ public class DaoAuthenticationProviderTests {
 		UserDetails user = PasswordEncodedUser.user();
 		given(encoder.matches(any(), any())).willReturn(false);
 		given(userDetailsService.loadUserByUsername(any())).willReturn(user);
-		assertThatThrownBy(() -> provider.authenticate(token)).isInstanceOf(BadCredentialsException.class);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 		verifyZeroInteractions(passwordManager);
 	}
 

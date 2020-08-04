@@ -38,7 +38,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.test.SpringTestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link RsaKeyConversionServicePostProcessor}
@@ -131,9 +131,9 @@ public class RsaKeyConversionServicePostProcessorTests {
 
 	@Test
 	public void valueWhenOverridingConversionServiceThenUsed() {
-		assertThatCode(
+		assertThatExceptionOfType(Exception.class).isThrownBy(
 				() -> this.spring.register(OverrideConversionServiceConfig.class, DefaultConfig.class).autowire())
-						.hasRootCauseInstanceOf(IllegalArgumentException.class);
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity

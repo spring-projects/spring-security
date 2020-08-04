@@ -52,7 +52,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -96,8 +96,9 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveMonoWhenSecureThenDenied() throws Exception {
 		String data = "rob";
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
-				.isInstanceOf(ApplicationErrorException.class).hasMessageContaining("Access Denied");
+		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(
+				() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
+				.withMessageContaining("Access Denied");
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -105,10 +106,11 @@ public class RSocketMessageHandlerITests {
 	public void retrieveMonoWhenAuthenticationFailedThenException() throws Exception {
 		String data = "rob";
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("invalid", "password");
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono")
-				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
-				.retrieveMono(String.class).block()).isInstanceOf(ApplicationErrorException.class)
-						.hasMessageContaining("Invalid Credentials");
+		assertThatExceptionOfType(ApplicationErrorException.class)
+				.isThrownBy(() -> this.requester.route("secure.retrieve-mono")
+						.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE).data(data)
+						.retrieveMono(String.class).block())
+				.withMessageContaining("Invalid Credentials");
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -134,9 +136,10 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveFluxWhenDataFluxAndSecureThenDenied() throws Exception {
 		Flux<String> data = Flux.just("a", "b", "c");
-		assertThatCode(() -> this.requester.route("secure.retrieve-flux").data(data, String.class)
-				.retrieveFlux(String.class).collectList().block()).isInstanceOf(ApplicationErrorException.class)
-						.hasMessageContaining("Access Denied");
+		assertThatExceptionOfType(ApplicationErrorException.class)
+				.isThrownBy(() -> this.requester.route("secure.retrieve-flux").data(data, String.class)
+						.retrieveFlux(String.class).collectList().block())
+				.withMessageContaining("Access Denied");
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -152,9 +155,9 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveFluxWhenDataStringAndSecureThenDenied() throws Exception {
 		String data = "a";
-		assertThatCode(
+		assertThatExceptionOfType(ApplicationErrorException.class).isThrownBy(
 				() -> this.requester.route("secure.hello").data(data).retrieveFlux(String.class).collectList().block())
-						.isInstanceOf(ApplicationErrorException.class).hasMessageContaining("Access Denied");
+				.withMessageContaining("Access Denied");
 		assertThat(this.controller.payloads).isEmpty();
 	}
 

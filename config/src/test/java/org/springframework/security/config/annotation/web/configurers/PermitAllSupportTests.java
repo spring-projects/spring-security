@@ -27,7 +27,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -57,9 +57,9 @@ public class PermitAllSupportTests {
 
 	@Test
 	public void configureWhenNotAuthorizeRequestsThenException() {
-		assertThatCode(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("permitAll only works with HttpSecurity.authorizeRequests");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
+				.withMessageContaining("permitAll only works with HttpSecurity.authorizeRequests");
 	}
 
 	@EnableWebSecurity

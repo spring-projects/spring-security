@@ -39,7 +39,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -79,32 +79,34 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void setAccessTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("accessTokenResponseClient cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
+				.withMessage("accessTokenResponseClient cannot be null");
 	}
 
 	@Test
 	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clockSkew cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
+				.withMessage("clockSkew cannot be null");
 	}
 
 	@Test
 	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clockSkew must be >= 0");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
+				.withMessage("clockSkew must be >= 0");
 	}
 
 	@Test
 	public void setClockWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.setClock(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clock cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.setClock(null))
+				.withMessage("clock cannot be null");
 	}
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("context cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
+				.withMessage("context cannot be null");
 	}
 
 	@Test
@@ -196,9 +198,9 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withAuthorizedClient(this.authorizedClient).principal(this.principal)
 				.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, invalidRequestScope).build();
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext).block())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageStartingWith("The context attribute must be of type String[] '"
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext).block())
+				.withMessageStartingWith("The context attribute must be of type String[] '"
 						+ OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
 	}
 

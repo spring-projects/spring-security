@@ -39,7 +39,7 @@ import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -185,13 +185,13 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	@Test
 	public void setRequestMatcherWhenNullThenException() {
 		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.repository);
-		assertThatCode(() -> filter.setRedirectMatcher(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setRedirectMatcher(null));
 	}
 
 	@Test
 	public void setAuthenticationRequestFactoryWhenNullThenException() {
 		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.repository);
-		assertThatCode(() -> filter.setAuthenticationRequestFactory(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAuthenticationRequestFactory(null));
 	}
 
 	@Test

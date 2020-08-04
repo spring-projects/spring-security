@@ -36,7 +36,8 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -76,33 +77,30 @@ public class OidcIdTokenDecoderFactoryTests {
 
 	@Test
 	public void setJwtValidatorFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.setJwtValidatorFactory(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.setJwtValidatorFactory(null));
 	}
 
 	@Test
 	public void setJwsAlgorithmResolverWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.setJwsAlgorithmResolver(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.setJwsAlgorithmResolver(null));
 	}
 
 	@Test
 	public void setClaimTypeConverterFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.setClaimTypeConverterFactory(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.idTokenDecoderFactory.setClaimTypeConverterFactory(null));
 	}
 
 	@Test
 	public void createDecoderWhenClientRegistrationNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(null));
 	}
 
 	@Test
 	public void createDecoderWhenJwsAlgorithmDefaultAndJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
+				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
 						+ "for Client Registration: 'registration-id'. "
 						+ "Check to ensure you have configured the JwkSet URI.");
 	}
@@ -110,9 +108,9 @@ public class OidcIdTokenDecoderFactoryTests {
 	@Test
 	public void createDecoderWhenJwsAlgorithmEcAndJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> SignatureAlgorithm.ES256);
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
+				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
 						+ "for Client Registration: 'registration-id'. "
 						+ "Check to ensure you have configured the JwkSet URI.");
 	}
@@ -120,9 +118,10 @@ public class OidcIdTokenDecoderFactoryTests {
 	@Test
 	public void createDecoderWhenJwsAlgorithmHmacAndClientSecretNullThenThrowOAuth2AuthenticationException() {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> MacAlgorithm.HS256);
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.clientSecret(null).build()))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(
+						() -> this.idTokenDecoderFactory.createDecoder(this.registration.clientSecret(null).build()))
+				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
 						+ "for Client Registration: 'registration-id'. "
 						+ "Check to ensure you have configured the client secret.");
 	}
@@ -130,9 +129,9 @@ public class OidcIdTokenDecoderFactoryTests {
 	@Test
 	public void createDecoderWhenJwsAlgorithmNullThenThrowOAuth2AuthenticationException() {
 		this.idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> null);
-		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.build()))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.build()))
+				.withMessage("[missing_signature_verifier] Failed to find a Signature Verifier "
 						+ "for Client Registration: 'registration-id'. "
 						+ "Check to ensure you have configured a valid JWS Algorithm: 'null'");
 	}

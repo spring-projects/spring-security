@@ -41,7 +41,7 @@ import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -179,10 +179,10 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
 		this.server.enqueue(
 				jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.isInstanceOfSatisfying(OAuth2AuthorizationException.class,
-						(e) -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
-				.hasMessageContaining("unauthorized_client");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
+				.satisfies((ex) -> assertThat(ex.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+				.withMessageContaining("unauthorized_client");
 	}
 
 	// gh-5594
@@ -191,8 +191,9 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		String accessTokenErrorResponse = "{}";
 		this.server.enqueue(
 				jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("server_error");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
+				.withMessageContaining("server_error");
 	}
 
 	@Test
@@ -200,8 +201,9 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"not-bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
-		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_token_response");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
+				.withMessageContaining("invalid_token_response");
 	}
 
 	@Test

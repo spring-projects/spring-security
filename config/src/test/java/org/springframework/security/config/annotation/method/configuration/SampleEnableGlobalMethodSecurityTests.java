@@ -35,7 +35,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Demonstrate the samples
@@ -62,15 +62,16 @@ public class SampleEnableGlobalMethodSecurityTests {
 		this.spring.register(SampleWebSecurityConfig.class).autowire();
 		assertThat(this.methodSecurityService.secured()).isNull();
 		assertThat(this.methodSecurityService.jsr250()).isNull();
-		assertThatThrownBy(() -> this.methodSecurityService.preAuthorize()).isInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.preAuthorize());
 	}
 
 	@Test
 	public void customPermissionHandler() {
 		this.spring.register(CustomPermissionEvaluatorWebSecurityConfig.class).autowire();
 		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
-		assertThatThrownBy(() -> this.methodSecurityService.hasPermission("denied"))
-				.isInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.hasPermission("denied"));
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)

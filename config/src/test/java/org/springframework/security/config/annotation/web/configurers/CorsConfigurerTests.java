@@ -42,7 +42,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
@@ -65,8 +65,8 @@ public class CorsConfigurerTests {
 
 	@Test
 	public void configureWhenNoMvcThenException() {
-		assertThatThrownBy(() -> this.spring.register(DefaultCorsConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasMessageContaining(
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(DefaultCorsConfig.class).autowire()).withMessageContaining(
 						"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
 	}
 

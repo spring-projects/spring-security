@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.ThrowableAssert;
-import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,8 +67,7 @@ import org.springframework.web.socket.server.HandshakeFailureException;
 import org.springframework.web.socket.server.HandshakeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -103,8 +101,8 @@ public class WebSocketMessageBrokerConfigTests {
 	public void sendWhenNoIdSpecifiedThenIntegratesWithClientInboundChannel() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		this.clientInboundChannel.send(message("/permitAll"));
-		assertThatThrownBy(() -> this.clientInboundChannel.send(message("/denyAll")))
-				.hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.clientInboundChannel.send(message("/denyAll")))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
@@ -112,141 +110,146 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
-		assertThatCode(() -> this.clientInboundChannel.send(message("/permitAll", headers))).doesNotThrowAnyException();
+		this.clientInboundChannel.send(message("/permitAll", headers));
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithConnectAckMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.CONNECT_ACK);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithDisconnectMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.DISCONNECT);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithDisconnectAckMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.DISCONNECT_ACK);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithHeartbeatMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.HEARTBEAT);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithMessageMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.MESSAGE);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithOtherMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.OTHER);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithSubscribeMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenAnonymousMessageWithUnsubscribeMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenConnectWithoutCsrfTokenThenDenied() {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
 		Message<?> message = message("/message", SimpMessageType.CONNECT);
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(InvalidCsrfTokenException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(InvalidCsrfTokenException.class);
 	}
 
 	@Test
 	public void sendWhenConnectWithSameOriginDisabledThenCsrfTokenNotRequired() {
 		this.spring.configLocations(xml("SyncSameOriginDisabledConfig")).autowire();
 		Message<?> message = message("/message", SimpMessageType.CONNECT);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenInterceptWiredForMessageTypeThenDeniesOnTypeMismatch() {
 		this.spring.configLocations(xml("MessageInterceptTypeConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.MESSAGE);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/anyOther", SimpMessageType.MESSAGE);
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void sendWhenInterceptWiredForSubscribeTypeThenDeniesOnTypeMismatch() {
 		this.spring.configLocations(xml("SubscribeInterceptTypeConfig")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void configureWhenUsingConnectMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () -> this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire();
-		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingConnectAckMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () -> this.spring.configLocations(xml("ConnectAckInterceptTypeConfig")).autowire();
-		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("ConnectAckInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingDisconnectMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () -> this.spring.configLocations(xml("DisconnectInterceptTypeConfig")).autowire();
-		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("DisconnectInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingDisconnectAckMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () -> this.spring.configLocations(xml("DisconnectAckInterceptTypeConfig")).autowire();
-		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("DisconnectAckInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingHeartbeatMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () -> this.spring.configLocations(xml("HeartbeatInterceptTypeConfig")).autowire();
-		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("HeartbeatInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingOtherMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () -> this.spring.configLocations(xml("OtherInterceptTypeConfig")).autowire();
-		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("OtherInterceptTypeConfig")).autowire());
 	}
 
 	@Test
 	public void configureWhenUsingUnsubscribeMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () -> this.spring.configLocations(xml("UnsubscribeInterceptTypeConfig")).autowire();
-		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(xml("UnsubscribeInterceptTypeConfig")).autowire());
 	}
 
 	@Test
@@ -301,16 +304,17 @@ public class WebSocketMessageBrokerConfigTests {
 	public void sendWhenUsingCustomPathMatcherThenSecurityAppliesIt() {
 		this.spring.configLocations(xml("CustomPathMatcherConfig")).autowire();
 		Message<?> message = message("/denyAll.a");
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/denyAll.a.b");
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
 	public void sendWhenIdSpecifiedThenSecurityDoesNotIntegrateWithClientInboundChannel() {
 		this.spring.configLocations(xml("IdConfig")).autowire();
 		Message<?> message = message("/denyAll");
-		assertThatCode(send(message)).doesNotThrowAnyException();
+		send(message);
 	}
 
 	@Test
@@ -318,14 +322,16 @@ public class WebSocketMessageBrokerConfigTests {
 	public void sendWhenIdSpecifiedAndExplicitlyIntegratedWhenBrokerUsesClientInboundChannel() {
 		this.spring.configLocations(xml("IdIntegratedConfig")).autowire();
 		Message<?> message = message("/denyAll");
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	@Test
 	public void sendWhenNoIdSpecifiedThenSecurityDoesntOverrideCustomInterceptors() {
 		this.spring.configLocations(xml("CustomInterceptorConfig")).autowire();
 		Message<?> message = message("/throwAll");
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(UnsupportedOperationException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
@@ -333,7 +339,8 @@ public class WebSocketMessageBrokerConfigTests {
 	public void sendWhenCustomExpressionHandlerThenAuthorizesAccordingly() {
 		this.spring.configLocations(xml("CustomExpressionHandlerConfig")).autowire();
 		Message<?> message = message("/denyNile");
-		assertThatThrownBy(send(message)).hasCauseInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
 	}
 
 	private String xml(String configName) {

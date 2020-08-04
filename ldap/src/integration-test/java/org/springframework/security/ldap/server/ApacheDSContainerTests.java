@@ -32,6 +32,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -138,15 +139,8 @@ public class ApacheDSContainerTests {
 		server.setLdapOverSslEnabled(true);
 		server.setKeyStoreFile(temporaryKeyStoreFile);
 		server.setCertificatePassord("incorrect-password");
-
-		try {
-			server.afterPropertiesSet();
-			fail("Expected a RuntimeException to be thrown.");
-		}
-		catch (RuntimeException ex) {
-			assertThat(ex).hasMessage("Server startup failed");
-			assertThat(ex).hasRootCauseInstanceOf(UnrecoverableKeyException.class);
-		}
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(server::afterPropertiesSet)
+				.withMessage("Server startup failed").withRootCauseInstanceOf(UnrecoverableKeyException.class);
 	}
 
 	/**

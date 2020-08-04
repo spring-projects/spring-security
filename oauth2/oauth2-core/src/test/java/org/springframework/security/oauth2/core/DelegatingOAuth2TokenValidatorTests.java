@@ -22,7 +22,7 @@ import java.util.Collection;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -92,9 +92,8 @@ public class DelegatingOAuth2TokenValidatorTests {
 
 	@Test
 	public void constructorWhenInvokedWithNullValidatorListThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> new DelegatingOAuth2TokenValidator<>(
-				(Collection<OAuth2TokenValidator<AbstractOAuth2Token>>) null))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingOAuth2TokenValidator<>(
+				(Collection<OAuth2TokenValidator<AbstractOAuth2Token>>) null));
 	}
 
 	@Test

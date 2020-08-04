@@ -14,4 +14,12 @@
 	<module name="io.spring.javaformat.checkstyle.SpringChecks">
 		<property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringHeaderCheck" />
 	</module>
+	<module name="com.puppycrawl.tools.checkstyle.TreeWalker">
+ 		<module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">
+ 			<property name="maximum" value="0"/>
+			<property name="format" value="org\.assertj\.core\.api\.Assertions\.(catchThrowable|catchThrowableOfType|assertThatThrownBy|assertThatCode)" />
+			<property name="message" value="Please use assertThatExceptionOfType." />
+			<property name="ignoreComments" value="true" />
+		</module>
+	</module>
 </module>

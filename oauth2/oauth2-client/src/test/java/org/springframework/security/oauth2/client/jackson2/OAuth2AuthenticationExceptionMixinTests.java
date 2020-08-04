@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AuthenticationExceptionMixin}.
@@ -68,8 +68,8 @@ public class OAuth2AuthenticationExceptionMixinTests {
 	@Test
 	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
 		String json = asJson(new OAuth2AuthenticationException(new OAuth2Error("[authorization_request_not_found]")));
-		assertThatThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthenticationException.class))
-				.isInstanceOf(JsonProcessingException.class);
+		assertThatExceptionOfType(JsonProcessingException.class)
+				.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthenticationException.class));
 	}
 
 	@Test

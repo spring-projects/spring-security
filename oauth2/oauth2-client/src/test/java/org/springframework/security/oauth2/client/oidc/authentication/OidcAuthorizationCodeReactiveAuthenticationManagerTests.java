@@ -66,8 +66,8 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.TestJwts;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
@@ -113,25 +113,27 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void constructorWhenNullAccessTokenResponseClientThenIllegalArgumentException() {
 		this.accessTokenResponseClient = null;
-		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
-				this.userService)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
+						this.userService));
 	}
 
 	@Test
 	public void constructorWhenNullUserServiceThenIllegalArgumentException() {
 		this.userService = null;
-		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
-				this.userService)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient,
+						this.userService));
 	}
 
 	@Test
 	public void setJwtDecoderFactoryWhenNullThenIllegalArgumentException() {
-		assertThatThrownBy(() -> this.manager.setJwtDecoderFactory(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.setJwtDecoderFactory(null));
 	}
 
 	@Test
 	public void setAuthoritiesMapperWhenAuthoritiesMapperIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.manager.setAuthoritiesMapper(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.setAuthoritiesMapper(null));
 	}
 
 	@Test
@@ -139,8 +141,8 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		// we didn't do anything because it should cause a ClassCastException (as verified
 		// below)
 		TestingAuthenticationToken token = new TestingAuthenticationToken("a", "b");
-		assertThatCode(() -> this.manager.authenticate(token)).doesNotThrowAnyException();
-		assertThatThrownBy(() -> this.manager.authenticate(token).block()).isInstanceOf(Throwable.class);
+		this.manager.authenticate(token);
+		assertThatExceptionOfType(Throwable.class).isThrownBy(() -> this.manager.authenticate(token).block());
 	}
 
 	@Test
@@ -152,15 +154,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticationWhenErrorThenOAuth2AuthenticationException() {
 		this.authorizationResponseBldr = OAuth2AuthorizationResponse.error("error").state("state");
-		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
 
 	@Test
 	public void authenticationWhenStateDoesNotMatchThenOAuth2AuthenticationException() {
 		this.authorizationResponseBldr.state("notmatch");
-		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
 
 	@Test
@@ -172,9 +174,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		given(this.jwtDecoder.decode(any())).willThrow(new JwtException("ID Token Validation Error"));
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
-		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasMessageContaining("[invalid_id_token] ID Token Validation Error");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(loginToken()).block())
+				.withMessageContaining("[invalid_id_token] ID Token Validation Error");
 	}
 
 	@Test
@@ -193,8 +195,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		given(this.jwtDecoder.decode(any())).willReturn(Mono.just(idToken));
 		this.manager.setJwtDecoderFactory((c) -> this.jwtDecoder);
-		assertThatThrownBy(() -> this.manager.authenticate(authorizationCodeAuthentication).block())
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("[invalid_nonce]");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(authorizationCodeAuthentication).block())
+				.withMessageContaining("[invalid_nonce]");
 	}
 
 	@Test

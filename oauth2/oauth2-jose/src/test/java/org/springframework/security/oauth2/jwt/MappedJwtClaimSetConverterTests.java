@@ -31,7 +31,8 @@ import org.junit.Test;
 import org.springframework.core.convert.converter.Converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -169,13 +170,13 @@ public class MappedJwtClaimSetConverterTests {
 	public void convertWhenUsingDefaultsThenFailedConversionThrowsIllegalStateException() {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 		Map<String, Object> badIssuer = Collections.singletonMap(JwtClaimNames.ISS, "https://badly formed iss");
-		assertThatCode(() -> converter.convert(badIssuer)).isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> converter.convert(badIssuer));
 		Map<String, Object> badIssuedAt = Collections.singletonMap(JwtClaimNames.IAT, "badly-formed-iat");
-		assertThatCode(() -> converter.convert(badIssuedAt)).isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> converter.convert(badIssuedAt));
 		Map<String, Object> badExpiresAt = Collections.singletonMap(JwtClaimNames.EXP, "badly-formed-exp");
-		assertThatCode(() -> converter.convert(badExpiresAt)).isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> converter.convert(badExpiresAt));
 		Map<String, Object> badNotBefore = Collections.singletonMap(JwtClaimNames.NBF, "badly-formed-nbf");
-		assertThatCode(() -> converter.convert(badNotBefore)).isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> converter.convert(badNotBefore));
 	}
 
 	// gh-6073
@@ -198,13 +199,12 @@ public class MappedJwtClaimSetConverterTests {
 
 	@Test
 	public void constructWhenAnyParameterIsNullThenIllegalArgumentException() {
-		assertThatCode(() -> new MappedJwtClaimSetConverter(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new MappedJwtClaimSetConverter(null));
 	}
 
 	@Test
 	public void withDefaultsWhenAnyParameterIsNullThenIllegalArgumentException() {
-		assertThatCode(() -> MappedJwtClaimSetConverter.withDefaults(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> MappedJwtClaimSetConverter.withDefaults(null));
 	}
 
 }

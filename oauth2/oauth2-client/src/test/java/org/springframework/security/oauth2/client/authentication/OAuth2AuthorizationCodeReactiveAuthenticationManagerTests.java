@@ -38,7 +38,7 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -70,13 +70,13 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenErrorThenOAuth2AuthorizationException() {
 		this.authorizationResponse = TestOAuth2AuthorizationResponses.error();
-		assertThatCode(() -> authenticate()).isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
 	}
 
 	@Test
 	public void authenticateWhenStateNotEqualThenOAuth2AuthorizationException() {
 		this.authorizationRequest.state("notequal");
-		assertThatCode(() -> authenticate()).isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	public void authenticateWhenOAuth2AuthorizationExceptionThenOAuth2AuthorizationException() {
 		given(this.accessTokenResponseClient.getTokenResponse(any()))
 				.willReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
-		assertThatCode(() -> authenticate()).isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
 	}
 
 	private OAuth2AuthorizationCodeAuthenticationToken authenticate() {

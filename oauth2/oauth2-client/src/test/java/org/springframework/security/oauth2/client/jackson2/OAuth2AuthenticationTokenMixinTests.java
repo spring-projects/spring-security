@@ -48,7 +48,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AuthenticationTokenMixin}.
@@ -95,8 +95,8 @@ public class OAuth2AuthenticationTokenMixinTests {
 	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
 		OAuth2AuthenticationToken authentication = TestOAuth2AuthenticationTokens.oidcAuthenticated();
 		String json = asJson(authentication);
-		assertThatThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthenticationToken.class))
-				.isInstanceOf(JsonProcessingException.class);
+		assertThatExceptionOfType(JsonProcessingException.class)
+				.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthenticationToken.class));
 	}
 
 	@Test

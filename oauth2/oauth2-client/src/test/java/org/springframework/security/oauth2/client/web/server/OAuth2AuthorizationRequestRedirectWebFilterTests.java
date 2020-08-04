@@ -37,7 +37,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.server.handler.FilteringWebHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -80,8 +80,8 @@ public class OAuth2AuthorizationRequestRedirectWebFilterTests {
 	@Test
 	public void constructorWhenClientRegistrationRepositoryNullThenIllegalArgumentException() {
 		this.clientRepository = null;
-		assertThatThrownBy(() -> new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationRequestRedirectWebFilter(this.clientRepository));
 	}
 
 	@Test

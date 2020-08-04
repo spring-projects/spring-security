@@ -41,7 +41,8 @@ import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -85,8 +86,9 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				"other", "issuers");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.jwt);
-		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(request))
+				.withMessageContaining("Invalid issuer");
 	}
 
 	@Test
@@ -106,14 +108,16 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 		Map<String, AuthenticationManager> authenticationManagers = new HashMap<>();
 		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
 				authenticationManagers::get);
-		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(request))
+				.withMessageContaining("Invalid issuer");
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		authenticationManagers.put("trusted", authenticationManager);
 		assertThat(authenticationManagerResolver.resolve(request)).isSameAs(authenticationManager);
 		authenticationManagers.clear();
-		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Invalid issuer");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(request))
+				.withMessageContaining("Invalid issuer");
 	}
 
 	@Test
@@ -122,8 +126,9 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				"trusted");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer jwt");
-		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageNotContaining("Invalid issuer");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(request))
+				.withMessageNotContaining("Invalid issuer");
 	}
 
 	@Test
@@ -132,8 +137,9 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				"trusted");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.noIssuer);
-		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("Missing issuer");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(request))
+				.withMessageContaining("Missing issuer");
 	}
 
 	@Test
@@ -142,22 +148,22 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				"trusted");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + this.evil);
-		assertThatCode(() -> authenticationManagerResolver.resolve(request))
-				.isInstanceOf(OAuth2AuthenticationException.class).hasMessage("Invalid issuer");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(request)).withMessage("Invalid issuer");
 	}
 
 	@Test
 	public void constructorWhenNullOrEmptyIssuersThenException() {
-		assertThatCode(() -> new JwtIssuerAuthenticationManagerResolver((Collection) null))
-				.isInstanceOf(IllegalArgumentException.class);
-		assertThatCode(() -> new JwtIssuerAuthenticationManagerResolver(Collections.emptyList()))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((Collection) null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(Collections.emptyList()));
 	}
 
 	@Test
 	public void constructorWhenNullAuthenticationManagerResolverThenException() {
-		assertThatCode(() -> new JwtIssuerAuthenticationManagerResolver((AuthenticationManagerResolver) null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((AuthenticationManagerResolver) null));
 	}
 
 	private String jwt(String claim, String value) {

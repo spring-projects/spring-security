@@ -30,7 +30,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link ClientRegistration}.
@@ -364,18 +364,17 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenClientCredentialsGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build());
 	}
 
 	@Test
 	public void buildWhenClientCredentialsGrantClientIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(null)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(null).clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(TOKEN_URI).build());
 	}
 
 	@Test
@@ -396,23 +395,23 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenClientCredentialsGrantTokenUriIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(null).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).tokenUri(null).build());
 	}
 
 	// gh-6256
 	@Test
 	public void buildWhenScopesContainASpaceThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> TestClientRegistrations.clientCredentials().scope("openid profile email").build())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> TestClientRegistrations.clientCredentials().scope("openid profile email").build());
 	}
 
 	@Test
 	public void buildWhenScopesContainAnInvalidCharacterThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> TestClientRegistrations.clientCredentials().scope("an\"invalid\"scope").build())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> TestClientRegistrations.clientCredentials().scope("an\"invalid\"scope").build());
 	}
 
 	@Test
@@ -433,18 +432,17 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenPasswordGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(TOKEN_URI).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> ClientRegistration.withRegistrationId(null).clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(TOKEN_URI).build());
 	}
 
 	@Test
 	public void buildWhenPasswordGrantClientIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(null)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(TOKEN_URI).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(null).clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(TOKEN_URI).build());
 	}
 
 	@Test
@@ -465,10 +463,10 @@ public class ClientRegistrationTests {
 
 	@Test
 	public void buildWhenPasswordGrantTokenUriIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(null).build())
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET).clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.PASSWORD).tokenUri(null).build());
 	}
 
 	@Test

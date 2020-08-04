@@ -31,7 +31,7 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link ClaimTypeConverter}.
@@ -89,15 +89,14 @@ public class ClaimTypeConverterTests {
 
 	@Test
 	public void constructorWhenConvertersNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new ClaimTypeConverter(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ClaimTypeConverter(null));
 	}
 
 	@Test
 	public void constructorWhenConvertersHasNullConverterThenThrowIllegalArgumentException() {
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put("claim1", null);
-		assertThatThrownBy(() -> new ClaimTypeConverter(claimTypeConverters))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ClaimTypeConverter(claimTypeConverters));
 	}
 
 	@Test

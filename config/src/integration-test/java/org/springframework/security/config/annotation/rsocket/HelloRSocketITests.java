@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.rsocket.RSocketFactory;
+import io.rsocket.exceptions.RejectedSetupException;
 import io.rsocket.frame.decoder.PayloadDecoder;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
@@ -46,7 +47,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -87,10 +88,11 @@ public class HelloRSocketITests {
 		this.requester = RSocketRequester.builder().rsocketStrategies(this.handler.getRSocketStrategies())
 				.connectTcp("localhost", this.server.address().getPort()).block();
 		String data = "rob";
-		assertThatCode(() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
-				.isNotNull();
+		assertThatExceptionOfType(Exception.class).isThrownBy(
+				() -> this.requester.route("secure.retrieve-mono").data(data).retrieveMono(String.class).block())
+				.matches((ex) -> ex instanceof RejectedSetupException
+						|| ex.getClass().toString().contains("ReactiveException"));
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
-		// .isInstanceOf(RejectedSetupException.class);
 		assertThat(this.controller.payloads).isEmpty();
 	}
 

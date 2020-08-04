@@ -29,7 +29,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.util.InMemoryResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Rob Winch
@@ -45,15 +46,15 @@ public class UserDetailsResourceFactoryBeanTests {
 
 	@Test
 	public void setResourceLoaderWhenNullThenThrowsException() {
-		assertThatThrownBy(() -> this.factory.setResourceLoader(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasStackTraceContaining("resourceLoader cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.setResourceLoader(null))
+				.withStackTraceContaining("resourceLoader cannot be null");
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceLocationNullThenThrowsIllegalStateException() {
 		this.factory.setResourceLoader(this.resourceLoader);
-		assertThatThrownBy(() -> this.factory.getObject()).isInstanceOf(IllegalArgumentException.class)
-				.hasStackTraceContaining("resource cannot be null if resourceLocation is null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.getObject())
+				.withStackTraceContaining("resource cannot be null if resourceLocation is null");
 	}
 
 	@Test
@@ -72,8 +73,8 @@ public class UserDetailsResourceFactoryBeanTests {
 	@Test
 	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() {
 		this.factory.setResource(new InMemoryResource("user=invalidFormatHere"));
-		assertThatThrownBy(() -> this.factory.getObject()).isInstanceOf(IllegalStateException.class)
-				.hasStackTraceContaining("user").hasStackTraceContaining("invalidFormatHere");
+		assertThatIllegalStateException().isThrownBy(() -> this.factory.getObject()).withStackTraceContaining("user")
+				.withStackTraceContaining("invalidFormatHere");
 	}
 
 	@Test

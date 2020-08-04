@@ -61,7 +61,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -128,11 +128,11 @@ public class WebSecurityConfigurationTests {
 
 	@Test
 	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() {
-		Throwable thrown = catchThrowable(() -> this.spring.register(DuplicateOrderConfig.class).autowire());
-		assertThat(thrown).isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("@Order on WebSecurityConfigurers must be unique")
-				.hasMessageContaining(DuplicateOrderConfig.WebConfigurer1.class.getName())
-				.hasMessageContaining(DuplicateOrderConfig.WebConfigurer2.class.getName());
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(DuplicateOrderConfig.class).autowire())
+				.withMessageContaining("@Order on WebSecurityConfigurers must be unique")
+				.withMessageContaining(DuplicateOrderConfig.WebConfigurer1.class.getName())
+				.withMessageContaining(DuplicateOrderConfig.WebConfigurer2.class.getName());
 	}
 
 	@Test
@@ -155,10 +155,9 @@ public class WebSecurityConfigurationTests {
 
 	@Test
 	public void loadConfigWhenSecurityExpressionHandlerIsNullThenException() {
-		Throwable thrown = catchThrowable(
-				() -> this.spring.register(NullWebSecurityExpressionHandlerConfig.class).autowire());
-		assertThat(thrown).isInstanceOf(BeanCreationException.class);
-		assertThat(thrown).hasRootCauseExactlyInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NullWebSecurityExpressionHandlerConfig.class).autowire())
+				.havingRootCause().isExactlyInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -250,10 +249,10 @@ public class WebSecurityConfigurationTests {
 
 	@Test
 	public void loadConfigWhenBothAdapterAndFilterChainConfiguredThenException() {
-		Throwable thrown = catchThrowable(() -> this.spring.register(AdapterAndFilterChainConfig.class).autowire());
-		assertThat(thrown).isInstanceOf(BeanCreationException.class)
-				.hasRootCauseExactlyInstanceOf(IllegalStateException.class)
-				.hasMessageContaining("Found WebSecurityConfigurerAdapter as well as SecurityFilterChain.");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(AdapterAndFilterChainConfig.class).autowire())
+				.withRootCauseExactlyInstanceOf(IllegalStateException.class)
+				.withMessageContaining("Found WebSecurityConfigurerAdapter as well as SecurityFilterChain.");
 
 	}
 

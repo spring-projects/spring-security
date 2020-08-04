@@ -133,7 +133,8 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
@@ -565,9 +566,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getBearerTokenResolverWhenDuplicateResolverBeansThenWiringException() {
-		assertThatCode(() -> this.spring.register(MultipleBearerTokenResolverBeansConfig.class, JwtDecoderConfig.class)
-				.autowire()).isInstanceOf(BeanCreationException.class)
-						.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring
+						.register(MultipleBearerTokenResolverBeansConfig.class, JwtDecoderConfig.class).autowire())
+				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
 
 	@Test
@@ -675,7 +677,8 @@ public class OAuth2ResourceServerConfigurerTests {
 		context.registerBean("decoderTwo", JwtDecoder.class, () -> decoder);
 		this.spring.context(context).autowire();
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer = new OAuth2ResourceServerConfigurer(context).jwt();
-		assertThatCode(() -> jwtConfigurer.getJwtDecoder()).isInstanceOf(NoUniqueBeanDefinitionException.class);
+		assertThatExceptionOfType(NoUniqueBeanDefinitionException.class)
+				.isThrownBy(() -> jwtConfigurer.getJwtDecoder());
 	}
 
 	@Test
@@ -701,14 +704,14 @@ public class OAuth2ResourceServerConfigurerTests {
 	public void authenticationEntryPointWhenGivenNullThenThrowsException() {
 		ApplicationContext context = mock(ApplicationContext.class);
 		OAuth2ResourceServerConfigurer configurer = new OAuth2ResourceServerConfigurer(context);
-		assertThatCode(() -> configurer.authenticationEntryPoint(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> configurer.authenticationEntryPoint(null));
 	}
 
 	@Test
 	public void accessDeniedHandlerWhenGivenNullThenThrowsException() {
 		ApplicationContext context = mock(ApplicationContext.class);
 		OAuth2ResourceServerConfigurer configurer = new OAuth2ResourceServerConfigurer(context);
-		assertThatCode(() -> configurer.accessDeniedHandler(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> configurer.accessDeniedHandler(null));
 	}
 
 	@Test
@@ -862,8 +865,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void configureWhenOnlyIntrospectionUrlThenException() {
-		assertThatCode(() -> this.spring.register(OpaqueTokenHalfConfiguredConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(OpaqueTokenHalfConfiguredConfig.class).autowire());
 	}
 
 	@Test
@@ -991,27 +994,30 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void configuredWhenMissingJwtAuthenticationProviderThenWiringException() {
-		assertThatCode(() -> this.spring.register(JwtlessConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasMessageContaining("neither was found");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(JwtlessConfig.class).autowire())
+				.withMessageContaining("neither was found");
 	}
 
 	@Test
 	public void configureWhenMissingJwkSetUriThenWiringException() {
-		assertThatCode(() -> this.spring.register(JwtHalfConfiguredConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasMessageContaining("No qualifying bean of type");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(JwtHalfConfiguredConfig.class).autowire())
+				.withMessageContaining("No qualifying bean of type");
 	}
 
 	@Test
 	public void configureWhenUsingBothJwtAndOpaqueThenWiringException() {
-		assertThatCode(() -> this.spring.register(OpaqueAndJwtConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("Spring Security only supports JWTs or Opaque Tokens");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(OpaqueAndJwtConfig.class).autowire())
+				.withMessageContaining("Spring Security only supports JWTs or Opaque Tokens");
 	}
 
 	@Test
 	public void configureWhenUsingBothAuthenticationManagerResolverAndOpaqueThenWiringException() {
-		assertThatCode(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class).hasMessageContaining("authenticationManagerResolver");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
+				.withMessageContaining("authenticationManagerResolver");
 	}
 
 	@Test
@@ -1064,8 +1070,8 @@ public class OAuth2ResourceServerConfigurerTests {
 		context.registerBean("converterTwo", JwtAuthenticationConverter.class, () -> converterBean);
 		this.spring.context(context).autowire();
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer = new OAuth2ResourceServerConfigurer(context).jwt();
-		assertThatCode(jwtConfigurer::getJwtAuthenticationConverter)
-				.isInstanceOf(NoUniqueBeanDefinitionException.class);
+		assertThatExceptionOfType(NoUniqueBeanDefinitionException.class)
+				.isThrownBy(jwtConfigurer::getJwtAuthenticationConverter);
 	}
 
 	private static <T> void registerMockBean(GenericApplicationContext context, String name, Class<T> clazz) {

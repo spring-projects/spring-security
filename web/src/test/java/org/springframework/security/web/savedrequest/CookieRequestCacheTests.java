@@ -27,7 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Zeeshan Adnan
@@ -61,8 +61,7 @@ public class CookieRequestCacheTests {
 	@Test
 	public void setRequestMatcherWhenRequestMatcherIsSetNullThenThrowsIllegalArgumentException() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-		assertThatThrownBy(() -> cookieRequestCache.setRequestMatcher(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> cookieRequestCache.setRequestMatcher(null));
 	}
 
 	@Test

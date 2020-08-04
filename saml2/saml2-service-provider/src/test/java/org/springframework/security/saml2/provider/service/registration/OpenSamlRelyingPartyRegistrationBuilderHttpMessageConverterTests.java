@@ -30,7 +30,7 @@ import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.security.saml2.Saml2Exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 
@@ -63,17 +63,18 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 	public void readWhenMissingIDPSSODescriptorThenException() {
 		MockClientHttpResponse response = new MockClientHttpResponse(
 				(String.format(ENTITY_DESCRIPTOR_TEMPLATE, "")).getBytes(), HttpStatus.OK);
-		assertThatCode(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
-				.isInstanceOf(Saml2Exception.class)
-				.hasMessageContaining("Metadata response is missing the necessary IDPSSODescriptor element");
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
+				.withMessageContaining("Metadata response is missing the necessary IDPSSODescriptor element");
 	}
 
 	@Test
 	public void readWhenMissingVerificationKeyThenException() {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, ""));
 		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), HttpStatus.OK);
-		assertThatCode(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
-				.isInstanceOf(Saml2Exception.class).hasMessageContaining(
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
+				.withMessageContaining(
 						"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
 	}
 
@@ -82,8 +83,9 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
 				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")));
 		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), HttpStatus.OK);
-		assertThatCode(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
-				.isInstanceOf(Saml2Exception.class).hasMessageContaining(
+		assertThatExceptionOfType(Saml2Exception.class)
+				.isThrownBy(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
+				.withMessageContaining(
 						"Metadata response is missing a SingleSignOnService, necessary for sending AuthnRequests");
 	}
 

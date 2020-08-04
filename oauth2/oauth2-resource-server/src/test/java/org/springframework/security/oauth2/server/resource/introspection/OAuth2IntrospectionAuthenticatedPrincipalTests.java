@@ -31,7 +31,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2IntrospectionAuthenticatedPrincipal}
@@ -108,10 +108,10 @@ public class OAuth2IntrospectionAuthenticatedPrincipalTests {
 
 	@Test
 	public void constructorWhenAttributesIsNullOrEmptyThenIllegalArgumentException() {
-		assertThatCode(() -> new OAuth2IntrospectionAuthenticatedPrincipal(null, AUTHORITIES))
-				.isInstanceOf(IllegalArgumentException.class);
-		assertThatCode(() -> new OAuth2IntrospectionAuthenticatedPrincipal(Collections.emptyMap(), AUTHORITIES))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2IntrospectionAuthenticatedPrincipal(null, AUTHORITIES));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2IntrospectionAuthenticatedPrincipal(Collections.emptyMap(), AUTHORITIES));
 	}
 
 	@Test

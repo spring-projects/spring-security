@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -51,7 +51,8 @@ public class SecurityJackson2ModulesTests {
 	@Test
 	public void readValueWhenNotAllowedOrMappedThenThrowsException() {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-		assertThatThrownBy(() -> this.mapper.readValue(content, Object.class)).hasStackTraceContaining("allowlist");
+		assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.mapper.readValue(content, Object.class))
+				.withStackTraceContaining("allowlist");
 	}
 
 	@Test

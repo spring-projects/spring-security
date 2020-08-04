@@ -40,7 +40,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AuthorizedClientMixin}.
@@ -99,8 +99,8 @@ public class OAuth2AuthorizedClientMixinTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
 				this.principalName, this.accessToken);
 		String json = asJson(authorizedClient);
-		assertThatThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthorizedClient.class))
-				.isInstanceOf(JsonProcessingException.class);
+		assertThatExceptionOfType(JsonProcessingException.class)
+				.isThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthorizedClient.class));
 	}
 
 	@Test

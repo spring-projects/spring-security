@@ -56,7 +56,6 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -142,7 +141,7 @@ public class WebSecurityConfigurerAdapterTests {
 	public void loadConfigWhenUserDetailsServiceHasCircularReferenceThenStillLoads() {
 		this.spring.register(RequiresUserDetailsServiceConfig.class, UserDetailsServiceConfig.class).autowire();
 		MyFilter myFilter = this.spring.getContext().getBean(MyFilter.class);
-		assertThatCode(() -> myFilter.userDetailsService.loadUserByUsername("user")).doesNotThrowAnyException();
+		myFilter.userDetailsService.loadUserByUsername("user");
 		assertThatExceptionOfType(UsernameNotFoundException.class)
 				.isThrownBy(() -> myFilter.userDetailsService.loadUserByUsername("admin"));
 	}

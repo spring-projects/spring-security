@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -41,18 +41,18 @@ public class DelegatingOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void constructorWhenProvidersIsEmptyThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingOAuth2AuthorizedClientProvider(new OAuth2AuthorizedClientProvider[0]))
-				.isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> new DelegatingOAuth2AuthorizedClientProvider(Collections.emptyList()))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingOAuth2AuthorizedClientProvider(new OAuth2AuthorizedClientProvider[0]));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingOAuth2AuthorizedClientProvider(Collections.emptyList()));
 	}
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
 		DelegatingOAuth2AuthorizedClientProvider delegate = new DelegatingOAuth2AuthorizedClientProvider(
 				mock(OAuth2AuthorizedClientProvider.class));
-		assertThatThrownBy(() -> delegate.authorize(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("context cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> delegate.authorize(null))
+				.withMessage("context cannot be null");
 	}
 
 	@Test

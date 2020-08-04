@@ -63,7 +63,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -148,36 +150,37 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null, this.authorizedClientRepository))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null, this.authorizedClientRepository));
 	}
 
 	@Test
 	public void constructorWhenOAuth2AuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, null));
 	}
 
 	@Test
 	public void constructorWhenAuthorizedClientManagerIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null));
 	}
 
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.argumentResolver.setClientCredentialsTokenResponseClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientCredentialsTokenResponseClient cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.argumentResolver.setClientCredentialsTokenResponseClient(null))
+				.withMessage("clientCredentialsTokenResponseClient cannot be null");
 	}
 
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
-		assertThatThrownBy(() -> this.argumentResolver
-				.setClientCredentialsTokenResponseClient(new DefaultClientCredentialsTokenResponseClient()))
-						.isInstanceOf(IllegalStateException.class).hasMessage(
-								"The client cannot be set when the constructor used is \"OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)\". "
-										+ "Instead, use the constructor \"OAuth2AuthorizedClientArgumentResolver(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
+		assertThatIllegalStateException()
+				.isThrownBy(() -> this.argumentResolver
+						.setClientCredentialsTokenResponseClient(new DefaultClientCredentialsTokenResponseClient()))
+				.withMessage("The client cannot be set when the constructor used is "
+						+ "\"OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)\". "
+						+ "Instead, use the constructor \"OAuth2AuthorizedClientArgumentResolver(ClientRegistrationRepository, "
+						+ "OAuth2AuthorizedClientRepository)\".");
 	}
 
 	@Test
@@ -210,9 +213,11 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenRegistrationIdEmptyAndNotOAuth2AuthenticationThenThrowIllegalArgumentException() {
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdEmpty", OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, null, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage(
-						"Unable to resolve the Client Registration Identifier. It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or @RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, null, null))
+				.withMessage("Unable to resolve the Client Registration Identifier. It must be provided via "
+						+ "@RegisteredOAuth2AuthorizedClient(\"client1\") or "
+						+ "@RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
 	}
 
 	@Test
@@ -239,9 +244,10 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	public void resolveArgumentWhenRegistrationIdInvalidThenThrowIllegalArgumentException() {
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdInvalid",
 				OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null,
-				new ServletWebRequest(this.request, this.response), null)).isInstanceOf(IllegalArgumentException.class)
-						.hasMessage("Could not find ClientRegistration with id 'invalid'");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null,
+						new ServletWebRequest(this.request, this.response), null))
+				.withMessage("Could not find ClientRegistration with id 'invalid'");
 	}
 
 	@Test
@@ -250,9 +256,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 				.willReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null,
-				new ServletWebRequest(this.request, this.response), null))
-						.isInstanceOf(ClientAuthorizationRequiredException.class);
+		assertThatExceptionOfType(ClientAuthorizationRequiredException.class).isThrownBy(() -> this.argumentResolver
+				.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null));
 	}
 
 	@SuppressWarnings("unchecked")

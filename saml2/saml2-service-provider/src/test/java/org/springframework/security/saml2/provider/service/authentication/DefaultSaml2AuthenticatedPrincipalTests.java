@@ -26,7 +26,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class DefaultSaml2AuthenticatedPrincipalTests {
 
@@ -43,14 +43,14 @@ public class DefaultSaml2AuthenticatedPrincipalTests {
 	public void createDefaultSaml2AuthenticatedPrincipalWhenNameNullThenException() {
 		Map<String, List<Object>> attributes = new LinkedHashMap<>();
 		attributes.put("email", Arrays.asList("john.doe@example.com", "doe.john@example.com"));
-		assertThatCode(() -> new DefaultSaml2AuthenticatedPrincipal(null, attributes))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("name cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultSaml2AuthenticatedPrincipal(null, attributes))
+				.withMessageContaining("name cannot be null");
 	}
 
 	@Test
 	public void createDefaultSaml2AuthenticatedPrincipalWhenAttributesNullThenException() {
-		assertThatCode(() -> new DefaultSaml2AuthenticatedPrincipal("user", null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("attributes cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultSaml2AuthenticatedPrincipal("user", null))
+				.withMessageContaining("attributes cannot be null");
 	}
 
 	@Test

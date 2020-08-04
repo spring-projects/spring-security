@@ -54,7 +54,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -257,8 +257,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
 		// first try should fail, and remove the cached authorized client
-		assertThatCode(requestMono::block).isInstanceOfSatisfying(WebClientResponseException.class,
-				(e) -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
+		assertThatExceptionOfType(WebClientResponseException.class).isThrownBy(requestMono::block)
+				.satisfies((ex) -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
 		assertThat(this.server.getRequestCount()).isEqualTo(1);
 		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), any(), any());
 		verify(this.authorizedClientRepository).removeAuthorizedClient(eq(clientRegistration.getRegistrationId()),

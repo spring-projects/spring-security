@@ -26,7 +26,8 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link AuthorizationCodeOAuth2AuthorizedClientProvider}.
@@ -54,8 +55,7 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientProvider.authorize(null));
 	}
 
 	@Test
@@ -77,8 +77,8 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizationCodeAndNotAuthorizedThenAuthorize() {
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(this.clientRegistration).principal(this.principal).build();
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
-				.isInstanceOf(ClientAuthorizationRequiredException.class);
+		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
+				.isThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext));
 	}
 
 }

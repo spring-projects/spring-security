@@ -21,7 +21,7 @@ import java.time.Instant;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link Jwt.Builder}.
@@ -59,8 +59,8 @@ public class JwtBuilderTests {
 		assertThat(jwt.getExpiresAt()).isSameAs(now);
 		jwt = jwtBuilder.expiresAt(now).build();
 		assertThat(jwt.getExpiresAt()).isSameAs(now);
-		assertThatCode(() -> jwtBuilder.claim(JwtClaimNames.EXP, "not an instant").build())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> jwtBuilder.claim(JwtClaimNames.EXP, "not an instant").build());
 	}
 
 	@Test
@@ -71,8 +71,8 @@ public class JwtBuilderTests {
 		assertThat(jwt.getIssuedAt()).isSameAs(now);
 		jwt = jwtBuilder.issuedAt(now).build();
 		assertThat(jwt.getIssuedAt()).isSameAs(now);
-		assertThatCode(() -> jwtBuilder.claim(JwtClaimNames.IAT, "not an instant").build())
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> jwtBuilder.claim(JwtClaimNames.IAT, "not an instant").build());
 	}
 
 	@Test

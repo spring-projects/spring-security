@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -72,20 +72,19 @@ public class OidcIdTokenValidatorTests {
 	@Test
 	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
 		OidcIdTokenValidator idTokenValidator = new OidcIdTokenValidator(this.registration.build());
-		assertThatThrownBy(() -> idTokenValidator.setClockSkew(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> idTokenValidator.setClockSkew(null));
 	}
 
 	@Test
 	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
 		OidcIdTokenValidator idTokenValidator = new OidcIdTokenValidator(this.registration.build());
-		assertThatThrownBy(() -> idTokenValidator.setClockSkew(Duration.ofSeconds(-1)))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> idTokenValidator.setClockSkew(Duration.ofSeconds(-1)));
 	}
 
 	@Test
 	public void setClockWhenNullThenThrowIllegalArgumentException() {
 		OidcIdTokenValidator idTokenValidator = new OidcIdTokenValidator(this.registration.build());
-		assertThatThrownBy(() -> idTokenValidator.setClock(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> idTokenValidator.setClock(null));
 	}
 
 	@Test

@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -89,14 +89,14 @@ public class FormLoginConfigTests {
 
 	@Test
 	public void autowireWhenLoginPageIsMisconfiguredThenDetects() {
-		assertThatThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashLoginPage")).autowire())
-				.isInstanceOf(BeanCreationException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashLoginPage")).autowire());
 	}
 
 	@Test
 	public void autowireWhenDefaultTargetUrlIsMisconfiguredThenDetects() {
-		assertThatThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashDefaultTargetUrl")).autowire())
-				.isInstanceOf(BeanCreationException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("NoLeadingSlashDefaultTargetUrl")).autowire());
 	}
 
 	@Test

@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -120,41 +120,43 @@ public class DelegatingPasswordEncoderTests {
 
 	@Test
 	public void matchesWhenUnMappedThenIllegalArgumentException() {
-		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{unmapped}" + this.rawPassword))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("There is no PasswordEncoder mapped for the id \"unmapped\"");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{unmapped}" + this.rawPassword))
+				.withMessage("There is no PasswordEncoder mapped for the id \"unmapped\"");
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenNoClosingPrefixStringThenIllegalArgumentExcetion() {
-		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
+				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenNoStartingPrefixStringThenFalse() {
-		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
+				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenNoIdStringThenFalse() {
-		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("There is no PasswordEncoder mapped for the id \"\"");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
+				.withMessage("There is no PasswordEncoder mapped for the id \"\"");
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
 	public void matchesWhenPrefixInMiddleThenFalse() {
-		assertThatThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
+		assertThatIllegalArgumentException()
+				.isThrownBy(
+						() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
+				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 
@@ -162,9 +164,9 @@ public class DelegatingPasswordEncoderTests {
 	public void matchesWhenIdIsNullThenFalse() {
 		this.delegates = new Hashtable<>(this.delegates);
 		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
-		assertThatThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("There is no PasswordEncoder mapped for the id \"null\"");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
+				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
 		verifyZeroInteractions(this.bcrypt, this.noop);
 	}
 

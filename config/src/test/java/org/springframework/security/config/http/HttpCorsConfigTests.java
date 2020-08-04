@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -59,8 +59,9 @@ public class HttpCorsConfigTests {
 
 	@Test
 	public void autowireWhenMissingMvcThenGivesInformativeError() {
-		assertThatThrownBy(() -> this.spring.configLocations(this.xml("RequiresMvc")).autowire())
-				.isInstanceOf(BeanCreationException.class).hasMessageContaining(
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("RequiresMvc")).autowire())
+				.withMessageContaining(
 						"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
 	}
 

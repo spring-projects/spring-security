@@ -52,8 +52,8 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
@@ -90,22 +90,20 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	@Test
 	public void constructorWhenNullAccessTokenResponseClientThenIllegalArgumentException() {
 		this.accessTokenResponseClient = null;
-		assertThatThrownBy(
-				() -> new OAuth2LoginReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OAuth2LoginReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService));
 	}
 
 	@Test
 	public void constructorWhenNullUserServiceThenIllegalArgumentException() {
 		this.userService = null;
-		assertThatThrownBy(
-				() -> new OAuth2LoginReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService))
-						.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OAuth2LoginReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService));
 	}
 
 	@Test
 	public void setAuthoritiesMapperWhenAuthoritiesMapperIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.manager.setAuthoritiesMapper(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.setAuthoritiesMapper(null));
 	}
 
 	@Test
@@ -113,8 +111,8 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		// we didn't do anything because it should cause a ClassCastException (as verified
 		// below)
 		TestingAuthenticationToken token = new TestingAuthenticationToken("a", "b");
-		assertThatCode(() -> this.manager.authenticate(token)).doesNotThrowAnyException();
-		assertThatThrownBy(() -> this.manager.authenticate(token).block()).isInstanceOf(Throwable.class);
+		this.manager.authenticate(token);
+		assertThatExceptionOfType(Throwable.class).isThrownBy(() -> this.manager.authenticate(token).block());
 	}
 
 	@Test
@@ -127,15 +125,15 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticationWhenErrorThenOAuth2AuthenticationException() {
 		this.authorizationResponseBldr = OAuth2AuthorizationResponse.error("error").state("state");
-		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
 
 	@Test
 	public void authenticationWhenStateDoesNotMatchThenOAuth2AuthenticationException() {
 		this.authorizationResponseBldr.state("notmatch");
-		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
-				.isInstanceOf(OAuth2AuthenticationException.class);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.manager.authenticate(loginToken()).block());
 	}
 
 	@Test

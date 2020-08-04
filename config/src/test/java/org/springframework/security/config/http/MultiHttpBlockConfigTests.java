@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -61,14 +61,16 @@ public class MultiHttpBlockConfigTests {
 
 	@Test
 	public void configureWhenUsingDuplicateHttpElementsThenThrowsWiringException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("IdenticalHttpElements")).autowire())
-				.isInstanceOf(BeanCreationException.class).hasCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("IdenticalHttpElements")).autowire())
+				.withCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenUsingIndenticallyPatternedHttpElementsThenThrowsWiringException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("IdenticallyPatternedHttpElements")).autowire())
-				.isInstanceOf(BeanCreationException.class).hasCauseInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("IdenticallyPatternedHttpElements")).autowire())
+				.withCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	/**

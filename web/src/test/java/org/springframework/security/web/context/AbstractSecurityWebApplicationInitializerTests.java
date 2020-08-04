@@ -37,7 +37,8 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -145,10 +146,9 @@ public class AbstractSecurityWebApplicationInitializerTests {
 	@Test
 	public void onStartupWhenSpringSecurityFilterChainAlreadyRegisteredThenException() {
 		ServletContext context = mock(ServletContext.class);
-		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
-		}.onStartup(context)).isInstanceOf(IllegalStateException.class)
-				.hasMessage("Duplicate Filter registration for 'springSecurityFilterChain'. "
-						+ "Check to ensure the Filter is only configured once.");
+		assertThatIllegalStateException().isThrownBy(() -> new AbstractSecurityWebApplicationInitializer() {
+		}.onStartup(context)).withMessage("Duplicate Filter registration for 'springSecurityFilterChain'. "
+				+ "Check to ensure the Filter is only configured once.");
 	}
 
 	@Test
@@ -182,13 +182,15 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
-		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+		assertThatIllegalStateException().isThrownBy(() -> new AbstractSecurityWebApplicationInitializer() {
+
 			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				insertFilters(context, filter1);
 			}
-		}.onStartup(context)).isInstanceOf(IllegalStateException.class).hasMessage(
-				"Duplicate Filter registration for 'object'. " + "Check to ensure the Filter is only configured once.");
+
+		}.onStartup(context)).withMessage(
+				"Duplicate Filter registration for 'object'. Check to ensure the Filter is only configured once.");
 		assertProxyDefaults(proxyCaptor.getValue());
 		verify(registration).addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
 		verify(context).addFilter(anyString(), eq(filter1));
@@ -200,13 +202,14 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
-		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new AbstractSecurityWebApplicationInitializer() {
+
 			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				insertFilters(context);
 			}
-		}.onStartup(context)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("filters cannot be null or empty");
+
+		}.onStartup(context)).withMessage("filters cannot be null or empty");
 		assertProxyDefaults(proxyCaptor.getValue());
 	}
 
@@ -218,13 +221,14 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 		given(context.addFilter(anyString(), eq(filter))).willReturn(registration);
-		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new AbstractSecurityWebApplicationInitializer() {
+
 			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				insertFilters(context, filter, null);
 			}
-		}.onStartup(context)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("filters cannot contain null values");
+
+		}.onStartup(context)).withMessageContaining("filters cannot contain null values");
 		verify(context, times(2)).addFilter(anyString(), any(Filter.class));
 	}
 
@@ -258,12 +262,14 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
-		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+		assertThatIllegalStateException().isThrownBy(() -> new AbstractSecurityWebApplicationInitializer() {
+
 			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				appendFilters(context, filter1);
 			}
-		}.onStartup(context)).isInstanceOf(IllegalStateException.class).hasMessage(
+
+		}.onStartup(context)).withMessage(
 				"Duplicate Filter registration for 'object'. " + "Check to ensure the Filter is only configured once.");
 		assertProxyDefaults(proxyCaptor.getValue());
 		verify(registration).addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
@@ -276,13 +282,14 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
-		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new AbstractSecurityWebApplicationInitializer() {
+
 			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				appendFilters(context);
 			}
-		}.onStartup(context)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("filters cannot be null or empty");
+
+		}.onStartup(context)).withMessage("filters cannot be null or empty");
 		assertProxyDefaults(proxyCaptor.getValue());
 	}
 
@@ -294,13 +301,14 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
 		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
 		given(context.addFilter(anyString(), eq(filter))).willReturn(registration);
-		assertThatCode(() -> new AbstractSecurityWebApplicationInitializer() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new AbstractSecurityWebApplicationInitializer() {
+
 			@Override
 			protected void afterSpringSecurityFilterChain(ServletContext servletContext) {
 				appendFilters(context, filter, null);
 			}
-		}.onStartup(context)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("filters cannot contain null values");
+
+		}.onStartup(context)).withMessageContaining("filters cannot contain null values");
 		verify(context, times(2)).addFilter(anyString(), any(Filter.class));
 	}
 

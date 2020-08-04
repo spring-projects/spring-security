@@ -25,7 +25,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultRelyingPartyRegistrationResolver}
@@ -71,8 +71,7 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 
 	@Test
 	public void constructorWhenNullRelyingPartyRegistrationThenIllegalArgument() {
-		assertThatCode(() -> new DefaultRelyingPartyRegistrationResolver(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultRelyingPartyRegistrationResolver(null));
 	}
 
 }

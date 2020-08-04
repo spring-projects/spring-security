@@ -19,7 +19,7 @@ package org.springframework.security.oauth2.client;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizedClientId}.
@@ -30,14 +30,14 @@ public class OAuth2AuthorizedClientIdTests {
 
 	@Test
 	public void constructorWhenRegistrationIdNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizedClientId(null, "test-principal"))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistrationId cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AuthorizedClientId(null, "test-principal"))
+				.withMessage("clientRegistrationId cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenPrincipalNameNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizedClientId("test-client", null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("principalName cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AuthorizedClientId("test-client", null))
+				.withMessage("principalName cannot be empty");
 	}
 
 	@Test

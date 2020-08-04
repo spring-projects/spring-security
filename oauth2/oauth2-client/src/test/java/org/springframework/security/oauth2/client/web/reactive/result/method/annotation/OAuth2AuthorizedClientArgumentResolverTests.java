@@ -48,7 +48,8 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -94,20 +95,19 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null, this.authorizedClientRepository))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null, this.authorizedClientRepository));
 	}
 
 	@Test
 	public void constructorWhenOAuth2AuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, null));
 	}
 
 	@Test
 	public void constructorWhenAuthorizedClientManagerIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null));
 	}
 
 	@Test
@@ -134,8 +134,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenRegistrationIdEmptyAndNotOAuth2AuthenticationThenThrowIllegalArgumentException() {
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdEmpty", OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> resolveArgument(methodParameter)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("The clientRegistrationId could not be resolved. Please provide one");
+		assertThatIllegalArgumentException().isThrownBy(() -> resolveArgument(methodParameter))
+				.withMessage("The clientRegistrationId could not be resolved. Please provide one");
 	}
 
 	@Test
@@ -169,8 +169,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any())).willReturn(Mono.empty());
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
 				OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> resolveArgument(methodParameter))
-				.isInstanceOf(ClientAuthorizationRequiredException.class);
+		assertThatExceptionOfType(ClientAuthorizationRequiredException.class)
+				.isThrownBy(() -> resolveArgument(methodParameter));
 	}
 
 	private Object resolveArgument(MethodParameter methodParameter) {

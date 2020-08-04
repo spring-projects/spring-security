@@ -37,7 +37,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -102,7 +102,7 @@ public class Saml2AuthenticationTokenConverterTests {
 
 	@Test
 	public void constructorWhenResolverIsNullThenIllegalArgument() {
-		assertThatCode(() -> new Saml2AuthenticationTokenConverter(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new Saml2AuthenticationTokenConverter(null));
 	}
 
 	@Test

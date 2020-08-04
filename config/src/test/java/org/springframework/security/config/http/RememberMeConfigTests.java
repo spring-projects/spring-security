@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -155,8 +155,8 @@ public class RememberMeConfigTests {
 
 	@Test
 	public void configureWhenUsingDataSourceAndANegativeTokenValidityThenThrowsWiringException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("NegativeTokenValidityWithDataSource")).autowire())
-				.isInstanceOf(FatalBeanException.class);
+		assertThatExceptionOfType(FatalBeanException.class).isThrownBy(
+				() -> this.spring.configLocations(this.xml("NegativeTokenValidityWithDataSource")).autowire());
 	}
 
 	@Test
@@ -186,9 +186,8 @@ public class RememberMeConfigTests {
 
 	@Test
 	public void configureWhenUsingPersistentTokenRepositoryAndANegativeTokenValidityThenThrowsWiringException() {
-		assertThatCode(
-				() -> this.spring.configLocations(this.xml("NegativeTokenValidityWithPersistentRepository")).autowire())
-						.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() -> this.spring
+				.configLocations(this.xml("NegativeTokenValidityWithPersistentRepository")).autowire());
 	}
 
 	@Test
@@ -231,8 +230,8 @@ public class RememberMeConfigTests {
 
 	@Test
 	public void configureWhenUsingRememberMeParameterAndServicesRefThenThrowsWiringException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("WithRememberMeParameterAndServicesRef")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class);
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(
+				() -> this.spring.configLocations(this.xml("WithRememberMeParameterAndServicesRef")).autowire());
 	}
 
 	/**
@@ -249,11 +248,13 @@ public class RememberMeConfigTests {
 	 */
 	@Test
 	public void configureWhenUsingRememberMeCookieAndServicesRefThenThrowsWiringException() {
-		assertThatCode(() -> this.spring.configLocations(this.xml("WithRememberMeCookieAndServicesRef")).autowire())
-				.isInstanceOf(BeanDefinitionParsingException.class).hasMessageContaining(
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(
+						() -> this.spring.configLocations(this.xml("WithRememberMeCookieAndServicesRef")).autowire())
+				.withMessageContaining(
 						"Configuration problem: services-ref can't be used in combination with attributes "
-								+ "token-repository-ref,data-source-ref, user-service-ref, token-validity-seconds, use-secure-cookie, "
-								+ "remember-me-parameter or remember-me-cookie");
+								+ "token-repository-ref,data-source-ref, user-service-ref, token-validity-seconds, "
+								+ "use-secure-cookie, remember-me-parameter or remember-me-cookie");
 	}
 
 	private ResultActions rememberAuthentication(String username, String password) throws Exception {

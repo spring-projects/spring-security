@@ -54,7 +54,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -103,40 +104,45 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void constructorWhenJdbcOperationsIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new JdbcOAuth2AuthorizedClientService(null, this.clientRegistrationRepository))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("jdbcOperations cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JdbcOAuth2AuthorizedClientService(null, this.clientRegistrationRepository))
+				.withMessage("jdbcOperations cannot be null");
 	}
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new JdbcOAuth2AuthorizedClientService(this.jdbcOperations, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistrationRepository cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JdbcOAuth2AuthorizedClientService(this.jdbcOperations, null))
+				.withMessage("clientRegistrationRepository cannot be null");
 	}
 
 	@Test
 	public void setAuthorizedClientRowMapperWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService.setAuthorizedClientRowMapper(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizedClientRowMapper cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.setAuthorizedClientRowMapper(null))
+				.withMessage("authorizedClientRowMapper cannot be null");
 	}
 
 	@Test
 	public void setAuthorizedClientParametersMapperWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService.setAuthorizedClientParametersMapper(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClientParametersMapper cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.setAuthorizedClientParametersMapper(null))
+				.withMessage("authorizedClientParametersMapper cannot be null");
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(null, "principalName"))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistrationId cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.loadAuthorizedClient(null, "principalName"))
+				.withMessage("clientRegistrationId cannot be empty");
 	}
 
 	@Test
 	public void loadAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
-						.isInstanceOf(IllegalArgumentException.class).hasMessage("principalName cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService
+						.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
+				.withMessage("principalName cannot be empty");
 	}
 
 	@Test
@@ -177,26 +183,28 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
 		this.authorizedClientService.saveAuthorizedClient(expected, principal);
-		assertThatThrownBy(() -> this.authorizedClientService
-				.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName()))
-						.isInstanceOf(DataRetrievalFailureException.class)
-						.hasMessage("The ClientRegistration with id '" + this.clientRegistration.getRegistrationId()
-								+ "' exists in the data source, however, it was not found in the ClientRegistrationRepository.");
+		assertThatExceptionOfType(DataRetrievalFailureException.class)
+				.isThrownBy(() -> this.authorizedClientService
+						.loadAuthorizedClient(this.clientRegistration.getRegistrationId(), principal.getName()))
+				.withMessage("The ClientRegistration with id '" + this.clientRegistration.getRegistrationId()
+						+ "' exists in the data source, however, it was not found in the ClientRegistrationRepository.");
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
 		Authentication principal = createPrincipal();
-		assertThatThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(null, principal))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizedClient cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(null, principal))
+				.withMessage("authorizedClient cannot be null");
 	}
 
 	@Test
 	public void saveAuthorizedClientWhenPrincipalIsNullThenThrowIllegalArgumentException() {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
-		assertThatThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("principal cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, null))
+				.withMessage("principal cannot be null");
 	}
 
 	@Test
@@ -293,15 +301,17 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void removeAuthorizedClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(null, "principalName"))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistrationId cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService.removeAuthorizedClient(null, "principalName"))
+				.withMessage("clientRegistrationId cannot be empty");
 	}
 
 	@Test
 	public void removeAuthorizedClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService
-				.removeAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
-						.isInstanceOf(IllegalArgumentException.class).hasMessage("principalName cannot be empty");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientService
+						.removeAuthorizedClient(this.clientRegistration.getRegistrationId(), null))
+				.withMessage("principalName cannot be empty");
 	}
 
 	@Test

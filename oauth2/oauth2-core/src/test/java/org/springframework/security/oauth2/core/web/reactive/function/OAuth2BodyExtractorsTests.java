@@ -44,7 +44,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.web.reactive.function.BodyExtractor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -90,8 +90,8 @@ public class OAuth2BodyExtractorsTests {
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 		response.setBody("{");
 		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
-		assertThatCode(result::block).isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("An error occurred parsing the Access Token response");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(result::block)
+				.withMessageContaining("An error occurred parsing the Access Token response");
 	}
 
 	@Test
@@ -100,8 +100,8 @@ public class OAuth2BodyExtractorsTests {
 				.oauth2AccessTokenResponse();
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
-		assertThatCode(result::block).isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(result::block)
+				.withMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}
 
 	@Test

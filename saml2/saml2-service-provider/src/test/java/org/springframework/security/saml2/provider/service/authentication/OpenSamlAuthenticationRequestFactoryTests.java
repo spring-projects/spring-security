@@ -39,7 +39,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -189,8 +189,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void setAuthnRequestConsumerResolverWhenNullThenException() {
-		assertThatCode(() -> this.factory.setAuthnRequestConsumerResolver(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.factory.setAuthnRequestConsumerResolver(null));
 	}
 
 	@Test

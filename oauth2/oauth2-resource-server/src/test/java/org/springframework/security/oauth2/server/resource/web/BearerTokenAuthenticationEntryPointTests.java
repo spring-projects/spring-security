@@ -28,7 +28,6 @@ import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link BearerTokenAuthenticationEntryPoint}.
@@ -150,7 +149,7 @@ public class BearerTokenAuthenticationEntryPointTests {
 
 	@Test
 	public void setRealmNameWhenNullRealmNameThenNoExceptionThrown() {
-		assertThatCode(() -> this.authenticationEntryPoint.setRealmName(null)).doesNotThrowAnyException();
+		this.authenticationEntryPoint.setRealmName(null);
 	}
 
 }

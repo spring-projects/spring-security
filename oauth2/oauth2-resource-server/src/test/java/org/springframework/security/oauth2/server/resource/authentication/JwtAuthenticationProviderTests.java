@@ -36,7 +36,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -76,8 +76,8 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenJwtDecodeFailsThenRespondsWithInvalidToken() {
 		BearerTokenAuthenticationToken token = this.authentication();
 		given(this.jwtDecoder.decode("token")).willThrow(BadJwtException.class);
-		assertThatCode(() -> this.provider.authenticate(token))
-				.matches((failed) -> failed instanceof OAuth2AuthenticationException)
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
 				.matches(errorCode(BearerTokenErrorCodes.INVALID_TOKEN));
 	}
 
@@ -85,8 +85,9 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = this.authentication();
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
-		assertThatCode(() -> this.provider.authenticate(token)).isInstanceOf(OAuth2AuthenticationException.class)
-				.hasFieldOrPropertyWithValue("error.description", "Invalid token");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies((ex) -> assertThat(ex).hasFieldOrPropertyWithValue("error.description", "Invalid token"));
 	}
 
 	// gh-7785
@@ -94,7 +95,7 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
 		BearerTokenAuthenticationToken token = this.authentication();
 		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
-		assertThatCode(() -> this.provider.authenticate(token)).isInstanceOf(AuthenticationException.class)
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.provider.authenticate(token))
 				.isNotInstanceOf(OAuth2AuthenticationException.class);
 	}
 

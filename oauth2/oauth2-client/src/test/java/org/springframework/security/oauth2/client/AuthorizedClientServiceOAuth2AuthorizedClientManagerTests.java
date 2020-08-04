@@ -35,8 +35,8 @@ import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -108,57 +108,58 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
+		assertThatIllegalArgumentException().isThrownBy(
 				() -> new AuthorizedClientServiceOAuth2AuthorizedClientManager(null, this.authorizedClientService))
-						.isInstanceOf(IllegalArgumentException.class)
-						.hasMessage("clientRegistrationRepository cannot be null");
+				.withMessage("clientRegistrationRepository cannot be null");
 	}
 
 	@Test
 	public void constructorWhenOAuth2AuthorizedClientServiceIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
+		assertThatIllegalArgumentException().isThrownBy(
 				() -> new AuthorizedClientServiceOAuth2AuthorizedClientManager(this.clientRegistrationRepository, null))
-						.isInstanceOf(IllegalArgumentException.class)
-						.hasMessage("authorizedClientService cannot be null");
+				.withMessage("authorizedClientService cannot be null");
 	}
 
 	@Test
 	public void setAuthorizedClientProviderWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientManager.setAuthorizedClientProvider(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizedClientProvider cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientManager.setAuthorizedClientProvider(null))
+				.withMessage("authorizedClientProvider cannot be null");
 	}
 
 	@Test
 	public void setContextAttributesMapperWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientManager.setContextAttributesMapper(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("contextAttributesMapper cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientManager.setContextAttributesMapper(null))
+				.withMessage("contextAttributesMapper cannot be null");
 	}
 
 	@Test
 	public void setAuthorizationSuccessHandlerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientManager.setAuthorizationSuccessHandler(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizationSuccessHandler cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientManager.setAuthorizationSuccessHandler(null))
+				.withMessage("authorizationSuccessHandler cannot be null");
 	}
 
 	@Test
 	public void setAuthorizationFailureHandlerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientManager.setAuthorizationFailureHandler(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizationFailureHandler cannot be null");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientManager.setAuthorizationFailureHandler(null))
+				.withMessage("authorizationFailureHandler cannot be null");
 	}
 
 	@Test
 	public void authorizeWhenRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientManager.authorize(null))
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizeRequest cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientManager.authorize(null))
+				.withMessage("authorizeRequest cannot be null");
 	}
 
 	@Test
 	public void authorizeWhenClientRegistrationNotFoundThenThrowIllegalArgumentException() {
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId("invalid-registration-id").principal(this.principal).build();
-		assertThatThrownBy(() -> this.authorizedClientManager.authorize(authorizeRequest))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Could not find ClientRegistration with id 'invalid-registration-id'");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authorizedClientManager.authorize(authorizeRequest))
+				.withMessage("Could not find ClientRegistration with id 'invalid-registration-id'");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -308,7 +309,8 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 				.willThrow(authorizationException);
 		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
 				.principal(this.principal).build();
-		assertThatCode(() -> this.authorizedClientManager.authorize(reauthorizeRequest))
+		assertThatExceptionOfType(ClientAuthorizationException.class)
+				.isThrownBy(() -> this.authorizedClientManager.authorize(reauthorizeRequest))
 				.isEqualTo(authorizationException);
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(eq(authorizationException), eq(this.principal),
 				any());
@@ -324,7 +326,8 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 				.willThrow(authorizationException);
 		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
 				.principal(this.principal).build();
-		assertThatCode(() -> this.authorizedClientManager.authorize(reauthorizeRequest))
+		assertThatExceptionOfType(ClientAuthorizationException.class)
+				.isThrownBy(() -> this.authorizedClientManager.authorize(reauthorizeRequest))
 				.isEqualTo(authorizationException);
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(eq(authorizationException), eq(this.principal),
 				any());

@@ -23,7 +23,6 @@ import java.util.Map;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import org.springframework.core.convert.converter.Converter;
@@ -38,8 +37,8 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -73,30 +72,27 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 	@Test
 	public void constructorWhenJwkSetUrlIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new NimbusJwtDecoderJwkSupport(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new NimbusJwtDecoderJwkSupport(null));
 	}
 
 	@Test
 	public void constructorWhenJwkSetUrlInvalidThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new NimbusJwtDecoderJwkSupport("invalid.com"))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new NimbusJwtDecoderJwkSupport("invalid.com"));
 	}
 
 	@Test
 	public void constructorWhenJwsAlgorithmIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new NimbusJwtDecoderJwkSupport(JWK_SET_URL, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new NimbusJwtDecoderJwkSupport(JWK_SET_URL, null));
 	}
 
 	@Test
 	public void setRestOperationsWhenNullThenThrowIllegalArgumentException() {
-		Assertions.assertThatThrownBy(() -> this.jwtDecoder.setRestOperations(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.jwtDecoder.setRestOperations(null));
 	}
 
 	@Test
 	public void decodeWhenJwtInvalidThenThrowJwtException() {
-		assertThatThrownBy(() -> this.jwtDecoder.decode("invalid")).isInstanceOf(JwtException.class);
+		assertThatExceptionOfType(JwtException.class).isThrownBy(() -> this.jwtDecoder.decode("invalid"));
 	}
 
 	// gh-5168
@@ -109,14 +105,14 @@ public class NimbusJwtDecoderJwkSupportTests {
 			claims.remove(JwtClaimNames.EXP);
 			return claims;
 		});
-		assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).doesNotThrowAnyException();
+		jwtDecoder.decode(SIGNED_JWT);
 	}
 
 	// gh-5457
 	@Test
 	public void decodeWhenPlainJwtThenExceptionDoesNotMentionClass() {
-		assertThatCode(() -> this.jwtDecoder.decode(UNSIGNED_JWT)).isInstanceOf(JwtException.class)
-				.hasMessageContaining("Unsupported algorithm of none");
+		assertThatExceptionOfType(JwtException.class).isThrownBy(() -> this.jwtDecoder.decode(UNSIGNED_JWT))
+				.withMessageContaining("Unsupported algorithm of none");
 	}
 
 	@Test
@@ -125,8 +121,8 @@ public class NimbusJwtDecoderJwkSupportTests {
 			server.enqueue(new MockResponse().setBody(JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
-			assertThatCode(() -> jwtDecoder.decode(MALFORMED_JWT)).isInstanceOf(JwtException.class)
-					.hasMessage("An error occurred while attempting to decode the Jwt: Malformed payload");
+			assertThatExceptionOfType(JwtException.class).isThrownBy(() -> jwtDecoder.decode(MALFORMED_JWT))
+					.withMessage("An error occurred while attempting to decode the Jwt: Malformed payload");
 			server.shutdown();
 		}
 	}
@@ -137,8 +133,8 @@ public class NimbusJwtDecoderJwkSupportTests {
 			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
-			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtException.class)
-					.hasMessage("An error occurred while attempting to decode the Jwt: Malformed Jwk set");
+			assertThatExceptionOfType(JwtException.class).isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+					.withMessage("An error occurred while attempting to decode the Jwt: Malformed Jwk set");
 			server.shutdown();
 		}
 	}
@@ -149,8 +145,8 @@ public class NimbusJwtDecoderJwkSupportTests {
 			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
-			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).isInstanceOf(JwtException.class)
-					.hasMessageContaining("An error occurred while attempting to decode the Jwt");
+			assertThatExceptionOfType(JwtException.class).isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+					.withMessageContaining("An error occurred while attempting to decode the Jwt");
 			server.shutdown();
 		}
 	}
@@ -164,7 +160,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
 			RestTemplate restTemplate = spy(new RestTemplate());
 			jwtDecoder.setRestOperations(restTemplate);
-			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).doesNotThrowAnyException();
+			jwtDecoder.decode(SIGNED_JWT);
 			verify(restTemplate).exchange(any(RequestEntity.class), eq(String.class));
 			server.shutdown();
 		}
@@ -180,8 +176,8 @@ public class NimbusJwtDecoderJwkSupportTests {
 			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 			given(jwtValidator.validate(any(Jwt.class))).willReturn(OAuth2TokenValidatorResult.failure(failure));
 			decoder.setJwtValidator(jwtValidator);
-			assertThatCode(() -> decoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
-					.hasMessageContaining("mock-description");
+			assertThatExceptionOfType(JwtValidationException.class).isThrownBy(() -> decoder.decode(SIGNED_JWT))
+					.withMessageContaining("mock-description");
 		}
 	}
 
@@ -197,9 +193,9 @@ public class NimbusJwtDecoderJwkSupportTests {
 			OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 			given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
 			decoder.setJwtValidator(jwtValidator);
-			assertThatCode(() -> decoder.decode(SIGNED_JWT)).isInstanceOf(JwtValidationException.class)
-					.hasMessageContaining("mock-description")
-					.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure));
+			assertThatExceptionOfType(JwtValidationException.class).isThrownBy(() -> decoder.decode(SIGNED_JWT))
+					.withMessageContaining("mock-description").satisfies((ex) -> assertThat(ex)
+							.hasFieldOrPropertyWithValue("errors", Arrays.asList(firstFailure, secondFailure)));
 		}
 	}
 
@@ -220,7 +216,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 	@Test
 	public void setClaimSetConverterWhenIsNullThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> this.jwtDecoder.setClaimSetConverter(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.jwtDecoder.setClaimSetConverter(null));
 	}
 
 	private static RestOperations mockJwkSetResponse(String response) {

@@ -35,7 +35,8 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Rob Winch
@@ -142,17 +143,16 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
 		this.response.remove("jwks_uri");
-		assertThatThrownBy(() -> registration("").build()).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("The public JWK set URI must not be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> registration("").build())
+				.withMessageContaining("The public JWK set URI must not be null");
 	}
 
 	// gh-7512
 	@Test
 	public void issuerWhenOidcFallbackResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
 		this.response.remove("jwks_uri");
-		assertThatThrownBy(() -> registrationOidcFallback("issuer1", null).build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("The public JWK set URI must not be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> registrationOidcFallback("issuer1", null).build())
+				.withMessageContaining("The public JWK set URI must not be null");
 	}
 
 	// gh-7512
@@ -239,16 +239,16 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenGrantTypesSupportedInvalidThenException() {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
-		assertThatThrownBy(() -> registration("")).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \""
+		assertThatIllegalArgumentException().isThrownBy(() -> registration(""))
+				.withMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \""
 						+ this.issuer + "\" returned a configuration of [implicit]");
 	}
 
 	@Test
 	public void issuerWhenOAuth2GrantTypesSupportedInvalidThenException() {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
-		assertThatThrownBy(() -> registrationOAuth2("", null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \""
+		assertThatIllegalArgumentException().isThrownBy(() -> registrationOAuth2("", null))
+				.withMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \""
 						+ this.issuer + "\" returned a configuration of [implicit]");
 	}
 
@@ -301,30 +301,31 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenTokenEndpointAuthMethodsInvalidThenException() {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
-		assertThatThrownBy(() -> registration("")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining(
-				"Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and ClientAuthenticationMethod.NONE are supported. The issuer \""
-						+ this.issuer + "\" returned a configuration of [tls_client_auth]");
+		assertThatIllegalArgumentException().isThrownBy(() -> registration(""))
+				.withMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
+						+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer
+						+ "\" returned a configuration of [tls_client_auth]");
 	}
 
 	@Test
 	public void issuerWhenOAuth2TokenEndpointAuthMethodsInvalidThenException() {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
-		assertThatThrownBy(() -> registrationOAuth2("", null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining(
-						"Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and ClientAuthenticationMethod.NONE are supported. The issuer \""
-								+ this.issuer + "\" returned a configuration of [tls_client_auth]");
+		assertThatIllegalArgumentException().isThrownBy(() -> registrationOAuth2("", null))
+				.withMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
+						+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer
+						+ "\" returned a configuration of [tls_client_auth]");
 	}
 
 	@Test
 	public void issuerWhenOAuth2EmptyStringThenMeaningfulErrorMessage() {
-		assertThatThrownBy(() -> ClientRegistrations.fromIssuerLocation(""))
-				.hasMessageContaining("issuer cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistrations.fromIssuerLocation(""))
+				.withMessageContaining("issuer cannot be empty");
 	}
 
 	@Test
 	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
-		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
-				.hasMessageContaining("issuer cannot be empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
+				.withMessageContaining("issuer cannot be empty");
 	}
 
 	@Test
@@ -334,9 +335,9 @@ public class ClientRegistrationsTests {
 		MockResponse mockResponse = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
 				MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer)).hasMessageContaining(
-				"The Issuer \"https://example.com\" provided in the configuration metadata did not match the requested issuer \""
-						+ this.issuer + "\"");
+		assertThatIllegalStateException().isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer))
+				.withMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata did "
+						+ "not match the requested issuer \"" + this.issuer + "\"");
 	}
 
 	@Test
@@ -346,9 +347,9 @@ public class ClientRegistrationsTests {
 		MockResponse mockResponse = new MockResponse().setBody(body).setHeader(HttpHeaders.CONTENT_TYPE,
 				MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-		assertThatThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer)).hasMessageContaining(
-				"The Issuer \"https://example.com\" provided in the configuration metadata did not match the requested issuer \""
-						+ this.issuer + "\"");
+		assertThatIllegalStateException().isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer))
+				.withMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata "
+						+ "did not match the requested issuer \"" + this.issuer + "\"");
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {
