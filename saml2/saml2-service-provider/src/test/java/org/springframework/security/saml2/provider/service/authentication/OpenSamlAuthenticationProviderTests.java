@@ -23,9 +23,11 @@ import java.io.StringReader;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -42,12 +44,17 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.saml.common.assertion.ValidationContext;
+import org.opensaml.saml.common.assertion.ValidationResult;
+import org.opensaml.saml.saml2.assertion.impl.OneTimeUseConditionValidator;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AttributeValue;
+import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,7 +64,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -65,6 +74,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getMarshallerFactory;
+import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS;
+import static org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters.SIGNATURE_REQUIRED;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyEncryptingCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyPrivateCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
@@ -351,6 +362,62 @@ public class OpenSamlAuthenticationProviderTests {
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream);
 		objectOutputStream.writeObject(authentication);
 		objectOutputStream.flush();
+	}
+
+	@Test
+	public void authenticateWhenConditionValidatorsCustomizedThenUses() throws Exception {
+		OneTimeUseConditionValidator validator = mock(OneTimeUseConditionValidator.class);
+		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+		provider.setConditionValidators(Collections.singleton(validator));
+		Response response = response();
+		Assertion assertion = assertion();
+		OneTimeUse oneTimeUse = build(OneTimeUse.DEFAULT_ELEMENT_NAME);
+		assertion.getConditions().getConditions().add(oneTimeUse);
+		response.getAssertions().add(assertion);
+		signed(response, assertingPartySigningCredential(), ASSERTING_PARTY_ENTITY_ID);
+		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
+		when(validator.getServicedCondition()).thenReturn(OneTimeUse.DEFAULT_ELEMENT_NAME);
+		when(validator.validate(any(Condition.class), any(Assertion.class), any(ValidationContext.class)))
+				.thenReturn(ValidationResult.VALID);
+		provider.authenticate(token);
+		verify(validator).validate(any(Condition.class), any(Assertion.class), any(ValidationContext.class));
+	}
+
+	@Test
+	public void authenticateWhenValidationContextCustomizedThenUsers() {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put(SC_VALID_RECIPIENTS, singleton(DESTINATION));
+		parameters.put(SIGNATURE_REQUIRED, false);
+		ValidationContext context = mock(ValidationContext.class);
+		when(context.getStaticParameters()).thenReturn(parameters);
+		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+		provider.setValidationContextConverter(tuple -> context);
+		Response response = response();
+		Assertion assertion = assertion();
+		response.getAssertions().add(assertion);
+		signed(response, assertingPartySigningCredential(), ASSERTING_PARTY_ENTITY_ID);
+		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
+		provider.authenticate(token);
+		verify(context, atLeastOnce()).getStaticParameters();
+	}
+
+	@Test
+	public void setValidationContextConverterWhenNullThenIllegalArgument() {
+		assertThatCode(() -> this.provider.setValidationContextConverter(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setConditionValidatorsWhenNullOrEmptyThenIllegalArgument() {
+		assertThatCode(() -> this.provider.setConditionValidators(null))
+				.isInstanceOf(IllegalArgumentException.class);
+
+		assertThatCode(() -> this.provider.setConditionValidators(Collections.emptyList()))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	private <T extends XMLObject> T build(QName qName) {
+		return (T) getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
 
 	private String serialize(XMLObject object) {
