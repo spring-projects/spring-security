@@ -127,7 +127,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 					.extractControl(ctx);
 
 			logger.debug("Retrieving attributes...");
-			if (attrs == null || attrs.size()==0) {
+			if (attrs == null || attrs.size() == 0) {
 				attrs = ctx.getAttributes(userDn, getUserAttributes());
 			}
 
