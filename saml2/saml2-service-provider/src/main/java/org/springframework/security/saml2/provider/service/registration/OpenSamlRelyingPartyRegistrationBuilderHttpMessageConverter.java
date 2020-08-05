@@ -149,6 +149,13 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 					encryption.add(encryption(certificate));
 				}
 			}
+			if (keyDescriptor.getUse().equals(UsageType.UNSPECIFIED)) {
+				List<X509Certificate> certificates = certificates(keyDescriptor);
+				for (X509Certificate certificate : certificates) {
+					verification.add(verification(certificate));
+					encryption.add(encryption(certificate));
+				}
+			}
 		}
 		if (verification.isEmpty()) {
 			throw new Saml2Exception("Metadata response is missing verification certificates, necessary for verifying SAML assertions");

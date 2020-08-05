@@ -47,7 +47,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 				"%s\n" +
 			"</md:IDPSSODescriptor>";
 	private static final String KEY_DESCRIPTOR_TEMPLATE =
-			"<md:KeyDescriptor use=\"%s\">\n" +
+			"<md:KeyDescriptor %s>\n" +
 				"<ds:KeyInfo xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
 					"<ds:X509Data>\n" +
 						"<ds:X509Certificate>" + CERTIFICATE + "</ds:X509Certificate>\n" +
@@ -88,7 +88,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 	public void readWhenMissingSingleSignOnServiceThenException() {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
 				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
-						String.format(KEY_DESCRIPTOR_TEMPLATE, "signing")
+						String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")
 				));
 		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), OK);
 		assertThatCode(() -> this.converter.read(RelyingPartyRegistration.Builder.class, response))
@@ -100,8 +100,8 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 	public void readWhenDescriptorFullySpecifiedThenConfigures() throws Exception {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
 				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
-						String.format(KEY_DESCRIPTOR_TEMPLATE, "signing") +
-						String.format(KEY_DESCRIPTOR_TEMPLATE, "encryption") +
+						String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"") +
+						String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"") +
 						String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)
 				));
 		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), OK);
@@ -116,6 +116,27 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(details.getEntityId()).isEqualTo("entity-id");
 		assertThat(details.getVerificationX509Credentials()).hasSize(1);
+		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
+				.isEqualTo(x509Certificate(CERTIFICATE));
+		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
+		assertThat(details.getEncryptionX509Credentials().iterator().next().getCertificate())
+				.isEqualTo(x509Certificate(CERTIFICATE));
+	}
+
+	@Test
+	public void readWhenKeyDescriptorHasNoUseThenConfiguresBothKeyTypes() throws Exception {
+		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
+				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
+						String.format(KEY_DESCRIPTOR_TEMPLATE, "") +
+						String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)
+				));
+		MockClientHttpResponse response = new MockClientHttpResponse(payload.getBytes(), OK);
+		RelyingPartyRegistration registration =
+				this.converter.read(RelyingPartyRegistration.Builder.class, response)
+						.registrationId("one")
+						.build();
+		RelyingPartyRegistration.AssertingPartyDetails details =
+				registration.getAssertingPartyDetails();
 		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
 				.isEqualTo(x509Certificate(CERTIFICATE));
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);

@@ -9,4 +9,6 @@ dependencies {
 	compile("org.opensaml:opensaml-saml-impl")
 
 	provided 'javax.servlet:javax.servlet-api'
+
+	testCompile 'com.squareup.okhttp3:mockwebserver'
 }
