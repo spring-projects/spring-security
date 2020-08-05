@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
@@ -24,10 +26,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.util.UriUtils;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,5 +103,30 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void constructorWhenResolverIsNullThenIllegalArgument() {
 		assertThatCode(() -> new Saml2AuthenticationTokenConverter(null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void convertWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter
+				(this.relyingPartyRegistrationResolver);
+		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+				.thenReturn(this.relyingPartyRegistration);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("SAMLResponse", getSsoCircleEncodedXml());
+		Saml2AuthenticationToken token = converter.convert(request);
+		validateSsoCircleXml(token.getSaml2Response());
+	}
+
+	private void validateSsoCircleXml(String xml) {
+		assertThat(xml)
+				.contains("InResponseTo=\"ARQ9a73ead-7dcf-45a8-89eb-26f3c9900c36\"")
+				.contains(" ID=\"s246d157446618e90e43fb79bdd4d9e9e19cf2c7c4\"")
+				.contains("<saml:Issuer>https://idp.ssocircle.com</saml:Issuer>");
+	}
+
+	private String getSsoCircleEncodedXml() throws IOException {
+		ClassPathResource resource = new ClassPathResource("saml2-response-sso-circle.encoded");
+		String response = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
+		return UriUtils.decode(response, UTF_8);
 	}
 }
