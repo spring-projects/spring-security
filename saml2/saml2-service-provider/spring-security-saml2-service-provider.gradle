@@ -1,12 +1,12 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-    compile project(':spring-security-core')
-    compile project(':spring-security-web')
+	compile project(':spring-security-core')
+	compile project(':spring-security-web')
 
-    compile("org.opensaml:opensaml-core")
-    compile("org.opensaml:opensaml-saml-api")
-    compile("org.opensaml:opensaml-saml-impl")
+	compile("org.opensaml:opensaml-core")
+	compile("org.opensaml:opensaml-saml-api")
+	compile("org.opensaml:opensaml-saml-impl")
 
-    provided 'javax.servlet:javax.servlet-api'
+	provided 'javax.servlet:javax.servlet-api'
 }
