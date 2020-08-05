@@ -145,12 +145,12 @@ dependencyManagement {
 		dependency 'org.apache.taglibs:taglibs-standard-impl:1.2.5'
 		dependency 'org.apache.taglibs:taglibs-standard-jstlel:1.2.5'
 		dependency 'org.apache.taglibs:taglibs-standard-spec:1.2.5'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-core:9.0.34'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-el:9.0.34'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-jasper:9.0.34'
-		dependency 'org.apache.tomcat.embed:tomcat-embed-logging-log4j:9.0.34'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-core:9.0.37'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-el:9.0.37'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-jasper:9.0.37'
+		dependency 'org.apache.tomcat.embed:tomcat-embed-logging-log4j:9.0.37'
 		dependency 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.23'
-		dependency 'org.apache.tomcat:tomcat-annotations-api:9.0.34'
+		dependency 'org.apache.tomcat:tomcat-annotations-api:9.0.37'
 		dependency "org.aspectj:aspectjrt:$aspectjVersion"
 		dependency "org.aspectj:aspectjtools:$aspectjVersion"
 		dependency "org.aspectj:aspectjweaver:$aspectjVersion"
