@@ -16,11 +16,11 @@
 
 package org.springframework.security.oauth2.core.endpoint;
 
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 
 /**
  * @author Rob Winch

@@ -16,6 +16,7 @@
 package org.springframework.security.config.http;
 
 import java.util.Collections;
+
 import javax.servlet.http.Cookie;
 
 import org.junit.Rule;

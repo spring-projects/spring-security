@@ -15,14 +15,15 @@
  */
 package org.springframework.security.web.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.HashMap;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 
-import java.util.HashMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

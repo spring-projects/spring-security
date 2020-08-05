@@ -19,9 +19,11 @@ import java.util.concurrent.Executor;
 
 import org.junit.Before;
 import org.mockito.Mock;
+
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
 import org.springframework.security.concurrent.AbstractDelegatingSecurityContextExecutorTests;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
+import org.springframework.security.core.context.SecurityContext;
 
 /**
  * Tests using the current {@link SecurityContext} on

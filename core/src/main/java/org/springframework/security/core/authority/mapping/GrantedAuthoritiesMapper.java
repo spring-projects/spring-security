@@ -15,9 +15,9 @@
  */
 package org.springframework.security.core.authority.mapping;
 
-import org.springframework.security.core.GrantedAuthority;
+import java.util.Collection;
 
-import java.util.*;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Mapping interface which can be injected into the authentication layer to convert the

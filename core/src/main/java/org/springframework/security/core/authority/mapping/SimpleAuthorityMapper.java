@@ -15,12 +15,14 @@
  */
 package org.springframework.security.core.authority.mapping;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.Assert;
-
-import java.util.*;
 
 /**
  * Simple one-to-one {@code GrantedAuthoritiesMapper} which allows for case conversion of

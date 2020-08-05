@@ -16,12 +16,12 @@
 
 package org.springframework.security.web.jackson2;
 
-import org.springframework.security.jackson2.SecurityJackson2Modules;
-import org.springframework.security.jackson2.SimpleGrantedAuthorityMixin;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson2.SimpleGrantedAuthorityMixin;
 
 /**
  * This mixin class is used to serialize / deserialize

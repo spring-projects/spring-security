@@ -16,6 +16,9 @@
 
 package org.springframework.security.rsocket.util.matcher;
 
+import java.util.Collections;
+import java.util.Map;
+
 import io.rsocket.Payload;
 import io.rsocket.metadata.WellKnownMimeType;
 import org.junit.Before;
@@ -23,20 +26,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.http.MediaType;
 import org.springframework.messaging.rsocket.MetadataExtractor;
-import org.springframework.security.rsocket.core.DefaultPayloadExchange;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadExchangeType;
+import org.springframework.security.rsocket.core.DefaultPayloadExchange;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.RouteMatcher;
 
-import java.util.Collections;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**

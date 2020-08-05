@@ -15,13 +15,14 @@
  */
 package org.springframework.security.config.http;
 
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.BeanIds;
 import org.springframework.util.StringUtils;
-import org.w3c.dom.Element;
 
 /**
  * Injects the supplied {@code HttpFirewall} bean reference into the

@@ -15,10 +15,10 @@
  */
 package org.springframework.security.access.annotation;
 
-import org.springframework.security.access.SecurityConfig;
-
-import javax.annotation.security.PermitAll;
 import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+
+import org.springframework.security.access.SecurityConfig;
 
 /**
  * Security config applicable as a JSR 250 annotation attribute.

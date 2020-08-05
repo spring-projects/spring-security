@@ -15,17 +15,18 @@
  */
 package org.springframework.security.web.access.expression;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 
 import org.junit.Test;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

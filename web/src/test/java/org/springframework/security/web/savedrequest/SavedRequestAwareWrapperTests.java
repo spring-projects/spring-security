@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.savedrequest;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
@@ -25,11 +23,11 @@ import java.util.Locale;
 import javax.servlet.http.Cookie;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.savedrequest.FastHttpDateFormat;
-import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-import org.springframework.security.web.savedrequest.SavedRequestAwareWrapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SavedRequestAwareWrapperTests {
 

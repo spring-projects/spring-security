@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.client.web.server.authentication;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -24,7 +26,6 @@ import org.springframework.security.oauth2.client.web.server.ServerOAuth2Authori
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
 
 /**
  * A specialized {@link AuthenticationWebFilter} that converts from an

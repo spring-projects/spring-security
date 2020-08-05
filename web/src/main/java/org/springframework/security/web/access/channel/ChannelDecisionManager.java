@@ -16,13 +16,13 @@
 
 package org.springframework.security.web.access.channel;
 
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.web.FilterInvocation;
-
 import java.io.IOException;
 import java.util.Collection;
 
 import javax.servlet.ServletException;
+
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.web.FilterInvocation;
 
 /**
  * Decides whether a web channel provides sufficient security.

@@ -15,12 +15,12 @@
  */
 package org.springframework.security.web.authentication.rememberme;
 
-import org.springframework.dao.DataIntegrityViolationException;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * Simple <tt>PersistentTokenRepository</tt> implementation backed by a Map. Intended for

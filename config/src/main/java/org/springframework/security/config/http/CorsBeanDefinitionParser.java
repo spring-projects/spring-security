@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.http;
 
+import org.w3c.dom.Element;
+
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -24,7 +26,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.CorsFilter;
-import org.w3c.dom.Element;
 
 /**
  * Parser for the {@code CorsFilter}.

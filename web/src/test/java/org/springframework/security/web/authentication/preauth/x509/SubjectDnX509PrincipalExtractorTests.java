@@ -15,14 +15,13 @@
  */
 package org.springframework.security.web.authentication.preauth.x509;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 
-import org.junit.Test;
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

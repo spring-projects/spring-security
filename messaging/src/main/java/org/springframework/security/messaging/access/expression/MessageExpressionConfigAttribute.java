@@ -15,6 +15,8 @@
  */
 package org.springframework.security.messaging.access.expression;
 
+import java.util.Map;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.messaging.Message;
@@ -22,8 +24,6 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.util.Assert;
-
-import java.util.Map;
 
 /**
  * Simple expression configuration attribute for use in {@link Message} authorizations.

@@ -15,13 +15,13 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 /**
  * An implementation of an {@link OAuth2AuthorizedClientProvider} that simply delegates to

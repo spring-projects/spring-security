@@ -16,9 +16,9 @@
 
 package org.springframework.security;
 
-import org.springframework.security.web.PortResolver;
-
 import javax.servlet.ServletRequest;
+
+import org.springframework.security.web.PortResolver;
 
 /**
  * Always returns the constructor-specified HTTP and HTTPS ports.

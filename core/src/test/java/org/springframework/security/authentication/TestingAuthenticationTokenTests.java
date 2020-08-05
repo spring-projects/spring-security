@@ -15,10 +15,11 @@
  */
 package org.springframework.security.authentication;
 
-import org.junit.Test;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 import java.util.Arrays;
+
+import org.junit.Test;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

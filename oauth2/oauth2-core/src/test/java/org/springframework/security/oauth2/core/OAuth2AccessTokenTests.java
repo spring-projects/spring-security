@@ -15,13 +15,14 @@
  */
 package org.springframework.security.oauth2.core;
 
-import org.junit.Test;
-import org.springframework.util.SerializationUtils;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.junit.Test;
+
+import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

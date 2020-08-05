@@ -16,8 +16,6 @@
 
 package org.springframework.security.remoting.httpinvoker;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -25,11 +23,14 @@ import java.util.Map;
 
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link AuthenticationSimpleHttpInvokerRequestExecutor}.

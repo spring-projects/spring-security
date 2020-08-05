@@ -16,20 +16,21 @@
 
 package org.springframework.security.remoting.rmi;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.security.TargetObject;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.SimpleMethodInvocation;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link ContextPropagatingRemoteInvocation} and

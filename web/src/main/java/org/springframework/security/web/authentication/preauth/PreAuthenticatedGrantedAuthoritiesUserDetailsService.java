@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.authentication.preauth;
 
-import java.util.*;
+import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -24,7 +24,6 @@ import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import org.springframework.util.Assert;
 
 /**

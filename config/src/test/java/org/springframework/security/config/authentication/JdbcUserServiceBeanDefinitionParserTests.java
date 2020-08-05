@@ -17,10 +17,10 @@ package org.springframework.security.config.authentication;
 
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.security.authentication.CachingUserDetailsService;
 import org.w3c.dom.Element;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;

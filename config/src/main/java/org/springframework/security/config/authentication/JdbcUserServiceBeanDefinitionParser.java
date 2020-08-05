@@ -15,12 +15,12 @@
  */
 package org.springframework.security.config.authentication;
 
-import org.springframework.security.config.Elements;
-import org.springframework.util.StringUtils;
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
-
-import org.w3c.dom.Element;
+import org.springframework.security.config.Elements;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Luke Taylor

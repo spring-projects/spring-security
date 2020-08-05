@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.servlet.filter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
 import javax.servlet.ServletException;
 
 import org.junit.Before;

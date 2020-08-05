@@ -17,6 +17,8 @@ package org.springframework.security.config.ldap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -26,7 +28,6 @@ import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.PasswordEncoderParser;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
 
 /**
  * Ldap authentication provider namespace configuration.

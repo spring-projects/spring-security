@@ -18,11 +18,11 @@ package org.springframework.security.authentication.jaas;
 
 import java.util.List;
 
+import javax.security.auth.login.LoginContext;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-
-import javax.security.auth.login.LoginContext;
 
 /**
  * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the

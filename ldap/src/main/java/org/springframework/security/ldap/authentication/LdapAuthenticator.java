@@ -16,8 +16,8 @@
 
 package org.springframework.security.ldap.authentication;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.security.core.Authentication;
 
 /**
  * The strategy interface for locating and authenticating an Ldap user.

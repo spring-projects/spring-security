@@ -16,10 +16,10 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.nio.charset.Charset;
+
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.util.Assert;
-
-import java.nio.charset.Charset;
 
 /**
  * Data holder for {@code AuthNRequest} parameters to be sent using either the

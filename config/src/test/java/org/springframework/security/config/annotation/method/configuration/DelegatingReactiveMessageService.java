@@ -16,10 +16,11 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import org.reactivestreams.Publisher;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 public class DelegatingReactiveMessageService implements ReactiveMessageService {
 

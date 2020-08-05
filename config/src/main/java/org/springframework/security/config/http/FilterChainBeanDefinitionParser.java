@@ -15,6 +15,10 @@
  */
 package org.springframework.security.config.http;
 
+import java.util.Collections;
+
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -24,9 +28,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.w3c.dom.Element;
-
-import java.util.*;
 
 /**
  * @author Luke Taylor

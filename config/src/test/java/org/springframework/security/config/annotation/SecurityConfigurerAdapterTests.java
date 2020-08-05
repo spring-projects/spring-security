@@ -15,11 +15,12 @@
  */
 package org.springframework.security.config.annotation;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.core.Ordered;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityConfigurerAdapterTests {
 

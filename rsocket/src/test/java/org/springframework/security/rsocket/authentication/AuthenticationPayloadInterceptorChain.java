@@ -16,12 +16,13 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import reactor.core.publisher.Mono;
-import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 import org.springframework.security.rsocket.api.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 
 /**
  * @author Rob Winch

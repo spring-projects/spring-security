@@ -19,7 +19,6 @@ package org.springframework.security.authentication.jaas;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.springframework.security.authentication.jaas.JaasGrantedAuthority;
 
 /**
  * @author Clement Ng

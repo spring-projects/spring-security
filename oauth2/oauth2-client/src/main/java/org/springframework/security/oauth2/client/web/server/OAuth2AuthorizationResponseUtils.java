@@ -15,13 +15,13 @@
  */
 package org.springframework.security.oauth2.client.web.server;
 
+import java.util.Map;
+
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-
-import java.util.Map;
 
 /**
  * Utility methods for an OAuth 2.0 Authorization Response.

@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.jaasapi;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.security.AccessController;
 import java.util.HashMap;
@@ -40,6 +38,7 @@ import javax.servlet.ServletResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -49,6 +48,8 @@ import org.springframework.security.authentication.jaas.TestLoginModule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the JaasApiIntegrationFilter.

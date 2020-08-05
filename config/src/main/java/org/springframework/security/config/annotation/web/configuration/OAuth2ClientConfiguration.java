@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -32,8 +34,6 @@ import org.springframework.security.oauth2.client.web.method.annotation.OAuth2Au
 import org.springframework.util.ClassUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 /**
  * {@link Configuration} for OAuth 2.0 Client support.

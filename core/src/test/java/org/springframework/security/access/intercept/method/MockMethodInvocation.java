@@ -15,10 +15,10 @@
  */
 package org.springframework.security.access.intercept.method;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+
+import org.aopalliance.intercept.MethodInvocation;
 
 @SuppressWarnings("unchecked")
 public class MockMethodInvocation implements MethodInvocation {

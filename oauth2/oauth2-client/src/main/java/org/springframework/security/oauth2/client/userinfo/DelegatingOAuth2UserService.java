@@ -15,14 +15,14 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.util.Assert;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.util.Assert;
 
 /**
  * An implementation of an {@link OAuth2UserService} that simply delegates to it's

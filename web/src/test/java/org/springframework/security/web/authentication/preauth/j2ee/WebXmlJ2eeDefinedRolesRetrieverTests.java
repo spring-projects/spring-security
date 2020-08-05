@@ -15,16 +15,17 @@
  */
 package org.springframework.security.web.authentication.preauth.j2ee;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebXmlJ2eeDefinedRolesRetrieverTests {
 

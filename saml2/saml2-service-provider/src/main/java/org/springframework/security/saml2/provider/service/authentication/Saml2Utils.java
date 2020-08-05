@@ -16,15 +16,16 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.apache.commons.codec.binary.Base64;
-import org.springframework.security.saml2.Saml2Exception;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
+
+import org.apache.commons.codec.binary.Base64;
+
+import org.springframework.security.saml2.Saml2Exception;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.zip.Deflater.DEFLATED;

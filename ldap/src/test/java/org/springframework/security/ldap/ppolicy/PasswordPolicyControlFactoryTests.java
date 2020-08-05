@@ -15,12 +15,13 @@
  */
 package org.springframework.security.ldap.ppolicy;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.*;
-
 import javax.naming.ldap.Control;
+
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor

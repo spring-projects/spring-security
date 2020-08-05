@@ -17,7 +17,7 @@
 package org.springframework.security.access;
 
 import org.junit.Test;
-import org.springframework.security.access.SecurityConfig;
+
 import org.springframework.security.access.event.AuthenticationCredentialsNotFoundEvent;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.util.SimpleMethodInvocation;

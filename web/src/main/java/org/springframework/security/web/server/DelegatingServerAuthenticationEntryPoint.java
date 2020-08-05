@@ -16,19 +16,19 @@
 
 package org.springframework.security.web.server;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * A {@link ServerAuthenticationEntryPoint} which delegates to multiple

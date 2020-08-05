@@ -15,11 +15,11 @@
  */
 package org.springframework.security.web.header.writers.frameoptions;
 
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
-
 import java.net.URI;
+
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -15,16 +15,17 @@
  */
 package org.springframework.security.access.intercept.method;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.reflect.Method;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link MapBasedMethodSecurityMetadataSource}.

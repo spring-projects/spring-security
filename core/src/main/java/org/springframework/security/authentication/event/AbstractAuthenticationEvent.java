@@ -16,9 +16,8 @@
 
 package org.springframework.security.authentication.event;
 
-import org.springframework.security.core.Authentication;
-
 import org.springframework.context.ApplicationEvent;
+import org.springframework.security.core.Authentication;
 
 /**
  * Represents an application authentication event.

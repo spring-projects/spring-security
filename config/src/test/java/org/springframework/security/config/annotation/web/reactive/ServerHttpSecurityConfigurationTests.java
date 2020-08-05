@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.reactive;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.config.users.ReactiveAuthenticationTestConfiguration;

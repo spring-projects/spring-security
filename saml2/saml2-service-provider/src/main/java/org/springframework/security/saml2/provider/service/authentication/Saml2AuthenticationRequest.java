@@ -16,13 +16,13 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
-import org.springframework.util.Assert;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.util.Assert;
 
 /**
  * Data holder for information required to send an {@code AuthNRequest} from the service

@@ -15,12 +15,12 @@
  */
 package org.springframework.security.config.doc;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * @author Josh Cummings

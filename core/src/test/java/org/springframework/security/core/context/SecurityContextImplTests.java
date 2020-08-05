@@ -16,11 +16,12 @@
 
 package org.springframework.security.core.context;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link SecurityContextImpl}.

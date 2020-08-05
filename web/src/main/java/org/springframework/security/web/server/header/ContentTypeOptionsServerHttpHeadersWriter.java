@@ -15,8 +15,9 @@
  */
 package org.springframework.security.web.server.header;
 
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Adds X-Content-Type-Options: nosniff

@@ -16,9 +16,10 @@
 
 package org.springframework.security.web.server.context;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 /**
  * A do nothing implementation of {@link ServerSecurityContextRepository}. Used in

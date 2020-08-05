@@ -15,11 +15,12 @@
  */
 package org.springframework.security.acls.domain;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link ObjectIdentityRetrievalStrategyImpl}

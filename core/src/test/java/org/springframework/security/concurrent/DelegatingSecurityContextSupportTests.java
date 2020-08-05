@@ -15,10 +15,11 @@
  */
 package org.springframework.security.concurrent;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.core.context.SecurityContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch

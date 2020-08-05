@@ -16,17 +16,15 @@
 
 package org.springframework.security.cas.authentication;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
-
-import org.junit.Test;
-import org.junit.BeforeClass;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import org.junit.AfterClass;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.authentication.EhCacheBasedTicketCache;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link EhCacheBasedTicketCache}.

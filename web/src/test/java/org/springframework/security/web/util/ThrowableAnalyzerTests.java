@@ -15,13 +15,13 @@
  */
 package org.springframework.security.web.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Test cases for {@link ThrowableAnalyzer}.

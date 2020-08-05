@@ -15,12 +15,12 @@
  */
 package org.springframework.security.ldap.userdetails;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * An authority that contains at least a DN and a role name for an LDAP entry but can also

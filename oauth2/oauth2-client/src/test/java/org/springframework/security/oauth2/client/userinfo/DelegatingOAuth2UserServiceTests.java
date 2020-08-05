@@ -15,11 +15,12 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
-import org.junit.Test;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-
 import java.util.Arrays;
 import java.util.Collections;
+
+import org.junit.Test;
+
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

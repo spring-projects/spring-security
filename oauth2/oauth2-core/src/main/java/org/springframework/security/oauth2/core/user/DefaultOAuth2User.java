@@ -15,20 +15,20 @@
  */
 package org.springframework.security.oauth2.core.user;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collections;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.TreeSet;
-import java.util.SortedSet;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
 
 /**
  * The default implementation of an {@link OAuth2User}.

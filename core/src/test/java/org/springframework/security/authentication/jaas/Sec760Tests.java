@@ -15,18 +15,14 @@
  */
 package org.springframework.security.authentication.jaas;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.jaas.AuthorityGranter;
-import org.springframework.security.authentication.jaas.JaasAuthenticationCallbackHandler;
-import org.springframework.security.authentication.jaas.JaasAuthenticationProvider;
-import org.springframework.security.authentication.jaas.JaasNameCallbackHandler;
-import org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests bug reported in SEC-760.

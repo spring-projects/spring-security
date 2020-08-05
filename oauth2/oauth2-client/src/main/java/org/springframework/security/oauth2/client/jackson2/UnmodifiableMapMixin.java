@@ -15,12 +15,12 @@
  */
 package org.springframework.security.oauth2.client.jackson2;
 
+import java.util.Collections;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * This mixin class is used to serialize/deserialize

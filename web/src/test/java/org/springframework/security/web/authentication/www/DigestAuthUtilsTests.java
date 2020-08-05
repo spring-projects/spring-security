@@ -16,13 +16,14 @@
 
 package org.springframework.security.web.authentication.www;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import java.util.Map;
 
 import org.junit.Test;
+
 import org.springframework.util.StringUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link org.springframework.security.util.StringSplitUtils}.

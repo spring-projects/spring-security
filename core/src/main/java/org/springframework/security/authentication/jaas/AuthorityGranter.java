@@ -17,7 +17,6 @@
 package org.springframework.security.authentication.jaas;
 
 import java.security.Principal;
-
 import java.util.Set;
 
 /**

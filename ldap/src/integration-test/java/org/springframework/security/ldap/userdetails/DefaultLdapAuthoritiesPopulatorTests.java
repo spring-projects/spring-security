@@ -16,14 +16,14 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -35,6 +35,8 @@ import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

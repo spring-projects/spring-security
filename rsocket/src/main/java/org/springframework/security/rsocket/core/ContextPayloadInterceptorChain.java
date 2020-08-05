@@ -16,14 +16,15 @@
 
 package org.springframework.security.rsocket.core;
 
-import org.springframework.security.rsocket.api.PayloadExchange;
-import org.springframework.security.rsocket.api.PayloadInterceptor;
-import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+import java.util.List;
+import java.util.ListIterator;
+
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
-import java.util.List;
-import java.util.ListIterator;
+import org.springframework.security.rsocket.api.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 
 /**
  * A {@link PayloadInterceptorChain} which exposes the Reactor {@link Context} via a

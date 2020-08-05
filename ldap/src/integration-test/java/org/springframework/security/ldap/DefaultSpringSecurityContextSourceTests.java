@@ -15,8 +15,6 @@
  */
 package org.springframework.security.ldap;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,6 +29,8 @@ import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.core.support.AbstractContextSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

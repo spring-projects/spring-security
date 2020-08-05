@@ -16,16 +16,16 @@
 
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
-import static org.mockito.Mockito.mock;
+import java.util.ArrayList;
+import java.util.List;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 
-import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Rob Winch

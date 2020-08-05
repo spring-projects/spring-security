@@ -15,11 +15,10 @@
  */
 package org.springframework.security.performance;
 
-import static org.assertj.core.api.Assertions.fail;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -29,6 +28,8 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StopWatch;
+
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Luke Taylor

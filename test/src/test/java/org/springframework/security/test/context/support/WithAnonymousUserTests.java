@@ -17,6 +17,7 @@
 package org.springframework.security.test.context.support;
 
 import org.junit.Test;
+
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

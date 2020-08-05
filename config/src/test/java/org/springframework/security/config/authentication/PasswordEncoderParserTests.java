@@ -18,6 +18,7 @@ package org.springframework.security.config.authentication;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.test.web.servlet.MockMvc;

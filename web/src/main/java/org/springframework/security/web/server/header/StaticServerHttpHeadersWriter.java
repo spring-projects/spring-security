@@ -18,10 +18,10 @@ package org.springframework.security.web.server.header;
 import java.util.Arrays;
 import java.util.Collections;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.server.ServerWebExchange;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Allows specifying {@link HttpHeaders} that should be written to the response.

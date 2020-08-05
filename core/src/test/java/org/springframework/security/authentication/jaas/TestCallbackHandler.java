@@ -16,11 +16,10 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.authentication.jaas.JaasAuthenticationCallbackHandler;
-import org.springframework.security.core.Authentication;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.TextInputCallback;
+
+import org.springframework.security.core.Authentication;
 
 /**
  * TestCallbackHandler

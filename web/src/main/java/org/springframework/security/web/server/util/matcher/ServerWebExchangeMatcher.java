@@ -18,8 +18,9 @@ package org.springframework.security.web.server.util.matcher;
 import java.util.Collections;
 import java.util.Map;
 
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * An interface for determining if a {@link ServerWebExchangeMatcher} matches.

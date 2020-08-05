@@ -15,10 +15,9 @@
  */
 package org.springframework.security.web.util;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
-import org.springframework.security.web.util.TextEscapeUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TextEscapeUtilsTests {
 

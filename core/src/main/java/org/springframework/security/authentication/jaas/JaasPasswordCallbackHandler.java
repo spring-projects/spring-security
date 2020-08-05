@@ -16,10 +16,10 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.core.Authentication;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.PasswordCallback;
+
+import org.springframework.security.core.Authentication;
 
 /**
  * The most basic Callbacks to be handled when using a LoginContext from JAAS, are the

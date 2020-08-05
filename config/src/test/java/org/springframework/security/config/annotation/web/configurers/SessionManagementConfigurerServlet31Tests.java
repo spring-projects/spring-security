@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.lang.reflect.Method;
+
 import javax.servlet.Filter;
 
 import org.junit.After;
@@ -43,7 +44,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * @author Rob Winch

@@ -15,17 +15,18 @@
  */
 package org.springframework.security.acls.jdbc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.UUID;
 
 import org.junit.Test;
+
 import org.springframework.security.acls.TargetObjectWithUUID;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests the ACL system using ACL class id type of UUID and using an in-memory

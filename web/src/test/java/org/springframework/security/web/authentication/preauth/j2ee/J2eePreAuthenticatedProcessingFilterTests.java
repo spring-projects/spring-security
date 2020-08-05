@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.authentication.preauth.j2ee;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +22,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author TSARDD

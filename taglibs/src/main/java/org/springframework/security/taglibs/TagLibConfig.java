@@ -16,10 +16,10 @@
 
 package org.springframework.security.taglibs;
 
+import javax.servlet.jsp.tagext.Tag;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.servlet.jsp.tagext.Tag;
 
 /**
  * internal configuration class for taglibs.

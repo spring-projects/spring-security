@@ -15,10 +15,10 @@
  */
 package org.springframework.security.config.doc;
 
-import org.springframework.core.io.ClassPathResource;
-
 import java.io.IOException;
 import java.util.Map;
+
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Support for ensuring preparing the givens in {@link XsdDocumentedTests}

@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication.switchuser;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.FilterChain;
 
 import org.junit.After;

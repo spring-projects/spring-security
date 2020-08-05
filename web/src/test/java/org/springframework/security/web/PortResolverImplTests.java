@@ -16,11 +16,12 @@
 
 package org.springframework.security.web;
 
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  * Tests {@link PortResolverImpl}.

@@ -16,8 +16,6 @@
 
 package org.springframework.security.ldap.search;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import javax.naming.ldap.LdapName;
 
 import org.junit.Test;
@@ -31,6 +29,8 @@ import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for FilterBasedLdapUserSearch.

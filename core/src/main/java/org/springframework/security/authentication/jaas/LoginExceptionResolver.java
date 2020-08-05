@@ -16,9 +16,9 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.core.AuthenticationException;
-
 import javax.security.auth.login.LoginException;
+
+import org.springframework.security.core.AuthenticationException;
 
 /**
  * The JaasAuthenticationProvider takes an instance of LoginExceptionResolver to resolve

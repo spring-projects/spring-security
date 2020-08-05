@@ -15,14 +15,12 @@
  */
 package org.springframework.security.config.method;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.BeansException;
@@ -58,6 +56,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.util.FieldUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
 
 /**
  * @author Ben Alex

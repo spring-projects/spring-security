@@ -15,9 +15,6 @@
  */
 package org.springframework.security.config.http.customconfigurer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.config.http.customconfigurer.CustomConfigurer.customConfigurer;
-
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -37,6 +35,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.FilterChainProxy;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.http.customconfigurer.CustomConfigurer.customConfigurer;
 
 /**
  * @author Rob Winch

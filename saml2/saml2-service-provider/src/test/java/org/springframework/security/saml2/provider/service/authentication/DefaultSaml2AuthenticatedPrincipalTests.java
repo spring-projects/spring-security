@@ -16,14 +16,14 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.joda.time.DateTime;
-import org.junit.Test;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;

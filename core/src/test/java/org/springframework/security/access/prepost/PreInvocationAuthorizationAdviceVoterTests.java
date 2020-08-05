@@ -15,16 +15,17 @@
  */
 package org.springframework.security.access.prepost;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.security.access.intercept.aspectj.MethodInvocationAdapter;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PreInvocationAuthorizationAdviceVoterTests {

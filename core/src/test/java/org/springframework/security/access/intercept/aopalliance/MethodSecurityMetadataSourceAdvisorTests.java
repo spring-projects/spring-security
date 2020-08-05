@@ -16,16 +16,17 @@
 
 package org.springframework.security.access.intercept.aopalliance;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.lang.reflect.Method;
 
 import org.junit.Test;
+
 import org.springframework.security.TargetObject;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link MethodSecurityMetadataSourceAdvisor}.

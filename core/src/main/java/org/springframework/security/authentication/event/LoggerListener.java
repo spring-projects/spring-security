@@ -18,6 +18,7 @@ package org.springframework.security.authentication.event;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.ClassUtils;
 

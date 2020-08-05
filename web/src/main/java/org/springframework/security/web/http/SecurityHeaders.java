@@ -16,10 +16,10 @@
 
 package org.springframework.security.web.http;
 
+import java.util.function.Consumer;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.Assert;
-
-import java.util.function.Consumer;
 
 /**
  * Utilities for interacting with {@link HttpHeaders}

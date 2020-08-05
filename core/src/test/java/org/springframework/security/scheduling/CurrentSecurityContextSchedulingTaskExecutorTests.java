@@ -16,6 +16,7 @@
 package org.springframework.security.scheduling;
 
 import org.junit.Before;
+
 import org.springframework.security.core.context.SecurityContext;
 
 /**

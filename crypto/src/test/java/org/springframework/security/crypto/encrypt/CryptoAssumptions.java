@@ -22,6 +22,7 @@ import javax.crypto.NoSuchPaddingException;
 
 import org.junit.Assume;
 import org.junit.AssumptionViolatedException;
+
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 
 public class CryptoAssumptions {

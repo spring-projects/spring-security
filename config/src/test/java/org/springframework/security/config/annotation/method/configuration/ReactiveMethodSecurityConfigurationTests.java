@@ -16,10 +16,9 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +29,8 @@ import org.springframework.security.access.intercept.method.MockMethodInvocation
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestRule;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Tadaya Tsuyukubo

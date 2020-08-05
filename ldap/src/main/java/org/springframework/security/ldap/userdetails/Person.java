@@ -15,17 +15,15 @@
  */
 package org.springframework.security.ldap.userdetails;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.util.Assert;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.ldap.LdapUtils;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.springframework.util.Assert;
 
 /**
  * UserDetails implementation whose properties are based on the LDAP schema for

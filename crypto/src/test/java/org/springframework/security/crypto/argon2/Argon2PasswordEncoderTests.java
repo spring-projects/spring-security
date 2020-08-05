@@ -15,16 +15,18 @@
  */
 package org.springframework.security.crypto.argon2;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.reflect.Field;
 import java.util.Arrays;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Simeon Macke

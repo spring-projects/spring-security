@@ -15,13 +15,13 @@
  */
 package org.springframework.security.core;
 
+import java.io.IOException;
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.SpringVersion;
-
-import java.io.IOException;
-import java.util.Properties;
 
 /**
  * Internal class used for checking version compatibility in a deployed application.

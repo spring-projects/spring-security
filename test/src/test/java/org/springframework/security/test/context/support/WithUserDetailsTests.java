@@ -15,11 +15,12 @@
  */
 package org.springframework.security.test.context.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class WithUserDetailsTests {
 

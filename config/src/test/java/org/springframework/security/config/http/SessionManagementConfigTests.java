@@ -18,6 +18,7 @@ package org.springframework.security.config.http;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+
 import javax.servlet.Filter;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;

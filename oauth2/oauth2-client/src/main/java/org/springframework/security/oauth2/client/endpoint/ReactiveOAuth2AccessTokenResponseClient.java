@@ -15,10 +15,11 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import reactor.core.publisher.Mono;
 
 /**
  * A reactive strategy for &quot;exchanging&quot; an authorization grant credential (e.g.

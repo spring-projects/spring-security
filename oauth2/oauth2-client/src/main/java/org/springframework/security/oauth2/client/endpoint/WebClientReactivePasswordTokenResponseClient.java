@@ -15,14 +15,14 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.util.Set;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.Set;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AccessTokenResponseClient} for the

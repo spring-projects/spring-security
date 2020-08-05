@@ -17,6 +17,7 @@ package org.springframework.security.config.method.sec2499;
 
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.context.support.GenericXmlApplicationContext;
 
 /**

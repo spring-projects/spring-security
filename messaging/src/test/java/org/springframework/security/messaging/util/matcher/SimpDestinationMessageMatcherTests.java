@@ -15,15 +15,16 @@
  */
 package org.springframework.security.messaging.util.matcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SimpDestinationMessageMatcherTests {
 

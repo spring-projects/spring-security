@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.resource.web;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

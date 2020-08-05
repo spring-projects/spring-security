@@ -15,18 +15,18 @@
  */
 package org.springframework.security.web.authentication.preauth.x509;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.util.Assert;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.context.MessageSource;
+import java.security.cert.X509Certificate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.security.cert.X509Certificate;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import org.springframework.context.MessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.util.Assert;
 
 /**
  * Obtains the principal from a certificate using a regular expression match against the

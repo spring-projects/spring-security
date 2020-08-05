@@ -15,8 +15,8 @@ package org.springframework.security.crypto.bcrypt;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.Arrays;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 /**
  * BCrypt implements OpenBSD-style Blowfish password hashing using the scheme described in

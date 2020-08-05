@@ -19,6 +19,7 @@ package org.springframework.security.web.jackson2;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 
 /**

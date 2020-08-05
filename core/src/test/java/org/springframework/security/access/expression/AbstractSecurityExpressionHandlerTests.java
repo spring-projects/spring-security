@@ -15,18 +15,18 @@
  */
 package org.springframework.security.access.expression;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.mockito.Mockito.mock;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.core.Authentication;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Luke Taylor

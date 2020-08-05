@@ -16,9 +16,10 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
-import reactor.core.publisher.Mono;
 
 /**
  * Strategy for when log out was successfully performed (typically after

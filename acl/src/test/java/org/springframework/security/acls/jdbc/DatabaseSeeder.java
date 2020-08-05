@@ -15,16 +15,14 @@
  */
 package org.springframework.security.acls.jdbc;
 
-import org.springframework.core.io.Resource;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import org.springframework.util.Assert;
-import org.springframework.util.FileCopyUtils;
-
 import java.io.IOException;
 
 import javax.sql.DataSource;
+
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.Assert;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * Seeds the database for {@link JdbcMutableAclServiceTests}.

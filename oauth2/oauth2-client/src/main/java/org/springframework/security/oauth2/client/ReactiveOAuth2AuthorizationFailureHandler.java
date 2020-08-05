@@ -15,11 +15,12 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import java.util.Map;
+
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 
 /**
  * Handles when an OAuth 2.0 Client fails to authorize (or re-authorize) via the

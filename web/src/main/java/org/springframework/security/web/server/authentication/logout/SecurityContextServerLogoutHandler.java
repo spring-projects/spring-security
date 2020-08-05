@@ -16,12 +16,13 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
 
 /**
  * A {@link ServerLogoutHandler} which removes the SecurityContext using the provided

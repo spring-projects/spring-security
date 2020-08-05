@@ -17,7 +17,6 @@ package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.GrantedAuthority;
-
 import org.springframework.util.Assert;
 
 /**

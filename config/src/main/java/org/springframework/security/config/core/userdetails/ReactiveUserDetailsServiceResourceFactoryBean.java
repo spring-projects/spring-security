@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.core.userdetails;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
@@ -23,8 +25,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.util.InMemoryResource;
-
-import java.util.Collection;
 
 /**
  * Constructs an {@link MapReactiveUserDetailsService} from a resource using

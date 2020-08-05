@@ -16,9 +16,9 @@
 
 package org.springframework.security.web.session;
 
-import org.springframework.security.core.session.SessionIdChangedEvent;
-
 import javax.servlet.http.HttpSession;
+
+import org.springframework.security.core.session.SessionIdChangedEvent;
 
 /**
  * Published by the {@link HttpSessionEventPublisher} when an {@link HttpSession} ID is

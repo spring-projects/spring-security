@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.authentication;
 
+import java.util.Arrays;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -27,8 +29,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Arrays;
 
 /**
  * Factory bean for the namespace AuthenticationManager, which allows a more meaningful

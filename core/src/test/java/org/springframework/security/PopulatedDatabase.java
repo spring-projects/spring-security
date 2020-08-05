@@ -16,9 +16,9 @@
 
 package org.springframework.security;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import javax.sql.DataSource;
+
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * Singleton which provides a populated database connection for all JDBC-related unit

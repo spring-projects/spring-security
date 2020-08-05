@@ -15,13 +15,15 @@
  */
 package org.springframework.security.web.header.writers;
 
-import org.junit.Test;
-import org.springframework.security.web.header.HeaderWriter;
+import java.util.Arrays;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.Collections;
+
+import org.junit.Test;
+
+import org.springframework.security.web.header.HeaderWriter;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;

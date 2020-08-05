@@ -16,8 +16,12 @@
 
 package org.springframework.security.ldap.authentication;
 
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.ldap.NamingException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -31,9 +35,6 @@ import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyControlExtractor;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
 
 /**
  * An authenticator which binds as a user.

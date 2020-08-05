@@ -16,8 +16,6 @@
 
 package org.springframework.security.ldap;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +26,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +36,9 @@ import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Luke Taylor

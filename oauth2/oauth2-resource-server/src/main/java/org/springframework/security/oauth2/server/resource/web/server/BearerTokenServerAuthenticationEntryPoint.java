@@ -16,6 +16,11 @@
 
 package org.springframework.security.oauth2.server.resource.web.server;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -28,10 +33,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * An {@link AuthenticationEntryPoint} implementation used to commence authentication of

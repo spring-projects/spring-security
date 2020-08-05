@@ -16,8 +16,15 @@
 
 package org.springframework.security.config.annotation.authentication.ldap;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.List;
+
+import javax.naming.directory.SearchControls;
+
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -39,10 +46,6 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.List;
-import javax.naming.directory.SearchControls;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;

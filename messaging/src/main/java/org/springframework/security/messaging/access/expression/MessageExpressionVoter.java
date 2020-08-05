@@ -15,6 +15,8 @@
  */
 package org.springframework.security.messaging.access.expression;
 
+import java.util.Collection;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.messaging.Message;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -23,8 +25,6 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
-
-import java.util.Collection;
 
 /**
  * Voter which handles {@link Message} authorisation decisions. If a

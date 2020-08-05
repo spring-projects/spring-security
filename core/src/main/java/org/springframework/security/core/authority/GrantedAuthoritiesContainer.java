@@ -16,7 +16,7 @@
 package org.springframework.security.core.authority;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 

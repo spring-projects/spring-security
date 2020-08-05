@@ -16,9 +16,9 @@
 
 package org.springframework.security.core.userdetails.memory;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link UserAttributeEditor} and associated {@link UserAttribute}.

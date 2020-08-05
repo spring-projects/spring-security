@@ -15,6 +15,8 @@
  */
 package org.springframework.security.acls.domain;
 
+import java.io.Serializable;
+
 import org.springframework.cache.Cache;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.MutableAcl;
@@ -22,8 +24,6 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
 
 /**
  * Simple implementation of {@link org.springframework.security.acls.model.AclCache} that

@@ -16,8 +16,11 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.security.Principal;
+
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -31,8 +34,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.security.Principal;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;

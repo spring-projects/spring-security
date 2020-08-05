@@ -17,10 +17,9 @@ package org.springframework.security.core.token;
 
 import java.util.Date;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
-import org.springframework.security.core.token.DefaultToken;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link DefaultToken}.

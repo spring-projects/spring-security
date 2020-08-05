@@ -16,16 +16,19 @@
 
 package org.springframework.security.access.vote;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.List;
+import java.util.Vector;
 
-import org.junit.*;
+import org.junit.Test;
+
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link ConsensusBased}.

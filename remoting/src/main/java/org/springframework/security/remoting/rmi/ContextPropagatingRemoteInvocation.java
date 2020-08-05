@@ -16,16 +16,17 @@
 
 package org.springframework.security.remoting.rmi;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * The actual {@code RemoteInvocation} that is passed from the client to the server.

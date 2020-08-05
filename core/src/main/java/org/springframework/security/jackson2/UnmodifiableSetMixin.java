@@ -16,11 +16,11 @@
 
 package org.springframework.security.jackson2;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.Set;
 
 /**
  * This mixin class used to deserialize java.util.Collections$UnmodifiableSet and used

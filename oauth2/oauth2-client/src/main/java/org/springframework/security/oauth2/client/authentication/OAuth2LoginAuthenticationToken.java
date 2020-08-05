@@ -15,6 +15,9 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,9 +28,6 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
-
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * An {@link AbstractAuthenticationToken} for OAuth 2.0 Login, which leverages the OAuth

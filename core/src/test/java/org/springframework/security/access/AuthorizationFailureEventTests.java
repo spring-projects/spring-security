@@ -16,14 +16,15 @@
 
 package org.springframework.security.access;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.security.access.event.AuthorizationFailureEvent;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link AuthorizationFailureEvent}.

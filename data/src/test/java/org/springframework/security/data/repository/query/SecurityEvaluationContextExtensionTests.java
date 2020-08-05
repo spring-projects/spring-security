@@ -18,6 +18,7 @@ package org.springframework.security.data.repository.query;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

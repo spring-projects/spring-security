@@ -15,11 +15,11 @@
  */
 package org.springframework.security.oauth2.client;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Implementations of this interface are responsible for the management of

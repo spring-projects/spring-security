@@ -16,12 +16,12 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.AdviceModeImportSelector;
 import org.springframework.context.annotation.AutoProxyRegistrar;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Rob Winch

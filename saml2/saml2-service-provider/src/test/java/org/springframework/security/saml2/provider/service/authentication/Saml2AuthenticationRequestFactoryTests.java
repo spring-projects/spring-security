@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlInflate;
-import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
 
 /**
  * Tests for {@link Saml2AuthenticationRequestFactory} default interface methods

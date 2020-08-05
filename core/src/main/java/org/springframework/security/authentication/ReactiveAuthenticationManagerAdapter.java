@@ -15,11 +15,12 @@
  */
 package org.springframework.security.authentication;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * Adapts an AuthenticationManager to the reactive APIs. This is somewhat necessary

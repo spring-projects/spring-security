@@ -16,11 +16,8 @@
 package org.springframework.security.cas.authentication;
 
 import org.junit.Test;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.authentication.NullStatelessTicketCache;
-import org.springframework.security.cas.authentication.StatelessTicketCache;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test cases for the @link {@link NullStatelessTicketCache}

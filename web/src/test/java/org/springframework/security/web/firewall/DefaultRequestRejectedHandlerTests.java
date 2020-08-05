@@ -15,14 +15,14 @@
  */
 package org.springframework.security.web.firewall;
 
-import static org.mockito.Mockito.mock;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
 
 public class DefaultRequestRejectedHandlerTests {
 

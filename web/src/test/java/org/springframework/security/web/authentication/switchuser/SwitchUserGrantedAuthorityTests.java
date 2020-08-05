@@ -18,7 +18,6 @@ package org.springframework.security.web.authentication.switchuser;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
 
 /**
  * @author Clement Ng

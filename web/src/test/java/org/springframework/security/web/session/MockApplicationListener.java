@@ -18,8 +18,6 @@ package org.springframework.security.web.session;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.web.session.HttpSessionCreatedEvent;
-import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 
 /**
  * Listener for tests

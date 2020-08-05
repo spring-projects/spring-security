@@ -16,9 +16,9 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.authentication.AuthenticationDetailsSource;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 
 /**
  * Implementation of {@link AuthenticationDetailsSource} which builds the details object

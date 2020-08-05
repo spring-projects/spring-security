@@ -15,10 +15,10 @@
  */
 package org.springframework.security.access.hierarchicalroles;
 
+import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-
-import java.util.*;
 
 /**
  * @author Luke Taylor

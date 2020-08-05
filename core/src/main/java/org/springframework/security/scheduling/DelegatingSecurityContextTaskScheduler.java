@@ -15,12 +15,12 @@
  */
 package org.springframework.security.scheduling;
 
+import java.util.Date;
+import java.util.concurrent.ScheduledFuture;
+
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.util.Assert;
-
-import java.util.Date;
-import java.util.concurrent.ScheduledFuture;
 
 /**
  * An implementation of {@link TaskScheduler} invoking it whenever the trigger indicates a

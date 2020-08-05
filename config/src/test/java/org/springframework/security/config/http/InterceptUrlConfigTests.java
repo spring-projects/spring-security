@@ -15,9 +15,15 @@
  */
 package org.springframework.security.config.http;
 
+import java.util.Collections;
+import java.util.Map;
+
+import javax.servlet.ServletRegistration;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.mock.web.MockServletContext;
@@ -27,10 +33,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
-
-import javax.servlet.ServletRegistration;
-import java.util.Collections;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;

@@ -17,6 +17,8 @@ package org.springframework.security.task;
 
 import org.junit.Before;
 
+import org.springframework.security.core.context.SecurityContext;
+
 /**
  * Tests using an explicit {@link SecurityContext} on
  * {@link DelegatingSecurityContextAsyncTaskExecutor}

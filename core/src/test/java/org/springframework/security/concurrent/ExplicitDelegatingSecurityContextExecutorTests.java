@@ -16,6 +16,7 @@
 package org.springframework.security.concurrent;
 
 import org.junit.Before;
+
 import org.springframework.security.core.context.SecurityContext;
 
 /**

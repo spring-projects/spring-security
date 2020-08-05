@@ -16,19 +16,19 @@
 
 package org.springframework.security.ldap.authentication;
 
-import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.ldap.search.LdapUserSearch;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.util.Assert;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Base class for the authenticator implementations.

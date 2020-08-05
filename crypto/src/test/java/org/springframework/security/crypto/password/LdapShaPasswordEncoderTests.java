@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.password;
 
 import org.junit.Test;
+
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;

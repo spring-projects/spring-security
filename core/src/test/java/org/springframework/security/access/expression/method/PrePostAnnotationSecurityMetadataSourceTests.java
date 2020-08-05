@@ -15,8 +15,6 @@
  */
 package org.springframework.security.access.expression.method;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -27,6 +25,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.expression.Expression;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.annotation.sec2150.MethodInvocationFactory;
@@ -37,6 +36,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

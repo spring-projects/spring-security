@@ -16,10 +16,10 @@
 
 package org.springframework.security.util;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+
+import org.aopalliance.intercept.MethodInvocation;
 
 /**
  * Represents the AOP Alliance <code>MethodInvocation</code>.

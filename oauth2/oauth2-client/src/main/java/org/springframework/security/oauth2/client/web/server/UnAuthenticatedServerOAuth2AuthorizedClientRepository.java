@@ -16,6 +16,11 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
@@ -23,10 +28,6 @@ import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiv
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides support for an unauthenticated user. This is useful when running as a process

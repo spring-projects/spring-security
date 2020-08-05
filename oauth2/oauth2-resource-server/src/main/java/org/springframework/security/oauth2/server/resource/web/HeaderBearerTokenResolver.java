@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.web;
 
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.util.Assert;
 
 /**

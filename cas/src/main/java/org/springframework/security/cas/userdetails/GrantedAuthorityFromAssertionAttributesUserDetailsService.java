@@ -15,15 +15,16 @@
  */
 package org.springframework.security.cas.userdetails;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.util.Assert;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jasig.cas.client.validation.Assertion;
 
-import java.util.List;
-import java.util.ArrayList;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 
 /**
  * Populates the {@link org.springframework.security.core.GrantedAuthority}s for a user by

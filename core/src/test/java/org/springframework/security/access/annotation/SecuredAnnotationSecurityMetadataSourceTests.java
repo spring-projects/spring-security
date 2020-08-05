@@ -16,9 +16,6 @@
 
 package org.springframework.security.access.annotation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -31,11 +28,15 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.annotation.sec2150.MethodInvocationFactory;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.core.GrantedAuthority;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests for

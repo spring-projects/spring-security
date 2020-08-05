@@ -16,8 +16,13 @@
 
 package org.springframework.security.htmlunit.server;
 
+import java.net.URI;
+import java.time.Duration;
+
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -28,10 +33,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import reactor.core.publisher.Mono;
-
-import java.net.URI;
-import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

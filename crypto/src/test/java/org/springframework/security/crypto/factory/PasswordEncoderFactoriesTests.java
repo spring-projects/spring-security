@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.factory;
 
 import org.junit.Test;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;

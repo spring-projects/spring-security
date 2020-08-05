@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.web.configuration.sec2377
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.config.annotation.web.configuration.sec2377.a.Sec2377AConfig;
 import org.springframework.security.config.annotation.web.configuration.sec2377.b.Sec2377BConfig;

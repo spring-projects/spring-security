@@ -15,8 +15,6 @@
  */
 package org.springframework.security.access.expression.method;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,12 +23,14 @@ import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.expression.method.PreInvocationExpressionAttribute;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("unchecked")
 public class MethodExpressionVoterTests {

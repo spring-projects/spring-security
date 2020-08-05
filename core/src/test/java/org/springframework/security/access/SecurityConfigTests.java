@@ -16,11 +16,9 @@
 
 package org.springframework.security.access;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link SecurityConfig}.

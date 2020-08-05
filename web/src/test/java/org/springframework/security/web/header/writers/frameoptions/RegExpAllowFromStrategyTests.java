@@ -15,12 +15,13 @@
  */
 package org.springframework.security.web.header.writers.frameoptions;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.regex.PatternSyntaxException;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Marten Deinum

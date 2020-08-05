@@ -16,13 +16,13 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.springframework.lang.Nullable;
-import org.springframework.security.core.AuthenticatedPrincipal;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.lang.Nullable;
+import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Saml2 representation of an {@link AuthenticatedPrincipal}.

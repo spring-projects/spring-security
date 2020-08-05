@@ -15,15 +15,26 @@
  */
 package org.springframework.security.oauth2.core.oidc;
 
-import org.junit.Test;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.*;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.COUNTRY;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.COUNTRY_FIELD_NAME;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.FORMATTED;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.FORMATTED_FIELD_NAME;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.LOCALITY;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.LOCALITY_FIELD_NAME;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.POSTAL_CODE;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.POSTAL_CODE_FIELD_NAME;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.REGION;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.REGION_FIELD_NAME;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.STREET_ADDRESS;
+import static org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaimTests.STREET_ADDRESS_FIELD_NAME;
 
 /**
  * Tests for {@link OidcUserInfo}.

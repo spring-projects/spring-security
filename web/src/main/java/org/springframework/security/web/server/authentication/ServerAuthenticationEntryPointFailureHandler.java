@@ -16,11 +16,12 @@
 
 package org.springframework.security.web.server.authentication;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
 
 /**
  * Adapts a {@link ServerAuthenticationEntryPoint} into a

@@ -15,6 +15,10 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import java.util.function.Function;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -31,9 +35,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-
-import java.util.function.Function;
 
 /**
  * An implementation of an

@@ -15,13 +15,6 @@
  */
 package org.springframework.security.crypto.encrypt;
 
-import static org.springframework.security.crypto.encrypt.CipherUtils.doFinal;
-import static org.springframework.security.crypto.encrypt.CipherUtils.initCipher;
-import static org.springframework.security.crypto.encrypt.CipherUtils.newCipher;
-import static org.springframework.security.crypto.encrypt.CipherUtils.newSecretKey;
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
-
 import java.security.spec.AlgorithmParameterSpec;
 
 import javax.crypto.Cipher;
@@ -34,6 +27,13 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
+
+import static org.springframework.security.crypto.encrypt.CipherUtils.doFinal;
+import static org.springframework.security.crypto.encrypt.CipherUtils.initCipher;
+import static org.springframework.security.crypto.encrypt.CipherUtils.newCipher;
+import static org.springframework.security.crypto.encrypt.CipherUtils.newSecretKey;
+import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
+import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 
 /**
  * Encryptor that uses AES encryption.

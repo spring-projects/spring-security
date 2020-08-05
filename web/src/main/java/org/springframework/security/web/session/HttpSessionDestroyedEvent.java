@@ -16,12 +16,14 @@
 
 package org.springframework.security.web.session;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionDestroyedEvent;
-
-import java.util.*;
 
 /**
  * Published by the {@link HttpSessionEventPublisher} when a HttpSession is removed from

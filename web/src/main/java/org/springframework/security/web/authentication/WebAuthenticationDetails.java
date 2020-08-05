@@ -16,11 +16,12 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-
 import java.io.Serializable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * A holder of selected HTTP details related to a web authentication request.

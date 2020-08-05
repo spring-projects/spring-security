@@ -18,9 +18,8 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.Collection;
 
-import org.springframework.security.core.GrantedAuthority;
-
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Obtains a list of granted authorities for an Ldap user.

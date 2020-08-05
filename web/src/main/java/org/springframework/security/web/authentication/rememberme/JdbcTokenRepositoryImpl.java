@@ -15,12 +15,12 @@
  */
 package org.springframework.security.web.authentication.rememberme;
 
+import java.util.Date;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
-
-import java.util.*;
 
 /**
  * JDBC based persistent login token repository implementation.

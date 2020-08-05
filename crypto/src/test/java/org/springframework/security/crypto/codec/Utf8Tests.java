@@ -15,11 +15,11 @@
  */
 package org.springframework.security.crypto.codec;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.Arrays;
 
-import org.junit.*;
+import org.junit.Test;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

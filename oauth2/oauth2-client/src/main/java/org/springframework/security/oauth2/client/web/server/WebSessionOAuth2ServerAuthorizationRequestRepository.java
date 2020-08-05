@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.client.web.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -26,8 +28,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
-
-import reactor.core.publisher.Mono;
 
 /**
  * An implementation of an {@link ServerAuthorizationRequestRepository} that stores

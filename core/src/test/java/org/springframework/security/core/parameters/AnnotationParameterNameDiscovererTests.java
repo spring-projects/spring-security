@@ -15,12 +15,13 @@
  */
 package org.springframework.security.core.parameters;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.access.method.P;
 import org.springframework.util.ReflectionUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnnotationParameterNameDiscovererTests {
 

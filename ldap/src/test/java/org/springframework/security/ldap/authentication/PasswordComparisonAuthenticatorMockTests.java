@@ -16,8 +16,6 @@
 
 package org.springframework.security.ldap.authentication;
 
-import static org.mockito.Mockito.*;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -25,8 +23,14 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
 import org.junit.Test;
+
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor

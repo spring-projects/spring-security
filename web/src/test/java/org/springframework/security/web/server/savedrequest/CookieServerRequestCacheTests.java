@@ -16,7 +16,11 @@
 
 package org.springframework.security.web.server.savedrequest;
 
+import java.net.URI;
+import java.util.Base64;
+
 import org.junit.Test;
+
 import org.springframework.http.HttpCookie;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -24,9 +28,6 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.MultiValueMap;
-
-import java.net.URI;
-import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

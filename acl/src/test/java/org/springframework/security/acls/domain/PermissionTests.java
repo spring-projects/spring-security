@@ -15,11 +15,12 @@
  */
 package org.springframework.security.acls.domain;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.acls.model.Permission;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests classes associated with Permission.

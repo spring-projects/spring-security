@@ -16,17 +16,18 @@
 
 package org.springframework.security.web.access.channel;
 
-import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.*;
-
 import javax.servlet.FilterChain;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.channel.SecureChannelProcessor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link SecureChannelProcessor}.

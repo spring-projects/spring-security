@@ -15,8 +15,6 @@
  */
 package org.springframework.security.config.method;
 
-import static org.springframework.security.config.Elements.*;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +22,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Element;
+
 import org.springframework.aop.config.AopNamespaceUtils;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.LazyInitTargetSource;
@@ -79,7 +79,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
+
+import static org.springframework.security.config.Elements.EXPRESSION_HANDLER;
+import static org.springframework.security.config.Elements.INVOCATION_ATTRIBUTE_FACTORY;
+import static org.springframework.security.config.Elements.INVOCATION_HANDLING;
+import static org.springframework.security.config.Elements.POST_INVOCATION_ADVICE;
+import static org.springframework.security.config.Elements.PRE_INVOCATION_ADVICE;
+import static org.springframework.security.config.Elements.PROTECT_POINTCUT;
 
 /**
  * Processes the top-level "global-method-security" element.

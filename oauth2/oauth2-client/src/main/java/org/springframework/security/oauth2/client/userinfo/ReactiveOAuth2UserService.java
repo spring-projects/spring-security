@@ -15,10 +15,11 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import reactor.core.publisher.Mono;
 
 /**
  * Implementations of this interface are responsible for obtaining the user attributes of

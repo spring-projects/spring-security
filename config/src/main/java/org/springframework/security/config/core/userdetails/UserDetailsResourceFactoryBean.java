@@ -16,6 +16,11 @@
 
 package org.springframework.security.config.core.userdetails;
 
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -24,11 +29,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.util.InMemoryResource;
 import org.springframework.util.Assert;
-
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Parses a Resource that is a Properties file in the format of:

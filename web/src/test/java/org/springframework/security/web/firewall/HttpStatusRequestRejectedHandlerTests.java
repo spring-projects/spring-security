@@ -15,13 +15,13 @@
  */
 package org.springframework.security.web.firewall;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class HttpStatusRequestRejectedHandlerTests {
 

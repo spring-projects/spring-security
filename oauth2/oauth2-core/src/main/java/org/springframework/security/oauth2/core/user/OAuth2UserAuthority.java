@@ -15,13 +15,13 @@
  */
 package org.springframework.security.oauth2.core.user;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.util.Assert;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.util.Assert;
 
 /**
  * A {@link GrantedAuthority} that may be associated to an {@link OAuth2User}.

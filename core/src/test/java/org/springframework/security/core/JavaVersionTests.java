@@ -15,10 +15,10 @@
  */
 package org.springframework.security.core;
 
-import org.junit.Test;
-
 import java.io.DataInputStream;
 import java.io.InputStream;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

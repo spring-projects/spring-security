@@ -17,9 +17,6 @@ package org.springframework.security.oauth2.core;
 
 import org.junit.Test;
 
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

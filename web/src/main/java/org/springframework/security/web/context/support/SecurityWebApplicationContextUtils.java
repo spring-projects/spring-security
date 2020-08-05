@@ -16,6 +16,7 @@
 package org.springframework.security.web.context.support;
 
 import java.util.Enumeration;
+
 import javax.servlet.ServletContext;
 
 import org.springframework.web.context.WebApplicationContext;

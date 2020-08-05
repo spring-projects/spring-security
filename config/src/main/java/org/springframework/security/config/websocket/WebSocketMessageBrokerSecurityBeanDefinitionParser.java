@@ -15,11 +15,11 @@
  */
 package org.springframework.security.config.websocket;
 
-import static org.springframework.security.config.Elements.*;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import org.w3c.dom.Element;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
@@ -53,7 +53,8 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
+
+import static org.springframework.security.config.Elements.EXPRESSION_HANDLER;
 
 /**
  * Parses Spring Security's websocket namespace support. A simple example is:

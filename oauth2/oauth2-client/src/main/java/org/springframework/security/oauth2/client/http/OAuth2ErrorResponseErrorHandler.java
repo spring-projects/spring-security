@@ -15,7 +15,10 @@
  */
 package org.springframework.security.oauth2.client.http;
 
+import java.io.IOException;
+
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
@@ -26,8 +29,6 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMe
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
-
-import java.io.IOException;
 
 /**
  * A {@link ResponseErrorHandler} that handles an {@link OAuth2Error OAuth 2.0 Error}.

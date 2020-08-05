@@ -15,15 +15,14 @@
  */
 package org.springframework.security.web.savedrequest;
 
-import static org.assertj.core.api.Assertions.*;
+import java.io.Serializable;
 
 import javax.servlet.http.Cookie;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.web.savedrequest.SavedCookie;
 
-import java.io.Serializable;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SavedCookieTests {
 

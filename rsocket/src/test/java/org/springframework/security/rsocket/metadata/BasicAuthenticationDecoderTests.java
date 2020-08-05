@@ -16,14 +16,15 @@
 
 package org.springframework.security.rsocket.metadata;
 
+import java.util.Map;
+
 import org.junit.Test;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.ResolvableType;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.util.MimeType;
-import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

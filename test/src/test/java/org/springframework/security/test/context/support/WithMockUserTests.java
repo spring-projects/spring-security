@@ -16,10 +16,11 @@
 
 package org.springframework.security.test.context.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.core.annotation.AnnotatedElementUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class WithMockUserTests {
 

@@ -15,13 +15,14 @@
  */
 package org.springframework.security.access.hierarchicalroles;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Collection;
 
-import org.junit.*;
+import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

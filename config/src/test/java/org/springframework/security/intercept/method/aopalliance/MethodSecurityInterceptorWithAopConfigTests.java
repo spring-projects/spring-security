@@ -15,16 +15,17 @@
  */
 package org.springframework.security.intercept.method.aopalliance;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.ITargetObject;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests for SEC-428 (and SEC-1204).

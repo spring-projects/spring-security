@@ -15,6 +15,11 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import java.util.Collection;
+import java.util.Map;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,10 +33,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * An implementation of an

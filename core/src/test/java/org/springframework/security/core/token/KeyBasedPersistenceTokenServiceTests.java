@@ -15,16 +15,12 @@
  */
 package org.springframework.security.core.token;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.security.SecureRandom;
 import java.util.Date;
 
 import org.junit.Test;
-import org.springframework.security.core.token.DefaultToken;
-import org.springframework.security.core.token.KeyBasedPersistenceTokenService;
-import org.springframework.security.core.token.SecureRandomFactoryBean;
-import org.springframework.security.core.token.Token;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link KeyBasedPersistenceTokenService}.

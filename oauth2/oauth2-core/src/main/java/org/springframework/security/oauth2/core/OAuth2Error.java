@@ -15,10 +15,10 @@
  */
 package org.springframework.security.oauth2.core;
 
+import java.io.Serializable;
+
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
 
 /**
  * A representation of an OAuth 2.0 Error.

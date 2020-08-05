@@ -15,10 +15,10 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import java.io.Serializable;
+
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
 
 /**
  * The {@code response_type} parameter is consumed by the authorization endpoint which is

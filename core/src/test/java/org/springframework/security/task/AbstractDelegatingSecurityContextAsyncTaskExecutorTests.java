@@ -15,13 +15,14 @@
  */
 package org.springframework.security.task;
 
-import static org.mockito.Mockito.verify;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.security.concurrent.AbstractDelegatingSecurityContextExecutorTests;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * Abstract class for testing {@link DelegatingSecurityContextAsyncTaskExecutor} which

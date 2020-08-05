@@ -18,6 +18,7 @@ package org.springframework.security.cas.authentication;
 import java.util.ArrayList;
 
 import org.jasig.cas.client.validation.Assertion;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 

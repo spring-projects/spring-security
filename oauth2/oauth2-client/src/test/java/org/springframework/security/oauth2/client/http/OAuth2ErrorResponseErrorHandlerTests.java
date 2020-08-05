@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client.http;
 
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.client.MockClientHttpResponse;

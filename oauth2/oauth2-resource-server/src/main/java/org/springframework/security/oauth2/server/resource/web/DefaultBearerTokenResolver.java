@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.resource.web;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpHeaders;

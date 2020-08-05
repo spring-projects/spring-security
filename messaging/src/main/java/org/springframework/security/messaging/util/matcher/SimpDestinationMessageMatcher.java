@@ -15,15 +15,15 @@
  */
 package org.springframework.security.messaging.util.matcher;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
-
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * <p>
