@@ -183,7 +183,7 @@ dependencyManagement {
 		dependency 'org.slf4j:slf4j-api:1.7.30'
 		dependency 'org.slf4j:slf4j-nop:1.7.30'
 		dependency 'org.sonatype.sisu.inject:cglib:2.2.1-v20090111'
-		dependency 'org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE'
+		dependency 'org.springframework.ldap:spring-ldap-core:2.3.3.RELEASE'
 		dependency 'org.thymeleaf:thymeleaf-spring5:3.0.11.RELEASE'
 		dependency 'org.unbescape:unbescape:1.1.5.RELEASE'
 		dependency 'org.w3c.css:sac:1.3'
