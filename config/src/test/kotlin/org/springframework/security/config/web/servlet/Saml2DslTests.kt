@@ -30,7 +30,7 @@ import org.springframework.security.saml2.credentials.Saml2X509Credential
 import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration
-import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationFilter
+import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import java.security.cert.Certificate

@@ -16,66 +16,85 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.filter.OncePerRequestFilter;
-
+import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResolver;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * This {@code Servlet} returns a generated Service Provider Metadata XML
+ * A {@link javax.servlet.Filter} that returns the metadata for a Relying Party
  *
- * @since 5.4
  * @author Jakub Kubrynski
+ * @author Josh Cummings
+ * @since 5.4
  */
-public class Saml2MetadataFilter extends OncePerRequestFilter {
+public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
-	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
+	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationConverter;
 	private final Saml2MetadataResolver saml2MetadataResolver;
 
-	private RequestMatcher redirectMatcher = new AntPathRequestMatcher("/saml2/service-provider-metadata/{registrationId}");
+	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
+			"/saml2/service-provider-metadata/{registrationId}");
 
-	public Saml2MetadataFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository, Saml2MetadataResolver saml2MetadataResolver) {
-		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
+	public Saml2MetadataFilter(
+			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationConverter,
+			Saml2MetadataResolver saml2MetadataResolver) {
+
+		this.relyingPartyRegistrationConverter = relyingPartyRegistrationConverter;
 		this.saml2MetadataResolver = saml2MetadataResolver;
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws ServletException, IOException {
 
-		RequestMatcher.MatchResult matcher = this.redirectMatcher.matcher(request);
+		RequestMatcher.MatchResult matcher = this.requestMatcher.matcher(request);
 		if (!matcher.isMatch()) {
-			filterChain.doFilter(request, response);
+			chain.doFilter(request, response);
 			return;
 		}
 
-		String registrationId = matcher.getVariables().get("registrationId");
-
-		RelyingPartyRegistration registration = relyingPartyRegistrationRepository.findByRegistrationId(registrationId);
-
-		if (registration == null) {
+		RelyingPartyRegistration relyingPartyRegistration =
+				this.relyingPartyRegistrationConverter.convert(request);
+		if (relyingPartyRegistration == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 
-		String xml = saml2MetadataResolver.resolveMetadata(request, registration);
-
-		writeMetadataToResponse(response, registrationId, xml);
+		String metadata = this.saml2MetadataResolver.resolve(relyingPartyRegistration);
+		String registrationId = relyingPartyRegistration.getRegistrationId();
+		writeMetadataToResponse(response, registrationId, metadata);
 	}
 
-	private void writeMetadataToResponse(HttpServletResponse response, String registrationId, String xml) throws IOException {
+	private void writeMetadataToResponse(HttpServletResponse response, String registrationId, String metadata)
+			throws IOException {
+
 		response.setContentType(MediaType.APPLICATION_XML_VALUE);
-		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"saml-" + registrationId + "-metadata.xml\"");
-		response.setContentLength(xml.length());
-		response.getWriter().write(xml);
+		response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+				"attachment; filename=\"saml-" + registrationId + "-metadata.xml\"");
+		response.setContentLength(metadata.length());
+		response.getWriter().write(metadata);
 	}
 
+	/**
+	 * Set the {@link RequestMatcher} that determines whether this filter should
+	 * handle the incoming {@link HttpServletRequest}
+	 *
+	 * @param requestMatcher
+	 */
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.requestMatcher = requestMatcher;
+	}
 }

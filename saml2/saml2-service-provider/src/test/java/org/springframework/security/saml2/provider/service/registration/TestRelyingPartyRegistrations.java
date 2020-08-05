@@ -16,8 +16,9 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
-import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationFilter;
+import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
@@ -55,6 +56,17 @@ public class TestRelyingPartyRegistrations {
 				.assertingPartyDetails(party -> party
 						.entityId("ap-entity-id")
 						.singleSignOnServiceLocation("https://ap.example.org/sso")
+				);
+	}
+
+	public static RelyingPartyRegistration.Builder full() {
+		return noCredentials()
+				.signingX509Credentials(c -> c.add(TestSaml2X509Credentials.relyingPartySigningCredential()))
+				.decryptionX509Credentials(c -> c.add(TestSaml2X509Credentials.relyingPartyDecryptingCredential()))
+				.assertingPartyDetails(party -> party
+					.verificationX509Credentials(c -> c.add(
+							TestSaml2X509Credentials.relyingPartyVerifyingCredential())
+					)
 				);
 	}
 }
