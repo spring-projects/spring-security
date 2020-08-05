@@ -21,8 +21,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
+
+import org.springframework.util.Assert;
 
 /**
  * A {@link Map} based implementation of {@link ReactiveUserDetailsService}

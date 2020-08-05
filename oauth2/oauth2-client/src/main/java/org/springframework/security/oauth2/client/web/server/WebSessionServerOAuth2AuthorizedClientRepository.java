@@ -15,16 +15,17 @@
  */
 package org.springframework.security.oauth2.client.web.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
-import reactor.core.publisher.Mono;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * An implementation of an {@link OAuth2AuthorizedClientRepository} that stores

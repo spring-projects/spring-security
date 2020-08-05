@@ -16,6 +16,10 @@
 
 package org.springframework.security.web.server.ui;
 
+import java.nio.charset.Charset;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpMethod;
@@ -28,9 +32,6 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.nio.charset.Charset;
 
 /**
  * Generates a default log out page.

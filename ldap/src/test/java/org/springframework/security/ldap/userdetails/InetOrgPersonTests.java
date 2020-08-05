@@ -15,14 +15,15 @@
  */
 package org.springframework.security.ldap.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

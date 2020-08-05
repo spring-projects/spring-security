@@ -16,11 +16,12 @@
 
 package org.springframework.security.core.context;
 
-import org.springframework.security.core.Authentication;
+import java.util.function.Function;
+
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
-import java.util.function.Function;
+import org.springframework.security.core.Authentication;
 
 /**
  * Allows getting and setting the Spring {@link SecurityContext} into a {@link Context}.

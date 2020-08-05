@@ -16,11 +16,12 @@
 
 package org.springframework.security.taglibs.csrf;
 
-import org.springframework.security.web.csrf.CsrfToken;
+import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
-import java.io.IOException;
+
+import org.springframework.security.web.csrf.CsrfToken;
 
 /**
  * An abstract tag for handling CSRF operations.

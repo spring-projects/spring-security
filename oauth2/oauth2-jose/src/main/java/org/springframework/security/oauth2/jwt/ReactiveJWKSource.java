@@ -16,11 +16,11 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.util.List;
+
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSelector;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 /**
  * A reactive version of {@link com.nimbusds.jose.jwk.source.JWKSource}

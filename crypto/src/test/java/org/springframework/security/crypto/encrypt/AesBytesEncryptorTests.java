@@ -16,14 +16,14 @@
 
 package org.springframework.security.crypto.encrypt;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.PBEKeySpec;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.PBEKeySpec;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

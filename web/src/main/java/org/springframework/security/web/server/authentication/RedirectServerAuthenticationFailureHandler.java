@@ -16,14 +16,15 @@
 
 package org.springframework.security.web.server.authentication;
 
+import java.net.URI;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-
-import java.net.URI;
 
 /**
  * Performs a redirect to a specified location.

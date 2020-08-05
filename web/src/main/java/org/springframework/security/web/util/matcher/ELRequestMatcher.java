@@ -23,7 +23,6 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * A RequestMatcher implementation which uses a SpEL expression

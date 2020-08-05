@@ -16,6 +16,7 @@
 package org.springframework.security.access.intercept.aspectj;
 
 import org.aspectj.lang.JoinPoint;
+
 import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 

@@ -15,7 +15,8 @@
  */
 package org.springframework.security;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;

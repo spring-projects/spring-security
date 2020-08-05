@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.context;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
@@ -25,9 +23,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch

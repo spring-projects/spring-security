@@ -15,15 +15,17 @@
  */
 package org.springframework.security.access.vote;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.util.MethodInvocationUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

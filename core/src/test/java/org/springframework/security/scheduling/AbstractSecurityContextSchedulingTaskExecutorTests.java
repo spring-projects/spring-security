@@ -15,12 +15,13 @@
  */
 package org.springframework.security.scheduling;
 
-import static org.mockito.Mockito.verify;
-
 import org.junit.Test;
 import org.mockito.Mock;
+
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.security.task.AbstractDelegatingSecurityContextAsyncTaskExecutorTests;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * Abstract class for testing {@link DelegatingSecurityContextSchedulingTaskExecutor}

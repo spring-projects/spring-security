@@ -15,12 +15,16 @@
  */
 package org.springframework.security.messaging.access.intercept;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.springframework.messaging.Message;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
-
-import java.util.*;
 
 /**
  * A default implementation of {@link MessageSecurityMetadataSource} that looks up the

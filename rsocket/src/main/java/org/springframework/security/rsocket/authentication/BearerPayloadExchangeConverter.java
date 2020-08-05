@@ -16,15 +16,16 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import java.nio.charset.StandardCharsets;
+
 import io.netty.buffer.ByteBuf;
 import io.rsocket.metadata.CompositeMetadata;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
-import reactor.core.publisher.Mono;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * Converts from the {@link PayloadExchange} to a {@link BearerTokenAuthenticationToken}

@@ -16,6 +16,9 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -28,9 +31,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 

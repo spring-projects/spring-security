@@ -15,11 +15,11 @@
  */
 package org.springframework.security.web.util.matcher;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.util.matcher.ELRequestMatcher;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mike Wiesner

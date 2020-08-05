@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.authentication.www;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -30,6 +28,8 @@ import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 /**
  * Converts from a HttpServletRequest to {@link UsernamePasswordAuthenticationToken} that

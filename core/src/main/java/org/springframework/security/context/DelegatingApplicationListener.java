@@ -15,13 +15,13 @@
  */
 package org.springframework.security.context;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.util.Assert;
-
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Used for delegating to a number of SmartApplicationListener instances. This is useful

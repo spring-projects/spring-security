@@ -15,11 +15,13 @@
  */
 package org.springframework.security.core.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author TSARDD

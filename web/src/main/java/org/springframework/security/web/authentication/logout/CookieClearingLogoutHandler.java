@@ -15,7 +15,8 @@
  */
 package org.springframework.security.web.authentication.logout;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import javax.servlet.http.Cookie;

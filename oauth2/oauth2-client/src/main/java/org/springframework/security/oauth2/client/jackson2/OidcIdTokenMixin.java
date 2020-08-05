@@ -15,15 +15,16 @@
  */
 package org.springframework.security.oauth2.client.jackson2;
 
+import java.time.Instant;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 
-import java.time.Instant;
-import java.util.Map;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 
 /**
  * This mixin class is used to serialize/deserialize {@link OidcIdToken}.

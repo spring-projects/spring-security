@@ -16,17 +16,17 @@
 
 package org.springframework.security.web.jackson2;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.jackson2.SimpleGrantedAuthorityMixinTests;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch

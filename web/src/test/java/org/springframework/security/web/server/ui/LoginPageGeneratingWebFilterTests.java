@@ -17,9 +17,10 @@
 package org.springframework.security.web.server.ui;
 
 import org.junit.Test;
+import reactor.core.publisher.Mono;
+
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

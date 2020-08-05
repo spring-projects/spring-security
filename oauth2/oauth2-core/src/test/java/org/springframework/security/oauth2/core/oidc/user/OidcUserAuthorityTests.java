@@ -15,15 +15,16 @@
  */
 package org.springframework.security.oauth2.core.oidc.user;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
+
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;

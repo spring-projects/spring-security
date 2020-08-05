@@ -15,6 +15,9 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
@@ -22,9 +25,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.web.reactive.function.BodyInserters;
-
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AccessTokenResponseClient} that

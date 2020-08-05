@@ -15,16 +15,17 @@
  */
 package org.springframework.security.config;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.fail;
-
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Tests which make sure invalid configurations are rejected by the namespace. In

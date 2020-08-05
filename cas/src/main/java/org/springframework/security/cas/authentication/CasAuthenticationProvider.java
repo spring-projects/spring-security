@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
@@ -37,7 +38,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
 /**
@@ -74,6 +79,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.authenticationUserDetailsService, "An authenticationUserDetailsService must be set");
 		Assert.notNull(this.ticketValidator, "A ticketValidator must be set");
@@ -83,6 +89,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 		Assert.notNull(this.messages, "A message source must be set");
 	}
 
+	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
@@ -102,14 +109,14 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 				return authentication;
 			}
 			else {
-				throw new BadCredentialsException(messages.getMessage("CasAuthenticationProvider.incorrectKey",
+				throw new BadCredentialsException(this.messages.getMessage("CasAuthenticationProvider.incorrectKey",
 						"The presented CasAuthenticationToken does not contain the expected key"));
 			}
 		}
 
 		// Ensure credentials are presented
 		if ((authentication.getCredentials() == null) || "".equals(authentication.getCredentials())) {
-			throw new BadCredentialsException(messages.getMessage("CasAuthenticationProvider.noServiceTicket",
+			throw new BadCredentialsException(this.messages.getMessage("CasAuthenticationProvider.noServiceTicket",
 					"Failed to provide a CAS service ticket to validate"));
 		}
 
@@ -124,7 +131,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 		if (stateless) {
 			// Try to obtain from cache
-			result = statelessTicketCache.getByTicketId(authentication.getCredentials().toString());
+			result = this.statelessTicketCache.getByTicketId(authentication.getCredentials().toString());
 		}
 
 		if (result == null) {
@@ -134,7 +141,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 		if (stateless) {
 			// Add to cache
-			statelessTicketCache.putTicketInCache(result);
+			this.statelessTicketCache.putTicketInCache(result);
 		}
 
 		return result;
@@ -145,9 +152,9 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 			final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(),
 					getServiceUrl(authentication));
 			final UserDetails userDetails = loadUserByAssertion(assertion);
-			userDetailsChecker.check(userDetails);
+			this.userDetailsChecker.check(userDetails);
 			return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
-					authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
+					this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
 		}
 		catch (final TicketValidationException e) {
 			throw new BadCredentialsException(e.getMessage(), e);
@@ -167,16 +174,16 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 		if (authentication.getDetails() instanceof ServiceAuthenticationDetails) {
 			serviceUrl = ((ServiceAuthenticationDetails) authentication.getDetails()).getServiceUrl();
 		}
-		else if (serviceProperties == null) {
+		else if (this.serviceProperties == null) {
 			throw new IllegalStateException(
 					"serviceProperties cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
 		}
-		else if (serviceProperties.getService() == null) {
+		else if (this.serviceProperties.getService() == null) {
 			throw new IllegalStateException(
 					"serviceProperties.getService() cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
 		}
 		else {
-			serviceUrl = serviceProperties.getService();
+			serviceUrl = this.serviceProperties.getService();
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("serviceUrl = " + serviceUrl);
@@ -214,7 +221,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 	}
 
 	protected String getKey() {
-		return key;
+		return this.key;
 	}
 
 	public void setKey(String key) {
@@ -222,13 +229,14 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 	}
 
 	public StatelessTicketCache getStatelessTicketCache() {
-		return statelessTicketCache;
+		return this.statelessTicketCache;
 	}
 
 	protected TicketValidator getTicketValidator() {
-		return ticketValidator;
+		return this.ticketValidator;
 	}
 
+	@Override
 	public void setMessageSource(final MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
@@ -245,6 +253,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 		this.authoritiesMapper = authoritiesMapper;
 	}
 
+	@Override
 	public boolean supports(final Class<?> authentication) {
 		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication))
 				|| (CasAuthenticationToken.class.isAssignableFrom(authentication))

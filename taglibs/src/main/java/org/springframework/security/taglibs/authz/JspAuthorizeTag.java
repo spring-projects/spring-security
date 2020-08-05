@@ -16,7 +16,7 @@
 package org.springframework.security.taglibs.authz;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;

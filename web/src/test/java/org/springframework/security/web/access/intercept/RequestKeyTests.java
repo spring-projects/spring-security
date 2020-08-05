@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.springframework.security.web.access.intercept.RequestKey;
 
 /**
  * @author Luke Taylor

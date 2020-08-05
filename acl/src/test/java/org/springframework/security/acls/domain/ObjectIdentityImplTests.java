@@ -15,12 +15,12 @@
  */
 package org.springframework.security.acls.domain;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
-import org.springframework.security.acls.domain.IdentityUnavailableException;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
+
 import org.springframework.security.acls.model.ObjectIdentity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests for {@link ObjectIdentityImpl}.

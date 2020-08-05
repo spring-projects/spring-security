@@ -16,21 +16,21 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.codec.Hex;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.codec.Utf8;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Identifies previously remembered users by a Base-64 encoded cookie.

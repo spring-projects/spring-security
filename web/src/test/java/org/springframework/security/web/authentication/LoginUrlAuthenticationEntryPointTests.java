@@ -16,15 +16,17 @@
 
 package org.springframework.security.web.authentication;
 
-import static org.assertj.core.api.Assertions.*;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.MockPortResolver;
 import org.springframework.security.web.PortMapperImpl;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link LoginUrlAuthenticationEntryPoint}.

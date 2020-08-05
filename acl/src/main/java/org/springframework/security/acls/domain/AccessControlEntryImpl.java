@@ -15,15 +15,14 @@
  */
 package org.springframework.security.acls.domain;
 
+import java.io.Serializable;
+
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
-
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
 
 /**
  * An immutable default implementation of <code>AccessControlEntry</code>.

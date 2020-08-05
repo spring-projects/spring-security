@@ -16,12 +16,12 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Implementation of the {@link ServerLogoutSuccessHandler}. By default returns an HTTP

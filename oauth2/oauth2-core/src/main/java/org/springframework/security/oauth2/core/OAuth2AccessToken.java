@@ -15,13 +15,13 @@
  */
 package org.springframework.security.oauth2.core;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.util.Assert;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
+
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.util.Assert;
 
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing an OAuth 2.0 Access

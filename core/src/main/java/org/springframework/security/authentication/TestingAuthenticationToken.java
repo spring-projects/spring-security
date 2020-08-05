@@ -16,10 +16,10 @@
 
 package org.springframework.security.authentication;
 
+import java.util.List;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-
-import java.util.List;
 
 /**
  * An {@link org.springframework.security.core.Authentication} implementation that is

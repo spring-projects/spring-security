@@ -19,8 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.apache.commons.collections.CollectionUtils;
+
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Test helper class for the hierarchical roles tests.

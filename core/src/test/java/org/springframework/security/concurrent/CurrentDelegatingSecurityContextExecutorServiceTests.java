@@ -17,6 +17,8 @@ package org.springframework.security.concurrent;
 
 import org.junit.Before;
 
+import org.springframework.security.core.context.SecurityContext;
+
 /**
  * Tests using the current {@link SecurityContext} on
  * {@link DelegatingSecurityContextExecutorService}

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+
 import javax.annotation.Nonnull;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;

@@ -17,6 +17,8 @@
 package org.springframework.security.rsocket.authentication;
 
 import io.rsocket.metadata.WellKnownMimeType;
+import reactor.core.publisher.Mono;
+
 import org.springframework.messaging.rsocket.DefaultMetadataExtractor;
 import org.springframework.messaging.rsocket.MetadataExtractor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +28,6 @@ import org.springframework.security.rsocket.metadata.BasicAuthenticationDecoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
-import reactor.core.publisher.Mono;
 
 /**
  * Converts from the {@link PayloadExchange} to a

@@ -16,10 +16,11 @@
 
 package org.springframework.security.oauth2.core.web.reactive.function;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.web.reactive.function.BodyExtractor;
-import reactor.core.publisher.Mono;
 
 /**
  * Static factory methods for OAuth2 {@link BodyExtractor} implementations.

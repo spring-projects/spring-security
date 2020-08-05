@@ -15,14 +15,14 @@
  */
 package org.springframework.security.oauth2.core;
 
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.security.oauth2.core.converter.ClaimConversionService;
-import org.springframework.util.Assert;
-
 import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.security.oauth2.core.converter.ClaimConversionService;
+import org.springframework.util.Assert;
 
 /**
  * An &quot;accessor&quot; for a set of claims that may be used for assertions.

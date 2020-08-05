@@ -15,9 +15,10 @@
  */
 package org.springframework.security.oauth2.core;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link AuthenticationMethod}.

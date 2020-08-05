@@ -15,17 +15,18 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

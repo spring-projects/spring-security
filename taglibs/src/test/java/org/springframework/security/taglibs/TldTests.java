@@ -16,12 +16,13 @@
 
 package org.springframework.security.taglibs;
 
-import org.junit.Test;
-import org.w3c.dom.Document;
+import java.io.File;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
+
+import org.junit.Test;
+import org.w3c.dom.Document;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

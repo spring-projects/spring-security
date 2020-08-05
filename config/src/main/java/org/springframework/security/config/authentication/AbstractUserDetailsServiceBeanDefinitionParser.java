@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.authentication;
 
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -27,7 +29,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.config.BeanIds;
 import org.springframework.util.StringUtils;
-import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor

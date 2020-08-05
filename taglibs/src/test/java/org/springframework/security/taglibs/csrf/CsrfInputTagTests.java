@@ -17,10 +17,11 @@ package org.springframework.security.taglibs.csrf;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Nick Williams

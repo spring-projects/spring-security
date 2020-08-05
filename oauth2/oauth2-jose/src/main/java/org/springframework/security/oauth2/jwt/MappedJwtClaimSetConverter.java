@@ -16,19 +16,19 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.oauth2.core.converter.ClaimConversionService;
-import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
-import org.springframework.util.Assert;
-
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.oauth2.core.converter.ClaimConversionService;
+import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
+import org.springframework.util.Assert;
 
 /**
  * Converts a JWT claim set, claim by claim. Can be configured with custom converters by

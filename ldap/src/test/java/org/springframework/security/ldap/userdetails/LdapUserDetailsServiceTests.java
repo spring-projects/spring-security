@@ -15,12 +15,11 @@
  */
 package org.springframework.security.ldap.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.Collection;
 import java.util.Set;
 
 import org.junit.Test;
+
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
@@ -29,6 +28,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.authentication.MockUserSearch;
 import org.springframework.security.ldap.authentication.NullLdapAuthoritiesPopulator;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link LdapUserDetailsService}

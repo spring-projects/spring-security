@@ -15,13 +15,14 @@
  */
 package org.springframework.security.crypto.bcrypt;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.security.SecureRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Implementation of PasswordEncoder that uses the BCrypt strong hashing function. Clients

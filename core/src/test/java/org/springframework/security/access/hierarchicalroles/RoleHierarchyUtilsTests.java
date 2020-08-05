@@ -15,9 +15,13 @@
  */
 package org.springframework.security.access.hierarchicalroles;
 
-import org.junit.Test;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-import java.util.*;
+import org.junit.Test;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

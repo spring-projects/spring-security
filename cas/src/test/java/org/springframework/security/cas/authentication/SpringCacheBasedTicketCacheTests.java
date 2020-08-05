@@ -18,10 +18,11 @@ package org.springframework.security.cas.authentication;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests

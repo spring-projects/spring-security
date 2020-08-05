@@ -18,8 +18,8 @@ package org.springframework.security.access.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 
 /**
  * @author Luke Taylor

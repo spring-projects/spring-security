@@ -15,15 +15,16 @@
  */
 package org.springframework.security.web.savedrequest;
 
-import org.springframework.util.Assert;
-
-import javax.servlet.http.Cookie;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.servlet.http.Cookie;
+
+import org.springframework.util.Assert;
 
 /**
  * A Bean implementation of SavedRequest

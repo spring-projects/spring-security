@@ -15,9 +15,10 @@
  */
 package org.springframework.security.web.server.authentication;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 /**
  * Converts from a {@link ServerWebExchange} to an {@link Authentication} that can be

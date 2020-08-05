@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.crypto;
 
+import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

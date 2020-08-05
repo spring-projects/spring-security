@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.logout;
 
 import org.junit.Test;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

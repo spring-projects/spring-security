@@ -16,6 +16,9 @@
 
 package org.springframework.security.rsocket.core;
 
+import java.util.Arrays;
+import java.util.List;
+
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
@@ -27,18 +30,14 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
-import org.springframework.security.rsocket.core.PayloadInterceptorRSocket;
-import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
-import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

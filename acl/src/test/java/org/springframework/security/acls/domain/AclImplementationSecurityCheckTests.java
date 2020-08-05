@@ -15,9 +15,10 @@
  */
 package org.springframework.security.acls.domain;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.junit.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
@@ -27,6 +28,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Test class for {@link AclAuthorizationStrategyImpl} and {@link AclImpl} security

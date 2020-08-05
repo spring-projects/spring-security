@@ -16,10 +16,10 @@
 
 package org.springframework.security.rsocket.util.matcher;
 
-import org.springframework.security.rsocket.api.PayloadExchange;
-
 import java.util.Collections;
 import java.util.Map;
+
+import org.springframework.security.rsocket.api.PayloadExchange;
 
 /**
  * @author Rob Winch

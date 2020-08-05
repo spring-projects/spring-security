@@ -17,10 +17,13 @@ package org.springframework.security.oauth2.client.web;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;

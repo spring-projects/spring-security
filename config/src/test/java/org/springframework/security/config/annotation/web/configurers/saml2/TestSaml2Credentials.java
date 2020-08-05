@@ -16,14 +16,14 @@
 
 package org.springframework.security.config.annotation.web.configurers.saml2;
 
-import org.springframework.security.converter.RsaKeyConverters;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
-
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
+import org.springframework.security.converter.RsaKeyConverters;
+import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
 import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
 import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING;

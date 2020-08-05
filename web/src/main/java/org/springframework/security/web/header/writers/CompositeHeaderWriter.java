@@ -15,12 +15,13 @@
  */
 package org.springframework.security.web.header.writers;
 
-import org.springframework.security.web.header.HeaderWriter;
-import org.springframework.util.Assert;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+
+import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.util.Assert;
 
 /**
  * A {@link HeaderWriter} that delegates to several other {@link HeaderWriter}s.

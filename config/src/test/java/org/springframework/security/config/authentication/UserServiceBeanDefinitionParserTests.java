@@ -15,16 +15,16 @@
  */
 package org.springframework.security.config.authentication;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.After;
+import org.junit.Test;
 
+import org.springframework.beans.FatalBeanException;
+import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.context.support.AbstractXmlApplicationContext;
-import org.springframework.beans.FatalBeanException;
 
-import org.junit.Test;
-import org.junit.After;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

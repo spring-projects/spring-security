@@ -18,6 +18,7 @@ package org.springframework.security.web.server.jackson2;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.web.server.csrf.DefaultCsrfToken;
 

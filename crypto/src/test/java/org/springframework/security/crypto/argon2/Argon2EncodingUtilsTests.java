@@ -15,11 +15,12 @@
  */
 package org.springframework.security.crypto.argon2;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Base64;
+
 import org.bouncycastle.crypto.params.Argon2Parameters;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Simeon Macke

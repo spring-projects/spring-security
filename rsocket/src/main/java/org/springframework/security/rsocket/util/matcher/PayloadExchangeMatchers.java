@@ -16,9 +16,10 @@
 
 package org.springframework.security.rsocket.util.matcher;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadExchangeType;
-import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch

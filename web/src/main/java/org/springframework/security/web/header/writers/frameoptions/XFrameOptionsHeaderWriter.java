@@ -15,11 +15,11 @@
  */
 package org.springframework.security.web.header.writers.frameoptions;
 
-import org.springframework.security.web.header.HeaderWriter;
-import org.springframework.util.Assert;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.util.Assert;
 
 /**
  * {@code HeaderWriter} implementation for the X-Frame-Options headers. When using the

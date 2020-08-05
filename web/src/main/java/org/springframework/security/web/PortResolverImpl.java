@@ -16,9 +16,9 @@
 
 package org.springframework.security.web;
 
-import org.springframework.util.Assert;
-
 import javax.servlet.ServletRequest;
+
+import org.springframework.util.Assert;
 
 /**
  * Concrete implementation of {@link PortResolver} that obtains the port from

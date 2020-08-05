@@ -16,9 +16,9 @@
 
 package org.springframework.security.crypto.password;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("deprecation")
 public class Md4PasswordEncoderTests {

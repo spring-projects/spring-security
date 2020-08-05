@@ -16,8 +16,6 @@
 
 package org.springframework.security.authentication;
 
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-
 import reactor.core.publisher.Mono;
 
 /**

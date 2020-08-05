@@ -15,6 +15,9 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -30,9 +33,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * An implementation of an {@link AuthenticationProvider} for OAuth 2.0 Login, which

@@ -15,11 +15,12 @@
  */
 package org.springframework.security.web.header.writers.frameoptions;
 
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

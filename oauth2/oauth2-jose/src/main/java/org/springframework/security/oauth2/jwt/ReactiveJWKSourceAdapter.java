@@ -16,13 +16,13 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.util.List;
+
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 /**
  * Adapts a {@link JWKSource} to a {@link ReactiveJWKSource} which must be non-blocking.

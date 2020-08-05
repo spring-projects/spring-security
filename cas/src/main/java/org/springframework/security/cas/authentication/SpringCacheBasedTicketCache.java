@@ -17,6 +17,7 @@ package org.springframework.security.cas.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cache.Cache;
 import org.springframework.util.Assert;
 

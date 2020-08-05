@@ -19,11 +19,11 @@ package org.springframework.security.authentication;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.util.Assert;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveAuthenticationManager} that delegates to other

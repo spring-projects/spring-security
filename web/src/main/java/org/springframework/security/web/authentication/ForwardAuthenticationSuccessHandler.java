@@ -15,14 +15,15 @@
  */
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.util.UrlUtils;
-import org.springframework.util.Assert;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 
 /**
  * <p>

@@ -15,10 +15,10 @@
  */
 package org.springframework.security.oauth2.core;
 
+import java.io.Serializable;
+
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
 
 /**
  * An authorization grant is a credential representing the resource owner's authorization

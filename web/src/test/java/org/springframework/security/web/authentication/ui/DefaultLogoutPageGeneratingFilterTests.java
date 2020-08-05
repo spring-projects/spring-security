@@ -16,11 +16,12 @@
 
 package org.springframework.security.web.authentication.ui;
 
+import java.util.Collections;
+
 import org.junit.Test;
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.Collections;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

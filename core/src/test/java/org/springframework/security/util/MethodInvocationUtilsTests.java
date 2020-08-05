@@ -15,14 +15,15 @@
  */
 package org.springframework.security.util;
 
-import static org.assertj.core.api.Assertions.*;
+import java.io.Serializable;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.*;
+import org.junit.Test;
+
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.security.access.annotation.BusinessServiceImpl;
 
-import java.io.Serializable;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

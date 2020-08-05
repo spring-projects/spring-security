@@ -16,11 +16,11 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.springframework.util.Assert;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.util.Assert;
 
 /**
  * Default implementation of a {@link Saml2AuthenticatedPrincipal}.

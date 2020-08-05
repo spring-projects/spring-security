@@ -17,7 +17,6 @@ package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
-
 import org.springframework.util.Assert;
 
 /**

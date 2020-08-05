@@ -15,9 +15,9 @@
  */
 package org.springframework.security.util;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.Test;
 
-import org.junit.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor

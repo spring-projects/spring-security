@@ -15,12 +15,13 @@
  */
 package org.springframework.security.web.header.writers.frameoptions;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Base class for AllowFromStrategy implementations which use a request parameter to

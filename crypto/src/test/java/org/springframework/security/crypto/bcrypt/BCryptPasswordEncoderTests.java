@@ -15,9 +15,9 @@
  */
 package org.springframework.security.crypto.bcrypt;
 
-import org.junit.Test;
-
 import java.security.SecureRandom;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

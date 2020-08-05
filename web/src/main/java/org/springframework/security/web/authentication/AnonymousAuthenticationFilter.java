@@ -17,7 +17,7 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

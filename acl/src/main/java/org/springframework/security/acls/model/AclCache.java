@@ -15,9 +15,9 @@
  */
 package org.springframework.security.acls.model;
 
-import org.springframework.security.acls.jdbc.JdbcAclService;
-
 import java.io.Serializable;
+
+import org.springframework.security.acls.jdbc.JdbcAclService;
 
 /**
  * A caching layer for {@link JdbcAclService}.

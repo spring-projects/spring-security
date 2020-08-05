@@ -17,6 +17,8 @@ package org.springframework.security.web.server.authorization;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -24,8 +26,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
-import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch

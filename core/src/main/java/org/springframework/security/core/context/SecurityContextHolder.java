@@ -16,10 +16,10 @@
 
 package org.springframework.security.core.context;
 
+import java.lang.reflect.Constructor;
+
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Constructor;
 
 /**
  * Associates a given {@link SecurityContext} with the current execution thread.

@@ -15,10 +15,11 @@
  */
 package org.springframework.security.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.servlet.http.HttpSession;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -32,7 +33,7 @@ import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.servlet.http.HttpSession;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ContextConfiguration(locations = { "/http-path-param-stripping-app-context.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)

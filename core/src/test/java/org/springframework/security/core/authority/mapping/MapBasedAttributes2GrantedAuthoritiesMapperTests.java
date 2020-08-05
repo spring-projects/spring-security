@@ -15,13 +15,18 @@
  */
 package org.springframework.security.core.authority.mapping;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Ruud Senden

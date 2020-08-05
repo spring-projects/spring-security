@@ -17,7 +17,6 @@
 package org.springframework.security.authentication.event;
 
 import org.springframework.security.core.Authentication;
-
 import org.springframework.util.Assert;
 
 /**

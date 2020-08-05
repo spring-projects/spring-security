@@ -16,12 +16,13 @@
 
 package org.springframework.security.web.csrf;
 
+import javax.servlet.http.Cookie;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import javax.servlet.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

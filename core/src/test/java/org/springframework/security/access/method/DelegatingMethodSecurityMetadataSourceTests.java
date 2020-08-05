@@ -15,17 +15,22 @@
  */
 package org.springframework.security.access.method;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.util.SimpleMethodInvocation;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor

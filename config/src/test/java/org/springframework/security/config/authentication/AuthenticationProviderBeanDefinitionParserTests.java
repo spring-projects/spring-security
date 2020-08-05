@@ -15,6 +15,13 @@
  */
 package org.springframework.security.config.authentication;
 
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Test;
+
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
+import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,13 +29,6 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
-import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
-import org.springframework.context.support.AbstractXmlApplicationContext;
-
-import org.junit.Test;
-import org.junit.After;
-
-import java.util.List;
 
 /**
  * Tests for {@link AuthenticationProviderBeanDefinitionParser}.

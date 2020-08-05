@@ -17,9 +17,9 @@ package org.springframework.security.web.server.header;
 
 import java.time.Duration;
 
-import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
+
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Writes the Strict-Transport-Security if the request is secure.

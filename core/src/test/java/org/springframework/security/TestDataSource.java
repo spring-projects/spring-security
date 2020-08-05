@@ -15,9 +15,9 @@
  */
 package org.springframework.security;
 
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * A Datasource bean which starts an in-memory HSQL database with the supplied name and

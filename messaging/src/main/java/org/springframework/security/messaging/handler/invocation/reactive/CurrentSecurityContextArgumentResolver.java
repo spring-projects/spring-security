@@ -16,7 +16,11 @@
 
 package org.springframework.security.messaging.handler.invocation.reactive;
 
+import java.lang.annotation.Annotation;
+
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -36,9 +40,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Mono;
-
-import java.lang.annotation.Annotation;
 
 /**
  * Allows resolving the {@link Authentication#getPrincipal()} using the

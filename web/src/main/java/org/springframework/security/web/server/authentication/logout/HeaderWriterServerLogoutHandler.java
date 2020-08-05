@@ -15,12 +15,12 @@
  */
 package org.springframework.security.web.server.authentication.logout;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
 import org.springframework.util.Assert;
-
-import reactor.core.publisher.Mono;
 
 /**
  * <p>

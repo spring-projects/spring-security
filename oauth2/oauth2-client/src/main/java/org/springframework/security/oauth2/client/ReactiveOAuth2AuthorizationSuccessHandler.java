@@ -15,10 +15,11 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.security.core.Authentication;
+import java.util.Map;
+
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
+import org.springframework.security.core.Authentication;
 
 /**
  * Handles when an OAuth 2.0 Client has been successfully authorized (or re-authorized)

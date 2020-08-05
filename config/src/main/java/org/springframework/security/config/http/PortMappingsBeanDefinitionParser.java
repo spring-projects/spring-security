@@ -18,6 +18,8 @@ package org.springframework.security.config.http;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -27,7 +29,6 @@ import org.springframework.security.config.Elements;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
 
 /**
  * Parses a port-mappings element, producing a single

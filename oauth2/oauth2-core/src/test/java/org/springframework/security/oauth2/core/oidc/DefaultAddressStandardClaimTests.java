@@ -15,10 +15,10 @@
  */
 package org.springframework.security.oauth2.core.oidc;
 
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

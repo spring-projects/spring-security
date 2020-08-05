@@ -16,11 +16,13 @@
 
 package org.springframework.security.cas.web;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
 import org.springframework.security.cas.SamlServiceProperties;
 import org.springframework.security.cas.ServiceProperties;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link ServiceProperties}.

@@ -17,11 +17,11 @@ package org.springframework.security.web.server.context;
 
 import java.security.Principal;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Overrides the {@link ServerWebExchange#getPrincipal()} with the provided

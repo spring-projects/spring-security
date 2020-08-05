@@ -16,10 +16,10 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.core.Authentication;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.Authentication;
 
 /**
  * Implementation of {@link NullRememberMeServices} that does nothing.

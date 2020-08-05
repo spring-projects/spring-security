@@ -17,6 +17,9 @@ package org.springframework.security.config.http;
 
 import java.util.List;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -29,8 +32,6 @@ import org.springframework.security.config.Elements;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * Sets the filter chain Map for a FilterChainProxy bean declaration.

@@ -15,6 +15,10 @@
  */
 package org.springframework.security.oauth2.client.web.server;
 
+import java.net.URI;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -31,9 +35,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
-
-import java.net.URI;
 
 /**
  * This {@code WebFilter} initiates the authorization code grant or implicit grant flow by

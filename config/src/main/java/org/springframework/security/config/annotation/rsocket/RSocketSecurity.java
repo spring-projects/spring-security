@@ -16,6 +16,12 @@
 
 package org.springframework.security.config.annotation.rsocket;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
@@ -30,23 +36,18 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
-import org.springframework.security.rsocket.authentication.AuthenticationPayloadExchangeConverter;
-import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.authentication.AnonymousPayloadInterceptor;
+import org.springframework.security.rsocket.authentication.AuthenticationPayloadExchangeConverter;
 import org.springframework.security.rsocket.authentication.AuthenticationPayloadInterceptor;
 import org.springframework.security.rsocket.authentication.BearerPayloadExchangeConverter;
 import org.springframework.security.rsocket.authorization.AuthorizationPayloadInterceptor;
 import org.springframework.security.rsocket.authorization.PayloadExchangeMatcherReactiveAuthorizationManager;
+import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeAuthorizationContext;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcher;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcherEntry;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatchers;
 import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMatcher;
-import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Allows configuring RSocket based security.

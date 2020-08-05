@@ -15,9 +15,9 @@
  */
 package org.springframework.security.authentication;
 
-import org.springframework.security.core.Authentication;
-
 import reactor.core.publisher.Mono;
+
+import org.springframework.security.core.Authentication;
 
 /**
  * Determines if the provided {@link Authentication} can be authenticated.

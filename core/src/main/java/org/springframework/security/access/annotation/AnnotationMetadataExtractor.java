@@ -15,10 +15,10 @@
  */
 package org.springframework.security.access.annotation;
 
-import org.springframework.security.access.ConfigAttribute;
-
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.Collection;
+
+import org.springframework.security.access.ConfigAttribute;
 
 /**
  * Strategy to process a custom security annotation to extract the relevant

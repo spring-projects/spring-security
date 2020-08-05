@@ -15,9 +15,10 @@
  */
 package org.springframework.security.web.server.authorization;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch

@@ -15,6 +15,12 @@
  */
 package org.springframework.security.config.method;
 
+import java.util.List;
+import java.util.Map;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import org.springframework.aop.config.AbstractInterceptorDrivenBeanDefinitionDecorator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -31,10 +37,6 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import java.util.*;
 
 /**
  * @author Luke Taylor

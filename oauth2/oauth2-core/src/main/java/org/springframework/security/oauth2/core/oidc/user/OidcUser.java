@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.core.oidc.user;
 
+import java.util.Map;
+
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimAccessor;
@@ -22,8 +24,6 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.StandardClaimAccessor;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-
-import java.util.Map;
 
 /**
  * A representation of a user {@code Principal} that is registered with an OpenID Connect

@@ -16,19 +16,17 @@
 
 package org.springframework.security.web.access.channel;
 
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.web.FilterInvocation;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.ServletException;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.web.FilterInvocation;
+import org.springframework.util.Assert;
 
 /**
  * Implementation of {@link ChannelDecisionManager}.

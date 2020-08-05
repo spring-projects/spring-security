@@ -16,15 +16,15 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 
 /**
  * Add this annotation to a {@code Configuration} class to have Spring Security WebFlux

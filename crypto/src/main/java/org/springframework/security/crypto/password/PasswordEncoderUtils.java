@@ -15,9 +15,9 @@
  */
 package org.springframework.security.crypto.password;
 
-import org.springframework.security.crypto.codec.Utf8;
-
 import java.security.MessageDigest;
+
+import org.springframework.security.crypto.codec.Utf8;
 
 /**
  * Utility for constant time comparison to prevent against timing attacks.

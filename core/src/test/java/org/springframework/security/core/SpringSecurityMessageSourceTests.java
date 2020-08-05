@@ -16,13 +16,14 @@
 
 package org.springframework.security.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Locale;
 
 import org.junit.Test;
+
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link org.springframework.security.core.SpringSecurityMessageSource}.

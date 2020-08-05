@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.context.request.async;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.concurrent.Callable;
 
 import org.junit.After;
@@ -24,9 +22,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch

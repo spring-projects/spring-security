@@ -15,10 +15,10 @@
  */
 package org.springframework.security.oauth2.core.user;
 
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.Map;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

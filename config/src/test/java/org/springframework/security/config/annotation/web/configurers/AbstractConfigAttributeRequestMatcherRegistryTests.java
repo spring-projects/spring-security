@@ -16,8 +16,11 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -25,8 +28,6 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
 
 public class AbstractConfigAttributeRequestMatcherRegistryTests {
 

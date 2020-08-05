@@ -16,11 +16,11 @@
 
 package org.springframework.security.core.session;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Date;
 
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link SessionInformation}.

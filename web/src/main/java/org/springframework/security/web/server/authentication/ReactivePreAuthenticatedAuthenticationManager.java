@@ -15,6 +15,8 @@
  */
 package org.springframework.security.web.server.authentication;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -22,7 +24,6 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import reactor.core.publisher.Mono;
 
 /**
  * Reactive version of

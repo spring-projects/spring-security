@@ -15,10 +15,11 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import org.junit.Test;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-
 import java.util.function.Predicate;
+
+import org.junit.Test;
+
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

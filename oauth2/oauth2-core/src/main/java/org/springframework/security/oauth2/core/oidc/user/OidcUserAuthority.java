@@ -15,14 +15,14 @@
  */
 package org.springframework.security.oauth2.core.oidc.user;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.util.Assert;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A {@link GrantedAuthority} that may be associated to an {@link OidcUser}.

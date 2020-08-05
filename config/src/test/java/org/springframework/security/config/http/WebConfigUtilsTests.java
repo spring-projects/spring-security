@@ -15,14 +15,15 @@
  */
 package org.springframework.security.config.http;
 
-import static org.mockito.Mockito.verifyZeroInteractions;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.beans.factory.xml.ParserContext;
+
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(ParserContext.class)

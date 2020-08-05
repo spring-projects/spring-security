@@ -16,8 +16,6 @@
 
 package org.springframework.security.core.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
@@ -26,9 +24,13 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link User}.

@@ -15,13 +15,13 @@
  */
 package org.springframework.security.messaging.util.matcher;
 
-import static java.util.Arrays.asList;
-import static org.apache.commons.logging.LogFactory.getLog;
-import static org.springframework.util.Assert.notEmpty;
-
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+
+import static java.util.Arrays.asList;
+import static org.apache.commons.logging.LogFactory.getLog;
+import static org.springframework.util.Assert.notEmpty;
 
 /**
  * Abstract {@link MessageMatcher} containing multiple {@link MessageMatcher}

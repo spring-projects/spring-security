@@ -15,9 +15,10 @@
  */
 package org.springframework.security.oauth2.client;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import reactor.core.publisher.Mono;
 
 /**
  * A strategy for authorizing (or re-authorizing) an OAuth 2.0 Client. Implementations

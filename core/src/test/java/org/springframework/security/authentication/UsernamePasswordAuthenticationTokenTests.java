@@ -16,11 +16,12 @@
 
 package org.springframework.security.authentication;
 
+import org.junit.Test;
+
+import org.springframework.security.core.authority.AuthorityUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-
-import org.junit.Test;
-import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * Tests {@link UsernamePasswordAuthenticationToken}.

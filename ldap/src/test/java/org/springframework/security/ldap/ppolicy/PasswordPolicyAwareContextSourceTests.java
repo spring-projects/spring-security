@@ -15,18 +15,25 @@
  */
 package org.springframework.security.ldap.ppolicy;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.*;
-import org.springframework.ldap.UncategorizedLdapException;
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
-import java.util.*;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.ldap.UncategorizedLdapException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Luke Taylor

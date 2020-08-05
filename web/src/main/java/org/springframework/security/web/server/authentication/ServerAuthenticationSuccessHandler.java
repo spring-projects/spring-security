@@ -16,9 +16,10 @@
 
 package org.springframework.security.web.server.authentication;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
-import reactor.core.publisher.Mono;
 
 /**
  * Handles authentication success

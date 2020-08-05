@@ -15,13 +15,13 @@
  */
 package org.springframework.security.concurrent;
 
-import static org.mockito.Mockito.verify;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.Test;
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.verify;
 
 /**
  * Abstract class for testing {@link DelegatingSecurityContextExecutor} which allows

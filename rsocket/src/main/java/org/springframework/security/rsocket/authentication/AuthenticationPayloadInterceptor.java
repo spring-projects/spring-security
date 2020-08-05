@@ -16,6 +16,8 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.Ordered;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -24,7 +26,6 @@ import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
 import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
 
 /**
  * Uses the provided {@code ReactiveAuthenticationManager} to authenticate a Payload. If

@@ -15,9 +15,6 @@
  */
 package org.springframework.security.web.authentication.preauth;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +23,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class Http403ForbiddenEntryPointTests {
 

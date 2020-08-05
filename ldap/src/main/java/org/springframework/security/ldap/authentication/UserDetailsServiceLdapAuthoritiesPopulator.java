@@ -17,10 +17,10 @@ package org.springframework.security.ldap.authentication;
 
 import java.util.Collection;
 
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
-import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.util.Assert;
 
 /**

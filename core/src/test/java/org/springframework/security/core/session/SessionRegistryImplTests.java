@@ -16,17 +16,15 @@
 
 package org.springframework.security.core.session;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.session.SessionDestroyedEvent;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistryImpl;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link SessionRegistryImpl}.

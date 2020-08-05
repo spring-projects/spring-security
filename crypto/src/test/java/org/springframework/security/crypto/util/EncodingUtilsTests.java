@@ -15,12 +15,13 @@
  */
 package org.springframework.security.crypto.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 
 import org.junit.Test;
+
 import org.springframework.security.crypto.codec.Hex;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EncodingUtilsTests {
 

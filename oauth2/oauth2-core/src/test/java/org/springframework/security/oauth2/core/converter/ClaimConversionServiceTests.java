@@ -15,10 +15,6 @@
  */
 package org.springframework.security.oauth2.core.converter;
 
-import org.assertj.core.util.Lists;
-import org.junit.Test;
-import org.springframework.core.convert.ConversionService;
-
 import java.net.URL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -28,6 +24,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.assertj.core.util.Lists;
+import org.junit.Test;
+
+import org.springframework.core.convert.ConversionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

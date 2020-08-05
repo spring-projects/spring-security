@@ -16,11 +16,11 @@
 
 package org.springframework.security.config;
 
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
 /**
  * @author Rob Winch

@@ -15,18 +15,19 @@
  */
 package org.springframework.security.oauth2.core.converter;
 
-import org.assertj.core.util.Lists;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.Converter;
-
 import java.net.URL;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.assertj.core.util.Lists;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.Converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

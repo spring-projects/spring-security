@@ -15,9 +15,14 @@
  */
 package org.springframework.security.config.annotation.web;
 
+import java.util.Base64;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -35,9 +40,6 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

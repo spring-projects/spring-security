@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -29,7 +31,6 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 
 /**
  * Converts from a {@link ServerWebExchange} to an

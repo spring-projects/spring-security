@@ -16,10 +16,10 @@
 
 package org.springframework.security.web.authentication.logout;
 
-import org.springframework.security.core.Authentication;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.core.Authentication;
 
 /**
  * Indicates a class that is able to participate in logout handling.

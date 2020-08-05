@@ -15,10 +15,10 @@
  */
 package org.springframework.security.test.web.servlet.setup;
 
+import javax.servlet.Filter;
+
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.util.Assert;
-
-import javax.servlet.Filter;
 
 /**
  * Provides Security related

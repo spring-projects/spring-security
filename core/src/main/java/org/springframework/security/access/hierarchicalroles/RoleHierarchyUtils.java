@@ -15,12 +15,12 @@
  */
 package org.springframework.security.access.hierarchicalroles;
 
-import org.springframework.util.Assert;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.util.Assert;
 
 /**
  * Utility methods for {@link RoleHierarchy}.

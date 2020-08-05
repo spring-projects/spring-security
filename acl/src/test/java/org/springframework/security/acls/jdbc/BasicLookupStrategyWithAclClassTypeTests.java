@@ -20,10 +20,12 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import junit.framework.Assert;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,8 +35,6 @@ import org.springframework.security.acls.domain.DefaultPermissionGrantingStrateg
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.ObjectIdentity;
-
-import junit.framework.Assert;
 
 /**
  * Tests {@link BasicLookupStrategy} with Acl Class type id set to UUID.

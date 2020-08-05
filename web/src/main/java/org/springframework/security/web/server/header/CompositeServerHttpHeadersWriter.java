@@ -15,12 +15,13 @@
  */
 package org.springframework.security.web.server.header;
 
-import org.springframework.web.server.ServerWebExchange;
+import java.util.Arrays;
+import java.util.List;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Combines multiple {@link ServerHttpHeadersWriter} instances into a single instance.

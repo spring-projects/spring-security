@@ -15,15 +15,21 @@
  */
 package org.springframework.security.web.access.channel;
 
-import org.springframework.security.web.*;
-import org.springframework.util.Assert;
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.PortMapper;
+import org.springframework.security.web.PortMapperImpl;
+import org.springframework.security.web.PortResolver;
+import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor

@@ -15,19 +15,23 @@
  */
 package org.springframework.security.scheduling;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.verify;
 
 /**
  * Test An implementation of {@link TaskScheduler} invoking it whenever the trigger

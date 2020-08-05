@@ -16,9 +16,6 @@
 
 package org.springframework.security.oauth2.server.resource.introspection;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,9 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Tests for {@link OAuth2IntrospectionAuthenticatedPrincipal}

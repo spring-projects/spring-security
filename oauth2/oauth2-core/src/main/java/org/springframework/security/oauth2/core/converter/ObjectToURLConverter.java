@@ -15,13 +15,13 @@
  */
 package org.springframework.security.oauth2.core.converter;
 
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.GenericConverter;
-
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Set;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.GenericConverter;
 
 /**
  * @author Joe Grandja

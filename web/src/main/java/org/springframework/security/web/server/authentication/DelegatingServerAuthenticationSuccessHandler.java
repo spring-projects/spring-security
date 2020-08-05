@@ -16,14 +16,15 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.util.Assert;
+import java.util.Arrays;
+import java.util.List;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.util.Assert;
 
 /**
  * Delegates to a collection of {@link ServerAuthenticationSuccessHandler}

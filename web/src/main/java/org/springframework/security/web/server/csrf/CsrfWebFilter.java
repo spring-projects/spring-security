@@ -16,6 +16,12 @@
 
 package org.springframework.security.web.server.csrf;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -29,11 +35,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
 

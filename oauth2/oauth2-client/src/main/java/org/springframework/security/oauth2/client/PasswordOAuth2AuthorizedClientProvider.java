@@ -15,6 +15,10 @@
  */
 package org.springframework.security.oauth2.client;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.endpoint.DefaultPasswordTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
@@ -26,10 +30,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 
 /**
  * An implementation of an {@link OAuth2AuthorizedClientProvider} for the

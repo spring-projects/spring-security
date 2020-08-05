@@ -21,6 +21,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
+import net.minidev.json.JSONObject;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,12 +45,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.UnsupportedMediaTypeException;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.nimbusds.oauth2.sdk.ErrorObject;
-import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
-
-import net.minidev.json.JSONObject;
-import reactor.core.publisher.Mono;
 
 /**
  * An implementation of an {@link ReactiveOAuth2UserService} that supports standard OAuth

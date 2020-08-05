@@ -15,9 +15,9 @@
  */
 package org.springframework.security.web.header.writers.frameoptions;
 
-import org.springframework.util.Assert;
-
 import java.util.regex.Pattern;
+
+import org.springframework.util.Assert;
 
 /**
  * Implementation which uses a regular expression to validate the supplied origin. If the

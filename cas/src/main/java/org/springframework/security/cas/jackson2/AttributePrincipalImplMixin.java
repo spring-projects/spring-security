@@ -16,10 +16,14 @@
 
 package org.springframework.security.cas.jackson2;
 
-import com.fasterxml.jackson.annotation.*;
-import org.jasig.cas.client.proxy.ProxyRetriever;
-
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jasig.cas.client.proxy.ProxyRetriever;
 
 /**
  * Helps in deserialize {@link org.jasig.cas.client.authentication.AttributePrincipalImpl}

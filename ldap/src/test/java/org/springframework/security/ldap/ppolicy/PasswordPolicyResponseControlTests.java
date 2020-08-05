@@ -16,9 +16,9 @@
 
 package org.springframework.security.ldap.ppolicy;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for <tt>PasswordPolicyResponse</tt>.

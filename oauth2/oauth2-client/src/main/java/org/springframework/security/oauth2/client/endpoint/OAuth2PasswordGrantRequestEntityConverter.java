@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.net.URI;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,8 +29,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
 
 /**
  * A {@link Converter} that converts the provided {@link OAuth2PasswordGrantRequest} to a

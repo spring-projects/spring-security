@@ -16,8 +16,11 @@
 
 package org.springframework.security.test.web.reactive.server;
 
+import java.security.Principal;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -27,8 +30,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-
-import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;

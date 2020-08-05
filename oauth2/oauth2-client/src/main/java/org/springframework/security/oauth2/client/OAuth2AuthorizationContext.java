@@ -15,17 +15,17 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * A context that holds authorization-specific state and is used by an

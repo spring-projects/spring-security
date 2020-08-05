@@ -16,11 +16,12 @@
 
 package org.springframework.security.core.authority;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.Test;
 
-import org.junit.*;
 import org.springframework.security.core.GrantedAuthority;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link SimpleGrantedAuthority}.

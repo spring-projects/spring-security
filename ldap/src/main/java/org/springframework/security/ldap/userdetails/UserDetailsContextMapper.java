@@ -17,10 +17,10 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.Collection;
 
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DirContextAdapter;
 
 /**
  * Operations to map a UserDetails object to and from a Spring LDAP

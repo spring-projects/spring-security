@@ -15,12 +15,12 @@
  */
 package org.springframework.security.oauth2.client.jackson2;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Utility class for {@code JsonNode}.

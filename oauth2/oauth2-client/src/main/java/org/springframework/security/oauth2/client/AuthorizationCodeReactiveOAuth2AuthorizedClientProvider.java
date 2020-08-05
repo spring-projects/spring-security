@@ -15,10 +15,11 @@
  */
 package org.springframework.security.oauth2.client;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AuthorizedClientProvider} for the

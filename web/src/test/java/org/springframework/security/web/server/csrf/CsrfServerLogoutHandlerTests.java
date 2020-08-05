@@ -15,14 +15,12 @@
  */
 package org.springframework.security.web.server.csrf;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Mockito.*;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -30,7 +28,9 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.WebFilterChain;
 
-import reactor.core.publisher.Mono;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Eric Deandrea

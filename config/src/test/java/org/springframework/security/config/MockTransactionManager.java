@@ -15,12 +15,12 @@
  */
 package org.springframework.security.config;
 
-import static org.mockito.Mockito.mock;
-
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Luke Taylor

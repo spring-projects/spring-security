@@ -15,11 +15,11 @@
  */
 package org.springframework.security.oauth2.core.oidc;
 
-import org.springframework.security.oauth2.core.ClaimAccessor;
-import org.springframework.util.CollectionUtils;
-
 import java.time.Instant;
 import java.util.Map;
+
+import org.springframework.security.oauth2.core.ClaimAccessor;
+import org.springframework.util.CollectionUtils;
 
 /**
  * A {@link ClaimAccessor} for the &quot;Standard Claims&quot; that can be returned either

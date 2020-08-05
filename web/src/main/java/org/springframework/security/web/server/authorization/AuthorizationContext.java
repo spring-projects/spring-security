@@ -16,10 +16,10 @@
 
 package org.springframework.security.web.server.authorization;
 
-import org.springframework.web.server.ServerWebExchange;
-
 import java.util.Collections;
 import java.util.Map;
+
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * @author Rob Winch

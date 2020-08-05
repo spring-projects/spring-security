@@ -16,21 +16,18 @@
 
 package org.springframework.security.ldap.search;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
+import javax.naming.directory.SearchControls;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-
-import org.springframework.util.Assert;
-
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
-
-import javax.naming.directory.SearchControls;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.ldap.SpringSecurityLdapTemplate;
+import org.springframework.util.Assert;
 
 /**
  * LdapUserSearch implementation which uses an Ldap filter to locate the user.

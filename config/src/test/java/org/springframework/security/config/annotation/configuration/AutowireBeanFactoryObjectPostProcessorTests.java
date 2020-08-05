@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.configuration;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.DisposableBean;

@@ -16,11 +16,12 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link NullUserCache}.

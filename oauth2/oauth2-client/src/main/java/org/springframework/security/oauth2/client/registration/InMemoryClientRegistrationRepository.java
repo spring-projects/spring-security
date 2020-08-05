@@ -15,14 +15,14 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
-import org.springframework.util.Assert;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.util.Assert;
 
 /**
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s)

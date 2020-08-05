@@ -15,13 +15,13 @@
  */
 package org.springframework.security.access.vote;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
+
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RoleHierarchyVoterTests {
 

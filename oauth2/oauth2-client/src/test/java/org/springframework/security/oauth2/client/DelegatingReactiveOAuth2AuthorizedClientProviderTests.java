@@ -15,15 +15,16 @@
  */
 package org.springframework.security.oauth2.client;
 
+import java.util.Collections;
+
 import org.junit.Test;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
-import reactor.core.publisher.Mono;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

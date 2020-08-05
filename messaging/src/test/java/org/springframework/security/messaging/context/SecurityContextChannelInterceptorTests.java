@@ -15,12 +15,15 @@
  */
 package org.springframework.security.messaging.context;
 
+import java.security.Principal;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -30,12 +33,9 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
-
-import java.security.Principal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.core.context.SecurityContextHolder.*;
+import static org.springframework.security.core.context.SecurityContextHolder.clearContext;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityContextChannelInterceptorTests {

@@ -16,13 +16,14 @@
 
 package org.springframework.security.access.intercept;
 
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
+
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.util.SimpleMethodInvocation;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests some {@link AbstractSecurityInterceptor} methods. Most of the testing for this

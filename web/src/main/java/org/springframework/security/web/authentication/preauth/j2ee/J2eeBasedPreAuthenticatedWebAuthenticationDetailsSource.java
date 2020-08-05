@@ -15,8 +15,16 @@
  */
 package org.springframework.security.web.authentication.preauth.j2ee;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,9 +33,6 @@ import org.springframework.security.core.authority.mapping.MappableAttributesRet
 import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 import org.springframework.util.Assert;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.*;
 
 /**
  * Implementation of AuthenticationDetailsSource which converts the user's J2EE roles (as

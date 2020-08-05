@@ -16,11 +16,16 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.metadata.security.AuthMetadataFlyweight;
 import io.rsocket.metadata.security.WellKnownAuthType;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.codec.ByteArrayDecoder;
 import org.springframework.messaging.rsocket.DefaultMetadataExtractor;
 import org.springframework.messaging.rsocket.MetadataExtractor;
@@ -30,10 +35,6 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
-import reactor.core.publisher.Mono;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 /**
  * Converts from the {@link PayloadExchange} for <a href=

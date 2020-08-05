@@ -15,16 +15,16 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import java.net.URI;
+import java.util.Collections;
+import java.util.Map;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Allows resolving configuration from an <a href=

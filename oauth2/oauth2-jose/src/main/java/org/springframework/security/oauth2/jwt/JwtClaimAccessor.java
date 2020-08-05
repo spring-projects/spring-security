@@ -15,11 +15,11 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import org.springframework.security.oauth2.core.ClaimAccessor;
-
 import java.net.URL;
 import java.time.Instant;
 import java.util.List;
+
+import org.springframework.security.oauth2.core.ClaimAccessor;
 
 /**
  * A {@link ClaimAccessor} for the &quot;claims&quot; that may be contained in the JSON

@@ -16,18 +16,18 @@
 
 package org.springframework.security.web.access.channel;
 
-import static org.assertj.core.api.Assertions.*;
-
-import org.springframework.security.MockPortResolver;
-
-import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.access.channel.RetryWithHttpsEntryPoint;
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.MockPortResolver;
+import org.springframework.security.web.PortMapperImpl;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests {@link RetryWithHttpsEntryPoint}.

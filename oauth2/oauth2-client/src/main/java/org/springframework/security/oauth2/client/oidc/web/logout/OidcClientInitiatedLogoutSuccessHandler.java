@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client.oidc.web.logout;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

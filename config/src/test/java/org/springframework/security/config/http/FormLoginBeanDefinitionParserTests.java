@@ -17,6 +17,7 @@ package org.springframework.security.config.http;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.web.WebAttributes;

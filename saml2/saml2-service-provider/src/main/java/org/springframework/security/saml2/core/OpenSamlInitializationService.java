@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+
 import javax.xml.XMLConstants;
 
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;

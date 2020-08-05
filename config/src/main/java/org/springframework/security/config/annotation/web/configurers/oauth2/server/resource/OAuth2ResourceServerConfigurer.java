@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.resource;
 
 import java.util.function.Supplier;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;

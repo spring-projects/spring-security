@@ -15,15 +15,15 @@
  */
 package org.springframework.security.crypto.password;
 
-import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.subArray;
+import java.security.MessageDigest;
 
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
-import java.security.MessageDigest;
+import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
+import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 
 /**
  * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered

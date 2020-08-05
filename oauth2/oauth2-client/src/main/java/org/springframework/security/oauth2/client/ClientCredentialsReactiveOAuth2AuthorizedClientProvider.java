@@ -15,6 +15,12 @@
  */
 package org.springframework.security.oauth2.client;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient;
@@ -23,11 +29,6 @@ import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AuthorizedClientProvider} for the

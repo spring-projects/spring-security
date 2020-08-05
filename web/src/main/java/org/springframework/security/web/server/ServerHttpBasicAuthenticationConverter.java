@@ -18,14 +18,14 @@ package org.springframework.security.web.server;
 import java.util.Base64;
 import java.util.function.Function;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Converts from a {@link ServerWebExchange} to an {@link Authentication} that can be

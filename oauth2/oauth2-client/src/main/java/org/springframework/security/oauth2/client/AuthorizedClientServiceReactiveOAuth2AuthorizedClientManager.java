@@ -15,17 +15,18 @@
  */
 package org.springframework.security.oauth2.client;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.function.Function;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AuthorizedClientManager} that is capable of

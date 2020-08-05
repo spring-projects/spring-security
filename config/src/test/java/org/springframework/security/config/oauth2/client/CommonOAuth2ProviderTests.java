@@ -16,6 +16,7 @@
 package org.springframework.security.config.oauth2.client;
 
 import org.junit.Test;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;

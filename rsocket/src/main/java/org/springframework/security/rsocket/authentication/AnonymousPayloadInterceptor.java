@@ -16,18 +16,19 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import java.util.List;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
-
-import java.util.List;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+import org.springframework.util.Assert;
 
 /**
  * If {@link ReactiveSecurityContextHolder} is empty populates an

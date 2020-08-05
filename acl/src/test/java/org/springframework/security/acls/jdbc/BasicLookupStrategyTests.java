@@ -19,6 +19,7 @@ import javax.sql.DataSource;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**

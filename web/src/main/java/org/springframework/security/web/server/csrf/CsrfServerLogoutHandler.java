@@ -16,12 +16,12 @@
 
 package org.springframework.security.web.server.csrf;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import org.springframework.util.Assert;
-
-import reactor.core.publisher.Mono;
 
 /**
  * {@link CsrfServerLogoutHandler} is in charge of removing the {@link CsrfToken} upon

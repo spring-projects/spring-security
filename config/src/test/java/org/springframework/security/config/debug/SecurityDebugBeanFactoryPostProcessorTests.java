@@ -17,6 +17,7 @@ package org.springframework.security.config.debug;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.debug.DebugFilter;

@@ -17,10 +17,10 @@ package org.springframework.security.web.server.header;
 
 import java.util.function.Supplier;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Interface for writing headers just before the response is committed.

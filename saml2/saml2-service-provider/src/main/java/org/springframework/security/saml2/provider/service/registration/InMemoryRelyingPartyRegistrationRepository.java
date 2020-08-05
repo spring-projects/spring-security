@@ -16,13 +16,13 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
-import org.springframework.util.Assert;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.springframework.util.Assert;
 
 import static java.util.Arrays.asList;
 import static org.springframework.util.Assert.notEmpty;

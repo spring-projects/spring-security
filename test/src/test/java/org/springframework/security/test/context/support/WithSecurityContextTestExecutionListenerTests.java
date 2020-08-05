@@ -16,6 +16,9 @@
 
 package org.springframework.security.test.context.support;
 
+import java.lang.reflect.Method;
+import java.util.function.Supplier;
+
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -25,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -37,10 +41,7 @@ import org.springframework.test.context.TestContext;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
-import java.lang.reflect.Method;
-import java.util.function.Supplier;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;

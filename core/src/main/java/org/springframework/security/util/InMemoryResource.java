@@ -16,12 +16,12 @@
 
 package org.springframework.security.util;
 
-import org.springframework.core.io.AbstractResource;
-import org.springframework.util.Assert;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
+
+import org.springframework.core.io.AbstractResource;
+import org.springframework.util.Assert;
 
 /**
  * An in memory implementation of Spring's {@link org.springframework.core.io.Resource}

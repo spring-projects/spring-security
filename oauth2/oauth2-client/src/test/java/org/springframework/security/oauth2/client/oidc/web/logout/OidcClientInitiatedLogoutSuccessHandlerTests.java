@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client.oidc.web.logout;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+
 import javax.servlet.ServletException;
 
 import org.junit.Before;

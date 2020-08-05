@@ -15,9 +15,9 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
 /**
  * Implementations of this interface are capable of resolving an

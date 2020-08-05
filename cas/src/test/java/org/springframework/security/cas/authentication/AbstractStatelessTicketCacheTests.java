@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
+
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 

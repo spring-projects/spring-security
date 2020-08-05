@@ -15,15 +15,17 @@
  */
 package org.springframework.security.web.savedrequest;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.Base64;
+
+import javax.servlet.http.Cookie;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.http.Cookie;
-import java.util.Base64;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RequestCacheAwareFilterTests {
 

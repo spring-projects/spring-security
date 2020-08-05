@@ -15,14 +15,15 @@
  */
 package org.springframework.security.config.annotation.web;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

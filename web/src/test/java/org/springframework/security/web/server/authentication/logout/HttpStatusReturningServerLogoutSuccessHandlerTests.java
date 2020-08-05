@@ -16,9 +16,6 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
 
 import org.springframework.http.HttpStatus;
@@ -27,6 +24,10 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.WebFilterChain;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Eric Deandrea

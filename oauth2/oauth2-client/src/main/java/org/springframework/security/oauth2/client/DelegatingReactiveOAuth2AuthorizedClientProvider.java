@@ -15,14 +15,15 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.util.Assert;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import org.springframework.util.Assert;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AuthorizedClientProvider} that simply

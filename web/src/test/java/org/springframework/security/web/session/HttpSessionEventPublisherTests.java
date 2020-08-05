@@ -16,15 +16,15 @@
 
 package org.springframework.security.web.session;
 
-import static org.assertj.core.api.Assertions.*;
-
 import javax.servlet.http.HttpSessionEvent;
 
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.context.support.StaticWebApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * The HttpSessionEventPublisher tests

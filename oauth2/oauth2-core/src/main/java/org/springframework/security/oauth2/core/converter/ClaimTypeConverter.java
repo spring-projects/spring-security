@@ -15,14 +15,14 @@
  */
 package org.springframework.security.oauth2.core.converter;
 
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * A {@link Converter} that provides type conversion for claim values.

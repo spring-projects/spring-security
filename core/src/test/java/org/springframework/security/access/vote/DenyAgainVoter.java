@@ -16,12 +16,12 @@
 
 package org.springframework.security.access.vote;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Implementation of an {@link AccessDecisionVoter} for unit testing.
