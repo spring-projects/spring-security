@@ -131,3 +131,32 @@ configurations {
 		}
 	}
 }
+
+/*
+NOTE:
+The latest `reactor-netty` dependency was split into `reactor-netty-core` and `reactor-netty-http`,
+which resulted in the snapshot build to fail. The below configuration fixes it.
+
+Reference:
+- https://github.com/spring-projects/spring-security/issues/8909
+- https://github.com/reactor/reactor-netty/issues/739#issuecomment-667047117
+*/
+if (reactorVersion.startsWith('20')) {
+	if (reactorVersion.endsWith('SNAPSHOT') || reactorVersion.endsWith('+')) {
+		ext.reactorLatestVersion = "latest.integration"
+	} else {
+		ext.reactorLatestVersion = "latest.release"
+	}
+	configurations {
+		all {
+			resolutionStrategy {
+				eachDependency { DependencyResolveDetails details ->
+					if (details.requested.name == 'reactor-netty') {
+						details.useTarget("${details.requested.group}:reactor-netty-http:${reactorLatestVersion}")
+						details.because("reactor-netty is now split into reactor-netty-core and reactor-netty-http")
+					}
+				}
+			}
+		}
+	}
+}
