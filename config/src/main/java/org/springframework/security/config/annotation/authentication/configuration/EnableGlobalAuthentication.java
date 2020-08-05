@@ -87,4 +87,5 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 @Import(AuthenticationConfiguration.class)
 @Configuration
 public @interface EnableGlobalAuthentication {
+
 }

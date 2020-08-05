@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.WebConnectionHtml
  * @since 5.0
  */
 public class WebTestClientHtmlUnitDriverBuilder {
+
 	private final WebTestClient webTestClient;
 
 	private WebTestClientHtmlUnitDriverBuilder(WebTestClient webTestClient) {
@@ -40,7 +41,8 @@ public class WebTestClientHtmlUnitDriverBuilder {
 		WebConnectionHtmlUnitDriver driver = new WebConnectionHtmlUnitDriver();
 		WebClient webClient = driver.getWebClient();
 		WebTestClientWebConnection webClientConnection = new WebTestClientWebConnection(this.webTestClient, webClient);
-		WebConnection connection = new DelegatingWebConnection(driver.getWebConnection(), new DelegateWebConnection(new HostRequestMatcher("localhost"), webClientConnection));
+		WebConnection connection = new DelegatingWebConnection(driver.getWebConnection(),
+				new DelegateWebConnection(new HostRequestMatcher("localhost"), webClientConnection));
 		driver.setWebConnection(connection);
 		return driver;
 	}
@@ -48,4 +50,5 @@ public class WebTestClientHtmlUnitDriverBuilder {
 	public static WebTestClientHtmlUnitDriverBuilder webTestClientSetup(WebTestClient webTestClient) {
 		return new WebTestClientHtmlUnitDriverBuilder(webTestClient);
 	}
+
 }

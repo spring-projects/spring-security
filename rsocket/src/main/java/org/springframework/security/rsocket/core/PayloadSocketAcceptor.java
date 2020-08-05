@@ -38,6 +38,7 @@ import java.util.List;
  * @since 5.2
  */
 class PayloadSocketAcceptor implements SocketAcceptor {
+
 	private final SocketAcceptor delegate;
 
 	private final List<PayloadInterceptor> interceptors;
@@ -45,8 +46,8 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 	@Nullable
 	private MimeType defaultDataMimeType;
 
-	private MimeType defaultMetadataMimeType =
-			MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+	private MimeType defaultMetadataMimeType = MimeTypeUtils
+			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	PayloadSocketAcceptor(SocketAcceptor delegate, List<PayloadInterceptor> interceptors) {
 		Assert.notNull(delegate, "delegate cannot be null");
@@ -70,10 +71,11 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 
 		// FIXME do we want to make the sendingSocket available in the PayloadExchange
 		return intercept(setup, dataMimeType, metadataMimeType)
-			.flatMap(ctx -> this.delegate.accept(setup, sendingSocket)
-				.map(acceptingSocket -> new PayloadInterceptorRSocket(acceptingSocket, this.interceptors, metadataMimeType, dataMimeType, ctx))
-				.subscriberContext(ctx)
-			);
+				.flatMap(
+						ctx -> this.delegate.accept(setup, sendingSocket)
+								.map(acceptingSocket -> new PayloadInterceptorRSocket(acceptingSocket,
+										this.interceptors, metadataMimeType, dataMimeType, ctx))
+								.subscriberContext(ctx));
 	}
 
 	private Mono<Context> intercept(Payload payload, MimeType dataMimeType, MimeType metadataMimeType) {
@@ -81,8 +83,7 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 			ContextPayloadInterceptorChain chain = new ContextPayloadInterceptorChain(this.interceptors);
 			DefaultPayloadExchange exchange = new DefaultPayloadExchange(PayloadExchangeType.SETUP, payload,
 					metadataMimeType, dataMimeType);
-			return chain.next(exchange)
-					.then(Mono.fromCallable(() -> chain.getContext()))
+			return chain.next(exchange).then(Mono.fromCallable(() -> chain.getContext()))
 					.defaultIfEmpty(Context.empty());
 		});
 	}
@@ -99,4 +100,5 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 		Assert.notNull(defaultMetadataMimeType, "defaultMetadataMimeType cannot be null");
 		this.defaultMetadataMimeType = defaultMetadataMimeType;
 	}
+
 }

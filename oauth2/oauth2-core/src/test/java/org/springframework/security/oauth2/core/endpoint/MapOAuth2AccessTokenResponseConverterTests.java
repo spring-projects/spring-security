@@ -41,7 +41,6 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		this.messageConverter = new MapOAuth2AccessTokenResponseConverter();
 	}
 
-
 	@Test
 	public void shouldConvertFull() {
 		Map<String, String> map = new HashMap<>();
@@ -123,4 +122,5 @@ public class MapOAuth2AccessTokenResponseConverterTests {
 		Assert.assertNotNull(additionalParameters);
 		Assert.assertEquals(0, additionalParameters.size());
 	}
+
 }

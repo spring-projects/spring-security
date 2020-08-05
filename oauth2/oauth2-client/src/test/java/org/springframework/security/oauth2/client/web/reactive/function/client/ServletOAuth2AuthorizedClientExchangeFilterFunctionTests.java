@@ -129,28 +129,40 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
+
 	@Mock
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
+
 	@Mock
 	private ClientRegistrationRepository clientRegistrationRepository;
+
 	@Mock
 	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient;
+
 	@Mock
 	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenTokenResponseClient;
+
 	@Mock
 	private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
+
 	@Mock
 	private OAuth2AuthorizationFailureHandler authorizationFailureHandler;
+
 	@Captor
 	private ArgumentCaptor<OAuth2AuthorizationException> authorizationExceptionCaptor;
+
 	@Captor
 	private ArgumentCaptor<Authentication> authenticationCaptor;
+
 	@Captor
 	private ArgumentCaptor<Map<String, Object>> attributesCaptor;
+
 	@Mock
 	private WebClient.RequestHeadersSpec<?> spec;
+
 	@Captor
 	private ArgumentCaptor<Consumer<Map<String, Object>>> attrs;
+
 	@Captor
 	private ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor;
 
@@ -169,23 +181,20 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
-	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-			"token-0",
-			Instant.now(),
-			Instant.now().plus(Duration.ofDays(1)));
+	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token-0",
+			Instant.now(), Instant.now().plus(Duration.ofDays(1)));
 
 	@Before
 	public void setup() {
 		this.authentication = new TestingAuthenticationToken("test", "this");
-		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.builder()
-						.authorizationCode()
-						.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
-						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
-						.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
-						.build();
-		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
-				this.clientRegistrationRepository, this.authorizedClientRepository);
+		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
+				.authorizationCode()
+				.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
+				.clientCredentials(
+						configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
+				.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient)).build();
+		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(this.clientRegistrationRepository,
+				this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientManager);
 	}
@@ -211,18 +220,19 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void setClientCredentialsTokenResponseClientWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
-		assertThatThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(new DefaultClientCredentialsTokenResponseClient()))
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("The client cannot be set when the constructor used is \"ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)\". " +
-						"Instead, use the constructor \"ServletOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
+		assertThatThrownBy(() -> this.function
+				.setClientCredentialsTokenResponseClient(new DefaultClientCredentialsTokenResponseClient()))
+						.isInstanceOf(IllegalStateException.class).hasMessage(
+								"The client cannot be set when the constructor used is \"ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)\". "
+										+ "Instead, use the constructor \"ServletOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
 
 	@Test
 	public void setAccessTokenExpiresSkewWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
 		assertThatThrownBy(() -> this.function.setAccessTokenExpiresSkew(Duration.ofSeconds(30)))
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("The accessTokenExpiresSkew cannot be set when the constructor used is \"ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)\". " +
-						"Instead, use the constructor \"ServletOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
+				.isInstanceOf(IllegalStateException.class).hasMessage(
+						"The accessTokenExpiresSkew cannot be set when the constructor used is \"ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)\". "
+								+ "Instead, use the constructor \"ServletOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
 
 	@Test
@@ -267,8 +277,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenAuthorizedClientNullThenAuthorizationHeaderNull() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.build();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -277,31 +286,29 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenAuthorizedClientThenAuthorizationHeader() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
-		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + this.accessToken.getTokenValue());
+		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.header(HttpHeaders.AUTHORIZATION, "Existing")
-				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.header(HttpHeaders.AUTHORIZATION, "Existing").attributes(oauth2AuthorizedClient(authorizedClient))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -312,34 +319,27 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenRefreshRequiredThenRefresh() {
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(3600)
-				.refreshToken("refresh-1")
-				.build();
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).refreshToken("refresh-1").build();
 		when(this.refreshTokenTokenResponseClient.getTokenResponse(any())).thenReturn(response);
 
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
-		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(),
-				this.accessToken.getTokenValue(),
-				issuedAt,
-				accessTokenExpiresAt);
+		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(), this.accessToken.getTokenValue(),
+				issuedAt, accessTokenExpiresAt);
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, refreshToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken, refreshToken);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(authentication(this.authentication))
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(authentication(this.authentication))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
 		verify(this.refreshTokenTokenResponseClient).getTokenResponse(any());
-		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				this.authorizedClientCaptor.capture(), eq(this.authentication), any(), any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(this.authorizedClientCaptor.capture(),
+				eq(this.authentication), any(), any());
 
 		OAuth2AuthorizedClient newAuthorizedClient = authorizedClientCaptor.getValue();
 		assertThat(newAuthorizedClient.getAccessToken()).isEqualTo(response.getAccessToken());
@@ -358,9 +358,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenRefreshRequiredThenRefreshAndResponseDoesNotContainRefreshToken() {
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(3600)
-//				.refreshToken(xxx)  // No refreshToken in response
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600)
+				// .refreshToken(xxx) // No refreshToken in response
 				.build();
 
 		RestOperations refreshTokenClient = mock(RestOperations.class);
@@ -378,25 +377,22 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
-		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(),
-				this.accessToken.getTokenValue(),
-				issuedAt,
-				accessTokenExpiresAt);
+		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(), this.accessToken.getTokenValue(),
+				issuedAt, accessTokenExpiresAt);
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, refreshToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken, refreshToken);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(authentication(this.authentication))
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(authentication(this.authentication))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
 		verify(refreshTokenClient).exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class));
-		verify(this.authorizedClientRepository).saveAuthorizedClient(this.authorizedClientCaptor.capture(), eq(this.authentication), any(), any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(this.authorizedClientCaptor.capture(),
+				eq(this.authentication), any(), any());
 
 		OAuth2AuthorizedClient newAuthorizedClient = authorizedClientCaptor.getValue();
 		assertThat(newAuthorizedClient.getAccessToken()).isEqualTo(response.getAccessToken());
@@ -415,19 +411,18 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenClientCredentialsTokenNotExpiredThenUseCurrentToken() {
 		this.registration = TestClientRegistrations.clientCredentials().build();
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, null);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken, null);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(authentication(this.authentication))
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(authentication(this.authentication))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
-		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), eq(this.authentication), any(), any());
+		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), eq(this.authentication), any(),
+				any());
 
 		verify(clientCredentialsTokenResponseClient, never()).getTokenResponse(any());
 
@@ -445,27 +440,21 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenClientCredentialsTokenExpiredThenGetNewToken() {
 		this.registration = TestClientRegistrations.clientCredentials().build();
 
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses
-				.accessTokenResponse().build();
-		when(this.clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(
-				accessTokenResponse);
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		when(this.clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
-		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(),
-				this.accessToken.getTokenValue(),
-				issuedAt,
-				accessTokenExpiresAt);
+		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(), this.accessToken.getTokenValue(),
+				issuedAt, accessTokenExpiresAt);
 
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, null);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken, null);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(authentication(this.authentication))
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(authentication(this.authentication))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -486,13 +475,12 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenPasswordClientNotAuthorizedThenGetNewToken() {
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(360)
-				.build();
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(360).build();
 		when(this.passwordTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		ClientRegistration registration = TestClientRegistrations.password().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId()))).thenReturn(registration);
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId())))
+				.thenReturn(registration);
 
 		// Set custom contextAttributesMapper
 		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest -> {
@@ -514,10 +502,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(clientRegistrationId(registration.getRegistrationId()))
-				.attributes(authentication(this.authentication))
-				.attributes(httpServletRequest(servletRequest))
-				.attributes(httpServletResponse(servletResponse))
-				.build();
+				.attributes(authentication(this.authentication)).attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse)).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -536,25 +522,21 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenRefreshRequiredAndEmptyReactiveSecurityContextThenSaved() {
 		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(3600)
-				.refreshToken("refresh-1")
-				.build();
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(3600).refreshToken("refresh-1").build();
 		when(this.refreshTokenTokenResponseClient.getTokenResponse(any())).thenReturn(response);
 
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
-		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(),
-				this.accessToken.getTokenValue(), issuedAt, accessTokenExpiresAt);
+		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(), this.accessToken.getTokenValue(),
+				issuedAt, accessTokenExpiresAt);
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, refreshToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken, refreshToken);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -573,14 +555,13 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenRefreshTokenNullThenShouldRefreshFalse() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -597,14 +578,13 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenNotExpiredThenShouldRefreshFalse() {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, refreshToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken, refreshToken);
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.attributes(httpServletRequest(new MockHttpServletRequest()))
-				.attributes(httpServletResponse(new MockHttpServletResponse()))
-				.build();
+				.attributes(httpServletResponse(new MockHttpServletResponse())).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -628,14 +608,15 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		OAuth2User user = mock(OAuth2User.class);
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
-				user, authorities, this.registration.getRegistrationId());
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(user, authorities,
+				this.registration.getRegistrationId());
 
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration, "principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 
-		when(this.authorizedClientRepository.loadAuthorizedClient(eq(authentication.getAuthorizedClientRegistrationId()),
-				eq(authentication), eq(servletRequest))).thenReturn(authorizedClient);
+		when(this.authorizedClientRepository.loadAuthorizedClient(
+				eq(authentication.getAuthorizedClientRegistrationId()), eq(authentication), eq(servletRequest)))
+						.thenReturn(authorizedClient);
 
 		// Default request attributes set
 		final ClientRequest request1 = ClientRequest.create(GET, URI.create("https://example1.com"))
@@ -646,10 +627,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		Context context = context(servletRequest, servletResponse, authentication);
 
-		this.function.filter(request1, this.exchange)
-				.flatMap(response -> this.function.filter(request2, this.exchange))
-				.subscriberContext(context)
-				.block();
+		this.function.filter(request1, this.exchange).flatMap(response -> this.function.filter(request2, this.exchange))
+				.subscriberContext(context).block();
 
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(2);
@@ -678,15 +657,13 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	private void assertHttpStatusInvokesFailureHandler(HttpStatus httpStatus, String expectedErrorCode) {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration, "principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(httpServletRequest(servletRequest))
-				.attributes(httpServletResponse(servletResponse))
-				.build();
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse)).build();
 
 		when(this.exchange.getResponse().rawStatusCode()).thenReturn(httpStatus.value());
 		when(this.exchange.getResponse().headers()).thenReturn(mock(ClientResponse.Headers.class));
@@ -694,10 +671,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		this.function.filter(request, this.exchange).block();
 
-		verify(this.authorizationFailureHandler).onAuthorizationFailure(
-				this.authorizationExceptionCaptor.capture(),
-				this.authenticationCaptor.capture(),
-				this.attributesCaptor.capture());
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
 				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
@@ -706,29 +681,25 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 					assertThat(e).hasNoCause();
 					assertThat(e).hasMessageContaining(expectedErrorCode);
 				});
-		assertThat(this.authenticationCaptor.getValue().getName())
-				.isEqualTo(authorizedClient.getPrincipalName());
-		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(
-						entry(HttpServletRequest.class.getName(), servletRequest),
-						entry(HttpServletResponse.class.getName(), servletResponse));
+		assertThat(this.authenticationCaptor.getValue().getName()).isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue()).containsExactly(
+				entry(HttpServletRequest.class.getName(), servletRequest),
+				entry(HttpServletResponse.class.getName(), servletResponse));
 	}
 
 	@Test
 	public void filterWhenWWWAuthenticateHeaderIncludesErrorThenInvokeFailureHandler() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration, "principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(httpServletRequest(servletRequest))
-				.attributes(httpServletResponse(servletResponse))
-				.build();
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse)).build();
 
-		String wwwAuthenticateHeader = "Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The request requires higher privileges than provided by the access token.\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"";
+		String wwwAuthenticateHeader = "Bearer error=\"insufficient_scope\", "
+				+ "error_description=\"The request requires higher privileges than provided by the access token.\", "
+				+ "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"";
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
 		when(headers.header(eq(HttpHeaders.WWW_AUTHENTICATE)))
 				.thenReturn(Collections.singletonList(wwwAuthenticateHeader));
@@ -737,69 +708,57 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		this.function.filter(request, this.exchange).block();
 
-		verify(this.authorizationFailureHandler).onAuthorizationFailure(
-				this.authorizationExceptionCaptor.capture(),
-				this.authenticationCaptor.capture(),
-				this.attributesCaptor.capture());
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
 				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
 					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
 					assertThat(e.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
-					assertThat(e.getError().getDescription()).isEqualTo("The request requires higher privileges than provided by the access token.");
+					assertThat(e.getError().getDescription())
+							.isEqualTo("The request requires higher privileges than provided by the access token.");
 					assertThat(e.getError().getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
 					assertThat(e).hasNoCause();
 					assertThat(e).hasMessageContaining(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 				});
-		assertThat(this.authenticationCaptor.getValue().getName())
-				.isEqualTo(authorizedClient.getPrincipalName());
-		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(
-						entry(HttpServletRequest.class.getName(), servletRequest),
-						entry(HttpServletResponse.class.getName(), servletResponse));
+		assertThat(this.authenticationCaptor.getValue().getName()).isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue()).containsExactly(
+				entry(HttpServletRequest.class.getName(), servletRequest),
+				entry(HttpServletResponse.class.getName(), servletResponse));
 	}
 
 	@Test
 	public void filterWhenUnauthorizedWithWebClientExceptionThenInvokeFailureHandler() {
-		assertHttpStatusWithWebClientExceptionInvokesFailureHandler(
-				HttpStatus.UNAUTHORIZED, OAuth2ErrorCodes.INVALID_TOKEN);
+		assertHttpStatusWithWebClientExceptionInvokesFailureHandler(HttpStatus.UNAUTHORIZED,
+				OAuth2ErrorCodes.INVALID_TOKEN);
 	}
 
 	@Test
 	public void filterWhenForbiddenWithWebClientExceptionThenInvokeFailureHandler() {
-		assertHttpStatusWithWebClientExceptionInvokesFailureHandler(
-				HttpStatus.FORBIDDEN, OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+		assertHttpStatusWithWebClientExceptionInvokesFailureHandler(HttpStatus.FORBIDDEN,
+				OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 	}
 
-	private void assertHttpStatusWithWebClientExceptionInvokesFailureHandler(
-			HttpStatus httpStatus, String expectedErrorCode) {
+	private void assertHttpStatusWithWebClientExceptionInvokesFailureHandler(HttpStatus httpStatus,
+			String expectedErrorCode) {
 
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration, "principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(httpServletRequest(servletRequest))
-				.attributes(httpServletResponse(servletResponse))
-				.build();
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse)).build();
 
-		WebClientResponseException exception = WebClientResponseException.create(
-				httpStatus.value(),
-				httpStatus.getReasonPhrase(),
-				HttpHeaders.EMPTY,
-				new byte[0],
-				StandardCharsets.UTF_8);
+		WebClientResponseException exception = WebClientResponseException.create(httpStatus.value(),
+				httpStatus.getReasonPhrase(), HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8);
 		ExchangeFunction throwingExchangeFunction = r -> Mono.error(exception);
 		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
 
-		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction).block())
-				.isEqualTo(exception);
+		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction).block()).isEqualTo(exception);
 
-		verify(this.authorizationFailureHandler).onAuthorizationFailure(
-				this.authorizationExceptionCaptor.capture(),
-				this.authenticationCaptor.capture(),
-				this.attributesCaptor.capture());
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
 				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
@@ -808,25 +767,21 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 					assertThat(e).hasCause(exception);
 					assertThat(e).hasMessageContaining(expectedErrorCode);
 				});
-		assertThat(this.authenticationCaptor.getValue().getName())
-				.isEqualTo(authorizedClient.getPrincipalName());
-		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(
-						entry(HttpServletRequest.class.getName(), servletRequest),
-						entry(HttpServletResponse.class.getName(), servletResponse));
+		assertThat(this.authenticationCaptor.getValue().getName()).isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue()).containsExactly(
+				entry(HttpServletRequest.class.getName(), servletRequest),
+				entry(HttpServletResponse.class.getName(), servletResponse));
 	}
 
 	@Test
 	public void filterWhenAuthorizationExceptionThenInvokeFailureHandler() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration, "principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(httpServletRequest(servletRequest))
-				.attributes(httpServletResponse(servletResponse))
-				.build();
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse)).build();
 
 		OAuth2AuthorizationException authorizationException = new OAuth2AuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN));
@@ -836,10 +791,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction).block())
 				.isEqualTo(authorizationException);
 
-		verify(this.authorizationFailureHandler).onAuthorizationFailure(
-				this.authorizationExceptionCaptor.capture(),
-				this.authenticationCaptor.capture(),
-				this.attributesCaptor.capture());
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
 
 		assertThat(this.authorizationExceptionCaptor.getValue())
 				.isInstanceOfSatisfying(OAuth2AuthorizationException.class, e -> {
@@ -847,25 +800,21 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 					assertThat(e).hasNoCause();
 					assertThat(e).hasMessageContaining(OAuth2ErrorCodes.INVALID_TOKEN);
 				});
-		assertThat(this.authenticationCaptor.getValue().getName())
-				.isEqualTo(authorizedClient.getPrincipalName());
-		assertThat(this.attributesCaptor.getValue())
-				.containsExactly(
-						entry(HttpServletRequest.class.getName(), servletRequest),
-						entry(HttpServletResponse.class.getName(), servletResponse));
+		assertThat(this.authenticationCaptor.getValue().getName()).isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue()).containsExactly(
+				entry(HttpServletRequest.class.getName(), servletRequest),
+				entry(HttpServletResponse.class.getName(), servletResponse));
 	}
 
 	@Test
 	public void filterWhenOtherHttpStatusThenDoesNotInvokeFailureHandler() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.registration, "principalName", this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
 		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(oauth2AuthorizedClient(authorizedClient))
-				.attributes(httpServletRequest(servletRequest))
-				.attributes(httpServletResponse(servletResponse))
-				.build();
+				.attributes(oauth2AuthorizedClient(authorizedClient)).attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse)).build();
 
 		when(this.exchange.getResponse().rawStatusCode()).thenReturn(HttpStatus.BAD_REQUEST.value());
 		when(this.exchange.getResponse().headers()).thenReturn(mock(ClientResponse.Headers.class));
@@ -876,7 +825,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verifyNoInteractions(this.authorizationFailureHandler);
 	}
 
-	private Context context(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Authentication authentication) {
+	private Context context(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
+			Authentication authentication) {
 		Map<Object, Object> contextAttributes = new HashMap<>();
 		contextAttributes.put(HttpServletRequest.class, servletRequest);
 		contextAttributes.put(HttpServletResponse.class, servletResponse);
@@ -917,4 +867,5 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		request.body().insert(body, context).block();
 		return body.getBodyAsString().block();
 	}
+
 }

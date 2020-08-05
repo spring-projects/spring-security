@@ -37,10 +37,13 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class LazyCsrfTokenRepositoryTests {
+
 	@Mock
 	CsrfTokenRepository delegate;
+
 	@Mock
 	HttpServletRequest request;
+
 	@Mock
 	HttpServletResponse response;
 
@@ -53,8 +56,7 @@ public class LazyCsrfTokenRepositoryTests {
 	public void setup() {
 		this.token = new DefaultCsrfToken("header", "param", "token");
 		when(this.delegate.generateToken(this.request)).thenReturn(this.token);
-		when(this.request.getAttribute(HttpServletResponse.class.getName()))
-				.thenReturn(this.response);
+		when(this.request.getAttribute(HttpServletResponse.class.getName())).thenReturn(this.response);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -99,4 +101,5 @@ public class LazyCsrfTokenRepositoryTests {
 
 		verify(this.delegate).loadToken(this.request);
 	}
+
 }

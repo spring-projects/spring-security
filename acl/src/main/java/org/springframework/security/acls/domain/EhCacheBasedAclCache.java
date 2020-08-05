@@ -38,18 +38,20 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class EhCacheBasedAclCache implements AclCache {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final Ehcache cache;
+
 	private PermissionGrantingStrategy permissionGrantingStrategy;
+
 	private AclAuthorizationStrategy aclAuthorizationStrategy;
 
 	// ~ Constructors
 	// ===================================================================================================
 
-	public EhCacheBasedAclCache(Ehcache cache,
-			PermissionGrantingStrategy permissionGrantingStrategy,
+	public EhCacheBasedAclCache(Ehcache cache, PermissionGrantingStrategy permissionGrantingStrategy,
 			AclAuthorizationStrategy aclAuthorizationStrategy) {
 		Assert.notNull(cache, "Cache required");
 		Assert.notNull(permissionGrantingStrategy, "PermissionGrantingStrategy required");
@@ -144,10 +146,8 @@ public class EhCacheBasedAclCache implements AclCache {
 
 	private MutableAcl initializeTransientFields(MutableAcl value) {
 		if (value instanceof AclImpl) {
-			FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value,
-					this.aclAuthorizationStrategy);
-			FieldUtils.setProtectedFieldValue("permissionGrantingStrategy", value,
-					this.permissionGrantingStrategy);
+			FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
+			FieldUtils.setProtectedFieldValue("permissionGrantingStrategy", value, this.permissionGrantingStrategy);
 		}
 
 		if (value.getParentAcl() != null) {
@@ -159,4 +159,5 @@ public class EhCacheBasedAclCache implements AclCache {
 	public void clearCache() {
 		cache.removeAll();
 	}
+
 }

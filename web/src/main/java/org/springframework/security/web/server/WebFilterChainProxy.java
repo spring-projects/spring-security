@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class WebFilterChainProxy implements WebFilter {
+
 	private final List<SecurityWebFilterChain> filters;
 
 	public WebFilterChainProxy(List<SecurityWebFilterChain> filters) {
@@ -47,14 +48,12 @@ public class WebFilterChainProxy implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return Flux.fromIterable(this.filters)
-				.filterWhen( securityWebFilterChain -> securityWebFilterChain.matches(exchange))
-				.next()
+				.filterWhen(securityWebFilterChain -> securityWebFilterChain.matches(exchange)).next()
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-				.flatMap( securityWebFilterChain -> securityWebFilterChain.getWebFilters()
-					.collectList()
-				)
-				.map( filters -> new FilteringWebHandler(webHandler -> chain.filter(webHandler), filters))
-				.map( handler -> new DefaultWebFilterChain(handler) )
-				.flatMap( securedChain -> securedChain.filter(exchange));
+				.flatMap(securityWebFilterChain -> securityWebFilterChain.getWebFilters().collectList())
+				.map(filters -> new FilteringWebHandler(webHandler -> chain.filter(webHandler), filters))
+				.map(handler -> new DefaultWebFilterChain(handler))
+				.flatMap(securedChain -> securedChain.filter(exchange));
 	}
+
 }

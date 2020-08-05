@@ -42,6 +42,7 @@ import org.springframework.util.Assert;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
 	@Autowired
 	private UserRepository myUserRepository;
 
@@ -76,14 +77,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				return true;
 			}
 
-			public Authentication authenticate(Authentication authentication)
-					throws AuthenticationException {
+			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 				Object principal = authentication.getPrincipal();
 				String username = String.valueOf(principal);
 				User user = myUserRepository.findByUsername(username);
 				if (user == null) {
-					throw new UsernameNotFoundException("No user for principal "
-							+ principal);
+					throw new UsernameNotFoundException("No user for principal " + principal);
 				}
 				if (!authentication.getCredentials().equals(user.getPassword())) {
 					throw new BadCredentialsException("Invalid password");
@@ -92,4 +91,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			}
 		};
 	}
+
 }

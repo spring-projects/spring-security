@@ -26,4 +26,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("#contact.name == authentication.name")
-public @interface ContactPermission {}
+public @interface ContactPermission {
+
+}

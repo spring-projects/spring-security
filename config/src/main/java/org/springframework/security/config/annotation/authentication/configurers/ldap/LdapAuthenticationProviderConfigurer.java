@@ -52,27 +52,41 @@ import org.springframework.util.ClassUtils;
  * Configures LDAP {@link AuthenticationProvider} in the {@link ProviderManagerBuilder}.
  *
  * @param <B> the {@link ProviderManagerBuilder} type that this is configuring.
- *
  * @author Rob Winch
  * @author Eddú Meléndez
  * @since 3.2
  */
 public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuilder<B>>
 		extends SecurityConfigurerAdapter<AuthenticationManager, B> {
+
 	private String groupRoleAttribute = "cn";
+
 	private String groupSearchBase = "";
+
 	private boolean groupSearchSubtree = false;
+
 	private String groupSearchFilter = "(uniqueMember={0})";
+
 	private String rolePrefix = "ROLE_";
+
 	private String userSearchBase = ""; // only for search
+
 	private String userSearchFilter = null; // "uid={0}"; // only for search
+
 	private String[] userDnPatterns;
+
 	private BaseLdapPathContextSource contextSource;
+
 	private ContextSourceBuilder contextSourceBuilder = new ContextSourceBuilder();
+
 	private UserDetailsContextMapper userDetailsContextMapper;
+
 	private PasswordEncoder passwordEncoder;
+
 	private String passwordAttribute;
+
 	private LdapAuthoritiesPopulator ldapAuthoritiesPopulator;
+
 	private GrantedAuthoritiesMapper authoritiesMapper;
 
 	private LdapAuthenticationProvider build() throws Exception {
@@ -81,19 +95,17 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 		LdapAuthoritiesPopulator authoritiesPopulator = getLdapAuthoritiesPopulator();
 
-		LdapAuthenticationProvider ldapAuthenticationProvider = new LdapAuthenticationProvider(
-				ldapAuthenticator, authoritiesPopulator);
+		LdapAuthenticationProvider ldapAuthenticationProvider = new LdapAuthenticationProvider(ldapAuthenticator,
+				authoritiesPopulator);
 		ldapAuthenticationProvider.setAuthoritiesMapper(getAuthoritiesMapper());
 		if (userDetailsContextMapper != null) {
-			ldapAuthenticationProvider
-					.setUserDetailsContextMapper(userDetailsContextMapper);
+			ldapAuthenticationProvider.setUserDetailsContextMapper(userDetailsContextMapper);
 		}
 		return ldapAuthenticationProvider;
 	}
 
 	/**
 	 * Specifies the {@link LdapAuthoritiesPopulator}.
-	 *
 	 * @param ldapAuthoritiesPopulator the {@link LdapAuthoritiesPopulator} the default is
 	 * {@link DefaultLdapAuthoritiesPopulator}
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
@@ -106,12 +118,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 	/**
 	 * Adds an {@link ObjectPostProcessor} for this class.
-	 *
 	 * @param objectPostProcessor
 	 * @return the {@link ChannelSecurityConfigurer} for further customizations
 	 */
-	public LdapAuthenticationProviderConfigurer<B> withObjectPostProcessor(
-			ObjectPostProcessor<?> objectPostProcessor) {
+	public LdapAuthenticationProviderConfigurer<B> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
 		addObjectPostProcessor(objectPostProcessor);
 		return this;
 	}
@@ -119,7 +129,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	/**
 	 * Gets the {@link LdapAuthoritiesPopulator} and defaults to
 	 * {@link DefaultLdapAuthoritiesPopulator}
-	 *
 	 * @return the {@link LdapAuthoritiesPopulator}
 	 */
 	private LdapAuthoritiesPopulator getLdapAuthoritiesPopulator() {
@@ -127,8 +136,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 			return ldapAuthoritiesPopulator;
 		}
 
-		DefaultLdapAuthoritiesPopulator defaultAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(
-				contextSource, groupSearchBase);
+		DefaultLdapAuthoritiesPopulator defaultAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource,
+				groupSearchBase);
 		defaultAuthoritiesPopulator.setGroupRoleAttribute(groupRoleAttribute);
 		defaultAuthoritiesPopulator.setGroupSearchFilter(groupSearchFilter);
 		defaultAuthoritiesPopulator.setSearchSubtree(groupSearchSubtree);
@@ -138,24 +147,24 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		return defaultAuthoritiesPopulator;
 	}
 
-
 	/**
 	 * Specifies the {@link GrantedAuthoritiesMapper}.
-	 *
-	 * @param grantedAuthoritiesMapper the {@link GrantedAuthoritiesMapper} the default is {@link SimpleAuthorityMapper}
+	 * @param grantedAuthoritiesMapper the {@link GrantedAuthoritiesMapper} the default is
+	 * {@link SimpleAuthorityMapper}
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 *
 	 * @author Tony Dalbrekt
 	 * @since 4.1.1
 	 */
-	public LdapAuthenticationProviderConfigurer<B> authoritiesMapper(GrantedAuthoritiesMapper grantedAuthoritiesMapper) {
+	public LdapAuthenticationProviderConfigurer<B> authoritiesMapper(
+			GrantedAuthoritiesMapper grantedAuthoritiesMapper) {
 		this.authoritiesMapper = grantedAuthoritiesMapper;
 		return this;
 	}
 
 	/**
-	 * Gets the {@link GrantedAuthoritiesMapper} and defaults to {@link SimpleAuthorityMapper}.
-	 *
+	 * Gets the {@link GrantedAuthoritiesMapper} and defaults to
+	 * {@link SimpleAuthorityMapper}.
 	 * @return the {@link GrantedAuthoritiesMapper}
 	 * @throws Exception if errors in {@link SimpleAuthorityMapper#afterPropertiesSet()}
 	 */
@@ -173,12 +182,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 	/**
 	 * Creates the {@link LdapAuthenticator} to use
-	 *
 	 * @param contextSource the {@link BaseLdapPathContextSource} to use
 	 * @return the {@link LdapAuthenticator} to use
 	 */
-	private LdapAuthenticator createLdapAuthenticator(
-			BaseLdapPathContextSource contextSource) {
+	private LdapAuthenticator createLdapAuthenticator(BaseLdapPathContextSource contextSource) {
 		AbstractLdapAuthenticator ldapAuthenticator = passwordEncoder == null ? createBindAuthenticator(contextSource)
 				: createPasswordCompareAuthenticator(contextSource);
 		LdapUserSearch userSearch = createUserSearch();
@@ -193,14 +200,12 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 	/**
 	 * Creates {@link PasswordComparisonAuthenticator}
-	 *
 	 * @param contextSource the {@link BaseLdapPathContextSource} to use
 	 * @return
 	 */
 	private PasswordComparisonAuthenticator createPasswordCompareAuthenticator(
 			BaseLdapPathContextSource contextSource) {
-		PasswordComparisonAuthenticator ldapAuthenticator = new PasswordComparisonAuthenticator(
-				contextSource);
+		PasswordComparisonAuthenticator ldapAuthenticator = new PasswordComparisonAuthenticator(contextSource);
 		if (passwordAttribute != null) {
 			ldapAuthenticator.setPasswordAttributeName(passwordAttribute);
 		}
@@ -210,12 +215,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 	/**
 	 * Creates a {@link BindAuthenticator}
-	 *
 	 * @param contextSource the {@link BaseLdapPathContextSource} to use
 	 * @return the {@link BindAuthenticator} to use
 	 */
-	private BindAuthenticator createBindAuthenticator(
-			BaseLdapPathContextSource contextSource) {
+	private BindAuthenticator createBindAuthenticator(BaseLdapPathContextSource contextSource) {
 		return new BindAuthenticator(contextSource);
 	}
 
@@ -223,20 +226,17 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		if (userSearchFilter == null) {
 			return null;
 		}
-		return new FilterBasedLdapUserSearch(userSearchBase, userSearchFilter,
-				contextSource);
+		return new FilterBasedLdapUserSearch(userSearchBase, userSearchFilter, contextSource);
 	}
 
 	/**
 	 * Specifies the {@link BaseLdapPathContextSource} to be used. If not specified, an
 	 * embedded LDAP server will be created using {@link #contextSource()}.
-	 *
 	 * @param contextSource the {@link BaseLdapPathContextSource} to use
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 * @see #contextSource()
 	 */
-	public LdapAuthenticationProviderConfigurer<B> contextSource(
-			BaseLdapPathContextSource contextSource) {
+	public LdapAuthenticationProviderConfigurer<B> contextSource(BaseLdapPathContextSource contextSource) {
 		this.contextSource = contextSource;
 		return this;
 	}
@@ -244,7 +244,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	/**
 	 * Allows easily configuring of a {@link BaseLdapPathContextSource} with defaults
 	 * pointing to an embedded LDAP server that is created.
-	 *
 	 * @return the {@link ContextSourceBuilder} for further customizations
 	 */
 	public ContextSourceBuilder contextSource() {
@@ -254,7 +253,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	/**
 	 * Specifies the {@link org.springframework.security.crypto.password.PasswordEncoder}
 	 * to be used when authenticating with password comparison.
-	 *
 	 * @param passwordEncoder the
 	 * {@link org.springframework.security.crypto.password.PasswordEncoder} to use
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customization
@@ -273,12 +271,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * property of AbstractLdapAuthenticator. The value is a specific pattern used to
 	 * build the user's DN, for example "uid={0},ou=people". The key "{0}" must be present
 	 * and will be substituted with the username.
-	 *
 	 * @param userDnPatterns the LDAP patterns for finding the usernames
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 */
-	public LdapAuthenticationProviderConfigurer<B> userDnPatterns(
-			String... userDnPatterns) {
+	public LdapAuthenticationProviderConfigurer<B> userDnPatterns(String... userDnPatterns) {
 		this.userDnPatterns = userDnPatterns;
 		return this;
 	}
@@ -287,7 +283,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * Allows explicit customization of the loaded user object by specifying a
 	 * UserDetailsContextMapper bean which will be called with the context information
 	 * from the user's directory entry.
-	 *
 	 * @param userDetailsContextMapper the {@link UserDetailsContextMapper} to use
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 *
@@ -306,8 +301,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @param groupRoleAttribute the attribute name that maps a group to a role.
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 */
-	public LdapAuthenticationProviderConfigurer<B> groupRoleAttribute(
-			String groupRoleAttribute) {
+	public LdapAuthenticationProviderConfigurer<B> groupRoleAttribute(String groupRoleAttribute) {
 		this.groupRoleAttribute = groupRoleAttribute;
 		return this;
 	}
@@ -323,11 +317,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	/**
-	 * If set to true, a subtree scope search will be performed for group membership. If false a
-	 * single-level search is used.
-	 *
+	 * If set to true, a subtree scope search will be performed for group membership. If
+	 * false a single-level search is used.
 	 * @param searchSubtree set to true to enable searching of the entire tree below the
-	 *                      <tt>groupSearchBase</tt>.
+	 * <tt>groupSearchBase</tt>.
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 */
 	public LdapAuthenticationProviderConfigurer<B> groupSearchSubtree(boolean groupSearchSubtree) {
@@ -338,12 +331,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	/**
 	 * The LDAP filter to search for groups. Defaults to "(uniqueMember={0})". The
 	 * substituted parameter is the DN of the user.
-	 *
 	 * @param groupSearchFilter the LDAP filter to search for groups
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 */
-	public LdapAuthenticationProviderConfigurer<B> groupSearchFilter(
-			String groupSearchFilter) {
+	public LdapAuthenticationProviderConfigurer<B> groupSearchFilter(String groupSearchFilter) {
 		this.groupSearchFilter = groupSearchFilter;
 		return this;
 	}
@@ -351,7 +342,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	/**
 	 * A non-empty string prefix that will be added as a prefix to the existing roles. The
 	 * default is "ROLE_".
-	 *
 	 * @param rolePrefix the prefix to be added to the roles that are loaded.
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 * @see SimpleAuthorityMapper#setPrefix(String)
@@ -364,7 +354,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	/**
 	 * Search base for user searches. Defaults to "". Only used with
 	 * {@link #userSearchFilter(String)}.
-	 *
 	 * @param userSearchBase search base for user searches
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 */
@@ -376,12 +365,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	/**
 	 * The LDAP filter used to search for users (optional). For example "(uid={0})". The
 	 * substituted parameter is the user's login name.
-	 *
 	 * @param userSearchFilter the LDAP filter used to search for users
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 */
-	public LdapAuthenticationProviderConfigurer<B> userSearchFilter(
-			String userSearchFilter) {
+	public LdapAuthenticationProviderConfigurer<B> userSearchFilter(String userSearchFilter) {
 		this.userSearchFilter = userSearchFilter;
 		return this;
 	}
@@ -413,7 +400,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		/**
 		 * The attribute in the directory which contains the user password. Defaults to
 		 * "userPassword".
-		 *
 		 * @param passwordAttribute the attribute in the directory which contains the user
 		 * password
 		 * @return the {@link PasswordCompareConfigurer} for further customizations
@@ -426,7 +412,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		/**
 		 * Allows obtaining a reference to the
 		 * {@link LdapAuthenticationProviderConfigurer} for further customizations
-		 *
 		 * @return attribute in the directory which contains the user password
 		 */
 		public LdapAuthenticationProviderConfigurer<B> and() {
@@ -435,6 +420,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 		private PasswordCompareConfigurer() {
 		}
+
 	}
 
 	/**
@@ -446,23 +432,30 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @since 3.2
 	 */
 	public final class ContextSourceBuilder {
+
 		private static final String APACHEDS_CLASSNAME = "org.apache.directory.server.core.DefaultDirectoryService";
+
 		private static final String UNBOUNDID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
 
 		private static final int DEFAULT_PORT = 33389;
+
 		private static final int RANDOM_PORT = 0;
 
 		private String ldif = "classpath*:*.ldif";
+
 		private String managerPassword;
+
 		private String managerDn;
+
 		private Integer port;
+
 		private String root = "dc=springframework,dc=org";
+
 		private String url;
 
 		/**
 		 * Specifies an ldif to load at startup for an embedded LDAP server. This only
 		 * loads if using an embedded instance. The default is "classpath*:*.ldif".
-		 *
 		 * @param ldif the ldif to load at startup for an embedded LDAP server.
 		 * @return the {@link ContextSourceBuilder} for further customization
 		 */
@@ -475,7 +468,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		 * Username (DN) of the "manager" user identity (i.e. "uid=admin,ou=system") which
 		 * will be used to authenticate to a (non-embedded) LDAP server. If omitted,
 		 * anonymous access will be used.
-		 *
 		 * @param managerDn the username (DN) of the "manager" user identity used to
 		 * authenticate to a LDAP server.
 		 * @return the {@link ContextSourceBuilder} for further customization
@@ -500,8 +492,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		 * The port to connect to LDAP to (the default is 33389 or random available port
 		 * if unavailable).
 		 *
-		 * Supplying 0 as the port indicates that a random available port should be selected.
-		 *
+		 * Supplying 0 as the port indicates that a random available port should be
+		 * selected.
 		 * @param port the port to connect to
 		 * @return the {@link ContextSourceBuilder} for further customization
 		 */
@@ -513,7 +505,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		/**
 		 * Optional root suffix for the embedded LDAP server. Default is
 		 * "dc=springframework,dc=org"
-		 *
 		 * @param root root suffix for the embedded LDAP server
 		 * @return the {@link ContextSourceBuilder} for further customization
 		 */
@@ -525,7 +516,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		/**
 		 * Specifies the ldap server URL when not using the embedded LDAP server. For
 		 * example, "ldaps://ldap.example.com:33389/dc=myco,dc=org".
-		 *
 		 * @param url the ldap server URL
 		 * @return the {@link ContextSourceBuilder} for further customization
 		 */
@@ -537,7 +527,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		/**
 		 * Gets the {@link LdapAuthenticationProviderConfigurer} for further
 		 * customizations
-		 *
 		 * @return the {@link LdapAuthenticationProviderConfigurer} for further
 		 * customizations
 		 */
@@ -550,13 +539,11 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 				startEmbeddedLdapServer();
 			}
 
-			DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
-					getProviderUrl());
+			DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(getProviderUrl());
 			if (managerDn != null) {
 				contextSource.setUserDn(managerDn);
 				if (managerPassword == null) {
-					throw new IllegalStateException(
-							"managerPassword is required if managerDn is supplied");
+					throw new IllegalStateException("managerPassword is required if managerDn is supplied");
 				}
 				contextSource.setPassword(managerPassword);
 			}
@@ -592,7 +579,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		private int getDefaultPort() {
 			try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
 				return serverSocket.getLocalPort();
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				return RANDOM_PORT;
 			}
 		}
@@ -606,6 +594,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 		private ContextSourceBuilder() {
 		}
+
 	}
 
 	private BaseLdapPathContextSource getContextSource() throws Exception {
@@ -622,4 +611,5 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		return new PasswordCompareConfigurer().passwordAttribute("password")
 				.passwordEncoder(NoOpPasswordEncoder.getInstance());
 	}
+
 }

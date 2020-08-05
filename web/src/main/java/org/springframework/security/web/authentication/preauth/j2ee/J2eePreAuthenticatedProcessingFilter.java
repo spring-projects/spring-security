@@ -27,15 +27,13 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
  * @author Ruud Senden
  * @since 2.0
  */
-public class J2eePreAuthenticatedProcessingFilter extends
-		AbstractPreAuthenticatedProcessingFilter {
+public class J2eePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
 
 	/**
 	 * Return the J2EE user name.
 	 */
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
-		Object principal = httpRequest.getUserPrincipal() == null ? null : httpRequest
-				.getUserPrincipal().getName();
+		Object principal = httpRequest.getUserPrincipal() == null ? null : httpRequest.getUserPrincipal().getName();
 		if (logger.isDebugEnabled()) {
 			logger.debug("PreAuthenticated J2EE principal: " + principal);
 		}
@@ -49,4 +47,5 @@ public class J2eePreAuthenticatedProcessingFilter extends
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest) {
 		return "N/A";
 	}
+
 }

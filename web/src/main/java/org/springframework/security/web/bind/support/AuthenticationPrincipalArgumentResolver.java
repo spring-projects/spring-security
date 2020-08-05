@@ -77,14 +77,14 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * }
  * </pre>
  *
- * @deprecated Use {@link org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver} instead.
- *
+ * @deprecated Use
+ * {@link org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver}
+ * instead.
  * @author Rob Winch
  * @since 3.2
  */
 @Deprecated
-public final class AuthenticationPrincipalArgumentResolver
-		implements HandlerMethodArgumentResolver {
+public final class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
 
 	/*
 	 * (non-Javadoc)
@@ -105,22 +105,17 @@ public final class AuthenticationPrincipalArgumentResolver
 	 * org.springframework.web.context.request.NativeWebRequest,
 	 * org.springframework.web.bind.support.WebDataBinderFactory)
 	 */
-	public Object resolveArgument(MethodParameter parameter,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-			WebDataBinderFactory binderFactory) {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
-		if (principal != null
-				&& !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
-			AuthenticationPrincipal authPrincipal = findMethodAnnotation(
-					AuthenticationPrincipal.class, parameter);
+		if (principal != null && !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
+			AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
 			if (authPrincipal.errorOnInvalidType()) {
-				throw new ClassCastException(principal + " is not assignable to "
-						+ parameter.getParameterType());
+				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}
 			else {
 				return null;
@@ -131,26 +126,24 @@ public final class AuthenticationPrincipalArgumentResolver
 
 	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-			MethodParameter parameter) {
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(),
-					annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
 			if (annotation != null) {
 				return annotation;
 			}
 		}
 		return null;
 	}
+
 }

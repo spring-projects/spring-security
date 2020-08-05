@@ -83,7 +83,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		if (reactiveSecurityContext == null) {
 			return null;
 		}
-		return reactiveSecurityContext.flatMap( a -> {
+		return reactiveSecurityContext.flatMap(a -> {
 			Object p = resolveSecurityContext(parameter, a);
 			Mono<Object> o = Mono.justOrEmpty(p);
 			return adapter == null ? o : Mono.just(adapter.fromPublisher(o));
@@ -92,14 +92,15 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	}
 
 	/**
-	 * resolve the expression from {@link CurrentSecurityContext} annotation to get the value.
+	 * resolve the expression from {@link CurrentSecurityContext} annotation to get the
+	 * value.
 	 * @param parameter the method parameter.
 	 * @param securityContext the security context.
 	 * @return the resolved object from expression.
 	 */
 	private Object resolveSecurityContext(MethodParameter parameter, SecurityContext securityContext) {
-		CurrentSecurityContext securityContextAnnotation = findMethodAnnotation(
-				CurrentSecurityContext.class, parameter);
+		CurrentSecurityContext securityContextAnnotation = findMethodAnnotation(CurrentSecurityContext.class,
+				parameter);
 
 		Object securityContextResult = securityContext;
 
@@ -116,8 +117,8 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 
 		if (isInvalidType(parameter, securityContextResult)) {
 			if (securityContextAnnotation.errorOnInvalidType()) {
-				throw new ClassCastException(securityContextResult + " is not assignable to "
-						+ parameter.getParameterType());
+				throw new ClassCastException(
+						securityContextResult + " is not assignable to " + parameter.getParameterType());
 			}
 			else {
 				return null;
@@ -152,22 +153,19 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 
 	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-			MethodParameter parameter) {
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(),
-				annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
 			if (annotation != null) {
 				return annotation;
 			}

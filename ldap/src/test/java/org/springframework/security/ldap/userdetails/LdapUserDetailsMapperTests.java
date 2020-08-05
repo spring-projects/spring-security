@@ -48,8 +48,8 @@ public class LdapUserDetailsMapperTests {
 		ctx.setAttributeValues("userRole", new String[] { "X", "Y", "Z" });
 		ctx.setAttributeValue("uid", "ani");
 
-		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
-				"ani", AuthorityUtils.NO_AUTHORITIES);
+		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani",
+				AuthorityUtils.NO_AUTHORITIES);
 
 		assertThat(user.getAuthorities()).hasSize(3);
 	}
@@ -66,12 +66,11 @@ public class LdapUserDetailsMapperTests {
 		BasicAttributes attrs = new BasicAttributes();
 		attrs.put(new BasicAttribute("userRole", "x"));
 
-		DirContextAdapter ctx = new DirContextAdapter(attrs,
-				new DistinguishedName("cn=someName"));
+		DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
 		ctx.setAttributeValue("uid", "ani");
 
-		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
-				"ani", AuthorityUtils.NO_AUTHORITIES);
+		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani",
+				AuthorityUtils.NO_AUTHORITIES);
 
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_X");
@@ -85,8 +84,7 @@ public class LdapUserDetailsMapperTests {
 		BasicAttributes attrs = new BasicAttributes();
 		attrs.put(new BasicAttribute("myappsPassword", "mypassword".getBytes()));
 
-		DirContextAdapter ctx = new DirContextAdapter(attrs,
-				new DistinguishedName("cn=someName"));
+		DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
 		ctx.setAttributeValue("uid", "ani");
 
 		LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani",

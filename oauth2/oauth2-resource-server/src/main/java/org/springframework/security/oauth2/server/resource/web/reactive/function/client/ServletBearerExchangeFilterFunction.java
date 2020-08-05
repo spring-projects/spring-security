@@ -30,14 +30,16 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 
 /**
  * An {@link ExchangeFilterFunction} that adds the
- * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>
- * from an existing {@link AbstractOAuth2Token} tied to the current {@link Authentication}.
+ * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+ * Token</a> from an existing {@link AbstractOAuth2Token} tied to the current
+ * {@link Authentication}.
  *
- * Suitable for Servlet applications, applying it to a typical {@link org.springframework.web.reactive.function.client.WebClient}
- * configuration:
+ * Suitable for Servlet applications, applying it to a typical
+ * {@link org.springframework.web.reactive.function.client.WebClient} configuration:
  *
  * <pre>
- *  @Bean
+
+ *  &#64;Bean
  *  WebClient webClient() {
  *      ServletBearerExchangeFilterFunction bearer = new ServletBearerExchangeFilterFunction();
  *      return WebClient.builder()
@@ -45,39 +47,33 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
  *  }
  * </pre>
  *
- * To locate the bearer token, this looks in the Reactor {@link Context} for a key of type {@link Authentication}.
+ * To locate the bearer token, this looks in the Reactor {@link Context} for a key of type
+ * {@link Authentication}.
  *
  * Registering
  * {@see org.springframework.security.config.annotation.web.configuration.OAuth2ResourceServerConfiguration.OAuth2ResourceServerWebFluxSecurityConfiguration.BearerRequestContextSubscriberRegistrar},
- * as a {@code @Bean} will take care of this automatically,
- * but certainly an application can supply a {@link Context} of its own to override.
+ * as a {@code @Bean} will take care of this automatically, but certainly an application
+ * can supply a {@link Context} of its own to override.
  *
  * @author Josh Cummings
  * @since 5.2
  */
-public final class ServletBearerExchangeFilterFunction
-		implements ExchangeFilterFunction {
+public final class ServletBearerExchangeFilterFunction implements ExchangeFilterFunction {
 
-	static final String SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY =
-			"org.springframework.security.SECURITY_CONTEXT_ATTRIBUTES";
+	static final String SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY = "org.springframework.security.SECURITY_CONTEXT_ATTRIBUTES";
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-		return oauth2Token()
-				.map(token -> bearer(request, token))
-				.defaultIfEmpty(request)
-				.flatMap(next::exchange);
+		return oauth2Token().map(token -> bearer(request, token)).defaultIfEmpty(request).flatMap(next::exchange);
 	}
 
 	private Mono<AbstractOAuth2Token> oauth2Token() {
-		return Mono.subscriberContext()
-				.flatMap(this::currentAuthentication)
+		return Mono.subscriberContext().flatMap(this::currentAuthentication)
 				.filter(authentication -> authentication.getCredentials() instanceof AbstractOAuth2Token)
-				.map(Authentication::getCredentials)
-				.cast(AbstractOAuth2Token.class);
+				.map(Authentication::getCredentials).cast(AbstractOAuth2Token.class);
 	}
 
 	private Mono<Authentication> currentAuthentication(Context ctx) {
@@ -85,7 +81,8 @@ public final class ServletBearerExchangeFilterFunction
 	}
 
 	private <T> T getAttribute(Context ctx, Class<T> clazz) {
-		// NOTE: SecurityReactorContextConfiguration.SecurityReactorContextSubscriber adds this key
+		// NOTE: SecurityReactorContextConfiguration.SecurityReactorContextSubscriber adds
+		// this key
 		if (!ctx.hasKey(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY)) {
 			return null;
 		}
@@ -94,8 +91,7 @@ public final class ServletBearerExchangeFilterFunction
 	}
 
 	private ClientRequest bearer(ClientRequest request, AbstractOAuth2Token token) {
-		return ClientRequest.from(request)
-				.headers(headers -> headers.setBearerAuth(token.getTokenValue()))
-				.build();
+		return ClientRequest.from(request).headers(headers -> headers.setBearerAuth(token.getTokenValue())).build();
 	}
+
 }

@@ -30,18 +30,15 @@ import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class OAuth2ClientCredentialsGrantRequestTests {
+
 	private ClientRegistration clientRegistration;
 
 	@Before
 	public void setup() {
-		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")
-				.clientId("client-1")
-				.clientSecret("secret")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-				.scope("read", "write")
-				.tokenUri("https://provider.com/oauth2/token")
-				.build();
+		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1").clientId("client-1")
+				.clientSecret("secret").clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).scope("read", "write")
+				.tokenUri("https://provider.com/oauth2/token").build();
 	}
 
 	@Test
@@ -53,24 +50,22 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 	@Test
 	public void constructorWhenClientRegistrationInvalidGrantTypeThenThrowIllegalArgumentException() {
 		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("registration-1")
-				.clientId("client-1")
-				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-				.redirectUri("https://localhost:8080/redirect-uri")
-				.authorizationUri("https://provider.com/oauth2/auth")
-				.clientName("Client 1")
-				.build();
+				.clientId("client-1").authorizationGrantType(AuthorizationGrantType.IMPLICIT)
+				.redirectUri("https://localhost:8080/redirect-uri").authorizationUri("https://provider.com/oauth2/auth")
+				.clientName("Client 1").build();
 
 		assertThatThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(clientRegistration))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage(
+						"clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");
 	}
 
 	@Test
 	public void constructorWhenValidParametersProvidedThenCreated() {
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(this.clientRegistration);
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				this.clientRegistration);
 
 		assertThat(clientCredentialsGrantRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(clientCredentialsGrantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.CLIENT_CREDENTIALS);
 	}
+
 }

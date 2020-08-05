@@ -29,8 +29,8 @@ import java.util.*;
  * returned which are suitable for pattern matching against. It strips out path parameters
  * and extra consecutive '/' characters.
  *
- * <h3>Path Parameters</h3> Parameters (as defined in <a
- * href="https://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>) are stripped from the path
+ * <h3>Path Parameters</h3> Parameters (as defined in
+ * <a href="https://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>) are stripped from the path
  * segments of the {@code servletPath} and {@code pathInfo} values of the request.
  * <p>
  * The parameter sequence is demarcated by a semi-colon, so each segment is checked for
@@ -44,8 +44,11 @@ import java.util.*;
  * @author Luke Taylor
  */
 final class RequestWrapper extends FirewalledRequest {
+
 	private final String strippedServletPath;
+
 	private final String strippedPathInfo;
+
 	private boolean stripPaths = true;
 
 	RequestWrapper(HttpServletRequest request) {
@@ -61,10 +64,8 @@ final class RequestWrapper extends FirewalledRequest {
 	/**
 	 * Removes path parameters from each path segment in the supplied path and truncates
 	 * sequences of multiple '/' characters to a single '/'.
-	 *
 	 * @param path either the {@code servletPath} and {@code pathInfo} from the original
 	 * request
-	 *
 	 * @return the supplied value, with path parameters removed and sequences of multiple
 	 * '/' characters truncated, or null if the supplied path was null.
 	 */
@@ -121,8 +122,7 @@ final class RequestWrapper extends FirewalledRequest {
 
 	@Override
 	public RequestDispatcher getRequestDispatcher(String path) {
-		return this.stripPaths ? new FirewalledRequestAwareRequestDispatcher(path)
-				: super.getRequestDispatcher(path);
+		return this.stripPaths ? new FirewalledRequestAwareRequestDispatcher(path) : super.getRequestDispatcher(path);
 	}
 
 	public void reset() {
@@ -137,10 +137,10 @@ final class RequestWrapper extends FirewalledRequest {
 	 * @author Rob Winch
 	 */
 	private class FirewalledRequestAwareRequestDispatcher implements RequestDispatcher {
+
 		private final String path;
 
 		/**
-		 *
 		 * @param path the {@code path} that will be used to obtain the delegate
 		 * {@link RequestDispatcher} from the original {@link HttpServletRequest}.
 		 */
@@ -148,19 +148,19 @@ final class RequestWrapper extends FirewalledRequest {
 			this.path = path;
 		}
 
-		public void forward(ServletRequest request, ServletResponse response)
-				throws ServletException, IOException {
+		public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
 			reset();
 			getDelegateDispatcher().forward(request, response);
 		}
 
-		public void include(ServletRequest request, ServletResponse response)
-				throws ServletException, IOException {
+		public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
 			getDelegateDispatcher().include(request, response);
 		}
 
 		private RequestDispatcher getDelegateDispatcher() {
 			return RequestWrapper.super.getRequestDispatcher(path);
 		}
+
 	}
+
 }

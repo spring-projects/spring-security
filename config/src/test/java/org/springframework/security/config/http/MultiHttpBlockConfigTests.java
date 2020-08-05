@@ -40,8 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Luke Taylor
  */
 public class MultiHttpBlockConfigTests {
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/MultiHttpBlockConfigTests";
+
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/MultiHttpBlockConfigTests";
 
 	@Autowired
 	MockMvc mvc;
@@ -50,35 +50,27 @@ public class MultiHttpBlockConfigTests {
 	public final SpringTestRule spring = new SpringTestRule();
 
 	@Test
-	public void requestWhenUsingMutuallyExclusiveHttpElementsThenIsRoutedAccordingly()
-			throws Exception {
+	public void requestWhenUsingMutuallyExclusiveHttpElementsThenIsRoutedAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("DistinctHttpElements")).autowire();
 
-		this.mvc.perform(MockMvcRequestBuilders.get("/first")
-				.with(httpBasic("user", "password")))
+		this.mvc.perform(MockMvcRequestBuilders.get("/first").with(httpBasic("user", "password")))
 				.andExpect(status().isOk());
 
-		this.mvc.perform(post("/second/login")
-				.param("username", "user")
-				.param("password", "password")
-				.with(csrf()))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/"));
+		this.mvc.perform(post("/second/login").param("username", "user").param("password", "password").with(csrf()))
+				.andExpect(status().isFound()).andExpect(redirectedUrl("/"));
 	}
 
 	@Test
 	public void configureWhenUsingDuplicateHttpElementsThenThrowsWiringException() {
 		assertThatCode(() -> this.spring.configLocations(this.xml("IdenticalHttpElements")).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasCauseInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(BeanCreationException.class).hasCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void configureWhenUsingIndenticallyPatternedHttpElementsThenThrowsWiringException() {
 		assertThatCode(() -> this.spring.configLocations(this.xml("IdenticallyPatternedHttpElements")).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasCauseInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(BeanCreationException.class).hasCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	/**
@@ -90,27 +82,24 @@ public class MultiHttpBlockConfigTests {
 
 		this.spring.configLocations(this.xml("Sec1937")).autowire();
 
-		this.mvc.perform(get("/first")
-				.with(httpBasic("first", "password"))
-				.with(csrf()))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/first").with(httpBasic("first", "password")).with(csrf())).andExpect(status().isOk());
 
-		this.mvc.perform(post("/second/login")
-				.param("username", "second")
-				.param("password", "password")
-				.with(csrf()))
+		this.mvc.perform(post("/second/login").param("username", "second").param("password", "password").with(csrf()))
 				.andExpect(redirectedUrl("/"));
 	}
 
 	@Controller
 	static class BasicController {
+
 		@GetMapping("/first")
 		public String first() {
 			return "ok";
 		}
+
 	}
 
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
+
 }

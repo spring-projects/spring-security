@@ -56,8 +56,8 @@ public class CustomCsrfShowcaseTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.defaultRequest(get("/").with(csrf())).apply(springSecurity()).build();
+		mvc = MockMvcBuilders.webAppContextSetup(context).defaultRequest(get("/").with(csrf())).apply(springSecurity())
+				.build();
 	}
 
 	@Test
@@ -98,5 +98,7 @@ public class CustomCsrfShowcaseTests {
 			repo.setParameterName("custom_csrf");
 			return repo;
 		}
+
 	}
+
 }

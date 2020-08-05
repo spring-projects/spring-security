@@ -40,8 +40,8 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void constructorWhenProvidersIsEmptyThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingReactiveOAuth2AuthorizedClientProvider(new ReactiveOAuth2AuthorizedClientProvider[0]))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new DelegatingReactiveOAuth2AuthorizedClientProvider(
+				new ReactiveOAuth2AuthorizedClientProvider[0])).isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> new DelegatingReactiveOAuth2AuthorizedClientProvider(Collections.emptyList()))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
@@ -50,8 +50,7 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
 		DelegatingReactiveOAuth2AuthorizedClientProvider delegate = new DelegatingReactiveOAuth2AuthorizedClientProvider(
 				mock(ReactiveOAuth2AuthorizedClientProvider.class));
-		assertThatThrownBy(() -> delegate.authorize(null).block())
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> delegate.authorize(null).block()).isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("context cannot be null");
 	}
 
@@ -59,21 +58,23 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenProviderCanAuthorizeThenReturnAuthorizedClient() {
 		Authentication principal = new TestingAuthenticationToken("principal", "password");
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				clientRegistration, principal.getName(), TestOAuth2AccessTokens.noScopes());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principal.getName(),
+				TestOAuth2AccessTokens.noScopes());
 
-		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider1 = mock(ReactiveOAuth2AuthorizedClientProvider.class);
+		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider1 = mock(
+				ReactiveOAuth2AuthorizedClientProvider.class);
 		when(authorizedClientProvider1.authorize(any())).thenReturn(Mono.empty());
-		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider2 = mock(ReactiveOAuth2AuthorizedClientProvider.class);
+		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider2 = mock(
+				ReactiveOAuth2AuthorizedClientProvider.class);
 		when(authorizedClientProvider2.authorize(any())).thenReturn(Mono.empty());
-		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider3 = mock(ReactiveOAuth2AuthorizedClientProvider.class);
+		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider3 = mock(
+				ReactiveOAuth2AuthorizedClientProvider.class);
 		when(authorizedClientProvider3.authorize(any())).thenReturn(Mono.just(authorizedClient));
 
 		DelegatingReactiveOAuth2AuthorizedClientProvider delegate = new DelegatingReactiveOAuth2AuthorizedClientProvider(
 				authorizedClientProvider1, authorizedClientProvider2, authorizedClientProvider3);
 		OAuth2AuthorizationContext context = OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
-				.principal(principal)
-				.build();
+				.principal(principal).build();
 		OAuth2AuthorizedClient reauthorizedClient = delegate.authorize(context).block();
 		assertThat(reauthorizedClient).isSameAs(authorizedClient);
 	}
@@ -82,16 +83,18 @@ public class DelegatingReactiveOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenProviderCantAuthorizeThenReturnNull() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		OAuth2AuthorizationContext context = OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
-				.principal(new TestingAuthenticationToken("principal", "password"))
-				.build();
+				.principal(new TestingAuthenticationToken("principal", "password")).build();
 
-		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider1 = mock(ReactiveOAuth2AuthorizedClientProvider.class);
+		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider1 = mock(
+				ReactiveOAuth2AuthorizedClientProvider.class);
 		when(authorizedClientProvider1.authorize(any())).thenReturn(Mono.empty());
-		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider2 = mock(ReactiveOAuth2AuthorizedClientProvider.class);
+		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider2 = mock(
+				ReactiveOAuth2AuthorizedClientProvider.class);
 		when(authorizedClientProvider2.authorize(any())).thenReturn(Mono.empty());
 
 		DelegatingReactiveOAuth2AuthorizedClientProvider delegate = new DelegatingReactiveOAuth2AuthorizedClientProvider(
 				authorizedClientProvider1, authorizedClientProvider2);
 		assertThat(delegate.authorize(context).block()).isNull();
 	}
+
 }

@@ -63,6 +63,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
  * @author Rob Winch
  */
 public class AuthenticationManagerBuilderTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -84,15 +85,14 @@ public class AuthenticationManagerBuilderTests {
 		ObjectPostProcessor<Object> opp = mock(ObjectPostProcessor.class);
 		AuthenticationEventPublisher aep = mock(AuthenticationEventPublisher.class);
 		when(opp.postProcess(any())).thenAnswer(a -> a.getArgument(0));
-		AuthenticationManager am = new AuthenticationManagerBuilder(opp)
-					.authenticationEventPublisher(aep)
-					.inMemoryAuthentication()
-					.and()
-					.build();
+		AuthenticationManager am = new AuthenticationManagerBuilder(opp).authenticationEventPublisher(aep)
+				.inMemoryAuthentication().and().build();
 
 		try {
 			am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		} catch (AuthenticationException success) {}
+		}
+		catch (AuthenticationException success) {
+		}
 
 		verify(aep).publishAuthenticationFailure(any(), any());
 	}
@@ -100,8 +100,8 @@ public class AuthenticationManagerBuilderTests {
 	@Test
 	public void getAuthenticationManagerWhenGlobalPasswordEncoderBeanThenUsed() throws Exception {
 		this.spring.register(PasswordEncoderGlobalConfig.class).autowire();
-		AuthenticationManager manager = this.spring.getContext()
-			.getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+		AuthenticationManager manager = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
 
 		Authentication auth = manager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 
@@ -111,6 +111,7 @@ public class AuthenticationManagerBuilderTests {
 
 	@EnableWebSecurity
 	static class PasswordEncoderGlobalConfig extends WebSecurityConfigurerAdapter {
+
 		@Autowired
 		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -124,13 +125,14 @@ public class AuthenticationManagerBuilderTests {
 		PasswordEncoder passwordEncoder() {
 			return NoOpPasswordEncoder.getInstance();
 		}
+
 	}
 
 	@Test
 	public void getAuthenticationManagerWhenProtectedPasswordEncoderBeanThenUsed() throws Exception {
 		this.spring.register(PasswordEncoderGlobalConfig.class).autowire();
-		AuthenticationManager manager = this.spring.getContext()
-			.getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+		AuthenticationManager manager = this.spring.getContext().getBean(AuthenticationConfiguration.class)
+				.getAuthenticationManager();
 
 		Authentication auth = manager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
 
@@ -140,6 +142,7 @@ public class AuthenticationManagerBuilderTests {
 
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -152,6 +155,7 @@ public class AuthenticationManagerBuilderTests {
 		PasswordEncoder passwordEncoder() {
 			return NoOpPasswordEncoder.getInstance();
 		}
+
 	}
 
 	@Autowired(required = false)
@@ -161,22 +165,18 @@ public class AuthenticationManagerBuilderTests {
 	public void authenticationManagerWhenMultipleProvidersThenWorks() throws Exception {
 		this.spring.register(MultiAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user").withRoles("USER"));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		this.mockMvc.perform(formLogin().user("admin"))
-			.andExpect(authenticated().withUsername("admin").withRoles("USER", "ADMIN"));
+				.andExpect(authenticated().withUsername("admin").withRoles("USER", "ADMIN"));
 	}
 
 	@EnableWebSecurity
-	static class MultiAuthenticationProvidersConfig
-		extends WebSecurityConfigurerAdapter {
+	static class MultiAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.inMemoryAuthentication()
-				.withUser(PasswordEncodedUser.user())
-				.and()
-				.inMemoryAuthentication()
-				.withUser(PasswordEncodedUser.admin());
+			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user()).and().inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.admin());
 		}
 
 	}
@@ -219,7 +219,7 @@ public class AuthenticationManagerBuilderTests {
 		this.spring.register(UserFromPropertiesConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("joe", "joespassword"))
-			.andExpect(authenticated().withUsername("joe").withRoles("USER"));
+				.andExpect(authenticated().withUsername("joe").withRoles("USER"));
 	}
 
 	@Configuration
@@ -248,6 +248,7 @@ public class AuthenticationManagerBuilderTests {
 			properties.load(this.users.getInputStream());
 			return new InMemoryUserDetailsManager(properties);
 		}
+
 	}
 
 }

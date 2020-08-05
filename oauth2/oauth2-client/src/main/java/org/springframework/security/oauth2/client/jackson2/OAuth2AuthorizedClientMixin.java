@@ -40,10 +40,10 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 abstract class OAuth2AuthorizedClientMixin {
 
 	@JsonCreator
-	OAuth2AuthorizedClientMixin(
-			@JsonProperty("clientRegistration") ClientRegistration clientRegistration,
+	OAuth2AuthorizedClientMixin(@JsonProperty("clientRegistration") ClientRegistration clientRegistration,
 			@JsonProperty("principalName") String principalName,
 			@JsonProperty("accessToken") OAuth2AccessToken accessToken,
 			@JsonProperty("refreshToken") OAuth2RefreshToken refreshToken) {
 	}
+
 }

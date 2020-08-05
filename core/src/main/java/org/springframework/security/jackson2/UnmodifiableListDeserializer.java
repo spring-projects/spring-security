@@ -49,10 +49,12 @@ class UnmodifiableListDeserializer extends JsonDeserializer<List> {
 				for (JsonNode elementNode : arrayNode) {
 					result.add(mapper.readValue(elementNode.traverse(mapper), Object.class));
 				}
-			} else {
+			}
+			else {
 				result.add(mapper.readValue(node.traverse(mapper), Object.class));
 			}
 		}
 		return Collections.unmodifiableList(result);
 	}
+
 }

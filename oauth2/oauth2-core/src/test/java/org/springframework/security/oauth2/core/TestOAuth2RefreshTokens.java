@@ -23,7 +23,9 @@ import java.time.Instant;
  * @since 5.1
  */
 public class TestOAuth2RefreshTokens {
+
 	public static OAuth2RefreshToken refreshToken() {
 		return new OAuth2RefreshToken("refresh-token", Instant.now());
 	}
+
 }

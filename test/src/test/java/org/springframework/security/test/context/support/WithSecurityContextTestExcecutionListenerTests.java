@@ -50,6 +50,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WithSecurityContextTestExcecutionListenerTests {
+
 	private ConfigurableApplicationContext context;
 
 	@Mock
@@ -76,8 +77,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	public void beforeTestMethodNullSecurityContextNoError() throws Exception {
 		Class testClass = FakeTest.class;
 		when(testContext.getTestClass()).thenReturn(testClass);
-		when(testContext.getTestMethod()).thenReturn(
-				ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
+		when(testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
 
 		listener.beforeTestMethod(testContext);
 	}
@@ -87,14 +87,13 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	public void beforeTestMethodNoApplicationContext() throws Exception {
 		Class testClass = FakeTest.class;
 		when(testContext.getApplicationContext()).thenThrow(new IllegalStateException());
-		when(testContext.getTestMethod()).thenReturn(
-				ReflectionUtils.findMethod(testClass, "testWithMockUser"));
+		when(testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testWithMockUser"));
 
 		listener.beforeTestMethod(testContext);
 
-		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName())
-				.isEqualTo("user");
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
 	}
+
 	// gh-3962
 	@Test
 	public void withSecurityContextAfterSqlScripts() {
@@ -126,13 +125,11 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	@Test
 	// gh-3837
 	public void handlesGenericAnnotation() throws Exception {
-		Method method = ReflectionUtils.findMethod(
-				WithSecurityContextTestExcecutionListenerTests.class,
+		Method method = ReflectionUtils.findMethod(WithSecurityContextTestExcecutionListenerTests.class,
 				"handlesGenericAnnotationTestMethod");
 		TestContext testContext = mock(TestContext.class);
 		when(testContext.getTestMethod()).thenReturn(method);
-		when(testContext.getApplicationContext())
-				.thenThrow(new IllegalStateException(""));
+		when(testContext.getApplicationContext()).thenThrow(new IllegalStateException(""));
 
 		this.listener.beforeTestMethod(testContext);
 
@@ -147,11 +144,12 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@WithSecurityContext(factory = SuperClassWithSecurityContextFactory.class)
 	@interface WithSuperClassWithSecurityContext {
+
 		String username() default "WithSuperClassWithSecurityContext";
+
 	}
 
-	static class SuperClassWithSecurityContextFactory
-			implements WithSecurityContextFactory<Annotation> {
+	static class SuperClassWithSecurityContextFactory implements WithSecurityContextFactory<Annotation> {
 
 		@Override
 		public SecurityContext createSecurityContext(Annotation annotation) {
@@ -159,9 +157,11 @@ public class WithSecurityContextTestExcecutionListenerTests {
 			context.setAuthentication(new TestingAuthenticationToken(annotation, "NA"));
 			return context;
 		}
+
 	}
 
 	static class FakeTest {
+
 		public void testNoAnnotation() {
 		}
 
@@ -169,9 +169,12 @@ public class WithSecurityContextTestExcecutionListenerTests {
 		public void testWithMockUser() {
 
 		}
+
 	}
 
 	@Configuration
 	static class Config {
+
 	}
+
 }

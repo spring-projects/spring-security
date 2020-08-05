@@ -45,8 +45,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingEvaluationContextTests {
+
 	@Mock
 	DelegatingEvaluationContext delegate;
+
 	@InjectMocks
 	DelegatingEvaluationContext context;
 
@@ -141,4 +143,5 @@ public class DelegatingEvaluationContextTests {
 
 		assertThat(this.context.lookupVariable(name)).isEqualTo(expected);
 	}
+
 }

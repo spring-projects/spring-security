@@ -31,9 +31,11 @@ import org.springframework.security.web.PortMapperImpl;
  * @author Rob Winch
  * @since 3.2
  */
-public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<PortMapperConfigurer<H>, H> {
+public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<PortMapperConfigurer<H>, H> {
+
 	private PortMapper portMapper;
+
 	private Map<String, String> httpsPortMappings = new HashMap<>();
 
 	/**
@@ -70,7 +72,6 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 * Gets the {@link PortMapper} to use. If {@link #portMapper(PortMapper)} was not
 	 * invoked, builds a {@link PortMapperImpl} using the port mappings specified with
 	 * {@link #http(int)}.
-	 *
 	 * @return the {@link PortMapper} to use
 	 */
 	private PortMapper getPortMapper() {
@@ -90,6 +91,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 * @since 3.2
 	 */
 	public final class HttpPortMapping {
+
 		private final int httpPort;
 
 		/**
@@ -110,5 +112,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extend
 			httpsPortMappings.put(String.valueOf(httpPort), String.valueOf(httpsPort));
 			return PortMapperConfigurer.this;
 		}
+
 	}
+
 }

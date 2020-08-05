@@ -30,11 +30,11 @@ import org.springframework.web.server.ServerWebExchange;
 public class StaticServerHttpHeadersWriterTests {
 
 	StaticServerHttpHeadersWriter writer = StaticServerHttpHeadersWriter.builder()
-			.header(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF)
+			.header(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS,
+					ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF)
 			.build();
 
-	ServerWebExchange exchange = MockServerWebExchange
-		.from(MockServerHttpRequest.get("/").build());
+	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	HttpHeaders headers = exchange.getResponse().getHeaders();
 
@@ -42,8 +42,8 @@ public class StaticServerHttpHeadersWriterTests {
 	public void writeHeadersWhenSingleHeaderThenWritesHeader() {
 		writer.writeHttpHeaders(exchange);
 
-		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(
-			ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
+		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
+				.containsOnly(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
 
 	@Test
@@ -59,19 +59,16 @@ public class StaticServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenMultiHeaderThenWritesAllHeaders() {
 		writer = StaticServerHttpHeadersWriter.builder()
-					.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
-					.header(HttpHeaders.PRAGMA,  CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
-					.header(HttpHeaders.EXPIRES,  CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
-					.build();
+				.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
+				.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
+				.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE).build();
 
 		writer.writeHttpHeaders(exchange);
 
-		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(
-			CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
-		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(
-			CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
-		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(
-			CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
+		assertThat(headers.get(HttpHeaders.CACHE_CONTROL))
+				.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
+		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
+		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
 	}
 
 	@Test
@@ -80,14 +77,14 @@ public class StaticServerHttpHeadersWriterTests {
 		headers.set(HttpHeaders.CACHE_CONTROL, headerValue);
 
 		writer = StaticServerHttpHeadersWriter.builder()
-					.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
-					.header(HttpHeaders.PRAGMA,  CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
-					.header(HttpHeaders.EXPIRES,  CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
-					.build();
+				.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
+				.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
+				.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE).build();
 
 		writer.writeHttpHeaders(exchange);
 
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(headerValue);
 	}
+
 }

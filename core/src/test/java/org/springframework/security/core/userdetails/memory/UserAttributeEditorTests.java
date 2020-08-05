@@ -125,4 +125,5 @@ public class UserAttributeEditorTests {
 		UserAttribute user = (UserAttribute) editor.getValue();
 		assertThat(user == null).isTrue();
 	}
+
 }

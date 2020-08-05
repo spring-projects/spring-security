@@ -36,15 +36,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.1
  */
 public class OidcUserRequestUtilsTests {
+
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration();
 
 	OidcIdToken idToken = TestOidcIdTokens.idToken().build();
 
-	OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-			"token",
-			Instant.now(),
-			Instant.now().plus(Duration.ofDays(1)),
-			Collections.singleton("read:user"));
+	OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(),
+			Instant.now().plus(Duration.ofDays(1)), Collections.singleton("read:user"));
 
 	@Test
 	public void shouldRetrieveUserInfoWhenEndpointDefinedAndScopesOverlapThenTrue() {
@@ -75,4 +73,5 @@ public class OidcUserRequestUtilsTests {
 	private OidcUserRequest userRequest() {
 		return new OidcUserRequest(this.registration.build(), this.accessToken, this.idToken);
 	}
+
 }

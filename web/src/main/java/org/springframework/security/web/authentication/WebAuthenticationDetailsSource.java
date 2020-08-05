@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Ben Alex
  */
-public class WebAuthenticationDetailsSource implements
-		AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
+public class WebAuthenticationDetailsSource
+		implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
 
 	// ~ Methods
 	// ========================================================================================================
@@ -41,4 +41,5 @@ public class WebAuthenticationDetailsSource implements
 	public WebAuthenticationDetails buildDetails(HttpServletRequest context) {
 		return new WebAuthenticationDetails(context);
 	}
+
 }

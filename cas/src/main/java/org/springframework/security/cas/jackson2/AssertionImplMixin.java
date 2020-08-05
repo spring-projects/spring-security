@@ -23,16 +23,17 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Helps in jackson deserialization of class {@link org.jasig.cas.client.validation.AssertionImpl}, which is
- * used with {@link org.springframework.security.cas.authentication.CasAuthenticationToken}.
- * To use this class we need to register with {@link com.fasterxml.jackson.databind.ObjectMapper}. Type information
- * will be stored in @class property.
+ * Helps in jackson deserialization of class
+ * {@link org.jasig.cas.client.validation.AssertionImpl}, which is used with
+ * {@link org.springframework.security.cas.authentication.CasAuthenticationToken}. To use
+ * this class we need to register with
+ * {@link com.fasterxml.jackson.databind.ObjectMapper}. Type information will be stored
+ * in @class property.
  * <p>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new CasJackson2Module());
  * </pre>
- *
  *
  * @author Jitendra Singh
  * @see CasJackson2Module
@@ -40,14 +41,14 @@ import java.util.Map;
  * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY,
-		getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
+		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class AssertionImplMixin {
 
 	/**
-	 * Mixin Constructor helps in deserialize {@link org.jasig.cas.client.validation.AssertionImpl}
-	 *
+	 * Mixin Constructor helps in deserialize
+	 * {@link org.jasig.cas.client.validation.AssertionImpl}
 	 * @param principal the Principal to associate with the Assertion.
 	 * @param validFromDate when the assertion is valid from.
 	 * @param validUntilDate when the assertion is valid to.
@@ -56,7 +57,9 @@ class AssertionImplMixin {
 	 */
 	@JsonCreator
 	AssertionImplMixin(@JsonProperty("principal") AttributePrincipal principal,
-								@JsonProperty("validFromDate") Date validFromDate, @JsonProperty("validUntilDate") Date validUntilDate,
-								@JsonProperty("authenticationDate") Date authenticationDate, @JsonProperty("attributes") Map<String, Object> attributes){
+			@JsonProperty("validFromDate") Date validFromDate, @JsonProperty("validUntilDate") Date validUntilDate,
+			@JsonProperty("authenticationDate") Date authenticationDate,
+			@JsonProperty("attributes") Map<String, Object> attributes) {
 	}
+
 }

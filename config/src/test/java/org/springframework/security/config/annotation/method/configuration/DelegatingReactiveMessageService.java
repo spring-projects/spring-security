@@ -22,6 +22,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class DelegatingReactiveMessageService implements ReactiveMessageService {
+
 	private final ReactiveMessageService delegate;
 
 	public DelegatingReactiveMessageService(ReactiveMessageService delegate) {
@@ -41,29 +42,25 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 
 	@Override
 	@PreAuthorize("hasRole('ADMIN')")
-	public Mono<String> monoPreAuthorizeHasRoleFindById(
-			long id) {
+	public Mono<String> monoPreAuthorizeHasRoleFindById(long id) {
 		return delegate.monoPreAuthorizeHasRoleFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("returnObject?.contains(authentication?.name)")
-	public Mono<String> monoPostAuthorizeFindById(
-			long id) {
+	public Mono<String> monoPostAuthorizeFindById(long id) {
 		return delegate.monoPostAuthorizeFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("@authz.check(#id)")
-	public Mono<String> monoPreAuthorizeBeanFindById(
-			long id) {
+	public Mono<String> monoPreAuthorizeBeanFindById(long id) {
 		return delegate.monoPreAuthorizeBeanFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
-	public Mono<String> monoPostAuthorizeBeanFindById(
-			long id) {
+	public Mono<String> monoPostAuthorizeBeanFindById(long id) {
 		return delegate.monoPostAuthorizeBeanFindById(id);
 	}
 
@@ -74,29 +71,25 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 
 	@Override
 	@PreAuthorize("hasRole('ADMIN')")
-	public Flux<String> fluxPreAuthorizeHasRoleFindById(
-			long id) {
+	public Flux<String> fluxPreAuthorizeHasRoleFindById(long id) {
 		return delegate.fluxPreAuthorizeHasRoleFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("returnObject?.contains(authentication?.name)")
-	public Flux<String> fluxPostAuthorizeFindById(
-			long id) {
+	public Flux<String> fluxPostAuthorizeFindById(long id) {
 		return delegate.fluxPostAuthorizeFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("@authz.check(#id)")
-	public Flux<String> fluxPreAuthorizeBeanFindById(
-			long id) {
+	public Flux<String> fluxPreAuthorizeBeanFindById(long id) {
 		return delegate.fluxPreAuthorizeBeanFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
-	public Flux<String> fluxPostAuthorizeBeanFindById(
-			long id) {
+	public Flux<String> fluxPostAuthorizeBeanFindById(long id) {
 		return delegate.fluxPostAuthorizeBeanFindById(id);
 	}
 
@@ -107,29 +100,26 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 
 	@Override
 	@PreAuthorize("hasRole('ADMIN')")
-	public Publisher<String> publisherPreAuthorizeHasRoleFindById(
-			long id) {
+	public Publisher<String> publisherPreAuthorizeHasRoleFindById(long id) {
 		return delegate.publisherPreAuthorizeHasRoleFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("returnObject?.contains(authentication?.name)")
-	public Publisher<String> publisherPostAuthorizeFindById(
-			long id) {
+	public Publisher<String> publisherPostAuthorizeFindById(long id) {
 		return delegate.publisherPostAuthorizeFindById(id);
 	}
 
 	@Override
 	@PreAuthorize("@authz.check(#id)")
-	public Publisher<String> publisherPreAuthorizeBeanFindById(
-			long id) {
+	public Publisher<String> publisherPreAuthorizeBeanFindById(long id) {
 		return delegate.publisherPreAuthorizeBeanFindById(id);
 	}
 
 	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
-	public Publisher<String> publisherPostAuthorizeBeanFindById(
-			long id) {
+	public Publisher<String> publisherPostAuthorizeBeanFindById(long id) {
 		return delegate.publisherPostAuthorizeBeanFindById(id);
 	}
+
 }

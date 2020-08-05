@@ -33,49 +33,49 @@ import static org.assertj.core.api.Assertions.entry;
  * @author Joe Grandja
  */
 public class OAuth2AuthorizeRequestTests {
+
 	private ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+
 	private Authentication principal = new TestingAuthenticationToken("principal", "password");
-	private OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-			this.clientRegistration, this.principal.getName(),
-			TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
+
+	private OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+			this.principal.getName(), TestOAuth2AccessTokens.scopes("read", "write"),
+			TestOAuth2RefreshTokens.refreshToken());
 
 	@Test
 	public void withClientRegistrationIdWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> OAuth2AuthorizeRequest.withClientRegistrationId(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistrationId cannot be empty");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistrationId cannot be empty");
 	}
 
 	@Test
 	public void withAuthorizedClientWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> OAuth2AuthorizeRequest.withAuthorizedClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClient cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizedClient cannot be null");
 	}
 
 	@Test
 	public void withClientRegistrationIdWhenPrincipalIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId()).build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("principal cannot be null");
+		assertThatThrownBy(() -> OAuth2AuthorizeRequest
+				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).build())
+						.isInstanceOf(IllegalArgumentException.class).hasMessage("principal cannot be null");
 	}
 
 	@Test
 	public void withClientRegistrationIdWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal((String) null).build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("principalName cannot be empty");
+		assertThatThrownBy(() -> OAuth2AuthorizeRequest
+				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal((String) null).build())
+						.isInstanceOf(IllegalArgumentException.class).hasMessage("principalName cannot be empty");
 	}
 
 	@Test
 	public void withClientRegistrationIdWhenAllValuesProvidedThenAllValuesAreSet() {
-		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
-				.principal(this.principal)
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal(this.principal)
 				.attributes(attrs -> {
 					attrs.put("name1", "value1");
 					attrs.put("name2", "value2");
-				})
-				.build();
+				}).build();
 
 		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.clientRegistration.getRegistrationId());
 		assertThat(authorizeRequest.getAuthorizedClient()).isNull();
@@ -86,14 +86,13 @@ public class OAuth2AuthorizeRequestTests {
 	@Test
 	public void withAuthorizedClientWhenAllValuesProvidedThenAllValuesAreSet() {
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
-				.principal(this.principal)
-				.attributes(attrs -> {
+				.principal(this.principal).attributes(attrs -> {
 					attrs.put("name1", "value1");
 					attrs.put("name2", "value2");
-				})
-				.build();
+				}).build();
 
-		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.authorizedClient.getClientRegistration().getRegistrationId());
+		assertThat(authorizeRequest.getClientRegistrationId())
+				.isEqualTo(this.authorizedClient.getClientRegistration().getRegistrationId());
 		assertThat(authorizeRequest.getAuthorizedClient()).isEqualTo(this.authorizedClient);
 		assertThat(authorizeRequest.getPrincipal()).isEqualTo(this.principal);
 		assertThat(authorizeRequest.getAttributes()).contains(entry("name1", "value1"), entry("name2", "value2"));
@@ -101,12 +100,13 @@ public class OAuth2AuthorizeRequestTests {
 
 	@Test
 	public void withClientRegistrationIdWhenPrincipalNameProvidedThenPrincipalCreated() {
-		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
-				.principal("principalName")
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+				.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal("principalName")
 				.build();
 
 		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.clientRegistration.getRegistrationId());
 		assertThat(authorizeRequest.getAuthorizedClient()).isNull();
 		assertThat(authorizeRequest.getPrincipal().getName()).isEqualTo("principalName");
 	}
+
 }

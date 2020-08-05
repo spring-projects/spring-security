@@ -70,6 +70,7 @@ import static org.springframework.util.StringUtils.hasText;
  * @since 5.2
  */
 public class OpenSamlAuthenticationRequestFactory implements Saml2AuthenticationRequestFactory {
+
 	static {
 		OpenSamlInitializationService.initialize();
 	}
@@ -77,19 +78,20 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	private Clock clock = Clock.systemUTC();
 
 	private AuthnRequestMarshaller marshaller;
+
 	private AuthnRequestBuilder authnRequestBuilder;
+
 	private IssuerBuilder issuerBuilder;
 
-	private Converter<Saml2AuthenticationRequestContext, String> protocolBindingResolver =
-			context -> {
-				if (context == null) {
-					return SAMLConstants.SAML2_POST_BINDING_URI;
-				}
-				return context.getRelyingPartyRegistration().getAssertionConsumerServiceBinding().getUrn();
-			};
+	private Converter<Saml2AuthenticationRequestContext, String> protocolBindingResolver = context -> {
+		if (context == null) {
+			return SAMLConstants.SAML2_POST_BINDING_URI;
+		}
+		return context.getRelyingPartyRegistration().getAssertionConsumerServiceBinding().getUrn();
+	};
 
-	private Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver
-			= context -> authnRequest -> {};
+	private Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver = context -> authnRequest -> {
+	};
 
 	/**
 	 * Creates an {@link OpenSamlAuthenticationRequestFactory}
@@ -100,19 +102,18 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 				.getMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
 		this.authnRequestBuilder = (AuthnRequestBuilder) registry.getBuilderFactory()
 				.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
-		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory()
-				.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
 	}
 
 	@Override
 	@Deprecated
 	public String createAuthenticationRequest(Saml2AuthenticationRequest request) {
-		AuthnRequest authnRequest = createAuthnRequest(request.getIssuer(),
-				request.getDestination(), request.getAssertionConsumerServiceUrl(),
-				this.protocolBindingResolver.convert(null));
+		AuthnRequest authnRequest = createAuthnRequest(request.getIssuer(), request.getDestination(),
+				request.getAssertionConsumerServiceUrl(), this.protocolBindingResolver.convert(null));
 		for (org.springframework.security.saml2.credentials.Saml2X509Credential credential : request.getCredentials()) {
 			if (credential.isSigningCredential()) {
-				Credential cred = getSigningCredential(credential.getCertificate(), credential.getPrivateKey(), request.getIssuer());
+				Credential cred = getSigningCredential(credential.getCertificate(), credential.getPrivateKey(),
+						request.getIssuer());
 				return serialize(sign(authnRequest, cred));
 			}
 		}
@@ -125,41 +126,34 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	@Override
 	public Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
 		AuthnRequest authnRequest = createAuthnRequest(context);
-		String xml = context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned() ?
-			serialize(sign(authnRequest, context.getRelyingPartyRegistration())) :
-			serialize(authnRequest);
+		String xml = context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned()
+				? serialize(sign(authnRequest, context.getRelyingPartyRegistration())) : serialize(authnRequest);
 
 		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
-				.samlRequest(samlEncode(xml.getBytes(UTF_8)))
-				.build();
+				.samlRequest(samlEncode(xml.getBytes(UTF_8))).build();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Saml2RedirectAuthenticationRequest createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext context) {
+	public Saml2RedirectAuthenticationRequest createRedirectAuthenticationRequest(
+			Saml2AuthenticationRequestContext context) {
 		AuthnRequest authnRequest = createAuthnRequest(context);
 		String xml = serialize(authnRequest);
 		Builder result = Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context);
 		String deflatedAndEncoded = samlEncode(samlDeflate(xml));
-		result.samlRequest(deflatedAndEncoded)
-				.relayState(context.getRelayState());
+		result.samlRequest(deflatedAndEncoded).relayState(context.getRelayState());
 
 		if (context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
-			Collection<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration().getSigningX509Credentials();
+			Collection<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration()
+					.getSigningX509Credentials();
 			for (Saml2X509Credential credential : signingCredentials) {
 				Credential cred = getSigningCredential(credential.getCertificate(), credential.getPrivateKey(), "");
-				Map<String, String> signedParams = signQueryParameters(
-						cred,
-						deflatedAndEncoded,
+				Map<String, String> signedParams = signQueryParameters(cred, deflatedAndEncoded,
 						context.getRelayState());
-				return result
-						.samlRequest(signedParams.get("SAMLRequest"))
-						.relayState(signedParams.get("RelayState"))
-						.sigAlg(signedParams.get("SigAlg"))
-						.signature(signedParams.get("Signature"))
-						.build();
+				return result.samlRequest(signedParams.get("SAMLRequest")).relayState(signedParams.get("RelayState"))
+						.sigAlg(signedParams.get("SigAlg")).signature(signedParams.get("Signature")).build();
 			}
 			throw new Saml2Exception("No signing credential provided");
 		}
@@ -168,15 +162,14 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	}
 
 	private AuthnRequest createAuthnRequest(Saml2AuthenticationRequestContext context) {
-		AuthnRequest authnRequest = createAuthnRequest(context.getIssuer(),
-				context.getDestination(), context.getAssertionConsumerServiceUrl(),
-				this.protocolBindingResolver.convert(context));
+		AuthnRequest authnRequest = createAuthnRequest(context.getIssuer(), context.getDestination(),
+				context.getAssertionConsumerServiceUrl(), this.protocolBindingResolver.convert(context));
 		this.authnRequestConsumerResolver.apply(context).accept(authnRequest);
 		return authnRequest;
 	}
 
-	private AuthnRequest createAuthnRequest
-			(String issuer, String destination, String assertionConsumerServiceUrl, String protocolBinding) {
+	private AuthnRequest createAuthnRequest(String issuer, String destination, String assertionConsumerServiceUrl,
+			String protocolBinding) {
 		AuthnRequest auth = this.authnRequestBuilder.buildObject();
 		auth.setID("ARQ" + UUID.randomUUID().toString().substring(1));
 		auth.setIssueInstant(new DateTime(this.clock.millis()));
@@ -193,7 +186,6 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	/**
 	 * Set the {@link AuthnRequest} post-processor resolver
-	 *
 	 * @param authnRequestConsumerResolver
 	 * @since 5.4
 	 */
@@ -204,10 +196,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	}
 
 	/**
-	 * '
-	 * Use this {@link Clock} with {@link Instant#now()} for generating
-	 * timestamps
-	 *
+	 * ' Use this {@link Clock} with {@link Instant#now()} for generating timestamps
 	 * @param clock
 	 */
 	public void setClock(Clock clock) {
@@ -218,20 +207,20 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	/**
 	 * Sets the {@code protocolBinding} to use when generating authentication requests.
 	 * Acceptable values are {@link SAMLConstants#SAML2_POST_BINDING_URI} and
-	 * {@link SAMLConstants#SAML2_REDIRECT_BINDING_URI}
-	 * The IDP will be reading this value in the {@code AuthNRequest} to determine how to
-	 * send the Response/Assertion to the ACS URL, assertion consumer service URL.
-	 *
+	 * {@link SAMLConstants#SAML2_REDIRECT_BINDING_URI} The IDP will be reading this value
+	 * in the {@code AuthNRequest} to determine how to send the Response/Assertion to the
+	 * ACS URL, assertion consumer service URL.
 	 * @param protocolBinding either {@link SAMLConstants#SAML2_POST_BINDING_URI} or
 	 * {@link SAMLConstants#SAML2_REDIRECT_BINDING_URI}
 	 * @throws IllegalArgumentException if the protocolBinding is not valid
-	 * @deprecated Use {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.Builder#assertionConsumerServiceBinding(Saml2MessageBinding)}
+	 * @deprecated Use
+	 * {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.Builder#assertionConsumerServiceBinding(Saml2MessageBinding)}
 	 * instead
 	 */
 	@Deprecated
 	public void setProtocolBinding(String protocolBinding) {
-		boolean isAllowedBinding = SAMLConstants.SAML2_POST_BINDING_URI.equals(protocolBinding) ||
-				SAMLConstants.SAML2_REDIRECT_BINDING_URI.equals(protocolBinding);
+		boolean isAllowedBinding = SAMLConstants.SAML2_POST_BINDING_URI.equals(protocolBinding)
+				|| SAMLConstants.SAML2_REDIRECT_BINDING_URI.equals(protocolBinding);
 		if (!isAllowedBinding) {
 			throw new IllegalArgumentException("Invalid protocol binding: " + protocolBinding);
 		}
@@ -240,8 +229,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	private AuthnRequest sign(AuthnRequest authnRequest, RelyingPartyRegistration relyingPartyRegistration) {
 		for (Saml2X509Credential credential : relyingPartyRegistration.getSigningX509Credentials()) {
-			Credential cred = getSigningCredential(
-					credential.getCertificate(), credential.getPrivateKey(), relyingPartyRegistration.getEntityId());
+			Credential cred = getSigningCredential(credential.getCertificate(), credential.getPrivateKey(),
+					relyingPartyRegistration.getEntityId());
 			return sign(authnRequest, cred);
 		}
 		throw new IllegalArgumentException("No signing credential provided");
@@ -256,7 +245,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		try {
 			SignatureSupport.signObject(authnRequest, parameters);
 			return authnRequest;
-		} catch (MarshallingException | SignatureException | SecurityException e) {
+		}
+		catch (MarshallingException | SignatureException | SecurityException e) {
 			throw new Saml2Exception(e);
 		}
 	}
@@ -268,36 +258,21 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		return cred;
 	}
 
-	private Map<String, String> signQueryParameters(
-			Credential credential,
-			String samlRequest,
-			String relayState) {
+	private Map<String, String> signQueryParameters(Credential credential, String samlRequest, String relayState) {
 		Assert.notNull(samlRequest, "samlRequest cannot be null");
 		String algorithmUri = SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256;
 		StringBuilder queryString = new StringBuilder();
-		queryString
-				.append("SAMLRequest")
-				.append("=")
-				.append(UriUtils.encode(samlRequest, StandardCharsets.ISO_8859_1))
+		queryString.append("SAMLRequest").append("=").append(UriUtils.encode(samlRequest, StandardCharsets.ISO_8859_1))
 				.append("&");
 		if (hasText(relayState)) {
-			queryString
-					.append("RelayState")
-					.append("=")
-					.append(UriUtils.encode(relayState, StandardCharsets.ISO_8859_1))
-					.append("&");
+			queryString.append("RelayState").append("=")
+					.append(UriUtils.encode(relayState, StandardCharsets.ISO_8859_1)).append("&");
 		}
-		queryString
-				.append("SigAlg")
-				.append("=")
-				.append(UriUtils.encode(algorithmUri, StandardCharsets.ISO_8859_1));
+		queryString.append("SigAlg").append("=").append(UriUtils.encode(algorithmUri, StandardCharsets.ISO_8859_1));
 
 		try {
-			byte[] rawSignature = XMLSigningUtil.signWithURI(
-					credential,
-					algorithmUri,
-					queryString.toString().getBytes(StandardCharsets.UTF_8)
-			);
+			byte[] rawSignature = XMLSigningUtil.signWithURI(credential, algorithmUri,
+					queryString.toString().getBytes(StandardCharsets.UTF_8));
 			String b64Signature = Saml2Utils.samlEncode(rawSignature);
 
 			Map<String, String> result = new LinkedHashMap<>();
@@ -318,8 +293,10 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		try {
 			Element element = this.marshaller.marshall(authnRequest);
 			return SerializeSupport.nodeToString(element);
-		} catch (MarshallingException e) {
+		}
+		catch (MarshallingException e) {
 			throw new Saml2Exception(e);
 		}
 	}
+
 }

@@ -20,9 +20,10 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * Implementations of this interface are capable of resolving
- * an {@link OAuth2AuthorizationRequest} from the provided {@code ServerWebExchange}.
- * Used by the {@link OAuth2AuthorizationRequestRedirectWebFilter} for resolving Authorization Requests.
+ * Implementations of this interface are capable of resolving an
+ * {@link OAuth2AuthorizationRequest} from the provided {@code ServerWebExchange}. Used by
+ * the {@link OAuth2AuthorizationRequestRedirectWebFilter} for resolving Authorization
+ * Requests.
  *
  * @author Rob Winch
  * @since 5.1
@@ -32,21 +33,21 @@ import reactor.core.publisher.Mono;
 public interface ServerOAuth2AuthorizationRequestResolver {
 
 	/**
-	 * Returns the {@link OAuth2AuthorizationRequest} resolved from
-	 * the provided {@code HttpServletRequest} or {@code null} if not available.
-	 *
+	 * Returns the {@link OAuth2AuthorizationRequest} resolved from the provided
+	 * {@code HttpServletRequest} or {@code null} if not available.
 	 * @param exchange the {@code ServerWebExchange}
-	 * @return the resolved {@link OAuth2AuthorizationRequest} or {@code null} if not available
+	 * @return the resolved {@link OAuth2AuthorizationRequest} or {@code null} if not
+	 * available
 	 */
 	Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange);
 
 	/**
-	 * Returns the {@link OAuth2AuthorizationRequest} resolved from
-	 * the provided {@code HttpServletRequest} or {@code null} if not available.
-	 *
+	 * Returns the {@link OAuth2AuthorizationRequest} resolved from the provided
+	 * {@code HttpServletRequest} or {@code null} if not available.
 	 * @param exchange the {@code ServerWebExchange}
 	 * @param clientRegistrationId the client registration id
-	 * @return the resolved {@link OAuth2AuthorizationRequest} or {@code null} if not available
+	 * @return the resolved {@link OAuth2AuthorizationRequest} or {@code null} if not
+	 * available
 	 */
 	Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange, String clientRegistrationId);
 

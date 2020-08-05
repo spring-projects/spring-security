@@ -37,8 +37,8 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Ben Alex
  * @author Rob Winch
  */
-public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements
-		MethodInterceptor {
+public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -53,12 +53,9 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 
 	/**
 	 * This method should be used to enforce security on a <code>MethodInvocation</code>.
-	 *
 	 * @param mi The method being invoked which requires a security decision
-	 *
 	 * @return The returned value from the method invocation (possibly modified by the
 	 * {@code AfterInvocationManager}).
-	 *
 	 * @throws Throwable if any error occurs
 	 */
 	public Object invoke(MethodInvocation mi) throws Throwable {
@@ -85,4 +82,5 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 	public void setSecurityMetadataSource(MethodSecurityMetadataSource newSource) {
 		this.securityMetadataSource = newSource;
 	}
+
 }

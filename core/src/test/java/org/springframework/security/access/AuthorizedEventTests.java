@@ -38,13 +38,12 @@ public class AuthorizedEventTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNulls2() {
 
-		new AuthorizedEvent(new SimpleMethodInvocation(), null,
-				new UsernamePasswordAuthenticationToken("foo", "bar"));
+		new AuthorizedEvent(new SimpleMethodInvocation(), null, new UsernamePasswordAuthenticationToken("foo", "bar"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNulls3() {
-		new AuthorizedEvent(new SimpleMethodInvocation(),
-				SecurityConfig.createList("TEST"), null);
+		new AuthorizedEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"), null);
 	}
+
 }

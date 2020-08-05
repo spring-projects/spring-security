@@ -34,9 +34,8 @@ public class CompositeHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Creates a new instance.
-	 *
 	 * @param headerWriters the {@link HeaderWriter} instances to write out headers to the
-	 *                      {@link HttpServletResponse}.
+	 * {@link HttpServletResponse}.
 	 */
 	public CompositeHeaderWriter(List<HeaderWriter> headerWriters) {
 		Assert.notEmpty(headerWriters, "headerWriters cannot be empty");
@@ -47,4 +46,5 @@ public class CompositeHeaderWriter implements HeaderWriter {
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		this.headerWriters.forEach(headerWriter -> headerWriter.writeHeaders(request, response));
 	}
+
 }

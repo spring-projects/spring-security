@@ -42,6 +42,7 @@ import org.springframework.util.StringUtils;
  * @author Evgeniy Cheban
  */
 public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
+
 	private static final String CONTEXT_SOURCE_CLASS = "org.springframework.security.ldap.DefaultSpringSecurityContextSource";
 
 	/**
@@ -51,29 +52,37 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String ATT_URL = "url";
 
 	private static final String ATT_PRINCIPAL = "manager-dn";
+
 	private static final String ATT_PASSWORD = "manager-password";
 
 	// Properties which apply to embedded server only - when no Url is set
 
 	/** sets the configuration suffix (default is "dc=springframework,dc=org"). */
 	public static final String ATT_ROOT_SUFFIX = "root";
+
 	private static final String OPT_DEFAULT_ROOT_SUFFIX = "dc=springframework,dc=org";
+
 	/**
 	 * Optionally defines an ldif resource to be loaded. Otherwise an attempt will be made
 	 * to load all ldif files found on the classpath.
 	 */
 	public static final String ATT_LDIF_FILE = "ldif";
+
 	private static final String OPT_DEFAULT_LDIF_FILE = "classpath*:*.ldif";
 
 	/** Defines the port the LDAP_PROVIDER server should run on */
 	public static final String ATT_PORT = "port";
+
 	private static final String RANDOM_PORT = "0";
+
 	private static final int DEFAULT_PORT = 33389;
 
 	private static final String APACHEDS_CLASSNAME = "org.apache.directory.server.core.DefaultDirectoryService";
+
 	private static final String UNBOUNID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
 
 	private static final String APACHEDS_CONTAINER_CLASSNAME = "org.springframework.security.ldap.server.ApacheDSContainer";
+
 	private static final String UNBOUNDID_CONTAINER_CLASSNAME = "org.springframework.security.ldap.server.UnboundIdContainer";
 
 	public BeanDefinition parse(Element elt, ParserContext parserContext) {
@@ -97,22 +106,19 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 		if (StringUtils.hasText(managerDn)) {
 			if (!StringUtils.hasText(managerPassword)) {
-				parserContext.getReaderContext().error(
-						"You must specify the " + ATT_PASSWORD + " if you supply a "
-								+ managerDn, elt);
+				parserContext.getReaderContext()
+						.error("You must specify the " + ATT_PASSWORD + " if you supply a " + managerDn, elt);
 			}
 
 			contextSource.getPropertyValues().addPropertyValue("userDn", managerDn);
-			contextSource.getPropertyValues().addPropertyValue("password",
-					managerPassword);
+			contextSource.getPropertyValues().addPropertyValue("password", managerPassword);
 		}
 
 		String id = elt.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
 
 		String contextSourceId = StringUtils.hasText(id) ? id : BeanIds.CONTEXT_SOURCE;
 
-		parserContext.getRegistry()
-				.registerBeanDefinition(contextSourceId, contextSource);
+		parserContext.getRegistry().registerBeanDefinition(contextSourceId, contextSource);
 
 		return null;
 	}
@@ -121,14 +127,12 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	 * Will be called if no url attribute is supplied.
 	 *
 	 * Registers beans to create an embedded apache directory server.
-	 *
 	 * @return the BeanDefinition for the ContextSource for the embedded server.
 	 *
 	 * @see ApacheDSContainer
 	 * @see UnboundIdContainer
 	 */
-	private RootBeanDefinition createEmbeddedServer(Element element,
-			ParserContext parserContext) {
+	private RootBeanDefinition createEmbeddedServer(Element element, ParserContext parserContext) {
 		Object source = parserContext.extractSource(element);
 
 		String suffix = element.getAttribute(ATT_ROOT_SUFFIX);
@@ -137,8 +141,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 			suffix = OPT_DEFAULT_ROOT_SUFFIX;
 		}
 
-		BeanDefinitionBuilder contextSource = BeanDefinitionBuilder
-				.rootBeanDefinition(CONTEXT_SOURCE_CLASS);
+		BeanDefinitionBuilder contextSource = BeanDefinitionBuilder.rootBeanDefinition(CONTEXT_SOURCE_CLASS);
 		contextSource.addConstructorArgValue(suffix);
 		contextSource.addPropertyValue("userDn", "uid=admin,ou=system");
 		contextSource.addPropertyValue("password", "secret");
@@ -148,8 +151,8 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		String embeddedLdapServerConfigBeanName = parserContext.getReaderContext()
 				.generateBeanName(embeddedLdapServerConfigBean);
 
-		parserContext.registerBeanComponent(new BeanComponentDefinition(embeddedLdapServerConfigBean,
-				embeddedLdapServerConfigBeanName));
+		parserContext.registerBeanComponent(
+				new BeanComponentDefinition(embeddedLdapServerConfigBean, embeddedLdapServerConfigBeanName));
 
 		contextSource.setFactoryMethodOnBean("createEmbeddedContextSource", embeddedLdapServerConfigBeanName);
 
@@ -166,11 +169,9 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		ldapContainer.getConstructorArgumentValues().addGenericArgumentValue(ldifs);
 		ldapContainer.getPropertyValues().addPropertyValue("port", getPort(element));
 
-		if (parserContext.getRegistry()
-				.containsBeanDefinition(BeanIds.EMBEDDED_APACHE_DS) ||
-				parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_UNBOUNDID)) {
-			parserContext.getReaderContext().error(
-					"Only one embedded server bean is allowed per application context",
+		if (parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_APACHE_DS)
+				|| parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_UNBOUNDID)) {
+			parserContext.getReaderContext().error("Only one embedded server bean is allowed per application context",
 					element);
 		}
 
@@ -218,7 +219,8 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	private String getDefaultPort() {
 		try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
 			return String.valueOf(serverSocket.getLocalPort());
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			return RANDOM_PORT;
 		}
 	}
@@ -251,5 +253,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 			return new DefaultSpringSecurityContextSource(providerUrl);
 		}
+
 	}
+
 }

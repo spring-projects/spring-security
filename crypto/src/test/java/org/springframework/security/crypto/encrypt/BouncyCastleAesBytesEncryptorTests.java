@@ -28,7 +28,9 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
 public class BouncyCastleAesBytesEncryptorTests {
 
 	private byte[] testData;
+
 	private String password;
+
 	private String salt;
 
 	@Before
@@ -67,13 +69,12 @@ public class BouncyCastleAesBytesEncryptorTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void bcCbcWithWrongLengthIv() {
-		new BouncyCastleAesCbcBytesEncryptor(password, salt,
-				KeyGenerators.secureRandom(8));
+		new BouncyCastleAesCbcBytesEncryptor(password, salt, KeyGenerators.secureRandom(8));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void bcGcmWithWrongLengthIv() {
-		new BouncyCastleAesGcmBytesEncryptor(password, salt,
-				KeyGenerators.secureRandom(8));
+		new BouncyCastleAesGcmBytesEncryptor(password, salt, KeyGenerators.secureRandom(8));
 	}
+
 }

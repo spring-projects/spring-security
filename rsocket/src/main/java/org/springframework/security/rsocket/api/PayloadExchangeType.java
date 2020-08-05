@@ -23,14 +23,16 @@ package org.springframework.security.rsocket.api;
  * @since 5.2
  */
 public enum PayloadExchangeType {
+
 	/**
-	 * The <a href="https://rsocket.io/docs/Protocol#setup-frame-0x01">Setup</a>. Can
-	 * be used to determine if a Payload is part of the connection
+	 * The <a href="https://rsocket.io/docs/Protocol#setup-frame-0x01">Setup</a>. Can be
+	 * used to determine if a Payload is part of the connection
 	 */
 	SETUP(false),
 
 	/**
-	 * A <a href="https://rsocket.io/docs/Protocol#frame-fnf">Fire and Forget</a> exchange.
+	 * A <a href="https://rsocket.io/docs/Protocol#frame-fnf">Fire and Forget</a>
+	 * exchange.
 	 */
 	FIRE_AND_FORGET(true),
 
@@ -41,9 +43,9 @@ public enum PayloadExchangeType {
 	REQUEST_RESPONSE(true),
 
 	/**
-	 * A <a href="https://rsocket.io/docs/Protocol#request-stream-frame">Request Stream</a>
-	 * exchange. This is only represents the request portion. The {@link #PAYLOAD} type
-	 * represents the data that submitted.
+	 * A <a href="https://rsocket.io/docs/Protocol#request-stream-frame">Request
+	 * Stream</a> exchange. This is only represents the request portion. The
+	 * {@link #PAYLOAD} type represents the data that submitted.
 	 */
 	REQUEST_STREAM(true),
 
@@ -77,4 +79,5 @@ public enum PayloadExchangeType {
 	public boolean isRequest() {
 		return this.isRequest;
 	}
+
 }

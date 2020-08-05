@@ -70,9 +70,7 @@ public abstract class AclFormattingUtils {
 	 * bit being denoted by character '*'.
 	 * <p>
 	 * Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.
-	 *
 	 * @param i the integer bit mask to print the active bits for
-	 *
 	 * @return a 32-character representation of the bit mask
 	 */
 	public static String printBinary(int i) {
@@ -84,22 +82,17 @@ public abstract class AclFormattingUtils {
 	 * bit being denoted by the passed character.
 	 * <p>
 	 * Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.
-	 *
 	 * @param mask the integer bit mask to print the active bits for
 	 * @param code the character to print when an active bit is detected
-	 *
 	 * @return a 32-character representation of the bit mask
 	 */
 	public static String printBinary(int mask, char code) {
-		Assert.doesNotContain(Character.toString(code),
-				Character.toString(Permission.RESERVED_ON),
+		Assert.doesNotContain(Character.toString(code), Character.toString(Permission.RESERVED_ON),
 				() -> Permission.RESERVED_ON + " is a reserved character code");
-		Assert.doesNotContain(Character.toString(code),
-				Character.toString(Permission.RESERVED_OFF),
+		Assert.doesNotContain(Character.toString(code), Character.toString(Permission.RESERVED_OFF),
 				() -> Permission.RESERVED_OFF + " is a reserved character code");
 
-		return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF)
-				.replace(Permission.RESERVED_ON, code);
+		return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF).replace(Permission.RESERVED_ON, code);
 	}
 
 	private static String printBinary(int i, char on, char off) {
@@ -109,4 +102,5 @@ public abstract class AclFormattingUtils {
 
 		return temp2.replace('0', off).replace('1', on);
 	}
+
 }

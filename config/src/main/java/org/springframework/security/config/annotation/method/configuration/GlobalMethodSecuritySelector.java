@@ -38,26 +38,22 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
 
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		Class<EnableGlobalMethodSecurity> annoType = EnableGlobalMethodSecurity.class;
-		Map<String, Object> annotationAttributes = importingClassMetadata
-				.getAnnotationAttributes(annoType.getName(), false);
-		AnnotationAttributes attributes = AnnotationAttributes
-				.fromMap(annotationAttributes);
-		Assert.notNull(attributes, () -> String.format(
-				"@%s is not present on importing class '%s' as expected",
+		Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(annoType.getName(),
+				false);
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap(annotationAttributes);
+		Assert.notNull(attributes, () -> String.format("@%s is not present on importing class '%s' as expected",
 				annoType.getSimpleName(), importingClassMetadata.getClassName()));
 
 		// TODO would be nice if could use BeanClassLoaderAware (does not work)
-		Class<?> importingClass = ClassUtils
-				.resolveClassName(importingClassMetadata.getClassName(),
-						ClassUtils.getDefaultClassLoader());
+		Class<?> importingClass = ClassUtils.resolveClassName(importingClassMetadata.getClassName(),
+				ClassUtils.getDefaultClassLoader());
 		boolean skipMethodSecurityConfiguration = GlobalMethodSecurityConfiguration.class
 				.isAssignableFrom(importingClass);
 
 		AdviceMode mode = attributes.getEnum("mode");
 		boolean isProxy = AdviceMode.PROXY == mode;
-		String autoProxyClassName = isProxy ? AutoProxyRegistrar.class
-				.getName() : GlobalMethodSecurityAspectJAutoProxyRegistrar.class
-				.getName();
+		String autoProxyClassName = isProxy ? AutoProxyRegistrar.class.getName()
+				: GlobalMethodSecurityAspectJAutoProxyRegistrar.class.getName();
 
 		boolean jsr250Enabled = attributes.getBoolean("jsr250Enabled");
 
@@ -78,4 +74,5 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
 
 		return classNames.toArray(new String[0]);
 	}
+
 }

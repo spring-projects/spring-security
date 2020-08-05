@@ -53,9 +53,13 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class DefaultJaasAuthenticationProviderTests {
+
 	private DefaultJaasAuthenticationProvider provider;
+
 	private UsernamePasswordAuthenticationToken token;
+
 	private ApplicationEventPublisher publisher;
+
 	private Log log;
 
 	@Before
@@ -68,11 +72,10 @@ public class DefaultJaasAuthenticationProviderTests {
 		provider.setApplicationEventPublisher(publisher);
 		provider.setAuthorityGranters(new AuthorityGranter[] { new TestAuthorityGranter() });
 		provider.afterPropertiesSet();
-		AppConfigurationEntry[] aces = new AppConfigurationEntry[] { new AppConfigurationEntry(
-				TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
-				Collections.<String, Object> emptyMap()) };
-		when(configuration.getAppConfigurationEntry(provider.getLoginContextName()))
-				.thenReturn(aces);
+		AppConfigurationEntry[] aces = new AppConfigurationEntry[] {
+				new AppConfigurationEntry(TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
+						Collections.<String, Object>emptyMap()) };
+		when(configuration.getAppConfigurationEntry(provider.getLoginContextName())).thenReturn(aces);
 		token = new UsernamePasswordAuthenticationToken("user", "password");
 		ReflectionTestUtils.setField(provider, "log", log);
 
@@ -121,8 +124,7 @@ public class DefaultJaasAuthenticationProviderTests {
 	@Test
 	public void authenticateBadUser() {
 		try {
-			provider.authenticate(new UsernamePasswordAuthenticationToken("asdf",
-					"password"));
+			provider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password"));
 			fail("LoginException should have been thrown for the bad user");
 		}
 		catch (AuthenticationException success) {
@@ -245,8 +247,7 @@ public class DefaultJaasAuthenticationProviderTests {
 	@Test
 	public void javadocExample() {
 		String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-				resName);
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(resName);
 		context.registerShutdownHook();
 		try {
 			provider = context.getBean(DefaultJaasAuthenticationProvider.class);
@@ -260,10 +261,12 @@ public class DefaultJaasAuthenticationProviderTests {
 	}
 
 	private void verifyFailedLogin() {
-		ArgumentCaptor<JaasAuthenticationFailedEvent> event = ArgumentCaptor.forClass(JaasAuthenticationFailedEvent.class);
+		ArgumentCaptor<JaasAuthenticationFailedEvent> event = ArgumentCaptor
+				.forClass(JaasAuthenticationFailedEvent.class);
 		verify(publisher).publishEvent(event.capture());
 		assertThat(event.getValue()).isInstanceOf(JaasAuthenticationFailedEvent.class);
 		assertThat(event.getValue().getException()).isNotNull();
 		verifyNoMoreInteractions(publisher);
 	}
+
 }

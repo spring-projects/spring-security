@@ -23,8 +23,9 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * This mixin class is used to serialize/deserialize {@link Collections#unmodifiableMap(Map)}.
- * It also registers a custom deserializer {@link UnmodifiableMapDeserializer}.
+ * This mixin class is used to serialize/deserialize
+ * {@link Collections#unmodifiableMap(Map)}. It also registers a custom deserializer
+ * {@link UnmodifiableMapDeserializer}.
  *
  * @author Joe Grandja
  * @since 5.3
@@ -39,4 +40,5 @@ abstract class UnmodifiableMapMixin {
 	@JsonCreator
 	UnmodifiableMapMixin(Map<?, ?> map) {
 	}
+
 }

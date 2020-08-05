@@ -44,6 +44,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ServerRequestCacheWebFilterTests {
+
 	private ServerRequestCacheWebFilter requestCacheFilter;
 
 	@Mock
@@ -88,4 +89,5 @@ public class ServerRequestCacheWebFilterTests {
 		ServerWebExchange updatedExchange = exchangeCaptor.getValue();
 		assertThat(updatedExchange.getRequest()).isEqualTo(initialRequest);
 	}
+
 }

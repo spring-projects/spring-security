@@ -28,7 +28,6 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
  *
  * @author Rob Winch
  * @since 3.2
- *
  * @param <B> the type of the {@link SecurityBuilder}
  * @param <C> the type of {@link AbstractDaoAuthenticationConfigurer} this is
  * @param <U> The type of {@link UserDetailsService} that is being used
@@ -36,12 +35,13 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
  */
 abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, C extends AbstractDaoAuthenticationConfigurer<B, C, U>, U extends UserDetailsService>
 		extends UserDetailsAwareConfigurer<B, U> {
+
 	private DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+
 	private final U userDetailsService;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param userDetailsService
 	 */
 	protected AbstractDaoAuthenticationConfigurer(U userDetailsService) {
@@ -54,7 +54,6 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 
 	/**
 	 * Adds an {@link ObjectPostProcessor} for this class.
-	 *
 	 * @param objectPostProcessor
 	 * @return the {@link AbstractDaoAuthenticationConfigurer} for further customizations
 	 */
@@ -67,7 +66,6 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	/**
 	 * Allows specifying the {@link PasswordEncoder} to use with the
 	 * {@link DaoAuthenticationProvider}. The default is to use plain text.
-	 *
 	 * @param passwordEncoder The {@link PasswordEncoder} to use.
 	 * @return the {@link AbstractDaoAuthenticationConfigurer} for further customizations
 	 */
@@ -91,11 +89,11 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
 	/**
 	 * Gets the {@link UserDetailsService} that is used with the
 	 * {@link DaoAuthenticationProvider}
-	 *
 	 * @return the {@link UserDetailsService} that is used with the
 	 * {@link DaoAuthenticationProvider}
 	 */
 	public U getUserDetailsService() {
 		return userDetailsService;
 	}
+
 }

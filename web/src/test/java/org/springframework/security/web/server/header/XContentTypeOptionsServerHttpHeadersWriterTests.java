@@ -31,8 +31,7 @@ public class XContentTypeOptionsServerHttpHeadersWriterTests {
 
 	ContentTypeOptionsServerHttpHeadersWriter writer = new ContentTypeOptionsServerHttpHeadersWriter();
 
-	ServerWebExchange exchange = MockServerWebExchange
-		.from(MockServerHttpRequest.get("/").build());
+	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	HttpHeaders headers = exchange.getResponse().getHeaders();
 
@@ -41,8 +40,8 @@ public class XContentTypeOptionsServerHttpHeadersWriterTests {
 		writer.writeHttpHeaders(exchange);
 
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(
-			ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
+		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
+				.containsOnly(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
 
 	@Test
@@ -55,4 +54,5 @@ public class XContentTypeOptionsServerHttpHeadersWriterTests {
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS)).containsOnly(headerValue);
 	}
+
 }

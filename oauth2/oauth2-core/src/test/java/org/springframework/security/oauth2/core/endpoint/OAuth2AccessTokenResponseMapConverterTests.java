@@ -40,7 +40,6 @@ public class OAuth2AccessTokenResponseMapConverterTests {
 		this.messageConverter = new OAuth2AccessTokenResponseMapConverter();
 	}
 
-
 	@Test
 	public void convertFull() {
 		Map<String, Object> additionalParameters = new HashMap<>();
@@ -51,14 +50,9 @@ public class OAuth2AccessTokenResponseMapConverterTests {
 		scopes.add("read");
 		scopes.add("write");
 
-		OAuth2AccessTokenResponse build = OAuth2AccessTokenResponse
-				.withToken("access-token-value-1234")
-				.expiresIn(3699)
-				.additionalParameters(additionalParameters)
-				.refreshToken("refresh-token-value-1234")
-				.scopes(scopes)
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.build();
+		OAuth2AccessTokenResponse build = OAuth2AccessTokenResponse.withToken("access-token-value-1234").expiresIn(3699)
+				.additionalParameters(additionalParameters).refreshToken("refresh-token-value-1234").scopes(scopes)
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
 		Map<String, String> result = messageConverter.convert(build);
 		Assert.assertEquals(7, result.size());
 
@@ -73,10 +67,8 @@ public class OAuth2AccessTokenResponseMapConverterTests {
 
 	@Test
 	public void convertMinimal() {
-		OAuth2AccessTokenResponse build = OAuth2AccessTokenResponse
-				.withToken("access-token-value-1234")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.build();
+		OAuth2AccessTokenResponse build = OAuth2AccessTokenResponse.withToken("access-token-value-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).build();
 		Map<String, String> result = messageConverter.convert(build);
 		Assert.assertEquals(3, result.size());
 
@@ -84,4 +76,5 @@ public class OAuth2AccessTokenResponseMapConverterTests {
 		Assert.assertEquals("Bearer", result.get("token_type"));
 		Assert.assertNotNull(result.get("expires_in"));
 	}
+
 }

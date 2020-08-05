@@ -28,8 +28,9 @@ import org.springframework.util.Assert;
  * @author Scott Battaglia
  * @since 2.0
  */
-public class UserDetailsByNameServiceWrapper<T extends Authentication> implements
-		AuthenticationUserDetailsService<T>, InitializingBean {
+public class UserDetailsByNameServiceWrapper<T extends Authentication>
+		implements AuthenticationUserDetailsService<T>, InitializingBean {
+
 	private UserDetailsService userDetailsService = null;
 
 	/**
@@ -44,7 +45,6 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication> implement
 	 * Constructs a new wrapper using the supplied
 	 * {@link org.springframework.security.core.userdetails.UserDetailsService} as the
 	 * service to delegate to.
-	 *
 	 * @param userDetailsService the UserDetailsService to delegate to.
 	 */
 	public UserDetailsByNameServiceWrapper(final UserDetailsService userDetailsService) {
@@ -70,10 +70,10 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication> implement
 
 	/**
 	 * Set the wrapped UserDetailsService implementation
-	 *
 	 * @param aUserDetailsService The wrapped UserDetailsService to set
 	 */
 	public void setUserDetailsService(UserDetailsService aUserDetailsService) {
 		this.userDetailsService = aUserDetailsService;
 	}
+
 }

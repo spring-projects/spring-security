@@ -44,7 +44,7 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 	@Test
 	public void constructorWhenZeroVarArgsThenIllegalArgumentException() {
 		assertThatThrownBy(() -> new InMemoryReactiveClientRegistrationRepository())
-			.isInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -77,8 +77,7 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 	@Test
 	public void findByRegistrationIdWhenValidIdThenFound() {
 		StepVerifier.create(this.repository.findByRegistrationId(this.registration.getRegistrationId()))
-				.expectNext(this.registration)
-				.verifyComplete();
+				.expectNext(this.registration).verifyComplete();
 	}
 
 	@Test
@@ -91,4 +90,5 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 	public void iteratorWhenContainsGithubThenContains() {
 		assertThat(this.repository).containsOnly(this.registration);
 	}
+
 }

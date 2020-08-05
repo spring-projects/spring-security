@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.*;
  * @since 5.0
  */
 public class WebSessionServerCsrfTokenRepositoryTests {
+
 	private WebSessionServerCsrfTokenRepository repository = new WebSessionServerCsrfTokenRepository();
 
 	private MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
@@ -40,30 +41,24 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 	public void generateTokenThenNoSession() {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange);
 
-		Mono<Boolean> isSessionStarted = this.exchange.getSession()
-			.map(WebSession::isStarted);
+		Mono<Boolean> isSessionStarted = this.exchange.getSession().map(WebSession::isStarted);
 
-		StepVerifier.create(isSessionStarted)
-			.expectNext(false)
-			.verifyComplete();
+		StepVerifier.create(isSessionStarted).expectNext(false).verifyComplete();
 	}
 
 	@Test
 	public void generateTokenWhenSubscriptionThenNoSession() {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange);
 
-		Mono<Boolean> isSessionStarted = this.exchange.getSession()
-			.map(WebSession::isStarted);
+		Mono<Boolean> isSessionStarted = this.exchange.getSession().map(WebSession::isStarted);
 
-		StepVerifier.create(isSessionStarted)
-			.expectNext(false)
-			.verifyComplete();
+		StepVerifier.create(isSessionStarted).expectNext(false).verifyComplete();
 	}
 
 	@Test
 	public void saveTokenWhenDefaultThenAddsToSession() {
 		Mono<CsrfToken> result = this.repository.generateToken(this.exchange)
-			.delayUntil(t-> this.repository.saveToken(this.exchange, t));
+				.delayUntil(t -> this.repository.saveToken(this.exchange, t));
 		result.block();
 
 		WebSession session = this.exchange.getSession().block();
@@ -79,8 +74,7 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 		CsrfToken token = this.repository.generateToken(this.exchange).block();
 
 		Mono<Void> result = this.repository.saveToken(this.exchange, null);
-		StepVerifier.create(result)
-			.verifyComplete();
+		StepVerifier.create(result).verifyComplete();
 
 		WebSession session = this.exchange.getSession().block();
 
@@ -94,4 +88,5 @@ public class WebSessionServerCsrfTokenRepositoryTests {
 		WebSession session = this.exchange.getSession().block();
 		assertThat(session.getId()).isNotEqualTo(originalSessionId);
 	}
+
 }

@@ -47,10 +47,15 @@ import static org.springframework.security.oauth2.core.endpoint.TestOAuth2Author
  * @author Joe Grandja
  */
 public class NimbusAuthorizationCodeTokenResponseClientTests {
+
 	private ClientRegistration.Builder clientRegistrationBuilder;
+
 	private OAuth2AuthorizationRequest authorizationRequest;
+
 	private OAuth2AuthorizationResponse authorizationResponse;
+
 	private OAuth2AuthorizationExchange authorizationExchange;
+
 	private NimbusAuthorizationCodeTokenResponseClient tokenResponseClient = new NimbusAuthorizationCodeTokenResponseClient();
 
 	@Rule
@@ -62,25 +67,21 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC);
 		this.authorizationRequest = request().build();
 		this.authorizationResponse = success().build();
-		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest, this.authorizationResponse);
+		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
+				this.authorizationResponse);
 	}
 
 	@Test
 	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
 		MockWebServer server = new MockWebServer();
 
-		String accessTokenSuccessResponse = "{\n" +
-			"	\"access_token\": \"access-token-1234\",\n" +
-			"   \"token_type\": \"bearer\",\n" +
-			"   \"expires_in\": \"3600\",\n" +
-			"   \"scope\": \"openid profile\",\n" +
-			"	\"refresh_token\": \"refresh-token-1234\",\n" +
-			"   \"custom_parameter_1\": \"custom-value-1\",\n" +
-			"   \"custom_parameter_2\": \"custom-value-2\"\n" +
-			"}\n";
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(accessTokenSuccessResponse));
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"openid profile\",\n" + "	\"refresh_token\": \"refresh-token-1234\",\n"
+				+ "   \"custom_parameter_1\": \"custom-value-1\",\n" + "   \"custom_parameter_2\": \"custom-value-2\"\n"
+				+ "}\n";
+		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(accessTokenSuccessResponse));
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
@@ -88,9 +89,9 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 
-		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(
-					this.clientRegistrationBuilder.build(), this.authorizationExchange));
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+				.getTokenResponse(new OAuth2AuthorizationCodeGrantRequest(this.clientRegistrationBuilder.build(),
+						this.authorizationExchange));
 
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
 
@@ -112,12 +113,11 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 
 		String redirectUri = "http:\\example.com";
 		OAuth2AuthorizationRequest authorizationRequest = request().redirectUri(redirectUri).build();
-		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
-				authorizationRequest, this.authorizationResponse);
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
+				this.authorizationResponse);
 
 		this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(
-					this.clientRegistrationBuilder.build(), authorizationExchange));
+				new OAuth2AuthorizationCodeGrantRequest(this.clientRegistrationBuilder.build(), authorizationExchange));
 	}
 
 	@Test
@@ -127,9 +127,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		String tokenUri = "http:\\provider.com\\oauth2\\token";
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
-		this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(
-					this.clientRegistrationBuilder.build(), this.authorizationExchange));
+		this.tokenResponseClient.getTokenResponse(new OAuth2AuthorizationCodeGrantRequest(
+				this.clientRegistrationBuilder.build(), this.authorizationExchange));
 	}
 
 	@Test
@@ -139,28 +138,24 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 
 		MockWebServer server = new MockWebServer();
 
-		String accessTokenSuccessResponse = "{\n" +
-			"	\"access_token\": \"access-token-1234\",\n" +
-			"   \"token_type\": \"bearer\",\n" +
-			"   \"expires_in\": \"3600\",\n" +
-			"   \"scope\": \"openid profile\",\n" +
-			"   \"custom_parameter_1\": \"custom-value-1\",\n" +
-			"   \"custom_parameter_2\": \"custom-value-2\"\n";
-//			"}\n";		// Make the JSON invalid/malformed
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"openid profile\",\n" + "   \"custom_parameter_1\": \"custom-value-1\",\n"
+				+ "   \"custom_parameter_2\": \"custom-value-2\"\n";
+		// "}\n"; // Make the JSON invalid/malformed
 
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(accessTokenSuccessResponse));
+		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(accessTokenSuccessResponse));
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		try {
-			this.tokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(
-						this.clientRegistrationBuilder.build(), this.authorizationExchange));
-		} finally {
+			this.tokenResponseClient.getTokenResponse(new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), this.authorizationExchange));
+		}
+		finally {
 			server.shutdown();
 		}
 	}
@@ -172,9 +167,8 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		String tokenUri = "https://invalid-provider.com/oauth2/token";
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
-		this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(
-					this.clientRegistrationBuilder.build(), this.authorizationExchange));
+		this.tokenResponseClient.getTokenResponse(new OAuth2AuthorizationCodeGrantRequest(
+				this.clientRegistrationBuilder.build(), this.authorizationExchange));
 	}
 
 	@Test
@@ -184,23 +178,19 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 
 		MockWebServer server = new MockWebServer();
 
-		String accessTokenErrorResponse = "{\n" +
-			"   \"error\": \"unauthorized_client\"\n" +
-			"}\n";
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setResponseCode(500)
-			.setBody(accessTokenErrorResponse));
+		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
+		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setResponseCode(500).setBody(accessTokenErrorResponse));
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		try {
-			this.tokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(
-						this.clientRegistrationBuilder.build(), this.authorizationExchange));
-		} finally {
+			this.tokenResponseClient.getTokenResponse(new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), this.authorizationExchange));
+		}
+		finally {
 			server.shutdown();
 		}
 	}
@@ -220,70 +210,63 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		try {
-			this.tokenResponseClient.getTokenResponse(
-					new OAuth2AuthorizationCodeGrantRequest(
-							this.clientRegistrationBuilder.build(), this.authorizationExchange));
-		} finally {
+			this.tokenResponseClient.getTokenResponse(new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), this.authorizationExchange));
+		}
+		finally {
 			server.shutdown();
 		}
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() throws Exception {
+	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException()
+			throws Exception {
 		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("invalid_token_response"));
 
 		MockWebServer server = new MockWebServer();
 
-		String accessTokenSuccessResponse = "{\n" +
-			"	\"access_token\": \"access-token-1234\",\n" +
-			"   \"token_type\": \"not-bearer\",\n" +
-			"   \"expires_in\": \"3600\"\n" +
-			"}\n";
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"not-bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
 
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(accessTokenSuccessResponse));
+		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(accessTokenSuccessResponse));
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		try {
-			this.tokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(
-						this.clientRegistrationBuilder.build(), this.authorizationExchange));
-		} finally {
+			this.tokenResponseClient.getTokenResponse(new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), this.authorizationExchange));
+		}
+		finally {
 			server.shutdown();
 		}
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseIncludesScopeThenReturnAccessTokenResponseUsingResponseScope() throws Exception {
+	public void getTokenResponseWhenSuccessResponseIncludesScopeThenReturnAccessTokenResponseUsingResponseScope()
+			throws Exception {
 		MockWebServer server = new MockWebServer();
 
-		String accessTokenSuccessResponse = "{\n" +
-			"	\"access_token\": \"access-token-1234\",\n" +
-			"   \"token_type\": \"bearer\",\n" +
-			"   \"expires_in\": \"3600\",\n" +
-			"   \"scope\": \"openid profile\"\n" +
-			"}\n";
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(accessTokenSuccessResponse));
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"openid profile\"\n" + "}\n";
+		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(accessTokenSuccessResponse));
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
-		OAuth2AuthorizationRequest authorizationRequest =
-				request().scope("openid", "profile", "email", "address").build();
-		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
-				authorizationRequest, this.authorizationResponse);
+		OAuth2AuthorizationRequest authorizationRequest = request().scope("openid", "profile", "email", "address")
+				.build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
+				this.authorizationResponse);
 
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(
-					this.clientRegistrationBuilder.build(), authorizationExchange));
+				new OAuth2AuthorizationCodeGrantRequest(this.clientRegistrationBuilder.build(), authorizationExchange));
 
 		server.shutdown();
 
@@ -291,33 +274,31 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseUsingRequestedScope() throws Exception {
+	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseUsingRequestedScope()
+			throws Exception {
 		MockWebServer server = new MockWebServer();
 
-		String accessTokenSuccessResponse = "{\n" +
-			"	\"access_token\": \"access-token-1234\",\n" +
-			"   \"token_type\": \"bearer\",\n" +
-			"   \"expires_in\": \"3600\"\n" +
-			"}\n";
-		server.enqueue(new MockResponse()
-			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.setBody(accessTokenSuccessResponse));
+		String accessTokenSuccessResponse = "{\n" + "	\"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n" + "   \"expires_in\": \"3600\"\n" + "}\n";
+		server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(accessTokenSuccessResponse));
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
-		OAuth2AuthorizationRequest authorizationRequest =
-				request().scope("openid", "profile", "email", "address").build();
-		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
-				authorizationRequest, this.authorizationResponse);
+		OAuth2AuthorizationRequest authorizationRequest = request().scope("openid", "profile", "email", "address")
+				.build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
+				this.authorizationResponse);
 
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(
-					this.clientRegistrationBuilder.build(), authorizationExchange));
+				new OAuth2AuthorizationCodeGrantRequest(this.clientRegistrationBuilder.build(), authorizationExchange));
 
 		server.shutdown();
 
-		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("openid", "profile", "email", "address");
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("openid", "profile", "email",
+				"address");
 	}
+
 }

@@ -39,6 +39,7 @@ import static org.mockito.Mockito.mock;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class Gh4020GlobalMethodSecurityConfigurationTests {
+
 	@Autowired
 	DenyAllService denyAll;
 
@@ -51,6 +52,7 @@ public class Gh4020GlobalMethodSecurityConfigurationTests {
 	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class SecurityConfig {
+
 		@Bean
 		PermissionEvaluator permissionEvaluator() {
 			return mock(PermissionEvaluator.class);
@@ -68,19 +70,25 @@ public class Gh4020GlobalMethodSecurityConfigurationTests {
 
 		@Autowired
 		DenyAllService denyAll;
+
 	}
 
 	@Configuration
 	static class ServiceConfig {
+
 		@Bean
 		DenyAllService denyAllService() {
 			return new DenyAllService();
 		}
+
 	}
 
 	@PreAuthorize("denyAll")
 	static class DenyAllService {
+
 		void denyAll() {
 		}
+
 	}
+
 }

@@ -78,11 +78,15 @@ import org.springframework.util.Assert;
  */
 public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<CsrfConfigurer<H>, H> {
-	private CsrfTokenRepository csrfTokenRepository = new LazyCsrfTokenRepository(
-			new HttpSessionCsrfTokenRepository());
+
+	private CsrfTokenRepository csrfTokenRepository = new LazyCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
+
 	private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
+
 	private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<>();
+
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
+
 	private final ApplicationContext context;
 
 	/**
@@ -96,12 +100,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Specify the {@link CsrfTokenRepository} to use. The default is an
 	 * {@link HttpSessionCsrfTokenRepository} wrapped by {@link LazyCsrfTokenRepository}.
-	 *
 	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
 	 * @return the {@link CsrfConfigurer} for further customizations
 	 */
-	public CsrfConfigurer<H> csrfTokenRepository(
-			CsrfTokenRepository csrfTokenRepository) {
+	public CsrfConfigurer<H> csrfTokenRepository(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
 		this.csrfTokenRepository = csrfTokenRepository;
 		return this;
@@ -111,14 +113,11 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * Specify the {@link RequestMatcher} to use for determining when CSRF should be
 	 * applied. The default is to ignore GET, HEAD, TRACE, OPTIONS and process all other
 	 * requests.
-	 *
 	 * @param requireCsrfProtectionMatcher the {@link RequestMatcher} to use
 	 * @return the {@link CsrfConfigurer} for further customizations
 	 */
-	public CsrfConfigurer<H> requireCsrfProtectionMatcher(
-			RequestMatcher requireCsrfProtectionMatcher) {
-		Assert.notNull(requireCsrfProtectionMatcher,
-				"requireCsrfProtectionMatcher cannot be null");
+	public CsrfConfigurer<H> requireCsrfProtectionMatcher(RequestMatcher requireCsrfProtectionMatcher) {
+		Assert.notNull(requireCsrfProtectionMatcher, "requireCsrfProtectionMatcher cannot be null");
 		this.requireCsrfProtectionMatcher = requireCsrfProtectionMatcher;
 		return this;
 	}
@@ -148,8 +147,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @since 4.0
 	 */
 	public CsrfConfigurer<H> ignoringAntMatchers(String... antPatterns) {
-		return new IgnoreCsrfProtectionRegistry(this.context).antMatchers(antPatterns)
-				.and();
+		return new IgnoreCsrfProtectionRegistry(this.context).antMatchers(antPatterns).and();
 	}
 
 	/**
@@ -163,7 +161,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </p>
 	 * <ul>
 	 * <li>Any GET, HEAD, TRACE, OPTIONS (this is the default)</li>
-	 * <li>We also explicitly state to ignore any request that has a "X-Requested-With: XMLHttpRequest" header</li>
+	 * <li>We also explicitly state to ignore any request that has a "X-Requested-With:
+	 * XMLHttpRequest" header</li>
 	 * </ul>
 	 *
 	 * <pre>
@@ -177,8 +176,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @since 5.1
 	 */
 	public CsrfConfigurer<H> ignoringRequestMatchers(RequestMatcher... requestMatchers) {
-		return new IgnoreCsrfProtectionRegistry(this.context).requestMatchers(requestMatchers)
-				.and();
+		return new IgnoreCsrfProtectionRegistry(this.context).requestMatchers(requestMatchers).and();
 	}
 
 	/**
@@ -189,14 +187,13 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 *
 	 * @author Michael Vitz
 	 * @since 5.2
-	 *
-	 * @param sessionAuthenticationStrategy the {@link SessionAuthenticationStrategy} to use
+	 * @param sessionAuthenticationStrategy the {@link SessionAuthenticationStrategy} to
+	 * use
 	 * @return the {@link CsrfConfigurer} for further customizations
 	 */
 	public CsrfConfigurer<H> sessionAuthenticationStrategy(
 			SessionAuthenticationStrategy sessionAuthenticationStrategy) {
-		Assert.notNull(sessionAuthenticationStrategy,
-				"sessionAuthenticationStrategy cannot be null");
+		Assert.notNull(sessionAuthenticationStrategy, "sessionAuthenticationStrategy cannot be null");
 		this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
 		return this;
 	}
@@ -215,14 +212,11 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null) {
-			logoutConfigurer
-					.addLogoutHandler(new CsrfLogoutHandler(this.csrfTokenRepository));
+			logoutConfigurer.addLogoutHandler(new CsrfLogoutHandler(this.csrfTokenRepository));
 		}
-		SessionManagementConfigurer<H> sessionConfigurer = http
-				.getConfigurer(SessionManagementConfigurer.class);
+		SessionManagementConfigurer<H> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionConfigurer != null) {
-			sessionConfigurer.addSessionAuthenticationStrategy(
-					getSessionAuthenticationStrategy());
+			sessionConfigurer.addSessionAuthenticationStrategy(getSessionAuthenticationStrategy());
 		}
 		filter = postProcess(filter);
 		http.addFilter(filter);
@@ -231,7 +225,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Gets the final {@link RequestMatcher} to use by combining the
 	 * {@link #requireCsrfProtectionMatcher(RequestMatcher)} and any {@link #ignore()}.
-	 *
 	 * @return the {@link RequestMatcher} to use
 	 */
 	private RequestMatcher getRequireCsrfProtectionMatcher() {
@@ -239,22 +232,19 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			return this.requireCsrfProtectionMatcher;
 		}
 		return new AndRequestMatcher(this.requireCsrfProtectionMatcher,
-				new NegatedRequestMatcher(
-						new OrRequestMatcher(this.ignoredCsrfProtectionMatchers)));
+				new NegatedRequestMatcher(new OrRequestMatcher(this.ignoredCsrfProtectionMatchers)));
 	}
 
 	/**
 	 * Gets the default {@link AccessDeniedHandler} from the
 	 * {@link ExceptionHandlingConfigurer#getAccessDeniedHandler()} or create a
 	 * {@link AccessDeniedHandlerImpl} if not available.
-	 *
 	 * @param http the {@link HttpSecurityBuilder}
 	 * @return the {@link AccessDeniedHandler}
 	 */
 	@SuppressWarnings("unchecked")
 	private AccessDeniedHandler getDefaultAccessDeniedHandler(H http) {
-		ExceptionHandlingConfigurer<H> exceptionConfig = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
+		ExceptionHandlingConfigurer<H> exceptionConfig = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		AccessDeniedHandler handler = null;
 		if (exceptionConfig != null) {
 			handler = exceptionConfig.getAccessDeniedHandler();
@@ -269,14 +259,12 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * Gets the default {@link InvalidSessionStrategy} from the
 	 * {@link SessionManagementConfigurer#getInvalidSessionStrategy()} or null if not
 	 * available.
-	 *
 	 * @param http the {@link HttpSecurityBuilder}
 	 * @return the {@link InvalidSessionStrategy}
 	 */
 	@SuppressWarnings("unchecked")
 	private InvalidSessionStrategy getInvalidSessionStrategy(H http) {
-		SessionManagementConfigurer<H> sessionManagement = http
-				.getConfigurer(SessionManagementConfigurer.class);
+		SessionManagementConfigurer<H> sessionManagement = http.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionManagement == null) {
 			return null;
 		}
@@ -292,14 +280,12 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link InvalidSessionAccessDeniedHandler} and the
 	 * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)}. Otherwise, only
 	 * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)} is used.
-	 *
 	 * @param http the {@link HttpSecurityBuilder}
 	 * @return the {@link AccessDeniedHandler}
 	 */
 	private AccessDeniedHandler createAccessDeniedHandler(H http) {
 		InvalidSessionStrategy invalidSessionStrategy = getInvalidSessionStrategy(http);
-		AccessDeniedHandler defaultAccessDeniedHandler = getDefaultAccessDeniedHandler(
-				http);
+		AccessDeniedHandler defaultAccessDeniedHandler = getDefaultAccessDeniedHandler(http);
 		if (invalidSessionStrategy == null) {
 			return defaultAccessDeniedHandler;
 		}
@@ -312,18 +298,18 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Gets the {@link SessionAuthenticationStrategy} to use. If none was set by the user a
-	 * {@link CsrfAuthenticationStrategy} is created.
+	 * Gets the {@link SessionAuthenticationStrategy} to use. If none was set by the user
+	 * a {@link CsrfAuthenticationStrategy} is created.
 	 *
 	 * @author Michael Vitz
 	 * @since 5.2
-	 *
 	 * @return the {@link SessionAuthenticationStrategy}
 	 */
 	private SessionAuthenticationStrategy getSessionAuthenticationStrategy() {
 		if (sessionAuthenticationStrategy != null) {
 			return sessionAuthenticationStrategy;
-		} else {
+		}
+		else {
 			return new CsrfAuthenticationStrategy(this.csrfTokenRepository);
 		}
 	}
@@ -336,8 +322,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private class IgnoreCsrfProtectionRegistry
-			extends AbstractRequestMatcherRegistry<IgnoreCsrfProtectionRegistry> {
+	private class IgnoreCsrfProtectionRegistry extends AbstractRequestMatcherRegistry<IgnoreCsrfProtectionRegistry> {
 
 		/**
 		 * @param context
@@ -347,12 +332,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		@Override
-		public MvcMatchersIgnoreCsrfProtectionRegistry mvcMatchers(HttpMethod method,
-				String... mvcPatterns) {
+		public MvcMatchersIgnoreCsrfProtectionRegistry mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
 			CsrfConfigurer.this.ignoredCsrfProtectionMatchers.addAll(mvcMatchers);
-			return new MvcMatchersIgnoreCsrfProtectionRegistry(getApplicationContext(),
-					mvcMatchers);
+			return new MvcMatchersIgnoreCsrfProtectionRegistry(getApplicationContext(), mvcMatchers);
 		}
 
 		@Override
@@ -365,11 +348,11 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		@Override
-		protected IgnoreCsrfProtectionRegistry chainRequestMatchers(
-				List<RequestMatcher> requestMatchers) {
+		protected IgnoreCsrfProtectionRegistry chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			CsrfConfigurer.this.ignoredCsrfProtectionMatchers.addAll(requestMatchers);
 			return this;
 		}
+
 	}
 
 	/**
@@ -378,8 +361,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 *
 	 * @author Rob Winch
 	 */
-	private final class MvcMatchersIgnoreCsrfProtectionRegistry
-			extends IgnoreCsrfProtectionRegistry {
+	private final class MvcMatchersIgnoreCsrfProtectionRegistry extends IgnoreCsrfProtectionRegistry {
+
 		private final List<MvcRequestMatcher> mvcMatchers;
 
 		private MvcMatchersIgnoreCsrfProtectionRegistry(ApplicationContext context,
@@ -394,5 +377,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			}
 			return this;
 		}
+
 	}
+
 }

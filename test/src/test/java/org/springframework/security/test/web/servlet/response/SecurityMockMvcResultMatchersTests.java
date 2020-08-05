@@ -47,6 +47,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @ContextConfiguration(classes = SecurityMockMvcResultMatchersTests.Config.class)
 @WebAppConfiguration
 public class SecurityMockMvcResultMatchersTests {
+
 	@Autowired
 	private WebApplicationContext context;
 
@@ -64,16 +65,14 @@ public class SecurityMockMvcResultMatchersTests {
 
 	@Test
 	public void withAuthenticationWhenMatchesThenSuccess() throws Exception {
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(auth ->
-				assertThat(auth).isInstanceOf(UsernamePasswordAuthenticationToken.class)));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated()
+				.withAuthentication(auth -> assertThat(auth).isInstanceOf(UsernamePasswordAuthenticationToken.class)));
 	}
 
 	@Test(expected = AssertionError.class)
 	public void withAuthenticationWhenNotMatchesThenFails() throws Exception {
-		this.mockMvc
-			.perform(formLogin())
-			.andExpect(authenticated().withAuthentication(auth -> assertThat(auth.getName()).isEqualTo("notmatch")));
+		this.mockMvc.perform(formLogin()).andExpect(
+				authenticated().withAuthentication(auth -> assertThat(auth.getName()).isEqualTo("notmatch")));
 	}
 
 	// SEC-2719
@@ -110,10 +109,14 @@ public class SecurityMockMvcResultMatchersTests {
 
 		@RestController
 		static class Controller {
+
 			@RequestMapping("/")
 			public String ok() {
 				return "ok";
 			}
+
 		}
+
 	}
+
 }

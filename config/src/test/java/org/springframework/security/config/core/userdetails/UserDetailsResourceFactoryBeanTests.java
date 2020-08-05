@@ -36,6 +36,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class UserDetailsResourceFactoryBeanTests {
+
 	@Mock
 	ResourceLoader resourceLoader;
 
@@ -43,18 +44,16 @@ public class UserDetailsResourceFactoryBeanTests {
 
 	@Test
 	public void setResourceLoaderWhenNullThenThrowsException() {
-		assertThatThrownBy(() -> factory.setResourceLoader(null) )
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasStackTraceContaining("resourceLoader cannot be null");
+		assertThatThrownBy(() -> factory.setResourceLoader(null)).isInstanceOf(IllegalArgumentException.class)
+				.hasStackTraceContaining("resourceLoader cannot be null");
 	}
 
 	@Test
 	public void getObjectWhenPropertiesResourceLocationNullThenThrowsIllegalStateException() {
 		factory.setResourceLoader(resourceLoader);
 
-		assertThatThrownBy(() -> factory.getObject() )
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasStackTraceContaining("resource cannot be null if resourceLocation is null");
+		assertThatThrownBy(() -> factory.getObject()).isInstanceOf(IllegalArgumentException.class)
+				.hasStackTraceContaining("resource cannot be null if resourceLocation is null");
 	}
 
 	@Test
@@ -77,10 +76,8 @@ public class UserDetailsResourceFactoryBeanTests {
 	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() {
 		factory.setResource(new InMemoryResource("user=invalidFormatHere"));
 
-		assertThatThrownBy(() -> factory.getObject() )
-			.isInstanceOf(IllegalStateException.class)
-			.hasStackTraceContaining("user")
-			.hasStackTraceContaining("invalidFormatHere");
+		assertThatThrownBy(() -> factory.getObject()).isInstanceOf(IllegalStateException.class)
+				.hasStackTraceContaining("user").hasStackTraceContaining("invalidFormatHere");
 	}
 
 	@Test
@@ -100,4 +97,5 @@ public class UserDetailsResourceFactoryBeanTests {
 		// @formatter:on
 		assertThat(users).containsExactly(expectedUser);
 	}
+
 }

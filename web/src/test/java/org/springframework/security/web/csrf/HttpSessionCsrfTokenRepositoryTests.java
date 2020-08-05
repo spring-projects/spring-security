@@ -27,11 +27,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
  *
  */
 public class HttpSessionCsrfTokenRepositoryTests {
+
 	private MockHttpServletRequest request;
 
 	private MockHttpServletResponse response;
 
 	private CsrfToken token;
+
 	private HttpSessionCsrfTokenRepository repo;
 
 	@Before
@@ -105,8 +107,7 @@ public class HttpSessionCsrfTokenRepositoryTests {
 		repo.setSessionAttributeName(sessionAttributeName);
 		repo.saveToken(tokenToSave, request, response);
 
-		CsrfToken loadedToken = (CsrfToken) request.getSession().getAttribute(
-				sessionAttributeName);
+		CsrfToken loadedToken = (CsrfToken) request.getSession().getAttribute(sessionAttributeName);
 
 		assertThat(loadedToken).isEqualTo(tokenToSave);
 	}
@@ -147,4 +148,5 @@ public class HttpSessionCsrfTokenRepositoryTests {
 	public void setParameterNameNull() {
 		repo.setParameterName(null);
 	}
+
 }

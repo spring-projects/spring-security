@@ -46,14 +46,13 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void rolePrefixWithGrantedAuthorityDefaults() throws NoSuchMethodException {
 		this.spring.register(WithRolePrefixConfiguration.class).autowire();
 
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-				"principal", "credential", "CUSTOM_ABC");
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
+				"CUSTOM_ABC");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 
-		EvaluationContext context = this.methodSecurityExpressionHandler
-				.createEvaluationContext(authentication, methodInvocation);
-		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject()
-				.getValue();
+		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
+				methodInvocation);
+		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject().getValue();
 
 		assertThat(root.hasRole("ROLE_ABC")).isFalse();
 		assertThat(root.hasRole("ROLE_CUSTOM_ABC")).isFalse();
@@ -65,14 +64,13 @@ public class ReactiveMethodSecurityConfigurationTests {
 	public void rolePrefixWithDefaultConfig() throws NoSuchMethodException {
 		this.spring.register(ReactiveMethodSecurityConfiguration.class).autowire();
 
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-				"principal", "credential", "ROLE_ABC");
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
+				"ROLE_ABC");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 
-		EvaluationContext context = this.methodSecurityExpressionHandler
-				.createEvaluationContext(authentication, methodInvocation);
-		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject()
-				.getValue();
+		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
+				methodInvocation);
+		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject().getValue();
 
 		assertThat(root.hasRole("ROLE_ABC")).isTrue();
 		assertThat(root.hasRole("ABC")).isTrue();
@@ -81,24 +79,25 @@ public class ReactiveMethodSecurityConfigurationTests {
 	@Configuration
 	@EnableReactiveMethodSecurity // this imports ReactiveMethodSecurityConfiguration
 	static class WithRolePrefixConfiguration {
+
 		@Bean
 		GrantedAuthorityDefaults grantedAuthorityDefaults() {
 			return new GrantedAuthorityDefaults("CUSTOM_");
 		}
+
 	}
 
 	@Test
 	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingEnabled() throws NoSuchMethodException {
 		this.spring.register(SubclassConfig.class).autowire();
 
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-				"principal", "credential", "ROLE_ABC");
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("principal", "credential",
+				"ROLE_ABC");
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 
-		EvaluationContext context = this.methodSecurityExpressionHandler
-				.createEvaluationContext(authentication, methodInvocation);
-		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject()
-				.getValue();
+		EvaluationContext context = this.methodSecurityExpressionHandler.createEvaluationContext(authentication,
+				methodInvocation);
+		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject().getValue();
 
 		assertThat(root.hasRole("ROLE_ABC")).isTrue();
 		assertThat(root.hasRole("ABC")).isTrue();
@@ -106,10 +105,14 @@ public class ReactiveMethodSecurityConfigurationTests {
 
 	@Configuration
 	static class SubclassConfig extends ReactiveMethodSecurityConfiguration {
+
 	}
 
 	private static class Foo {
-		public void bar(String param){
+
+		public void bar(String param) {
 		}
+
 	}
+
 }

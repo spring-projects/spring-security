@@ -58,8 +58,8 @@ import org.springframework.security.web.context.SecurityContextRepository;
  * @author Rob Winch
  * @since 3.2
  */
-public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<SecurityContextConfigurer<H>, H> {
+public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<SecurityContextConfigurer<H>, H> {
 
 	/**
 	 * Creates a new instance
@@ -73,10 +73,8 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>> e
 	 * @param securityContextRepository the {@link SecurityContextRepository} to use
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
-	public SecurityContextConfigurer<H> securityContextRepository(
-			SecurityContextRepository securityContextRepository) {
-		getBuilder().setSharedObject(SecurityContextRepository.class,
-				securityContextRepository);
+	public SecurityContextConfigurer<H> securityContextRepository(SecurityContextRepository securityContextRepository) {
+		getBuilder().setSharedObject(SecurityContextRepository.class, securityContextRepository);
 		return this;
 	}
 
@@ -84,15 +82,13 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>> e
 	@SuppressWarnings("unchecked")
 	public void configure(H http) {
 
-		SecurityContextRepository securityContextRepository = http
-				.getSharedObject(SecurityContextRepository.class);
+		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
 		if (securityContextRepository == null) {
 			securityContextRepository = new HttpSessionSecurityContextRepository();
 		}
 		SecurityContextPersistenceFilter securityContextFilter = new SecurityContextPersistenceFilter(
 				securityContextRepository);
-		SessionManagementConfigurer<?> sessionManagement = http
-				.getConfigurer(SessionManagementConfigurer.class);
+		SessionManagementConfigurer<?> sessionManagement = http.getConfigurer(SessionManagementConfigurer.class);
 		SessionCreationPolicy sessionCreationPolicy = sessionManagement == null ? null
 				: sessionManagement.getSessionCreationPolicy();
 		if (SessionCreationPolicy.ALWAYS == sessionCreationPolicy) {
@@ -101,4 +97,5 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>> e
 		securityContextFilter = postProcess(securityContextFilter);
 		http.addFilter(securityContextFilter);
 	}
+
 }

@@ -102,37 +102,30 @@ public class BearerTokenErrorTests {
 
 	@Test
 	public void constructorWithAllParametersWhenErrorCodeIsInvalidThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE + "\"", TEST_HTTP_STATUS, TEST_DESCRIPTION,
-				TEST_URI, TEST_SCOPE))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("errorCode")
-				.hasMessageContaining("RFC 6750");
+		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE + "\"", TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI,
+				TEST_SCOPE)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("errorCode")
+						.hasMessageContaining("RFC 6750");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenDescriptionIsInvalidThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION + "\"",
-				TEST_URI, TEST_SCOPE))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("description")
-				.hasMessageContaining("RFC 6750");
+		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION + "\"", TEST_URI,
+				TEST_SCOPE)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("description")
+						.hasMessageContaining("RFC 6750");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenErrorUriIsInvalidThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION,
-				TEST_URI + "\"", TEST_SCOPE))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("errorUri")
-				.hasMessageContaining("RFC 6750");
+		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI + "\"",
+				TEST_SCOPE)).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("errorUri")
+						.hasMessageContaining("RFC 6750");
 	}
 
 	@Test
 	public void constructorWithAllParametersWhenScopeIsInvalidThenThrowIllegalArgumentException() {
-		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION,
-				TEST_URI, TEST_SCOPE + "\""))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("scope")
-				.hasMessageContaining("RFC 6750");
+		assertThatCode(() -> new BearerTokenError(TEST_ERROR_CODE, TEST_HTTP_STATUS, TEST_DESCRIPTION, TEST_URI,
+				TEST_SCOPE + "\"")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("scope")
+						.hasMessageContaining("RFC 6750");
 	}
+
 }

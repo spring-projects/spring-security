@@ -33,6 +33,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @author Luke Taylor
  */
 public class RequestWrapperTests {
+
 	private static Map<String, String> testPaths = new LinkedHashMap<>();
 
 	@BeforeClass
@@ -115,4 +116,5 @@ public class RequestWrapperTests {
 		wrapper.reset();
 		assertThat(wrapper.getRequestDispatcher(path)).isSameAs(dispatcher);
 	}
+
 }

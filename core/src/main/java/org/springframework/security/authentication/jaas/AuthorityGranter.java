@@ -30,6 +30,7 @@ import java.util.Set;
  * @author Ray Krueger
  */
 public interface AuthorityGranter {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -41,12 +42,11 @@ public interface AuthorityGranter {
 	 * <p>
 	 * The set may contain any object as all objects in the returned set will be passed to
 	 * the JaasGrantedAuthority constructor using toString().
-	 *
 	 * @param principal One of the principals from the
 	 * LoginContext.getSubect().getPrincipals() method.
-	 *
 	 * @return the role names to grant, or null, meaning no roles should be granted to the
 	 * principal.
 	 */
 	Set<String> grant(Principal principal);
+
 }

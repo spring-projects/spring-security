@@ -38,9 +38,13 @@ import org.springframework.security.core.Authentication;
  * @since 3.1
  */
 public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
+
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final AclService aclService;
+
 	private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+
 	private ObjectIdentityRetrievalStrategy oidRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
 
 	public AclPermissionCacheOptimizer(AclService aclService) {
@@ -71,12 +75,12 @@ public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
 		aclService.readAclsById(oidsToCache, sids);
 	}
 
-	public void setObjectIdentityRetrievalStrategy(
-			ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
+	public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
 		this.oidRetrievalStrategy = objectIdentityRetrievalStrategy;
 	}
 
 	public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {
 		this.sidRetrievalStrategy = sidRetrievalStrategy;
 	}
+
 }

@@ -32,16 +32,13 @@ public class RequestCacheAwareFilterTests {
 		RequestCacheAwareFilter filter = new RequestCacheAwareFilter();
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 
-		MockHttpServletRequest request = new MockHttpServletRequest("POST",
-				"/destination");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cache.saveRequest(request, response);
-		assertThat(request.getSession().getAttribute(
-				HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
+		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
 
 		filter.doFilter(request, response, new MockFilterChain());
-		assertThat(request.getSession().getAttribute(
-				HttpSessionRequestCache.SAVED_REQUEST)).isNull();
+		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNull();
 	}
 
 	@Test
@@ -73,4 +70,5 @@ public class RequestCacheAwareFilterTests {
 		assertThat(expiredCookie.getValue()).isEmpty();
 		assertThat(expiredCookie.getMaxAge()).isZero();
 	}
+
 }

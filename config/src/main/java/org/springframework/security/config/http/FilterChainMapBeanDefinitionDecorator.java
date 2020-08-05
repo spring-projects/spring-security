@@ -40,8 +40,7 @@ import org.w3c.dom.Node;
 public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
 	@SuppressWarnings("unchecked")
-	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder,
-			ParserContext parserContext) {
+	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
 		BeanDefinition filterChainProxy = holder.getBeanDefinition();
 
 		ManagedList<BeanMetadataElement> securityFilterChains = new ManagedList<>();
@@ -49,37 +48,30 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 
 		MatcherType matcherType = MatcherType.fromElement(elt);
 
-		List<Element> filterChainElts = DomUtils.getChildElementsByTagName(elt,
-				Elements.FILTER_CHAIN);
+		List<Element> filterChainElts = DomUtils.getChildElementsByTagName(elt, Elements.FILTER_CHAIN);
 
 		for (Element chain : filterChainElts) {
-			String path = chain
-					.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
-			String filters = chain
-					.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
+			String path = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
+			String filters = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
 
 			if (!StringUtils.hasText(path)) {
 				parserContext.getReaderContext().error(
-						"The attribute '"
-								+ HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN
-								+ "' must not be empty", elt);
+						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN + "' must not be empty",
+						elt);
 			}
 
 			if (!StringUtils.hasText(filters)) {
 				parserContext.getReaderContext().error(
-						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS
-								+ "'must not be empty", elt);
+						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS + "'must not be empty", elt);
 			}
 
 			BeanDefinition matcher = matcherType.createMatcher(parserContext, path, null);
 
 			if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
-				securityFilterChains.add(createSecurityFilterChain(matcher,
-						new ManagedList(0)));
+				securityFilterChains.add(createSecurityFilterChain(matcher, new ManagedList(0)));
 			}
 			else {
-				String[] filterBeanNames = StringUtils
-						.tokenizeToStringArray(filters, ",");
+				String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
 				ManagedList filterChain = new ManagedList(filterBeanNames.length);
 
 				for (String name : filterBeanNames) {
@@ -90,18 +82,16 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 			}
 		}
 
-		filterChainProxy.getConstructorArgumentValues().addGenericArgumentValue(
-				securityFilterChains);
+		filterChainProxy.getConstructorArgumentValues().addGenericArgumentValue(securityFilterChains);
 
 		return holder;
 	}
 
-	private BeanDefinition createSecurityFilterChain(BeanDefinition matcher,
-			ManagedList<?> filters) {
-		BeanDefinitionBuilder sfc = BeanDefinitionBuilder
-				.rootBeanDefinition(DefaultSecurityFilterChain.class);
+	private BeanDefinition createSecurityFilterChain(BeanDefinition matcher, ManagedList<?> filters) {
+		BeanDefinitionBuilder sfc = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityFilterChain.class);
 		sfc.addConstructorArgValue(matcher);
 		sfc.addConstructorArgValue(filters);
 		return sfc.getBeanDefinition();
 	}
+
 }

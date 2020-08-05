@@ -24,12 +24,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * A simple implementation of {@link RequestRejectedHandler} that sends an error with configurable status code.
+ * A simple implementation of {@link RequestRejectedHandler} that sends an error with
+ * configurable status code.
  *
  * @author Leonard Brünings
  * @since 5.4
  */
 public class HttpStatusRequestRejectedHandler implements RequestRejectedHandler {
+
 	private static final Log logger = LogFactory.getLog(HttpStatusRequestRejectedHandler.class);
 
 	private final int httpError;
@@ -58,4 +60,5 @@ public class HttpStatusRequestRejectedHandler implements RequestRejectedHandler 
 		}
 		response.sendError(httpError);
 	}
+
 }

@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
  * 'exiting' from a user switch.
  *
  * @author Mark St.Godard
- *
  * @see org.springframework.security.web.authentication.switchuser.SwitchUserFilter
  */
 public final class SwitchUserGrantedAuthority implements GrantedAuthority {
@@ -39,6 +38,7 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	// ~ Instance fields
 	// ================================================================================================
 	private final String role;
+
 	private final Authentication source;
 
 	// ~ Constructors
@@ -56,7 +56,6 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the original user associated with a successful user switch.
-	 *
 	 * @return The original <code>Authentication</code> object of the switched user.
 	 */
 	public Authentication getSource() {
@@ -93,4 +92,5 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	public String toString() {
 		return "Switch User Authority [" + role + "," + source + "]";
 	}
+
 }

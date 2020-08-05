@@ -29,17 +29,19 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Provides support for an unauthenticated user. This is useful when running as a process with no
- * user associated to it. The implementation ensures that {@link ServerWebExchange} is null and that the
- * {@link Authentication} is either null or anonymous to prevent using it incorrectly.
+ * Provides support for an unauthenticated user. This is useful when running as a process
+ * with no user associated to it. The implementation ensures that
+ * {@link ServerWebExchange} is null and that the {@link Authentication} is either null or
+ * anonymous to prevent using it incorrectly.
  *
- * @deprecated Use {@link AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager} instead
- *
+ * @deprecated Use {@link AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager}
+ * instead
  * @author Rob Winch
  * @since 5.1
  */
 @Deprecated
 public class UnAuthenticatedServerOAuth2AuthorizedClientRepository implements ServerOAuth2AuthorizedClientRepository {
+
 	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	private final Map<String, OAuth2AuthorizedClient> clientRegistrationIdToAuthorizedClient = new ConcurrentHashMap<>();
@@ -55,9 +57,8 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepository implements Se
 	}
 
 	@Override
-	public Mono<Void> saveAuthorizedClient(
-			OAuth2AuthorizedClient authorizedClient,
-			Authentication authentication, ServerWebExchange serverWebExchange) {
+	public Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication authentication,
+			ServerWebExchange serverWebExchange) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.isNull(serverWebExchange, "serverWebExchange must be null");
 		Assert.isTrue(isUnauthenticated(authentication), "The user " + authentication + " should not be authenticated");
@@ -79,4 +80,5 @@ public class UnAuthenticatedServerOAuth2AuthorizedClientRepository implements Se
 	private boolean isUnauthenticated(Authentication authentication) {
 		return authentication == null || this.trustResolver.isAnonymous(authentication);
 	}
+
 }

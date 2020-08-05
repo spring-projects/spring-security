@@ -22,9 +22,12 @@ import reactor.core.publisher.Mono;
 
 /**
  * Converts from a {@link PayloadExchange} to an {@link Authentication}
+ *
  * @author Rob Winch
  * @since 5.2
  */
 public interface PayloadExchangeAuthenticationConverter {
+
 	Mono<Authentication> convert(PayloadExchange exchange);
+
 }

@@ -29,9 +29,9 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Marten Deinum
  * @since 3.2
- * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern browsers. Instead use
- * Content-Security-Policy with the
- * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
+ * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern
+ * browsers. Instead use Content-Security-Policy with the <a href=
+ * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
  * directive.
  */
 @Deprecated
@@ -61,7 +61,6 @@ abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStr
 	 * Sets the HTTP parameter used to retrieve the value for the origin that is allowed
 	 * from. The value of the parameter should be a valid URL. The default parameter name
 	 * is "x-frames-allow-from".
-	 *
 	 * @param allowFromParameterName the name of the HTTP parameter to
 	 */
 	public void setAllowFromParameterName(String allowFromParameterName) {
@@ -72,9 +71,9 @@ abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStr
 	/**
 	 * Method to be implemented by base classes, used to determine if the supplied origin
 	 * is allowed.
-	 *
 	 * @param allowFromOrigin the supplied origin
 	 * @return <code>true</code> if the supplied origin is allowed.
 	 */
 	protected abstract boolean allowed(String allowFromOrigin);
+
 }

@@ -33,13 +33,13 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class AnonymousAuthenticationProvider implements AuthenticationProvider,
-		MessageSourceAware {
+public class AnonymousAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
 
 	// ~ Instance fields
 	// ================================================================================================
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private String key;
 
 	public AnonymousAuthenticationProvider(String key) {
@@ -50,17 +50,14 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider,
 	// ~ Methods
 	// ========================================================================================================
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
 
-		if (this.key.hashCode() != ((AnonymousAuthenticationToken) authentication)
-				.getKeyHash()) {
-			throw new BadCredentialsException(
-					messages.getMessage("AnonymousAuthenticationProvider.incorrectKey",
-							"The presented AnonymousAuthenticationToken does not contain the expected key"));
+		if (this.key.hashCode() != ((AnonymousAuthenticationToken) authentication).getKeyHash()) {
+			throw new BadCredentialsException(messages.getMessage("AnonymousAuthenticationProvider.incorrectKey",
+					"The presented AnonymousAuthenticationToken does not contain the expected key"));
 		}
 
 		return authentication;
@@ -78,4 +75,5 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider,
 	public boolean supports(Class<?> authentication) {
 		return (AnonymousAuthenticationToken.class.isAssignableFrom(authentication));
 	}
+
 }

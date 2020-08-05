@@ -62,6 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Eleftheria Stein
  */
 public class HttpSecurityConfigurationTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -70,11 +71,9 @@ public class HttpSecurityConfigurationTests {
 
 	@Test
 	public void postWhenDefaultFilterChainBeanThenRespondsWithForbidden() throws Exception {
-		this.spring.register(DefaultWithFilterChainConfig.class)
-				.autowire();
+		this.spring.register(DefaultWithFilterChainConfig.class).autowire();
 
-		this.mockMvc.perform(post("/"))
-				.andExpect(status().isForbidden());
+		this.mockMvc.perform(post("/")).andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -83,13 +82,14 @@ public class HttpSecurityConfigurationTests {
 
 		MvcResult mvcResult = this.mockMvc.perform(get("/").secure(true))
 				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff"))
-				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsHeaderWriter.XFrameOptionsMode.DENY.name()))
-				.andExpect(header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains"))
+				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS,
+						XFrameOptionsHeaderWriter.XFrameOptionsMode.DENY.name()))
+				.andExpect(
+						header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains"))
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
 				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
 				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block"))
-				.andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(
 				HttpHeaders.X_CONTENT_TYPE_OPTIONS, HttpHeaders.X_FRAME_OPTIONS, HttpHeaders.STRICT_TRANSPORT_SECURITY,
 				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION);
@@ -99,57 +99,54 @@ public class HttpSecurityConfigurationTests {
 	public void logoutWhenDefaultFilterChainBeanThenCreatesDefaultLogoutEndpoint() throws Exception {
 		this.spring.register(DefaultWithFilterChainConfig.class).autowire();
 
-		this.mockMvc.perform(post("/logout").with(csrf()))
-				.andExpect(redirectedUrl("/login?logout"));
+		this.mockMvc.perform(post("/logout").with(csrf())).andExpect(redirectedUrl("/login?logout"));
 	}
 
 	@Test
 	public void loadConfigWhenDefaultConfigThenWebAsyncManagerIntegrationFilterAdded() throws Exception {
 		this.spring.register(DefaultWithFilterChainConfig.class, NameController.class).autowire();
 
-		MvcResult mvcResult = this.mockMvc.perform(get("/name").with(user("Bob")))
-				.andExpect(request().asyncStarted())
+		MvcResult mvcResult = this.mockMvc.perform(get("/name").with(user("Bob"))).andExpect(request().asyncStarted())
 				.andReturn();
 
-		this.mockMvc.perform(asyncDispatch(mvcResult))
-				.andExpect(status().isOk())
-				.andExpect(content().string("Bob"));
+		this.mockMvc.perform(asyncDispatch(mvcResult)).andExpect(status().isOk()).andExpect(content().string("Bob"));
 	}
 
 	@RestController
 	static class NameController {
+
 		@GetMapping("/name")
 		public Callable<String> name() {
 			return () -> SecurityContextHolder.getContext().getAuthentication().getName();
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class DefaultWithFilterChainConfig {
+
 		@Bean
 		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			return http.build();
 		}
+
 	}
 
 	@Test
 	public void getWhenDefaultFilterChainBeanThenAnonymousPermitted() throws Exception {
 		this.spring.register(AuthorizeRequestsConfig.class, UserDetailsConfig.class, BaseController.class).autowire();
 
-		this.mockMvc.perform(get("/"))
-				.andExpect(status().isOk());
+		this.mockMvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class AuthorizeRequestsConfig {
+
 		@Bean
 		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http
-					.authorizeRequests(authorize -> authorize
-							.anyRequest().permitAll()
-					)
-					.build();
+			return http.authorizeRequests(authorize -> authorize.anyRequest().permitAll()).build();
 		}
+
 	}
 
 	@Test
@@ -159,13 +156,9 @@ public class HttpSecurityConfigurationTests {
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
 
-		MvcResult result =
-				this.mockMvc.perform(post("/login")
-						.param("username", "user")
-						.param("password", "password")
-						.session(session)
-						.with(csrf()))
-						.andReturn();
+		MvcResult result = this.mockMvc.perform(
+				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
+				.andReturn();
 
 		assertThat(result.getRequest().getSession(false).getId()).isNotEqualTo(sessionId);
 	}
@@ -174,15 +167,11 @@ public class HttpSecurityConfigurationTests {
 	public void authenticateWhenDefaultFilterChainBeanThenRedirectsToSavedRequest() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class).autowire();
 
-		MockHttpSession session = (MockHttpSession)
-				this.mockMvc.perform(get("/messages"))
-						.andReturn().getRequest().getSession();
+		MockHttpSession session = (MockHttpSession) this.mockMvc.perform(get("/messages")).andReturn().getRequest()
+				.getSession();
 
-		this.mockMvc.perform(post("/login")
-				.param("username", "user")
-				.param("password", "password")
-				.session(session)
-				.with(csrf()))
+		this.mockMvc.perform(
+				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
 				.andExpect(redirectedUrl("http://localhost/messages"));
 	}
 
@@ -190,8 +179,9 @@ public class HttpSecurityConfigurationTests {
 	public void authenticateWhenDefaultFilterChainBeanThenRolePrefixIsSet() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class, UserController.class).autowire();
 
-		this.mockMvc.perform(get("/user")
-				.with(authentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"))))
+		this.mockMvc
+				.perform(get("/user")
+						.with(authentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"))))
 				.andExpect(status().isOk());
 	}
 
@@ -199,50 +189,51 @@ public class HttpSecurityConfigurationTests {
 	public void loginWhenUsingDefaultsThenDefaultLoginPageGenerated() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class).autowire();
 
-		this.mockMvc.perform(get("/login"))
-				.andExpect(status().isOk());
+		this.mockMvc.perform(get("/login")).andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class SecurityEnabledConfig {
+
 		@Bean
 		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			return http
-					.authorizeRequests(authorize -> authorize
-							.anyRequest().authenticated()
-					)
-					.formLogin(withDefaults())
+			return http.authorizeRequests(authorize -> authorize.anyRequest().authenticated()).formLogin(withDefaults())
 					.build();
 		}
+
 	}
 
 	@Configuration
 	static class UserDetailsConfig {
+
 		@Bean
 		public UserDetailsService userDetailsService() {
-			UserDetails user = User.withDefaultPasswordEncoder()
-					.username("user")
-					.password("password")
-					.roles("USER")
+			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER")
 					.build();
 			return new InMemoryUserDetailsManager(user);
 		}
+
 	}
 
 	@RestController
 	static class BaseController {
+
 		@GetMapping("/")
 		public void index() {
 		}
+
 	}
 
 	@RestController
 	static class UserController {
+
 		@GetMapping("/user")
 		public void user(HttpServletRequest request) {
 			if (!request.isUserInRole("USER")) {
 				throw new AccessDeniedException("This resource is only available to users");
 			}
 		}
+
 	}
+
 }

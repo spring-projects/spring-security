@@ -37,22 +37,15 @@ public class CommonOAuth2ProviderTests {
 	public void getBuilderWhenGoogleShouldHaveGoogleSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.GOOGLE);
 		ProviderDetails providerDetails = registration.getProviderDetails();
-		assertThat(providerDetails.getAuthorizationUri())
-			.isEqualTo("https://accounts.google.com/o/oauth2/v2/auth");
-		assertThat(providerDetails.getTokenUri())
-			.isEqualTo("https://www.googleapis.com/oauth2/v4/token");
+		assertThat(providerDetails.getAuthorizationUri()).isEqualTo("https://accounts.google.com/o/oauth2/v2/auth");
+		assertThat(providerDetails.getTokenUri()).isEqualTo("https://www.googleapis.com/oauth2/v4/token");
 		assertThat(providerDetails.getUserInfoEndpoint().getUri())
-			.isEqualTo("https://www.googleapis.com/oauth2/v3/userinfo");
-		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
-			.isEqualTo(IdTokenClaimNames.SUB);
-		assertThat(providerDetails.getJwkSetUri())
-			.isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
-		assertThat(providerDetails.getIssuerUri())
-				.isEqualTo("https://accounts.google.com");
-		assertThat(registration.getClientAuthenticationMethod())
-			.isEqualTo(ClientAuthenticationMethod.BASIC);
-		assertThat(registration.getAuthorizationGrantType())
-			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+				.isEqualTo("https://www.googleapis.com/oauth2/v3/userinfo");
+		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo(IdTokenClaimNames.SUB);
+		assertThat(providerDetails.getJwkSetUri()).isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
+		assertThat(providerDetails.getIssuerUri()).isEqualTo("https://accounts.google.com");
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Google");
@@ -63,19 +56,13 @@ public class CommonOAuth2ProviderTests {
 	public void getBuilderWhenGitHubShouldHaveGitHubSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.GITHUB);
 		ProviderDetails providerDetails = registration.getProviderDetails();
-		assertThat(providerDetails.getAuthorizationUri())
-			.isEqualTo("https://github.com/login/oauth/authorize");
-		assertThat(providerDetails.getTokenUri())
-			.isEqualTo("https://github.com/login/oauth/access_token");
-		assertThat(providerDetails.getUserInfoEndpoint().getUri())
-			.isEqualTo("https://api.github.com/user");
-		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
-			.isEqualTo("id");
+		assertThat(providerDetails.getAuthorizationUri()).isEqualTo("https://github.com/login/oauth/authorize");
+		assertThat(providerDetails.getTokenUri()).isEqualTo("https://github.com/login/oauth/access_token");
+		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("https://api.github.com/user");
+		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
-		assertThat(registration.getClientAuthenticationMethod())
-			.isEqualTo(ClientAuthenticationMethod.BASIC);
-		assertThat(registration.getAuthorizationGrantType())
-			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("read:user");
 		assertThat(registration.getClientName()).isEqualTo("GitHub");
@@ -86,19 +73,14 @@ public class CommonOAuth2ProviderTests {
 	public void getBuilderWhenFacebookShouldHaveFacebookSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.FACEBOOK);
 		ProviderDetails providerDetails = registration.getProviderDetails();
-		assertThat(providerDetails.getAuthorizationUri())
-			.isEqualTo("https://www.facebook.com/v2.8/dialog/oauth");
-		assertThat(providerDetails.getTokenUri())
-			.isEqualTo("https://graph.facebook.com/v2.8/oauth/access_token");
+		assertThat(providerDetails.getAuthorizationUri()).isEqualTo("https://www.facebook.com/v2.8/dialog/oauth");
+		assertThat(providerDetails.getTokenUri()).isEqualTo("https://graph.facebook.com/v2.8/oauth/access_token");
 		assertThat(providerDetails.getUserInfoEndpoint().getUri())
-			.isEqualTo("https://graph.facebook.com/me?fields=id,name,email");
-		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
-			.isEqualTo("id");
+				.isEqualTo("https://graph.facebook.com/me?fields=id,name,email");
+		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
-		assertThat(registration.getClientAuthenticationMethod())
-			.isEqualTo(ClientAuthenticationMethod.POST);
-		assertThat(registration.getAuthorizationGrantType())
-			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("public_profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Facebook");
@@ -108,22 +90,16 @@ public class CommonOAuth2ProviderTests {
 	@Test
 	public void getBuilderWhenOktaShouldHaveOktaSettings() {
 		ClientRegistration registration = builder(CommonOAuth2Provider.OKTA)
-			.authorizationUri("https://example.com/auth")
-			.tokenUri("https://example.com/token")
-			.userInfoUri("https://example.com/info")
-			.jwkSetUri("https://example.com/jwkset").build();
+				.authorizationUri("https://example.com/auth").tokenUri("https://example.com/token")
+				.userInfoUri("https://example.com/info").jwkSetUri("https://example.com/jwkset").build();
 		ProviderDetails providerDetails = registration.getProviderDetails();
-		assertThat(providerDetails.getAuthorizationUri())
-			.isEqualTo("https://example.com/auth");
+		assertThat(providerDetails.getAuthorizationUri()).isEqualTo("https://example.com/auth");
 		assertThat(providerDetails.getTokenUri()).isEqualTo("https://example.com/token");
 		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/info");
-		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
-			.isEqualTo(IdTokenClaimNames.SUB);
+		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo(IdTokenClaimNames.SUB);
 		assertThat(providerDetails.getJwkSetUri()).isEqualTo("https://example.com/jwkset");
-		assertThat(registration.getClientAuthenticationMethod())
-			.isEqualTo(ClientAuthenticationMethod.BASIC);
-		assertThat(registration.getAuthorizationGrantType())
-			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUri()).isEqualTo(DEFAULT_REDIRECT_URL);
 		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Okta");
@@ -135,9 +111,7 @@ public class CommonOAuth2ProviderTests {
 	}
 
 	private ClientRegistration.Builder builder(CommonOAuth2Provider provider) {
-		return provider.getBuilder("123")
-			.clientId("abcd")
-			.clientSecret("secret");
+		return provider.getBuilder("123").clientId("abcd").clientSecret("secret");
 	}
 
 }

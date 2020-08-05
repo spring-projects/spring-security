@@ -38,16 +38,17 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HttpBasicServerAuthenticationEntryPointTests {
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	private HttpBasicServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
 	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authenticate");
 
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
-		this.entryPoint.commence(this.exchange,
-				this.exception);
+		this.entryPoint.commence(this.exchange, this.exception);
 
 		verifyZeroInteractions(this.exchange);
 	}
@@ -58,10 +59,9 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 
 		this.entryPoint.commence(this.exchange, this.exception).block();
 
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.UNAUTHORIZED);
-		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate")).containsOnly(
-			"Basic realm=\"Realm\"");
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate"))
+				.containsOnly("Basic realm=\"Realm\"");
 	}
 
 	@Test
@@ -71,10 +71,9 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 
 		this.entryPoint.commence(this.exchange, this.exception).block();
 
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.UNAUTHORIZED);
-		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate")).containsOnly(
-			"Basic realm=\"Custom\"");
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+		assertThat(this.exchange.getResponse().getHeaders().get("WWW-Authenticate"))
+				.containsOnly("Basic realm=\"Custom\"");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -82,8 +81,8 @@ public class HttpBasicServerAuthenticationEntryPointTests {
 		this.entryPoint.setRealm(null);
 	}
 
-
 	private static MockServerWebExchange exchange(MockServerHttpRequest.BaseBuilder<?> request) {
 		return MockServerWebExchange.from(request.build());
 	}
+
 }

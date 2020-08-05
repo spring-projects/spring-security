@@ -33,6 +33,7 @@ import static org.springframework.security.oauth2.client.jackson2.JsonNodeUtils.
 abstract class StdConverters {
 
 	static final class AccessTokenTypeConverter extends StdConverter<JsonNode, OAuth2AccessToken.TokenType> {
+
 		@Override
 		public OAuth2AccessToken.TokenType convert(JsonNode jsonNode) {
 			String value = findStringValue(jsonNode, "value");
@@ -41,52 +42,67 @@ abstract class StdConverters {
 			}
 			return null;
 		}
+
 	}
 
 	static final class ClientAuthenticationMethodConverter extends StdConverter<JsonNode, ClientAuthenticationMethod> {
+
 		@Override
 		public ClientAuthenticationMethod convert(JsonNode jsonNode) {
 			String value = findStringValue(jsonNode, "value");
 			if (ClientAuthenticationMethod.BASIC.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.BASIC;
-			} else if (ClientAuthenticationMethod.POST.getValue().equalsIgnoreCase(value)) {
+			}
+			else if (ClientAuthenticationMethod.POST.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.POST;
-			} else if (ClientAuthenticationMethod.NONE.getValue().equalsIgnoreCase(value)) {
+			}
+			else if (ClientAuthenticationMethod.NONE.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.NONE;
 			}
 			return null;
 		}
+
 	}
 
 	static final class AuthorizationGrantTypeConverter extends StdConverter<JsonNode, AuthorizationGrantType> {
+
 		@Override
 		public AuthorizationGrantType convert(JsonNode jsonNode) {
 			String value = findStringValue(jsonNode, "value");
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.AUTHORIZATION_CODE;
-			} else if (AuthorizationGrantType.IMPLICIT.getValue().equalsIgnoreCase(value)) {
+			}
+			else if (AuthorizationGrantType.IMPLICIT.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.IMPLICIT;
-			} else if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equalsIgnoreCase(value)) {
+			}
+			else if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.CLIENT_CREDENTIALS;
-			} else if (AuthorizationGrantType.PASSWORD.getValue().equalsIgnoreCase(value)) {
+			}
+			else if (AuthorizationGrantType.PASSWORD.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.PASSWORD;
 			}
 			return null;
 		}
+
 	}
 
 	static final class AuthenticationMethodConverter extends StdConverter<JsonNode, AuthenticationMethod> {
+
 		@Override
 		public AuthenticationMethod convert(JsonNode jsonNode) {
 			String value = findStringValue(jsonNode, "value");
 			if (AuthenticationMethod.HEADER.getValue().equalsIgnoreCase(value)) {
 				return AuthenticationMethod.HEADER;
-			} else if (AuthenticationMethod.FORM.getValue().equalsIgnoreCase(value)) {
+			}
+			else if (AuthenticationMethod.FORM.getValue().equalsIgnoreCase(value)) {
 				return AuthenticationMethod.FORM;
-			} else if (AuthenticationMethod.QUERY.getValue().equalsIgnoreCase(value)) {
+			}
+			else if (AuthenticationMethod.QUERY.getValue().equalsIgnoreCase(value)) {
 				return AuthenticationMethod.QUERY;
 			}
 			return null;
 		}
+
 	}
+
 }

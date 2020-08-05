@@ -24,13 +24,15 @@ import java.util.List;
 
 /**
  * Provides factory methods for creating common {@link ServerWebExchangeMatcher}
+ *
  * @author Rob Winch
  * @since 5.0
  */
 public abstract class ServerWebExchangeMatchers {
 
 	/**
-	 * Creates a matcher that matches on the specific method and any of the provided patterns.
+	 * Creates a matcher that matches on the specific method and any of the provided
+	 * patterns.
 	 * @param method the method to match on. If null, any method will be matched
 	 * @param patterns the patterns to match on
 	 * @return the matcher to use
@@ -68,7 +70,8 @@ public abstract class ServerWebExchangeMatchers {
 	@SuppressWarnings("Convert2Lambda")
 	public static ServerWebExchangeMatcher anyExchange() {
 		// we don't use a lambda to ensure a unique equals and hashcode
-		// which otherwise can cause problems with adding multiple entries to an ordered LinkedHashMap
+		// which otherwise can cause problems with adding multiple entries to an ordered
+		// LinkedHashMap
 		return new ServerWebExchangeMatcher() {
 			@Override
 			public Mono<MatchResult> matches(ServerWebExchange exchange) {
@@ -79,4 +82,5 @@ public abstract class ServerWebExchangeMatchers {
 
 	private ServerWebExchangeMatchers() {
 	}
+
 }

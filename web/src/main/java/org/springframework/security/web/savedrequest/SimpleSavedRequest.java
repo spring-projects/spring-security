@@ -27,10 +27,12 @@ import java.util.Map;
 
 /**
  * A Bean implementation of SavedRequest
+ *
  * @author Rob Winch
  * @since 5.1
  */
 public class SimpleSavedRequest implements SavedRequest {
+
 	private String redirectUrl;
 
 	private List<Cookie> cookies = new ArrayList<>();
@@ -43,7 +45,8 @@ public class SimpleSavedRequest implements SavedRequest {
 
 	private Map<String, String[]> parameters = new HashMap<>();
 
-	public SimpleSavedRequest() {}
+	public SimpleSavedRequest() {
+	}
 
 	public SimpleSavedRequest(String redirectUrl) {
 		this.redirectUrl = redirectUrl;
@@ -129,4 +132,5 @@ public class SimpleSavedRequest implements SavedRequest {
 		Assert.notNull(parameters, "parameters cannot be null");
 		this.parameters = parameters;
 	}
+
 }

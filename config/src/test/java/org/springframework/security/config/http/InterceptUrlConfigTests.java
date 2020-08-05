@@ -43,14 +43,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author Rob Winch
  * @author Josh Cummings
  */
 public class InterceptUrlConfigTests {
 
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/InterceptUrlConfigTests";
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/InterceptUrlConfigTests";
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -62,175 +60,126 @@ public class InterceptUrlConfigTests {
 	 * sec-2256
 	 */
 	@Test
-	public void requestWhenMethodIsSpecifiedThenItIsNotGivenPriority()
-			throws Exception {
+	public void requestWhenMethodIsSpecifiedThenItIsNotGivenPriority() throws Exception {
 
 		this.spring.configLocations(this.xml("Sec2256")).autowire();
 
-		this.mvc.perform(post("/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(post("/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
 
-		this.mvc.perform(get("/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
 	}
 
 	/**
 	 * sec-2355
 	 */
 	@Test
-	public void requestWhenUsingPatchThenAuthorizesRequestsAccordingly()
-			throws Exception {
+	public void requestWhenUsingPatchThenAuthorizesRequestsAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("PatchMethod")).autowire();
 
-		this.mvc.perform(get("/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
 
-		this.mvc.perform(patch("/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(patch("/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
 
-		this.mvc.perform(patch("/path")
-				.with(httpBasic("admin", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(patch("/path").with(httpBasic("admin", "password"))).andExpect(status().isOk());
 
 	}
 
 	@Test
-	public void requestWhenUsingHasAnyRoleThenAuthorizesRequestsAccordingly()
-			throws Exception {
+	public void requestWhenUsingHasAnyRoleThenAuthorizesRequestsAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("HasAnyRole")).autowire();
 
-		this.mvc.perform(get("/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
 
-		this.mvc.perform(get("/path")
-				.with(httpBasic("admin", "password")))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/path").with(httpBasic("admin", "password"))).andExpect(status().isForbidden());
 	}
 
 	/**
 	 * sec-2059
 	 */
 	@Test
-	public void requestWhenUsingPathVariablesThenAuthorizesRequestsAccordingly()
-			throws Exception {
+	public void requestWhenUsingPathVariablesThenAuthorizesRequestsAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("PathVariables")).autowire();
 
-		this.mvc.perform(get("/path/user/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/path/user/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
 
-		this.mvc.perform(get("/path/otheruser/path")
-				.with(httpBasic("user", "password")))
+		this.mvc.perform(get("/path/otheruser/path").with(httpBasic("user", "password")))
 				.andExpect(status().isForbidden());
 
-		this.mvc.perform(get("/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
 	}
 
 	/**
 	 * gh-3786
 	 */
 	@Test
-	public void requestWhenUsingCamelCasePathVariablesThenAuthorizesRequestsAccordingly()
-			throws Exception {
+	public void requestWhenUsingCamelCasePathVariablesThenAuthorizesRequestsAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("CamelCasePathVariables")).autowire();
 
-		this.mvc.perform(get("/path/user/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/path/user/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
 
-		this.mvc.perform(get("/path/otheruser/path")
-				.with(httpBasic("user", "password")))
+		this.mvc.perform(get("/path/otheruser/path").with(httpBasic("user", "password")))
 				.andExpect(status().isForbidden());
 
-		this.mvc.perform(get("/PATH/user/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/PATH/user/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
 	}
 
 	/**
 	 * sec-2059
 	 */
 	@Test
-	public void requestWhenUsingPathVariablesAndTypeConversionThenAuthorizesRequestsAccordingly()
-			throws Exception {
+	public void requestWhenUsingPathVariablesAndTypeConversionThenAuthorizesRequestsAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("TypeConversionPathVariables")).autowire();
 
-		this.mvc.perform(get("/path/1/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/path/1/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
 
-		this.mvc.perform(get("/path/2/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/path/2/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
 
 	}
 
 	@Test
-	public void requestWhenUsingMvcMatchersThenAuthorizesRequestsAccordingly()
-			throws Exception {
+	public void requestWhenUsingMvcMatchersThenAuthorizesRequestsAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("MvcMatchers")).autowire();
 
-		this.mvc.perform(get("/path"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/path")).andExpect(status().isUnauthorized());
 
-		this.mvc.perform(get("/path.html"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/path.html")).andExpect(status().isUnauthorized());
 
-		this.mvc.perform(get("/path/"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/path/")).andExpect(status().isUnauthorized());
 	}
 
 	@Test
-	public void requestWhenUsingMvcMatchersAndPathVariablesThenAuthorizesRequestsAccordingly()
-			throws Exception {
+	public void requestWhenUsingMvcMatchersAndPathVariablesThenAuthorizesRequestsAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("MvcMatchersPathVariables")).autowire();
 
-		this.mvc.perform(get("/path/user/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/path/user/path").with(httpBasic("user", "password"))).andExpect(status().isOk());
 
-		this.mvc.perform(get("/path/otheruser/path")
-				.with(httpBasic("user", "password")))
+		this.mvc.perform(get("/path/otheruser/path").with(httpBasic("user", "password")))
 				.andExpect(status().isForbidden());
 
-		this.mvc.perform(get("/PATH/user/path")
-				.with(httpBasic("user", "password")))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/PATH/user/path").with(httpBasic("user", "password"))).andExpect(status().isForbidden());
 	}
 
 	@Test
-	public void requestWhenUsingMvcMatchersAndServletPathThenAuthorizesRequestsAccordingly()
-			throws Exception {
+	public void requestWhenUsingMvcMatchersAndServletPathThenAuthorizesRequestsAccordingly() throws Exception {
 
 		this.spring.configLocations(this.xml("MvcMatchersServletPath")).autowire();
 
 		MockServletContext servletContext = mockServletContext("/spring");
-		ConfigurableWebApplicationContext context =
-				(ConfigurableWebApplicationContext) this.spring.getContext();
+		ConfigurableWebApplicationContext context = (ConfigurableWebApplicationContext) this.spring.getContext();
 		context.setServletContext(servletContext);
 
-		this.mvc.perform(get("/spring/path").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/spring/path").servletPath("/spring")).andExpect(status().isUnauthorized());
 
-		this.mvc.perform(get("/spring/path.html").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/spring/path.html").servletPath("/spring")).andExpect(status().isUnauthorized());
 
-		this.mvc.perform(get("/spring/path/").servletPath("/spring"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/spring/path/").servletPath("/spring")).andExpect(status().isUnauthorized());
 
 	}
 
@@ -260,6 +209,7 @@ public class InterceptUrlConfigTests {
 
 	@RestController
 	static class PathController {
+
 		@RequestMapping("/path")
 		public String path() {
 			return "path";
@@ -269,20 +219,23 @@ public class InterceptUrlConfigTests {
 		public String path(@PathVariable("un") String name) {
 			return name;
 		}
+
 	}
 
 	public static class Id {
+
 		public boolean isOne(int i) {
 			return i == 1;
 		}
+
 	}
 
 	private MockServletContext mockServletContext(String servletPath) {
 		MockServletContext servletContext = spy(new MockServletContext());
 		final ServletRegistration registration = mock(ServletRegistration.class);
 		when(registration.getMappings()).thenReturn(Collections.singleton(servletPath));
-		Answer<Map<String, ? extends ServletRegistration>> answer = invocation ->
-				Collections.singletonMap("spring", registration);
+		Answer<Map<String, ? extends ServletRegistration>> answer = invocation -> Collections.singletonMap("spring",
+				registration);
 		when(servletContext.getServletRegistrations()).thenAnswer(answer);
 		return servletContext;
 	}
@@ -290,4 +243,5 @@ public class InterceptUrlConfigTests {
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
+
 }

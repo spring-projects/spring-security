@@ -28,6 +28,7 @@ import java.io.Serializable;
 public class SavedCookieTests {
 
 	Cookie cookie;
+
 	SavedCookie savedCookie;
 
 	@Before
@@ -94,4 +95,5 @@ public class SavedCookieTests {
 	public void testSerializable() {
 		assertThat(savedCookie instanceof Serializable).isTrue();
 	}
+
 }

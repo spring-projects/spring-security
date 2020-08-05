@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.*;
  *
  */
 public class SpringCacheBasedUserCacheTests {
+
 	private static CacheManager cacheManager;
 
 	// ~ Methods
@@ -82,4 +83,5 @@ public class SpringCacheBasedUserCacheTests {
 	public void startupDetectsMissingCache() throws Exception {
 		new SpringCacheBasedUserCache(null);
 	}
+
 }

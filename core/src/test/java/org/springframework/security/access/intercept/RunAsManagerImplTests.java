@@ -42,8 +42,7 @@ public class RunAsManagerImplTests {
 
 	@Test
 	public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting() {
-		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
-				"Test", "Password",
+		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
@@ -56,8 +55,8 @@ public class RunAsManagerImplTests {
 
 	@Test
 	public void testRespectsRolePrefix() {
-		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
-				"Test", "Password", AuthorityUtils.createAuthorityList("ONE", "TWO"));
+		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
+				AuthorityUtils.createAuthorityList("ONE", "TWO"));
 
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 		runAs.setKey("my_password");
@@ -66,12 +65,10 @@ public class RunAsManagerImplTests {
 		Authentication result = runAs.buildRunAs(inputToken, new Object(),
 				SecurityConfig.createList("RUN_AS_SOMETHING"));
 
-		assertThat(result instanceof RunAsUserToken).withFailMessage(
-				"Should have returned a RunAsUserToken").isTrue();
+		assertThat(result instanceof RunAsUserToken).withFailMessage("Should have returned a RunAsUserToken").isTrue();
 		assertThat(result.getPrincipal()).isEqualTo(inputToken.getPrincipal());
 		assertThat(result.getCredentials()).isEqualTo(inputToken.getCredentials());
-		Set<String> authorities = AuthorityUtils.authorityListToSet(
-				result.getAuthorities());
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 
 		assertThat(authorities.contains("FOOBAR_RUN_AS_SOMETHING")).isTrue();
 		assertThat(authorities.contains("ONE")).isTrue();
@@ -83,8 +80,7 @@ public class RunAsManagerImplTests {
 
 	@Test
 	public void testReturnsAdditionalGrantedAuthorities() {
-		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
-				"Test", "Password",
+		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
@@ -100,8 +96,7 @@ public class RunAsManagerImplTests {
 		assertThat(result.getPrincipal()).isEqualTo(inputToken.getPrincipal());
 		assertThat(result.getCredentials()).isEqualTo(inputToken.getCredentials());
 
-		Set<String> authorities = AuthorityUtils.authorityListToSet(
-				result.getAuthorities());
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 		assertThat(authorities.contains("ROLE_RUN_AS_SOMETHING")).isTrue();
 		assertThat(authorities.contains("ROLE_ONE")).isTrue();
 		assertThat(authorities.contains("ROLE_TWO")).isTrue();
@@ -138,4 +133,5 @@ public class RunAsManagerImplTests {
 		assertThat(!runAs.supports(new SecurityConfig("ROLE_WHICH_IS_IGNORED"))).isTrue();
 		assertThat(!runAs.supports(new SecurityConfig("role_LOWER_CASE_FAILS"))).isTrue();
 	}
+
 }

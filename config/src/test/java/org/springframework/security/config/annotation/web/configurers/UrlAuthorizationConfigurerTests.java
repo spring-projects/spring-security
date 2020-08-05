@@ -47,10 +47,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  */
 public class UrlAuthorizationConfigurerTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Autowired
@@ -78,30 +81,28 @@ public class UrlAuthorizationConfigurerTests {
 		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 
 		setup();
 
 		this.request.setRequestURI("/path.html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 
 		setup();
 
 		this.request.setServletPath("/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
 	static class MvcMatcherConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -122,11 +123,14 @@ public class UrlAuthorizationConfigurerTests {
 
 		@RestController
 		static class PathController {
+
 			@RequestMapping("/path")
 			public String path() {
 				return "path";
 			}
+
 		}
+
 	}
 
 	@Test
@@ -137,8 +141,7 @@ public class UrlAuthorizationConfigurerTests {
 		this.request.setRequestURI("/spring/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 
 		setup();
 
@@ -146,8 +149,7 @@ public class UrlAuthorizationConfigurerTests {
 		this.request.setRequestURI("/spring/path.html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 
 		setup();
 
@@ -155,8 +157,7 @@ public class UrlAuthorizationConfigurerTests {
 		this.request.setRequestURI("/spring/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 
 		setup();
 
@@ -179,6 +180,7 @@ public class UrlAuthorizationConfigurerTests {
 	@Configuration
 	@EnableWebMvc
 	static class MvcMatcherServletPathConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -199,11 +201,14 @@ public class UrlAuthorizationConfigurerTests {
 
 		@RestController
 		static class PathController {
+
 			@RequestMapping("/path")
 			public String path() {
 				return "path";
 			}
+
 		}
+
 	}
 
 	@Test
@@ -214,6 +219,7 @@ public class UrlAuthorizationConfigurerTests {
 	@EnableWebSecurity
 	@Configuration
 	static class AnonymousUrlAuthorizationConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -222,14 +228,17 @@ public class UrlAuthorizationConfigurerTests {
 					.anyRequest().anonymous();
 			// @formatter:on
 		}
+
 	}
 
 	@Configuration
 	static class LegacyMvcMatchingConfig implements WebMvcConfigurer {
+
 		@Override
 		public void configurePathMatch(PathMatchConfigurer configurer) {
 			configurer.setUseSuffixPatternMatch(true);
 		}
+
 	}
 
 	public void loadConfig(Class<?>... configs) {
@@ -240,4 +249,5 @@ public class UrlAuthorizationConfigurerTests {
 
 		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
+
 }

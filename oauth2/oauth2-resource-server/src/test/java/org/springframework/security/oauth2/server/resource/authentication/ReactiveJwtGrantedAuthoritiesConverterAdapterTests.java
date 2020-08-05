@@ -38,27 +38,24 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  * @since 5.2
  */
 public class ReactiveJwtGrantedAuthoritiesConverterAdapterTests {
+
 	@Test
 	public void convertWithGrantedAuthoritiesConverter() {
 		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
 
-		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter =
-				token -> Arrays.asList(new SimpleGrantedAuthority("blah"));
+		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter = token -> Arrays
+				.asList(new SimpleGrantedAuthority("blah"));
 
-		Collection<GrantedAuthority> authorities =
-				new ReactiveJwtGrantedAuthoritiesConverterAdapter(grantedAuthoritiesConverter)
-						.convert(jwt)
-						.toStream()
-						.collect(Collectors.toList());
+		Collection<GrantedAuthority> authorities = new ReactiveJwtGrantedAuthoritiesConverterAdapter(
+				grantedAuthoritiesConverter).convert(jwt).toStream().collect(Collectors.toList());
 
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("blah"));
+		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("blah"));
 	}
 
 	@Test
 	public void whenConstructingWithInvalidConverter() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ReactiveJwtGrantedAuthoritiesConverterAdapter(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveJwtGrantedAuthoritiesConverterAdapter(null))
 				.withMessage("grantedAuthoritiesConverter cannot be null");
 	}
+
 }

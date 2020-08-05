@@ -49,6 +49,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 
 public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -74,6 +75,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class DefaultLdapConfig extends BaseLdapProviderConfig {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -82,6 +84,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.userDnPatterns("uid={0},ou=people");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -89,11 +92,13 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		this.spring.register(GroupRolesConfig.class).autowire();
 		LdapAuthenticationProvider provider = ldapProvider();
 
-		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupRoleAttribute")).isEqualTo("group");
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupRoleAttribute"))
+				.isEqualTo("group");
 	}
 
 	@EnableWebSecurity
 	static class GroupRolesConfig extends BaseLdapProviderConfig {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -103,6 +108,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.groupRoleAttribute("group");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -110,11 +116,13 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		this.spring.register(GroupSearchConfig.class).autowire();
 		LdapAuthenticationProvider provider = ldapProvider();
 
-		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupSearchFilter")).isEqualTo("ou=groupName");
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "groupSearchFilter"))
+				.isEqualTo("ou=groupName");
 	}
 
 	@EnableWebSecurity
 	static class GroupSearchConfig extends BaseLdapProviderConfig {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -124,6 +132,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.groupSearchFilter("ou=groupName");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -137,6 +146,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -147,6 +157,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.groupSearchSubtree(true);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -159,6 +170,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class RolePrefixConfig extends BaseLdapProviderConfig {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -168,18 +180,20 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.rolePrefix("role_");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void bindAuthentication() throws Exception {
 		this.spring.register(BindAuthenticationConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
+				.withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	@EnableWebSecurity
 	static class BindAuthenticationConfig extends BaseLdapServerConfig {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -190,6 +204,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.userDnPatterns("uid={0},ou=people");
 			// @formatter:on
 		}
+
 	}
 
 	// SEC-2472
@@ -197,12 +212,13 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	public void canUseCryptoPasswordEncoder() throws Exception {
 		this.spring.register(PasswordEncoderConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bcrypt").password("password"))
-				.andExpect(authenticated().withUsername("bcrypt").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bcrypt").password("password")).andExpect(authenticated()
+				.withUsername("bcrypt").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends BaseLdapServerConfig {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -214,10 +230,12 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.userDnPatterns("uid={0},ou=people");
 			// @formatter:on
 		}
+
 	}
 
 	private LdapAuthenticationProvider ldapProvider() {
-		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(authenticationManager, "providers")).get(0);
+		return ((List<LdapAuthenticationProvider>) ReflectionTestUtils.getField(authenticationManager, "providers"))
+				.get(0);
 	}
 
 	private LdapAuthoritiesPopulator getAuthoritiesPopulator(LdapAuthenticationProvider provider) {
@@ -230,12 +248,15 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static abstract class BaseLdapServerConfig extends BaseLdapProviderConfig {
+
 		@Bean
 		public ApacheDSContainer ldapServer() throws Exception {
-			ApacheDSContainer apacheDSContainer = new ApacheDSContainer("dc=springframework,dc=org", "classpath:/test-server.ldif");
+			ApacheDSContainer apacheDSContainer = new ApacheDSContainer("dc=springframework,dc=org",
+					"classpath:/test-server.ldif");
 			apacheDSContainer.setPort(getPort());
 			return apacheDSContainer;
 		}
+
 	}
 
 	@EnableWebSecurity
@@ -260,6 +281,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		}
 
 		abstract protected void configure(AuthenticationManagerBuilder auth) throws Exception;
+
 	}
 
 	static Integer port;
@@ -272,4 +294,5 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		}
 		return port;
 	}
+
 }

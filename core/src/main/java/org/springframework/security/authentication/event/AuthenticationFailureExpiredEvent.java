@@ -26,11 +26,12 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class AuthenticationFailureExpiredEvent extends AbstractAuthenticationFailureEvent {
+
 	// ~ Constructors
 	// ===================================================================================================
 
-	public AuthenticationFailureExpiredEvent(Authentication authentication,
-			AuthenticationException exception) {
+	public AuthenticationFailureExpiredEvent(Authentication authentication, AuthenticationException exception) {
 		super(authentication, exception);
 	}
+
 }

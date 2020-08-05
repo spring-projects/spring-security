@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
+ * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s)
+ * in-memory.
  *
  * @author Joe Grandja
  * @author Rob Winch
@@ -34,12 +35,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see ClientRegistrationRepository
  * @see ClientRegistration
  */
-public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
+public final class InMemoryClientRegistrationRepository
+		implements ClientRegistrationRepository, Iterable<ClientRegistration> {
+
 	private final Map<String, ClientRegistration> registrations;
 
 	/**
-	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided parameters.
-	 *
+	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided
+	 * parameters.
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryClientRegistrationRepository(ClientRegistration... registrations) {
@@ -47,8 +50,8 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	}
 
 	/**
-	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided parameters.
-	 *
+	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided
+	 * parameters.
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
@@ -64,8 +67,7 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 		ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
 		for (ClientRegistration registration : registrations) {
 			if (result.containsKey(registration.getRegistrationId())) {
-				throw new IllegalStateException(String.format("Duplicate key %s",
-						registration.getRegistrationId()));
+				throw new IllegalStateException(String.format("Duplicate key %s", registration.getRegistrationId()));
 			}
 			result.put(registration.getRegistrationId(), registration);
 		}
@@ -73,8 +75,9 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	}
 
 	/**
-	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided {@code Map}
-	 * of {@link ClientRegistration#getRegistrationId() registration id} to {@link ClientRegistration}.
+	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided
+	 * {@code Map} of {@link ClientRegistration#getRegistrationId() registration id} to
+	 * {@link ClientRegistration}.
 	 *
 	 * @since 5.2
 	 * @param registrations the {@code Map} of client registration(s)
@@ -92,11 +95,11 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 
 	/**
 	 * Returns an {@code Iterator} of {@link ClientRegistration}.
-	 *
 	 * @return an {@code Iterator<ClientRegistration>}
 	 */
 	@Override
 	public Iterator<ClientRegistration> iterator() {
 		return this.registrations.values().iterator();
 	}
+
 }

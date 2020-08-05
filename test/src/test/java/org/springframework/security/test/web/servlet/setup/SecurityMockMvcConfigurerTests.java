@@ -36,14 +36,19 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMockMvcConfigurerTests {
+
 	@Mock
 	private Filter filter;
+
 	@Mock
 	private Filter beanFilter;
+
 	@Mock
 	private ConfigurableMockMvcBuilder<?> builder;
+
 	@Mock
 	private WebApplicationContext context;
+
 	@Mock
 	private ServletContext servletContext;
 
@@ -61,8 +66,7 @@ public class SecurityMockMvcConfigurerTests {
 		configurer.beforeMockMvcCreated(this.builder, this.context);
 
 		assertFilterAdded(this.filter);
-		verify(this.servletContext).setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
-				this.filter);
+		verify(this.servletContext).setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, this.filter);
 	}
 
 	@Test
@@ -95,15 +99,15 @@ public class SecurityMockMvcConfigurerTests {
 	}
 
 	private void assertFilterAdded(Filter filter) {
-		ArgumentCaptor<SecurityMockMvcConfigurer.DelegateFilter> filterArg = ArgumentCaptor.forClass(
-				SecurityMockMvcConfigurer.DelegateFilter.class);
+		ArgumentCaptor<SecurityMockMvcConfigurer.DelegateFilter> filterArg = ArgumentCaptor
+				.forClass(SecurityMockMvcConfigurer.DelegateFilter.class);
 		verify(this.builder).addFilters(filterArg.capture());
 		assertThat(filterArg.getValue().getDelegate()).isEqualTo(filter);
 	}
 
 	private void returnFilterBean() {
 		when(this.context.containsBean(anyString())).thenReturn(true);
-		when(this.context.getBean(anyString(), eq(Filter.class)))
-				.thenReturn(this.beanFilter);
+		when(this.context.getBean(anyString(), eq(Filter.class))).thenReturn(this.beanFilter);
 	}
+
 }

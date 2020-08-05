@@ -27,8 +27,9 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 /**
- * A specialized {@link AuthenticationWebFilter} that converts from an {@link OAuth2LoginAuthenticationToken} to an
- * {@link OAuth2AuthenticationToken} and saves the {@link OAuth2AuthorizedClient}
+ * A specialized {@link AuthenticationWebFilter} that converts from an
+ * {@link OAuth2LoginAuthenticationToken} to an {@link OAuth2AuthenticationToken} and
+ * saves the {@link OAuth2AuthorizedClient}
  *
  * @author Rob Winch
  * @since 5.1
@@ -39,12 +40,10 @@ public class OAuth2LoginAuthenticationWebFilter extends AuthenticationWebFilter 
 
 	/**
 	 * Creates an instance
-	 *
 	 * @param authenticationManager the authentication manager to use
 	 * @param authorizedClientRepository
 	 */
-	public OAuth2LoginAuthenticationWebFilter(
-			ReactiveAuthenticationManager authenticationManager,
+	public OAuth2LoginAuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager,
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 		super(authenticationManager);
 		Assert.notNull(authorizedClientRepository, "authorizedClientService cannot be null");
@@ -52,19 +51,17 @@ public class OAuth2LoginAuthenticationWebFilter extends AuthenticationWebFilter 
 	}
 
 	@Override
-	protected Mono<Void> onAuthenticationSuccess(Authentication authentication,
-			WebFilterExchange webFilterExchange) {
+	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
 		OAuth2LoginAuthenticationToken authenticationResult = (OAuth2LoginAuthenticationToken) authentication;
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				authenticationResult.getClientRegistration(),
-				authenticationResult.getName(),
-				authenticationResult.getAccessToken(),
-				authenticationResult.getRefreshToken());
-		OAuth2AuthenticationToken result =  new OAuth2AuthenticationToken(
-				authenticationResult.getPrincipal(),
+				authenticationResult.getClientRegistration(), authenticationResult.getName(),
+				authenticationResult.getAccessToken(), authenticationResult.getRefreshToken());
+		OAuth2AuthenticationToken result = new OAuth2AuthenticationToken(authenticationResult.getPrincipal(),
 				authenticationResult.getAuthorities(),
 				authenticationResult.getClientRegistration().getRegistrationId());
-		return this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, authenticationResult, webFilterExchange.getExchange())
+		return this.authorizedClientRepository
+				.saveAuthorizedClient(authorizedClient, authenticationResult, webFilterExchange.getExchange())
 				.then(super.onAuthenticationSuccess(result, webFilterExchange));
 	}
+
 }

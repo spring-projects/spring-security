@@ -46,4 +46,5 @@ public class SecurityContextImplTests {
 		assertThat(context.getAuthentication()).isEqualTo(auth);
 		assertThat(context.toString().lastIndexOf("rod") != -1).isTrue();
 	}
+
 }

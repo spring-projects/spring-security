@@ -48,6 +48,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
+
 	@Mock
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
@@ -59,8 +60,7 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 
 	private OAuth2AuthorizationResponse.Builder authorizationResponse = TestOAuth2AuthorizationResponses.success();
 
-	private OAuth2AccessTokenResponse.Builder tokenResponse = TestOAuth2AccessTokenResponses
-			.accessTokenResponse();
+	private OAuth2AccessTokenResponse.Builder tokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse();
 
 	@Before
 	public void setup() {
@@ -70,15 +70,13 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenErrorThenOAuth2AuthorizationException() {
 		this.authorizationResponse = TestOAuth2AuthorizationResponses.error();
-		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatCode(() -> authenticate()).isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
 	@Test
 	public void authenticateWhenStateNotEqualThenOAuth2AuthorizationException() {
 		this.authorizationRequest.state("notequal");
-		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatCode(() -> authenticate()).isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
 	@Test
@@ -101,17 +99,18 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenOAuth2AuthorizationExceptionThenOAuth2AuthorizationException() {
-		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
+		when(this.accessTokenResponseClient.getTokenResponse(any()))
+				.thenReturn(Mono.error(() -> new OAuth2AuthorizationException(new OAuth2Error("error"))));
 
-		assertThatCode(() -> authenticate())
-				.isInstanceOf(OAuth2AuthorizationException.class);
+		assertThatCode(() -> authenticate()).isInstanceOf(OAuth2AuthorizationException.class);
 	}
 
 	private OAuth2AuthorizationCodeAuthenticationToken authenticate() {
-		OAuth2AuthorizationExchange exchange = new OAuth2AuthorizationExchange(
-				this.authorizationRequest.build(), this.authorizationResponse.build());
+		OAuth2AuthorizationExchange exchange = new OAuth2AuthorizationExchange(this.authorizationRequest.build(),
+				this.authorizationResponse.build());
 		OAuth2AuthorizationCodeAuthenticationToken token = new OAuth2AuthorizationCodeAuthenticationToken(
 				this.registration.build(), exchange);
 		return (OAuth2AuthorizationCodeAuthenticationToken) this.manager.authenticate(token).block();
 	}
+
 }

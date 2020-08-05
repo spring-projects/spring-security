@@ -57,6 +57,7 @@ public class LogoutFilter extends GenericFilterBean {
 	private RequestMatcher logoutRequestMatcher;
 
 	private final LogoutHandler handler;
+
 	private final LogoutSuccessHandler logoutSuccessHandler;
 
 	// ~ Constructors
@@ -68,8 +69,7 @@ public class LogoutFilter extends GenericFilterBean {
 	 * intended to perform the actual logout functionality (such as clearing the security
 	 * context, invalidating the session, etc.).
 	 */
-	public LogoutFilter(LogoutSuccessHandler logoutSuccessHandler,
-			LogoutHandler... handlers) {
+	public LogoutFilter(LogoutSuccessHandler logoutSuccessHandler, LogoutHandler... handlers) {
 		this.handler = new CompositeLogoutHandler(handlers);
 		Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
 		this.logoutSuccessHandler = logoutSuccessHandler;
@@ -78,9 +78,7 @@ public class LogoutFilter extends GenericFilterBean {
 
 	public LogoutFilter(String logoutSuccessUrl, LogoutHandler... handlers) {
 		this.handler = new CompositeLogoutHandler(handlers);
-		Assert.isTrue(
-				!StringUtils.hasLength(logoutSuccessUrl)
-						|| UrlUtils.isValidRedirectUrl(logoutSuccessUrl),
+		Assert.isTrue(!StringUtils.hasLength(logoutSuccessUrl) || UrlUtils.isValidRedirectUrl(logoutSuccessUrl),
 				() -> logoutSuccessUrl + " isn't a valid redirect URL");
 		SimpleUrlLogoutSuccessHandler urlLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
 		if (StringUtils.hasText(logoutSuccessUrl)) {
@@ -102,8 +100,7 @@ public class LogoutFilter extends GenericFilterBean {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Logging out user '" + auth
-						+ "' and transferring to logout destination");
+				logger.debug("Logging out user '" + auth + "' and transferring to logout destination");
 			}
 
 			this.handler.logout(request, response, auth);
@@ -118,14 +115,11 @@ public class LogoutFilter extends GenericFilterBean {
 
 	/**
 	 * Allow subclasses to modify when a logout should take place.
-	 *
 	 * @param request the request
 	 * @param response the response
-	 *
 	 * @return <code>true</code> if logout should occur, <code>false</code> otherwise
 	 */
-	protected boolean requiresLogout(HttpServletRequest request,
-			HttpServletResponse response) {
+	protected boolean requiresLogout(HttpServletRequest request, HttpServletResponse response) {
 		return logoutRequestMatcher.matches(request);
 	}
 
@@ -137,4 +131,5 @@ public class LogoutFilter extends GenericFilterBean {
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
 		this.logoutRequestMatcher = new AntPathRequestMatcher(filterProcessesUrl);
 	}
+
 }

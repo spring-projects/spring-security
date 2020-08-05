@@ -35,7 +35,6 @@ public abstract class SessionDestroyedEvent extends AbstractSessionEvent {
 	/**
 	 * Provides the {@code SecurityContext} instances which were associated with the
 	 * destroyed session. Usually there will be only one security context per session.
-	 *
 	 * @return the {@code SecurityContext} instances which were stored in the current
 	 * session (an empty list if there are none).
 	 */
@@ -45,4 +44,5 @@ public abstract class SessionDestroyedEvent extends AbstractSessionEvent {
 	 * @return the identifier associated with the destroyed session.
 	 */
 	public abstract String getId();
+
 }

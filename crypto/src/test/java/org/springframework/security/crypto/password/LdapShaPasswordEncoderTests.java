@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("deprecation")
 public class LdapShaPasswordEncoderTests {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -109,4 +110,5 @@ public class LdapShaPasswordEncoderTests {
 		// No right brace
 		this.sha.matches("somepassword", "{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX");
 	}
+
 }

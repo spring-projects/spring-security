@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
  * @author Ben Alex
  */
 public class UserAttributeEditor extends PropertyEditorSupport {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -70,4 +71,5 @@ public class UserAttributeEditor extends PropertyEditorSupport {
 			setValue(null);
 		}
 	}
+
 }

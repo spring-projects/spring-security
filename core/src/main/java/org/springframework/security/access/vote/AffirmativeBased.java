@@ -47,16 +47,14 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
 	 * be based on the {@link #isAllowIfAllAbstainDecisions()} property (defaults to
 	 * false).
 	 * </p>
-	 *
 	 * @param authentication the caller invoking the method
 	 * @param object the secured object
 	 * @param configAttributes the configuration attributes associated with the method
 	 * being invoked
-	 *
 	 * @throws AccessDeniedException if access is denied
 	 */
-	public void decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> configAttributes) throws AccessDeniedException {
+	public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
+			throws AccessDeniedException {
 		int deny = 0;
 
 		for (AccessDecisionVoter voter : getDecisionVoters()) {
@@ -81,11 +79,12 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
 		}
 
 		if (deny > 0) {
-			throw new AccessDeniedException(messages.getMessage(
-					"AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+			throw new AccessDeniedException(
+					messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 		}
 
 		// To get this far, every AccessDecisionVoter abstained
 		checkAllowIfAllAbstainDecisions();
 	}
+
 }

@@ -44,8 +44,7 @@ public class AclPermissionCacheOptimizerTests {
 		pco.setObjectIdentityRetrievalStrategy(oidStrat);
 		pco.setSidRetrievalStrategy(sidStrat);
 		Object[] dos = { new Object(), null, new Object() };
-		ObjectIdentity[] oids = { new ObjectIdentityImpl("A", "1"),
-				new ObjectIdentityImpl("A", "2") };
+		ObjectIdentity[] oids = { new ObjectIdentityImpl("A", "1"), new ObjectIdentityImpl("A", "2") };
 		when(oidStrat.getObjectIdentity(dos[0])).thenReturn(oids[0]);
 		when(oidStrat.getObjectIdentity(dos[2])).thenReturn(oids[1]);
 

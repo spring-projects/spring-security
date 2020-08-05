@@ -35,13 +35,14 @@ import org.springframework.util.Assert;
  * @since 3.0.2
  */
 public final class IpAddressMatcher implements RequestMatcher {
+
 	private final int nMaskBits;
+
 	private final InetAddress requiredAddress;
 
 	/**
 	 * Takes a specific IP address or a range specified using the IP/Netmask (e.g.
 	 * 192.168.1.0/24 or 202.24.0.0/14).
-	 *
 	 * @param ipAddress the address or range of addresses from which the request must
 	 * come.
 	 */
@@ -57,8 +58,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 		}
 		requiredAddress = parseAddress(ipAddress);
 		Assert.isTrue(requiredAddress.getAddress().length * 8 >= nMaskBits,
-				String.format("IP address %s is too short for bitmask of length %d",
-						ipAddress, nMaskBits));
+				String.format("IP address %s is too short for bitmask of length %d", ipAddress, nMaskBits));
 	}
 
 	public boolean matches(HttpServletRequest request) {
@@ -105,4 +105,5 @@ public final class IpAddressMatcher implements RequestMatcher {
 			throw new IllegalArgumentException("Failed to parse address" + address, e);
 		}
 	}
+
 }

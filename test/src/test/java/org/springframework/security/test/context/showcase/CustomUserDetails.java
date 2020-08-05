@@ -25,8 +25,11 @@ import java.util.Collection;
  * @author Rob Winch
  */
 public class CustomUserDetails implements UserDetails {
+
 	private final String name;
+
 	private final String username;
+
 	private final Collection<? extends GrantedAuthority> authorities;
 
 	public CustomUserDetails(String name, String username) {
@@ -67,4 +70,5 @@ public class CustomUserDetails implements UserDetails {
 	public String toString() {
 		return "CustomUserDetails{" + "username='" + username + '\'' + '}';
 	}
+
 }

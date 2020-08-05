@@ -36,12 +36,15 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OnCommittedResponseWrapperTests {
+
 	private static final String NL = "\r\n";
 
 	@Mock
 	HttpServletResponse delegate;
+
 	@Mock
 	PrintWriter writer;
+
 	@Mock
 	ServletOutputStream out;
 
@@ -60,7 +63,6 @@ public class OnCommittedResponseWrapperTests {
 		when(delegate.getWriter()).thenReturn(writer);
 		when(delegate.getOutputStream()).thenReturn(out);
 	}
-
 
 	// --- printwriter
 
@@ -339,7 +341,6 @@ public class OnCommittedResponseWrapperTests {
 		verify(writer).format(l, format, args);
 	}
 
-
 	@Test
 	public void printWriterAppendCharSequence() throws Exception {
 		String x = "a";
@@ -360,7 +361,6 @@ public class OnCommittedResponseWrapperTests {
 		verify(writer).append(x, start, end);
 	}
 
-
 	@Test
 	public void printWriterAppendChar() throws Exception {
 		char x = 1;
@@ -371,7 +371,6 @@ public class OnCommittedResponseWrapperTests {
 	}
 
 	// servletoutputstream
-
 
 	@Test
 	public void outputStreamHashCode() throws Exception {
@@ -594,7 +593,6 @@ public class OnCommittedResponseWrapperTests {
 		assertThat(committed).isTrue();
 	}
 
-
 	@Test
 	public void contentLengthPrintWriterWriteCharIntIntCommits() throws Exception {
 		char[] buff = new char[0];
@@ -628,7 +626,6 @@ public class OnCommittedResponseWrapperTests {
 
 		assertThat(committed).isTrue();
 	}
-
 
 	@Test
 	public void contentLengthPrintWriterWriteStringCommits() throws IOException {
@@ -917,11 +914,9 @@ public class OnCommittedResponseWrapperTests {
 	// gh-171
 	@Test
 	public void contentLengthPlus1OutputStreamWriteByteArrayMultiDigitCommits() throws Exception {
-		String expected = "{\n" +
-				"  \"parameterName\" : \"_csrf\",\n" +
-				"  \"token\" : \"06300b65-c4aa-4c8f-8cda-39ee17f545a0\",\n" +
-				"  \"headerName\" : \"X-CSRF-TOKEN\"\n" +
-				"}";
+		String expected = "{\n" + "  \"parameterName\" : \"_csrf\",\n"
+				+ "  \"token\" : \"06300b65-c4aa-4c8f-8cda-39ee17f545a0\",\n" + "  \"headerName\" : \"X-CSRF-TOKEN\"\n"
+				+ "}";
 		response.setContentLength(expected.length() + 1);
 
 		response.getOutputStream().write(expected.getBytes());
@@ -1147,4 +1142,5 @@ public class OnCommittedResponseWrapperTests {
 
 		assertThat(committed).isFalse();
 	}
+
 }

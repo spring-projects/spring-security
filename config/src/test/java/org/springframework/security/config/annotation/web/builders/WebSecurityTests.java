@@ -45,10 +45,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  */
 public class WebSecurityTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Autowired
@@ -97,14 +100,14 @@ public class WebSecurityTests {
 		this.request.setRequestURI("/other");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
 	static class MvcMatcherConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(WebSecurity web) {
 			// @formatter:off
@@ -134,11 +137,14 @@ public class WebSecurityTests {
 
 		@RestController
 		static class PathController {
+
 			@RequestMapping("/path")
 			public String path() {
 				return "path";
 			}
+
 		}
+
 	}
 
 	@Test
@@ -173,14 +179,14 @@ public class WebSecurityTests {
 		this.request.setRequestURI("/other/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
 	static class MvcMatcherServletPathConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(WebSecurity web) {
 			// @formatter:off
@@ -211,19 +217,24 @@ public class WebSecurityTests {
 
 		@RestController
 		static class PathController {
+
 			@RequestMapping("/path")
 			public String path() {
 				return "path";
 			}
+
 		}
+
 	}
 
 	@Configuration
 	static class LegacyMvcMatchingConfig implements WebMvcConfigurer {
+
 		@Override
 		public void configurePathMatch(PathMatchConfigurer configurer) {
 			configurer.setUseSuffixPatternMatch(true);
 		}
+
 	}
 
 	public void loadConfig(Class<?>... configs) {

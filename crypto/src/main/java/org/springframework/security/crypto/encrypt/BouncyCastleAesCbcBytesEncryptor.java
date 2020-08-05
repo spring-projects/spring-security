@@ -28,9 +28,9 @@ import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgor
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 
 /**
- * An Encryptor equivalent to {@link AesBytesEncryptor} using
- * {@link CipherAlgorithm#CBC} that uses Bouncy Castle instead of JCE. The
- * algorithm is equivalent to "AES/CBC/PKCS5Padding".
+ * An Encryptor equivalent to {@link AesBytesEncryptor} using {@link CipherAlgorithm#CBC}
+ * that uses Bouncy Castle instead of JCE. The algorithm is equivalent to
+ * "AES/CBC/PKCS5Padding".
  *
  * @author William Tran
  *
@@ -41,8 +41,7 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		super(password, salt);
 	}
 
-	public BouncyCastleAesCbcBytesEncryptor(String password, CharSequence salt,
-			BytesKeyGenerator ivGenerator) {
+	public BouncyCastleAesCbcBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator) {
 		super(password, salt, ivGenerator);
 	}
 
@@ -61,8 +60,7 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 	@Override
 	public byte[] decrypt(byte[] encryptedBytes) {
 		byte[] iv = subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
-		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(),
-				encryptedBytes.length);
+		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
 
 		@SuppressWarnings("deprecation")
 		PaddedBufferedBlockCipher blockCipher = new PaddedBufferedBlockCipher(
@@ -87,4 +85,5 @@ public class BouncyCastleAesCbcBytesEncryptor extends BouncyCastleAesBytesEncryp
 		System.arraycopy(buf, 0, out, 0, bytesWritten);
 		return out;
 	}
+
 }

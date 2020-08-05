@@ -39,27 +39,42 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * A representation of an OAuth 2.0 Authorization Request
- * for the authorization code grant type or implicit grant type.
+ * A representation of an OAuth 2.0 Authorization Request for the authorization code grant
+ * type or implicit grant type.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see AuthorizationGrantType
  * @see OAuth2AuthorizationResponseType
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code Grant Request</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant Request</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code
+ * Grant Request</a>
+ * @see <a target="_blank" href=
+ * "https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant
+ * Request</a>
  */
 public final class OAuth2AuthorizationRequest implements Serializable {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private String authorizationUri;
+
 	private AuthorizationGrantType authorizationGrantType;
+
 	private OAuth2AuthorizationResponseType responseType;
+
 	private String clientId;
+
 	private String redirectUri;
+
 	private Set<String> scopes;
+
 	private String state;
+
 	private Map<String, Object> additionalParameters;
+
 	private String authorizationRequestUri;
+
 	private Map<String, Object> attributes;
 
 	private OAuth2AuthorizationRequest() {
@@ -67,7 +82,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the uri for the authorization endpoint.
-	 *
 	 * @return the uri for the authorization endpoint
 	 */
 	public String getAuthorizationUri() {
@@ -76,7 +90,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the {@link AuthorizationGrantType grant type}.
-	 *
 	 * @return the {@link AuthorizationGrantType}
 	 */
 	public AuthorizationGrantType getGrantType() {
@@ -85,7 +98,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationResponseType response type}.
-	 *
 	 * @return the {@link OAuth2AuthorizationResponseType}
 	 */
 	public OAuth2AuthorizationResponseType getResponseType() {
@@ -94,7 +106,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the client identifier.
-	 *
 	 * @return the client identifier
 	 */
 	public String getClientId() {
@@ -103,7 +114,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the uri for the redirection endpoint.
-	 *
 	 * @return the uri for the redirection endpoint
 	 */
 	public String getRedirectUri() {
@@ -112,7 +122,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the scope(s).
-	 *
 	 * @return the scope(s), or an empty {@code Set} if not available
 	 */
 	public Set<String> getScopes() {
@@ -121,7 +130,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the state.
-	 *
 	 * @return the state
 	 */
 	public String getState() {
@@ -130,8 +138,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the additional parameter(s) used in the request.
-	 *
-	 * @return a {@code Map} of the additional parameter(s), or an empty {@code Map} if not available
+	 * @return a {@code Map} of the additional parameter(s), or an empty {@code Map} if
+	 * not available
 	 */
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;
@@ -153,7 +161,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	 * @since 5.2
 	 * @param name the name of the attribute
 	 * @param <T> the type of the attribute
-	 * @return the value of the attribute associated to the request, or {@code null} if not available
+	 * @return the value of the attribute associated to the request, or {@code null} if
+	 * not available
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String name) {
@@ -161,14 +170,16 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns the {@code URI} string representation of the OAuth 2.0 Authorization Request.
+	 * Returns the {@code URI} string representation of the OAuth 2.0 Authorization
+	 * Request.
 	 *
 	 * <p>
 	 * <b>NOTE:</b> The {@code URI} string is encoded in the
 	 * {@code application/x-www-form-urlencoded} MIME format.
 	 *
 	 * @since 5.1
-	 * @return the {@code URI} string representation of the OAuth 2.0 Authorization Request
+	 * @return the {@code URI} string representation of the OAuth 2.0 Authorization
+	 * Request
 	 */
 	public String getAuthorizationRequestUri() {
 		return this.authorizationRequestUri;
@@ -176,7 +187,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns a new {@link Builder}, initialized with the authorization code grant type.
-	 *
 	 * @return the {@link Builder}
 	 */
 	public static Builder authorizationCode() {
@@ -185,11 +195,11 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns a new {@link Builder}, initialized with the implicit grant type.
-	 *
-	 * @deprecated It is not recommended to use the implicit flow
-	 * due to the inherent risks of returning access tokens in an HTTP redirect
-	 * without any confirmation that it has been received by the client.
-	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0 Implicit Grant</a>
+	 * @deprecated It is not recommended to use the implicit flow due to the inherent
+	 * risks of returning access tokens in an HTTP redirect without any confirmation that
+	 * it has been received by the client.
+	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0
+	 * Implicit Grant</a>
 	 * @return the {@link Builder}
 	 */
 	@Deprecated
@@ -198,11 +208,12 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns a new {@link Builder}, initialized with the values
-	 * from the provided {@code authorizationRequest}.
+	 * Returns a new {@link Builder}, initialized with the values from the provided
+	 * {@code authorizationRequest}.
 	 *
 	 * @since 5.1
-	 * @param authorizationRequest the authorization request used for initializing the {@link Builder}
+	 * @param authorizationRequest the authorization request used for initializing the
+	 * {@link Builder}
 	 * @return the {@link Builder}
 	 */
 	public static Builder from(OAuth2AuthorizationRequest authorizationRequest) {
@@ -210,10 +221,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		return new Builder(authorizationRequest.getGrantType())
 				.authorizationUri(authorizationRequest.getAuthorizationUri())
-				.clientId(authorizationRequest.getClientId())
-				.redirectUri(authorizationRequest.getRedirectUri())
-				.scopes(authorizationRequest.getScopes())
-				.state(authorizationRequest.getState())
+				.clientId(authorizationRequest.getClientId()).redirectUri(authorizationRequest.getRedirectUri())
+				.scopes(authorizationRequest.getScopes()).state(authorizationRequest.getState())
 				.additionalParameters(authorizationRequest.getAdditionalParameters())
 				.attributes(authorizationRequest.getAttributes());
 	}
@@ -222,18 +231,32 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	 * A builder for {@link OAuth2AuthorizationRequest}.
 	 */
 	public static class Builder {
+
 		private String authorizationUri;
+
 		private AuthorizationGrantType authorizationGrantType;
+
 		private OAuth2AuthorizationResponseType responseType;
+
 		private String clientId;
+
 		private String redirectUri;
+
 		private Set<String> scopes;
+
 		private String state;
+
 		private Map<String, Object> additionalParameters = new LinkedHashMap<>();
-		private Consumer<Map<String, Object>> parametersConsumer = params -> {};
+
+		private Consumer<Map<String, Object>> parametersConsumer = params -> {
+		};
+
 		private Map<String, Object> attributes = new LinkedHashMap<>();
+
 		private String authorizationRequestUri;
+
 		private Function<UriBuilder, URI> authorizationRequestUriFunction = builder -> builder.build();
+
 		private final DefaultUriBuilderFactory uriBuilderFactory;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
@@ -241,18 +264,19 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			this.authorizationGrantType = authorizationGrantType;
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
 				this.responseType = OAuth2AuthorizationResponseType.CODE;
-			} else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
+			}
+			else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
 				this.responseType = OAuth2AuthorizationResponseType.TOKEN;
 			}
 			this.uriBuilderFactory = new DefaultUriBuilderFactory();
 			// The supplied authorizationUri may contain encoded parameters
-			// so disable encoding in UriBuilder and instead apply encoding within this builder
+			// so disable encoding in UriBuilder and instead apply encoding within this
+			// builder
 			this.uriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
 		}
 
 		/**
 		 * Sets the uri for the authorization endpoint.
-		 *
 		 * @param authorizationUri the uri for the authorization endpoint
 		 * @return the {@link Builder}
 		 */
@@ -263,7 +287,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the client identifier.
-		 *
 		 * @param clientId the client identifier
 		 * @return the {@link Builder}
 		 */
@@ -274,7 +297,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the uri for the redirection endpoint.
-		 *
 		 * @param redirectUri the uri for the redirection endpoint
 		 * @return the {@link Builder}
 		 */
@@ -285,7 +307,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the scope(s).
-		 *
 		 * @param scope the scope(s)
 		 * @return the {@link Builder}
 		 */
@@ -298,7 +319,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the scope(s).
-		 *
 		 * @param scopes the scope(s)
 		 * @return the {@link Builder}
 		 */
@@ -309,7 +329,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the state.
-		 *
 		 * @param state the state
 		 * @return the {@link Builder}
 		 */
@@ -320,7 +339,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the additional parameter(s) used in the request.
-		 *
 		 * @param additionalParameters the additional parameter(s) used in the request
 		 * @return the {@link Builder}
 		 */
@@ -336,7 +354,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 * allowing the ability to add, replace, or remove.
 		 *
 		 * @since 5.3
-		 * @param additionalParametersConsumer a {@code Consumer} of the additional parameters
+		 * @param additionalParametersConsumer a {@code Consumer} of the additional
+		 * parameters
 		 */
 		public Builder additionalParameters(Consumer<Map<String, Object>> additionalParametersConsumer) {
 			if (additionalParametersConsumer != null) {
@@ -346,8 +365,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
-		 * A {@code Consumer} to be provided access to all the parameters
-		 * allowing the ability to add, replace, or remove.
+		 * A {@code Consumer} to be provided access to all the parameters allowing the
+		 * ability to add, replace, or remove.
 		 *
 		 * @since 5.3
 		 * @param parametersConsumer a {@code Consumer} of all the parameters
@@ -374,8 +393,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
-		 * A {@code Consumer} to be provided access to the attribute(s)
-		 * allowing the ability to add, replace, or remove.
+		 * A {@code Consumer} to be provided access to the attribute(s) allowing the
+		 * ability to add, replace, or remove.
 		 *
 		 * @since 5.3
 		 * @param attributesConsumer a {@code Consumer} of the attribute(s)
@@ -388,14 +407,16 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
-		 * Sets the {@code URI} string representation of the OAuth 2.0 Authorization Request.
+		 * Sets the {@code URI} string representation of the OAuth 2.0 Authorization
+		 * Request.
 		 *
 		 * <p>
 		 * <b>NOTE:</b> The {@code URI} string is <b>required</b> to be encoded in the
 		 * {@code application/x-www-form-urlencoded} MIME format.
 		 *
 		 * @since 5.1
-		 * @param authorizationRequestUri the {@code URI} string representation of the OAuth 2.0 Authorization Request
+		 * @param authorizationRequestUri the {@code URI} string representation of the
+		 * OAuth 2.0 Authorization Request
 		 * @return the {@link Builder}
 		 */
 		public Builder authorizationRequestUri(String authorizationRequestUri) {
@@ -404,11 +425,12 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
-		 * A {@code Function} to be provided a {@code UriBuilder} representation
-		 * of the OAuth 2.0 Authorization Request allowing for further customizations.
+		 * A {@code Function} to be provided a {@code UriBuilder} representation of the
+		 * OAuth 2.0 Authorization Request allowing for further customizations.
 		 *
 		 * @since 5.3
-		 * @param authorizationRequestUriFunction a {@code Function} to be provided a {@code UriBuilder} representation of the OAuth 2.0 Authorization Request
+		 * @param authorizationRequestUriFunction a {@code Function} to be provided a
+		 * {@code UriBuilder} representation of the OAuth 2.0 Authorization Request
 		 */
 		public Builder authorizationRequestUri(Function<UriBuilder, URI> authorizationRequestUriFunction) {
 			if (authorizationRequestUriFunction != null) {
@@ -419,7 +441,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Builds a new {@link OAuth2AuthorizationRequest}.
-		 *
 		 * @return a {@link OAuth2AuthorizationRequest}
 		 */
 		public OAuth2AuthorizationRequest build() {
@@ -437,25 +458,21 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			authorizationRequest.redirectUri = this.redirectUri;
 			authorizationRequest.state = this.state;
 			authorizationRequest.scopes = Collections.unmodifiableSet(
-				CollectionUtils.isEmpty(this.scopes) ?
-					Collections.emptySet() : new LinkedHashSet<>(this.scopes));
+					CollectionUtils.isEmpty(this.scopes) ? Collections.emptySet() : new LinkedHashSet<>(this.scopes));
 			authorizationRequest.additionalParameters = Collections.unmodifiableMap(this.additionalParameters);
 			authorizationRequest.attributes = Collections.unmodifiableMap(this.attributes);
-			authorizationRequest.authorizationRequestUri =
-					StringUtils.hasText(this.authorizationRequestUri) ?
-							this.authorizationRequestUri : this.buildAuthorizationRequestUri();
+			authorizationRequest.authorizationRequestUri = StringUtils.hasText(this.authorizationRequestUri)
+					? this.authorizationRequestUri : this.buildAuthorizationRequestUri();
 
 			return authorizationRequest;
 		}
 
 		private String buildAuthorizationRequestUri() {
-			Map<String, Object> parameters = getParameters();	// Not encoded
+			Map<String, Object> parameters = getParameters(); // Not encoded
 			this.parametersConsumer.accept(parameters);
 			MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-			parameters.forEach((k, v) -> queryParams.set(
-					encodeQueryParam(k), encodeQueryParam(String.valueOf(v))));		// Encoded
-			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(this.authorizationUri)
-					.queryParams(queryParams);
+			parameters.forEach((k, v) -> queryParams.set(encodeQueryParam(k), encodeQueryParam(String.valueOf(v)))); // Encoded
+			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(this.authorizationUri).queryParams(queryParams);
 			return this.authorizationRequestUriFunction.apply(uriBuilder).toString();
 		}
 
@@ -464,8 +481,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			parameters.put(OAuth2ParameterNames.RESPONSE_TYPE, this.responseType.getValue());
 			parameters.put(OAuth2ParameterNames.CLIENT_ID, this.clientId);
 			if (!CollectionUtils.isEmpty(this.scopes)) {
-				parameters.put(OAuth2ParameterNames.SCOPE,
-						StringUtils.collectionToDelimitedString(this.scopes, " "));
+				parameters.put(OAuth2ParameterNames.SCOPE, StringUtils.collectionToDelimitedString(this.scopes, " "));
 			}
 			if (this.state != null) {
 				parameters.put(OAuth2ParameterNames.STATE, this.state);
@@ -481,5 +497,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		private static String encodeQueryParam(String value) {
 			return UriUtils.encodeQueryParam(value, StandardCharsets.UTF_8);
 		}
+
 	}
+
 }

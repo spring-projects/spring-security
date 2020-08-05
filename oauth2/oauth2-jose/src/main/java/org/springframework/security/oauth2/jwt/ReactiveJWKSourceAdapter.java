@@ -26,10 +26,12 @@ import java.util.List;
 
 /**
  * Adapts a {@link JWKSource} to a {@link ReactiveJWKSource} which must be non-blocking.
+ *
  * @author Rob Winch
  * @since 5.1
  */
 class ReactiveJWKSourceAdapter implements ReactiveJWKSource {
+
 	private final JWKSource<SecurityContext> source;
 
 	/**
@@ -44,4 +46,5 @@ class ReactiveJWKSourceAdapter implements ReactiveJWKSource {
 	public Mono<List<JWK>> get(JWKSelector jwkSelector) {
 		return Mono.fromCallable(() -> this.source.get(jwkSelector, null));
 	}
+
 }

@@ -28,4 +28,5 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @Secured("ROLE_PERSON")
 @PreAuthorize("hasRole('ROLE_PERSON')")
 public interface PersonRepository extends CrudRepository {
+
 }

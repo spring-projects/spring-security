@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class RoleHierarchyUtilsTests {
+
 	private static final String EOL = System.lineSeparator();
 
 	@Test
@@ -90,4 +91,5 @@ public class RoleHierarchyUtilsTests {
 
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
 	}
+
 }

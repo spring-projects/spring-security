@@ -27,7 +27,6 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
  * authentication.
  *
  * @param <B> the type of the {@link ProviderManagerBuilder} that is being configured
- *
  * @author Rob Winch
  * @since 3.2
  */
@@ -40,4 +39,5 @@ public class InMemoryUserDetailsManagerConfigurer<B extends ProviderManagerBuild
 	public InMemoryUserDetailsManagerConfigurer() {
 		super(new InMemoryUserDetailsManager(new ArrayList<>()));
 	}
+
 }

@@ -15,7 +15,6 @@
  */
 package org.springframework.security.acls.domain;
 
-
 import java.util.Arrays;
 
 import org.junit.After;
@@ -31,21 +30,24 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AclAuthorizationStrategyImplTests {
+
 	@Mock
 	Acl acl;
+
 	GrantedAuthority authority;
+
 	AclAuthorizationStrategyImpl strategy;
 
 	@Before
 	public void setup() {
 		authority = new SimpleGrantedAuthority("ROLE_AUTH");
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("foo", "bar", Arrays.asList(authority));
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("foo", "bar",
+				Arrays.asList(authority));
 		authentication.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
@@ -64,9 +66,12 @@ public class AclAuthorizationStrategyImplTests {
 
 	@SuppressWarnings("serial")
 	class CustomAuthority implements GrantedAuthority {
+
 		@Override
 		public String getAuthority() {
 			return authority.getAuthority();
 		}
+
 	}
+
 }

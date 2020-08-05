@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * @since 2.0.4
  */
 public class RoleHierarchyVoter extends RoleVoter {
+
 	private RoleHierarchy roleHierarchy = null;
 
 	public RoleHierarchyVoter(RoleHierarchy roleHierarchy) {
@@ -41,9 +42,8 @@ public class RoleHierarchyVoter extends RoleVoter {
 	 * Calls the <tt>RoleHierarchy</tt> to obtain the complete set of user authorities.
 	 */
 	@Override
-	Collection<? extends GrantedAuthority> extractAuthorities(
-			Authentication authentication) {
-		return roleHierarchy.getReachableGrantedAuthorities(authentication
-				.getAuthorities());
+	Collection<? extends GrantedAuthority> extractAuthorities(Authentication authentication) {
+		return roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
 	}
+
 }

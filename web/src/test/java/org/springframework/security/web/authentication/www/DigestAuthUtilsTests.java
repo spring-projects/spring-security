@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
  * @author Ben Alex
  */
 public class DigestAuthUtilsTests {
+
 	// ~ Constructors
 	// ===================================================================================================
 
@@ -40,17 +41,15 @@ public class DigestAuthUtilsTests {
 		// note it ignores malformed entries (ie those without an equals sign)
 		String unsplit = "username=\"rod\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(
-				headerEntries, "=", "\"");
+		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
 
 		assertThat(headerMap.get("username")).isEqualTo("rod");
 		assertThat(headerMap.get("realm")).isEqualTo("Contacts Realm");
-		assertThat(headerMap.get("nonce")).isEqualTo(
-				"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==");
-		assertThat(headerMap.get("uri")).isEqualTo(
-				"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4");
-		assertThat(headerMap.get("response")).isEqualTo(
-				"38644211cf9ac3da63ab639807e2baff");
+		assertThat(headerMap.get("nonce"))
+				.isEqualTo("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==");
+		assertThat(headerMap.get("uri"))
+				.isEqualTo("/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4");
+		assertThat(headerMap.get("response")).isEqualTo("38644211cf9ac3da63ab639807e2baff");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
 		assertThat(headerMap.get("nc")).isEqualTo("00000004");
 		assertThat(headerMap.get("cnonce")).isEqualTo("2b8d329a8571b99a");
@@ -61,17 +60,15 @@ public class DigestAuthUtilsTests {
 	public void testSplitEachArrayElementAndCreateMapRespectsInstructionNotToRemoveCharacters() {
 		String unsplit = "username=\"rod\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
-		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(
-				headerEntries, "=", null);
+		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
 
 		assertThat(headerMap.get("username")).isEqualTo("\"rod\"");
 		assertThat(headerMap.get("realm")).isEqualTo("\"Contacts Realm\"");
-		assertThat(headerMap.get("nonce")).isEqualTo(
-				"\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"");
-		assertThat(headerMap.get("uri")).isEqualTo(
-				"\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"");
-		assertThat(headerMap.get("response")).isEqualTo(
-				"\"38644211cf9ac3da63ab639807e2baff\"");
+		assertThat(headerMap.get("nonce"))
+				.isEqualTo("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"");
+		assertThat(headerMap.get("uri"))
+				.isEqualTo("\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"");
+		assertThat(headerMap.get("response")).isEqualTo("\"38644211cf9ac3da63ab639807e2baff\"");
 		assertThat(headerMap.get("qop")).isEqualTo("auth");
 		assertThat(headerMap.get("nc")).isEqualTo("00000004");
 		assertThat(headerMap.get("cnonce")).isEqualTo("\"2b8d329a8571b99a\"");
@@ -80,10 +77,8 @@ public class DigestAuthUtilsTests {
 
 	@Test
 	public void testSplitEachArrayElementAndCreateMapReturnsNullIfArrayEmptyOrNull() {
-		assertThat(DigestAuthUtils.splitEachArrayElementAndCreateMap(null, "=",
-				"\"")).isNull();
-		assertThat(DigestAuthUtils.splitEachArrayElementAndCreateMap(new String[] {}, "=",
-				"\"")).isNull();
+		assertThat(DigestAuthUtils.splitEachArrayElementAndCreateMap(null, "=", "\"")).isNull();
+		assertThat(DigestAuthUtils.splitEachArrayElementAndCreateMap(new String[] {}, "=", "\"")).isNull();
 	}
 
 	@Test
@@ -159,4 +154,5 @@ public class DigestAuthUtilsTests {
 
 		assertThat(parts).hasSize(8);
 	}
+
 }

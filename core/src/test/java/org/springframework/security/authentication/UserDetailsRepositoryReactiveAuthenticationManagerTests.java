@@ -44,6 +44,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
+
 	@Mock
 	private ReactiveUserDetailsService userDetailsService;
 
@@ -79,8 +80,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Test
 	public void setSchedulerWhenNullThenIllegalArgumentException() {
-		assertThatCode(() -> this.manager.setScheduler(null))
-			.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> this.manager.setScheduler(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -89,8 +89,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.encoder.matches(any(), any())).thenReturn(true);
 		this.manager.setScheduler(this.scheduler);
 		this.manager.setPasswordEncoder(this.encoder);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				this.user, this.user.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+				this.user.getPassword());
 
 		Authentication result = this.manager.authenticate(token).block();
 
@@ -107,8 +107,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.userDetailsPasswordService.updatePassword(any(), any())).thenReturn(Mono.just(this.user));
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				this.user, this.user.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+				this.user.getPassword());
 
 		Authentication result = this.manager.authenticate(token).block();
 
@@ -122,11 +122,10 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.encoder.matches(any(), any())).thenReturn(false);
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				this.user, this.user.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+				this.user.getPassword());
 
-		assertThatThrownBy(() -> this.manager.authenticate(token).block())
-			.isInstanceOf(BadCredentialsException.class);
+		assertThatThrownBy(() -> this.manager.authenticate(token).block()).isInstanceOf(BadCredentialsException.class);
 
 		verifyZeroInteractions(this.userDetailsPasswordService);
 	}
@@ -138,8 +137,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.encoder.upgradeEncoding(any())).thenReturn(false);
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				this.user, this.user.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+				this.user.getPassword());
 
 		Authentication result = this.manager.authenticate(token).block();
 
@@ -154,8 +153,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setPostAuthenticationChecks(this.postAuthenticationChecks);
 
-		assertThatExceptionOfType(LockedException.class)
-				.isThrownBy(() -> this.manager.authenticate(new UsernamePasswordAuthenticationToken(this.user, this.user.getPassword())).block())
+		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.manager
+				.authenticate(new UsernamePasswordAuthenticationToken(this.user, this.user.getPassword())).block())
 				.withMessage("account is locked");
 
 		verify(this.postAuthenticationChecks).check(eq(this.user));
@@ -167,8 +166,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.encoder.matches(any(), any())).thenReturn(true);
 		this.manager.setPasswordEncoder(this.encoder);
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				this.user, this.user.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+				this.user.getPassword());
 
 		this.manager.authenticate(token).block();
 
@@ -187,8 +186,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		// @formatter:on
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(expiredUser));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				expiredUser, expiredUser.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(expiredUser,
+				expiredUser.getPassword());
 
 		this.manager.authenticate(token).block();
 	}
@@ -205,8 +204,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		// @formatter:on
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(lockedUser));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				lockedUser, lockedUser.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(lockedUser,
+				lockedUser.getPassword());
 
 		this.manager.authenticate(token).block();
 	}
@@ -224,8 +223,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		// @formatter:on
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(disabledUser));
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				disabledUser, disabledUser.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(disabledUser,
+				disabledUser.getPassword());
 
 		this.manager.authenticate(token).block();
 	}

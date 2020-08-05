@@ -26,4 +26,5 @@ import org.springframework.security.web.FilterInvocation;
  * @author Ben Alex
  */
 public interface FilterInvocationSecurityMetadataSource extends SecurityMetadataSource {
+
 }

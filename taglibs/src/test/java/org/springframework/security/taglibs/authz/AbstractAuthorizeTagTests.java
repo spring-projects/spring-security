@@ -45,14 +45,17 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.web.context.WebApplicationContext;
 
 /**
- *
  * @author Rob Winch
  *
  */
 public class AbstractAuthorizeTagTests {
+
 	private AbstractAuthorizeTag tag;
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
+
 	private MockServletContext servletContext;
 
 	@Before
@@ -73,8 +76,7 @@ public class AbstractAuthorizeTagTests {
 		String uri = "/something";
 		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
 		tag.setUrl(uri);
-		request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE,
-				expected);
+		request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE, expected);
 
 		tag.authorizeUsingUrlCheck();
 
@@ -87,7 +89,8 @@ public class AbstractAuthorizeTagTests {
 		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
 		tag.setUrl(uri);
 		WebApplicationContext wac = mock(WebApplicationContext.class);
-		when(wac.getBeansOfType(WebInvocationPrivilegeEvaluator.class)).thenReturn(Collections.singletonMap("wipe", expected));
+		when(wac.getBeansOfType(WebInvocationPrivilegeEvaluator.class))
+				.thenReturn(Collections.singletonMap("wipe", expected));
 		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 
 		tag.authorizeUsingUrlCheck();
@@ -102,7 +105,8 @@ public class AbstractAuthorizeTagTests {
 		DefaultWebSecurityExpressionHandler expected = new DefaultWebSecurityExpressionHandler();
 		tag.setAccess("permitAll");
 		WebApplicationContext wac = mock(WebApplicationContext.class);
-		when(wac.getBeansOfType(SecurityExpressionHandler.class)).thenReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
+		when(wac.getBeansOfType(SecurityExpressionHandler.class))
+				.thenReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
 		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 
 		assertThat(tag.authorize()).isTrue();
@@ -124,5 +128,7 @@ public class AbstractAuthorizeTagTests {
 		protected ServletContext getServletContext() {
 			return servletContext;
 		}
+
 	}
+
 }

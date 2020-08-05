@@ -21,6 +21,7 @@ package org.springframework.security.authorization;
  * @since 5.0
  */
 public class AuthorizationDecision {
+
 	private final boolean granted;
 
 	public AuthorizationDecision(boolean granted) {
@@ -30,4 +31,5 @@ public class AuthorizationDecision {
 	public boolean isGranted() {
 		return granted;
 	}
+
 }

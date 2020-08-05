@@ -54,13 +54,21 @@ import java.util.*;
  */
 @SuppressWarnings("unchecked")
 public class MethodSecurityInterceptorTests {
+
 	private TestingAuthenticationToken token;
+
 	private MethodSecurityInterceptor interceptor;
+
 	private ITargetObject realTarget;
+
 	private ITargetObject advisedTarget;
+
 	private AccessDecisionManager adm;
+
 	private MethodSecurityMetadataSource mds;
+
 	private AuthenticationManager authman;
+
 	private ApplicationEventPublisher eventPublisher;
 
 	// ~ Methods
@@ -132,23 +140,20 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void initializationRejectsSecurityMetadataSourceThatDoesNotSupportMethodInvocation()
-			throws Throwable {
+	public void initializationRejectsSecurityMetadataSourceThatDoesNotSupportMethodInvocation() throws Throwable {
 		when(mds.supports(MethodInvocation.class)).thenReturn(false);
 		interceptor.afterPropertiesSet();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void initializationRejectsAccessDecisionManagerThatDoesNotSupportMethodInvocation()
-			throws Exception {
+	public void initializationRejectsAccessDecisionManagerThatDoesNotSupportMethodInvocation() throws Exception {
 		when(mds.supports(MethodInvocation.class)).thenReturn(true);
 		when(adm.supports(MethodInvocation.class)).thenReturn(false);
 		interceptor.afterPropertiesSet();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void intitalizationRejectsRunAsManagerThatDoesNotSupportMethodInvocation()
-			throws Exception {
+	public void intitalizationRejectsRunAsManagerThatDoesNotSupportMethodInvocation() throws Exception {
 		final RunAsManager ram = mock(RunAsManager.class);
 		when(ram.supports(MethodInvocation.class)).thenReturn(false);
 		interceptor.setRunAsManager(ram);
@@ -156,8 +161,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void intitalizationRejectsAfterInvocationManagerThatDoesNotSupportMethodInvocation()
-			throws Exception {
+	public void intitalizationRejectsAfterInvocationManagerThatDoesNotSupportMethodInvocation() throws Exception {
 		final AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		when(aim.supports(MethodInvocation.class)).thenReturn(false);
 		interceptor.setAfterInvocationManager(aim);
@@ -165,15 +169,13 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void initializationFailsIfAccessDecisionManagerRejectsConfigAttributes()
-			throws Exception {
+	public void initializationFailsIfAccessDecisionManagerRejectsConfigAttributes() throws Exception {
 		when(adm.supports(any(ConfigAttribute.class))).thenReturn(false);
 		interceptor.afterPropertiesSet();
 	}
 
 	@Test
-	public void validationNotAttemptedIfIsValidateConfigAttributesSetToFalse()
-			throws Exception {
+	public void validationNotAttemptedIfIsValidateConfigAttributesSetToFalse() throws Exception {
 		when(adm.supports(MethodInvocation.class)).thenReturn(true);
 		when(mds.supports(MethodInvocation.class)).thenReturn(true);
 		interceptor.setValidateConfigAttributes(false);
@@ -183,8 +185,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test
-	public void validationNotAttemptedIfMethodSecurityMetadataSourceReturnsNullForAttributes()
-			throws Exception {
+	public void validationNotAttemptedIfMethodSecurityMetadataSourceReturnsNullForAttributes() throws Exception {
 		when(adm.supports(MethodInvocation.class)).thenReturn(true);
 		when(mds.supports(MethodInvocation.class)).thenReturn(true);
 		when(mds.getAllConfigAttributes()).thenReturn(null);
@@ -205,19 +206,18 @@ public class MethodSecurityInterceptorTests {
 	public void callingAPublicMethodWhenPresentingAnAuthenticationObjectDoesntChangeItsAuthenticatedProperty() {
 		mdsReturnsNull();
 		SecurityContextHolder.getContext().setAuthentication(token);
-		assertThat(advisedTarget.publicMakeLowerCase("HELLO")).isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken false");
+		assertThat(advisedTarget.publicMakeLowerCase("HELLO"))
+				.isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken false");
 		assertThat(!token.isAuthenticated()).isTrue();
 	}
 
 	@Test(expected = AuthenticationException.class)
 	public void callIsntMadeWhenAuthenticationManagerRejectsAuthentication() {
-		final TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
-				"Password");
+		final TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password");
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		mdsReturnsUserRole();
-		when(authman.authenticate(token)).thenThrow(
-				new BadCredentialsException("rejected"));
+		when(authman.authenticate(token)).thenThrow(new BadCredentialsException("rejected"));
 
 		advisedTarget.makeLowerCase("HELLO");
 	}
@@ -232,7 +232,8 @@ public class MethodSecurityInterceptorTests {
 		String result = advisedTarget.makeLowerCase("HELLO");
 
 		// Note we check the isAuthenticated remained true in following line
-		assertThat(result).isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken true");
+		assertThat(result)
+				.isEqualTo("hello org.springframework.security.authentication.TestingAuthenticationToken true");
 		verify(eventPublisher).publishEvent(any(AuthorizedEvent.class));
 	}
 
@@ -244,8 +245,8 @@ public class MethodSecurityInterceptorTests {
 		createTarget(true);
 		mdsReturnsUserRole();
 		when(authman.authenticate(token)).thenReturn(token);
-		doThrow(new AccessDeniedException("rejected")).when(adm).decide(
-				any(Authentication.class), any(MethodInvocation.class), any(List.class));
+		doThrow(new AccessDeniedException("rejected")).when(adm).decide(any(Authentication.class),
+				any(MethodInvocation.class), any(List.class));
 
 		try {
 			advisedTarget.makeUpperCase("HELLO");
@@ -267,12 +268,11 @@ public class MethodSecurityInterceptorTests {
 		ctx.setAuthentication(token);
 		token.setAuthenticated(true);
 		final RunAsManager runAs = mock(RunAsManager.class);
-		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds",
-				token.getAuthorities(), TestingAuthenticationToken.class);
+		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds", token.getAuthorities(),
+				TestingAuthenticationToken.class);
 		interceptor.setRunAsManager(runAs);
 		mdsReturnsUserRole();
-		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class)))
-				.thenReturn(runAsToken);
+		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class))).thenReturn(runAsToken);
 
 		String result = advisedTarget.makeUpperCase("hello");
 		assertThat(result).isEqualTo("HELLO org.springframework.security.access.intercept.RunAsUserToken true");
@@ -290,12 +290,11 @@ public class MethodSecurityInterceptorTests {
 		ctx.setAuthentication(token);
 		token.setAuthenticated(true);
 		final RunAsManager runAs = mock(RunAsManager.class);
-		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds",
-				token.getAuthorities(), TestingAuthenticationToken.class);
+		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds", token.getAuthorities(),
+				TestingAuthenticationToken.class);
 		interceptor.setRunAsManager(runAs);
 		mdsReturnsUserRole();
-		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class)))
-				.thenReturn(runAsToken);
+		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class))).thenReturn(runAsToken);
 
 		try {
 			advisedTarget.makeUpperCase("hello");
@@ -342,7 +341,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	void mdsReturnsUserRole() {
-		when(mds.getAttributes(any(MethodInvocation.class))).thenReturn(
-				SecurityConfig.createList("ROLE_USER"));
+		when(mds.getAttributes(any(MethodInvocation.class))).thenReturn(SecurityConfig.createList("ROLE_USER"));
 	}
+
 }

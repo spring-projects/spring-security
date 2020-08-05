@@ -37,8 +37,11 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 	// ================================================================================================
 
 	private final Class<? extends Authentication> originalAuthentication;
+
 	private final Object credentials;
+
 	private final Object principal;
+
 	private final int keyHash;
 
 	// ~ Constructors
@@ -79,10 +82,10 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(super.toString());
-		String className = this.originalAuthentication == null ? null
-				: this.originalAuthentication.getName();
+		String className = this.originalAuthentication == null ? null : this.originalAuthentication.getName();
 		sb.append("; Original Class: ").append(className);
 
 		return sb.toString();
 	}
+
 }

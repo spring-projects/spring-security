@@ -34,12 +34,11 @@ public interface SessionAuthenticationStrategy {
 
 	/**
 	 * Performs Http session-related functionality when a new authentication occurs.
-	 *
 	 * @throws SessionAuthenticationException if it is decided that the authentication is
 	 * not allowed for the session. This will typically be because the user has too many
 	 * sessions open at once.
 	 */
-	void onAuthentication(Authentication authentication, HttpServletRequest request,
-			HttpServletResponse response) throws SessionAuthenticationException;
+	void onAuthentication(Authentication authentication, HttpServletRequest request, HttpServletResponse response)
+			throws SessionAuthenticationException;
 
 }

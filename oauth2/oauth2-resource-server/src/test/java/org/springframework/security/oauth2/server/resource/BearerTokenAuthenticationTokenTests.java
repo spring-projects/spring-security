@@ -27,17 +27,16 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @author Josh Cummings
  */
 public class BearerTokenAuthenticationTokenTests {
+
 	@Test
 	public void constructorWhenTokenIsNullThenThrowsException() {
-		assertThatCode(() -> new BearerTokenAuthenticationToken(null))
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatCode(() -> new BearerTokenAuthenticationToken(null)).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("token cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenTokenIsEmptyThenThrowsException() {
-		assertThatCode(() -> new BearerTokenAuthenticationToken(""))
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatCode(() -> new BearerTokenAuthenticationToken("")).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("token cannot be empty");
 	}
 
@@ -49,4 +48,5 @@ public class BearerTokenAuthenticationTokenTests {
 		assertThat(token.getPrincipal()).isEqualTo("token");
 		assertThat(token.getCredentials()).isEqualTo("token");
 	}
+
 }

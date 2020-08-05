@@ -28,16 +28,17 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * Converts from a {@link ServerWebExchange} to an {@link Authentication} that can be authenticated.
+ * Converts from a {@link ServerWebExchange} to an {@link Authentication} that can be
+ * authenticated.
  *
  * @author Rob Winch
  * @since 5.0
- * @deprecated Use {@link org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter}
+ * @deprecated Use
+ * {@link org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter}
  * instead.
  */
 @Deprecated
-public class ServerHttpBasicAuthenticationConverter implements
-		Function<ServerWebExchange, Mono<Authentication>> {
+public class ServerHttpBasicAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
 
 	public static final String BASIC = "Basic ";
 
@@ -51,8 +52,8 @@ public class ServerHttpBasicAuthenticationConverter implements
 			return Mono.empty();
 		}
 
-		String credentials = authorization.length() <= BASIC.length() ?
-				"" : authorization.substring(BASIC.length(), authorization.length());
+		String credentials = authorization.length() <= BASIC.length() ? ""
+				: authorization.substring(BASIC.length(), authorization.length());
 		byte[] decodedCredentials = base64Decode(credentials);
 		String decodedAuthz = new String(decodedCredentials);
 		String[] userParts = decodedAuthz.split(":", 2);
@@ -70,8 +71,10 @@ public class ServerHttpBasicAuthenticationConverter implements
 	private byte[] base64Decode(String value) {
 		try {
 			return Base64.getDecoder().decode(value);
-		} catch(Exception e) {
+		}
+		catch (Exception e) {
 			return new byte[0];
 		}
 	}
+
 }

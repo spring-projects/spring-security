@@ -39,10 +39,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- *
  * @author Rob Winch
  */
 public class AutowireBeanFactoryObjectPostProcessorTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -127,10 +127,12 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 
 	@Configuration
 	static class Config {
+
 		@Bean
 		public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
 			return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
 		}
+
 	}
 
 	@Test
@@ -144,12 +146,14 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 
 	@Configuration
 	static class SmartConfig {
+
 		SmartInitializingSingleton toTest = mock(SmartInitializingSingleton.class);
 
 		@Autowired
 		public void configure(ObjectPostProcessor<Object> p) {
 			p.postProcess(this.toTest);
 		}
+
 	}
 
 	@Test
@@ -164,6 +168,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 
 	@Configuration
 	static class WithBeanNameAutoProxyCreatorConfig {
+
 		@Bean
 		public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
 			return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
@@ -173,5 +178,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 		public void configure(ObjectPostProcessor<Object> p) {
 			p.postProcess(new Object());
 		}
+
 	}
+
 }

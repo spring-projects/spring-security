@@ -64,26 +64,21 @@ public class CustomConfigAuthenticationTests {
 
 	@Test
 	public void authenticationSuccess() throws Exception {
-		mvc.perform(
-				formLogin("/authenticate").user("user", "user").password("pass",
-						"password")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/"))
+		mvc.perform(formLogin("/authenticate").user("user", "user").password("pass", "password"))
+				.andExpect(status().isFound()).andExpect(redirectedUrl("/"))
 				.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void withUserSuccess() throws Exception {
-		mvc.perform(get("/").with(user("user")))
-				.andExpect(status().isNotFound())
+		mvc.perform(get("/").with(user("user"))).andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void authenticationFailed() throws Exception {
-		mvc.perform(
-				formLogin("/authenticate").user("user", "notfound").password("pass",
-						"invalid")).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/authenticate?error"))
+		mvc.perform(formLogin("/authenticate").user("user", "notfound").password("pass", "invalid"))
+				.andExpect(status().isFound()).andExpect(redirectedUrl("/authenticate?error"))
 				.andExpect(unauthenticated());
 	}
 
@@ -122,5 +117,7 @@ public class CustomConfigAuthenticationTests {
 			repo.setSpringSecurityContextKey("CUSTOM");
 			return repo;
 		}
+
 	}
+
 }

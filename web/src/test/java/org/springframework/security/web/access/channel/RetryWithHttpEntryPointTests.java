@@ -39,6 +39,7 @@ import static org.mockito.Mockito.mock;
  * @author Ben Alex
  */
 public class RetryWithHttpEntryPointTests {
+
 	// ~ Methods
 	// ========================================================================================================
 	@Test
@@ -81,8 +82,7 @@ public class RetryWithHttpEntryPointTests {
 
 	@Test
 	public void testNormalOperation() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/bigWebApp/hello/pathInfo.html");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bigWebApp/hello/pathInfo.html");
 		request.setQueryString("open=true");
 		request.setScheme("https");
 		request.setServerName("localhost");
@@ -95,14 +95,12 @@ public class RetryWithHttpEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(80, 443));
 
 		ep.commence(request, response);
-		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"http://localhost/bigWebApp/hello/pathInfo.html?open=true");
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
 	@Test
 	public void testNormalOperationWithNullQueryString() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/bigWebApp/hello");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bigWebApp/hello");
 		request.setScheme("https");
 		request.setServerName("localhost");
 		request.setServerPort(443);
@@ -114,8 +112,7 @@ public class RetryWithHttpEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(80, 443));
 
 		ep.commence(request, response);
-		assertThat(response.getRedirectedUrl())
-				.isEqualTo("http://localhost/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/bigWebApp/hello");
 	}
 
 	@Test
@@ -138,8 +135,7 @@ public class RetryWithHttpEntryPointTests {
 
 	@Test
 	public void testOperationWithNonStandardPort() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/bigWebApp/hello/pathInfo.html");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bigWebApp/hello/pathInfo.html");
 		request.setQueryString("open=true");
 		request.setScheme("https");
 		request.setServerName("localhost");
@@ -157,7 +153,8 @@ public class RetryWithHttpEntryPointTests {
 		ep.setPortMapper(portMapper);
 
 		ep.commence(request, response);
-		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"http://localhost:8888/bigWebApp/hello/pathInfo.html?open=true");
+		assertThat(response.getRedirectedUrl())
+				.isEqualTo("http://localhost:8888/bigWebApp/hello/pathInfo.html?open=true");
 	}
+
 }

@@ -48,8 +48,8 @@ public class DefaultCsrfShowcaseTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.defaultRequest(get("/").with(csrf())).apply(springSecurity()).build();
+		mvc = MockMvcBuilders.webAppContextSetup(context).defaultRequest(get("/").with(csrf())).apply(springSecurity())
+				.build();
 	}
 
 	@Test
@@ -78,5 +78,7 @@ public class DefaultCsrfShowcaseTests {
 					.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
+
 }

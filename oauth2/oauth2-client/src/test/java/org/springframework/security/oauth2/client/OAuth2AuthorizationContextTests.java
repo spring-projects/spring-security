@@ -31,52 +31,51 @@ import static org.assertj.core.api.Assertions.*;
  * @author Joe Grandja
  */
 public class OAuth2AuthorizationContextTests {
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AuthorizedClient authorizedClient;
+
 	private Authentication principal;
 
 	@Before
 	public void setup() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
-		this.authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistration, "principal", TestOAuth2AccessTokens.scopes("read", "write"));
+		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, "principal",
+				TestOAuth2AccessTokens.scopes("read", "write"));
 		this.principal = new TestingAuthenticationToken("principal", "password");
 	}
 
 	@Test
 	public void withClientRegistrationWhenNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> OAuth2AuthorizationContext.withClientRegistration(null).build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistration cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistration cannot be null");
 	}
 
 	@Test
 	public void withAuthorizedClientWhenNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> OAuth2AuthorizationContext.withAuthorizedClient(null).build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClient cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("authorizedClient cannot be null");
 	}
 
 	@Test
 	public void withClientRegistrationWhenPrincipalIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> OAuth2AuthorizationContext.withClientRegistration(this.clientRegistration).build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("principal cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("principal cannot be null");
 	}
 
 	@Test
 	public void withAuthorizedClientWhenAllValuesProvidedThenAllValuesAreSet() {
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.withAuthorizedClient(this.authorizedClient)
-				.principal(this.principal)
-				.attributes(attributes -> {
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(this.authorizedClient).principal(this.principal).attributes(attributes -> {
 					attributes.put("attribute1", "value1");
 					attributes.put("attribute2", "value2");
-				})
-				.build();
+				}).build();
 		assertThat(authorizationContext.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
 		assertThat(authorizationContext.getPrincipal()).isSameAs(this.principal);
-		assertThat(authorizationContext.getAttributes()).contains(
-				entry("attribute1", "value1"), entry("attribute2", "value2"));
+		assertThat(authorizationContext.getAttributes()).contains(entry("attribute1", "value1"),
+				entry("attribute2", "value2"));
 	}
+
 }

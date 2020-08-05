@@ -40,8 +40,7 @@ public class AuthenticationPayloadInterceptor implements PayloadInterceptor, Ord
 
 	private int order;
 
-	private PayloadExchangeAuthenticationConverter authenticationConverter =
-			new BasicAuthenticationPayloadExchangeConverter();
+	private PayloadExchangeAuthenticationConverter authenticationConverter = new BasicAuthenticationPayloadExchangeConverter();
 
 	/**
 	 * Creates a new instance
@@ -65,22 +64,19 @@ public class AuthenticationPayloadInterceptor implements PayloadInterceptor, Ord
 	 * Sets the convert to be used
 	 * @param authenticationConverter
 	 */
-	public void setAuthenticationConverter(
-			PayloadExchangeAuthenticationConverter authenticationConverter) {
+	public void setAuthenticationConverter(PayloadExchangeAuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 		this.authenticationConverter = authenticationConverter;
 	}
 
 	public Mono<Void> intercept(PayloadExchange exchange, PayloadInterceptorChain chain) {
-		return this.authenticationConverter.convert(exchange)
-			.switchIfEmpty(chain.next(exchange).then(Mono.empty()))
-			.flatMap(a -> this.authenticationManager.authenticate(a))
-			.flatMap(a -> onAuthenticationSuccess(chain.next(exchange), a));
+		return this.authenticationConverter.convert(exchange).switchIfEmpty(chain.next(exchange).then(Mono.empty()))
+				.flatMap(a -> this.authenticationManager.authenticate(a))
+				.flatMap(a -> onAuthenticationSuccess(chain.next(exchange), a));
 	}
 
 	private Mono<Void> onAuthenticationSuccess(Mono<Void> payload, Authentication authentication) {
-		return payload
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
+		return payload.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
 	}
 
 }

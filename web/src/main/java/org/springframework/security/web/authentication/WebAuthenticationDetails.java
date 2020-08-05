@@ -36,6 +36,7 @@ public class WebAuthenticationDetails implements Serializable {
 	// ================================================================================================
 
 	private final String remoteAddress;
+
 	private final String sessionId;
 
 	// ~ Constructors
@@ -44,7 +45,6 @@ public class WebAuthenticationDetails implements Serializable {
 	/**
 	 * Records the remote address and will also set the session Id if a session already
 	 * exists (it won't create one).
-	 *
 	 * @param request that the authentication request was received from
 	 */
 	public WebAuthenticationDetails(HttpServletRequest request) {
@@ -56,7 +56,6 @@ public class WebAuthenticationDetails implements Serializable {
 
 	/**
 	 * Constructor to add Jackson2 serialize/deserialize support
-	 *
 	 * @param remoteAddress remote address of current request
 	 * @param sessionId session id
 	 */
@@ -109,7 +108,6 @@ public class WebAuthenticationDetails implements Serializable {
 
 	/**
 	 * Indicates the TCP/IP address the authentication request was received from.
-	 *
 	 * @return the address
 	 */
 	public String getRemoteAddress() {
@@ -119,7 +117,6 @@ public class WebAuthenticationDetails implements Serializable {
 	/**
 	 * Indicates the <code>HttpSession</code> id the authentication request was received
 	 * from.
-	 *
 	 * @return the session ID
 	 */
 	public String getSessionId() {
@@ -150,4 +147,5 @@ public class WebAuthenticationDetails implements Serializable {
 
 		return sb.toString();
 	}
+
 }

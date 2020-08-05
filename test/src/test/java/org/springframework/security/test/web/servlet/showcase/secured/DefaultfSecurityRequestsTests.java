@@ -49,15 +49,14 @@ public class DefaultfSecurityRequestsTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.defaultRequest(get("/").with(user("user").roles("ADMIN")))
+		mvc = MockMvcBuilders.webAppContextSetup(context).defaultRequest(get("/").with(user("user").roles("ADMIN")))
 				.apply(springSecurity()).build();
 	}
 
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
 		mvc.perform(get("/"))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -66,7 +65,7 @@ public class DefaultfSecurityRequestsTests {
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
 		mvc.perform(get("/admin"))
-		// Ensure we got past Security
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -105,5 +104,7 @@ public class DefaultfSecurityRequestsTests {
 					.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
+
 }

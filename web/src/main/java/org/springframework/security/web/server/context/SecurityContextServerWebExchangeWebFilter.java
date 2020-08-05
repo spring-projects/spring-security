@@ -23,7 +23,8 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 /**
- * Override the {@link ServerWebExchange#getPrincipal()} to be looked up using {@link ReactiveSecurityContextHolder}.
+ * Override the {@link ServerWebExchange#getPrincipal()} to be looked up using
+ * {@link ReactiveSecurityContextHolder}.
  *
  * @author Rob Winch
  * @since 5.0
@@ -35,4 +36,5 @@ public class SecurityContextServerWebExchangeWebFilter implements WebFilter {
 
 		return chain.filter(new SecurityContextServerWebExchange(exchange, ReactiveSecurityContextHolder.getContext()));
 	}
+
 }

@@ -45,13 +45,12 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class AfterInvocationProviderManager implements AfterInvocationManager,
-		InitializingBean {
+public class AfterInvocationProviderManager implements AfterInvocationManager, InitializingBean {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	protected static final Log logger = LogFactory
-			.getLog(AfterInvocationProviderManager.class);
+	protected static final Log logger = LogFactory.getLog(AfterInvocationProviderManager.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -67,14 +66,12 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 
 	private void checkIfValidList(List<?> listToCheck) {
 		if ((listToCheck == null) || (listToCheck.size() == 0)) {
-			throw new IllegalArgumentException(
-					"A list of AfterInvocationProviders is required");
+			throw new IllegalArgumentException("A list of AfterInvocationProviders is required");
 		}
 	}
 
-	public Object decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config, Object returnedObject)
-			throws AccessDeniedException {
+	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
+			Object returnedObject) throws AccessDeniedException {
 
 		Object result = returnedObject;
 
@@ -94,9 +91,8 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 		providers = new ArrayList<>(newList.size());
 
 		for (Object currentObject : newList) {
-			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject,
-					() -> "AfterInvocationProvider " + currentObject.getClass().getName()
-							+ " must implement AfterInvocationProvider");
+			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject, () -> "AfterInvocationProvider "
+					+ currentObject.getClass().getName() + " must implement AfterInvocationProvider");
 			providers.add((AfterInvocationProvider) currentObject);
 		}
 	}
@@ -121,9 +117,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 	 * <p>
 	 * If one or more providers cannot support the presented class, <code>false</code> is
 	 * returned.
-	 *
 	 * @param clazz the secure object class being queries
-	 *
 	 * @return if the <code>AfterInvocationProviderManager</code> can support the secure
 	 * object class, which requires every one of its <code>AfterInvocationProvider</code>s
 	 * to support the secure object class
@@ -137,4 +131,5 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 
 		return true;
 	}
+
 }

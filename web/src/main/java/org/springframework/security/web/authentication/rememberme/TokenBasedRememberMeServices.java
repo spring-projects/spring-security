@@ -79,7 +79,6 @@ import java.util.Date;
  * value will be used for the <tt>maxAge</tt> property of the cookie, meaning that it will
  * not be stored when the browser is closed.
  *
- *
  * @author Ben Alex
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
@@ -92,12 +91,12 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	// ========================================================================================================
 
 	@Override
-	protected UserDetails processAutoLoginCookie(String[] cookieTokens,
-			HttpServletRequest request, HttpServletResponse response) {
+	protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		if (cookieTokens.length != 3) {
-			throw new InvalidCookieException("Cookie token did not contain 3"
-					+ " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
+			throw new InvalidCookieException(
+					"Cookie token did not contain 3" + " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
 		}
 
 		long tokenExpiryTime;
@@ -107,26 +106,22 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		}
 		catch (NumberFormatException nfe) {
 			throw new InvalidCookieException(
-					"Cookie token[1] did not contain a valid number (contained '"
-							+ cookieTokens[1] + "')");
+					"Cookie token[1] did not contain a valid number (contained '" + cookieTokens[1] + "')");
 		}
 
 		if (isTokenExpired(tokenExpiryTime)) {
-			throw new InvalidCookieException("Cookie token[1] has expired (expired on '"
-					+ new Date(tokenExpiryTime) + "'; current time is '" + new Date()
-					+ "')");
+			throw new InvalidCookieException("Cookie token[1] has expired (expired on '" + new Date(tokenExpiryTime)
+					+ "'; current time is '" + new Date() + "')");
 		}
 
 		// Check the user exists.
 		// Defer lookup until after expiry time checked, to possibly avoid expensive
 		// database call.
 
-		UserDetails userDetails = getUserDetailsService().loadUserByUsername(
-				cookieTokens[0]);
+		UserDetails userDetails = getUserDetailsService().loadUserByUsername(cookieTokens[0]);
 
 		Assert.notNull(userDetails, () -> "UserDetailsService " + getUserDetailsService()
-				+ " returned null for username " + cookieTokens[0] + ". "
-				+ "This is an interface contract violation");
+				+ " returned null for username " + cookieTokens[0] + ". " + "This is an interface contract violation");
 
 		// Check signature of token matches remaining details.
 		// Must do this after user lookup, as we need the DAO-derived password.
@@ -135,12 +130,12 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		// the token is valid,
 		// it will cause SecurityContextHolder population, whilst if invalid, will cause
 		// the cookie to be cancelled.
-		String expectedTokenSignature = makeTokenSignature(tokenExpiryTime,
-				userDetails.getUsername(), userDetails.getPassword());
+		String expectedTokenSignature = makeTokenSignature(tokenExpiryTime, userDetails.getUsername(),
+				userDetails.getPassword());
 
 		if (!equals(expectedTokenSignature, cookieTokens[2])) {
-			throw new InvalidCookieException("Cookie token[2] contained signature '"
-					+ cookieTokens[2] + "' but expected '" + expectedTokenSignature + "'");
+			throw new InvalidCookieException("Cookie token[2] contained signature '" + cookieTokens[2]
+					+ "' but expected '" + expectedTokenSignature + "'");
 		}
 
 		return userDetails;
@@ -150,8 +145,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	 * Calculates the digital signature to be put in the cookie. Default value is MD5
 	 * ("username:tokenExpiryTime:password:key")
 	 */
-	protected String makeTokenSignature(long tokenExpiryTime, String username,
-			String password) {
+	protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
 		MessageDigest digest;
 		try {
@@ -200,12 +194,12 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
 		String signatureValue = makeTokenSignature(expiryTime, username, password);
 
-		setCookie(new String[] { username, Long.toString(expiryTime), signatureValue },
-				tokenLifetime, request, response);
+		setCookie(new String[] { username, Long.toString(expiryTime), signatureValue }, tokenLifetime, request,
+				response);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Added remember-me cookie for user '" + username
-					+ "', expiry: '" + new Date(expiryTime) + "'");
+			logger.debug(
+					"Added remember-me cookie for user '" + username + "', expiry: '" + new Date(expiryTime) + "'");
 		}
 	}
 
@@ -220,13 +214,11 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	 * also be used to set the <tt>maxAge</tt> property of the cookie.
 	 *
 	 * See SEC-485.
-	 *
 	 * @param request the request passed to onLoginSuccess
 	 * @param authentication the successful authentication object.
 	 * @return the lifetime in seconds.
 	 */
-	protected int calculateLoginLifetime(HttpServletRequest request,
-			Authentication authentication) {
+	protected int calculateLoginLifetime(HttpServletRequest request, Authentication authentication) {
 		return getTokenValiditySeconds();
 	}
 
@@ -271,4 +263,5 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		}
 		return Utf8.encode(s);
 	}
+
 }

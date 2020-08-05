@@ -38,8 +38,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMessageSecurityExpressionHandlerTests {
+
 	@Mock
 	AuthenticationTrustResolver trustResolver;
+
 	@Mock
 	PermissionEvaluator permissionEvaluator;
 
@@ -61,10 +63,8 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 	// SEC-2705
 	@Test
 	public void trustResolverPopulated() {
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				message);
-		Expression expression = handler.getExpressionParser().parseExpression(
-				"authenticated");
+		EvaluationContext context = handler.createEvaluationContext(authentication, message);
+		Expression expression = handler.getExpressionParser().parseExpression("authenticated");
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isFalse();
 	}
@@ -77,10 +77,8 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 	@Test
 	public void trustResolverCustom() {
 		handler.setTrustResolver(trustResolver);
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				message);
-		Expression expression = handler.getExpressionParser().parseExpression(
-				"authenticated");
+		EvaluationContext context = handler.createEvaluationContext(authentication, message);
+		Expression expression = handler.getExpressionParser().parseExpression("authenticated");
 		when(trustResolver.isAnonymous(authentication)).thenReturn(false);
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
@@ -92,10 +90,8 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
 		roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
 		handler.setRoleHierarchy(roleHierarchy);
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				message);
-		Expression expression = handler.getExpressionParser().parseExpression(
-				"hasRole('ROLE_USER')");
+		EvaluationContext context = handler.createEvaluationContext(authentication, message);
+		Expression expression = handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}
@@ -103,13 +99,11 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 	@Test
 	public void permissionEvaluator() {
 		handler.setPermissionEvaluator(permissionEvaluator);
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				message);
-		Expression expression = handler.getExpressionParser().parseExpression(
-				"hasPermission(message, 'read')");
-		when(permissionEvaluator.hasPermission(authentication, message, "read"))
-				.thenReturn(true);
+		EvaluationContext context = handler.createEvaluationContext(authentication, message);
+		Expression expression = handler.getExpressionParser().parseExpression("hasPermission(message, 'read')");
+		when(permissionEvaluator.hasPermission(authentication, message, "read")).thenReturn(true);
 
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
 	}
+
 }

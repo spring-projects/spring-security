@@ -37,11 +37,13 @@ import static org.springframework.security.web.reactive.result.view.CsrfRequestD
  * @since 5.0
  */
 public class CsrfRequestDataValueProcessorTests {
+
 	private MockServerWebExchange exchange = exchange(HttpMethod.GET);
 
 	private CsrfRequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
 
 	private CsrfToken token = new DefaultCsrfToken("1", "a", "b");
+
 	private Map<String, String> expected = new HashMap<>();
 
 	@Before
@@ -52,15 +54,12 @@ public class CsrfRequestDataValueProcessorTests {
 
 	@Test
 	public void assertAllMethodsDeclared() {
-		Method[] expectedMethods = ReflectionUtils
-			.getAllDeclaredMethods(CsrfRequestDataValueProcessor.class);
+		Method[] expectedMethods = ReflectionUtils.getAllDeclaredMethods(CsrfRequestDataValueProcessor.class);
 		for (Method expected : expectedMethods) {
-			assertThat(
-				ReflectionUtils.findMethod(
-					CsrfRequestDataValueProcessor.class,
-					expected.getName(), expected.getParameterTypes())).as(
-				"Expected to find " + expected + " defined on "
-					+ CsrfRequestDataValueProcessor.class).isNotNull();
+			assertThat(ReflectionUtils.findMethod(CsrfRequestDataValueProcessor.class, expected.getName(),
+					expected.getParameterTypes()))
+							.as("Expected to find " + expected + " defined on " + CsrfRequestDataValueProcessor.class)
+							.isNotNull();
 		}
 	}
 
@@ -90,15 +89,13 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void getExtraHiddenFieldsHasCsrfToken_POST() {
 		this.processor.processAction(this.exchange, "action", "POST");
-		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(
-			this.expected);
+		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(this.expected);
 	}
 
 	@Test
 	public void getExtraHiddenFieldsHasCsrfToken_post() {
 		this.processor.processAction(this.exchange, "action", "post");
-		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(
-			this.expected);
+		assertThat(this.processor.getExtraHiddenFields(this.exchange)).isEqualTo(this.expected);
 	}
 
 	@Test
@@ -110,8 +107,7 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void processFormFieldValue() {
 		String value = "action";
-		assertThat(this.processor.processFormFieldValue(this.exchange, "name", value, "hidden"))
-			.isEqualTo(value);
+		assertThat(this.processor.processFormFieldValue(this.exchange, "name", value, "hidden")).isEqualTo(value);
 	}
 
 	@Test
@@ -134,4 +130,5 @@ public class CsrfRequestDataValueProcessorTests {
 	private MockServerWebExchange exchange(HttpMethod method) {
 		return MockServerWebExchange.from(MockServerHttpRequest.method(HttpMethod.GET, "/"));
 	}
+
 }

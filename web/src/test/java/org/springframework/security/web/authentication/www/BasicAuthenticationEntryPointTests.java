@@ -71,7 +71,7 @@ public class BasicAuthenticationEntryPointTests {
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.UNAUTHORIZED.getReasonPhrase());
 
-		assertThat(response.getHeader("WWW-Authenticate"))
-				.isEqualTo("Basic realm=\"hello\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"hello\"");
 	}
+
 }

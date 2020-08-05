@@ -35,9 +35,11 @@ import java.util.Map;
  * @see AuthorizationRequestRepository
  * @see OAuth2AuthorizationRequest
  */
-public final class HttpSessionOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
-	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME =
-			HttpSessionOAuth2AuthorizationRequestRepository.class.getName() +  ".AUTHORIZATION_REQUEST";
+public final class HttpSessionOAuth2AuthorizationRequestRepository
+		implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
+
+	private static final String DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME = HttpSessionOAuth2AuthorizationRequestRepository.class
+			.getName() + ".AUTHORIZATION_REQUEST";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
@@ -54,7 +56,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 
 	@Override
 	public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request,
-											HttpServletResponse response) {
+			HttpServletResponse response) {
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
 		if (authorizationRequest == null) {
@@ -79,14 +81,16 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 		OAuth2AuthorizationRequest originalRequest = authorizationRequests.remove(stateParameter);
 		if (!authorizationRequests.isEmpty()) {
 			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
-		} else {
+		}
+		else {
 			request.getSession().removeAttribute(this.sessionAttributeName);
 		}
 		return originalRequest;
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
+	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
+			HttpServletResponse response) {
 		Assert.notNull(response, "response cannot be null");
 		return this.removeAuthorizationRequest(request);
 	}
@@ -101,17 +105,20 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 	}
 
 	/**
-	 * Gets a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()} to an {@link OAuth2AuthorizationRequest}
+	 * Gets a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()} to
+	 * an {@link OAuth2AuthorizationRequest}
 	 * @param request
-	 * @return a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()} to an {@link OAuth2AuthorizationRequest}.
+	 * @return a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()}
+	 * to an {@link OAuth2AuthorizationRequest}.
 	 */
 	private Map<String, OAuth2AuthorizationRequest> getAuthorizationRequests(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-		Map<String, OAuth2AuthorizationRequest> authorizationRequests = session == null ? null :
-				(Map<String, OAuth2AuthorizationRequest>) session.getAttribute(this.sessionAttributeName);
+		Map<String, OAuth2AuthorizationRequest> authorizationRequests = session == null ? null
+				: (Map<String, OAuth2AuthorizationRequest>) session.getAttribute(this.sessionAttributeName);
 		if (authorizationRequests == null) {
 			return new HashMap<>();
 		}
 		return authorizationRequests;
 	}
+
 }

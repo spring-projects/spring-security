@@ -17,6 +17,7 @@ package org.springframework.security.crypto.encrypt;
 
 /**
  * Service interface for symmetric data encryption.
+ *
  * @author Keith Donald
  */
 public interface BytesEncryptor {

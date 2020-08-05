@@ -34,7 +34,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.taglibs.TagLibConfig;
 import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
 
-
 /**
  * An implementation of {@link Tag} that allows its body through if all authorizations are
  * granted to the request's principal.
@@ -53,6 +52,7 @@ import org.springframework.security.web.context.support.SecurityWebApplicationCo
  * @author Rob Winch
  */
 public class AccessControlListTag extends TagSupport {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -62,9 +62,13 @@ public class AccessControlListTag extends TagSupport {
 	// ================================================================================================
 
 	private ApplicationContext applicationContext;
+
 	private Object domainObject;
+
 	private PermissionEvaluator permissionEvaluator;
+
 	private String hasPermission = "";
+
 	private String var;
 
 	// ~ Methods
@@ -86,11 +90,11 @@ public class AccessControlListTag extends TagSupport {
 			return evalBody();
 		}
 
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
+				logger.debug(
+						"SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
 			}
 
 			return skipBody();
@@ -98,8 +102,7 @@ public class AccessControlListTag extends TagSupport {
 
 		List<Object> requiredPermissions = parseHasPermission(hasPermission);
 		for (Object requiredPermission : requiredPermissions) {
-			if (!permissionEvaluator.hasPermission(authentication, domainObject,
-					requiredPermission)) {
+			if (!permissionEvaluator.hasPermission(authentication, domainObject, requiredPermission)) {
 				return skipBody();
 			}
 		}
@@ -138,10 +141,8 @@ public class AccessControlListTag extends TagSupport {
 
 	/**
 	 * Allows test cases to override where application context obtained from.
-	 *
 	 * @param pageContext so the <code>ServletContext</code> can be accessed as required
 	 * by Spring's <code>WebApplicationContextUtils</code>
-	 *
 	 * @return the Spring application context (never <code>null</code>)
 	 */
 	protected ApplicationContext getContext(PageContext pageContext) {
@@ -183,8 +184,8 @@ public class AccessControlListTag extends TagSupport {
 			return map.values().iterator().next();
 		}
 
-		throw new JspException("Found incorrect number of " + type.getSimpleName()
-				+ " instances in " + "application context - you must have only have one!");
+		throw new JspException("Found incorrect number of " + type.getSimpleName() + " instances in "
+				+ "application context - you must have only have one!");
 	}
 
 	public void setDomainObject(Object domainObject) {
@@ -198,4 +199,5 @@ public class AccessControlListTag extends TagSupport {
 	public void setVar(String var) {
 		this.var = var;
 	}
+
 }

@@ -33,17 +33,22 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 
 /**
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  */
 public class OpenIDAuthenticationFilterTests {
 
 	OpenIDAuthenticationFilter filter;
+
 	private static final String REDIRECT_URL = "https://www.example.com/redirect";
+
 	private static final String CLAIMED_IDENTITY_URL = "https://www.example.com/identity";
+
 	private static final String REQUEST_PATH = "/login/openid";
-	private static final String FILTER_PROCESS_URL = "http://localhost:8080"
-			+ REQUEST_PATH;
+
+	private static final String FILTER_PROCESS_URL = "http://localhost:8080" + REQUEST_PATH;
+
 	private static final String DEFAULT_TARGET_URL = FILTER_PROCESS_URL;
 
 	@Before
@@ -69,8 +74,8 @@ public class OpenIDAuthenticationFilterTests {
 		req.setRemoteHost("www.example.com");
 
 		filter.setConsumer(new MockOpenIDConsumer() {
-			public String beginConsumption(HttpServletRequest req,
-					String claimedIdentity, String returnToUrl, String realm) {
+			public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl,
+					String realm) {
 				assertThat(claimedIdentity).isEqualTo(CLAIMED_IDENTITY_URL);
 				assertThat(returnToUrl).isEqualTo(DEFAULT_TARGET_URL);
 				assertThat(realm).isEqualTo("http://localhost:8080/");
@@ -82,8 +87,7 @@ public class OpenIDAuthenticationFilterTests {
 		filter.doFilter(req, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo(REDIRECT_URL);
 		// Filter chain shouldn't proceed
-		verify(fc, never()).doFilter(any(HttpServletRequest.class),
-				any(HttpServletResponse.class));
+		verify(fc, never()).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	/**
@@ -116,4 +120,5 @@ public class OpenIDAuthenticationFilterTests {
 		}
 		return count;
 	}
+
 }

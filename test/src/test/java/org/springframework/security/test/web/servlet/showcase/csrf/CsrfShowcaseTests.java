@@ -83,5 +83,7 @@ public class CsrfShowcaseTests {
 					.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
+
 }

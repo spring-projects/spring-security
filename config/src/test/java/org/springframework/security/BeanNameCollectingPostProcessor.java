@@ -25,19 +25,19 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * @author Luke Taylor
  */
 public class BeanNameCollectingPostProcessor implements BeanPostProcessor {
+
 	Set<String> beforeInitPostProcessedBeans = new HashSet<>();
+
 	Set<String> afterInitPostProcessedBeans = new HashSet<>();
 
-	public Object postProcessBeforeInitialization(Object bean, String beanName)
-			throws BeansException {
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (beanName != null) {
 			beforeInitPostProcessedBeans.add(beanName);
 		}
 		return bean;
 	}
 
-	public Object postProcessAfterInitialization(Object bean, String beanName)
-			throws BeansException {
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (beanName != null) {
 			afterInitPostProcessedBeans.add(beanName);
 		}
@@ -51,4 +51,5 @@ public class BeanNameCollectingPostProcessor implements BeanPostProcessor {
 	public Set<String> getAfterInitPostProcessedBeans() {
 		return afterInitPostProcessedBeans;
 	}
+
 }

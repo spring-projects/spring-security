@@ -34,6 +34,7 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
  * @author Luke Taylor
  */
 public class InvalidConfigurationTests {
+
 	private InMemoryXmlApplicationContext appContext;
 
 	@After
@@ -65,8 +66,7 @@ public class InvalidConfigurationTests {
 			assertThat(cause instanceof NoSuchBeanDefinitionException).isTrue();
 			NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
 			assertThat(nsbe.getBeanName()).isEqualTo(BeanIds.AUTHENTICATION_MANAGER);
-			assertThat(nsbe.getMessage()).endsWith(
-					AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
+			assertThat(nsbe.getMessage()).endsWith(AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
 		}
 	}
 
@@ -80,4 +80,5 @@ public class InvalidConfigurationTests {
 	private void setContext(String context) {
 		appContext = new InMemoryXmlApplicationContext(context);
 	}
+
 }

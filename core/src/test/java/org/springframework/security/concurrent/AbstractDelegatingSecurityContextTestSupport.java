@@ -41,9 +41,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  *
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ DelegatingSecurityContextRunnable.class,
-		DelegatingSecurityContextCallable.class })
+@PrepareForTest({ DelegatingSecurityContextRunnable.class, DelegatingSecurityContextCallable.class })
 public abstract class AbstractDelegatingSecurityContextTestSupport {
+
 	@Mock
 	protected SecurityContext securityContext;
 
@@ -67,20 +67,18 @@ public abstract class AbstractDelegatingSecurityContextTestSupport {
 
 	public final void explicitSecurityContextPowermockSetup() throws Exception {
 		spy(DelegatingSecurityContextCallable.class);
-		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create",
-				eq(callable), securityContextCaptor.capture());
+		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create", eq(callable),
+				securityContextCaptor.capture());
 		spy(DelegatingSecurityContextRunnable.class);
-		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create",
-				eq(runnable), securityContextCaptor.capture());
+		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create", eq(runnable),
+				securityContextCaptor.capture());
 	}
 
 	public final void currentSecurityContextPowermockSetup() throws Exception {
 		spy(DelegatingSecurityContextCallable.class);
-		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create",
-				callable, null);
+		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create", callable, null);
 		spy(DelegatingSecurityContextRunnable.class);
-		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create",
-				runnable, null);
+		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create", runnable, null);
 	}
 
 	@Before
@@ -92,4 +90,5 @@ public abstract class AbstractDelegatingSecurityContextTestSupport {
 	public final void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
+
 }

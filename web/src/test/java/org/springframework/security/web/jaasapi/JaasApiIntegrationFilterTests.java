@@ -92,15 +92,13 @@ public class JaasApiIntegrationFilterTests {
 					((NameCallback) callback).setName("user");
 				}
 				else if (callback instanceof PasswordCallback) {
-					((PasswordCallback) callback).setPassword(
-							"password".toCharArray());
+					((PasswordCallback) callback).setPassword("password".toCharArray());
 				}
 				else if (callback instanceof TextInputCallback) {
 					// ignore
 				}
 				else {
-					throw new UnsupportedCallbackException(callback,
-							"Unrecognized Callback " + callback);
+					throw new UnsupportedCallbackException(callback, "Unrecognized Callback " + callback);
 				}
 			}
 		};
@@ -110,16 +108,15 @@ public class JaasApiIntegrationFilterTests {
 			}
 
 			public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-				return new AppConfigurationEntry[] { new AppConfigurationEntry(
-						TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
-						new HashMap<>()) };
+				return new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
+						LoginModuleControlFlag.REQUIRED, new HashMap<>()) };
 			}
 		};
-		LoginContext ctx = new LoginContext("SubjectDoAsFilterTest", authenticatedSubject,
-				callbackHandler, testConfiguration);
+		LoginContext ctx = new LoginContext("SubjectDoAsFilterTest", authenticatedSubject, callbackHandler,
+				testConfiguration);
 		ctx.login();
-		token = new JaasAuthenticationToken("username", "password",
-				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
+		token = new JaasAuthenticationToken("username", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"),
+				ctx);
 
 		// just in case someone forgot to clear the context
 		SecurityContextHolder.clearContext();
@@ -153,19 +150,16 @@ public class JaasApiIntegrationFilterTests {
 
 	@Test
 	public void obtainSubjectNullLoginContext() {
-		token = new JaasAuthenticationToken("un", "pwd",
-				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), null);
+		token = new JaasAuthenticationToken("un", "pwd", AuthorityUtils.createAuthorityList("ROLE_ADMIN"), null);
 		SecurityContextHolder.getContext().setAuthentication(token);
 		assertNullSubject(filter.obtainSubject(request));
 	}
 
 	@Test
 	public void obtainSubjectNullSubject() throws Exception {
-		LoginContext ctx = new LoginContext("obtainSubjectNullSubject", null,
-				callbackHandler, testConfiguration);
+		LoginContext ctx = new LoginContext("obtainSubjectNullSubject", null, callbackHandler, testConfiguration);
 		assertThat(ctx.getSubject()).isNull();
-		token = new JaasAuthenticationToken("un", "pwd",
-				AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
+		token = new JaasAuthenticationToken("un", "pwd", AuthorityUtils.createAuthorityList("ROLE_ADMIN"), ctx);
 		SecurityContextHolder.getContext().setAuthentication(token);
 		assertNullSubject(filter.obtainSubject(request));
 	}
@@ -208,8 +202,7 @@ public class JaasApiIntegrationFilterTests {
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
 				// See if the subject was updated
-				Subject currentSubject = Subject.getSubject(
-						AccessController.getContext());
+				Subject currentSubject = Subject.getSubject(AccessController.getContext());
 				assertThat(currentSubject).isEqualTo(expectedValue);
 
 				// run so we know the chain was executed
@@ -222,7 +215,7 @@ public class JaasApiIntegrationFilterTests {
 	}
 
 	private void assertNullSubject(Subject subject) {
-		assertThat(subject).withFailMessage(
-				"Subject is expected to be null, but is not. Got " + subject).isNull();
+		assertThat(subject).withFailMessage("Subject is expected to be null, but is not. Got " + subject).isNull();
 	}
+
 }

@@ -20,6 +20,7 @@ package org.springframework.security.config.method;
  *
  */
 public class Contact {
+
 	private String name;
 
 	/**
@@ -35,4 +36,5 @@ public class Contact {
 	public String getName() {
 		return name;
 	}
+
 }

@@ -38,8 +38,7 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @author Ben Alex
  */
-public class UserServiceBeanDefinitionParser extends
-		AbstractUserDetailsServiceBeanDefinitionParser {
+public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
 
 	static final String ATT_PASSWORD = "password";
 	static final String ATT_NAME = "name";
@@ -56,8 +55,7 @@ public class UserServiceBeanDefinitionParser extends
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void doParse(Element element, ParserContext parserContext,
-			BeanDefinitionBuilder builder) {
+	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String userProperties = element.getAttribute(ATT_PROPERTIES);
 		List<Element> userElts = DomUtils.getChildElementsByTagName(element, ELT_USER);
 
@@ -76,10 +74,8 @@ public class UserServiceBeanDefinitionParser extends
 		}
 
 		if (CollectionUtils.isEmpty(userElts)) {
-			throw new BeanDefinitionStoreException(
-					"You must supply user definitions, either with <" + ELT_USER
-							+ "> child elements or a " + "properties file (using the '"
-							+ ATT_PROPERTIES + "' attribute)");
+			throw new BeanDefinitionStoreException("You must supply user definitions, either with <" + ELT_USER
+					+ "> child elements or a " + "properties file (using the '" + ATT_PROPERTIES + "' attribute)");
 		}
 
 		ManagedList<BeanDefinition> users = new ManagedList<>();
@@ -95,13 +91,11 @@ public class UserServiceBeanDefinitionParser extends
 
 			boolean locked = "true".equals(userElt.getAttribute(ATT_LOCKED));
 			boolean disabled = "true".equals(userElt.getAttribute(ATT_DISABLED));
-			BeanDefinitionBuilder authorities = BeanDefinitionBuilder
-					.rootBeanDefinition(AuthorityUtils.class);
+			BeanDefinitionBuilder authorities = BeanDefinitionBuilder.rootBeanDefinition(AuthorityUtils.class);
 			authorities.addConstructorArgValue(userElt.getAttribute(ATT_AUTHORITIES));
 			authorities.setFactoryMethod("commaSeparatedStringToAuthorityList");
 
-			BeanDefinitionBuilder user = BeanDefinitionBuilder
-					.rootBeanDefinition(User.class);
+			BeanDefinitionBuilder user = BeanDefinitionBuilder.rootBeanDefinition(User.class);
 			user.addConstructorArgValue(userName);
 			user.addConstructorArgValue(password);
 			user.addConstructorArgValue(!disabled);
@@ -128,4 +122,5 @@ public class UserServiceBeanDefinitionParser extends
 		}
 		return Long.toString(random.nextLong());
 	}
+
 }

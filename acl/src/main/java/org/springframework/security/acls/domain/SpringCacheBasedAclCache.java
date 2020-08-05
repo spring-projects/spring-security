@@ -39,18 +39,20 @@ import java.io.Serializable;
  * @since 3.2
  */
 public class SpringCacheBasedAclCache implements AclCache {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final Cache cache;
+
 	private PermissionGrantingStrategy permissionGrantingStrategy;
+
 	private AclAuthorizationStrategy aclAuthorizationStrategy;
 
 	// ~ Constructors
 	// ===================================================================================================
 
-	public SpringCacheBasedAclCache(Cache cache,
-			PermissionGrantingStrategy permissionGrantingStrategy,
+	public SpringCacheBasedAclCache(Cache cache, PermissionGrantingStrategy permissionGrantingStrategy,
 			AclAuthorizationStrategy aclAuthorizationStrategy) {
 		Assert.notNull(cache, "Cache required");
 		Assert.notNull(permissionGrantingStrategy, "PermissionGrantingStrategy required");
@@ -120,10 +122,8 @@ public class SpringCacheBasedAclCache implements AclCache {
 
 	private MutableAcl initializeTransientFields(MutableAcl value) {
 		if (value instanceof AclImpl) {
-			FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value,
-					this.aclAuthorizationStrategy);
-			FieldUtils.setProtectedFieldValue("permissionGrantingStrategy", value,
-					this.permissionGrantingStrategy);
+			FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
+			FieldUtils.setProtectedFieldValue("permissionGrantingStrategy", value, this.permissionGrantingStrategy);
 		}
 
 		if (value.getParentAcl() != null) {
@@ -135,4 +135,5 @@ public class SpringCacheBasedAclCache implements AclCache {
 	public void clearCache() {
 		cache.clear();
 	}
+
 }

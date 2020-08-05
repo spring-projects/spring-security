@@ -23,11 +23,12 @@ import java.nio.charset.Charset;
 
 /**
  * Data holder for {@code AuthNRequest} parameters to be sent using either the
- * {@link Saml2MessageBinding#POST} or {@link Saml2MessageBinding#REDIRECT} binding.
- * Data will be encoded and possibly deflated, but will not be escaped for transport,
- * ie URL encoded, {@link org.springframework.web.util.UriUtils#encode(String, Charset)}
- * or HTML encoded, {@link org.springframework.web.util.HtmlUtils#htmlEscape(String)}.
- * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf (line 2031)
+ * {@link Saml2MessageBinding#POST} or {@link Saml2MessageBinding#REDIRECT} binding. Data
+ * will be encoded and possibly deflated, but will not be escaped for transport, ie URL
+ * encoded, {@link org.springframework.web.util.UriUtils#encode(String, Charset)} or HTML
+ * encoded, {@link org.springframework.web.util.HtmlUtils#htmlEscape(String)}.
+ * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf
+ * (line 2031)
  *
  * @see Saml2AuthenticationRequestFactory#createPostAuthenticationRequest(Saml2AuthenticationRequestContext)
  * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
@@ -36,19 +37,20 @@ import java.nio.charset.Charset;
 abstract class AbstractSaml2AuthenticationRequest {
 
 	private final String samlRequest;
+
 	private final String relayState;
+
 	private final String authenticationRequestUri;
 
 	/**
 	 * Mandatory constructor for the {@link AbstractSaml2AuthenticationRequest}
-	 * @param samlRequest - the SAMLRequest XML data, SAML encoded, cannot be empty or null
+	 * @param samlRequest - the SAMLRequest XML data, SAML encoded, cannot be empty or
+	 * null
 	 * @param relayState - RelayState value that accompanies the request, may be null
-	 * @param authenticationRequestUri - The authenticationRequestUri, a URL, where to send the XML message, cannot be empty or null
+	 * @param authenticationRequestUri - The authenticationRequestUri, a URL, where to
+	 * send the XML message, cannot be empty or null
 	 */
-	AbstractSaml2AuthenticationRequest(
-			String samlRequest,
-			String relayState,
-			String authenticationRequestUri) {
+	AbstractSaml2AuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri) {
 		Assert.hasText(samlRequest, "samlRequest cannot be null or empty");
 		Assert.hasText(authenticationRequestUri, "authenticationRequestUri cannot be null or empty");
 		this.authenticationRequestUri = authenticationRequestUri;
@@ -57,9 +59,10 @@ abstract class AbstractSaml2AuthenticationRequest {
 	}
 
 	/**
-	 * Returns the AuthNRequest XML value to be sent. This value is already encoded for transport.
-	 * If {@link #getBinding()} is {@link Saml2MessageBinding#REDIRECT} the value is deflated and SAML encoded.
-	 * If {@link #getBinding()} is {@link Saml2MessageBinding#POST} the value is SAML encoded.
+	 * Returns the AuthNRequest XML value to be sent. This value is already encoded for
+	 * transport. If {@link #getBinding()} is {@link Saml2MessageBinding#REDIRECT} the
+	 * value is deflated and SAML encoded. If {@link #getBinding()} is
+	 * {@link Saml2MessageBinding#POST} the value is SAML encoded.
 	 * @return the SAMLRequest parameter value
 	 */
 	public String getSamlRequest() {
@@ -83,8 +86,9 @@ abstract class AbstractSaml2AuthenticationRequest {
 	}
 
 	/**
-	 * Returns the binding this AuthNRequest will be sent and
-	 * encoded with. If {@link Saml2MessageBinding#REDIRECT} is used, the DEFLATE encoding will be automatically applied.
+	 * Returns the binding this AuthNRequest will be sent and encoded with. If
+	 * {@link Saml2MessageBinding#REDIRECT} is used, the DEFLATE encoding will be
+	 * automatically applied.
 	 * @return the binding this message will be sent with.
 	 */
 	public abstract Saml2MessageBinding getBinding();
@@ -93,8 +97,11 @@ abstract class AbstractSaml2AuthenticationRequest {
 	 * A builder for {@link AbstractSaml2AuthenticationRequest} and its subclasses.
 	 */
 	static class Builder<T extends Builder<T>> {
+
 		String authenticationRequestUri;
+
 		String samlRequest;
+
 		String relayState;
 
 		protected Builder() {
@@ -109,12 +116,10 @@ abstract class AbstractSaml2AuthenticationRequest {
 			return (T) this;
 		}
 
-
 		/**
 		 * Sets the {@code RelayState} parameter that will accompany this AuthNRequest
-		 *
-		 * @param relayState the relay state value, unencoded. if null or empty, the parameter will be removed from the
-		 * map.
+		 * @param relayState the relay state value, unencoded. if null or empty, the
+		 * parameter will be removed from the map.
 		 * @return this object
 		 */
 		public T relayState(String relayState) {
@@ -124,7 +129,6 @@ abstract class AbstractSaml2AuthenticationRequest {
 
 		/**
 		 * Sets the {@code SAMLRequest} parameter that will accompany this AuthNRequest
-		 *
 		 * @param samlRequest the SAMLRequest parameter.
 		 * @return this object
 		 */
@@ -134,8 +138,8 @@ abstract class AbstractSaml2AuthenticationRequest {
 		}
 
 		/**
-		 * Sets the {@code authenticationRequestUri}, a URL that will receive the AuthNRequest message
-		 *
+		 * Sets the {@code authenticationRequestUri}, a URL that will receive the
+		 * AuthNRequest message
 		 * @param authenticationRequestUri the relay state value, unencoded.
 		 * @return this object
 		 */
@@ -143,6 +147,7 @@ abstract class AbstractSaml2AuthenticationRequest {
 			this.authenticationRequestUri = authenticationRequestUri;
 			return _this();
 		}
+
 	}
 
 }

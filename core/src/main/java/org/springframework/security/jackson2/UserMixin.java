@@ -22,12 +22,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * This mixin class helps in serialize/deserialize {@link org.springframework.security.core.userdetails.User}.
- * This class also register a custom deserializer {@link UserDeserializer} to deserialize User object successfully.
- * In order to use this mixin you need to register two more mixin classes in your ObjectMapper configuration.
+ * This mixin class helps in serialize/deserialize
+ * {@link org.springframework.security.core.userdetails.User}. This class also register a
+ * custom deserializer {@link UserDeserializer} to deserialize User object successfully.
+ * In order to use this mixin you need to register two more mixin classes in your
+ * ObjectMapper configuration.
  * <ol>
- *     <li>{@link SimpleGrantedAuthorityMixin}</li>
- *     <li>{@link UnmodifiableSetMixin}</li>
+ * <li>{@link SimpleGrantedAuthorityMixin}</li>
+ * <li>{@link UnmodifiableSetMixin}</li>
  * </ol>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -46,4 +48,5 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class UserMixin {
+
 }

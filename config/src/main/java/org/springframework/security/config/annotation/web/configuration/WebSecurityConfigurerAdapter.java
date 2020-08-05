@@ -69,31 +69,30 @@ import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
- * Provides a convenient base class for creating a {@link WebSecurityConfigurer}
- * instance. The implementation allows customization by overriding methods.
+ * Provides a convenient base class for creating a {@link WebSecurityConfigurer} instance.
+ * The implementation allows customization by overriding methods.
  *
  * <p>
- * Will automatically apply the result of looking up
- * {@link AbstractHttpConfigurer} from {@link SpringFactoriesLoader} to allow
- * developers to extend the defaults.
- * To do this, you must create a class that extends AbstractHttpConfigurer and then create a file in the classpath at "META-INF/spring.factories" that looks something like:
+ * Will automatically apply the result of looking up {@link AbstractHttpConfigurer} from
+ * {@link SpringFactoriesLoader} to allow developers to extend the defaults. To do this,
+ * you must create a class that extends AbstractHttpConfigurer and then create a file in
+ * the classpath at "META-INF/spring.factories" that looks something like:
  * </p>
  * <pre>
  * org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer = sample.MyClassThatExtendsAbstractHttpConfigurer
- * </pre>
- * If you have multiple classes that should be added you can use "," to separate the values. For example:
+ * </pre> If you have multiple classes that should be added you can use "," to separate
+ * the values. For example:
  *
  * <pre>
  * org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer = sample.MyClassThatExtendsAbstractHttpConfigurer, sample.OtherThatExtendsAbstractHttpConfigurer
  * </pre>
  *
  * @see EnableWebSecurity
- *
  * @author Rob Winch
  */
 @Order(100)
-public abstract class WebSecurityConfigurerAdapter implements
-		WebSecurityConfigurer<WebSecurity> {
+public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigurer<WebSecurity> {
+
 	private final Log logger = LogFactory.getLog(WebSecurityConfigurerAdapter.class);
 
 	private ApplicationContext context;
@@ -102,20 +101,27 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
 		public <T> T postProcess(T object) {
-			throw new IllegalStateException(
-					ObjectPostProcessor.class.getName()
-							+ " is a required bean. Ensure you have used @EnableWebSecurity and @Configuration");
+			throw new IllegalStateException(ObjectPostProcessor.class.getName()
+					+ " is a required bean. Ensure you have used @EnableWebSecurity and @Configuration");
 		}
 	};
 
 	private AuthenticationConfiguration authenticationConfiguration;
+
 	private AuthenticationManagerBuilder authenticationBuilder;
+
 	private AuthenticationManagerBuilder localConfigureAuthenticationBldr;
+
 	private boolean disableLocalConfigureAuthenticationBldr;
+
 	private boolean authenticationManagerInitialized;
+
 	private AuthenticationManager authenticationManager;
+
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
 	private HttpSecurity http;
+
 	private boolean disableDefaults;
 
 	/**
@@ -129,7 +135,6 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * Creates an instance which allows specifying if the default configuration should be
 	 * enabled. Disabling the default configuration should be considered more advanced
 	 * usage as it requires more understanding of how the framework is implemented.
-	 *
 	 * @param disableDefaults true if the default configuration should be disabled, else
 	 * false
 	 */
@@ -176,7 +181,6 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * }
 	 *
 	 * </pre>
-	 *
 	 * @param auth the {@link AuthenticationManagerBuilder} to use
 	 * @throws Exception
 	 */
@@ -186,7 +190,6 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 	/**
 	 * Creates the {@link HttpSecurity} or returns the current instance
-	 *
 	 * @return the {@link HttpSecurity}
 	 * @throws Exception
 	 */
@@ -203,8 +206,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 		authenticationBuilder.parentAuthenticationManager(authenticationManager);
 		Map<Class<?>, Object> sharedObjects = createSharedObjects();
 
-		http = new HttpSecurity(objectPostProcessor, authenticationBuilder,
-				sharedObjects);
+		http = new HttpSecurity(objectPostProcessor, authenticationBuilder, sharedObjects);
 		if (!disableDefaults) {
 			// @formatter:off
 			http
@@ -221,8 +223,8 @@ public abstract class WebSecurityConfigurerAdapter implements
 				.logout();
 			// @formatter:on
 			ClassLoader classLoader = this.context.getClassLoader();
-			List<AbstractHttpConfigurer> defaultHttpConfigurers =
-					SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, classLoader);
+			List<AbstractHttpConfigurer> defaultHttpConfigurers = SpringFactoriesLoader
+					.loadFactories(AbstractHttpConfigurer.class, classLoader);
 
 			for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
 				http.apply(configurer);
@@ -244,7 +246,6 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 *     return super.authenticationManagerBean();
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link AuthenticationManager}
 	 * @throws Exception
 	 */
@@ -257,7 +258,6 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * {@link #configure(AuthenticationManagerBuilder)} method is overridden to use the
 	 * {@link AuthenticationManagerBuilder} that was passed in. Otherwise, autowire the
 	 * {@link AuthenticationManager} by type.
-	 *
 	 * @return the {@link AuthenticationManager} to use
 	 * @throws Exception
 	 */
@@ -265,8 +265,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 		if (!authenticationManagerInitialized) {
 			configure(localConfigureAuthenticationBldr);
 			if (disableLocalConfigureAuthenticationBldr) {
-				authenticationManager = authenticationConfiguration
-						.getAuthenticationManager();
+				authenticationManager = authenticationConfiguration.getAuthenticationManager();
 			}
 			else {
 				authenticationManager = localConfigureAuthenticationBldr.build();
@@ -297,10 +296,8 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * @see #userDetailsService()
 	 */
 	public UserDetailsService userDetailsServiceBean() throws Exception {
-		AuthenticationManagerBuilder globalAuthBuilder = context
-				.getBean(AuthenticationManagerBuilder.class);
-		return new UserDetailsServiceDelegator(Arrays.asList(
-				localConfigureAuthenticationBldr, globalAuthBuilder));
+		AuthenticationManagerBuilder globalAuthBuilder = context.getBean(AuthenticationManagerBuilder.class);
+		return new UserDetailsServiceDelegator(Arrays.asList(localConfigureAuthenticationBldr, globalAuthBuilder));
 	}
 
 	/**
@@ -308,21 +305,17 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * {@link #userDetailsServiceBean()} without interacting with the
 	 * {@link ApplicationContext}. Developers should override this method when changing
 	 * the instance of {@link #userDetailsServiceBean()}.
-	 *
 	 * @return the {@link UserDetailsService} to use
 	 */
 	protected UserDetailsService userDetailsService() {
-		AuthenticationManagerBuilder globalAuthBuilder = context
-				.getBean(AuthenticationManagerBuilder.class);
-		return new UserDetailsServiceDelegator(Arrays.asList(
-				localConfigureAuthenticationBldr, globalAuthBuilder));
+		AuthenticationManagerBuilder globalAuthBuilder = context.getBean(AuthenticationManagerBuilder.class);
+		return new UserDetailsServiceDelegator(Arrays.asList(localConfigureAuthenticationBldr, globalAuthBuilder));
 	}
 
 	public void init(final WebSecurity web) throws Exception {
 		final HttpSecurity http = getHttp();
 		web.addSecurityFilterChainBuilder(http).postBuildAction(() -> {
-			FilterSecurityInterceptor securityInterceptor = http
-					.getSharedObject(FilterSecurityInterceptor.class);
+			FilterSecurityInterceptor securityInterceptor = http.getSharedObject(FilterSecurityInterceptor.class);
 			web.securityInterceptor(securityInterceptor);
 		});
 	}
@@ -350,15 +343,15 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * http.authorizeRequests().anyRequest().authenticated().and().formLogin().and().httpBasic();
 	 * </pre>
 	 *
-	 * Any endpoint that requires defense against common vulnerabilities can be specified here, including public ones.
-	 * See {@link HttpSecurity#authorizeRequests} and the `permitAll()` authorization rule
-	 * for more details on public endpoints.
-	 *
+	 * Any endpoint that requires defense against common vulnerabilities can be specified
+	 * here, including public ones. See {@link HttpSecurity#authorizeRequests} and the
+	 * `permitAll()` authorization rule for more details on public endpoints.
 	 * @param http the {@link HttpSecurity} to modify
 	 * @throws Exception if an error occurs
 	 */
 	protected void configure(HttpSecurity http) throws Exception {
-		logger.debug("Using default configure(HttpSecurity). If subclassed this will potentially override subclass configure(HttpSecurity).");
+		logger.debug(
+				"Using default configure(HttpSecurity). If subclassed this will potentially override subclass configure(HttpSecurity).");
 
 		// @formatter:off
 		http
@@ -385,8 +378,10 @@ public abstract class WebSecurityConfigurerAdapter implements
 		ObjectPostProcessor<Object> objectPostProcessor = context.getBean(ObjectPostProcessor.class);
 		LazyPasswordEncoder passwordEncoder = new LazyPasswordEncoder(context);
 
-		authenticationBuilder = new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor, passwordEncoder);
-		localConfigureAuthenticationBldr = new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor, passwordEncoder) {
+		authenticationBuilder = new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor,
+				passwordEncoder);
+		localConfigureAuthenticationBldr = new DefaultPasswordEncoderAuthenticationManagerBuilder(objectPostProcessor,
+				passwordEncoder) {
 			@Override
 			public AuthenticationManagerBuilder eraseCredentials(boolean eraseCredentials) {
 				authenticationBuilder.eraseCredentials(eraseCredentials);
@@ -394,7 +389,8 @@ public abstract class WebSecurityConfigurerAdapter implements
 			}
 
 			@Override
-			public AuthenticationManagerBuilder authenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
+			public AuthenticationManagerBuilder authenticationEventPublisher(
+					AuthenticationEventPublisher eventPublisher) {
 				authenticationBuilder.authenticationEventPublisher(eventPublisher);
 				return super.authenticationEventPublisher(eventPublisher);
 			}
@@ -407,8 +403,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	}
 
 	@Autowired(required = false)
-	public void setContentNegotationStrategy(
-			ContentNegotiationStrategy contentNegotiationStrategy) {
+	public void setContentNegotationStrategy(ContentNegotiationStrategy contentNegotiationStrategy) {
 		this.contentNegotiationStrategy = contentNegotiationStrategy;
 	}
 
@@ -418,8 +413,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	}
 
 	@Autowired
-	public void setAuthenticationConfiguration(
-			AuthenticationConfiguration authenticationConfiguration) {
+	public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
 		this.authenticationConfiguration = authenticationConfiguration;
 	}
 
@@ -432,7 +426,6 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 	/**
 	 * Creates the shared objects
-	 *
 	 * @return the shared Objects
 	 */
 	private Map<Class<?>, Object> createSharedObjects() {
@@ -453,21 +446,22 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * @since 3.2
 	 */
 	static final class UserDetailsServiceDelegator implements UserDetailsService {
+
 		private List<AuthenticationManagerBuilder> delegateBuilders;
+
 		private UserDetailsService delegate;
+
 		private final Object delegateMonitor = new Object();
 
 		UserDetailsServiceDelegator(List<AuthenticationManagerBuilder> delegateBuilders) {
 			if (delegateBuilders.contains(null)) {
 				throw new IllegalArgumentException(
-						"delegateBuilders cannot contain null values. Got "
-								+ delegateBuilders);
+						"delegateBuilders cannot contain null values. Got " + delegateBuilders);
 			}
 			this.delegateBuilders = delegateBuilders;
 		}
 
-		public UserDetails loadUserByUsername(String username)
-				throws UsernameNotFoundException {
+		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 			if (delegate != null) {
 				return delegate.loadUserByUsername(username);
 			}
@@ -490,6 +484,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 			return delegate.loadUserByUsername(username);
 		}
+
 	}
 
 	/**
@@ -500,26 +495,26 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * @since 3.2
 	 */
 	static final class AuthenticationManagerDelegator implements AuthenticationManager {
+
 		private AuthenticationManagerBuilder delegateBuilder;
+
 		private AuthenticationManager delegate;
+
 		private final Object delegateMonitor = new Object();
+
 		private Set<String> beanNames;
 
-		AuthenticationManagerDelegator(AuthenticationManagerBuilder delegateBuilder,
-				ApplicationContext context) {
+		AuthenticationManagerDelegator(AuthenticationManagerBuilder delegateBuilder, ApplicationContext context) {
 			Assert.notNull(delegateBuilder, "delegateBuilder cannot be null");
-			Field parentAuthMgrField = ReflectionUtils.findField(
-					AuthenticationManagerBuilder.class, "parentAuthenticationManager");
+			Field parentAuthMgrField = ReflectionUtils.findField(AuthenticationManagerBuilder.class,
+					"parentAuthenticationManager");
 			ReflectionUtils.makeAccessible(parentAuthMgrField);
 			beanNames = getAuthenticationManagerBeanNames(context);
-			validateBeanCycle(
-					ReflectionUtils.getField(parentAuthMgrField, delegateBuilder),
-					beanNames);
+			validateBeanCycle(ReflectionUtils.getField(parentAuthMgrField, delegateBuilder), beanNames);
 			this.delegateBuilder = delegateBuilder;
 		}
 
-		public Authentication authenticate(Authentication authentication)
-				throws AuthenticationException {
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			if (delegate != null) {
 				return delegate.authenticate(authentication);
 			}
@@ -534,11 +529,9 @@ public abstract class WebSecurityConfigurerAdapter implements
 			return delegate.authenticate(authentication);
 		}
 
-		private static Set<String> getAuthenticationManagerBeanNames(
-				ApplicationContext applicationContext) {
-			String[] beanNamesForType = BeanFactoryUtils
-					.beanNamesForTypeIncludingAncestors(applicationContext,
-							AuthenticationManager.class);
+		private static Set<String> getAuthenticationManagerBeanNames(ApplicationContext applicationContext) {
+			String[] beanNamesForType = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext,
+					AuthenticationManager.class);
 			return new HashSet<>(Arrays.asList(beanNamesForType));
 		}
 
@@ -558,46 +551,46 @@ public abstract class WebSecurityConfigurerAdapter implements
 				beanNames = Collections.emptySet();
 			}
 		}
+
 	}
 
 	static class DefaultPasswordEncoderAuthenticationManagerBuilder extends AuthenticationManagerBuilder {
+
 		private PasswordEncoder defaultPasswordEncoder;
 
 		/**
 		 * Creates a new instance
-		 *
 		 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 		 */
-		DefaultPasswordEncoderAuthenticationManagerBuilder(
-			ObjectPostProcessor<Object> objectPostProcessor, PasswordEncoder defaultPasswordEncoder) {
+		DefaultPasswordEncoderAuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor,
+				PasswordEncoder defaultPasswordEncoder) {
 			super(objectPostProcessor);
 			this.defaultPasswordEncoder = defaultPasswordEncoder;
 		}
 
 		@Override
 		public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
-			throws Exception {
-			return super.inMemoryAuthentication()
-				.passwordEncoder(this.defaultPasswordEncoder);
+				throws Exception {
+			return super.inMemoryAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
 		@Override
-		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication()
-			throws Exception {
-			return super.jdbcAuthentication()
-				.passwordEncoder(this.defaultPasswordEncoder);
+		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
+			return super.jdbcAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
 		@Override
 		public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
-			T userDetailsService) throws Exception {
-			return super.userDetailsService(userDetailsService)
-				.passwordEncoder(this.defaultPasswordEncoder);
+				T userDetailsService) throws Exception {
+			return super.userDetailsService(userDetailsService).passwordEncoder(this.defaultPasswordEncoder);
 		}
+
 	}
 
 	static class LazyPasswordEncoder implements PasswordEncoder {
+
 		private ApplicationContext applicationContext;
+
 		private PasswordEncoder passwordEncoder;
 
 		LazyPasswordEncoder(ApplicationContext applicationContext) {
@@ -610,8 +603,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 		}
 
 		@Override
-		public boolean matches(CharSequence rawPassword,
-			String encodedPassword) {
+		public boolean matches(CharSequence rawPassword, String encodedPassword) {
 			return getPasswordEncoder().matches(rawPassword, encodedPassword);
 		}
 
@@ -635,7 +627,8 @@ public abstract class WebSecurityConfigurerAdapter implements
 		private <T> T getBeanOrNull(Class<T> type) {
 			try {
 				return this.applicationContext.getBean(type);
-			} catch(NoSuchBeanDefinitionException notFound) {
+			}
+			catch (NoSuchBeanDefinitionException notFound) {
 				return null;
 			}
 		}
@@ -644,5 +637,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 		public String toString() {
 			return getPasswordEncoder().toString();
 		}
+
 	}
+
 }

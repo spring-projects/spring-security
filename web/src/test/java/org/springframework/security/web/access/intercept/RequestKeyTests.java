@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.springframework.security.web.access.intercept.RequestKey;
 
 /**
- *
  * @author Luke Taylor
  *
  */
@@ -69,8 +68,8 @@ public class RequestKeyTests {
 	 */
 	@Test
 	public void keysWithNullUrlFailsAssertion() {
-		assertThatThrownBy(() -> new RequestKey(null, null))
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> new RequestKey(null, null)).isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("url cannot be null");
 	}
+
 }

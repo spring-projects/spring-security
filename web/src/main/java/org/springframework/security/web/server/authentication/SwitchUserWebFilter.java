@@ -52,13 +52,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Switch User processing filter responsible for user context switching.
- * A common use-case for this feature is the ability to allow
- * higher-authority users (e.g. ROLE_ADMIN) to switch to a regular user (e.g. ROLE_USER).
+ * Switch User processing filter responsible for user context switching. A common use-case
+ * for this feature is the ability to allow higher-authority users (e.g. ROLE_ADMIN) to
+ * switch to a regular user (e.g. ROLE_USER).
  * <p>
  * This filter assumes that the user performing the switch will be required to be logged
- * in as normal user (i.e. with a ROLE_ADMIN role). The user will then access a page/controller
- * that enables the administrator to specify who they wish to become (see <code>switchUserUrl</code>).
+ * in as normal user (i.e. with a ROLE_ADMIN role). The user will then access a
+ * page/controller that enables the administrator to specify who they wish to become (see
+ * <code>switchUserUrl</code>).
  * <p>
  * <b>Note: This URL will be required to have appropriate security constraints configured
  * so that only users of that role can access it (e.g. ROLE_ADMIN).</b>
@@ -70,14 +71,16 @@ import java.util.Optional;
  * user is already currently switched, and any current switch will be exited to prevent
  * "nested" switches.
  * <p>
- * To 'exit' from a user context, the user needs to access a URL (see <code>exitUserUrl</code>)
- * that will switch back to the original user as identified by the <code>ROLE_PREVIOUS_ADMINISTRATOR</code>.
+ * To 'exit' from a user context, the user needs to access a URL (see
+ * <code>exitUserUrl</code>) that will switch back to the original user as identified by
+ * the <code>ROLE_PREVIOUS_ADMINISTRATOR</code>.
  * <p>
  * To configure the Switch User Processing Filter, create a bean definition for the Switch
  * User processing filter and add to the filterChainProxy. Note that the filter must come
- * <b>after</b> the {@link org.springframework.security.config.web.server.SecurityWebFiltersOrder#AUTHORIZATION}
- * in the chain, in order to apply the correct constraints to the <tt>switchUserUrl</tt>. Example:
- * <pre>
+ * <b>after</b> the
+ * {@link org.springframework.security.config.web.server.SecurityWebFiltersOrder#AUTHORIZATION}
+ * in the chain, in order to apply the correct constraints to the <tt>switchUserUrl</tt>.
+ * Example: <pre>
  * SwitchUserWebFilter filter = new SwitchUserWebFilter(userDetailsService, loginSuccessHandler, failureHandler);
  * http.addFilterAfter(filter, SecurityWebFiltersOrder.AUTHORIZATION);
  * </pre>
@@ -91,25 +94,30 @@ public class SwitchUserWebFilter implements WebFilter {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	public static final String SPRING_SECURITY_SWITCH_USERNAME_KEY = "username";
+
 	public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";
 
 	private final ServerAuthenticationSuccessHandler successHandler;
+
 	private final ServerAuthenticationFailureHandler failureHandler;
+
 	private final ReactiveUserDetailsService userDetailsService;
+
 	private final UserDetailsChecker userDetailsChecker;
 
 	private ServerSecurityContextRepository securityContextRepository;
 
 	private ServerWebExchangeMatcher switchUserMatcher = createMatcher("/login/impersonate");
+
 	private ServerWebExchangeMatcher exitUserMatcher = createMatcher("/logout/impersonate");
 
 	/**
 	 * Creates a filter for the user context switching
-	 *
 	 * @param userDetailsService The <tt>UserDetailService</tt> which will be used to load
-	 *                           information for the user that is being switched to.
-	 * @param successHandler     Used to define custom behaviour on a successful switch or exit user.
-	 * @param failureHandler     Used to define custom behaviour when a switch fails.
+	 * information for the user that is being switched to.
+	 * @param successHandler Used to define custom behaviour on a successful switch or
+	 * exit user.
+	 * @param failureHandler Used to define custom behaviour when a switch fails.
 	 */
 	public SwitchUserWebFilter(ReactiveUserDetailsService userDetailsService,
 			ServerAuthenticationSuccessHandler successHandler,
@@ -127,14 +135,15 @@ public class SwitchUserWebFilter implements WebFilter {
 
 	/**
 	 * Creates a filter for the user context switching
-	 *
 	 * @param userDetailsService The <tt>UserDetailService</tt> which will be used to load
-	 *                           information for the user that is being switched to.
-	 * @param successTargetUrl   Sets the URL to go to after a successful switch / exit user request
-	 * @param failureTargetUrl   The URL to which a user should be redirected if the switch fails
+	 * information for the user that is being switched to.
+	 * @param successTargetUrl Sets the URL to go to after a successful switch / exit user
+	 * request
+	 * @param failureTargetUrl The URL to which a user should be redirected if the switch
+	 * fails
 	 */
-	public SwitchUserWebFilter(ReactiveUserDetailsService userDetailsService,
-			String successTargetUrl, @Nullable String failureTargetUrl) {
+	public SwitchUserWebFilter(ReactiveUserDetailsService userDetailsService, String successTargetUrl,
+			@Nullable String failureTargetUrl) {
 		Assert.notNull(userDetailsService, "userDetailsService must be specified");
 		Assert.notNull(successTargetUrl, "successTargetUrl must be specified");
 
@@ -143,7 +152,8 @@ public class SwitchUserWebFilter implements WebFilter {
 
 		if (failureTargetUrl != null) {
 			this.failureHandler = new RedirectServerAuthenticationFailureHandler(failureTargetUrl);
-		} else {
+		}
+		else {
 			this.failureHandler = null;
 		}
 
@@ -155,8 +165,7 @@ public class SwitchUserWebFilter implements WebFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 
-		return switchUser(webFilterExchange)
-				.switchIfEmpty(Mono.defer(() -> exitSwitchUser(webFilterExchange)))
+		return switchUser(webFilterExchange).switchIfEmpty(Mono.defer(() -> exitSwitchUser(webFilterExchange)))
 				.switchIfEmpty(Mono.defer(() -> chain.filter(exchange).then(Mono.empty())))
 				.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
 				.onErrorResume(SwitchUserAuthenticationException.class, exception -> Mono.empty());
@@ -164,49 +173,42 @@ public class SwitchUserWebFilter implements WebFilter {
 
 	/**
 	 * Attempt to switch to another user.
-	 *
 	 * @param webFilterExchange The web filter exchange
 	 * @return The new <code>Authentication</code> object if successfully switched to
 	 * another user, <code>Mono.empty()</code> otherwise.
-	 * @throws AuthenticationCredentialsNotFoundException If the target user can not be found by username
+	 * @throws AuthenticationCredentialsNotFoundException If the target user can not be
+	 * found by username
 	 */
 	protected Mono<Authentication> switchUser(WebFilterExchange webFilterExchange) {
 		return switchUserMatcher.matches(webFilterExchange.getExchange())
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
 				.flatMap(matchResult -> ReactiveSecurityContextHolder.getContext())
-				.map(SecurityContext::getAuthentication)
-				.flatMap(currentAuthentication -> {
+				.map(SecurityContext::getAuthentication).flatMap(currentAuthentication -> {
 					final String username = getUsername(webFilterExchange.getExchange());
 					return attemptSwitchUser(currentAuthentication, username);
-				})
-				.onErrorResume(AuthenticationException.class, e ->
-						onAuthenticationFailure(e, webFilterExchange)
-								.then(Mono.error(new SwitchUserAuthenticationException(e)))
-				);
+				}).onErrorResume(AuthenticationException.class, e -> onAuthenticationFailure(e, webFilterExchange)
+						.then(Mono.error(new SwitchUserAuthenticationException(e))));
 	}
 
 	/**
 	 * Attempt to exit from an already switched user.
-	 *
 	 * @param webFilterExchange The web filter exchange
 	 * @return The original <code>Authentication</code> object.
-	 * @throws AuthenticationCredentialsNotFoundException If there is no <code>Authentication</code> associated
-	 *                                                    with this request or the user is not switched.
+	 * @throws AuthenticationCredentialsNotFoundException If there is no
+	 * <code>Authentication</code> associated with this request or the user is not
+	 * switched.
 	 */
 	protected Mono<Authentication> exitSwitchUser(WebFilterExchange webFilterExchange) {
 		return exitUserMatcher.matches(webFilterExchange.getExchange())
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap(matchResult ->
-						ReactiveSecurityContextHolder.getContext()
-								.map(SecurityContext::getAuthentication)
-								.switchIfEmpty(Mono.error(this::noCurrentUserException))
-				)
+				.flatMap(matchResult -> ReactiveSecurityContextHolder.getContext()
+						.map(SecurityContext::getAuthentication)
+						.switchIfEmpty(Mono.error(this::noCurrentUserException)))
 				.map(this::attemptExitUser);
 	}
 
 	/**
 	 * Returns the name of the target user.
-	 *
 	 * @param exchange The server web exchange
 	 * @return the name of the target user.
 	 */
@@ -223,8 +225,7 @@ public class SwitchUserWebFilter implements WebFilter {
 		}
 
 		return userDetailsService.findByUsername(userName)
-				.switchIfEmpty(Mono.error(this::noTargetAuthenticationException))
-				.doOnNext(userDetailsChecker::check)
+				.switchIfEmpty(Mono.error(this::noTargetAuthenticationException)).doOnNext(userDetailsChecker::check)
 				.map(userDetails -> createSwitchUserToken(userDetails, currentAuthentication));
 	}
 
@@ -248,14 +249,11 @@ public class SwitchUserWebFilter implements WebFilter {
 				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
 	}
 
-	private Mono<Void> onAuthenticationFailure(AuthenticationException exception,
-			WebFilterExchange webFilterExchange) {
-		return Mono.justOrEmpty(failureHandler)
-				.switchIfEmpty(Mono.defer(() -> {
-					logger.error("Switch User failed", exception);
-					return Mono.error(exception);
-				}))
-				.flatMap(failureHandler -> failureHandler.onAuthenticationFailure(webFilterExchange, exception));
+	private Mono<Void> onAuthenticationFailure(AuthenticationException exception, WebFilterExchange webFilterExchange) {
+		return Mono.justOrEmpty(failureHandler).switchIfEmpty(Mono.defer(() -> {
+			logger.error("Switch User failed", exception);
+			return Mono.error(exception);
+		})).flatMap(failureHandler -> failureHandler.onAuthenticationFailure(webFilterExchange, exception));
 	}
 
 	private Authentication createSwitchUserToken(UserDetails targetUser, Authentication currentAuthentication) {
@@ -267,16 +265,15 @@ public class SwitchUserWebFilter implements WebFilter {
 			currentAuthentication = sourceAuthentication.get();
 		}
 
-		final GrantedAuthority switchAuthority =
-				new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR, currentAuthentication);
+		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR,
+				currentAuthentication);
 		final Collection<? extends GrantedAuthority> targetUserAuthorities = targetUser.getAuthorities();
 
 		final List<GrantedAuthority> extendedTargetUserAuthorities = new ArrayList<>(targetUserAuthorities);
 		extendedTargetUserAuthorities.add(switchAuthority);
 
-		return new UsernamePasswordAuthenticationToken(
-				targetUser, targetUser.getPassword(), extendedTargetUserAuthorities
-		);
+		return new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(),
+				extendedTargetUserAuthorities);
 	}
 
 	/**
@@ -284,10 +281,9 @@ public class SwitchUserWebFilter implements WebFilter {
 	 * granted authorities. A successfully switched user should have a
 	 * <code>SwitchUserGrantedAuthority</code> that contains the original source user
 	 * <code>Authentication</code> object.
-	 *
 	 * @param currentAuthentication The current <code>Authentication</code> object
-	 * @return The source user <code>Authentication</code> object or <code>Optional.empty</code>
-	 * otherwise.
+	 * @return The source user <code>Authentication</code> object or
+	 * <code>Optional.empty</code> otherwise.
 	 */
 	private Optional<Authentication> extractSourceAuthentication(Authentication currentAuthentication) {
 		// iterate over granted authorities and find the 'switch user' authority
@@ -305,44 +301,38 @@ public class SwitchUserWebFilter implements WebFilter {
 	}
 
 	private AuthenticationCredentialsNotFoundException noCurrentUserException() {
-		return new AuthenticationCredentialsNotFoundException(
-				"No current user associated with this request"
-		);
+		return new AuthenticationCredentialsNotFoundException("No current user associated with this request");
 	}
 
 	private AuthenticationCredentialsNotFoundException noOriginalAuthenticationException() {
-		return new AuthenticationCredentialsNotFoundException(
-				"Could not find original Authentication object"
-		);
+		return new AuthenticationCredentialsNotFoundException("Could not find original Authentication object");
 	}
 
 	private AuthenticationCredentialsNotFoundException noTargetAuthenticationException() {
-		return new AuthenticationCredentialsNotFoundException(
-				"No target user for the given username"
-		);
+		return new AuthenticationCredentialsNotFoundException("No target user for the given username");
 	}
 
 	private static class SwitchUserAuthenticationException extends RuntimeException {
+
 		SwitchUserAuthenticationException(AuthenticationException exception) {
 			super(exception);
 		}
+
 	}
 
 	/**
-	 * Sets the repository for persisting the SecurityContext. Default is {@link WebSessionServerSecurityContextRepository}
-	 *
+	 * Sets the repository for persisting the SecurityContext. Default is
+	 * {@link WebSessionServerSecurityContextRepository}
 	 * @param securityContextRepository the repository to use
 	 */
-	public void setSecurityContextRepository(
-			ServerSecurityContextRepository securityContextRepository) {
+	public void setSecurityContextRepository(ServerSecurityContextRepository securityContextRepository) {
 		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
 		this.securityContextRepository = securityContextRepository;
 	}
 
 	/**
-	 * Set the URL to respond to exit user processing. This is a shortcut for
-	 * * {@link #setExitUserMatcher(ServerWebExchangeMatcher)}
-	 *
+	 * Set the URL to respond to exit user processing. This is a shortcut for *
+	 * {@link #setExitUserMatcher(ServerWebExchangeMatcher)}
 	 * @param exitUserUrl The exit user URL.
 	 */
 	public void setExitUserUrl(String exitUserUrl) {
@@ -353,7 +343,6 @@ public class SwitchUserWebFilter implements WebFilter {
 
 	/**
 	 * Set the matcher to respond to exit user processing.
-	 *
 	 * @param exitUserMatcher The exit matcher to use
 	 */
 	public void setExitUserMatcher(ServerWebExchangeMatcher exitUserMatcher) {
@@ -364,7 +353,6 @@ public class SwitchUserWebFilter implements WebFilter {
 	/**
 	 * Set the URL to respond to switch user processing. This is a shortcut for
 	 * {@link #setSwitchUserMatcher(ServerWebExchangeMatcher)}
-	 *
 	 * @param switchUserUrl The switch user URL.
 	 */
 	public void setSwitchUserUrl(String switchUserUrl) {
@@ -375,11 +363,11 @@ public class SwitchUserWebFilter implements WebFilter {
 
 	/**
 	 * Set the matcher to respond to switch user processing.
-	 *
 	 * @param switchUserMatcher The switch user matcher.
 	 */
 	public void setSwitchUserMatcher(ServerWebExchangeMatcher switchUserMatcher) {
 		Assert.notNull(switchUserMatcher, "switchUserMatcher cannot be null");
 		this.switchUserMatcher = switchUserMatcher;
 	}
+
 }

@@ -47,14 +47,15 @@ import static org.mockito.Mockito.mock;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OidcClientInitiatedLogoutSuccessHandlerTests {
-	ClientRegistration registration = TestClientRegistrations
-			.clientRegistration()
-			.providerConfigurationMetadata(
-					Collections.singletonMap("end_session_endpoint", "https://endpoint"))
+
+	ClientRegistration registration = TestClientRegistrations.clientRegistration()
+			.providerConfigurationMetadata(Collections.singletonMap("end_session_endpoint", "https://endpoint"))
 			.build();
+
 	ClientRegistrationRepository repository = new InMemoryClientRegistrationRepository(registration);
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
 
 	OidcClientInitiatedLogoutSuccessHandler handler;
@@ -67,12 +68,9 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenOidcRedirectUrlConfiguredThenRedirects()
-			throws IOException, ServletException {
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				this.registration.getRegistrationId());
+	public void logoutWhenOidcRedirectUrlConfiguredThenRedirects() throws IOException, ServletException {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
@@ -81,8 +79,7 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenNotOAuth2AuthenticationThenDefaults()
-			throws IOException, ServletException {
+	public void logoutWhenNotOAuth2AuthenticationThenDefaults() throws IOException, ServletException {
 		Authentication token = mock(Authentication.class);
 
 		this.request.setUserPrincipal(token);
@@ -93,12 +90,9 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenNotOidcUserThenDefaults()
-			throws IOException, ServletException {
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOAuth2Users.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				this.registration.getRegistrationId());
+	public void logoutWhenNotOidcUserThenDefaults() throws IOException, ServletException {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOAuth2Users.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		this.request.setUserPrincipal(token);
 		this.handler.setDefaultTargetUrl("https://default");
@@ -108,17 +102,14 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenClientRegistrationHasNoEndSessionEndpointThenDefaults()
-			throws Exception {
+	public void logoutWhenClientRegistrationHasNoEndSessionEndpointThenDefaults() throws Exception {
 
 		ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 		ClientRegistrationRepository repository = new InMemoryClientRegistrationRepository(registration);
 		OidcClientInitiatedLogoutSuccessHandler handler = new OidcClientInitiatedLogoutSuccessHandler(repository);
 
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				registration.getRegistrationId());
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, registration.getRegistrationId());
 
 		this.request.setUserPrincipal(token);
 		handler.setDefaultTargetUrl("https://default");
@@ -128,31 +119,25 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenUsingPostLogoutRedirectUriThenIncludesItInRedirect()
-			throws IOException, ServletException {
+	public void logoutWhenUsingPostLogoutRedirectUriThenIncludesItInRedirect() throws IOException, ServletException {
 
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				this.registration.getRegistrationId());
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?" +
-				"id_token_hint=id-token&" +
-				"post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?" + "id_token_hint=id-token&"
+				+ "post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
 	}
 
 	@Test
 	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect()
 			throws IOException, ServletException {
 
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				this.registration.getRegistrationId());
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 		this.handler.setPostLogoutRedirectUri("{baseUrl}");
 		this.request.setScheme("https");
 		this.request.setServerPort(443);
@@ -160,9 +145,8 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?" +
-				"id_token_hint=id-token&" +
-				"post_logout_redirect_uri=https://rp.example.org");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo(
+				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
 	}
 
 	@Test
@@ -176,4 +160,5 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		assertThatThrownBy(() -> this.handler.setPostLogoutRedirectUri((String) null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

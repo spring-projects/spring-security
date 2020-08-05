@@ -27,9 +27,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TldTests {
 
-	//SEC-2324
+	// SEC-2324
 	@Test
-	public void testTldVersionIsCorrect() throws Exception{
+	public void testTldVersionIsCorrect() throws Exception {
 		String SPRING_SECURITY_VERSION = "springSecurityVersion";
 
 		String version = System.getProperty(SPRING_SECURITY_VERSION);
@@ -44,6 +44,5 @@ public class TldTests {
 
 		assertThat(version).startsWith(tlibVersion);
 	}
-
 
 }

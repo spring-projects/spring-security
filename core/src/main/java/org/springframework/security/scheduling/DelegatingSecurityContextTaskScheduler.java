@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * An implementation of {@link TaskScheduler}  invoking it whenever the trigger
- * indicates a next execution time.
+ * An implementation of {@link TaskScheduler} invoking it whenever the trigger indicates a
+ * next execution time.
  *
  * @author Richard Valdivieso
  * @since 5.1
@@ -35,7 +35,6 @@ public class DelegatingSecurityContextTaskScheduler implements TaskScheduler {
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextTaskScheduler}
-	 *
 	 * @param taskScheduler the {@link TaskScheduler}
 	 */
 	public DelegatingSecurityContextTaskScheduler(TaskScheduler taskScheduler) {
@@ -72,4 +71,5 @@ public class DelegatingSecurityContextTaskScheduler implements TaskScheduler {
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, long delay) {
 		return taskScheduler.scheduleWithFixedDelay(task, delay);
 	}
+
 }

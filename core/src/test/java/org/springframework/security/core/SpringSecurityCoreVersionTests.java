@@ -71,8 +71,7 @@ public class SpringSecurityCoreVersionTests {
 		String version = System.getProperty("springSecurityVersion");
 
 		// Strip patch version
-		String serialVersion = String.valueOf(
-				SpringSecurityCoreVersion.SERIAL_VERSION_UID).substring(0, 2);
+		String serialVersion = String.valueOf(SpringSecurityCoreVersion.SERIAL_VERSION_UID).substring(0, 2);
 
 		assertThat(serialVersion.charAt(0)).isEqualTo(version.charAt(0));
 		assertThat(serialVersion.charAt(1)).isEqualTo(version.charAt(2));
@@ -165,7 +164,7 @@ public class SpringSecurityCoreVersionTests {
 	}
 
 	private void performChecks(String minSpringVersion) throws Exception {
-		Whitebox.invokeMethod(SpringSecurityCoreVersion.class, "performVersionChecks",
-				minSpringVersion);
+		Whitebox.invokeMethod(SpringSecurityCoreVersion.class, "performVersionChecks", minSpringVersion);
 	}
+
 }

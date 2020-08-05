@@ -18,7 +18,6 @@ package org.springframework.security.web.csrf;
 import org.junit.Test;
 
 /**
- *
  * @author Rob Winch
  *
  */

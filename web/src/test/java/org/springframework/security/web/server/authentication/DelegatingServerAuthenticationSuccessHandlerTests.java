@@ -42,12 +42,15 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingServerAuthenticationSuccessHandlerTests {
+
 	@Mock
 	private ServerAuthenticationSuccessHandler delegate1;
 
 	@Mock
 	private ServerAuthenticationSuccessHandler delegate2;
+
 	private PublisherProbe<Void> delegate1Result = PublisherProbe.empty();
+
 	private PublisherProbe<Void> delegate2Result = PublisherProbe.empty();
 
 	@Mock
@@ -64,14 +67,16 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 
 	@Test
 	public void constructorWhenNullThenIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingServerAuthenticationSuccessHandler((ServerAuthenticationSuccessHandler[]) null))
-			.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(
+				() -> new DelegatingServerAuthenticationSuccessHandler((ServerAuthenticationSuccessHandler[]) null))
+						.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenEmptyThenIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingServerAuthenticationSuccessHandler(new ServerAuthenticationSuccessHandler[0]))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(
+				() -> new DelegatingServerAuthenticationSuccessHandler(new ServerAuthenticationSuccessHandler[0]))
+						.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -99,21 +104,19 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 	public void onAuthenticationSuccessSequential() throws Exception {
 		AtomicBoolean slowDone = new AtomicBoolean();
 		CountDownLatch latch = new CountDownLatch(1);
-		ServerAuthenticationSuccessHandler slow = (exchange, authentication) ->
-				Mono.delay(Duration.ofMillis(100))
-						.doOnSuccess(__ -> slowDone.set(true))
-						.then();
-		ServerAuthenticationSuccessHandler second = (exchange, authentication) ->
-				Mono.fromRunnable(() -> {
-					latch.countDown();
-					assertThat(slowDone.get())
-							.describedAs("ServerAuthenticationSuccessHandler should be executed sequentially")
-							.isTrue();
-				});
-		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(slow, second);
+		ServerAuthenticationSuccessHandler slow = (exchange, authentication) -> Mono.delay(Duration.ofMillis(100))
+				.doOnSuccess(__ -> slowDone.set(true)).then();
+		ServerAuthenticationSuccessHandler second = (exchange, authentication) -> Mono.fromRunnable(() -> {
+			latch.countDown();
+			assertThat(slowDone.get()).describedAs("ServerAuthenticationSuccessHandler should be executed sequentially")
+					.isTrue();
+		});
+		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(slow,
+				second);
 
 		handler.onAuthenticationSuccess(this.exchange, this.authentication).block();
 
 		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
+
 }

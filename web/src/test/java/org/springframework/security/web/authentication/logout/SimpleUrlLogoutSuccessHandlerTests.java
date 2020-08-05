@@ -24,7 +24,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 /**
- *
  * @author Luke Taylor
  */
 public class SimpleUrlLogoutSuccessHandlerTests {

@@ -42,4 +42,5 @@ final class ObjectToBooleanConverter implements GenericConverter {
 		}
 		return Boolean.valueOf(source.toString());
 	}
+
 }

@@ -47,26 +47,33 @@ import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.W
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.ZONEINFO;
 
 /**
- * A representation of a UserInfo Response that is returned
- * from the OAuth 2.0 Protected Resource UserInfo Endpoint.
+ * A representation of a UserInfo Response that is returned from the OAuth 2.0 Protected
+ * Resource UserInfo Endpoint.
  *
  * <p>
- * The {@code OidcUserInfo} contains a set of &quot;Standard Claims&quot; about the authentication of an End-User.
+ * The {@code OidcUserInfo} contains a set of &quot;Standard Claims&quot; about the
+ * authentication of an End-User.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see StandardClaimAccessor
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfo">UserInfo Endpoint</a>
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo
+ * Response</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#UserInfo">UserInfo Endpoint</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard
+ * Claims</a>
  */
 public class OidcUserInfo implements StandardClaimAccessor, Serializable {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private final Map<String, Object> claims;
 
 	/**
 	 * Constructs a {@code OidcUserInfo} using the provided parameters.
-	 *
 	 * @param claims the claims about the authentication of the End-User
 	 */
 	public OidcUserInfo(Map<String, Object> claims) {
@@ -100,7 +107,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 	/**
 	 * Create a {@link Builder}
-	 *
 	 * @return the {@link Builder} for further configuration
 	 * @since 5.3
 	 */
@@ -115,13 +121,14 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 	 * @since 5.3
 	 */
 	public static final class Builder {
+
 		private final Map<String, Object> claims = new LinkedHashMap<>();
 
-		private Builder() {}
+		private Builder() {
+		}
 
 		/**
 		 * Use this claim in the resulting {@link OidcUserInfo}
-		 *
 		 * @param name The claim name
 		 * @param value The claim value
 		 * @return the {@link Builder} for further configurations
@@ -132,8 +139,8 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Provides access to every {@link #claim(String, Object)}
-		 * declared so far with the possibility to add, replace, or remove.
+		 * Provides access to every {@link #claim(String, Object)} declared so far with
+		 * the possibility to add, replace, or remove.
 		 * @param claimsConsumer the consumer
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -144,7 +151,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this address in the resulting {@link OidcUserInfo}
-		 *
 		 * @param address The address to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -154,7 +160,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this birthdate in the resulting {@link OidcUserInfo}
-		 *
 		 * @param birthdate The birthdate to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -164,7 +169,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this email in the resulting {@link OidcUserInfo}
-		 *
 		 * @param email The email to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -174,7 +178,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this verified-email indicator in the resulting {@link OidcUserInfo}
-		 *
 		 * @param emailVerified The verified-email indicator to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -184,7 +187,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this family name in the resulting {@link OidcUserInfo}
-		 *
 		 * @param familyName The family name to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -194,7 +196,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this gender in the resulting {@link OidcUserInfo}
-		 *
 		 * @param gender The gender to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -204,7 +205,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this given name in the resulting {@link OidcUserInfo}
-		 *
 		 * @param givenName The given name to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -214,7 +214,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this locale in the resulting {@link OidcUserInfo}
-		 *
 		 * @param locale The locale to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -224,7 +223,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this middle name in the resulting {@link OidcUserInfo}
-		 *
 		 * @param middleName The middle name to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -234,7 +232,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this name in the resulting {@link OidcUserInfo}
-		 *
 		 * @param name The name to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -244,7 +241,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this nickname in the resulting {@link OidcUserInfo}
-		 *
 		 * @param nickname The nickname to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -254,7 +250,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this picture in the resulting {@link OidcUserInfo}
-		 *
 		 * @param picture The picture to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -264,7 +259,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this phone number in the resulting {@link OidcUserInfo}
-		 *
 		 * @param phoneNumber The phone number to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -274,7 +268,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this verified-phone-number indicator in the resulting {@link OidcUserInfo}
-		 *
 		 * @param phoneNumberVerified The verified-phone-number indicator to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -284,7 +277,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this preferred username in the resulting {@link OidcUserInfo}
-		 *
 		 * @param preferredUsername The preferred username to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -294,7 +286,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this profile in the resulting {@link OidcUserInfo}
-		 *
 		 * @param profile The profile to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -304,7 +295,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this subject in the resulting {@link OidcUserInfo}
-		 *
 		 * @param subject The subject to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -314,7 +304,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this updated-at {@link Instant} in the resulting {@link OidcUserInfo}
-		 *
 		 * @param updatedAt The updated-at {@link Instant} to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -324,7 +313,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this website in the resulting {@link OidcUserInfo}
-		 *
 		 * @param website The website to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -334,7 +322,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Use this zoneinfo in the resulting {@link OidcUserInfo}
-		 *
 		 * @param zoneinfo The zoneinfo to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -344,11 +331,12 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 
 		/**
 		 * Build the {@link OidcUserInfo}
-		 *
 		 * @return The constructed {@link OidcUserInfo}
 		 */
 		public OidcUserInfo build() {
 			return new OidcUserInfo(this.claims);
 		}
+
 	}
+
 }

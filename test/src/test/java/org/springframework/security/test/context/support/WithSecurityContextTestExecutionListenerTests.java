@@ -54,8 +54,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 @ContextConfiguration(classes = WithSecurityContextTestExecutionListenerTests.NoOpConfiguration.class)
 public class WithSecurityContextTestExecutionListenerTests {
+
 	@ClassRule
 	public static final SpringClassRule spring = new SpringClassRule();
+
 	@Rule
 	public final SpringMethodRule springMethod = new SpringMethodRule();
 
@@ -81,7 +83,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 		this.listener.beforeTestMethod(this.testContext);
 
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		verify(this.testContext, never()).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME), any(SecurityContext.class));
+		verify(this.testContext, never()).setAttribute(
+				eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME), any(SecurityContext.class));
 	}
 
 	@Test
@@ -93,7 +96,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 		this.listener.beforeTestMethod(this.testContext);
 
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNotNull();
-		verify(this.testContext, never()).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME), any(SecurityContext.class));
+		verify(this.testContext, never()).setAttribute(
+				eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME), any(SecurityContext.class));
 	}
 
 	@Test
@@ -105,8 +109,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 		this.listener.beforeTestMethod(this.testContext);
 
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNull();
-		verify(this.testContext).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME)
-				, ArgumentMatchers.<Supplier<SecurityContext>>any());
+		verify(this.testContext).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME),
+				ArgumentMatchers.<Supplier<SecurityContext>>any());
 	}
 
 	@Test
@@ -148,17 +152,22 @@ public class WithSecurityContextTestExecutionListenerTests {
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(new TestingAuthenticationToken("user", "passsword", "ROLE_USER"));
 		Supplier<SecurityContext> supplier = () -> securityContext;
-		when(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME)).thenReturn(supplier);
+		when(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME))
+				.thenReturn(supplier);
 
 		this.listener.beforeTestExecution(this.testContext);
 
-		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isEqualTo(securityContext.getAuthentication());
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication())
+				.isEqualTo(securityContext.getAuthentication());
 	}
 
 	@Configuration
-	static class NoOpConfiguration {}
+	static class NoOpConfiguration {
+
+	}
 
 	static class TheTest {
+
 		@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		public void withMockUserTestExecution() {
 		}
@@ -174,6 +183,7 @@ public class WithSecurityContextTestExecutionListenerTests {
 		@WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION)
 		public void withUserDetails() {
 		}
+
 	}
 
 }

@@ -28,8 +28,11 @@ import org.w3c.dom.Element;
  * @since 5.4
  */
 final class OAuth2ClientBeanDefinitionParserUtils {
+
 	private static final String ATT_CLIENT_REGISTRATION_REPOSITORY_REF = "client-registration-repository-ref";
+
 	private static final String ATT_AUTHORIZED_CLIENT_REPOSITORY_REF = "authorized-client-repository-ref";
+
 	private static final String ATT_AUTHORIZED_CLIENT_SERVICE_REF = "authorized-client-service-ref";
 
 	static BeanMetadataElement getClientRegistrationRepository(Element element) {
@@ -37,7 +40,8 @@ final class OAuth2ClientBeanDefinitionParserUtils {
 		String clientRegistrationRepositoryRef = element.getAttribute(ATT_CLIENT_REGISTRATION_REPOSITORY_REF);
 		if (!StringUtils.isEmpty(clientRegistrationRepositoryRef)) {
 			clientRegistrationRepository = new RuntimeBeanReference(clientRegistrationRepositoryRef);
-		} else {
+		}
+		else {
 			clientRegistrationRepository = new RuntimeBeanReference(ClientRegistrationRepository.class);
 		}
 		return clientRegistrationRepository;
@@ -59,17 +63,17 @@ final class OAuth2ClientBeanDefinitionParserUtils {
 		return null;
 	}
 
-	static BeanDefinition createDefaultAuthorizedClientRepository(
-			BeanMetadataElement clientRegistrationRepository, BeanMetadataElement authorizedClientService) {
+	static BeanDefinition createDefaultAuthorizedClientRepository(BeanMetadataElement clientRegistrationRepository,
+			BeanMetadataElement authorizedClientService) {
 		if (authorizedClientService == null) {
-			authorizedClientService = BeanDefinitionBuilder.rootBeanDefinition(
-					"org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService")
-					.addConstructorArgValue(clientRegistrationRepository)
-					.getBeanDefinition();
+			authorizedClientService = BeanDefinitionBuilder
+					.rootBeanDefinition(
+							"org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService")
+					.addConstructorArgValue(clientRegistrationRepository).getBeanDefinition();
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository")
-				.addConstructorArgValue(authorizedClientService)
-				.getBeanDefinition();
+				.addConstructorArgValue(authorizedClientService).getBeanDefinition();
 	}
+
 }

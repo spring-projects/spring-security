@@ -34,6 +34,7 @@ import static org.mockito.Mockito.mock;
  * @author Joe Grandja
  */
 public class Sec2515Tests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -51,6 +52,7 @@ public class Sec2515Tests {
 		public AuthenticationManager authenticationManagerBean() throws Exception {
 			return super.authenticationManagerBean();
 		}
+
 	}
 
 	@Test(expected = FatalBeanException.class)
@@ -62,10 +64,11 @@ public class Sec2515Tests {
 	static class CustomBeanNameStackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
-		@Bean(name="custom")
+		@Bean(name = "custom")
 		public AuthenticationManager authenticationManagerBean() throws Exception {
 			return super.authenticationManagerBean();
 		}
+
 	}
 
 	// SEC-2549
@@ -73,7 +76,8 @@ public class Sec2515Tests {
 	public void loadConfigWhenChildClassLoaderSetThenContextLoads() {
 		CanLoadWithChildConfig.AUTHENTICATION_MANAGER = mock(AuthenticationManager.class);
 		this.spring.register(CanLoadWithChildConfig.class);
-		AnnotationConfigWebApplicationContext context = (AnnotationConfigWebApplicationContext) this.spring.getContext();
+		AnnotationConfigWebApplicationContext context = (AnnotationConfigWebApplicationContext) this.spring
+				.getContext();
 		context.setClassLoader(new URLClassLoader(new URL[0], context.getClassLoader()));
 		this.spring.autowire();
 
@@ -82,12 +86,14 @@ public class Sec2515Tests {
 
 	@EnableWebSecurity
 	static class CanLoadWithChildConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationManager AUTHENTICATION_MANAGER;
 
 		@Bean
 		public AuthenticationManager authenticationManager() {
 			return AUTHENTICATION_MANAGER;
 		}
+
 	}
 
 	// SEC-2515
@@ -109,5 +115,7 @@ public class Sec2515Tests {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication();
 		}
+
 	}
+
 }

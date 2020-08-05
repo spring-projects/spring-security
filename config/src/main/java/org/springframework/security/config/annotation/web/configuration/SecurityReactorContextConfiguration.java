@@ -41,13 +41,13 @@ import java.util.function.Function;
 import static org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES;
 
 /**
- * {@link Configuration} that (potentially) adds a "decorating" {@code Publisher}
- * for the last operator created in every {@code Mono} or {@code Flux}.
+ * {@link Configuration} that (potentially) adds a "decorating" {@code Publisher} for the
+ * last operator created in every {@code Mono} or {@code Flux}.
  *
  * <p>
- * The {@code Publisher} is solely responsible for adding
- * the current {@code HttpServletRequest}, {@code HttpServletResponse} and {@code Authentication}
- * to the Reactor {@code Context} so that it's accessible in every flow, if required.
+ * The {@code Publisher} is solely responsible for adding the current
+ * {@code HttpServletRequest}, {@code HttpServletResponse} and {@code Authentication} to
+ * the Reactor {@code Context} so that it's accessible in every flow, if required.
  *
  * @author Joe Grandja
  * @author Roman Matiushchenko
@@ -63,12 +63,13 @@ class SecurityReactorContextConfiguration {
 	}
 
 	static class SecurityReactorContextSubscriberRegistrar implements InitializingBean, DisposableBean {
+
 		private static final String SECURITY_REACTOR_CONTEXT_OPERATOR_KEY = "org.springframework.security.SECURITY_REACTOR_CONTEXT_OPERATOR";
 
 		@Override
 		public void afterPropertiesSet() throws Exception {
-			Function<? super Publisher<Object>, ? extends Publisher<Object>> lifter =
-					Operators.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
+			Function<? super Publisher<Object>, ? extends Publisher<Object>> lifter = Operators
+					.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
 
 			Hooks.onLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY, pub -> {
 				if (!contextAttributesAvailable()) {
@@ -93,8 +94,8 @@ class SecurityReactorContextConfiguration {
 		}
 
 		private static boolean contextAttributesAvailable() {
-			return SecurityContextHolder.getContext().getAuthentication() != null ||
-					RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes;
+			return SecurityContextHolder.getContext().getAuthentication() != null
+					|| RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes;
 		}
 
 		private static Map<Object, Object> getContextAttributes() {
@@ -104,7 +105,7 @@ class SecurityReactorContextConfiguration {
 			if (requestAttributes instanceof ServletRequestAttributes) {
 				ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
 				servletRequest = servletRequestAttributes.getRequest();
-				servletResponse = servletRequestAttributes.getResponse();	// possible null
+				servletResponse = servletRequestAttributes.getResponse(); // possible null
 			}
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			if (authentication == null && servletRequest == null) {
@@ -124,11 +125,15 @@ class SecurityReactorContextConfiguration {
 
 			return contextAttributes;
 		}
+
 	}
 
 	static class SecurityReactorContextSubscriber<T> implements CoreSubscriber<T> {
+
 		static final String SECURITY_CONTEXT_ATTRIBUTES = "org.springframework.security.SECURITY_CONTEXT_ATTRIBUTES";
+
 		private final CoreSubscriber<T> delegate;
+
 		private final Context context;
 
 		SecurityReactorContextSubscriber(CoreSubscriber<T> delegate, Map<Object, Object> attributes) {
@@ -137,7 +142,8 @@ class SecurityReactorContextConfiguration {
 			Context context;
 			if (currentContext.hasKey(SECURITY_CONTEXT_ATTRIBUTES)) {
 				context = currentContext;
-			} else {
+			}
+			else {
 				context = currentContext.put(SECURITY_CONTEXT_ATTRIBUTES, attributes);
 			}
 			this.context = context;
@@ -167,5 +173,7 @@ class SecurityReactorContextConfiguration {
 		public void onComplete() {
 			this.delegate.onComplete();
 		}
+
 	}
+
 }

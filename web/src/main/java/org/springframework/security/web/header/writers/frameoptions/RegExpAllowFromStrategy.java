@@ -26,20 +26,18 @@ import java.util.regex.Pattern;
  *
  * @author Marten Deinum
  * @since 3.2
- * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern browsers. Instead use
- * Content-Security-Policy with the
- * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
+ * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern
+ * browsers. Instead use Content-Security-Policy with the <a href=
+ * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
  * directive.
  */
 @Deprecated
-public final class RegExpAllowFromStrategy extends
-		AbstractRequestParameterAllowFromStrategy {
+public final class RegExpAllowFromStrategy extends AbstractRequestParameterAllowFromStrategy {
 
 	private final Pattern pattern;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param pattern the Pattern to compare against the HTTP parameter value. If the
 	 * pattern matches, the domain will be allowed, else denied.
 	 */
@@ -52,4 +50,5 @@ public final class RegExpAllowFromStrategy extends
 	protected boolean allowed(String allowFromOrigin) {
 		return pattern.matcher(allowFromOrigin).matches();
 	}
+
 }

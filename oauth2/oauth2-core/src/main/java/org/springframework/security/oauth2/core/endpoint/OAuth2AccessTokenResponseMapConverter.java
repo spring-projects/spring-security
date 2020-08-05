@@ -25,14 +25,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * A {@link Converter} that converts the provided {@link OAuth2AccessTokenResponse}
- * to a {@code Map} representation of the OAuth 2.0 Access Token Response parameters.
+ * A {@link Converter} that converts the provided {@link OAuth2AccessTokenResponse} to a
+ * {@code Map} representation of the OAuth 2.0 Access Token Response parameters.
  *
  * @author Joe Grandja
  * @author Nikita Konev
  * @since 5.3
  */
-public final class OAuth2AccessTokenResponseMapConverter implements Converter<OAuth2AccessTokenResponse, Map<String, String>> {
+public final class OAuth2AccessTokenResponseMapConverter
+		implements Converter<OAuth2AccessTokenResponse, Map<String, String>> {
 
 	@Override
 	public Map<String, String> convert(OAuth2AccessTokenResponse tokenResponse) {
@@ -61,4 +62,5 @@ public final class OAuth2AccessTokenResponseMapConverter implements Converter<OA
 
 		return parameters;
 	}
+
 }

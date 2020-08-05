@@ -26,10 +26,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.util.MethodInvocationUtils;
 
 /**
- *
  * @author Luke Taylor
  */
 public class AbstractAclVoterTests {
+
 	private AbstractAclVoter voter = new AbstractAclVoter() {
 		public boolean supports(ConfigAttribute attribute) {
 			return false;
@@ -50,21 +50,21 @@ public class AbstractAclVoterTests {
 	@Test
 	public void expectedDomainObjectArgumentIsReturnedFromMethodInvocation() {
 		voter.setProcessDomainObjectClass(String.class);
-		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
-				"methodTakingAString", "The Argument");
+		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(), "methodTakingAString", "The Argument");
 		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 
 	@Test
 	public void correctArgumentIsSelectedFromMultipleArgs() {
 		voter.setProcessDomainObjectClass(String.class);
-		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
-				"methodTakingAListAndAString", new ArrayList<>(), "The Argument");
+		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(), "methodTakingAListAndAString",
+				new ArrayList<>(), "The Argument");
 		assertThat(voter.getDomainObjectInstance(mi)).isEqualTo("The Argument");
 	}
 
 	@SuppressWarnings("unused")
 	private static class TestClass {
+
 		public void methodTakingAString(String arg) {
 		}
 
@@ -73,6 +73,7 @@ public class AbstractAclVoterTests {
 
 		public void methodTakingAListAndAString(ArrayList<Object> arg1, String arg2) {
 		}
+
 	}
 
 }

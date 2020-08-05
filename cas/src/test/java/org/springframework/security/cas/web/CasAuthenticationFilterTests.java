@@ -44,6 +44,7 @@ import static org.mockito.Mockito.*;
  * @author Rob Winch
  */
 public class CasAuthenticationFilterTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -71,8 +72,7 @@ public class CasAuthenticationFilterTests {
 
 		assertThat(filter.requiresAuthentication(request, new MockHttpServletResponse())).isTrue();
 
-		Authentication result = filter.attemptAuthentication(request,
-				new MockHttpServletResponse());
+		Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
 		assertThat(result != null).isTrue();
 	}
 
@@ -83,8 +83,7 @@ public class CasAuthenticationFilterTests {
 			throw new BadCredentialsException("Rejected");
 		});
 
-		filter.attemptAuthentication(new MockHttpServletRequest(),
-				new MockHttpServletResponse());
+		filter.attemptAuthentication(new MockHttpServletRequest(), new MockHttpServletResponse());
 	}
 
 	@Test
@@ -134,15 +133,13 @@ public class CasAuthenticationFilterTests {
 		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 		request.setParameter(properties.getArtifactParameter(), "value");
 		assertThat(filter.requiresAuthentication(request, response)).isTrue();
-		SecurityContextHolder.getContext().setAuthentication(
-				new AnonymousAuthenticationToken("key", "principal", AuthorityUtils
-						.createAuthorityList("ROLE_ANONYMOUS")));
+		SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken("key", "principal",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 		assertThat(filter.requiresAuthentication(request, response)).isTrue();
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("un", "principal"));
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("un", "principal"));
 		assertThat(filter.requiresAuthentication(request, response)).isTrue();
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("un", "principal", "ROLE_ANONYMOUS"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("un", "principal", "ROLE_ANONYMOUS"));
 		assertThat(filter.requiresAuthentication(request, response)).isFalse();
 	}
 
@@ -162,8 +159,7 @@ public class CasAuthenticationFilterTests {
 	public void testDoFilterAuthenticateAll() throws Exception {
 		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
 		AuthenticationManager manager = mock(AuthenticationManager.class);
-		Authentication authentication = new TestingAuthenticationToken("un", "pwd",
-				"ROLE_USER");
+		Authentication authentication = new TestingAuthenticationToken("un", "pwd", "ROLE_USER");
 		when(manager.authenticate(any(Authentication.class))).thenReturn(authentication);
 		ServiceProperties serviceProperties = new ServiceProperties();
 		serviceProperties.setAuthenticateAllArtifacts(true);
@@ -181,8 +177,8 @@ public class CasAuthenticationFilterTests {
 		filter.afterPropertiesSet();
 
 		filter.doFilter(request, response, chain);
-		assertThat(SecurityContextHolder
-				.getContext().getAuthentication()).isNotNull().withFailMessage("Authentication should not be null");
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull()
+				.withFailMessage("Authentication should not be null");
 		verify(chain).doFilter(request, response);
 		verifyZeroInteractions(successHandler);
 
@@ -209,4 +205,5 @@ public class CasAuthenticationFilterTests {
 		filter.doFilter(request, response, chain);
 		verifyZeroInteractions(chain);
 	}
+
 }

@@ -33,27 +33,25 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class AndRequestMatcher implements RequestMatcher {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final List<RequestMatcher> requestMatchers;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
 	public AndRequestMatcher(List<RequestMatcher> requestMatchers) {
 		Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
 		if (requestMatchers.contains(null)) {
-			throw new IllegalArgumentException(
-					"requestMatchers cannot contain null values");
+			throw new IllegalArgumentException("requestMatchers cannot contain null values");
 		}
 		this.requestMatchers = requestMatchers;
 	}
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
 	public AndRequestMatcher(RequestMatcher... requestMatchers) {
@@ -78,4 +76,5 @@ public final class AndRequestMatcher implements RequestMatcher {
 	public String toString() {
 		return "AndRequestMatcher [requestMatchers=" + requestMatchers + "]";
 	}
+
 }

@@ -26,9 +26,9 @@ import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgor
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 
 /**
- * An Encryptor equivalent to {@link AesBytesEncryptor} using
- * {@link CipherAlgorithm#GCM} that uses Bouncy Castle instead of JCE. The
- * algorithm is equivalent to "AES/GCM/NoPadding".
+ * An Encryptor equivalent to {@link AesBytesEncryptor} using {@link CipherAlgorithm#GCM}
+ * that uses Bouncy Castle instead of JCE. The algorithm is equivalent to
+ * "AES/GCM/NoPadding".
  *
  * @author William Tran
  *
@@ -39,8 +39,7 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 		super(password, salt);
 	}
 
-	public BouncyCastleAesGcmBytesEncryptor(String password, CharSequence salt,
-			BytesKeyGenerator ivGenerator) {
+	public BouncyCastleAesGcmBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator) {
 		super(password, salt, ivGenerator);
 	}
 
@@ -59,8 +58,7 @@ public class BouncyCastleAesGcmBytesEncryptor extends BouncyCastleAesBytesEncryp
 	@Override
 	public byte[] decrypt(byte[] encryptedBytes) {
 		byte[] iv = subArray(encryptedBytes, 0, this.ivGenerator.getKeyLength());
-		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(),
-				encryptedBytes.length);
+		encryptedBytes = subArray(encryptedBytes, this.ivGenerator.getKeyLength(), encryptedBytes.length);
 
 		@SuppressWarnings("deprecation")
 		GCMBlockCipher blockCipher = new GCMBlockCipher(new org.bouncycastle.crypto.engines.AESFastEngine());

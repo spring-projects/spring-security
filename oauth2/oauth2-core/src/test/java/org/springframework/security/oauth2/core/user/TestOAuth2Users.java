@@ -39,10 +39,8 @@ public class TestOAuth2Users {
 	}
 
 	private static Collection<GrantedAuthority> authorities(Map<String, Object> attributes) {
-		return new LinkedHashSet<>(
-				Arrays.asList(
-						new OAuth2UserAuthority(attributes),
-						new SimpleGrantedAuthority("SCOPE_read"),
-						new SimpleGrantedAuthority("SCOPE_write")));
+		return new LinkedHashSet<>(Arrays.asList(new OAuth2UserAuthority(attributes),
+				new SimpleGrantedAuthority("SCOPE_read"), new SimpleGrantedAuthority("SCOPE_write")));
 	}
+
 }

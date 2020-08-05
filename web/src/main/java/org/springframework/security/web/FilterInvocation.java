@@ -53,6 +53,7 @@ import org.springframework.security.web.util.UrlUtils;
  * @author Rob Winch
  */
 public class FilterInvocation {
+
 	// ~ Static fields
 	// ==================================================================================================
 	static final FilterChain DUMMY_CHAIN = (req, res) -> {
@@ -63,14 +64,15 @@ public class FilterInvocation {
 	// ================================================================================================
 
 	private FilterChain chain;
+
 	private HttpServletRequest request;
+
 	private HttpServletResponse response;
 
 	// ~ Constructors
 	// ===================================================================================================
 
-	public FilterInvocation(ServletRequest request, ServletResponse response,
-			FilterChain chain) {
+	public FilterInvocation(ServletRequest request, ServletResponse response, FilterChain chain) {
 		if ((request == null) || (response == null) || (chain == null)) {
 			throw new IllegalArgumentException("Cannot pass null values to constructor");
 		}
@@ -88,16 +90,14 @@ public class FilterInvocation {
 		this(contextPath, servletPath, null, null, method);
 	}
 
-	public FilterInvocation(String contextPath, String servletPath, String pathInfo,
-			String query, String method) {
+	public FilterInvocation(String contextPath, String servletPath, String pathInfo, String query, String method) {
 		DummyRequest request = new DummyRequest();
 		if (contextPath == null) {
 			contextPath = "/cp";
 		}
 		request.setContextPath(contextPath);
 		request.setServletPath(servletPath);
-		request.setRequestURI(
-				contextPath + servletPath + (pathInfo == null ? "" : pathInfo));
+		request.setRequestURI(contextPath + servletPath + (pathInfo == null ? "" : pathInfo));
 		request.setPathInfo(pathInfo);
 		request.setQueryString(query);
 		request.setMethod(method);
@@ -116,7 +116,6 @@ public class FilterInvocation {
 	 * <p>
 	 * The returned URL does <b>not</b> reflect the port number determined from a
 	 * {@link org.springframework.security.web.PortResolver}.
-	 *
 	 * @return the full URL of this request
 	 */
 	public String getFullRequestUrl() {
@@ -133,7 +132,6 @@ public class FilterInvocation {
 
 	/**
 	 * Obtains the web application-specific fragment of the URL.
-	 *
 	 * @return the URL, excluding any server name, context path or servlet path
 	 */
 	public String getRequestUrl() {
@@ -152,21 +150,29 @@ public class FilterInvocation {
 	public String toString() {
 		return "FilterInvocation: URL: " + getRequestUrl();
 	}
+
 }
 
 class DummyRequest extends HttpServletRequestWrapper {
-	private static final HttpServletRequest UNSUPPORTED_REQUEST = (HttpServletRequest) Proxy
-			.newProxyInstance(DummyRequest.class.getClassLoader(),
-					new Class[] { HttpServletRequest.class },
-					new UnsupportedOperationExceptionInvocationHandler());
+
+	private static final HttpServletRequest UNSUPPORTED_REQUEST = (HttpServletRequest) Proxy.newProxyInstance(
+			DummyRequest.class.getClassLoader(), new Class[] { HttpServletRequest.class },
+			new UnsupportedOperationExceptionInvocationHandler());
 
 	private String requestURI;
+
 	private String contextPath = "";
+
 	private String servletPath;
+
 	private String pathInfo;
+
 	private String queryString;
+
 	private String method;
+
 	private final HttpHeaders headers = new HttpHeaders();
+
 	private final Map<String, String[]> parameters = new LinkedHashMap<>();
 
 	DummyRequest() {
@@ -258,7 +264,7 @@ class DummyRequest extends HttpServletRequestWrapper {
 	@Override
 	public int getIntHeader(String name) {
 		String value = this.headers.getFirst(name);
-		if (value == null ) {
+		if (value == null) {
 			return -1;
 		}
 		else {
@@ -294,9 +300,11 @@ class DummyRequest extends HttpServletRequestWrapper {
 	public void setParameter(String name, String... values) {
 		this.parameters.put(name, values);
 	}
+
 }
 
 final class UnsupportedOperationExceptionInvocationHandler implements InvocationHandler {
+
 	private static final float JAVA_VERSION = Float.parseFloat(System.getProperty("java.class.version", "52"));
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -311,14 +319,9 @@ final class UnsupportedOperationExceptionInvocationHandler implements Invocation
 			return invokeDefaultMethodForJdk8(proxy, method, args);
 		}
 		return MethodHandles.lookup()
-				.findSpecial(
-					method.getDeclaringClass(),
-					method.getName(),
-					MethodType.methodType(method.getReturnType(), new Class[0]),
-					method.getDeclaringClass()
-				)
-				.bindTo(proxy)
-				.invokeWithArguments(args);
+				.findSpecial(method.getDeclaringClass(), method.getName(),
+						MethodType.methodType(method.getReturnType(), new Class[0]), method.getDeclaringClass())
+				.bindTo(proxy).invokeWithArguments(args);
 	}
 
 	private Object invokeDefaultMethodForJdk8(Object proxy, Method method, Object[] args) throws Throwable {
@@ -326,14 +329,12 @@ final class UnsupportedOperationExceptionInvocationHandler implements Invocation
 		constructor.setAccessible(true);
 
 		Class<?> clazz = method.getDeclaringClass();
-		return constructor.newInstance(clazz)
-				.in(clazz)
-				.unreflectSpecial(method, clazz)
-				.bindTo(proxy)
+		return constructor.newInstance(clazz).in(clazz).unreflectSpecial(method, clazz).bindTo(proxy)
 				.invokeWithArguments(args);
 	}
 
 	private boolean isJdk8OrEarlier() {
 		return JAVA_VERSION <= 52;
 	}
+
 }

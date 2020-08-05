@@ -37,10 +37,13 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AndServerWebExchangeMatcherTests {
+
 	@Mock
 	ServerWebExchange exchange;
+
 	@Mock
 	ServerWebExchangeMatcher matcher1;
+
 	@Mock
 	ServerWebExchangeMatcher matcher2;
 

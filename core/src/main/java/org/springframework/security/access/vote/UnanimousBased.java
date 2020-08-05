@@ -52,16 +52,14 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 	 * If every <code>AccessDecisionVoter</code> abstained from voting, the decision will
 	 * be based on the {@link #isAllowIfAllAbstainDecisions()} property (defaults to
 	 * false).
-	 *
 	 * @param authentication the caller invoking the method
 	 * @param object the secured object
 	 * @param attributes the configuration attributes associated with the method being
 	 * invoked
-	 *
 	 * @throws AccessDeniedException if access is denied
 	 */
-	public void decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> attributes) throws AccessDeniedException {
+	public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes)
+			throws AccessDeniedException {
 
 		int grant = 0;
 
@@ -85,9 +83,8 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 					break;
 
 				case AccessDecisionVoter.ACCESS_DENIED:
-					throw new AccessDeniedException(messages.getMessage(
-							"AbstractAccessDecisionManager.accessDenied",
-							"Access is denied"));
+					throw new AccessDeniedException(
+							messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 
 				default:
 					break;
@@ -103,4 +100,5 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 		// To get this far, every AccessDecisionVoter abstained
 		checkAllowIfAllAbstainDecisions();
 	}
+
 }

@@ -37,4 +37,5 @@ public class StaticAllowFromStrategyTests {
 		StaticAllowFromStrategy strategy = new StaticAllowFromStrategy(URI.create(uri));
 		assertThat(strategy.getAllowFromValue(new MockHttpServletRequest())).isEqualTo(uri);
 	}
+
 }

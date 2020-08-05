@@ -49,11 +49,17 @@ import javax.servlet.http.HttpServletResponse;
  * @author Rob Winch
  */
 public class FilterSecurityInterceptorTests {
+
 	private AuthenticationManager am;
+
 	private AccessDecisionManager adm;
+
 	private FilterInvocationSecurityMetadataSource ods;
+
 	private RunAsManager ram;
+
 	private FilterSecurityInterceptor interceptor;
+
 	private ApplicationEventPublisher publisher;
 
 	// ~ Methods
@@ -81,8 +87,7 @@ public class FilterSecurityInterceptorTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass()
-			throws Exception {
+	public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() throws Exception {
 		when(adm.supports(FilterInvocation.class)).thenReturn(true);
 		interceptor.afterPropertiesSet();
 	}
@@ -101,8 +106,7 @@ public class FilterSecurityInterceptorTests {
 	@Test
 	public void testSuccessfulInvocation() throws Throwable {
 		// Setup a Context
-		Authentication token = new TestingAuthenticationToken("Test", "Password",
-				"NOT_USED");
+		Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		FilterInvocation fi = createinvocation();
@@ -117,15 +121,14 @@ public class FilterSecurityInterceptorTests {
 
 	@Test
 	public void afterInvocationIsNotInvokedIfExceptionThrown() throws Exception {
-		Authentication token = new TestingAuthenticationToken("Test", "Password",
-				"NOT_USED");
+		Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
 		SecurityContextHolder.getContext().setAuthentication(token);
 
 		FilterInvocation fi = createinvocation();
 		FilterChain chain = fi.getChain();
 
-		doThrow(new RuntimeException()).when(chain).doFilter(
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 		when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
@@ -146,22 +149,20 @@ public class FilterSecurityInterceptorTests {
 	@SuppressWarnings("unchecked")
 	public void finallyInvocationIsInvokedIfExceptionThrown() throws Exception {
 		SecurityContext ctx = SecurityContextHolder.getContext();
-		Authentication token = new TestingAuthenticationToken("Test", "Password",
-				"NOT_USED");
+		Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
 		token.setAuthenticated(true);
 		ctx.setAuthentication(token);
 
 		RunAsManager runAsManager = mock(RunAsManager.class);
-		when(runAsManager.buildRunAs(eq(token), any(), anyCollection())).thenReturn(
-				new RunAsUserToken("key", "someone", "creds", token.getAuthorities(),
-						token.getClass()));
+		when(runAsManager.buildRunAs(eq(token), any(), anyCollection()))
+				.thenReturn(new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), token.getClass()));
 		interceptor.setRunAsManager(runAsManager);
 
 		FilterInvocation fi = createinvocation();
 		FilterChain chain = fi.getChain();
 
-		doThrow(new RuntimeException()).when(chain).doFilter(
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 		when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);

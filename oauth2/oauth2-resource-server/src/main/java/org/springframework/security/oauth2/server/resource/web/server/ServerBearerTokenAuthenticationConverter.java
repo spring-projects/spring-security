@@ -36,31 +36,32 @@ import static org.springframework.security.oauth2.server.resource.BearerTokenErr
 import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidToken;
 
 /**
- * A strategy for resolving <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s
- * from the {@link ServerWebExchange}.
+ * A strategy for resolving
+ * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+ * Token</a>s from the {@link ServerWebExchange}.
  *
  * @author Rob Winch
  * @since 5.1
- * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750 Section 2: Authenticated Requests</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750
+ * Section 2: Authenticated Requests</a>
  */
-public class ServerBearerTokenAuthenticationConverter
-		implements ServerAuthenticationConverter {
-	private static final Pattern authorizationPattern = Pattern.compile(
-		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
-		Pattern.CASE_INSENSITIVE);
+public class ServerBearerTokenAuthenticationConverter implements ServerAuthenticationConverter {
+
+	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
+			Pattern.CASE_INSENSITIVE);
 
 	private boolean allowUriQueryParameter = false;
+
 	private String bearerTokenHeaderName = HttpHeaders.AUTHORIZATION;
 
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
-		return Mono.fromCallable(() -> token(exchange.getRequest()))
-			.map(token -> {
-				if (token.isEmpty()) {
-					BearerTokenError error = invalidTokenError();
-					throw new OAuth2AuthenticationException(error);
-				}
-				return new BearerTokenAuthenticationToken(token);
-			});
+		return Mono.fromCallable(() -> token(exchange.getRequest())).map(token -> {
+			if (token.isEmpty()) {
+				BearerTokenError error = invalidTokenError();
+				throw new OAuth2AuthenticationException(error);
+			}
+			return new BearerTokenAuthenticationToken(token);
+		});
 	}
 
 	private String token(ServerHttpRequest request) {
@@ -80,11 +81,11 @@ public class ServerBearerTokenAuthenticationConverter
 	}
 
 	/**
-	 * Set if transport of access token using URI query parameter is supported. Defaults to {@code false}.
+	 * Set if transport of access token using URI query parameter is supported. Defaults
+	 * to {@code false}.
 	 *
-	 * The spec recommends against using this mechanism for sending bearer tokens, and even goes as far as
-	 * stating that it was only included for completeness.
-	 *
+	 * The spec recommends against using this mechanism for sending bearer tokens, and
+	 * even goes as far as stating that it was only included for completeness.
 	 * @param allowUriQueryParameter if the URI query parameter is supported
 	 */
 	public void setAllowUriQueryParameter(boolean allowUriQueryParameter) {
@@ -95,8 +96,8 @@ public class ServerBearerTokenAuthenticationConverter
 	 * Set this value to configure what header is checked when resolving a Bearer Token.
 	 * This value is defaulted to {@link HttpHeaders#AUTHORIZATION}.
 	 *
-	 * This allows other headers to be used as the Bearer Token source such as {@link HttpHeaders#PROXY_AUTHORIZATION}
-	 *
+	 * This allows other headers to be used as the Bearer Token source such as
+	 * {@link HttpHeaders#PROXY_AUTHORIZATION}
 	 * @param bearerTokenHeaderName the header to check when retrieving the Bearer Token.
 	 * @since 5.4
 	 */
@@ -109,7 +110,7 @@ public class ServerBearerTokenAuthenticationConverter
 		if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
 			Matcher matcher = authorizationPattern.matcher(authorization);
 
-			if (!matcher.matches() ) {
+			if (!matcher.matches()) {
 				BearerTokenError error = invalidTokenError();
 				throw new OAuth2AuthenticationException(error);
 			}
@@ -126,4 +127,5 @@ public class ServerBearerTokenAuthenticationConverter
 	private boolean isParameterTokenSupportedForRequest(ServerHttpRequest request) {
 		return this.allowUriQueryParameter && HttpMethod.GET.equals(request.getMethod());
 	}
+
 }

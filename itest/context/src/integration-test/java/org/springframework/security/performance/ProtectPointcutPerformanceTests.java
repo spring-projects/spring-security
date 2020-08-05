@@ -51,8 +51,7 @@ public class ProtectPointcutPerformanceTests implements ApplicationContextAware 
 		sw.start();
 		for (int i = 0; i < 1000; i++) {
 			try {
-				SessionRegistry reg = (SessionRegistry) ctx.getBean(
-						"sessionRegistryPrototype");
+				SessionRegistry reg = (SessionRegistry) ctx.getBean("sessionRegistryPrototype");
 				reg.getAllPrincipals();
 				fail("Expected AuthenticationCredentialsNotFoundException");
 			}
@@ -64,8 +63,8 @@ public class ProtectPointcutPerformanceTests implements ApplicationContextAware 
 
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		ctx = applicationContext;
 	}
+
 }

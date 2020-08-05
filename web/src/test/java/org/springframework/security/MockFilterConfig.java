@@ -24,11 +24,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
 /**
- *
  * @author Ben Alex
  */
 @SuppressWarnings("unchecked")
 public class MockFilterConfig implements FilterConfig {
+
 	// ~ Instance fields
 	// ================================================================================================
 	private Map map = new HashMap();
@@ -62,4 +62,5 @@ public class MockFilterConfig implements FilterConfig {
 	public void setInitParmeter(String parameter, String value) {
 		map.put(parameter, value);
 	}
+
 }

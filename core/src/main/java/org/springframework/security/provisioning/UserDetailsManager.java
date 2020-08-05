@@ -45,7 +45,6 @@ public interface UserDetailsManager extends UserDetailsService {
 	/**
 	 * Modify the current user's password. This should change the user's password in the
 	 * persistent user repository (datbase, LDAP etc).
-	 *
 	 * @param oldPassword current password (for re-authentication if required)
 	 * @param newPassword the password to change to
 	 */

@@ -15,7 +15,6 @@
  */
 package org.springframework.security.web.firewall;
 
-
 import static org.mockito.Mockito.mock;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,14 +32,16 @@ public class DefaultRequestRejectedHandlerTests {
 		RequestRejectedException requestRejectedException = new RequestRejectedException("rejected");
 		DefaultRequestRejectedHandler sut = new DefaultRequestRejectedHandler();
 
-		//when:
+		// when:
 		try {
 			sut.handle(mock(HttpServletRequest.class), mock(HttpServletResponse.class), requestRejectedException);
-		} catch (RequestRejectedException exception) {
-			//then:
+		}
+		catch (RequestRejectedException exception) {
+			// then:
 			Assert.assertThat(exception.getMessage(), CoreMatchers.is("rejected"));
 			return;
 		}
 		Assert.fail("Exception was not rethrown");
 	}
+
 }

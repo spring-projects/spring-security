@@ -21,13 +21,16 @@ import java.util.Date;
  * @author Luke Taylor
  */
 public class PersistentRememberMeToken {
+
 	private final String username;
+
 	private final String series;
+
 	private final String tokenValue;
+
 	private final Date date;
 
-	public PersistentRememberMeToken(String username, String series, String tokenValue,
-			Date date) {
+	public PersistentRememberMeToken(String username, String series, String tokenValue, Date date) {
 		this.username = username;
 		this.series = series;
 		this.tokenValue = tokenValue;
@@ -49,4 +52,5 @@ public class PersistentRememberMeToken {
 	public Date getDate() {
 		return date;
 	}
+
 }

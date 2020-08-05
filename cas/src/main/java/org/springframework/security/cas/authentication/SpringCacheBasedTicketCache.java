@@ -28,11 +28,11 @@ import org.springframework.util.Assert;
  *
  */
 public class SpringCacheBasedTicketCache implements StatelessTicketCache {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	private static final Log logger = LogFactory
-			.getLog(SpringCacheBasedTicketCache.class);
+	private static final Log logger = LogFactory.getLog(SpringCacheBasedTicketCache.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -51,12 +51,10 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 	// ========================================================================================================
 
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
-		final Cache.ValueWrapper element = serviceTicket != null ? cache
-				.get(serviceTicket) : null;
+		final Cache.ValueWrapper element = serviceTicket != null ? cache.get(serviceTicket) : null;
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Cache hit: " + (element != null) + "; service ticket: "
-					+ serviceTicket);
+			logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
 		}
 
 		return element == null ? null : (CasAuthenticationToken) element.get();
@@ -83,4 +81,5 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 	public void removeTicketFromCache(final String serviceTicket) {
 		cache.evict(serviceTicket);
 	}
+
 }

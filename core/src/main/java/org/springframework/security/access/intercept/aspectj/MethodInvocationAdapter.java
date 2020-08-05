@@ -31,8 +31,11 @@ import org.aspectj.lang.reflect.CodeSignature;
  * @since 3.0.3
  */
 public final class MethodInvocationAdapter implements MethodInvocation {
+
 	private final ProceedingJoinPoint jp;
+
 	private final Method method;
+
 	private final Object target;
 
 	MethodInvocationAdapter(JoinPoint jp) {
@@ -45,15 +48,13 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 			target = jp.getSignature().getDeclaringType();
 		}
 		String targetMethodName = jp.getStaticPart().getSignature().getName();
-		Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature())
-				.getParameterTypes();
+		Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
 		Class<?> declaringType = jp.getStaticPart().getSignature().getDeclaringType();
 
 		method = findMethod(targetMethodName, declaringType, types);
 
 		if (method == null) {
-			throw new IllegalArgumentException(
-					"Could not obtain target method from JoinPoint: '" + jp + "'");
+			throw new IllegalArgumentException("Could not obtain target method from JoinPoint: '" + jp + "'");
 		}
 	}
 
@@ -96,4 +97,5 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 	public Object proceed() throws Throwable {
 		return jp.proceed();
 	}
+
 }

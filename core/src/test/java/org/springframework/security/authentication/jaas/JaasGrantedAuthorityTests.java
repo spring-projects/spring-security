@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.springframework.security.authentication.jaas.JaasGrantedAuthority;
 
 /**
- *
  * @author Clement Ng
  *
  */
@@ -32,8 +31,7 @@ public class JaasGrantedAuthorityTests {
 	 */
 	@Test
 	public void authorityWithNullRoleFailsAssertion() {
-		assertThatThrownBy(() -> new JaasGrantedAuthority(null, null))
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> new JaasGrantedAuthority(null, null)).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("role cannot be null");
 	}
 
@@ -41,8 +39,8 @@ public class JaasGrantedAuthorityTests {
 	 */
 	@Test
 	public void authorityWithNullPrincipleFailsAssertion() {
-		assertThatThrownBy(() -> new JaasGrantedAuthority("role", null))
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> new JaasGrantedAuthority("role", null)).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("principal cannot be null");
 	}
+
 }

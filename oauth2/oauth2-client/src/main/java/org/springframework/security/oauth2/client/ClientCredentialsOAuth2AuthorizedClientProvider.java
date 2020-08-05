@@ -31,8 +31,8 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * An implementation of an {@link OAuth2AuthorizedClientProvider}
- * for the {@link AuthorizationGrantType#CLIENT_CREDENTIALS client_credentials} grant.
+ * An implementation of an {@link OAuth2AuthorizedClientProvider} for the
+ * {@link AuthorizationGrantType#CLIENT_CREDENTIALS client_credentials} grant.
  *
  * @author Joe Grandja
  * @since 5.2
@@ -40,20 +40,24 @@ import java.time.Instant;
  * @see DefaultClientCredentialsTokenResponseClient
  */
 public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
-	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient =
-			new DefaultClientCredentialsTokenResponseClient();
+
+	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient = new DefaultClientCredentialsTokenResponseClient();
+
 	private Duration clockSkew = Duration.ofSeconds(60);
+
 	private Clock clock = Clock.systemUTC();
 
 	/**
-	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
-	 * Returns {@code null} if authorization (or re-authorization) is not supported,
-	 * e.g. the client's {@link ClientRegistration#getAuthorizationGrantType() authorization grant type}
-	 * is not {@link AuthorizationGrantType#CLIENT_CREDENTIALS client_credentials} OR
-	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
-	 *
+	 * Attempt to authorize (or re-authorize) the
+	 * {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided
+	 * {@code context}. Returns {@code null} if authorization (or re-authorization) is not
+	 * supported, e.g. the client's {@link ClientRegistration#getAuthorizationGrantType()
+	 * authorization grant type} is not {@link AuthorizationGrantType#CLIENT_CREDENTIALS
+	 * client_credentials} OR the {@link OAuth2AuthorizedClient#getAccessToken() access
+	 * token} is not expired.
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization (or re-authorization) is not supported
+	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization (or
+	 * re-authorization) is not supported
 	 */
 	@Override
 	@Nullable
@@ -67,7 +71,8 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
 		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
-			// If client is already authorized but access token is NOT expired than no need for re-authorization
+			// If client is already authorized but access token is NOT expired than no
+			// need for re-authorization
 			return null;
 		}
 
@@ -78,17 +83,19 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 		// Therefore, renewing an expired access token (re-authorization)
 		// is the same as acquiring a new access token (authorization).
 
-		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(clientRegistration);
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				clientRegistration);
 
 		OAuth2AccessTokenResponse tokenResponse;
 		try {
 			tokenResponse = this.accessTokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
-		} catch (OAuth2AuthorizationException ex) {
+		}
+		catch (OAuth2AuthorizationException ex) {
 			throw new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex);
 		}
 
-		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken());
+		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
+				tokenResponse.getAccessToken());
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {
@@ -96,23 +103,26 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	}
 
 	/**
-	 * Sets the client used when requesting an access token credential at the Token Endpoint for the {@code client_credentials} grant.
-	 *
-	 * @param accessTokenResponseClient the client used when requesting an access token credential at the Token Endpoint for the {@code client_credentials} grant
+	 * Sets the client used when requesting an access token credential at the Token
+	 * Endpoint for the {@code client_credentials} grant.
+	 * @param accessTokenResponseClient the client used when requesting an access token
+	 * credential at the Token Endpoint for the {@code client_credentials} grant
 	 */
-	public void setAccessTokenResponseClient(OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient) {
+	public void setAccessTokenResponseClient(
+			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
 	}
 
 	/**
 	 * Sets the maximum acceptable clock skew, which is used when checking the
-	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is 60 seconds.
+	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is
+	 * 60 seconds.
 	 *
 	 * <p>
-	 * An access token is considered expired if {@code OAuth2AccessToken#getExpiresAt() - clockSkew}
-	 * is before the current time {@code clock#instant()}.
-	 *
+	 * An access token is considered expired if
+	 * {@code OAuth2AccessToken#getExpiresAt() - clockSkew} is before the current time
+	 * {@code clock#instant()}.
 	 * @param clockSkew the maximum acceptable clock skew
 	 */
 	public void setClockSkew(Duration clockSkew) {
@@ -122,12 +132,13 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	}
 
 	/**
-	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
-	 *
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access
+	 * token expiry.
 	 * @param clock the clock
 	 */
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
 	}
+
 }

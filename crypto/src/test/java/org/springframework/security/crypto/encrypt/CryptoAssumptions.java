@@ -41,16 +41,12 @@ public class CryptoAssumptions {
 			aes256Available = Cipher.getMaxAllowedKeyLength("AES") >= 256;
 		}
 		catch (NoSuchAlgorithmException e) {
-			throw new AssumptionViolatedException(
-					cipherAlgorithm + " not available, skipping test", e);
+			throw new AssumptionViolatedException(cipherAlgorithm + " not available, skipping test", e);
 		}
 		catch (NoSuchPaddingException e) {
-			throw new AssumptionViolatedException(
-					cipherAlgorithm + " padding not available, skipping test", e);
+			throw new AssumptionViolatedException(cipherAlgorithm + " padding not available, skipping test", e);
 		}
-		Assume.assumeTrue(
-				"AES key length of 256 not allowed, skipping test",
-				aes256Available);
+		Assume.assumeTrue("AES key length of 256 not allowed, skipping test", aes256Available);
 
 	}
 

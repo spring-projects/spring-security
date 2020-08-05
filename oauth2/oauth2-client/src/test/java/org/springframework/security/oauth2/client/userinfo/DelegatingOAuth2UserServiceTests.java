@@ -46,8 +46,7 @@ public class DelegatingOAuth2UserServiceTests {
 	@Test(expected = IllegalArgumentException.class)
 	@SuppressWarnings("unchecked")
 	public void loadUserWhenUserRequestIsNullThenThrowIllegalArgumentException() {
-		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService =
-			new DelegatingOAuth2UserService<>(
+		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
 				Arrays.asList(mock(OAuth2UserService.class), mock(OAuth2UserService.class)));
 		delegatingUserService.loadUser(null);
 	}
@@ -61,8 +60,8 @@ public class DelegatingOAuth2UserServiceTests {
 		OAuth2User mockUser = mock(OAuth2User.class);
 		when(userService3.loadUser(any(OAuth2UserRequest.class))).thenReturn(mockUser);
 
-		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService =
-			new DelegatingOAuth2UserService<>(Arrays.asList(userService1, userService2, userService3));
+		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
+				Arrays.asList(userService1, userService2, userService3));
 
 		OAuth2User loadedUser = delegatingUserService.loadUser(mock(OAuth2UserRequest.class));
 		assertThat(loadedUser).isEqualTo(mockUser);
@@ -75,10 +74,11 @@ public class DelegatingOAuth2UserServiceTests {
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService2 = mock(OAuth2UserService.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService3 = mock(OAuth2UserService.class);
 
-		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService =
-			new DelegatingOAuth2UserService<>(Arrays.asList(userService1, userService2, userService3));
+		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
+				Arrays.asList(userService1, userService2, userService3));
 
 		OAuth2User loadedUser = delegatingUserService.loadUser(mock(OAuth2UserRequest.class));
 		assertThat(loadedUser).isNull();
 	}
+
 }

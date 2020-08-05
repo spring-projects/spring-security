@@ -60,8 +60,9 @@ import java.util.*;
  * order to load the authorities for the user.
  *
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author Robin Bramley
  * @author Ray Krueger
  * @author Luke Taylor
@@ -69,6 +70,7 @@ import java.util.*;
  * @see OpenIDAuthenticationProvider
  */
 public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -78,8 +80,11 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	// ================================================================================================
 
 	private OpenIDConsumer consumer;
+
 	private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
+
 	private Map<String, String> realmMapping = Collections.emptyMap();
+
 	private Set<String> returnToUrlParameters = Collections.emptySet();
 
 	// ~ Constructors
@@ -105,12 +110,9 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 			}
 		}
 
-		if (returnToUrlParameters.isEmpty()
-				&& getRememberMeServices() instanceof AbstractRememberMeServices) {
+		if (returnToUrlParameters.isEmpty() && getRememberMeServices() instanceof AbstractRememberMeServices) {
 			returnToUrlParameters = new HashSet<>();
-			returnToUrlParameters
-					.add(((AbstractRememberMeServices) getRememberMeServices())
-							.getParameter());
+			returnToUrlParameters.add(((AbstractRememberMeServices) getRememberMeServices()).getParameter());
 		}
 	}
 
@@ -124,8 +126,8 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 * </ol>
 	 */
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request,
-			HttpServletResponse response) throws AuthenticationException, IOException {
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException, IOException {
 		OpenIDAuthenticationToken token;
 
 		String identity = request.getParameter("openid.identity");
@@ -136,11 +138,9 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 			try {
 				String returnToUrl = buildReturnToUrl(request);
 				String realm = lookupRealm(returnToUrl);
-				String openIdUrl = consumer.beginConsumption(request, claimedIdentity,
-						returnToUrl, realm);
+				String openIdUrl = consumer.beginConsumption(request, claimedIdentity, returnToUrl, realm);
 				if (logger.isDebugEnabled()) {
-					logger.debug("return_to is '" + returnToUrl + "', realm is '" + realm
-							+ "'");
+					logger.debug("return_to is '" + returnToUrl + "', realm is '" + realm + "'");
 					logger.debug("Redirecting to " + openIdUrl);
 				}
 				response.sendRedirect(openIdUrl);
@@ -169,8 +169,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 		token.setDetails(authenticationDetailsSource.buildDetails(request));
 
 		// delegate to the authentication provider
-		Authentication authentication = this.getAuthenticationManager().authenticate(
-				token);
+		Authentication authentication = this.getAuthenticationManager().authenticate(token);
 
 		return authentication;
 	}
@@ -183,8 +182,8 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 				URL url = new URL(returnToUrl);
 				int port = url.getPort();
 
-				StringBuilder realmBuffer = new StringBuilder(returnToUrl.length())
-						.append(url.getProtocol()).append("://").append(url.getHost());
+				StringBuilder realmBuffer = new StringBuilder(returnToUrl.length()).append(url.getProtocol())
+						.append("://").append(url.getHost());
 				if (port > 0) {
 					realmBuffer.append(":").append(port);
 				}
@@ -202,7 +201,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	/**
 	 * Builds the <tt>return_to</tt> URL that will be sent to the OpenID service provider.
 	 * By default returns the URL of the current request.
-	 *
 	 * @param request the current request which is being processed by this filter
 	 * @return The <tt>return_to</tt> URL.
 	 */
@@ -259,7 +257,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 * protocol, hostname and port followed by a trailing slash. This means that
 	 * <tt>https://foo.example.com/login/openid</tt> will automatically become
 	 * <tt>http://foo.example.com:80/</tt>
-	 *
 	 * @param realmMapping containing returnToUrl -&gt; realm mappings
 	 */
 	public void setRealmMapping(Map<String, String> realmMapping) {
@@ -269,7 +266,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	/**
 	 * The name of the request parameter containing the OpenID identity, as submitted from
 	 * the initial login form.
-	 *
 	 * @param claimedIdentityFieldName defaults to "openid_identifier"
 	 */
 	public void setClaimedIdentityFieldName(String claimedIdentityFieldName) {
@@ -284,7 +280,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 * Specifies any extra parameters submitted along with the identity field which should
 	 * be appended to the {@code return_to} URL which is assembled by
 	 * {@link #buildReturnToUrl}.
-	 *
 	 * @param returnToUrlParameters the set of parameter names. If not set, it will
 	 * default to the parameter name used by the {@code RememberMeServices} obtained from
 	 * the parent class (if one is set).
@@ -296,7 +291,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 
 	/**
 	 * Performs URL encoding with UTF-8
-	 *
 	 * @param value the value to URL encode
 	 * @return the encoded value
 	 */
@@ -311,4 +305,5 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 			throw err;
 		}
 	}
+
 }

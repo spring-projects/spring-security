@@ -40,6 +40,7 @@ import java.util.NoSuchElementException;
  * @author Andrey Grebnev
  */
 public class Enumerator<T> implements Enumeration<T> {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -54,7 +55,6 @@ public class Enumerator<T> implements Enumeration<T> {
 
 	/**
 	 * Return an Enumeration over the values of the specified Collection.
-	 *
 	 * @param collection Collection whose values should be enumerated
 	 */
 	public Enumerator(Collection<T> collection) {
@@ -63,7 +63,6 @@ public class Enumerator<T> implements Enumeration<T> {
 
 	/**
 	 * Return an Enumeration over the values of the specified Collection.
-	 *
 	 * @param collection Collection whose values should be enumerated
 	 * @param clone true to clone iterator
 	 */
@@ -73,7 +72,6 @@ public class Enumerator<T> implements Enumeration<T> {
 
 	/**
 	 * Return an Enumeration over the values returned by the specified Iterator.
-	 *
 	 * @param iterator Iterator to be wrapped
 	 */
 	public Enumerator(Iterator<T> iterator) {
@@ -82,7 +80,6 @@ public class Enumerator<T> implements Enumeration<T> {
 
 	/**
 	 * Return an Enumeration over the values returned by the specified Iterator.
-	 *
 	 * @param iterator Iterator to be wrapped
 	 * @param clone true to clone iterator
 	 */
@@ -104,7 +101,6 @@ public class Enumerator<T> implements Enumeration<T> {
 
 	/**
 	 * Return an Enumeration over the values of the specified Map.
-	 *
 	 * @param map Map whose values should be enumerated
 	 */
 	public Enumerator(Map<?, T> map) {
@@ -113,7 +109,6 @@ public class Enumerator<T> implements Enumeration<T> {
 
 	/**
 	 * Return an Enumeration over the values of the specified Map.
-	 *
 	 * @param map Map whose values should be enumerated
 	 * @param clone true to clone iterator
 	 */
@@ -126,7 +121,6 @@ public class Enumerator<T> implements Enumeration<T> {
 
 	/**
 	 * Tests if this enumeration contains more elements.
-	 *
 	 * @return <code>true</code> if and only if this enumeration object contains at least
 	 * one more element to provide, <code>false</code> otherwise
 	 */
@@ -137,12 +131,11 @@ public class Enumerator<T> implements Enumeration<T> {
 	/**
 	 * Returns the next element of this enumeration if this enumeration has at least one
 	 * more element to provide.
-	 *
 	 * @return the next element of this enumeration
-	 *
 	 * @exception NoSuchElementException if no more elements exist
 	 */
 	public T nextElement() throws NoSuchElementException {
 		return (iterator.next());
 	}
+
 }

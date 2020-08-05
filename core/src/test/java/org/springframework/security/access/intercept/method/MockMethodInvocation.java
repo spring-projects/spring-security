@@ -22,18 +22,21 @@ import java.lang.reflect.Method;
 
 @SuppressWarnings("unchecked")
 public class MockMethodInvocation implements MethodInvocation {
+
 	private Method method;
+
 	private Object targetObject;
+
 	private Object[] arguments = new Object[0];
 
 	public MockMethodInvocation(Object targetObject, Class clazz, String methodName, Class[] parameterTypes,
-								Object[] arguments) throws NoSuchMethodException {
+			Object[] arguments) throws NoSuchMethodException {
 		this(targetObject, clazz, methodName, parameterTypes);
 		this.arguments = arguments;
 	}
 
-	public MockMethodInvocation(Object targetObject, Class clazz, String methodName,
-			Class... parameterTypes) throws NoSuchMethodException {
+	public MockMethodInvocation(Object targetObject, Class clazz, String methodName, Class... parameterTypes)
+			throws NoSuchMethodException {
 		this.method = clazz.getMethod(methodName, parameterTypes);
 		this.targetObject = targetObject;
 	}
@@ -57,4 +60,5 @@ public class MockMethodInvocation implements MethodInvocation {
 	public Object proceed() {
 		return null;
 	}
+
 }

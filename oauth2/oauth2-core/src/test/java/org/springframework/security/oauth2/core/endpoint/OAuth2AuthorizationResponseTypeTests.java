@@ -35,4 +35,5 @@ public class OAuth2AuthorizationResponseTypeTests {
 	public void getValueWhenResponseTypeTokenThenReturnToken() {
 		assertThat(OAuth2AuthorizationResponseType.TOKEN.getValue()).isEqualTo("token");
 	}
+
 }

@@ -52,12 +52,13 @@ public class NamespaceHttpFirewallTests {
 	@Test
 	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() {
 		this.rule.register(HttpFirewallConfig.class).autowire();
-		assertThatCode(() -> this.mvc.perform(get("/public/../private/")))
-				.isInstanceOf(RequestRejectedException.class);
+		assertThatCode(() -> this.mvc.perform(get("/public/../private/"))).isInstanceOf(RequestRejectedException.class);
 	}
 
 	@EnableWebSecurity
-	static class HttpFirewallConfig {}
+	static class HttpFirewallConfig {
+
+	}
 
 	@Test
 	public void requestWithCustomFirewallThenBehaviorMatchesNamespace() {
@@ -68,11 +69,12 @@ public class NamespaceHttpFirewallTests {
 
 	@EnableWebSecurity
 	static class CustomHttpFirewallConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(WebSecurity web) {
-			web
-				.httpFirewall(new CustomHttpFirewall());
+			web.httpFirewall(new CustomHttpFirewall());
 		}
+
 	}
 
 	@Test
@@ -84,21 +86,24 @@ public class NamespaceHttpFirewallTests {
 
 	@EnableWebSecurity
 	static class CustomHttpFirewallBeanConfig {
+
 		@Bean
 		HttpFirewall firewall() {
 			return new CustomHttpFirewall();
 		}
+
 	}
 
 	static class CustomHttpFirewall extends DefaultHttpFirewall {
 
 		@Override
-		public FirewalledRequest getFirewalledRequest(HttpServletRequest request)
-				throws RequestRejectedException {
+		public FirewalledRequest getFirewalledRequest(HttpServletRequest request) throws RequestRejectedException {
 			if (request.getParameter("deny") != null) {
 				throw new RequestRejectedException("custom rejection");
 			}
 			return super.getFirewalledRequest(request);
 		}
+
 	}
+
 }

@@ -46,13 +46,17 @@ import static org.assertj.core.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class PasswordComparisonAuthenticatorTests {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	@Autowired
 	private DefaultSpringSecurityContextSource contextSource;
+
 	private PasswordComparisonAuthenticator authenticator;
+
 	private Authentication bob;
+
 	private Authentication ben;
 
 	// ~ Methods
@@ -82,8 +86,7 @@ public class PasswordComparisonAuthenticatorTests {
 		authenticator.afterPropertiesSet();
 
 		try {
-			authenticator.authenticate(new UsernamePasswordAuthenticationToken("Joe",
-					"pass"));
+			authenticator.authenticate(new UsernamePasswordAuthenticationToken("Joe", "pass"));
 			fail("Expected exception on failed user search");
 		}
 		catch (UsernameNotFoundException expected) {
@@ -94,14 +97,12 @@ public class PasswordComparisonAuthenticatorTests {
 	public void testLdapPasswordCompareFailsWithWrongPassword() {
 		// Don't retrieve the password
 		authenticator.setUserAttributes(new String[] { "uid", "cn", "sn" });
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob",
-				"wrongpass"));
+		authenticator.authenticate(new UsernamePasswordAuthenticationToken("bob", "wrongpass"));
 	}
 
 	@Test
 	public void testMultipleDnPatternsWorkOk() {
-		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=nonexistent",
-				"uid={0},ou=people" });
+		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=nonexistent", "uid={0},ou=people" });
 		authenticator.authenticate(bob);
 	}
 
@@ -110,8 +111,7 @@ public class PasswordComparisonAuthenticatorTests {
 		authenticator.setUserAttributes(new String[] { "uid", "userPassword" });
 
 		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);
-		assertThat(user
-				.getAttributes().size()).withFailMessage("Should have retrieved 2 attribute (uid)").isEqualTo(2);
+		assertThat(user.getAttributes().size()).withFailMessage("Should have retrieved 2 attribute (uid)").isEqualTo(2);
 	}
 
 	@Test
@@ -145,8 +145,7 @@ public class PasswordComparisonAuthenticatorTests {
 	public void testLdapCompareWithDifferentPasswordAttributeSucceeds() {
 		authenticator.setUserAttributes(new String[] { "uid" });
 		authenticator.setPasswordAttributeName("cn");
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken("ben",
-				"Ben Alex"));
+		authenticator.authenticate(new UsernamePasswordAuthenticationToken("ben", "Ben Alex"));
 	}
 
 	@Test
@@ -155,12 +154,11 @@ public class PasswordComparisonAuthenticatorTests {
 		authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
 
-		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
-				"uid=Bob,ou=people"));
+		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=Bob,ou=people"));
 		ctx.setAttributeValue("userPassword", "bobspassword");
 
 		authenticator.setUserSearch(new MockUserSearch(ctx));
-		authenticator.authenticate(new UsernamePasswordAuthenticationToken(
-				"shouldntbeused", "bobspassword"));
+		authenticator.authenticate(new UsernamePasswordAuthenticationToken("shouldntbeused", "bobspassword"));
 	}
+
 }

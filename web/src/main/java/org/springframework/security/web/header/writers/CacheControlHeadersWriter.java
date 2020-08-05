@@ -38,8 +38,11 @@ import org.springframework.security.web.header.HeaderWriter;
  * @since 3.2
  */
 public final class CacheControlHeadersWriter implements HeaderWriter {
+
 	private static final String EXPIRES = "Expires";
+
 	private static final String PRAGMA = "Pragma";
+
 	private static final String CACHE_CONTROL = "Cache-Control";
 
 	private final HeaderWriter delegate;
@@ -53,8 +56,8 @@ public final class CacheControlHeadersWriter implements HeaderWriter {
 
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		if (hasHeader(response, CACHE_CONTROL) || hasHeader(response, EXPIRES)
-				|| hasHeader(response, PRAGMA) || response.getStatus() == HttpStatus.NOT_MODIFIED.value()) {
+		if (hasHeader(response, CACHE_CONTROL) || hasHeader(response, EXPIRES) || hasHeader(response, PRAGMA)
+				|| response.getStatus() == HttpStatus.NOT_MODIFIED.value()) {
 			return;
 		}
 		this.delegate.writeHeaders(request, response);
@@ -66,10 +69,10 @@ public final class CacheControlHeadersWriter implements HeaderWriter {
 
 	private static List<Header> createHeaders() {
 		List<Header> headers = new ArrayList<>(3);
-		headers.add(new Header(CACHE_CONTROL,
-				"no-cache, no-store, max-age=0, must-revalidate"));
+		headers.add(new Header(CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"));
 		headers.add(new Header(PRAGMA, "no-cache"));
 		headers.add(new Header(EXPIRES, "0"));
 		return headers;
 	}
+
 }

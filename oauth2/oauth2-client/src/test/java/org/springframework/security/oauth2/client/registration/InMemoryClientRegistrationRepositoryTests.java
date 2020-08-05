@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class InMemoryClientRegistrationRepositoryTests {
+
 	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(this.registration);
@@ -94,4 +95,5 @@ public class InMemoryClientRegistrationRepositoryTests {
 	public void iteratorWhenGetThenContainsAll() {
 		assertThat(this.clients).containsOnly(this.registration);
 	}
+
 }

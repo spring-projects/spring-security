@@ -48,6 +48,7 @@ public class WithMockUserParentTests extends WithMockUserParent {
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
+
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -56,5 +57,7 @@ public class WithMockUserParentTests extends WithMockUserParent {
 					.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
+
 }

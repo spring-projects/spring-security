@@ -27,6 +27,7 @@ import org.springframework.security.web.authentication.NullRememberMeServices;
  * @author Ben Alex
  */
 public class NullRememberMeServicesTests {
+
 	// ~ Methods
 	// ========================================================================================================
 	@Test
@@ -37,4 +38,5 @@ public class NullRememberMeServicesTests {
 		services.loginSuccess(null, null, null);
 
 	}
+
 }

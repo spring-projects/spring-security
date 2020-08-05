@@ -42,6 +42,7 @@ public class BasicAuthenticationConverterTests {
 
 	@Mock
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
+
 	private BasicAuthenticationConverter converter;
 
 	@Before

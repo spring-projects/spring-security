@@ -28,6 +28,7 @@ import org.springframework.security.web.server.WebFilterExchange;
  * @since 5.0
  */
 public interface ServerAuthenticationFailureHandler {
+
 	/**
 	 * Invoked when authentication attempt fails
 	 * @param webFilterExchange the exchange
@@ -35,4 +36,5 @@ public interface ServerAuthenticationFailureHandler {
 	 * @return a completion notification (success or error)
 	 */
 	Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception);
+
 }

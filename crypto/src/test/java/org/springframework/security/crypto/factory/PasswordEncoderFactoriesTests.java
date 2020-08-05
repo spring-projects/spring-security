@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class PasswordEncoderFactoriesTests {
+
 	private PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
 	private String rawPassword = "password";

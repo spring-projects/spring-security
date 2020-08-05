@@ -77,15 +77,14 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 import static org.springframework.web.bind.annotation.RequestMethod.TRACE;
 
 /**
- *
  * @author Rob Winch
  * @author Josh Cummings
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SecurityTestExecutionListeners
 public class CsrfConfigTests {
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/CsrfConfigTests";
+
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/CsrfConfigTests";
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -95,272 +94,183 @@ public class CsrfConfigTests {
 
 	@Test
 	public void postWhenDefaultConfigurationThenForbiddenSinceCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("AutoConfig")).autowire();
 
-		this.mvc.perform(post("/csrf"))
-				.andExpect(status().isForbidden())
-				.andExpect(csrfCreated());
+		this.mvc.perform(post("/csrf")).andExpect(status().isForbidden()).andExpect(csrfCreated());
 	}
 
 	@Test
 	public void putWhenDefaultConfigurationThenForbiddenSinceCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("AutoConfig")).autowire();
 
-		this.mvc.perform(put("/csrf"))
-				.andExpect(status().isForbidden())
-				.andExpect(csrfCreated());
+		this.mvc.perform(put("/csrf")).andExpect(status().isForbidden()).andExpect(csrfCreated());
 	}
 
 	@Test
 	public void patchWhenDefaultConfigurationThenForbiddenSinceCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("AutoConfig")).autowire();
 
-		this.mvc.perform(patch("/csrf"))
-				.andExpect(status().isForbidden())
-				.andExpect(csrfCreated());
+		this.mvc.perform(patch("/csrf")).andExpect(status().isForbidden()).andExpect(csrfCreated());
 	}
 
 	@Test
 	public void deleteWhenDefaultConfigurationThenForbiddenSinceCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("AutoConfig")).autowire();
 
-		this.mvc.perform(delete("/csrf"))
-				.andExpect(status().isForbidden())
-				.andExpect(csrfCreated());
+		this.mvc.perform(delete("/csrf")).andExpect(status().isForbidden()).andExpect(csrfCreated());
 	}
 
 	@Test
 	public void invalidWhenDefaultConfigurationThenForbiddenSinceCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("AutoConfig")).autowire();
 
-		this.mvc.perform(request("INVALID", new URI("/csrf")))
-				.andExpect(status().isForbidden())
+		this.mvc.perform(request("INVALID", new URI("/csrf"))).andExpect(status().isForbidden())
 				.andExpect(csrfCreated());
 	}
 
 	@Test
 	public void getWhenDefaultConfigurationThenCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
-		this.mvc.perform(get("/csrf"))
-				.andExpect(csrfInBody());
+		this.mvc.perform(get("/csrf")).andExpect(csrfInBody());
 	}
-
 
 	@Test
 	public void headWhenDefaultConfigurationThenCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
-		this.mvc.perform(head("/csrf-in-header"))
-				.andExpect(csrfInHeader());
+		this.mvc.perform(head("/csrf-in-header")).andExpect(csrfInHeader());
 	}
 
 	@Test
 	public void traceWhenDefaultConfigurationThenCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
-		MockMvc traceEnabled = MockMvcBuilders
-				.webAppContextSetup((WebApplicationContext) this.spring.getContext())
+		MockMvc traceEnabled = MockMvcBuilders.webAppContextSetup((WebApplicationContext) this.spring.getContext())
 				.apply(springSecurity())
 				.addDispatcherServletCustomizer(dispatcherServlet -> dispatcherServlet.setDispatchTraceRequest(true))
 				.build();
 
-		traceEnabled.perform(request(HttpMethod.TRACE, "/csrf-in-header"))
-				.andExpect(csrfInHeader());
+		traceEnabled.perform(request(HttpMethod.TRACE, "/csrf-in-header")).andExpect(csrfInHeader());
 	}
 
 	@Test
 	public void optionsWhenDefaultConfigurationThenCsrfIsEnabled() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
-		this.mvc.perform(options("/csrf-in-header"))
-				.andExpect(csrfInHeader());
+		this.mvc.perform(options("/csrf-in-header")).andExpect(csrfInHeader());
 	}
 
 	@Test
 	public void postWhenCsrfDisabledThenRequestAllowed() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("CsrfDisabled")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("CsrfDisabled")).autowire();
 
-		this.mvc.perform(post("/ok"))
-				.andExpect(status().isOk());
+		this.mvc.perform(post("/ok")).andExpect(status().isOk());
 
 		assertThat(getFilter(this.spring, CsrfFilter.class)).isNull();
 	}
 
 	@Test
 	public void postWhenCsrfElementEnabledThenForbidden() throws Exception {
-		this.spring.configLocations(
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(post("/csrf"))
-				.andExpect(status().isForbidden())
-				.andExpect(csrfCreated());
+		this.mvc.perform(post("/csrf")).andExpect(status().isForbidden()).andExpect(csrfCreated());
 	}
 
 	@Test
 	public void putWhenCsrfElementEnabledThenForbidden() throws Exception {
-		this.spring.configLocations(
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(put("/csrf"))
-				.andExpect(status().isForbidden())
-				.andExpect(csrfCreated());
+		this.mvc.perform(put("/csrf")).andExpect(status().isForbidden()).andExpect(csrfCreated());
 	}
 
 	@Test
 	public void patchWhenCsrfElementEnabledThenForbidden() throws Exception {
-		this.spring.configLocations(
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(patch("/csrf"))
-				.andExpect(status().isForbidden())
-				.andExpect(csrfCreated());
+		this.mvc.perform(patch("/csrf")).andExpect(status().isForbidden()).andExpect(csrfCreated());
 	}
 
 	@Test
 	public void deleteWhenCsrfElementEnabledThenForbidden() throws Exception {
-		this.spring.configLocations(
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(delete("/csrf"))
-				.andExpect(status().isForbidden())
-				.andExpect(csrfCreated());
+		this.mvc.perform(delete("/csrf")).andExpect(status().isForbidden()).andExpect(csrfCreated());
 	}
 
 	@Test
 	public void invalidWhenCsrfElementEnabledThenForbidden() throws Exception {
-		this.spring.configLocations(
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(request("INVALID", new URI("/csrf")))
-				.andExpect(status().isForbidden())
+		this.mvc.perform(request("INVALID", new URI("/csrf"))).andExpect(status().isForbidden())
 				.andExpect(csrfCreated());
 	}
 
 	@Test
 	public void getWhenCsrfElementEnabledThenOk() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(get("/csrf"))
-				.andExpect(csrfInBody());
+		this.mvc.perform(get("/csrf")).andExpect(csrfInBody());
 	}
 
 	@Test
 	public void headWhenCsrfElementEnabledThenOk() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(head("/csrf-in-header"))
-				.andExpect(csrfInHeader());
+		this.mvc.perform(head("/csrf-in-header")).andExpect(csrfInHeader());
 	}
 
 	@Test
 	public void traceWhenCsrfElementEnabledThenOk() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("CsrfEnabled")).autowire();
 
-		MockMvc traceEnabled = MockMvcBuilders
-				.webAppContextSetup((WebApplicationContext) this.spring.getContext())
+		MockMvc traceEnabled = MockMvcBuilders.webAppContextSetup((WebApplicationContext) this.spring.getContext())
 				.apply(springSecurity())
 				.addDispatcherServletCustomizer(dispatcherServlet -> dispatcherServlet.setDispatchTraceRequest(true))
 				.build();
 
-		traceEnabled.perform(request(HttpMethod.TRACE, "/csrf-in-header"))
-				.andExpect(csrfInHeader());
+		traceEnabled.perform(request(HttpMethod.TRACE, "/csrf-in-header")).andExpect(csrfInHeader());
 	}
 
 	@Test
 	public void optionsWhenCsrfElementEnabledThenOk() throws Exception {
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(options("/csrf-in-header"))
-				.andExpect(csrfInHeader());
+		this.mvc.perform(options("/csrf-in-header")).andExpect(csrfInHeader());
 	}
 
 	@Test
 	public void autowireWhenCsrfElementEnabledThenCreatesCsrfRequestDataValueProcessor() {
-		this.spring.configLocations(
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 
 		assertThat(this.spring.getContext().getBean(RequestDataValueProcessor.class)).isNotNull();
 	}
 
 	@Test
-	public void postWhenUsingCsrfAndCustomAccessDeniedHandlerThenTheHandlerIsAppropriatelyEngaged()
-		throws Exception {
+	public void postWhenUsingCsrfAndCustomAccessDeniedHandlerThenTheHandlerIsAppropriatelyEngaged() throws Exception {
 
-		this.spring.configLocations(
-				this.xml("WithAccessDeniedHandler"),
-				this.xml("shared-access-denied-handler")
-			).autowire();
+		this.spring.configLocations(this.xml("WithAccessDeniedHandler"), this.xml("shared-access-denied-handler"))
+				.autowire();
 
-		this.mvc.perform(post("/ok"))
-				.andExpect(status().isIAmATeapot());
+		this.mvc.perform(post("/ok")).andExpect(status().isIAmATeapot());
 	}
 
 	@Test
 	public void postWhenHasCsrfTokenButSessionExpiresThenRequestIsCancelledAfterSuccessfulAuthentication()
-		throws Exception {
+			throws Exception {
 
-		this.spring.configLocations(
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 
 		// simulates a request that has no authentication (e.g. session time-out)
-		MvcResult result = this.mvc.perform(post("/authenticated")
-												.with(csrf()))
-								.andExpect(redirectedUrl("http://localhost/login"))
-								.andReturn();
+		MvcResult result = this.mvc.perform(post("/authenticated").with(csrf()))
+				.andExpect(redirectedUrl("http://localhost/login")).andReturn();
 
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 
-		// if the request cache is consulted, then it will redirect back to /some-url, which we don't want
-		this.mvc.perform(post("/login")
-							.param("username", "user")
-							.param("password", "password")
-							.session(session)
-							.with(csrf()))
+		// if the request cache is consulted, then it will redirect back to /some-url,
+		// which we don't want
+		this.mvc.perform(
+				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
 				.andExpect(redirectedUrl("/"));
 	}
 
@@ -368,24 +278,18 @@ public class CsrfConfigTests {
 	public void getWhenHasCsrfTokenButSessionExpiresThenRequestIsRememeberedAfterSuccessfulAuthentication()
 			throws Exception {
 
-		this.spring.configLocations(
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 
 		// simulates a request that has no authentication (e.g. session time-out)
-		MvcResult result =
-				this.mvc.perform(get("/authenticated"))
-						.andExpect(redirectedUrl("http://localhost/login"))
-						.andReturn();
+		MvcResult result = this.mvc.perform(get("/authenticated")).andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn();
 
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 
-		// if the request cache is consulted, then it will redirect back to /some-url, which we do want
-		this.mvc.perform(post("/login")
-							.param("username", "user")
-							.param("password", "password")
-							.session(session)
-							.with(csrf()))
+		// if the request cache is consulted, then it will redirect back to /some-url,
+		// which we do want
+		this.mvc.perform(
+				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
 				.andExpect(redirectedUrl("http://localhost/authenticated"));
 	}
 
@@ -394,33 +298,23 @@ public class CsrfConfigTests {
 	 */
 	@Test
 	public void postWhenUsingCsrfAndCustomSessionManagementAndNoSessionThenStillRedirectsToInvalidSessionUrl()
-		throws Exception {
+			throws Exception {
 
-		this.spring.configLocations(
-				this.xml("WithSessionManagement")
-			).autowire();
+		this.spring.configLocations(this.xml("WithSessionManagement")).autowire();
 
 		MvcResult result = this.mvc.perform(post("/ok").param("_csrf", "abc"))
-								.andExpect(redirectedUrl("/error/sessionError"))
-								.andReturn();
+				.andExpect(redirectedUrl("/error/sessionError")).andReturn();
 
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 
-		this.mvc.perform(post("/csrf")
-							.session(session))
-					.andExpect(status().isForbidden());
+		this.mvc.perform(post("/csrf").session(session)).andExpect(status().isForbidden());
 	}
 
 	@Test
-	public void requestWhenUsingCustomRequestMatcherConfiguredThenAppliesAccordingly()
-		throws Exception {
+	public void requestWhenUsingCustomRequestMatcherConfiguredThenAppliesAccordingly() throws Exception {
 
-		SpringTestContext context =
-				this.spring.configLocations(
-						this.xml("shared-controllers"),
-						this.xml("WithRequestMatcher"),
-						this.xml("mock-request-matcher")
-				);
+		SpringTestContext context = this.spring.configLocations(this.xml("shared-controllers"),
+				this.xml("WithRequestMatcher"), this.xml("mock-request-matcher"));
 
 		context.autowire();
 
@@ -435,84 +329,56 @@ public class CsrfConfigTests {
 	}
 
 	@Test
-	public void getWhenDefaultConfigurationThenSessionNotImmediatelyCreated()
-		throws Exception {
+	public void getWhenDefaultConfigurationThenSessionNotImmediatelyCreated() throws Exception {
 
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
-		MvcResult result = this.mvc.perform(get("/ok"))
-								.andExpect(status().isOk())
-								.andReturn();
+		MvcResult result = this.mvc.perform(get("/ok")).andExpect(status().isOk()).andReturn();
 
 		assertThat(result.getRequest().getSession(false)).isNull();
 	}
 
 	@Test
 	@WithMockUser
-	public void postWhenCsrfMismatchesThenForbidden()
-		throws Exception {
+	public void postWhenCsrfMismatchesThenForbidden() throws Exception {
 
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
 		MvcResult result = this.mvc.perform(get("/ok")).andReturn();
 
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 
-		this.mvc.perform(post("/ok")
-							.session(session)
-							.with(csrf().useInvalidToken()))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(post("/ok").session(session).with(csrf().useInvalidToken())).andExpect(status().isForbidden());
 	}
 
 	@Test
-	public void loginWhenDefaultConfigurationThenCsrfCleared()
-			throws Exception {
+	public void loginWhenDefaultConfigurationThenCsrfCleared() throws Exception {
 
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("AutoConfig")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
 
 		MvcResult result = this.mvc.perform(get("/csrf")).andReturn();
 
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 
-		this.mvc.perform(post("/login")
-							.param("username", "user")
-							.param("password", "password")
-							.session(session)
-							.with(csrf()))
-			.andExpect(status().isFound());
-
-		this.mvc.perform(get("/csrf").session(session))
-				.andExpect(csrfChanged(result));
-	}
-
-	@Test
-	public void logoutWhenDefaultConfigurationThenCsrfCleared()
-		throws Exception {
-
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("AutoConfig")
-			).autowire();
-
-		MvcResult result = this.mvc.perform(get("/csrf")).andReturn();
-
-		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
-
-		this.mvc.perform(post("/logout").session(session)
-							.with(csrf()))
+		this.mvc.perform(
+				post("/login").param("username", "user").param("password", "password").session(session).with(csrf()))
 				.andExpect(status().isFound());
 
-		this.mvc.perform(get("/csrf").session(session))
-				.andExpect(csrfChanged(result));
+		this.mvc.perform(get("/csrf").session(session)).andExpect(csrfChanged(result));
+	}
+
+	@Test
+	public void logoutWhenDefaultConfigurationThenCsrfCleared() throws Exception {
+
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("AutoConfig")).autowire();
+
+		MvcResult result = this.mvc.perform(get("/csrf")).andReturn();
+
+		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
+
+		this.mvc.perform(post("/logout").session(session).with(csrf())).andExpect(status().isFound());
+
+		this.mvc.perform(get("/csrf").session(session)).andExpect(csrfChanged(result));
 	}
 
 	/**
@@ -520,16 +386,15 @@ public class CsrfConfigTests {
 	 */
 	@Test
 	@WithMockUser
-	public void logoutWhenDefaultConfigurationThenDisabled()
-		throws Exception {
+	public void logoutWhenDefaultConfigurationThenDisabled() throws Exception {
 
-		this.spring.configLocations(
-				this.xml("shared-controllers"),
-				this.xml("CsrfEnabled")
-			).autowire();
+		this.spring.configLocations(this.xml("shared-controllers"), this.xml("CsrfEnabled")).autowire();
 
-		this.mvc.perform(get("/logout"))
-			.andExpect(status().isOk()); // renders form to log out but does not perform a redirect
+		this.mvc.perform(get("/logout")).andExpect(status().isOk()); // renders form to
+																		// log out but
+																		// does not
+																		// perform a
+																		// redirect
 
 		// still logged in
 		this.mvc.perform(get("/authenticated")).andExpect(status().isOk());
@@ -540,8 +405,8 @@ public class CsrfConfigTests {
 
 		List<Filter> filters = chain.getFilters("/any");
 
-		for ( Filter filter : filters ) {
-			if ( type.isAssignableFrom(filter.getClass()) ) {
+		for (Filter filter : filters) {
+			if (type.isAssignableFrom(filter.getClass())) {
 				return (T) filter;
 			}
 		}
@@ -555,6 +420,7 @@ public class CsrfConfigTests {
 
 	@Controller
 	public static class RootController {
+
 		@RequestMapping(value = "/csrf-in-header", method = { HEAD, TRACE, OPTIONS })
 		@ResponseBody
 		String csrfInHeaderAndBody(CsrfToken token, HttpServletResponse response) {
@@ -579,18 +445,18 @@ public class CsrfConfigTests {
 		String authenticated() {
 			return "authenticated";
 		}
+
 	}
 
 	private static class TeapotAccessDeniedHandler implements AccessDeniedHandler {
 
 		@Override
-		public void handle(
-				HttpServletRequest request,
-				HttpServletResponse response,
+		public void handle(HttpServletRequest request, HttpServletResponse response,
 				AccessDeniedException accessDeniedException) {
 
 			response.setStatus(HttpStatus.IM_A_TEAPOT_418);
 		}
+
 	}
 
 	ResultMatcher csrfChanged(MvcResult first) {
@@ -616,19 +482,24 @@ public class CsrfConfigTests {
 
 	@FunctionalInterface
 	interface ExceptionalFunction<IN, OUT> {
+
 		OUT apply(IN in) throws Exception;
+
 	}
 
 	static class CsrfCreatedResultMatcher implements ResultMatcher {
+
 		@Override
 		public void match(MvcResult result) {
 			MockHttpServletRequest request = result.getRequest();
 			CsrfToken token = WebTestUtils.getCsrfTokenRepository(request).loadToken(request);
 			assertThat(token).isNotNull();
 		}
+
 	}
 
 	static class CsrfReturnedResultMatcher implements ResultMatcher {
+
 		ExceptionalFunction<MvcResult, String> token;
 
 		CsrfReturnedResultMatcher(ExceptionalFunction<MvcResult, String> token) {
@@ -642,6 +513,7 @@ public class CsrfConfigTests {
 			assertThat(token).isNotNull();
 			assertThat(token.getToken()).isEqualTo(this.token.apply(result));
 		}
+
 	}
 
 }

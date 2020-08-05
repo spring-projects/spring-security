@@ -39,7 +39,9 @@ import java.util.List;
 public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered {
 
 	private String key;
+
 	private Object principal;
+
 	private List<GrantedAuthority> authorities;
 
 	private int order;
@@ -47,7 +49,6 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered 
 	/**
 	 * Creates a filter with a principal named "anonymousUser" and the single authority
 	 * "ROLE_ANONYMOUS".
-	 *
 	 * @param key the key to identify tokens created by this filter
 	 */
 	public AnonymousPayloadInterceptor(String key) {
@@ -55,12 +56,11 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered 
 	}
 
 	/**
-	 * @param key         key the key to identify tokens created by this filter
-	 * @param principal   the principal which will be used to represent anonymous users
+	 * @param key key the key to identify tokens created by this filter
+	 * @param principal the principal which will be used to represent anonymous users
 	 * @param authorities the authority list for anonymous users
 	 */
-	public AnonymousPayloadInterceptor(String key, Object principal,
-			List<GrantedAuthority> authorities) {
+	public AnonymousPayloadInterceptor(String key, Object principal, List<GrantedAuthority> authorities) {
 		Assert.hasLength(key, "key cannot be null or empty");
 		Assert.notNull(principal, "Anonymous authentication principal must be set");
 		Assert.notNull(authorities, "Anonymous authorities must be set");
@@ -80,14 +80,13 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered 
 
 	@Override
 	public Mono<Void> intercept(PayloadExchange exchange, PayloadInterceptorChain chain) {
-		return ReactiveSecurityContextHolder.getContext()
-				.switchIfEmpty(Mono.defer(() -> {
-					AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken(
-							this.key, this.principal, this.authorities);
-					return chain.next(exchange)
-							.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-							.then(Mono.empty());
-				}))
-				.flatMap(securityContext -> chain.next(exchange));
+		return ReactiveSecurityContextHolder.getContext().switchIfEmpty(Mono.defer(() -> {
+			AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken(this.key, this.principal,
+					this.authorities);
+			return chain.next(exchange)
+					.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+					.then(Mono.empty());
+		})).flatMap(securityContext -> chain.next(exchange));
 	}
+
 }

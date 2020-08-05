@@ -31,8 +31,11 @@ import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.no
  * @author Joe Grandja
  */
 public class OAuth2AuthorizedClientTests {
+
 	private ClientRegistration clientRegistration;
+
 	private String principalName;
+
 	private OAuth2AccessToken accessToken;
 
 	@Before
@@ -59,11 +62,12 @@ public class OAuth2AuthorizedClientTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-			this.clientRegistration, this.principalName, this.accessToken);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principalName, this.accessToken);
 
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName);
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(this.accessToken);
 	}
+
 }

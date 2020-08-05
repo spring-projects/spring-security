@@ -26,16 +26,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * <p>
- * Implementation of PasswordEncoder that uses the Argon2 hashing function.
- * Clients can optionally supply the length of the salt to use, the length
- * of the generated hash, a cpu cost parameter, a memory cost parameter
- * and a parallelization parameter.
+ * Implementation of PasswordEncoder that uses the Argon2 hashing function. Clients can
+ * optionally supply the length of the salt to use, the length of the generated hash, a
+ * cpu cost parameter, a memory cost parameter and a parallelization parameter.
  * </p>
  *
- * <p>Note:</p>
- * <p>The currently implementation uses Bouncy castle which does not exploit
- * parallelism/optimizations that password crackers will, so there is an
- * unnecessary asymmetry between attacker and defender.</p>
+ * <p>
+ * Note:
+ * </p>
+ * <p>
+ * The currently implementation uses Bouncy castle which does not exploit
+ * parallelism/optimizations that password crackers will, so there is an unnecessary
+ * asymmetry between attacker and defender.
+ * </p>
  *
  * @author Simeon Macke
  * @since 5.3
@@ -43,16 +46,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class Argon2PasswordEncoder implements PasswordEncoder {
 
 	private static final int DEFAULT_SALT_LENGTH = 16;
+
 	private static final int DEFAULT_HASH_LENGTH = 32;
+
 	private static final int DEFAULT_PARALLELISM = 1;
+
 	private static final int DEFAULT_MEMORY = 1 << 12;
+
 	private static final int DEFAULT_ITERATIONS = 3;
 
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final int hashLength;
+
 	private final int parallelism;
+
 	private final int memory;
+
 	private final int iterations;
 
 	private final BytesKeyGenerator saltGenerator;
@@ -75,12 +85,8 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 		byte[] salt = saltGenerator.generateKey();
 		byte[] hash = new byte[hashLength];
 
-		Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id).
-				withSalt(salt).
-				withParallelism(parallelism).
-				withMemoryAsKB(memory).
-				withIterations(iterations).
-				build();
+		Argon2Parameters params = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id).withSalt(salt)
+				.withParallelism(parallelism).withMemoryAsKB(memory).withIterations(iterations).build();
 		Argon2BytesGenerator generator = new Argon2BytesGenerator();
 		generator.init(params);
 		generator.generateBytes(rawPassword.toString().toCharArray(), hash);
@@ -99,7 +105,8 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 
 		try {
 			decoded = Argon2EncodingUtils.decode(encodedPassword);
-		} catch (IllegalArgumentException e) {
+		}
+		catch (IllegalArgumentException e) {
 			logger.warn("Malformed password hash", e);
 			return false;
 		}

@@ -32,6 +32,7 @@ import org.springframework.ldap.BadLdapGrammarException;
 final class LdapEncoder {
 
 	private static final int HEX = 16;
+
 	private static String[] NAME_ESCAPE_TABLE = new String[96];
 
 	private static String[] FILTER_ESCAPE_TABLE = new String['\\' + 1];
@@ -91,7 +92,6 @@ final class LdapEncoder {
 
 	/**
 	 * Escape a value for use in a filter.
-	 *
 	 * @param value the value to escape.
 	 * @return a properly escaped representation of the supplied value.
 	 */
@@ -137,7 +137,6 @@ final class LdapEncoder {
 	 * '&gt;' [greater than] - "\&gt;" <br/>
 	 * '"' [double quote] - "\"" <br/>
 	 * '\' [backslash] - "\\" <br/>
-	 *
 	 * @param value the value to escape.
 	 * @return The escaped value.
 	 */
@@ -183,7 +182,6 @@ final class LdapEncoder {
 
 	/**
 	 * Decodes a value. Converts escaped chars to ordinary chars.
-	 *
 	 * @param value Trimmed value, so no leading an trailing blanks, except an escaped
 	 * space last.
 	 * @return The decoded value as a string.
@@ -204,14 +202,12 @@ final class LdapEncoder {
 			if (currentChar == '\\') {
 				if (value.length() <= i + 1) {
 					// Ending with a single backslash is not allowed
-					throw new BadLdapGrammarException(
-							"Unexpected end of value " + "unterminated '\\'");
+					throw new BadLdapGrammarException("Unexpected end of value " + "unterminated '\\'");
 				}
 				else {
 					char nextChar = value.charAt(i + 1);
-					if (nextChar == ',' || nextChar == '=' || nextChar == '+'
-							|| nextChar == '<' || nextChar == '>' || nextChar == '#'
-							|| nextChar == ';' || nextChar == '\\' || nextChar == '\"'
+					if (nextChar == ',' || nextChar == '=' || nextChar == '+' || nextChar == '<' || nextChar == '>'
+							|| nextChar == '#' || nextChar == ';' || nextChar == '\\' || nextChar == '\"'
 							|| nextChar == ' ') {
 						// Normal backslash escape
 						decoded.append(nextChar);
@@ -219,9 +215,8 @@ final class LdapEncoder {
 					}
 					else {
 						if (value.length() <= i + 2) {
-							throw new BadLdapGrammarException("Unexpected end of value "
-									+ "expected special or hex, found '" + nextChar
-									+ "'");
+							throw new BadLdapGrammarException(
+									"Unexpected end of value " + "expected special or hex, found '" + nextChar + "'");
 						}
 						else {
 							// This should be a hex value
@@ -242,4 +237,5 @@ final class LdapEncoder {
 		return decoded.toString();
 
 	}
+
 }

@@ -34,13 +34,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Ben Alex
  * @author Rob Winch
  */
-public class AuthenticationSimpleHttpInvokerRequestExecutor extends
-		SimpleHttpInvokerRequestExecutor {
+public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpInvokerRequestExecutor {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	private static final Log logger = LogFactory
-			.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
+	private static final Log logger = LogFactory.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -53,13 +52,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends
 	/**
 	 * Provided so subclasses can perform additional configuration if required (eg set
 	 * additional request headers for non-security related information etc).
-	 *
 	 * @param con the HTTP connection to prepare
 	 * @param contentLength the length of the content to send
 	 *
 	 */
-	protected void doPrepareConnection(HttpURLConnection con, int contentLength)
-			throws IOException {
+	protected void doPrepareConnection(HttpURLConnection con, int contentLength) throws IOException {
 	}
 
 	/**
@@ -73,14 +70,11 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends
 	 * The <code>SecurityContextHolder</code> is used to obtain the relevant principal and
 	 * credentials.
 	 * </p>
-	 *
 	 * @param con the HTTP connection to prepare
 	 * @param contentLength the length of the content to send
-	 *
 	 * @throws IOException if thrown by HttpURLConnection methods
 	 */
-	protected void prepareConnection(HttpURLConnection con, int contentLength)
-			throws IOException {
+	protected void prepareConnection(HttpURLConnection con, int contentLength) throws IOException {
 		super.prepareConnection(con, contentLength);
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -105,4 +99,5 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends
 
 		doPrepareConnection(con, contentLength);
 	}
+
 }

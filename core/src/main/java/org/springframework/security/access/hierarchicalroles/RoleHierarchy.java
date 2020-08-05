@@ -36,7 +36,6 @@ public interface RoleHierarchy {
 	 * Role hierarchy: ROLE_A &gt; ROLE_B &gt; ROLE_C.<br>
 	 * Directly assigned authority: ROLE_A.<br>
 	 * Reachable authorities: ROLE_A, ROLE_B, ROLE_C.
-	 *
 	 * @param authorities - List of the directly assigned authorities.
 	 * @return List of all reachable authorities given the assigned authorities.
 	 */

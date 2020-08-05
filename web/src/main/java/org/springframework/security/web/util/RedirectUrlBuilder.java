@@ -26,12 +26,19 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class RedirectUrlBuilder {
+
 	private String scheme;
+
 	private String serverName;
+
 	private int port;
+
 	private String contextPath;
+
 	private String servletPath;
+
 	private String pathInfo;
+
 	private String query;
 
 	public void setScheme(String scheme) {
@@ -96,4 +103,5 @@ public class RedirectUrlBuilder {
 
 		return sb.toString();
 	}
+
 }

@@ -33,7 +33,6 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 	/**
 	 * The specified config attribute is supported if its an instance of a
 	 * {@link Jsr250SecurityConfig}.
-	 *
 	 * @param configAttribute The config attribute.
 	 * @return whether the config attribute is supported.
 	 */
@@ -43,7 +42,6 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 
 	/**
 	 * All classes are supported.
-	 *
 	 * @param clazz the class.
 	 * @return true
 	 */
@@ -56,14 +54,12 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 	 * <p>
 	 * If no JSR-250 attributes are found, it will abstain, otherwise it will grant or
 	 * deny access based on the attributes that are found.
-	 *
 	 * @param authentication The authentication object.
 	 * @param object The access object.
 	 * @param definition The configuration definition.
 	 * @return The vote.
 	 */
-	public int vote(Authentication authentication, Object object,
-			Collection<ConfigAttribute> definition) {
+	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> definition) {
 		boolean jsr250AttributeFound = false;
 
 		for (ConfigAttribute attribute : definition) {
@@ -88,4 +84,5 @@ public class Jsr250Voter implements AccessDecisionVoter<Object> {
 
 		return jsr250AttributeFound ? ACCESS_DENIED : ACCESS_ABSTAIN;
 	}
+
 }

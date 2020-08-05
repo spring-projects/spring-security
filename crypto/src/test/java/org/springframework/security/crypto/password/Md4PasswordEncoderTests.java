@@ -16,7 +16,6 @@
 
 package org.springframework.security.crypto.password;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
@@ -72,5 +71,5 @@ public class Md4PasswordEncoderTests {
 		Md4PasswordEncoder encoder = new Md4PasswordEncoder();
 		assertThat(encoder.matches("password", "{thisissalt}6cc7924dad12ade79dfb99e424f25260"));
 	}
-}
 
+}

@@ -48,8 +48,11 @@ import org.w3c.dom.NodeList;
  * @author Luke Taylor
  */
 public class AuthenticationManagerBeanDefinitionParser implements BeanDefinitionParser {
+
 	private static final String ATT_ALIAS = "alias";
+
 	private static final String ATT_REF = "ref";
+
 	private static final String ATT_ERASE_CREDENTIALS = "erase-credentials";
 
 	public BeanDefinition parse(Element element, ParserContext pc) {
@@ -57,23 +60,19 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 
 		if (!StringUtils.hasText(id)) {
 			if (pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
-				pc.getReaderContext().warning(
-						"Overriding globally registered AuthenticationManager",
+				pc.getReaderContext().warning("Overriding globally registered AuthenticationManager",
 						pc.extractSource(element));
 			}
 			id = BeanIds.AUTHENTICATION_MANAGER;
 		}
-		pc.pushContainingComponent(new CompositeComponentDefinition(element.getTagName(),
-				pc.extractSource(element)));
+		pc.pushContainingComponent(new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element)));
 
-		BeanDefinitionBuilder providerManagerBldr = BeanDefinitionBuilder
-				.rootBeanDefinition(ProviderManager.class);
+		BeanDefinitionBuilder providerManagerBldr = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
 
 		String alias = element.getAttribute(ATT_ALIAS);
 
 		List<BeanMetadataElement> providers = new ManagedList<>();
-		NamespaceHandlerResolver resolver = pc.getReaderContext()
-				.getNamespaceHandlerResolver();
+		NamespaceHandlerResolver resolver = pc.getReaderContext().getNamespaceHandlerResolver();
 
 		NodeList children = element.getChildNodes();
 
@@ -83,31 +82,26 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 				Element providerElt = (Element) node;
 				if (StringUtils.hasText(providerElt.getAttribute(ATT_REF))) {
 					if (providerElt.getAttributes().getLength() > 1) {
-						pc.getReaderContext().error(
-								"authentication-provider element cannot be used with other attributes "
-										+ "when using 'ref' attribute",
-								pc.extractSource(element));
+						pc.getReaderContext()
+								.error("authentication-provider element cannot be used with other attributes "
+										+ "when using 'ref' attribute", pc.extractSource(element));
 					}
 					NodeList providerChildren = providerElt.getChildNodes();
 					for (int j = 0; j < providerChildren.getLength(); j++) {
 						if (providerChildren.item(j) instanceof Element) {
-							pc.getReaderContext().error(
-									"authentication-provider element cannot have child elements when used "
-											+ "with 'ref' attribute",
-									pc.extractSource(element));
+							pc.getReaderContext()
+									.error("authentication-provider element cannot have child elements when used "
+											+ "with 'ref' attribute", pc.extractSource(element));
 						}
 					}
-					providers.add(new RuntimeBeanReference(providerElt
-							.getAttribute(ATT_REF)));
+					providers.add(new RuntimeBeanReference(providerElt.getAttribute(ATT_REF)));
 				}
 				else {
-					BeanDefinition provider = resolver.resolve(
-							providerElt.getNamespaceURI()).parse(providerElt, pc);
-					Assert.notNull(provider, () -> "Parser for " + providerElt.getNodeName()
-							+ " returned a null bean definition");
+					BeanDefinition provider = resolver.resolve(providerElt.getNamespaceURI()).parse(providerElt, pc);
+					Assert.notNull(provider,
+							() -> "Parser for " + providerElt.getNodeName() + " returned a null bean definition");
 					String providerId = pc.getReaderContext().generateBeanName(provider);
-					pc.registerBeanComponent(new BeanComponentDefinition(provider,
-							providerId));
+					pc.registerBeanComponent(new BeanComponentDefinition(provider, providerId));
 					providers.add(new RuntimeBeanReference(providerId));
 				}
 			}
@@ -120,29 +114,24 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 		providerManagerBldr.addConstructorArgValue(providers);
 
 		if ("false".equals(element.getAttribute(ATT_ERASE_CREDENTIALS))) {
-			providerManagerBldr.addPropertyValue("eraseCredentialsAfterAuthentication",
-					false);
+			providerManagerBldr.addPropertyValue("eraseCredentialsAfterAuthentication", false);
 		}
 
 		// Add the default event publisher
-		BeanDefinition publisher = new RootBeanDefinition(
-				DefaultAuthenticationEventPublisher.class);
+		BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
 		String pubId = pc.getReaderContext().generateBeanName(publisher);
 		pc.registerBeanComponent(new BeanComponentDefinition(publisher, pubId));
 		providerManagerBldr.addPropertyReference("authenticationEventPublisher", pubId);
 
-		pc.registerBeanComponent(new BeanComponentDefinition(providerManagerBldr
-				.getBeanDefinition(), id));
+		pc.registerBeanComponent(new BeanComponentDefinition(providerManagerBldr.getBeanDefinition(), id));
 
 		if (StringUtils.hasText(alias)) {
 			pc.getRegistry().registerAlias(id, alias);
-			pc.getReaderContext().fireAliasRegistered(id, alias,
-					pc.extractSource(element));
+			pc.getReaderContext().fireAliasRegistered(id, alias, pc.extractSource(element));
 		}
 		if (!BeanIds.AUTHENTICATION_MANAGER.equals(id)) {
 			pc.getRegistry().registerAlias(id, BeanIds.AUTHENTICATION_MANAGER);
-			pc.getReaderContext().fireAliasRegistered(id, BeanIds.AUTHENTICATION_MANAGER,
-					pc.extractSource(element));
+			pc.getReaderContext().fireAliasRegistered(id, BeanIds.AUTHENTICATION_MANAGER, pc.extractSource(element));
 		}
 
 		pc.popAndRegisterContainingComponent();
@@ -156,15 +145,16 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 	 * from the &lt;http&gt; namespace, such as OpenID, is expected to handle the
 	 * request).
 	 */
-	public static final class NullAuthenticationProvider implements
-			AuthenticationProvider {
-		public Authentication authenticate(Authentication authentication)
-				throws AuthenticationException {
+	public static final class NullAuthenticationProvider implements AuthenticationProvider {
+
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			return null;
 		}
 
 		public boolean supports(Class<?> authentication) {
 			return false;
 		}
+
 	}
+
 }

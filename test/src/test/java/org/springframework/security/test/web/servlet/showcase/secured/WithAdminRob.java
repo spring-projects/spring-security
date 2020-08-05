@@ -28,6 +28,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-@WithMockUser(value="rob", roles="ADMIN")
+@WithMockUser(value = "rob", roles = "ADMIN")
 public @interface WithAdminRob {
+
 }

@@ -40,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  */
 public class AnonymousConfigurerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -50,8 +51,7 @@ public class AnonymousConfigurerTests {
 	public void requestWhenAnonymousTwiceInvokedThenDoesNotOverride() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class, PrincipalController.class).autowire();
 
-		this.mockMvc.perform(get("/"))
-			.andExpect(content().string("principal"));
+		this.mockMvc.perform(get("/")).andExpect(content().string("principal"));
 	}
 
 	@EnableWebSecurity
@@ -69,14 +69,14 @@ public class AnonymousConfigurerTests {
 				.anonymous();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenAnonymousPrincipalInLambdaThenPrincipalUsed() throws Exception {
 		this.spring.register(AnonymousPrincipalInLambdaConfig.class, PrincipalController.class).autowire();
 
-		this.mockMvc.perform(get("/"))
-				.andExpect(content().string("principal"));
+		this.mockMvc.perform(get("/")).andExpect(content().string("principal"));
 	}
 
 	@EnableWebSecurity
@@ -93,18 +93,19 @@ public class AnonymousConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenAnonymousDisabledInLambdaThenRespondsWithForbidden() throws Exception {
 		this.spring.register(AnonymousDisabledInLambdaConfig.class, PrincipalController.class).autowire();
 
-		this.mockMvc.perform(get("/"))
-				.andExpect(status().isForbidden());
+		this.mockMvc.perform(get("/")).andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
 	static class AnonymousDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -124,18 +125,19 @@ public class AnonymousConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenAnonymousWithDefaultsInLambdaThenRespondsWithOk() throws Exception {
 		this.spring.register(AnonymousWithDefaultsInLambdaConfig.class, PrincipalController.class).autowire();
 
-		this.mockMvc.perform(get("/"))
-				.andExpect(status().isOk());
+		this.mockMvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	@EnableWebSecurity
 	static class AnonymousWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -155,13 +157,17 @@ public class AnonymousConfigurerTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	@RestController
 	static class PrincipalController {
+
 		@GetMapping("/")
 		String principal(@AuthenticationPrincipal String principal) {
 			return principal;
 		}
+
 	}
+
 }

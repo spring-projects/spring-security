@@ -34,6 +34,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 
 public class LdapAuthenticationProviderConfigurerTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -41,7 +42,8 @@ public class LdapAuthenticationProviderConfigurerTests {
 	private MockMvc mockMvc;
 
 	@Test
-	public void authenticationManagerSupportMultipleDefaultLdapContextsWithPortsDynamicallyAllocated() throws Exception {
+	public void authenticationManagerSupportMultipleDefaultLdapContextsWithPortsDynamicallyAllocated()
+			throws Exception {
 		this.spring.register(MultiLdapAuthenticationProvidersConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
@@ -52,16 +54,16 @@ public class LdapAuthenticationProviderConfigurerTests {
 	public void authenticationManagerSupportMultipleLdapContextWithDefaultRolePrefix() throws Exception {
 		this.spring.register(MultiLdapAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
+				.withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS"))));
 	}
 
 	@Test
 	public void authenticationManagerSupportMultipleLdapContextWithCustomRolePrefix() throws Exception {
 		this.spring.register(MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-				.andExpect(authenticated().withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS"))));
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword")).andExpect(authenticated()
+				.withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS"))));
 	}
 
 	@Test
@@ -83,6 +85,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	@EnableWebSecurity
 	static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -97,10 +100,12 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.userDnPatterns("uid={0},ou=people");
 			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -117,10 +122,12 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.rolePrefix("RUOLO_");
 			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class LdapWithRandomPortConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -133,10 +140,12 @@ public class LdapAuthenticationProviderConfigurerTests {
 						.port(0);
 			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -147,5 +156,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.userDnPatterns("uid={0},ou=people");
 			// @formatter:on
 		}
+
 	}
+
 }

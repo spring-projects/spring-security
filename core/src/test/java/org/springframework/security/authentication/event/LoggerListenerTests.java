@@ -27,12 +27,13 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class LoggerListenerTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
 	private Authentication getAuthentication() {
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-				"Principal", "Credentials");
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
+				"Credentials");
 		authentication.setDetails("127.0.0.1");
 
 		return authentication;
@@ -40,10 +41,11 @@ public class LoggerListenerTests {
 
 	@Test
 	public void testLogsEvents() {
-		AuthenticationFailureDisabledEvent event = new AuthenticationFailureDisabledEvent(
-				getAuthentication(), new LockedException("TEST"));
+		AuthenticationFailureDisabledEvent event = new AuthenticationFailureDisabledEvent(getAuthentication(),
+				new LockedException("TEST"));
 		LoggerListener listener = new LoggerListener();
 		listener.onApplicationEvent(event);
 
 	}
+
 }

@@ -36,7 +36,6 @@ public interface UserDetailsContextMapper {
 
 	/**
 	 * Creates a fully populated UserDetails object for use by the security framework.
-	 *
 	 * @param ctx the context object which contains the user information.
 	 * @param username the user's supplied login name.
 	 * @param authorities
@@ -50,4 +49,5 @@ public interface UserDetailsContextMapper {
 	 * object. Called when saving a user, for example.
 	 */
 	void mapUserToContext(UserDetails user, DirContextAdapter ctx);
+
 }

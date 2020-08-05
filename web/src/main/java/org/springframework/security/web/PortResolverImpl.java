@@ -35,6 +35,7 @@ import javax.servlet.ServletRequest;
  * @author Ben Alex
  */
 public class PortResolverImpl implements PortResolver {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -73,4 +74,5 @@ public class PortResolverImpl implements PortResolver {
 		Assert.notNull(portMapper, "portMapper cannot be null");
 		this.portMapper = portMapper;
 	}
+
 }

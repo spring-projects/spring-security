@@ -35,6 +35,7 @@ import java.util.Map;
  * @author Ben Alex
  */
 public class RetryWithHttpsEntryPointTests {
+
 	// ~ Methods
 	// ========================================================================================================
 	@Test
@@ -72,8 +73,7 @@ public class RetryWithHttpsEntryPointTests {
 
 	@Test
 	public void testNormalOperation() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/bigWebApp/hello/pathInfo.html");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bigWebApp/hello/pathInfo.html");
 		request.setQueryString("open=true");
 		request.setScheme("http");
 		request.setServerName("www.example.com");
@@ -86,14 +86,13 @@ public class RetryWithHttpsEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(80, 443));
 
 		ep.commence(request, response);
-		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"https://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
+		assertThat(response.getRedirectedUrl())
+				.isEqualTo("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
 	@Test
 	public void testNormalOperationWithNullQueryString() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/bigWebApp/hello");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bigWebApp/hello");
 		request.setScheme("http");
 		request.setServerName("www.example.com");
 		request.setServerPort(80);
@@ -128,8 +127,7 @@ public class RetryWithHttpsEntryPointTests {
 
 	@Test
 	public void testOperationWithNonStandardPort() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/bigWebApp/hello/pathInfo.html");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bigWebApp/hello/pathInfo.html");
 		request.setQueryString("open=true");
 		request.setScheme("http");
 		request.setServerName("www.example.com");
@@ -147,7 +145,8 @@ public class RetryWithHttpsEntryPointTests {
 		ep.setPortMapper(portMapper);
 
 		ep.commence(request, response);
-		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true");
+		assertThat(response.getRedirectedUrl())
+				.isEqualTo("https://www.example.com:9999/bigWebApp/hello/pathInfo.html?open=true");
 	}
+
 }

@@ -45,7 +45,6 @@ public final class FeaturePolicyHeaderWriter implements HeaderWriter {
 	/**
 	 * Create a new instance of {@link FeaturePolicyHeaderWriter} with supplied security
 	 * policy directive(s).
-	 *
 	 * @param policyDirectives the security policy directive(s)
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 */
@@ -62,7 +61,6 @@ public final class FeaturePolicyHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Set the security policy directive(s) to be used in the response header.
-	 *
 	 * @param policyDirectives the security policy directive(s)
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 */

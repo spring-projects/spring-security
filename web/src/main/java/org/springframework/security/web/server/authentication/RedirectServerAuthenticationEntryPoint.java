@@ -35,8 +35,8 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class RedirectServerAuthenticationEntryPoint
-	implements ServerAuthenticationEntryPoint {
+public class RedirectServerAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
+
 	private final URI location;
 
 	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
@@ -64,7 +64,7 @@ public class RedirectServerAuthenticationEntryPoint
 	@Override
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
 		return this.requestCache.saveRequest(exchange)
-			.then(this.redirectStrategy.sendRedirect(exchange, this.location));
+				.then(this.redirectStrategy.sendRedirect(exchange, this.location));
 	}
 
 	/**
@@ -75,4 +75,5 @@ public class RedirectServerAuthenticationEntryPoint
 		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
 		this.redirectStrategy = redirectStrategy;
 	}
+
 }

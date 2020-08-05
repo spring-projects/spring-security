@@ -36,11 +36,11 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorityReactiveAuthorizationManagerTests {
+
 	@Mock
 	Authentication authentication;
 
-	AuthorityReactiveAuthorizationManager<Object> manager = AuthorityReactiveAuthorizationManager
-		.hasAuthority("ADMIN");
+	AuthorityReactiveAuthorizationManager<Object> manager = AuthorityReactiveAuthorizationManager.hasAuthority("ADMIN");
 
 	@Test
 	public void checkWhenHasAuthorityAndNotAuthenticatedThenReturnFalse() {
@@ -60,10 +60,7 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	public void checkWhenHasAuthorityAndErrorThenError() {
 		Mono<AuthorizationDecision> result = manager.check(Mono.error(new RuntimeException("ooops")), null);
 
-		StepVerifier
-			.create(result)
-			.expectError()
-			.verify();
+		StepVerifier.create(result).expectError().verify();
 	}
 
 	@Test
@@ -171,4 +168,5 @@ public class AuthorityReactiveAuthorizationManagerTests {
 		String authority2 = null;
 		AuthorityReactiveAuthorizationManager.hasAnyAuthority(authority1, authority2);
 	}
+
 }

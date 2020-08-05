@@ -20,6 +20,7 @@ import org.springframework.security.crypto.codec.Hex;
 /**
  * A StringKeyGenerator that generates hex-encoded String keys. Delegates to a
  * {@link BytesKeyGenerator} for the actual key generation.
+ *
  * @author Keith Donald
  */
 final class HexEncodingStringKeyGenerator implements StringKeyGenerator {

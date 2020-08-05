@@ -47,12 +47,15 @@ import static org.springframework.security.test.web.support.WebTestUtils.getSecu
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebTestUtilsTests {
+
 	@Mock
 	private SecurityContextRepository contextRepo;
+
 	@Mock
 	private CsrfTokenRepository csrfRepo;
 
 	private MockHttpServletRequest request;
+
 	private ConfigurableApplicationContext context;
 
 	@Before
@@ -69,22 +72,19 @@ public class WebTestUtilsTests {
 
 	@Test
 	public void getCsrfTokenRepositorytNoWac() {
-		assertThat(getCsrfTokenRepository(this.request))
-				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
+		assertThat(getCsrfTokenRepository(this.request)).isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
 	public void getCsrfTokenRepositorytNoSecurity() {
 		loadConfig(Config.class);
-		assertThat(getCsrfTokenRepository(this.request))
-				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
+		assertThat(getCsrfTokenRepository(this.request)).isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
 	public void getCsrfTokenRepositorytSecurityNoCsrf() {
 		loadConfig(SecurityNoCsrfConfig.class);
-		assertThat(getCsrfTokenRepository(this.request))
-				.isInstanceOf(HttpSessionCsrfTokenRepository.class);
+		assertThat(getCsrfTokenRepository(this.request)).isInstanceOf(HttpSessionCsrfTokenRepository.class);
 	}
 
 	@Test
@@ -99,22 +99,19 @@ public class WebTestUtilsTests {
 
 	@Test
 	public void getSecurityContextRepositoryNoWac() {
-		assertThat(getSecurityContextRepository(this.request))
-				.isInstanceOf(HttpSessionSecurityContextRepository.class);
+		assertThat(getSecurityContextRepository(this.request)).isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
 	public void getSecurityContextRepositoryNoSecurity() {
 		loadConfig(Config.class);
-		assertThat(getSecurityContextRepository(this.request))
-				.isInstanceOf(HttpSessionSecurityContextRepository.class);
+		assertThat(getSecurityContextRepository(this.request)).isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
 	public void getSecurityContextRepositorySecurityNoCsrf() {
 		loadConfig(SecurityNoCsrfConfig.class);
-		assertThat(getSecurityContextRepository(this.request))
-				.isInstanceOf(HttpSessionSecurityContextRepository.class);
+		assertThat(getSecurityContextRepository(this.request)).isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
@@ -130,8 +127,7 @@ public class WebTestUtilsTests {
 	public void findFilterNoMatchingFilters() {
 		loadConfig(PartialSecurityConfig.class);
 
-		assertThat(WebTestUtils.findFilter(this.request,
-				SecurityContextPersistenceFilter.class)).isNull();
+		assertThat(WebTestUtils.findFilter(this.request, SecurityContextPersistenceFilter.class)).isNull();
 	}
 
 	@Test
@@ -141,11 +137,9 @@ public class WebTestUtilsTests {
 		CsrfFilter toFind = new CsrfFilter(new HttpSessionCsrfTokenRepository());
 		FilterChainProxy springSecurityFilterChain = new FilterChainProxy(
 				new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, toFind));
-		this.request.getServletContext().setAttribute(
-				BeanIds.SPRING_SECURITY_FILTER_CHAIN, springSecurityFilterChain);
+		this.request.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, springSecurityFilterChain);
 
-		assertThat(WebTestUtils.findFilter(this.request, toFind.getClass()))
-				.isEqualTo(toFind);
+		assertThat(WebTestUtils.findFilter(this.request, toFind.getClass())).isEqualTo(toFind);
 	}
 
 	@Test
@@ -155,11 +149,9 @@ public class WebTestUtilsTests {
 		CsrfFilter toFind = new CsrfFilter(new HttpSessionCsrfTokenRepository());
 		FilterChainProxy springSecurityFilterChain = new FilterChainProxy(
 				new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, toFind));
-		this.request.getServletContext().setAttribute(
-				BeanIds.SPRING_SECURITY_FILTER_CHAIN, springSecurityFilterChain);
+		this.request.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, springSecurityFilterChain);
 
-		assertThat(WebTestUtils.findFilter(this.request, toFind.getClass()))
-				.isSameAs(toFind);
+		assertThat(WebTestUtils.findFilter(this.request, toFind.getClass())).isSameAs(toFind);
 	}
 
 	private void loadConfig(Class<?> config) {
@@ -167,12 +159,13 @@ public class WebTestUtilsTests {
 		context.register(config);
 		context.refresh();
 		this.context = context;
-		this.request.getServletContext().setAttribute(
-				WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
+		this.request.getServletContext().setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
+				context);
 	}
 
 	@Configuration
 	static class Config {
+
 	}
 
 	@EnableWebSecurity
@@ -182,10 +175,12 @@ public class WebTestUtilsTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.csrf().disable();
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
+
 		static CsrfTokenRepository CSRF_REPO;
 		static SecurityContextRepository CONTEXT_REPO;
 
@@ -200,6 +195,7 @@ public class WebTestUtilsTests {
 					.securityContextRepository(CONTEXT_REPO);
 			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
@@ -212,14 +208,17 @@ public class WebTestUtilsTests {
 				.antMatcher("/willnotmatchthis");
 			// @formatter:on
 		}
+
 	}
 
 	@Configuration
 	static class NoSecurityConfig {
+
 	}
 
 	@EnableWebSecurity
 	static class SecurityConfigWithDefaults extends WebSecurityConfigurerAdapter {
 
 	}
+
 }

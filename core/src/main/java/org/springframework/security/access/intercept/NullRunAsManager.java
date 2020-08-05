@@ -30,11 +30,11 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 final class NullRunAsManager implements RunAsManager {
+
 	// ~ Methods
 	// ========================================================================================================
 
-	public Authentication buildRunAs(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config) {
+	public Authentication buildRunAs(Authentication authentication, Object object, Collection<ConfigAttribute> config) {
 		return null;
 	}
 
@@ -45,4 +45,5 @@ final class NullRunAsManager implements RunAsManager {
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
+
 }

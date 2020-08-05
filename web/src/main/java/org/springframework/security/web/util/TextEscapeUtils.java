@@ -54,15 +54,13 @@ public abstract class TextEscapeUtils {
 			else if (Character.isHighSurrogate(c)) {
 				if (i + 1 >= s.length()) {
 					// Unexpected end
-					throw new IllegalArgumentException(
-							"Missing low surrogate character at end of string");
+					throw new IllegalArgumentException("Missing low surrogate character at end of string");
 				}
 				char low = s.charAt(i + 1);
 
 				if (!Character.isLowSurrogate(low)) {
 					throw new IllegalArgumentException(
-							"Expected low surrogate character but found value = "
-									+ (int) low);
+							"Expected low surrogate character but found value = " + (int) low);
 				}
 
 				int codePoint = Character.toCodePoint(c, low);
@@ -72,8 +70,7 @@ public abstract class TextEscapeUtils {
 				i++; // skip the next character as we have already dealt with it
 			}
 			else if (Character.isLowSurrogate(c)) {
-				throw new IllegalArgumentException(
-						"Unexpected low surrogate character, value = " + (int) c);
+				throw new IllegalArgumentException("Unexpected low surrogate character, value = " + (int) c);
 			}
 			else if (Character.isDefined(c)) {
 				sb.append("&#").append((int) c).append(";");
@@ -83,4 +80,5 @@ public abstract class TextEscapeUtils {
 
 		return sb.toString();
 	}
+
 }

@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
- *
  * @author TSARDD
  * @since 18-okt-2007
  */
@@ -36,20 +35,17 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 	@Test
 	public final void testGetPreAuthenticatedPrincipal() {
 		String user = "testUser";
-		assertThat(user).isEqualTo(
-				new J2eePreAuthenticatedProcessingFilter().getPreAuthenticatedPrincipal(
-						getRequest(user, new String[] {})));
+		assertThat(user).isEqualTo(new J2eePreAuthenticatedProcessingFilter()
+				.getPreAuthenticatedPrincipal(getRequest(user, new String[] {})));
 	}
 
 	@Test
 	public final void testGetPreAuthenticatedCredentials() {
-		assertThat("N/A").isEqualTo(
-				new J2eePreAuthenticatedProcessingFilter().getPreAuthenticatedCredentials(
-						getRequest("testUser", new String[] {})));
+		assertThat("N/A").isEqualTo(new J2eePreAuthenticatedProcessingFilter()
+				.getPreAuthenticatedCredentials(getRequest("testUser", new String[] {})));
 	}
 
-	private HttpServletRequest getRequest(final String aUserName,
-			final String[] aRoles) {
+	private HttpServletRequest getRequest(final String aUserName, final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
 
 			private Set<String> roles = new HashSet<>(Arrays.asList(aRoles));

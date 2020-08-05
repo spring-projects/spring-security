@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class CsrfLogoutHandler implements LogoutHandler {
+
 	private final CsrfTokenRepository csrfTokenRepository;
 
 	/**
@@ -48,8 +49,8 @@ public final class CsrfLogoutHandler implements LogoutHandler {
 	 * javax.servlet.http.HttpServletResponse,
 	 * org.springframework.security.core.Authentication)
 	 */
-	public void logout(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) {
+	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		this.csrfTokenRepository.saveToken(null, request, response);
 	}
+
 }

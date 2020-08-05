@@ -29,7 +29,8 @@ import reactor.core.publisher.Mono;
 import java.security.cert.X509Certificate;
 
 /**
- * Converts from a {@link SslInfo} provided by a request to an {@link PreAuthenticatedAuthenticationToken} that can be authenticated.
+ * Converts from a {@link SslInfo} provided by a request to an
+ * {@link PreAuthenticatedAuthenticationToken} that can be authenticated.
  *
  * @author Alexey Nesterov
  * @since 5.2
@@ -37,6 +38,7 @@ import java.security.cert.X509Certificate;
 public class ServerX509AuthenticationConverter implements ServerAuthenticationConverter {
 
 	protected final Log logger = LogFactory.getLog(getClass());
+
 	private final X509PrincipalExtractor principalExtractor;
 
 	public ServerX509AuthenticationConverter(@NonNull X509PrincipalExtractor principalExtractor) {
@@ -65,9 +67,10 @@ public class ServerX509AuthenticationConverter implements ServerAuthenticationCo
 		X509Certificate clientCertificate = sslInfo.getPeerCertificates()[0];
 		Object principal = this.principalExtractor.extractPrincipal(clientCertificate);
 
-		PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(
-				principal, clientCertificate);
+		PreAuthenticatedAuthenticationToken authRequest = new PreAuthenticatedAuthenticationToken(principal,
+				clientCertificate);
 
 		return Mono.just(authRequest);
 	}
+
 }

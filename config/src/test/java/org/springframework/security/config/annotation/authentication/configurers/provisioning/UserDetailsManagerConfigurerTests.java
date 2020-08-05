@@ -28,10 +28,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 /**
-*
-* @author Rob Winch
-* @author Adolfo Eloy
-*/
+ * @author Rob Winch
+ * @author Adolfo Eloy
+ */
 public class UserDetailsManagerConfigurerTests {
 
 	private InMemoryUserDetailsManager userDetailsManager;
@@ -43,16 +42,9 @@ public class UserDetailsManagerConfigurerTests {
 
 	@Test
 	public void allAttributesSupported() {
-		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder,
-				InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
-			.withUser("user")
-			.password("password")
-			.roles("USER")
-			.disabled(true)
-			.accountExpired(true)
-			.accountLocked(true)
-			.credentialsExpired(true)
-			.build();
+		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
+				userDetailsManager).withUser("user").password("password").roles("USER").disabled(true)
+						.accountExpired(true).accountLocked(true).credentialsExpired(true).build();
 
 		assertThat(userDetails.getUsername()).isEqualTo("user");
 		assertThat(userDetails.getPassword()).isEqualTo("password");
@@ -67,12 +59,8 @@ public class UserDetailsManagerConfigurerTests {
 	public void authoritiesWithGrantedAuthorityWorks() {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
 
-		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder,
-				InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
-			.withUser("user")
-				.password("password")
-				.authorities(authority)
-				.build();
+		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
+				userDetailsManager).withUser("user").password("password").authorities(authority).build();
 
 		assertThat(userDetails.getAuthorities().stream().findFirst().get()).isEqualTo(authority);
 	}
@@ -81,12 +69,8 @@ public class UserDetailsManagerConfigurerTests {
 	public void authoritiesWithStringAuthorityWorks() {
 		String authority = "ROLE_USER";
 
-		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder,
-				InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
-			.withUser("user")
-				.password("password")
-				.authorities(authority)
-				.build();
+		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
+				userDetailsManager).withUser("user").password("password").authorities(authority).build();
 
 		assertThat(userDetails.getAuthorities().stream().findFirst().get().getAuthority()).isEqualTo(authority);
 	}
@@ -95,13 +79,10 @@ public class UserDetailsManagerConfigurerTests {
 	public void authoritiesWithAListOfGrantedAuthorityWorks() {
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
 
-		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder,
-				InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(userDetailsManager)
-			.withUser("user")
-				.password("password")
-				.authorities(Arrays.asList(authority))
-				.build();
+		UserDetails userDetails = new UserDetailsManagerConfigurer<AuthenticationManagerBuilder, InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder>>(
+				userDetailsManager).withUser("user").password("password").authorities(Arrays.asList(authority)).build();
 
 		assertThat(userDetails.getAuthorities().stream().findFirst().get()).isEqualTo(authority);
 	}
+
 }

@@ -28,15 +28,14 @@ import org.springframework.security.core.Authentication;
  * {@link ServiceProperties#getService()}.
  *
  * @author Rob Winch
- *
  * @see ServiceAuthenticationDetailsSource
  */
 public interface ServiceAuthenticationDetails extends Serializable {
 
 	/**
 	 * Gets the absolute service url (i.e. https://example.com/service/).
-	 *
 	 * @return the service url. Cannot be <code>null</code>.
 	 */
 	String getServiceUrl();
+
 }

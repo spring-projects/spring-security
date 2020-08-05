@@ -48,8 +48,7 @@ public class SessionManagementFilterTests {
 	}
 
 	@Test
-	public void newSessionShouldNotBeCreatedIfSessionExistsAndUserIsNotAuthenticated()
-			throws Exception {
+	public void newSessionShouldNotBeCreatedIfSessionExistsAndUserIsNotAuthenticated() throws Exception {
 		SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		SessionManagementFilter filter = new SessionManagementFilter(repo);
 		HttpServletRequest request = new MockHttpServletRequest();
@@ -61,8 +60,7 @@ public class SessionManagementFilterTests {
 	}
 
 	@Test
-	public void strategyIsNotInvokedIfSecurityContextAlreadyExistsForRequest()
-			throws Exception {
+	public void strategyIsNotInvokedIfSecurityContextAlreadyExistsForRequest() throws Exception {
 		SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
 		// mock that repo contains a security context
@@ -99,8 +97,8 @@ public class SessionManagementFilterTests {
 
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
 
-		verify(strategy).onAuthentication(any(Authentication.class),
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(strategy).onAuthentication(any(Authentication.class), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 		// Check that it is only applied once to the request
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
 		verifyNoMoreInteractions(strategy);
@@ -119,11 +117,9 @@ public class SessionManagementFilterTests {
 		HttpServletResponse response = new MockHttpServletResponse();
 		FilterChain fc = mock(FilterChain.class);
 		authenticateUser();
-		SessionAuthenticationException exception = new SessionAuthenticationException(
-				"Failure");
-		doThrow(exception).when(strategy)
-				.onAuthentication(SecurityContextHolder.getContext().getAuthentication(),
-						request, response);
+		SessionAuthenticationException exception = new SessionAuthenticationException("Failure");
+		doThrow(exception).when(strategy).onAuthentication(SecurityContextHolder.getContext().getAuthentication(),
+				request, response);
 
 		filter.doFilter(request, response, fc);
 		verifyZeroInteractions(fc);
@@ -131,8 +127,7 @@ public class SessionManagementFilterTests {
 	}
 
 	@Test
-	public void responseIsRedirectedToTimeoutUrlIfSetAndSessionIsInvalid()
-			throws Exception {
+	public void responseIsRedirectedToTimeoutUrlIfSetAndSessionIsInvalid() throws Exception {
 		SecurityContextRepository repo = mock(SecurityContextRepository.class);
 		// repo will return false to containsContext()
 		SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
@@ -149,8 +144,7 @@ public class SessionManagementFilterTests {
 		request = new MockHttpServletRequest();
 		request.setRequestedSessionId("xxx");
 		request.setRequestedSessionIdValid(false);
-		SimpleRedirectInvalidSessionStrategy iss = new SimpleRedirectInvalidSessionStrategy(
-				"/timedOut");
+		SimpleRedirectInvalidSessionStrategy iss = new SimpleRedirectInvalidSessionStrategy("/timedOut");
 		iss.setCreateNewSession(true);
 		filter.setInvalidSessionStrategy(iss);
 		FilterChain fc = mock(FilterChain.class);
@@ -182,7 +176,7 @@ public class SessionManagementFilterTests {
 	}
 
 	private void authenticateUser() {
-		SecurityContextHolder.getContext().setAuthentication(
-				new TestingAuthenticationToken("user", "pass"));
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass"));
 	}
+
 }

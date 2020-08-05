@@ -26,7 +26,9 @@ import org.springframework.ldap.core.DistinguishedName;
  * @author Luke Taylor
  */
 public class DefaultLdapUsernameToDnMapper implements LdapUsernameToDnMapper {
+
 	private final String userDnBase;
+
 	private final String usernameAttribute;
 
 	/**
@@ -48,4 +50,5 @@ public class DefaultLdapUsernameToDnMapper implements LdapUsernameToDnMapper {
 
 		return dn;
 	}
+
 }

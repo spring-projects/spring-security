@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Static factory methods for OAuth2 {@link BodyExtractor} implementations.
+ *
  * @author Rob Winch
  * @since 5.1
  */
@@ -36,5 +37,7 @@ public abstract class OAuth2BodyExtractors {
 		return new OAuth2AccessTokenResponseBodyExtractor();
 	}
 
-	private OAuth2BodyExtractors() {}
+	private OAuth2BodyExtractors() {
+	}
+
 }

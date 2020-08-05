@@ -34,10 +34,15 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  */
 public class MethodSecurityExpressionRootTests {
+
 	SpelExpressionParser parser = new SpelExpressionParser();
+
 	MethodSecurityExpressionRoot root;
+
 	StandardEvaluationContext ctx;
+
 	private AuthenticationTrustResolver trustResolver;
+
 	private Authentication user;
 
 	@Before
@@ -99,8 +104,8 @@ public class MethodSecurityExpressionRootTests {
 		ctx.setVariable("domainObject", dummyDomainObject);
 		final PermissionEvaluator pe = mock(PermissionEvaluator.class);
 		root.setPermissionEvaluator(pe);
-		when(pe.hasPermission(eq(user), eq(dummyDomainObject), any(Integer.class)))
-				.thenReturn(true).thenReturn(true).thenReturn(false);
+		when(pe.hasPermission(eq(user), eq(dummyDomainObject), any(Integer.class))).thenReturn(true).thenReturn(true)
+				.thenReturn(false);
 
 		Expression e = parser.parseExpression("hasPermission(#domainObject, 0xA)");
 		// evaluator returns true
@@ -135,4 +140,5 @@ public class MethodSecurityExpressionRootTests {
 		e = parser.parseExpression("hasPermission(this.x, 2)");
 		assertThat(ExpressionUtils.evaluateAsBoolean(e, ctx)).isTrue();
 	}
+
 }

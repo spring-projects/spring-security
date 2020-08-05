@@ -74,4 +74,5 @@ public final class DefaultCsrfToken implements CsrfToken {
 	public String getToken() {
 		return this.token;
 	}
+
 }

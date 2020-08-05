@@ -34,7 +34,9 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  *
  */
 public class MediaTypeRequestMatcherRequestHCNSTests {
+
 	private MediaTypeRequestMatcher matcher;
+
 	private MockHttpServletRequest request;
 
 	private ContentNegotiationStrategy negotiationStrategy;
@@ -52,8 +54,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 
 		assertThat(matcher.matches(request)).isTrue();
 
-		matcher = new MediaTypeRequestMatcher(negotiationStrategy,
-				MediaType.APPLICATION_XHTML_XML);
+		matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_XHTML_XML);
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
@@ -82,8 +83,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	@Test
 	public void javadocJsonJson() {
 		request.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
-		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(
-				negotiationStrategy, MediaType.APPLICATION_JSON);
+		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
 
 		assertThat(matcher.matches(request)).isTrue();
 	}
@@ -91,8 +91,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	@Test
 	public void javadocAllJson() {
 		request.addHeader("Accept", MediaType.ALL_VALUE);
-		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(
-				negotiationStrategy, MediaType.APPLICATION_JSON);
+		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
 
 		assertThat(matcher.matches(request)).isTrue();
 	}
@@ -100,8 +99,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	@Test
 	public void javadocAllJsonIgnoreAll() {
 		request.addHeader("Accept", MediaType.ALL_VALUE);
-		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(
-				negotiationStrategy, MediaType.APPLICATION_JSON);
+		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
 		matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		assertThat(matcher.matches(request)).isFalse();
 	}
@@ -109,8 +107,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	@Test
 	public void javadocJsonJsonIgnoreAll() {
 		request.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
-		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(
-				negotiationStrategy, MediaType.APPLICATION_JSON);
+		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
 		matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		assertThat(matcher.matches(request)).isTrue();
 	}
@@ -118,8 +115,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	@Test
 	public void javadocJsonJsonUseEquals() {
 		request.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
-		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(
-				negotiationStrategy, MediaType.APPLICATION_JSON);
+		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
 		matcher.setUseEquals(true);
 		assertThat(matcher.matches(request)).isTrue();
 	}
@@ -127,8 +123,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	@Test
 	public void javadocAllJsonUseEquals() {
 		request.addHeader("Accept", MediaType.ALL_VALUE);
-		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(
-				negotiationStrategy, MediaType.APPLICATION_JSON);
+		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
 		matcher.setUseEquals(true);
 		assertThat(matcher.matches(request)).isFalse();
 	}
@@ -136,8 +131,7 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	@Test
 	public void javadocApplicationAllJsonUseEquals() {
 		request.addHeader("Accept", new MediaType("application", "*"));
-		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(
-				negotiationStrategy, MediaType.APPLICATION_JSON);
+		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
 		matcher.setUseEquals(true);
 		assertThat(matcher.matches(request)).isFalse();
 	}
@@ -145,9 +139,9 @@ public class MediaTypeRequestMatcherRequestHCNSTests {
 	@Test
 	public void javadocAllJsonUseFalse() {
 		request.addHeader("Accept", MediaType.ALL_VALUE);
-		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(
-				negotiationStrategy, MediaType.APPLICATION_JSON);
+		MediaTypeRequestMatcher matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.APPLICATION_JSON);
 		matcher.setUseEquals(true);
 		assertThat(matcher.matches(request)).isFalse();
 	}
+
 }

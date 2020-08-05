@@ -32,8 +32,8 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * An implementation of an {@link OAuth2AuthorizedClientProvider}
- * for the {@link AuthorizationGrantType#PASSWORD password} grant.
+ * An implementation of an {@link OAuth2AuthorizedClientProvider} for the
+ * {@link AuthorizationGrantType#PASSWORD password} grant.
  *
  * @author Joe Grandja
  * @since 5.2
@@ -41,30 +41,36 @@ import java.time.Instant;
  * @see DefaultPasswordTokenResponseClient
  */
 public final class PasswordOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
-	private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient =
-			new DefaultPasswordTokenResponseClient();
+
+	private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient = new DefaultPasswordTokenResponseClient();
+
 	private Duration clockSkew = Duration.ofSeconds(60);
+
 	private Clock clock = Clock.systemUTC();
 
 	/**
-	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
-	 * Returns {@code null} if authorization (or re-authorization) is not supported,
-	 * e.g. the client's {@link ClientRegistration#getAuthorizationGrantType() authorization grant type}
-	 * is not {@link AuthorizationGrantType#PASSWORD password} OR
-	 * the {@link OAuth2AuthorizationContext#USERNAME_ATTRIBUTE_NAME username} and/or
-	 * {@link OAuth2AuthorizationContext#PASSWORD_ATTRIBUTE_NAME password} attributes
-	 * are not available in the provided {@code context} OR
-	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
+	 * Attempt to authorize (or re-authorize) the
+	 * {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided
+	 * {@code context}. Returns {@code null} if authorization (or re-authorization) is not
+	 * supported, e.g. the client's {@link ClientRegistration#getAuthorizationGrantType()
+	 * authorization grant type} is not {@link AuthorizationGrantType#PASSWORD password}
+	 * OR the {@link OAuth2AuthorizationContext#USERNAME_ATTRIBUTE_NAME username} and/or
+	 * {@link OAuth2AuthorizationContext#PASSWORD_ATTRIBUTE_NAME password} attributes are
+	 * not available in the provided {@code context} OR the
+	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
 	 *
 	 * <p>
-	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes} are supported:
+	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes}
+	 * are supported:
 	 * <ol>
-	 *  <li>{@link OAuth2AuthorizationContext#USERNAME_ATTRIBUTE_NAME} (required) - a {@code String} value for the resource owner's username</li>
-	 *  <li>{@link OAuth2AuthorizationContext#PASSWORD_ATTRIBUTE_NAME} (required) - a {@code String} value for the resource owner's password</li>
+	 * <li>{@link OAuth2AuthorizationContext#USERNAME_ATTRIBUTE_NAME} (required) - a
+	 * {@code String} value for the resource owner's username</li>
+	 * <li>{@link OAuth2AuthorizationContext#PASSWORD_ATTRIBUTE_NAME} (required) - a
+	 * {@code String} value for the resource owner's password</li>
 	 * </ol>
-	 *
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization (or re-authorization) is not supported
+	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization (or
+	 * re-authorization) is not supported
 	 */
 	@Override
 	@Nullable
@@ -85,23 +91,28 @@ public final class PasswordOAuth2AuthorizedClientProvider implements OAuth2Autho
 		}
 
 		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
-			// If client is already authorized and access token is NOT expired than no need for re-authorization
+			// If client is already authorized and access token is NOT expired than no
+			// need for re-authorization
 			return null;
 		}
 
-		if (authorizedClient != null && hasTokenExpired(authorizedClient.getAccessToken()) && authorizedClient.getRefreshToken() != null) {
-			// If client is already authorized and access token is expired and a refresh token is available,
-			// than return and allow RefreshTokenOAuth2AuthorizedClientProvider to handle the refresh
+		if (authorizedClient != null && hasTokenExpired(authorizedClient.getAccessToken())
+				&& authorizedClient.getRefreshToken() != null) {
+			// If client is already authorized and access token is expired and a refresh
+			// token is available,
+			// than return and allow RefreshTokenOAuth2AuthorizedClientProvider to handle
+			// the refresh
 			return null;
 		}
 
-		OAuth2PasswordGrantRequest passwordGrantRequest =
-				new OAuth2PasswordGrantRequest(clientRegistration, username, password);
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, username,
+				password);
 
 		OAuth2AccessTokenResponse tokenResponse;
 		try {
 			tokenResponse = this.accessTokenResponseClient.getTokenResponse(passwordGrantRequest);
-		} catch (OAuth2AuthorizationException ex) {
+		}
+		catch (OAuth2AuthorizationException ex) {
 			throw new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex);
 		}
 
@@ -114,23 +125,26 @@ public final class PasswordOAuth2AuthorizedClientProvider implements OAuth2Autho
 	}
 
 	/**
-	 * Sets the client used when requesting an access token credential at the Token Endpoint for the {@code password} grant.
-	 *
-	 * @param accessTokenResponseClient the client used when requesting an access token credential at the Token Endpoint for the {@code password} grant
+	 * Sets the client used when requesting an access token credential at the Token
+	 * Endpoint for the {@code password} grant.
+	 * @param accessTokenResponseClient the client used when requesting an access token
+	 * credential at the Token Endpoint for the {@code password} grant
 	 */
-	public void setAccessTokenResponseClient(OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient) {
+	public void setAccessTokenResponseClient(
+			OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
 	}
 
 	/**
 	 * Sets the maximum acceptable clock skew, which is used when checking the
-	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is 60 seconds.
+	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is
+	 * 60 seconds.
 	 *
 	 * <p>
-	 * An access token is considered expired if {@code OAuth2AccessToken#getExpiresAt() - clockSkew}
-	 * is before the current time {@code clock#instant()}.
-	 *
+	 * An access token is considered expired if
+	 * {@code OAuth2AccessToken#getExpiresAt() - clockSkew} is before the current time
+	 * {@code clock#instant()}.
 	 * @param clockSkew the maximum acceptable clock skew
 	 */
 	public void setClockSkew(Duration clockSkew) {
@@ -140,12 +154,13 @@ public final class PasswordOAuth2AuthorizedClientProvider implements OAuth2Autho
 	}
 
 	/**
-	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
-	 *
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access
+	 * token expiry.
 	 * @param clock the clock
 	 */
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
 	}
+
 }

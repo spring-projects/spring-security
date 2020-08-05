@@ -43,8 +43,7 @@ public class LdapUtilsTests {
 	}
 
 	@Test
-	public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName()
-			throws Exception {
+	public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName() throws Exception {
 		final DirContext mockCtx = mock(DirContext.class);
 
 		when(mockCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
@@ -57,7 +56,8 @@ public class LdapUtilsTests {
 		final DirContext mockCtx = mock(DirContext.class);
 		when(mockCtx.getNameInNamespace()).thenReturn("");
 
-		assertThat(LdapUtils.getRelativeName("cn=jane,dc=springframework,dc=org", mockCtx)).isEqualTo("cn=jane,dc=springframework,dc=org");
+		assertThat(LdapUtils.getRelativeName("cn=jane,dc=springframework,dc=org", mockCtx))
+				.isEqualTo("cn=jane,dc=springframework,dc=org");
 	}
 
 	@Test
@@ -65,8 +65,8 @@ public class LdapUtilsTests {
 		final DirContext mockCtx = mock(DirContext.class);
 		when(mockCtx.getNameInNamespace()).thenReturn("dc=springsecurity,dc = org");
 
-		assertThat(LdapUtils.getRelativeName(
-				"cn=jane smith, dc = springsecurity , dc=org", mockCtx)).isEqualTo("cn=jane smith");
+		assertThat(LdapUtils.getRelativeName("cn=jane smith, dc = springsecurity , dc=org", mockCtx))
+				.isEqualTo("cn=jane smith");
 	}
 
 	@Test
@@ -75,19 +75,16 @@ public class LdapUtilsTests {
 		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine:11389")).isEqualTo("");
 		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/")).isEqualTo("");
 		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/")).isEqualTo("");
-		assertThat(
-				LdapUtils
-						.parseRootDnFromUrl("ldaps://monkeymachine.co.uk/dc=springframework,dc=org")).isEqualTo("dc=springframework,dc=org");
-		assertThat(
-				LdapUtils.parseRootDnFromUrl("ldap:///dc=springframework,dc=org")).isEqualTo("dc=springframework,dc=org");
-		assertThat(
-				LdapUtils
-						.parseRootDnFromUrl("ldap://monkeymachine/dc=springframework,dc=org")).isEqualTo("dc=springframework,dc=org");
-		assertThat(
-				LdapUtils
-						.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=springframework,dc=org/ou=blah")).isEqualTo("dc=springframework,dc=org/ou=blah");
-		assertThat(
-				LdapUtils
-						.parseRootDnFromUrl("ldap://monkeymachine.co.uk:389/dc=springframework,dc=org/ou=blah")).isEqualTo("dc=springframework,dc=org/ou=blah");
+		assertThat(LdapUtils.parseRootDnFromUrl("ldaps://monkeymachine.co.uk/dc=springframework,dc=org"))
+				.isEqualTo("dc=springframework,dc=org");
+		assertThat(LdapUtils.parseRootDnFromUrl("ldap:///dc=springframework,dc=org"))
+				.isEqualTo("dc=springframework,dc=org");
+		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/dc=springframework,dc=org"))
+				.isEqualTo("dc=springframework,dc=org");
+		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=springframework,dc=org/ou=blah"))
+				.isEqualTo("dc=springframework,dc=org/ou=blah");
+		assertThat(LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk:389/dc=springframework,dc=org/ou=blah"))
+				.isEqualTo("dc=springframework,dc=org/ou=blah");
 	}
+
 }

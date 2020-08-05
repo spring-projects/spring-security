@@ -38,8 +38,9 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 2.0
  */
-public class SimpleAttributes2GrantedAuthoritiesMapper implements
-		Attributes2GrantedAuthoritiesMapper, InitializingBean {
+public class SimpleAttributes2GrantedAuthoritiesMapper
+		implements Attributes2GrantedAuthoritiesMapper, InitializingBean {
+
 	private String attributePrefix = "ROLE_";
 
 	private boolean convertAttributeToUpperCase = false;
@@ -52,8 +53,7 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements
 	 * Check whether all properties have been set to correct values.
 	 */
 	public void afterPropertiesSet() {
-		Assert.isTrue(
-				!(isConvertAttributeToUpperCase() && isConvertAttributeToLowerCase()),
+		Assert.isTrue(!(isConvertAttributeToUpperCase() && isConvertAttributeToLowerCase()),
 				"Either convertAttributeToUpperCase or convertAttributeToLowerCase can be set to true, but not both");
 	}
 
@@ -72,7 +72,6 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements
 	/**
 	 * Map the given role one-on-one to a Spring Security GrantedAuthority, optionally
 	 * doing case conversion and/or adding a prefix.
-	 *
 	 * @param attribute The attribute for which to get a GrantedAuthority
 	 * @return GrantedAuthority representing the given role.
 	 */

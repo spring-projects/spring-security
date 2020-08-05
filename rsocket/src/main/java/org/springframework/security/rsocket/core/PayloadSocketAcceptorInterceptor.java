@@ -40,8 +40,8 @@ public class PayloadSocketAcceptorInterceptor implements SocketAcceptorIntercept
 	@Nullable
 	private MimeType defaultDataMimeType;
 
-	private MimeType defaultMetadataMimeType =
-		MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+	private MimeType defaultMetadataMimeType = MimeTypeUtils
+			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
 	public PayloadSocketAcceptorInterceptor(List<PayloadInterceptor> interceptors) {
 		this.interceptors = interceptors;
@@ -49,8 +49,7 @@ public class PayloadSocketAcceptorInterceptor implements SocketAcceptorIntercept
 
 	@Override
 	public SocketAcceptor apply(SocketAcceptor socketAcceptor) {
-		PayloadSocketAcceptor acceptor = new PayloadSocketAcceptor(
-				socketAcceptor, this.interceptors);
+		PayloadSocketAcceptor acceptor = new PayloadSocketAcceptor(socketAcceptor, this.interceptors);
 		acceptor.setDefaultDataMimeType(this.defaultDataMimeType);
 		acceptor.setDefaultMetadataMimeType(this.defaultMetadataMimeType);
 		return acceptor;
@@ -64,4 +63,5 @@ public class PayloadSocketAcceptorInterceptor implements SocketAcceptorIntercept
 		Assert.notNull(defaultMetadataMimeType, "defaultMetadataMimeType cannot be null");
 		this.defaultMetadataMimeType = defaultMetadataMimeType;
 	}
+
 }

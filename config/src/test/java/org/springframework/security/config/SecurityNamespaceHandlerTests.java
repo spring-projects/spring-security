@@ -41,7 +41,6 @@ import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.verifyZeroInteractions;
 
 /**
- *
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.0
@@ -50,15 +49,16 @@ import static org.powermock.api.mockito.PowerMockito.verifyZeroInteractions;
 @PrepareForTest({ ClassUtils.class })
 @PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SecurityNamespaceHandlerTests {
+
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
-	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>"
-			+ "  <authentication-provider>" + "    <user-service id='us'>"
-			+ "      <user name='bob' password='bobspassword' authorities='ROLE_A' />"
-			+ "    </user-service>" + "  </authentication-provider>"
-			+ "</authentication-manager>";
+	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>" + "  <authentication-provider>"
+			+ "    <user-service id='us'>" + "      <user name='bob' password='bobspassword' authorities='ROLE_A' />"
+			+ "    </user-service>" + "  </authentication-provider>" + "</authentication-manager>";
+
 	private static final String XML_HTTP_BLOCK = "<http auto-config='true'/>";
+
 	private static final String FILTER_CHAIN_PROXY_CLASSNAME = "org.springframework.security.web.FilterChainProxy";
 
 	@Test
@@ -74,15 +74,13 @@ public class SecurityNamespaceHandlerTests {
 	@Test
 	public void pre32SchemaAreNotSupported() {
 		try {
-			new InMemoryXmlApplicationContext(
-					"<user-service id='us'>"
-							+ "  <user name='bob' password='bobspassword' authorities='ROLE_A' />"
-							+ "</user-service>", "3.0.3", null);
+			new InMemoryXmlApplicationContext("<user-service id='us'>"
+					+ "  <user name='bob' password='bobspassword' authorities='ROLE_A' />" + "</user-service>", "3.0.3",
+					null);
 			fail("Expected BeanDefinitionParsingException");
 		}
 		catch (BeanDefinitionParsingException expected) {
-			assertThat(expected.getMessage().contains(
-					"You cannot use a spring-security-2.0.xsd"));
+			assertThat(expected.getMessage().contains("You cannot use a spring-security-2.0.xsd"));
 		}
 	}
 
@@ -91,8 +89,8 @@ public class SecurityNamespaceHandlerTests {
 	public void initDoesNotLogErrorWhenFilterChainProxyFailsToLoad() throws Exception {
 		String className = "javax.servlet.Filter";
 		spy(ClassUtils.class);
-		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName",
-				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
+		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName", eq(FILTER_CHAIN_PROXY_CLASSNAME),
+				any(ClassLoader.class));
 
 		Log logger = mock(Log.class);
 		SecurityNamespaceHandler handler = new SecurityNamespaceHandler();
@@ -111,8 +109,8 @@ public class SecurityNamespaceHandlerTests {
 		thrown.expect(BeanDefinitionParsingException.class);
 		thrown.expectMessage("NoClassDefFoundError: " + className);
 		spy(ClassUtils.class);
-		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName",
-				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
+		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName", eq(FILTER_CHAIN_PROXY_CLASSNAME),
+				any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER + XML_HTTP_BLOCK);
 	}
 
@@ -120,8 +118,8 @@ public class SecurityNamespaceHandlerTests {
 	public void filterNoClassDefFoundErrorNoHttpBlock() throws Exception {
 		String className = "javax.servlet.Filter";
 		spy(ClassUtils.class);
-		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName",
-				eq(FILTER_CHAIN_PROXY_CLASSNAME), any(ClassLoader.class));
+		doThrow(new NoClassDefFoundError(className)).when(ClassUtils.class, "forName", eq(FILTER_CHAIN_PROXY_CLASSNAME),
+				any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER);
 		// should load just fine since no http block
 	}
@@ -151,9 +149,10 @@ public class SecurityNamespaceHandlerTests {
 	public void websocketNotFoundExceptionNoMessageBlock() throws Exception {
 		String className = FILTER_CHAIN_PROXY_CLASSNAME;
 		spy(ClassUtils.class);
-		doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName",
-				eq(Message.class.getName()), any(ClassLoader.class));
+		doThrow(new ClassNotFoundException(className)).when(ClassUtils.class, "forName", eq(Message.class.getName()),
+				any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER);
 		// should load just fine since no websocket block
 	}
+
 }

@@ -45,13 +45,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class GrantedAuthorityDefaultsXmlTests {
+
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
+
 	@Autowired
 	MessageService messageService;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Before
@@ -143,4 +147,5 @@ public class GrantedAuthorityDefaultsXmlTests {
 		TestingAuthenticationToken user = new TestingAuthenticationToken("user", "password", role);
 		SecurityContextHolder.getContext().setAuthentication(user);
 	}
+
 }

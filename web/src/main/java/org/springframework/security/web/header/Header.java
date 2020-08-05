@@ -28,6 +28,7 @@ import org.springframework.util.Assert;
 public final class Header {
 
 	private final String headerName;
+
 	private final List<String> headerValues;
 
 	/**
@@ -53,7 +54,6 @@ public final class Header {
 
 	/**
 	 * Gets the values of the header. Cannot be null, empty, or contain null values.
-	 *
 	 * @return the values of the header
 	 */
 	public List<String> getValues() {
@@ -86,4 +86,5 @@ public final class Header {
 	public String toString() {
 		return "Header [name: " + headerName + ", values: " + headerValues + "]";
 	}
+
 }

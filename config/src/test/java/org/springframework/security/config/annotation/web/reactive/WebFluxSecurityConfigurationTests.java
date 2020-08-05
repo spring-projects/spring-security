@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eleftheria Stein
  */
 public class WebFluxSecurityConfigurationTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -54,5 +55,7 @@ public class WebFluxSecurityConfigurationTests {
 
 	@Configuration
 	static class SubclassConfig extends WebFluxSecurityConfiguration {
+
 	}
+
 }

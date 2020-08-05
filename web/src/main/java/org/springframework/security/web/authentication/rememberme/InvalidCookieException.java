@@ -22,7 +22,9 @@ package org.springframework.security.web.authentication.rememberme;
  * @author Luke Taylor
  */
 public class InvalidCookieException extends RememberMeAuthenticationException {
+
 	public InvalidCookieException(String message) {
 		super(message);
 	}
+
 }

@@ -25,18 +25,14 @@ import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SU
  * Tests for {@link OidcUserInfo}
  */
 public class OidcUserInfoBuilderTests {
+
 	@Test
 	public void buildWhenCalledTwiceThenGeneratesTwoOidcUserInfos() {
 		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder();
 
-		OidcUserInfo first = userInfoBuilder
-				.claim("TEST_CLAIM_1", "C1")
-				.build();
+		OidcUserInfo first = userInfoBuilder.claim("TEST_CLAIM_1", "C1").build();
 
-		OidcUserInfo second = userInfoBuilder
-				.claim("TEST_CLAIM_1", "C2")
-				.claim("TEST_CLAIM_2", "C3")
-				.build();
+		OidcUserInfo second = userInfoBuilder.claim("TEST_CLAIM_1", "C2").claim("TEST_CLAIM_2", "C3").build();
 
 		assertThat(first.getClaims()).hasSize(1);
 		assertThat(first.getClaims().get("TEST_CLAIM_1")).isEqualTo("C1");
@@ -53,26 +49,18 @@ public class OidcUserInfoBuilderTests {
 		String generic = new String("sub");
 		String named = new String("sub");
 
-		OidcUserInfo userInfo = userInfoBuilder
-				.subject(named)
-				.claim(SUB, generic).build();
+		OidcUserInfo userInfo = userInfoBuilder.subject(named).claim(SUB, generic).build();
 		assertThat(userInfo.getSubject()).isSameAs(generic);
 
-		userInfo = userInfoBuilder
-				.claim(SUB, generic)
-				.subject(named).build();
+		userInfo = userInfoBuilder.claim(SUB, generic).subject(named).build();
 		assertThat(userInfo.getSubject()).isSameAs(named);
 	}
 
 	@Test
 	public void claimsWhenRemovingAClaimThenIsNotPresent() {
-		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder()
-				.claim("needs", "a claim");
+		OidcUserInfo.Builder userInfoBuilder = OidcUserInfo.builder().claim("needs", "a claim");
 
-		OidcUserInfo userInfo = userInfoBuilder
-				.subject("sub")
-				.claims(claims -> claims.remove(SUB))
-				.build();
+		OidcUserInfo userInfo = userInfoBuilder.subject("sub").claims(claims -> claims.remove(SUB)).build();
 		assertThat(userInfo.getSubject()).isNull();
 	}
 
@@ -82,11 +70,10 @@ public class OidcUserInfoBuilderTests {
 
 		String name = new String("name");
 		String value = new String("value");
-		OidcUserInfo userInfo = userInfoBuilder
-				.claims(claims -> claims.put(name, value))
-				.build();
+		OidcUserInfo userInfo = userInfoBuilder.claims(claims -> claims.put(name, value)).build();
 
 		assertThat(userInfo.getClaims()).hasSize(1);
 		assertThat(userInfo.getClaims().get(name)).isSameAs(value);
 	}
+
 }

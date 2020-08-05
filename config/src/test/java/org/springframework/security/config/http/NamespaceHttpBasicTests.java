@@ -39,11 +39,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  */
 public class NamespaceHttpBasicTests {
+
 	@Mock
 	Method method;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	ConfigurableApplicationContext context;
@@ -114,7 +117,7 @@ public class NamespaceHttpBasicTests {
 
 	private void loadContext(String context) {
 		this.context = new InMemoryXmlApplicationContext(context);
-		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain",
-				Filter.class);
+		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
 	}
+
 }

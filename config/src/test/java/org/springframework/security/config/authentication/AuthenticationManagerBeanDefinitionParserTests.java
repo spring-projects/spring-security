@@ -38,37 +38,32 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author Luke Taylor
  */
 public class AuthenticationManagerBeanDefinitionParserTests {
-	private static final String CONTEXT = "<authentication-manager id='am'>"
-			+ "    <authentication-provider>"
+
+	private static final String CONTEXT = "<authentication-manager id='am'>" + "    <authentication-provider>"
 			+ "        <user-service>"
 			+ "            <user name='bob' password='{noop}bobspassword' authorities='ROLE_A,ROLE_B' />"
-			+ "        </user-service>"
-			+ "    </authentication-provider>"
-			+ "</authentication-manager>";
+			+ "        </user-service>" + "    </authentication-provider>" + "</authentication-manager>";
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
 	@Test
 	// SEC-1225
 	public void providersAreRegisteredAsTopLevelBeans() {
-		ConfigurableApplicationContext context = this.spring.context(CONTEXT)
-			.getContext();
+		ConfigurableApplicationContext context = this.spring.context(CONTEXT).getContext();
 		assertThat(context.getBeansOfType(AuthenticationProvider.class)).hasSize(1);
 	}
 
 	@Test
 	public void eventsArePublishedByDefault() throws Exception {
-		ConfigurableApplicationContext appContext = this.spring.context(CONTEXT)
-			.getContext();
+		ConfigurableApplicationContext appContext = this.spring.context(CONTEXT).getContext();
 		AuthListener listener = new AuthListener();
 		appContext.addApplicationListener(listener);
 
-		ProviderManager pm = (ProviderManager) appContext
-				.getBeansOfType(ProviderManager.class).values().toArray()[0];
+		ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
 		Object eventPublisher = FieldUtils.getFieldValue(pm, "eventPublisher");
 		assertThat(eventPublisher).isNotNull();
 		assertThat(eventPublisher instanceof DefaultAuthenticationEventPublisher).isTrue();
@@ -79,19 +74,16 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 
 	@Test
 	public void credentialsAreClearedByDefault() {
-		ConfigurableApplicationContext appContext = this.spring.context(CONTEXT)
-			.getContext();
-		ProviderManager pm = (ProviderManager) appContext
-				.getBeansOfType(ProviderManager.class).values().toArray()[0];
+		ConfigurableApplicationContext appContext = this.spring.context(CONTEXT).getContext();
+		ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
 		assertThat(pm.isEraseCredentialsAfterAuthentication()).isTrue();
 	}
 
 	@Test
 	public void clearCredentialsPropertyIsRespected() {
-		ConfigurableApplicationContext appContext = this.spring.context("<authentication-manager erase-credentials='false'/>")
-			.getContext();
-		ProviderManager pm = (ProviderManager) appContext
-				.getBeansOfType(ProviderManager.class).values().toArray()[0];
+		ConfigurableApplicationContext appContext = this.spring
+				.context("<authentication-manager erase-credentials='false'/>").getContext();
+		ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
 		assertThat(pm.isEraseCredentialsAfterAuthentication()).isFalse();
 	}
 
@@ -100,24 +92,23 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 
 	@Test
 	public void passwordEncoderBeanUsed() throws Exception {
-		this.spring.context("<b:bean id='passwordEncoder' class='org.springframework.security.crypto.password.NoOpPasswordEncoder' factory-method='getInstance'/>"
-			+ "<user-service>"
-			+ "  <user name='user' password='password' authorities='ROLE_A,ROLE_B' />"
-			+ "</user-service>"
-			+ "<http/>")
-			.mockMvcAfterSpringSecurityOk()
-			.autowire();
+		this.spring.context(
+				"<b:bean id='passwordEncoder' class='org.springframework.security.crypto.password.NoOpPasswordEncoder' factory-method='getInstance'/>"
+						+ "<user-service>" + "  <user name='user' password='password' authorities='ROLE_A,ROLE_B' />"
+						+ "</user-service>" + "<http/>")
+				.mockMvcAfterSpringSecurityOk().autowire();
 
-		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))
-			.andExpect(status().isOk());
+		this.mockMvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk());
 	}
 
-	private static class AuthListener implements
-			ApplicationListener<AbstractAuthenticationEvent> {
+	private static class AuthListener implements ApplicationListener<AbstractAuthenticationEvent> {
+
 		List<AbstractAuthenticationEvent> events = new ArrayList<>();
 
 		public void onApplicationEvent(AbstractAuthenticationEvent event) {
 			this.events.add(event);
 		}
+
 	}
+
 }

@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Luke Taylor
  */
 public class DefaultHttpFirewallTests {
+
 	public String[] unnormalizedPaths = { "/..", "/./path/", "/path/path/.", "/path/path//.", "./path/../path//.",
 			"./path", ".//path", "." };
 
@@ -39,22 +40,23 @@ public class DefaultHttpFirewallTests {
 			try {
 				fw.getFirewalledRequest(request);
 				fail(path + " is un-normalized");
-			} catch (RequestRejectedException expected) {
+			}
+			catch (RequestRejectedException expected) {
 			}
 			request.setPathInfo(path);
 			try {
 				fw.getFirewalledRequest(request);
 				fail(path + " is un-normalized");
-			} catch (RequestRejectedException expected) {
+			}
+			catch (RequestRejectedException expected) {
 			}
 		}
 	}
 
 	/**
-	 * On WebSphere 8.5 a URL like /context-root/a/b;%2f1/c can bypass a rule on
-	 * /a/b/c because the pathInfo is /a/b;/1/c which ends up being /a/b/1/c
-	 * while Spring MVC will strip the ; content from requestURI before the path
-	 * is URL decoded.
+	 * On WebSphere 8.5 a URL like /context-root/a/b;%2f1/c can bypass a rule on /a/b/c
+	 * because the pathInfo is /a/b;/1/c which ends up being /a/b/1/c while Spring MVC
+	 * will strip the ; content from requestURI before the path is URL decoded.
 	 */
 	@Test(expected = RequestRejectedException.class)
 	public void getFirewalledRequestWhenLowercaseEncodedPathThenException() {
@@ -104,4 +106,5 @@ public class DefaultHttpFirewallTests {
 
 		fw.getFirewalledRequest(request);
 	}
+
 }

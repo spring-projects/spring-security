@@ -48,10 +48,13 @@ import org.springframework.security.web.context.SecurityContextRepository;
 
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(WebTestUtils.class)
-@PowerMockIgnore({"javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*"})
+@PowerMockIgnore({ "javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*",
+		"javax.xml.parsers.*" })
 public class SecurityMockMvcRequestPostProcessorsUserTests {
+
 	@Captor
 	private ArgumentCaptor<SecurityContext> contextCaptor;
+
 	@Mock
 	private SecurityContextRepository repository;
 
@@ -59,6 +62,7 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 
 	@Mock
 	private GrantedAuthority authority1;
+
 	@Mock
 	private GrantedAuthority authority2;
 
@@ -79,33 +83,27 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 
 		user(username).postProcessRequest(request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request),
-				any(HttpServletResponse.class));
+		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication()).isInstanceOf(
-				UsernamePasswordAuthenticationToken.class);
+		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getName()).isEqualTo(username);
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("password");
-		assertThat(context.getAuthentication().getAuthorities()).extracting("authority")
-				.containsOnly("ROLE_USER");
+		assertThat(context.getAuthentication().getAuthorities()).extracting("authority").containsOnly("ROLE_USER");
 	}
 
 	@Test
 	public void userWithCustom() {
 		String username = "customuser";
 
-		user(username).roles("CUSTOM", "ADMIN").password("newpass")
-				.postProcessRequest(request);
+		user(username).roles("CUSTOM", "ADMIN").password("newpass").postProcessRequest(request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request),
-				any(HttpServletResponse.class));
+		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication()).isInstanceOf(
-				UsernamePasswordAuthenticationToken.class);
+		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getName()).isEqualTo(username);
 		assertThat(context.getAuthentication().getCredentials()).isEqualTo("newpass");
-		assertThat(context.getAuthentication().getAuthorities()).extracting("authority")
-				.containsOnly("ROLE_CUSTOM", "ROLE_ADMIN");
+		assertThat(context.getAuthentication().getAuthorities()).extracting("authority").containsOnly("ROLE_CUSTOM",
+				"ROLE_ADMIN");
 	}
 
 	@Test
@@ -114,11 +112,10 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 
 		user(username).authorities(authority1, authority2).postProcessRequest(request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request),
-				any(HttpServletResponse.class));
+		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
-				.containsOnly(authority1, authority2);
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(authority1,
+				authority2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -130,18 +127,17 @@ public class SecurityMockMvcRequestPostProcessorsUserTests {
 	public void userCustomAuthoritiesList() {
 		String username = "customuser";
 
-		user(username).authorities(Arrays.asList(authority1, authority2))
-				.postProcessRequest(request);
+		user(username).authorities(Arrays.asList(authority1, authority2)).postProcessRequest(request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request),
-				any(HttpServletResponse.class));
+		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
-				.containsOnly(authority1, authority2);
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(authority1,
+				authority2);
 	}
 
 	private void mockWebTestUtils() {
 		spy(WebTestUtils.class);
 		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
 	}
+
 }

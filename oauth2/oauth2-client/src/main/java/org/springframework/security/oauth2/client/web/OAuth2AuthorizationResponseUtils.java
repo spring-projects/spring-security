@@ -52,13 +52,13 @@ final class OAuth2AuthorizationResponseUtils {
 	}
 
 	static boolean isAuthorizationResponseSuccess(MultiValueMap<String, String> request) {
-		return StringUtils.hasText(request.getFirst(OAuth2ParameterNames.CODE)) &&
-			StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
+		return StringUtils.hasText(request.getFirst(OAuth2ParameterNames.CODE))
+				&& StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
 	}
 
 	static boolean isAuthorizationResponseError(MultiValueMap<String, String> request) {
-		return StringUtils.hasText(request.getFirst(OAuth2ParameterNames.ERROR)) &&
-			StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
+		return StringUtils.hasText(request.getFirst(OAuth2ParameterNames.ERROR))
+				&& StringUtils.hasText(request.getFirst(OAuth2ParameterNames.STATE));
 	}
 
 	static OAuth2AuthorizationResponse convert(MultiValueMap<String, String> request, String redirectUri) {
@@ -67,19 +67,14 @@ final class OAuth2AuthorizationResponseUtils {
 		String state = request.getFirst(OAuth2ParameterNames.STATE);
 
 		if (StringUtils.hasText(code)) {
-			return OAuth2AuthorizationResponse.success(code)
-				.redirectUri(redirectUri)
-				.state(state)
-				.build();
-		} else {
+			return OAuth2AuthorizationResponse.success(code).redirectUri(redirectUri).state(state).build();
+		}
+		else {
 			String errorDescription = request.getFirst(OAuth2ParameterNames.ERROR_DESCRIPTION);
 			String errorUri = request.getFirst(OAuth2ParameterNames.ERROR_URI);
-			return OAuth2AuthorizationResponse.error(errorCode)
-				.redirectUri(redirectUri)
-				.errorDescription(errorDescription)
-				.errorUri(errorUri)
-				.state(state)
-				.build();
+			return OAuth2AuthorizationResponse.error(errorCode).redirectUri(redirectUri)
+					.errorDescription(errorDescription).errorUri(errorUri).state(state).build();
 		}
 	}
+
 }

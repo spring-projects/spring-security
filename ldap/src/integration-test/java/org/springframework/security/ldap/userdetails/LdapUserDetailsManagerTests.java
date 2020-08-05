@@ -52,8 +52,8 @@ public class LdapUserDetailsManagerTests {
 	@Autowired
 	private ContextSource contextSource;
 
-	private static final List<GrantedAuthority> TEST_AUTHORITIES = AuthorityUtils.createAuthorityList(
-			"ROLE_CLOWNS", "ROLE_ACROBATS");
+	private static final List<GrantedAuthority> TEST_AUTHORITIES = AuthorityUtils.createAuthorityList("ROLE_CLOWNS",
+			"ROLE_ACROBATS");
 
 	private LdapUserDetailsManager mgr;
 
@@ -76,8 +76,7 @@ public class LdapUserDetailsManagerTests {
 
 		group.setAttributeValue("objectclass", "groupOfNames");
 		group.setAttributeValue("cn", "clowns");
-		group.setAttributeValue("member",
-				"cn=nobody,ou=test people,dc=springframework,dc=org");
+		group.setAttributeValue("member", "cn=nobody,ou=test people,dc=springframework,dc=org");
 		template.bind("cn=clowns,ou=testgroups", group, null);
 
 		group.setAttributeValue("cn", "acrobats");
@@ -185,9 +184,7 @@ public class LdapUserDetailsManagerTests {
 		}
 
 		// Check that no authorities are left
-		assertThat(
-				mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don")).hasSize(
-						0);
+		assertThat(mgr.getUserAuthorities(mgr.usernameMapper.buildDn("don"), "don")).hasSize(0);
 	}
 
 	@Test
@@ -203,13 +200,12 @@ public class LdapUserDetailsManagerTests {
 		mgr.createUser(p.createUserDetails());
 
 		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("johnyossarian",
-						"yossarianspassword", TEST_AUTHORITIES));
+				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
 		mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
-		assertThat(template.compare("uid=johnyossarian,ou=test people", "userPassword",
-				"yossariansnewpassword")).isTrue();
+		assertThat(template.compare("uid=johnyossarian,ou=test people", "userPassword", "yossariansnewpassword"))
+				.isTrue();
 	}
 
 	@Test(expected = BadCredentialsException.class)
@@ -225,9 +221,9 @@ public class LdapUserDetailsManagerTests {
 		mgr.createUser(p.createUserDetails());
 
 		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("johnyossarian",
-						"yossarianspassword", TEST_AUTHORITIES));
+				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
 		mgr.changePassword("wrongpassword", "yossariansnewpassword");
 	}
+
 }

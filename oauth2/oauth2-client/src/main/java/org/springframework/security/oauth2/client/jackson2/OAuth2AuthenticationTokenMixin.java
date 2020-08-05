@@ -37,13 +37,13 @@ import java.util.Collection;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-@JsonIgnoreProperties(value = {"authenticated"}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = { "authenticated" }, ignoreUnknown = true)
 abstract class OAuth2AuthenticationTokenMixin {
 
 	@JsonCreator
-	OAuth2AuthenticationTokenMixin(
-			@JsonProperty("principal") OAuth2User principal,
+	OAuth2AuthenticationTokenMixin(@JsonProperty("principal") OAuth2User principal,
 			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 			@JsonProperty("authorizedClientRegistrationId") String authorizedClientRegistrationId) {
 	}
+
 }

@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  */
 public interface ChannelEntryPoint {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -41,11 +42,10 @@ public interface ChannelEntryPoint {
 	 * Implementations should modify the headers on the <code>ServletResponse</code> as
 	 * necessary to commence the user agent using the implementation's supported channel
 	 * type.
-	 *
 	 * @param request that a <code>ChannelProcessor</code> has rejected
 	 * @param response so that the user agent can begin using a new channel
 	 *
 	 */
-	void commence(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException;
+	void commence(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+
 }

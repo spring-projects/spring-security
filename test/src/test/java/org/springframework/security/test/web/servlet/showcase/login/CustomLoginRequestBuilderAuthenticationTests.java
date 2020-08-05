@@ -58,23 +58,18 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 
 	@Test
 	public void authenticationSuccess() throws Exception {
-		mvc.perform(login())
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/"))
+		mvc.perform(login()).andExpect(status().isFound()).andExpect(redirectedUrl("/"))
 				.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void authenticationFailed() throws Exception {
-		mvc.perform(login().user("notfound").password("invalid"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/authenticate?error"))
-				.andExpect(unauthenticated());
+		mvc.perform(login().user("notfound").password("invalid")).andExpect(status().isFound())
+				.andExpect(redirectedUrl("/authenticate?error")).andExpect(unauthenticated());
 	}
 
 	static FormLoginRequestBuilder login() {
-		return SecurityMockMvcRequestBuilders.formLogin("/authenticate")
-				.userParameter("user").passwordParam("pass");
+		return SecurityMockMvcRequestBuilders.formLogin("/authenticate").userParameter("user").passwordParam("pass");
 	}
 
 	@EnableWebSecurity
@@ -102,5 +97,7 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 			return new InMemoryUserDetailsManager(user);
 		}
 		// @formatter:on
+
 	}
+
 }

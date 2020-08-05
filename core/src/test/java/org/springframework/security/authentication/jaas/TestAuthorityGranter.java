@@ -24,10 +24,10 @@ import java.util.Set;
 import org.springframework.security.authentication.jaas.AuthorityGranter;
 
 /**
- *
  * @author Ray Krueger
  */
 public class TestAuthorityGranter implements AuthorityGranter {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -41,4 +41,5 @@ public class TestAuthorityGranter implements AuthorityGranter {
 
 		return rtnSet;
 	}
+
 }

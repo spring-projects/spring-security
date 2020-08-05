@@ -31,6 +31,7 @@ import static org.springframework.security.config.util.InMemoryXmlApplicationCon
  * @author Joe Grandja
  */
 public class InMemoryXmlWebApplicationContext extends AbstractRefreshableWebApplicationContext {
+
 	private Resource inMemoryXml;
 
 	public InMemoryXmlWebApplicationContext(String xml) {
@@ -41,8 +42,7 @@ public class InMemoryXmlWebApplicationContext extends AbstractRefreshableWebAppl
 		this(xml, SPRING_SECURITY_VERSION, parent);
 	}
 
-	public InMemoryXmlWebApplicationContext(String xml, String secVersion,
-											ApplicationContext parent) {
+	public InMemoryXmlWebApplicationContext(String xml, String secVersion, ApplicationContext parent) {
 		String fullXml = BEANS_OPENING + secVersion + ".xsd'>\n" + xml + BEANS_CLOSE;
 		inMemoryXml = new InMemoryResource(fullXml);
 		setAllowBeanDefinitionOverriding(true);

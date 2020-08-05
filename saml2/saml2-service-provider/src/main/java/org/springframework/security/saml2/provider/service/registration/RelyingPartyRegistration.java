@@ -28,14 +28,18 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.ProviderDetails;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.util.Assert;
 
 /**
- * Represents a configured relying party (aka Service Provider) and asserting party (aka Identity Provider) pair.
+ * Represents a configured relying party (aka Service Provider) and asserting party (aka
+ * Identity Provider) pair.
  *
  * <p>
- * Each RP/AP pair is uniquely identified using a {@code registrationId}, an arbitrary string.
+ * Each RP/AP pair is uniquely identified using a {@code registrationId}, an arbitrary
+ * string.
  *
  * <p>
  * A fully configured registration may look like:
@@ -70,20 +74,23 @@ import org.springframework.util.Assert;
 public class RelyingPartyRegistration {
 
 	private final String registrationId;
+
 	private final String entityId;
+
 	private final String assertionConsumerServiceLocation;
+
 	private final Saml2MessageBinding assertionConsumerServiceBinding;
+
 	private final ProviderDetails providerDetails;
+
 	private final List<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials;
+
 	private final Collection<Saml2X509Credential> decryptionX509Credentials;
+
 	private final Collection<Saml2X509Credential> signingX509Credentials;
 
-	private RelyingPartyRegistration(
-			String registrationId,
-			String entityId,
-			String assertionConsumerServiceLocation,
-			Saml2MessageBinding assertionConsumerServiceBinding,
-			ProviderDetails providerDetails,
+	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
+			Saml2MessageBinding assertionConsumerServiceBinding, ProviderDetails providerDetails,
 			Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
@@ -106,8 +113,7 @@ public class RelyingPartyRegistration {
 		Assert.notNull(signingX509Credentials, "signingX509Credentials cannot be null");
 		for (Saml2X509Credential c : signingX509Credentials) {
 			Assert.notNull(c, "signingX509Credentials cannot contain null elements");
-			Assert.isTrue(c.isSigningCredential(),
-					"All signingX509Credentials must have a usage of SIGNING set");
+			Assert.isTrue(c.isSigningCredential(), "All signingX509Credentials must have a usage of SIGNING set");
 		}
 		this.registrationId = registrationId;
 		this.entityId = entityId;
@@ -121,7 +127,6 @@ public class RelyingPartyRegistration {
 
 	/**
 	 * Get the unique registration id for this RP/AP pair
-	 *
 	 * @return the unique registration id for this RP/AP pair
 	 */
 	public String getRegistrationId() {
@@ -129,18 +134,17 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Get the relying party's
-	 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+	 * Get the relying party's <a href=
+	 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
 	 *
 	 * <p>
-	 * Equivalent to the value found in the relying party's
-	 * &lt;EntityDescriptor EntityID="..."/&gt;
+	 * Equivalent to the value found in the relying party's &lt;EntityDescriptor
+	 * EntityID="..."/&gt;
 	 *
 	 * <p>
-	 * This value may contain a number of placeholders, which need to be
-	 * resolved before use. They are {@code baseUrl}, {@code registrationId},
-	 * {@code baseScheme}, {@code baseHost}, and {@code basePort}.
-	 *
+	 * This value may contain a number of placeholders, which need to be resolved before
+	 * use. They are {@code baseUrl}, {@code registrationId}, {@code baseScheme},
+	 * {@code baseHost}, and {@code basePort}.
 	 * @return the relying party's EntityID
 	 * @since 5.4
 	 */
@@ -149,14 +153,13 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Get the AssertionConsumerService Location.
-	 * Equivalent to the value found in &lt;AssertionConsumerService Location="..."/&gt;
-	 * in the relying party's &lt;SPSSODescriptor&gt;.
+	 * Get the AssertionConsumerService Location. Equivalent to the value found in
+	 * &lt;AssertionConsumerService Location="..."/&gt; in the relying party's
+	 * &lt;SPSSODescriptor&gt;.
 	 *
-	 * This value may contain a number of placeholders, which need to be
-	 * resolved before use. They are {@code baseUrl}, {@code registrationId},
-	 * {@code baseScheme}, {@code baseHost}, and {@code basePort}.
-	 *
+	 * This value may contain a number of placeholders, which need to be resolved before
+	 * use. They are {@code baseUrl}, {@code registrationId}, {@code baseScheme},
+	 * {@code baseHost}, and {@code basePort}.
 	 * @return the AssertionConsumerService Location
 	 * @since 5.4
 	 */
@@ -165,10 +168,9 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Get the AssertionConsumerService Binding.
-	 * Equivalent to the value found in &lt;AssertionConsumerService Binding="..."/&gt;
-	 * in the relying party's &lt;SPSSODescriptor&gt;.
-	 *
+	 * Get the AssertionConsumerService Binding. Equivalent to the value found in
+	 * &lt;AssertionConsumerService Binding="..."/&gt; in the relying party's
+	 * &lt;SPSSODescriptor&gt;.
 	 * @return the AssertionConsumerService Binding
 	 * @since 5.4
 	 */
@@ -177,9 +179,10 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Get the {@link Collection} of decryption {@link Saml2X509Credential}s associated with this relying party
-	 *
-	 * @return the {@link Collection} of decryption {@link Saml2X509Credential}s associated with this relying party
+	 * Get the {@link Collection} of decryption {@link Saml2X509Credential}s associated
+	 * with this relying party
+	 * @return the {@link Collection} of decryption {@link Saml2X509Credential}s
+	 * associated with this relying party
 	 * @since 5.4
 	 */
 	public Collection<Saml2X509Credential> getDecryptionX509Credentials() {
@@ -187,9 +190,10 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Get the {@link Collection} of signing {@link Saml2X509Credential}s associated with this relying party
-	 *
-	 * @return the {@link Collection} of signing {@link Saml2X509Credential}s associated with this relying party
+	 * Get the {@link Collection} of signing {@link Saml2X509Credential}s associated with
+	 * this relying party
+	 * @return the {@link Collection} of signing {@link Saml2X509Credential}s associated
+	 * with this relying party
 	 * @since 5.4
 	 */
 	public Collection<Saml2X509Credential> getSigningX509Credentials() {
@@ -198,7 +202,6 @@ public class RelyingPartyRegistration {
 
 	/**
 	 * Get the configuration details for the Asserting Party
-	 *
 	 * @return the {@link AssertingPartyDetails}
 	 * @since 5.4
 	 */
@@ -209,7 +212,8 @@ public class RelyingPartyRegistration {
 	/**
 	 * Returns the entity ID of the IDP, the asserting party.
 	 * @return entity ID of the asserting party
-	 * @deprecated use {@link AssertingPartyDetails#getEntityId} from {@link #getAssertingPartyDetails}
+	 * @deprecated use {@link AssertingPartyDetails#getEntityId} from
+	 * {@link #getAssertingPartyDetails}
 	 */
 	@Deprecated
 	public String getRemoteIdpEntityId() {
@@ -218,8 +222,8 @@ public class RelyingPartyRegistration {
 
 	/**
 	 * returns the URL template for which ACS URL authentication requests should contain
-	 * Possible variables are {@code baseUrl}, {@code registrationId},
-	 * {@code baseScheme}, {@code baseHost}, and {@code basePort}.
+	 * Possible variables are {@code baseUrl}, {@code registrationId}, {@code baseScheme},
+	 * {@code baseHost}, and {@code basePort}.
 	 * @return string containing the ACS URL template, with or without variables present
 	 * @deprecated Use {@link #getAssertionConsumerServiceLocation} instead
 	 */
@@ -229,10 +233,11 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Contains the URL for which to send the SAML 2 Authentication Request to initiate
-	 * a single sign on flow.
+	 * Contains the URL for which to send the SAML 2 Authentication Request to initiate a
+	 * single sign on flow.
 	 * @return a IDP URL that accepts REDIRECT or POST binding for authentication requests
-	 * @deprecated use {@link AssertingPartyDetails#getSingleSignOnServiceLocation} from {@link #getAssertingPartyDetails}
+	 * @deprecated use {@link AssertingPartyDetails#getSingleSignOnServiceLocation} from
+	 * {@link #getAssertingPartyDetails}
 	 */
 	@Deprecated
 	public String getIdpWebSsoUrl() {
@@ -252,8 +257,8 @@ public class RelyingPartyRegistration {
 
 	/**
 	 * The local relying party, or Service Provider, can generate it's entity ID based on
-	 * possible variables of {@code baseUrl}, {@code registrationId},
-	 * {@code baseScheme}, {@code baseHost}, and {@code basePort}, for example
+	 * possible variables of {@code baseUrl}, {@code registrationId}, {@code baseScheme},
+	 * {@code baseHost}, and {@code basePort}, for example
 	 * {@code {baseUrl}/saml2/service-provider-metadata/{registrationId}}
 	 * @return a string containing the entity ID or entity ID template
 	 * @deprecated Use {@link #getEntityId} instead
@@ -264,10 +269,11 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Returns a list of configured credentials to be used in message exchanges between relying party, SP, and
-	 * asserting party, IDP.
+	 * Returns a list of configured credentials to be used in message exchanges between
+	 * relying party, SP, and asserting party, IDP.
 	 * @return a list of credentials
-	 * @deprecated Instead of retrieving all credentials, use the appropriate method for obtaining the correct type
+	 * @deprecated Instead of retrieving all credentials, use the appropriate method for
+	 * obtaining the correct type
 	 */
 	@Deprecated
 	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getCredentials() {
@@ -278,11 +284,13 @@ public class RelyingPartyRegistration {
 	 * @return a filtered list containing only credentials of type
 	 * {@link org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType#VERIFICATION}.
 	 * Returns an empty list of credentials are not found
-	 * @deprecated Use {@link #getAssertingPartyDetails().getSigningX509Credentials()} instead
+	 * @deprecated Use {@link #getAssertingPartyDetails().getSigningX509Credentials()}
+	 * instead
 	 */
 	@Deprecated
 	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getVerificationCredentials() {
-		return filterCredentials(org.springframework.security.saml2.credentials.Saml2X509Credential::isSignatureVerficationCredential);
+		return filterCredentials(
+				org.springframework.security.saml2.credentials.Saml2X509Credential::isSignatureVerficationCredential);
 	}
 
 	/**
@@ -293,18 +301,21 @@ public class RelyingPartyRegistration {
 	 */
 	@Deprecated
 	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getSigningCredentials() {
-		return filterCredentials(org.springframework.security.saml2.credentials.Saml2X509Credential::isSigningCredential);
+		return filterCredentials(
+				org.springframework.security.saml2.credentials.Saml2X509Credential::isSigningCredential);
 	}
 
 	/**
 	 * @return a filtered list containing only credentials of type
 	 * {@link org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType#ENCRYPTION}.
 	 * Returns an empty list of credentials are not found
-	 * @deprecated Use {@link AssertingPartyDetails#getEncryptionX509Credentials()} instead
+	 * @deprecated Use {@link AssertingPartyDetails#getEncryptionX509Credentials()}
+	 * instead
 	 */
 	@Deprecated
 	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getEncryptionCredentials() {
-		return filterCredentials(org.springframework.security.saml2.credentials.Saml2X509Credential::isEncryptionCredential);
+		return filterCredentials(
+				org.springframework.security.saml2.credentials.Saml2X509Credential::isEncryptionCredential);
 	}
 
 	/**
@@ -315,7 +326,8 @@ public class RelyingPartyRegistration {
 	 */
 	@Deprecated
 	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getDecryptionCredentials() {
-		return filterCredentials(org.springframework.security.saml2.credentials.Saml2X509Credential::isDecryptionCredential);
+		return filterCredentials(
+				org.springframework.security.saml2.credentials.Saml2X509Credential::isDecryptionCredential);
 	}
 
 	private List<org.springframework.security.saml2.credentials.Saml2X509Credential> filterCredentials(
@@ -331,7 +343,8 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Creates a {@code RelyingPartyRegistration} {@link Builder} with a known {@code registrationId}
+	 * Creates a {@code RelyingPartyRegistration} {@link Builder} with a known
+	 * {@code registrationId}
 	 * @param registrationId a string identifier for the {@code RelyingPartyRegistration}
 	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
 	 */
@@ -341,28 +354,30 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Creates a {@code RelyingPartyRegistration} {@link Builder} based on an existing object
+	 * Creates a {@code RelyingPartyRegistration} {@link Builder} based on an existing
+	 * object
 	 * @param registration the {@code RelyingPartyRegistration}
 	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
 	 */
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
 		Assert.notNull(registration, "registration cannot be null");
-		return withRegistrationId(registration.getRegistrationId())
-				.entityId(registration.getEntityId())
+		return withRegistrationId(registration.getRegistrationId()).entityId(registration.getEntityId())
 				.signingX509Credentials(c -> c.addAll(registration.getSigningX509Credentials()))
 				.decryptionX509Credentials(c -> c.addAll(registration.getDecryptionX509Credentials()))
 				.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
 				.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
 				.assertingPartyDetails(assertingParty -> assertingParty
-					.entityId(registration.getAssertingPartyDetails().getEntityId())
-					.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
-					.verificationX509Credentials(c -> c.addAll(registration.getAssertingPartyDetails().getVerificationX509Credentials()))
-					.encryptionX509Credentials(c -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
-					.singleSignOnServiceLocation(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
-					.singleSignOnServiceBinding(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
-				);
+						.entityId(registration.getAssertingPartyDetails().getEntityId())
+						.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
+						.verificationX509Credentials(
+								c -> c.addAll(registration.getAssertingPartyDetails().getVerificationX509Credentials()))
+						.encryptionX509Credentials(
+								c -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
+						.singleSignOnServiceLocation(
+								registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
+						.singleSignOnServiceBinding(
+								registration.getAssertingPartyDetails().getSingleSignOnServiceBinding()));
 	}
-
 
 	/**
 	 * The configuration metadata of the Asserting party
@@ -370,19 +385,22 @@ public class RelyingPartyRegistration {
 	 * @since 5.4
 	 */
 	public final static class AssertingPartyDetails {
+
 		private final String entityId;
+
 		private final boolean wantAuthnRequestsSigned;
+
 		private final Collection<Saml2X509Credential> verificationX509Credentials;
+
 		private final Collection<Saml2X509Credential> encryptionX509Credentials;
+
 		private final String singleSignOnServiceLocation;
+
 		private final Saml2MessageBinding singleSignOnServiceBinding;
 
-		private AssertingPartyDetails(
-				String entityId,
-				boolean wantAuthnRequestsSigned,
+		private AssertingPartyDetails(String entityId, boolean wantAuthnRequestsSigned,
 				Collection<Saml2X509Credential> verificationX509Credentials,
-				Collection<Saml2X509Credential> encryptionX509Credentials,
-				String singleSignOnServiceLocation,
+				Collection<Saml2X509Credential> encryptionX509Credentials, String singleSignOnServiceLocation,
 				Saml2MessageBinding singleSignOnServiceBinding) {
 
 			Assert.hasText(entityId, "entityId cannot be null or empty");
@@ -409,18 +427,17 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Get the asserting party's
-		 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+		 * Get the asserting party's <a href=
+		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
 		 *
 		 * <p>
-		 * Equivalent to the value found in the asserting party's
-		 * &lt;EntityDescriptor EntityID="..."/&gt;
+		 * Equivalent to the value found in the asserting party's &lt;EntityDescriptor
+		 * EntityID="..."/&gt;
 		 *
 		 * <p>
-		 * This value may contain a number of placeholders, which need to be
-		 * resolved before use. They are {@code baseUrl}, {@code registrationId},
+		 * This value may contain a number of placeholders, which need to be resolved
+		 * before use. They are {@code baseUrl}, {@code registrationId},
 		 * {@code baseScheme}, {@code baseHost}, and {@code basePort}.
-		 *
 		 * @return the asserting party's EntityID
 		 */
 		public String getEntityId() {
@@ -428,9 +445,8 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Get the WantAuthnRequestsSigned setting, indicating the asserting party's preference that
-		 * relying parties should sign the AuthnRequest before sending.
-		 *
+		 * Get the WantAuthnRequestsSigned setting, indicating the asserting party's
+		 * preference that relying parties should sign the AuthnRequest before sending.
 		 * @return the WantAuthnRequestsSigned value
 		 */
 		public boolean getWantAuthnRequestsSigned() {
@@ -438,9 +454,10 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Get all verification {@link Saml2X509Credential}s associated with this asserting party
-		 *
-		 * @return all verification {@link Saml2X509Credential}s associated with this asserting party
+		 * Get all verification {@link Saml2X509Credential}s associated with this
+		 * asserting party
+		 * @return all verification {@link Saml2X509Credential}s associated with this
+		 * asserting party
 		 * @since 5.4
 		 */
 		public Collection<Saml2X509Credential> getVerificationX509Credentials() {
@@ -448,9 +465,10 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Get all encryption {@link Saml2X509Credential}s associated with this asserting party
-		 *
-		 * @return all encryption {@link Saml2X509Credential}s associated with this asserting party
+		 * Get all encryption {@link Saml2X509Credential}s associated with this asserting
+		 * party
+		 * @return all encryption {@link Saml2X509Credential}s associated with this
+		 * asserting party
 		 * @since 5.4
 		 */
 		public Collection<Saml2X509Credential> getEncryptionX509Credentials() {
@@ -458,14 +476,13 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Get the
-		 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
+		 * Get the <a href=
+		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
 		 * Location.
 		 *
 		 * <p>
-		 * Equivalent to the value found in &lt;SingleSignOnService Location="..."/&gt;
-		 * in the asserting party's &lt;IDPSSODescriptor&gt;.
-		 *
+		 * Equivalent to the value found in &lt;SingleSignOnService Location="..."/&gt; in
+		 * the asserting party's &lt;IDPSSODescriptor&gt;.
 		 * @return the SingleSignOnService Location
 		 */
 		public String getSingleSignOnServiceLocation() {
@@ -473,14 +490,13 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Get the
-		 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
+		 * Get the <a href=
+		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
 		 * Binding.
 		 *
 		 * <p>
-		 * Equivalent to the value found in &lt;SingleSignOnService Binding="..."/&gt;
-		 * in the asserting party's &lt;IDPSSODescriptor&gt;.
-		 *
+		 * Equivalent to the value found in &lt;SingleSignOnService Binding="..."/&gt; in
+		 * the asserting party's &lt;IDPSSODescriptor&gt;.
 		 * @return the SingleSignOnService Location
 		 */
 		public Saml2MessageBinding getSingleSignOnServiceBinding() {
@@ -488,19 +504,24 @@ public class RelyingPartyRegistration {
 		}
 
 		public final static class Builder {
+
 			private String entityId;
+
 			private boolean wantAuthnRequestsSigned = true;
+
 			private Collection<Saml2X509Credential> verificationX509Credentials = new HashSet<>();
+
 			private Collection<Saml2X509Credential> encryptionX509Credentials = new HashSet<>();
+
 			private String singleSignOnServiceLocation;
+
 			private Saml2MessageBinding singleSignOnServiceBinding = Saml2MessageBinding.REDIRECT;
 
 			/**
-			 * Set the asserting party's
-			 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
-			 * Equivalent to the value found in the asserting party's
-			 * &lt;EntityDescriptor EntityID="..."/&gt;
-			 *
+			 * Set the asserting party's <a href=
+			 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+			 * Equivalent to the value found in the asserting party's &lt;EntityDescriptor
+			 * EntityID="..."/&gt;
 			 * @param entityId the asserting party's EntityID
 			 * @return the {@link ProviderDetails.Builder} for further configuration
 			 */
@@ -510,9 +531,9 @@ public class RelyingPartyRegistration {
 			}
 
 			/**
-			 * Set the WantAuthnRequestsSigned setting, indicating the asserting party's preference that
-			 * relying parties should sign the AuthnRequest before sending.
-			 *
+			 * Set the WantAuthnRequestsSigned setting, indicating the asserting party's
+			 * preference that relying parties should sign the AuthnRequest before
+			 * sending.
 			 * @param wantAuthnRequestsSigned the WantAuthnRequestsSigned setting
 			 * @return the {@link ProviderDetails.Builder} for further configuration
 			 */
@@ -523,9 +544,10 @@ public class RelyingPartyRegistration {
 
 			/**
 			 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s
-			 *
-			 * @param credentialsConsumer a {@link Consumer} of the {@link List} of {@link Saml2X509Credential}s
-			 * @return the {@link RelyingPartyRegistration.Builder} for further configuration
+			 * @param credentialsConsumer a {@link Consumer} of the {@link List} of
+			 * {@link Saml2X509Credential}s
+			 * @return the {@link RelyingPartyRegistration.Builder} for further
+			 * configuration
 			 * @since 5.4
 			 */
 			public Builder verificationX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
@@ -535,9 +557,10 @@ public class RelyingPartyRegistration {
 
 			/**
 			 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s
-			 *
-			 * @param credentialsConsumer a {@link Consumer} of the {@link List} of {@link Saml2X509Credential}s
-			 * @return the {@link RelyingPartyRegistration.Builder} for further configuration
+			 * @param credentialsConsumer a {@link Consumer} of the {@link List} of
+			 * {@link Saml2X509Credential}s
+			 * @return the {@link RelyingPartyRegistration.Builder} for further
+			 * configuration
 			 * @since 5.4
 			 */
 			public Builder encryptionX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
@@ -546,14 +569,13 @@ public class RelyingPartyRegistration {
 			}
 
 			/**
-			 * Set the
-			 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
+			 * Set the <a href=
+			 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
 			 * Location.
 			 *
 			 * <p>
-			 * Equivalent to the value found in &lt;SingleSignOnService Location="..."/&gt;
-			 * in the asserting party's &lt;IDPSSODescriptor&gt;.
-			 *
+			 * Equivalent to the value found in &lt;SingleSignOnService
+			 * Location="..."/&gt; in the asserting party's &lt;IDPSSODescriptor&gt;.
 			 * @param singleSignOnServiceLocation the SingleSignOnService Location
 			 * @return the {@link ProviderDetails.Builder} for further configuration
 			 */
@@ -563,14 +585,13 @@ public class RelyingPartyRegistration {
 			}
 
 			/**
-			 * Set the
-			 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
+			 * Set the <a href=
+			 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
 			 * Binding.
 			 *
 			 * <p>
 			 * Equivalent to the value found in &lt;SingleSignOnService Binding="..."/&gt;
 			 * in the asserting party's &lt;IDPSSODescriptor&gt;.
-			 *
 			 * @param singleSignOnServiceBinding the SingleSignOnService Binding
 			 * @return the {@link ProviderDetails.Builder} for further configuration
 			 */
@@ -580,29 +601,29 @@ public class RelyingPartyRegistration {
 			}
 
 			/**
-			 * Creates an immutable ProviderDetails object representing the configuration for an Identity Provider, IDP
+			 * Creates an immutable ProviderDetails object representing the configuration
+			 * for an Identity Provider, IDP
 			 * @return immutable ProviderDetails object
 			 */
 			public AssertingPartyDetails build() {
-				return new AssertingPartyDetails(
-						this.entityId,
-						this.wantAuthnRequestsSigned,
-						this.verificationX509Credentials,
-						this.encryptionX509Credentials,
-						this.singleSignOnServiceLocation,
-						this.singleSignOnServiceBinding
-				);
+				return new AssertingPartyDetails(this.entityId, this.wantAuthnRequestsSigned,
+						this.verificationX509Credentials, this.encryptionX509Credentials,
+						this.singleSignOnServiceLocation, this.singleSignOnServiceBinding);
 			}
+
 		}
+
 	}
 
 	/**
 	 * Configuration for IDP SSO endpoint configuration
+	 *
 	 * @since 5.3
 	 * @deprecated Use {@link AssertingPartyDetails} instead
 	 */
 	@Deprecated
 	public final static class ProviderDetails {
+
 		private final AssertingPartyDetails assertingPartyDetails;
 
 		private ProviderDetails(AssertingPartyDetails assertingPartyDetails) {
@@ -619,17 +640,18 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Contains the URL for which to send the SAML 2 Authentication Request to initiate
-		 * a single sign on flow.
-		 * @return a IDP URL that accepts REDIRECT or POST binding for authentication requests
+		 * Contains the URL for which to send the SAML 2 Authentication Request to
+		 * initiate a single sign on flow.
+		 * @return a IDP URL that accepts REDIRECT or POST binding for authentication
+		 * requests
 		 */
 		public String getWebSsoUrl() {
 			return this.assertingPartyDetails.getSingleSignOnServiceLocation();
 		}
 
 		/**
-		 * @return {@code true} if AuthNRequests from this relying party to the IDP should be signed
-		 * {@code false} if no signature is required.
+		 * @return {@code true} if AuthNRequests from this relying party to the IDP should
+		 * be signed {@code false} if no signature is required.
 		 */
 		public boolean isSignAuthNRequest() {
 			return this.assertingPartyDetails.getWantAuthnRequestsSigned();
@@ -644,20 +666,20 @@ public class RelyingPartyRegistration {
 
 		/**
 		 * Builder for IDP SSO endpoint configuration
+		 *
 		 * @since 5.3
 		 * @deprecated Use {@link AssertingPartyDetails.Builder} instead
 		 */
 		@Deprecated
 		public final static class Builder {
-			private final AssertingPartyDetails.Builder assertingPartyDetailsBuilder =
-					new AssertingPartyDetails.Builder();
+
+			private final AssertingPartyDetails.Builder assertingPartyDetailsBuilder = new AssertingPartyDetails.Builder();
 
 			/**
-			 * Set the asserting party's
-			 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
-			 * Equivalent to the value found in the asserting party's
-			 * &lt;EntityDescriptor EntityID="..."/&gt;
-			 *
+			 * Set the asserting party's <a href=
+			 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+			 * Equivalent to the value found in the asserting party's &lt;EntityDescriptor
+			 * EntityID="..."/&gt;
 			 * @param entityId the asserting party's EntityID
 			 * @return the {@link Builder} for further configuration
 			 * @since 5.4
@@ -668,9 +690,10 @@ public class RelyingPartyRegistration {
 			}
 
 			/**
-			 * Sets the {@code SSO URL} for the remote asserting party, the Identity Provider.
-			 *
-			 * @param url - a URL that accepts authentication requests via REDIRECT or POST bindings
+			 * Sets the {@code SSO URL} for the remote asserting party, the Identity
+			 * Provider.
+			 * @param url - a URL that accepts authentication requests via REDIRECT or
+			 * POST bindings
 			 * @return this object
 			 */
 			public Builder webSsoUrl(String url) {
@@ -680,7 +703,6 @@ public class RelyingPartyRegistration {
 
 			/**
 			 * Set to true if the AuthNRequest message should be signed
-			 *
 			 * @param signAuthNRequest true if the message should be signed
 			 * @return this object
 			 */
@@ -689,11 +711,10 @@ public class RelyingPartyRegistration {
 				return this;
 			}
 
-
 			/**
 			 * Sets the message binding to be used when sending an AuthNRequest message
-			 *
-			 * @param binding either {@link Saml2MessageBinding#POST} or {@link Saml2MessageBinding#REDIRECT}
+			 * @param binding either {@link Saml2MessageBinding#POST} or
+			 * {@link Saml2MessageBinding#REDIRECT}
 			 * @return this object
 			 */
 			public Builder binding(Saml2MessageBinding binding) {
@@ -702,29 +723,40 @@ public class RelyingPartyRegistration {
 			}
 
 			/**
-			 * Creates an immutable ProviderDetails object representing the configuration for an Identity Provider, IDP
+			 * Creates an immutable ProviderDetails object representing the configuration
+			 * for an Identity Provider, IDP
 			 * @return immutable ProviderDetails object
 			 */
 			public ProviderDetails build() {
 				return new ProviderDetails(this.assertingPartyDetailsBuilder.build());
 			}
+
 		}
+
 	}
 
 	public final static class Builder {
+
 		private String registrationId;
+
 		private String entityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
+
 		private Collection<Saml2X509Credential> signingX509Credentials = new HashSet<>();
+
 		private Collection<Saml2X509Credential> decryptionX509Credentials = new HashSet<>();
-		private String assertionConsumerServiceLocation = "{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
+
+		private String assertionConsumerServiceLocation = "{baseUrl}"
+				+ Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
+
 		private Saml2MessageBinding assertionConsumerServiceBinding = Saml2MessageBinding.POST;
+
 		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
+
 		private Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials = new HashSet<>();
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
 		}
-
 
 		/**
 		 * Sets the {@code registrationId} template. Often be used in URL paths
@@ -737,15 +769,14 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Set the relying party's
-		 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
-		 * Equivalent to the value found in the relying party's
-		 * &lt;EntityDescriptor EntityID="..."/&gt;
+		 * Set the relying party's <a href=
+		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/EntityNaming">EntityID</a>.
+		 * Equivalent to the value found in the relying party's &lt;EntityDescriptor
+		 * EntityID="..."/&gt;
 		 *
-		 * This value may contain a number of placeholders.
-		 * They are {@code baseUrl}, {@code registrationId},
-		 * {@code baseScheme}, {@code baseHost}, and {@code basePort}.
-		 *
+		 * This value may contain a number of placeholders. They are {@code baseUrl},
+		 * {@code registrationId}, {@code baseScheme}, {@code baseHost}, and
+		 * {@code basePort}.
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
 		 */
@@ -755,10 +786,11 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Apply this {@link Consumer} to the {@link Collection} of {@link Saml2X509Credential}s
-		 * for the purposes of modifying the {@link Collection}
-		 *
-		 * @param credentialsConsumer - the {@link Consumer} for modifying the {@link Collection}
+		 * Apply this {@link Consumer} to the {@link Collection} of
+		 * {@link Saml2X509Credential}s for the purposes of modifying the
+		 * {@link Collection}
+		 * @param credentialsConsumer - the {@link Consumer} for modifying the
+		 * {@link Collection}
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
 		 */
@@ -768,10 +800,11 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Apply this {@link Consumer} to the {@link Collection} of {@link Saml2X509Credential}s
-		 * for the purposes of modifying the {@link Collection}
-		 *
-		 * @param credentialsConsumer - the {@link Consumer} for modifying the {@link Collection}
+		 * Apply this {@link Consumer} to the {@link Collection} of
+		 * {@link Saml2X509Credential}s for the purposes of modifying the
+		 * {@link Collection}
+		 * @param credentialsConsumer - the {@link Consumer} for modifying the
+		 * {@link Collection}
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
 		 */
@@ -781,18 +814,18 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Set the <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">AssertionConsumerService</a>
+		 * Set the <a href=
+		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">AssertionConsumerService</a>
 		 * Location.
 		 *
 		 * <p>
-		 * Equivalent to the value found in &lt;AssertionConsumerService Location="..."/&gt;
-		 * in the relying party's &lt;SPSSODescriptor&gt;
+		 * Equivalent to the value found in &lt;AssertionConsumerService
+		 * Location="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;
 		 *
 		 * <p>
-		 * This value may contain a number of placeholders.
-		 * They are {@code baseUrl}, {@code registrationId},
-		 * {@code baseScheme}, {@code baseHost}, and {@code basePort}.
-		 *
+		 * This value may contain a number of placeholders. They are {@code baseUrl},
+		 * {@code registrationId}, {@code baseScheme}, {@code baseHost}, and
+		 * {@code basePort}.
 		 * @param assertionConsumerServiceLocation
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
@@ -803,13 +836,13 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Set the <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">AssertionConsumerService</a>
+		 * Set the <a href=
+		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">AssertionConsumerService</a>
 		 * Binding.
 		 *
 		 * <p>
-		 * Equivalent to the value found in &lt;AssertionConsumerService Binding="..."/&gt;
-		 * in the relying party's &lt;SPSSODescriptor&gt;
-		 *
+		 * Equivalent to the value found in &lt;AssertionConsumerService
+		 * Binding="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;
 		 * @param assertionConsumerServiceBinding
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
@@ -821,7 +854,6 @@ public class RelyingPartyRegistration {
 
 		/**
 		 * Apply this {@link Consumer} to further configure the Asserting Party details
-		 *
 		 * @param assertingPartyDetails The {@link Consumer} to apply
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.4
@@ -832,10 +864,8 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Modifies the collection of {@link Saml2X509Credential} objects
-		 * used in communication between IDP and SP
-		 * For example:
-		 * <code>
+		 * Modifies the collection of {@link Saml2X509Credential} objects used in
+		 * communication between IDP and SP For example: <code>
 		 *     Saml2X509Credential credential = ...;
 		 *     return RelyingPartyRegistration.withRegistrationId("id")
 		 *             .credentials(c -> c.add(credential))
@@ -844,22 +874,27 @@ public class RelyingPartyRegistration {
 		 * </code>
 		 * @param credentials - a consumer that can modify the collection of credentials
 		 * @return this object
-		 * @deprecated Use {@link #signingX509Credentials} or {@link #decryptionX509Credentials} instead
-		 * for relying party keys or {@link AssertingPartyDetails.Builder#verificationX509Credentials} or
-		 * {@link AssertingPartyDetails.Builder#encryptionX509Credentials} for asserting party keys
+		 * @deprecated Use {@link #signingX509Credentials} or
+		 * {@link #decryptionX509Credentials} instead for relying party keys or
+		 * {@link AssertingPartyDetails.Builder#verificationX509Credentials} or
+		 * {@link AssertingPartyDetails.Builder#encryptionX509Credentials} for asserting
+		 * party keys
 		 */
 		@Deprecated
-		public Builder credentials(Consumer<Collection<org.springframework.security.saml2.credentials.Saml2X509Credential>> credentials) {
+		public Builder credentials(
+				Consumer<Collection<org.springframework.security.saml2.credentials.Saml2X509Credential>> credentials) {
 			credentials.accept(this.credentials);
 			return this;
 		}
 
 		/**
-		 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">Assertion Consumer
-		 * Service</a> URL template. It can contain variables {@code baseUrl}, {@code registrationId},
-		 * {@code baseScheme}, {@code baseHost}, and {@code basePort}.
-		 * @param assertionConsumerServiceUrlTemplate the Assertion Consumer Service URL template (i.e.
-		 * "{baseUrl}/login/saml2/sso/{registrationId}".
+		 * <a href=
+		 * "https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">Assertion
+		 * Consumer Service</a> URL template. It can contain variables {@code baseUrl},
+		 * {@code registrationId}, {@code baseScheme}, {@code baseHost}, and
+		 * {@code basePort}.
+		 * @param assertionConsumerServiceUrlTemplate the Assertion Consumer Service URL
+		 * template (i.e. "{baseUrl}/login/saml2/sso/{registrationId}".
 		 * @return this object
 		 * @deprecated Use {@link #assertionConsumerServiceLocation} instead.
 		 */
@@ -870,10 +905,12 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Sets the {@code entityId} for the remote asserting party, the Identity Provider.
+		 * Sets the {@code entityId} for the remote asserting party, the Identity
+		 * Provider.
 		 * @param entityId the IDP entityId
 		 * @return this object
-		 * @deprecated use {@link #assertingPartyDetails(Consumer< AssertingPartyDetails.Builder >)}
+		 * @deprecated use {@link #assertingPartyDetails(Consumer<
+		 * AssertingPartyDetails.Builder >)}
 		 */
 		@Deprecated
 		public Builder remoteIdpEntityId(String entityId) {
@@ -883,9 +920,11 @@ public class RelyingPartyRegistration {
 
 		/**
 		 * Sets the {@code SSO URL} for the remote asserting party, the Identity Provider.
-		 * @param url - a URL that accepts authentication requests via REDIRECT or POST bindings
+		 * @param url - a URL that accepts authentication requests via REDIRECT or POST
+		 * bindings
 		 * @return this object
-		 * @deprecated use {@link #assertingPartyDetails(Consumer< AssertingPartyDetails.Builder >)}
+		 * @deprecated use {@link #assertingPartyDetails(Consumer<
+		 * AssertingPartyDetails.Builder >)}
 		 */
 		@Deprecated
 		public Builder idpWebSsoUrl(String url) {
@@ -894,9 +933,10 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Sets the local relying party, or Service Provider, entity Id template.
-		 * can generate it's entity ID based on possible variables of {@code baseUrl}, {@code registrationId},
-		 * {@code baseScheme}, {@code baseHost}, and {@code basePort}, for example
+		 * Sets the local relying party, or Service Provider, entity Id template. can
+		 * generate it's entity ID based on possible variables of {@code baseUrl},
+		 * {@code registrationId}, {@code baseScheme}, {@code baseHost}, and
+		 * {@code basePort}, for example
 		 * {@code {baseUrl}/saml2/service-provider-metadata/{registrationId}}
 		 * @return a string containing the entity ID or entity ID template
 		 * @deprecated Use {@link #entityId} instead
@@ -920,7 +960,8 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Constructs a RelyingPartyRegistration object based on the builder configurations
+		 * Constructs a RelyingPartyRegistration object based on the builder
+		 * configurations
 		 * @return a RelyingPartyRegistration instance
 		 */
 		public RelyingPartyRegistration build() {
@@ -933,12 +974,10 @@ public class RelyingPartyRegistration {
 					decryptionX509Credentials(c -> c.add(mapped));
 				}
 				if (credential.isSignatureVerficationCredential()) {
-					this.providerDetails.assertingPartyDetailsBuilder
-							.verificationX509Credentials(c -> c.add(mapped));
+					this.providerDetails.assertingPartyDetailsBuilder.verificationX509Credentials(c -> c.add(mapped));
 				}
 				if (credential.isEncryptionCredential()) {
-					this.providerDetails.assertingPartyDetailsBuilder
-							.encryptionX509Credentials(c -> c.add(mapped));
+					this.providerDetails.assertingPartyDetailsBuilder.encryptionX509Credentials(c -> c.add(mapped));
 				}
 			}
 
@@ -955,20 +994,16 @@ public class RelyingPartyRegistration {
 				this.credentials.add(toDeprecated(credential));
 			}
 
-			return new RelyingPartyRegistration(
-					this.registrationId,
-					this.entityId,
-					this.assertionConsumerServiceLocation,
-					this.assertionConsumerServiceBinding,
-					this.providerDetails.build(),
-					this.credentials,
-					this.decryptionX509Credentials,
-					this.signingX509Credentials
-			);
+			return new RelyingPartyRegistration(this.registrationId, this.entityId,
+					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
+					this.providerDetails.build(), this.credentials, this.decryptionX509Credentials,
+					this.signingX509Credentials);
 		}
+
 	}
 
-	private static Saml2X509Credential fromDeprecated(org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
+	private static Saml2X509Credential fromDeprecated(
+			org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
 		PrivateKey privateKey = credential.getPrivateKey();
 		X509Certificate certificate = credential.getCertificate();
 		Set<Saml2X509Credential.Saml2X509CredentialType> credentialTypes = new HashSet<>();
@@ -987,22 +1022,29 @@ public class RelyingPartyRegistration {
 		return new Saml2X509Credential(privateKey, certificate, credentialTypes);
 	}
 
-	private static org.springframework.security.saml2.credentials.Saml2X509Credential toDeprecated(Saml2X509Credential credential) {
+	private static org.springframework.security.saml2.credentials.Saml2X509Credential toDeprecated(
+			Saml2X509Credential credential) {
 		PrivateKey privateKey = credential.getPrivateKey();
 		X509Certificate certificate = credential.getCertificate();
 		Set<org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType> credentialTypes = new HashSet<>();
 		if (credential.isSigningCredential()) {
-			credentialTypes.add(org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING);
+			credentialTypes.add(
+					org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING);
 		}
 		if (credential.isVerificationCredential()) {
-			credentialTypes.add(org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION);
+			credentialTypes.add(
+					org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION);
 		}
 		if (credential.isEncryptionCredential()) {
-			credentialTypes.add(org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION);
+			credentialTypes.add(
+					org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION);
 		}
 		if (credential.isDecryptionCredential()) {
-			credentialTypes.add(org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
+			credentialTypes.add(
+					org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
 		}
-		return new org.springframework.security.saml2.credentials.Saml2X509Credential(privateKey, certificate, credentialTypes);
+		return new org.springframework.security.saml2.credentials.Saml2X509Credential(privateKey, certificate,
+				credentialTypes);
 	}
+
 }

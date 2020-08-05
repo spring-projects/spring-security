@@ -16,7 +16,6 @@
 
 package org.springframework.security.access;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
@@ -90,6 +89,7 @@ public class SecurityConfigTests {
 	// ==================================================================================================
 
 	private class MockConfigAttribute implements ConfigAttribute {
+
 		private String attribute;
 
 		MockConfigAttribute(String configuration) {
@@ -99,5 +99,7 @@ public class SecurityConfigTests {
 		public String getAttribute() {
 			return this.attribute;
 		}
+
 	}
+
 }

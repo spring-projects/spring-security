@@ -35,20 +35,16 @@ public class Saml2AuthenticationRequestFactoryTests {
 	private RelyingPartyRegistration registration = RelyingPartyRegistration.withRegistrationId("id")
 			.assertionConsumerServiceUrlTemplate("template")
 			.providerDetails(c -> c.webSsoUrl("https://example.com/destination"))
-			.providerDetails(c -> c.entityId("remote-entity-id"))
-			.localEntityIdTemplate("local-entity-id")
-			.credentials(c -> c.add(relyingPartySigningCredential()))
-			.build();
+			.providerDetails(c -> c.entityId("remote-entity-id")).localEntityIdTemplate("local-entity-id")
+			.credentials(c -> c.add(relyingPartySigningCredential())).build();
 
 	@Test
 	public void createAuthenticationRequestParametersWhenRedirectDefaultIsUsedMessageIsDeflatedAndEncoded() {
-		final String value = "Test String: "+ UUID.randomUUID().toString();
+		final String value = "Test String: " + UUID.randomUUID().toString();
 		Saml2AuthenticationRequestFactory factory = request -> value;
 		Saml2AuthenticationRequestContext request = Saml2AuthenticationRequestContext.builder()
-				.relyingPartyRegistration(registration)
-				.issuer("https://example.com/issuer")
-				.assertionConsumerServiceUrl("https://example.com/acs-url")
-				.build();
+				.relyingPartyRegistration(registration).issuer("https://example.com/issuer")
+				.assertionConsumerServiceUrl("https://example.com/acs-url").build();
 		Saml2RedirectAuthenticationRequest response = factory.createRedirectAuthenticationRequest(request);
 		String resultValue = response.getSamlRequest();
 		byte[] decoded = samlDecode(resultValue);
@@ -58,16 +54,15 @@ public class Saml2AuthenticationRequestFactoryTests {
 
 	@Test
 	public void createAuthenticationRequestParametersWhenPostDefaultIsUsedMessageIsEncoded() {
-		final String value = "Test String: "+ UUID.randomUUID().toString();
+		final String value = "Test String: " + UUID.randomUUID().toString();
 		Saml2AuthenticationRequestFactory factory = request -> value;
 		Saml2AuthenticationRequestContext request = Saml2AuthenticationRequestContext.builder()
-				.relyingPartyRegistration(registration)
-				.issuer("https://example.com/issuer")
-				.assertionConsumerServiceUrl("https://example.com/acs-url")
-				.build();
+				.relyingPartyRegistration(registration).issuer("https://example.com/issuer")
+				.assertionConsumerServiceUrl("https://example.com/acs-url").build();
 		Saml2PostAuthenticationRequest response = factory.createPostAuthenticationRequest(request);
 		String resultValue = response.getSamlRequest();
 		byte[] decoded = samlDecode(resultValue);
 		assertThat(new String(decoded)).isEqualTo(value);
 	}
+
 }

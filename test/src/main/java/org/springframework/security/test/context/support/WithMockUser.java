@@ -56,6 +56,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @Documented
 @WithSecurityContext(factory = WithMockUserSecurityContextFactory.class)
 public @interface WithMockUser {
+
 	/**
 	 * Convenience mechanism for specifying the username. The default is "user". If
 	 * {@link #username()} is specified it will be used instead of {@link #value()}
@@ -78,9 +79,9 @@ public @interface WithMockUser {
 	 * with "ROLE_". For example, the default will result in "ROLE_USER" being used.
 	 * </p>
 	 * <p>
-	 * If {@link #authorities()} is specified this property cannot be changed from the default.
+	 * If {@link #authorities()} is specified this property cannot be changed from the
+	 * default.
 	 * </p>
-	 *
 	 * @return
 	 */
 	String[] roles() default { "USER" };
@@ -94,7 +95,6 @@ public @interface WithMockUser {
 	 * If this property is specified then {@link #roles()} is not used. This differs from
 	 * {@link #roles()} in that it does not prefix the values passed in automatically.
 	 * </p>
-	 *
 	 * @return
 	 */
 	String[] authorities() default {};
@@ -114,4 +114,5 @@ public @interface WithMockUser {
 	 */
 	@AliasFor(annotation = WithSecurityContext.class)
 	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;
+
 }

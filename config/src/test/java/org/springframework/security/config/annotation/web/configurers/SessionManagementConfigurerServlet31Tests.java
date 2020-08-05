@@ -46,17 +46,19 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 /**
- *
  * @author Rob Winch
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SessionManagementConfigurerServlet31Tests {
+
 	@Mock
 	Method method;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	ConfigurableApplicationContext context;
@@ -80,7 +82,7 @@ public class SessionManagementConfigurerServlet31Tests {
 	@Test
 	public void changeSessionIdThenPreserveParameters() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		String id =  request.getSession().getId();
+		String id = request.getSession().getId();
 		request.getSession();
 		request.setServletPath("/login");
 		request.setMethod("POST");
@@ -101,8 +103,8 @@ public class SessionManagementConfigurerServlet31Tests {
 	}
 
 	@EnableWebSecurity
-	static class SessionManagementDefaultSessionFixationServlet31Config extends
-			WebSecurityConfigurerAdapter {
+	static class SessionManagementDefaultSessionFixationServlet31Config extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -121,6 +123,7 @@ public class SessionManagementConfigurerServlet31Tests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	private void loadConfig(Class<?>... classes) {
@@ -128,19 +131,17 @@ public class SessionManagementConfigurerServlet31Tests {
 		context.register(classes);
 		context.refresh();
 		this.context = context;
-		this.springSecurityFilterChain = this.context.getBean(
-				"springSecurityFilterChain", Filter.class);
+		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
 	}
 
 	private void login(Authentication auth) {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(
-				request, response);
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response);
 		repo.loadContext(requestResponseHolder);
 
 		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
 		securityContextImpl.setAuthentication(auth);
-		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(),
-				requestResponseHolder.getResponse());
+		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
 	}
+
 }

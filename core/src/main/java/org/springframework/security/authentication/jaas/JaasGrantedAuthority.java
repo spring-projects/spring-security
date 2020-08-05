@@ -27,7 +27,6 @@ import java.security.Principal;
  * that an {@link AuthorityGranter} used as a reason to grant this authority.
  *
  * @author Ray Krueger
- *
  * @see AuthorityGranter
  */
 public final class JaasGrantedAuthority implements GrantedAuthority {
@@ -35,6 +34,7 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private final String role;
+
 	private final Principal principal;
 
 	public JaasGrantedAuthority(String role, Principal principal) {
@@ -81,4 +81,5 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 	public String toString() {
 		return "Jaas Authority [" + role + "," + principal + "]";
 	}
+
 }

@@ -29,4 +29,5 @@ public class AbstractSessionEvent extends ApplicationEvent {
 	public AbstractSessionEvent(Object source) {
 		super(source);
 	}
+
 }

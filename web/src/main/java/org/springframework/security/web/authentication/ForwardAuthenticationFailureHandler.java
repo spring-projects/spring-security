@@ -41,13 +41,14 @@ public class ForwardAuthenticationFailureHandler implements AuthenticationFailur
 	 * @param forwardUrl
 	 */
 	public ForwardAuthenticationFailureHandler(String forwardUrl) {
-		Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl),
-				() -> "'" + forwardUrl + "' is not a valid forward URL");
+		Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl), () -> "'" + forwardUrl + "' is not a valid forward URL");
 		this.forwardUrl = forwardUrl;
 	}
 
-	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, exception);
 		request.getRequestDispatcher(forwardUrl).forward(request, response);
 	}
+
 }

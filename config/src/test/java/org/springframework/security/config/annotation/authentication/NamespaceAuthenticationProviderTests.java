@@ -49,12 +49,12 @@ public class NamespaceAuthenticationProviderTests {
 	public void authenticationProviderRef() throws Exception {
 		this.spring.register(AuthenticationProviderRefConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user"));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
 	@EnableWebSecurity
 	static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) {
 			// @formatter:off
 			auth
@@ -68,6 +68,7 @@ public class NamespaceAuthenticationProviderTests {
 			result.setUserDetailsService(new InMemoryUserDetailsManager(PasswordEncodedUser.user()));
 			return result;
 		}
+
 	}
 
 	@Test
@@ -75,12 +76,12 @@ public class NamespaceAuthenticationProviderTests {
 	public void authenticationProviderUserServiceRef() throws Exception {
 		this.spring.register(AuthenticationProviderRefConfig.class).autowire();
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user"));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withUsername("user"));
 	}
 
 	@EnableWebSecurity
 	static class UserServiceRefConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
@@ -92,5 +93,7 @@ public class NamespaceAuthenticationProviderTests {
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
+
 	}
+
 }

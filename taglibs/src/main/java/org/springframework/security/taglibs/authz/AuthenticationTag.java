@@ -47,9 +47,13 @@ public class AuthenticationTag extends TagSupport {
 	// ================================================================================================
 
 	private String var;
+
 	private String property;
+
 	private int scope;
+
 	private boolean scopeSpecified;
+
 	private boolean htmlEscape = true;
 
 	// ~ Methods
@@ -160,4 +164,5 @@ public class AuthenticationTag extends TagSupport {
 	protected boolean isHtmlEscape() {
 		return htmlEscape;
 	}
+
 }

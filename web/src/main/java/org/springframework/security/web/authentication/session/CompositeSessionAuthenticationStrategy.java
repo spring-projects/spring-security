@@ -53,19 +53,18 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-public class CompositeSessionAuthenticationStrategy
-		implements SessionAuthenticationStrategy {
+public class CompositeSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
+
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final List<SessionAuthenticationStrategy> delegateStrategies;
 
-	public CompositeSessionAuthenticationStrategy(
-			List<SessionAuthenticationStrategy> delegateStrategies) {
+	public CompositeSessionAuthenticationStrategy(List<SessionAuthenticationStrategy> delegateStrategies) {
 		Assert.notEmpty(delegateStrategies, "delegateStrategies cannot be null or empty");
 		for (SessionAuthenticationStrategy strategy : delegateStrategies) {
 			if (strategy == null) {
 				throw new IllegalArgumentException(
-						"delegateStrategies cannot contain null entires. Got "
-								+ delegateStrategies);
+						"delegateStrategies cannot contain null entires. Got " + delegateStrategies);
 			}
 		}
 		this.delegateStrategies = delegateStrategies;
@@ -79,9 +78,8 @@ public class CompositeSessionAuthenticationStrategy
 	 * #onAuthentication(org.springframework.security.core.Authentication,
 	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
-	public void onAuthentication(Authentication authentication,
-			HttpServletRequest request, HttpServletResponse response)
-					throws SessionAuthenticationException {
+	public void onAuthentication(Authentication authentication, HttpServletRequest request,
+			HttpServletResponse response) throws SessionAuthenticationException {
 		for (SessionAuthenticationStrategy delegate : this.delegateStrategies) {
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug("Delegating to " + delegate);
@@ -92,7 +90,7 @@ public class CompositeSessionAuthenticationStrategy
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [delegateStrategies = " + this.delegateStrategies
-				+ "]";
+		return getClass().getName() + " [delegateStrategies = " + this.delegateStrategies + "]";
 	}
+
 }

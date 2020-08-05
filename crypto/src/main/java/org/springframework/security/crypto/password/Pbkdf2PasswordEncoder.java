@@ -46,21 +46,27 @@ import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	private static final int DEFAULT_HASH_WIDTH = 256;
+
 	private static final int DEFAULT_ITERATIONS = 185000;
 
 	private final BytesKeyGenerator saltGenerator = KeyGenerators.secureRandom();
 
 	private final byte[] secret;
+
 	private final int hashWidth;
+
 	private final int iterations;
+
 	private String algorithm = SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name();
+
 	private boolean encodeHashAsBase64;
 
 	/**
 	 * Constructs a PBKDF2 password encoder with no additional secret value. There will be
-	 * {@value DEFAULT_ITERATIONS} iterations and a hash width of {@value DEFAULT_HASH_WIDTH}. The default is based upon aiming for .5
-	 * seconds to validate the password when this class was added.. Users should tune
-	 * password verification to their own systems.
+	 * {@value DEFAULT_ITERATIONS} iterations and a hash width of
+	 * {@value DEFAULT_HASH_WIDTH}. The default is based upon aiming for .5 seconds to
+	 * validate the password when this class was added.. Users should tune password
+	 * verification to their own systems.
 	 */
 	public Pbkdf2PasswordEncoder() {
 		this("");
@@ -68,8 +74,8 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Constructs a standard password encoder with a secret value which is also included
-	 * in the password hash. There will be {@value DEFAULT_ITERATIONS} iterations and a hash width of {@value DEFAULT_HASH_WIDTH}.
-	 *
+	 * in the password hash. There will be {@value DEFAULT_ITERATIONS} iterations and a
+	 * hash width of {@value DEFAULT_HASH_WIDTH}.
 	 * @param secret the secret key used in the encoding process (should not be shared)
 	 */
 	public Pbkdf2PasswordEncoder(CharSequence secret) {
@@ -79,7 +85,6 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	/**
 	 * Constructs a standard password encoder with a secret value as well as iterations
 	 * and hash.
-	 *
 	 * @param secret the secret
 	 * @param iterations the number of iterations. Users should aim for taking about .5
 	 * seconds on their own system.
@@ -92,8 +97,9 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	}
 
 	/**
-	 * Sets the algorithm to use. See
-	 * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory Algorithms</a>
+	 * Sets the algorithm to use. See <a href=
+	 * "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory
+	 * Algorithms</a>
 	 * @param secretKeyFactoryAlgorithm the algorithm to use (i.e.
 	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1},
 	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256},
@@ -154,8 +160,8 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	private byte[] encode(CharSequence rawPassword, byte[] salt) {
 		try {
-			PBEKeySpec spec = new PBEKeySpec(rawPassword.toString().toCharArray(),
-					concatenate(salt, this.secret), this.iterations, this.hashWidth);
+			PBEKeySpec spec = new PBEKeySpec(rawPassword.toString().toCharArray(), concatenate(salt, this.secret),
+					this.iterations, this.hashWidth);
 			SecretKeyFactory skf = SecretKeyFactory.getInstance(this.algorithm);
 			return concatenate(salt, skf.generateSecret(spec).getEncoded());
 		}
@@ -170,8 +176,9 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	 * @since 5.0
 	 */
 	public enum SecretKeyFactoryAlgorithm {
-		PBKDF2WithHmacSHA1,
-		PBKDF2WithHmacSHA256,
-		PBKDF2WithHmacSHA512
+
+		PBKDF2WithHmacSHA1, PBKDF2WithHmacSHA256, PBKDF2WithHmacSHA512
+
 	}
+
 }

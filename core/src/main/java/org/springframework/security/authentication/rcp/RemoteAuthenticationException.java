@@ -39,10 +39,10 @@ public class RemoteAuthenticationException extends NestedRuntimeException {
 	/**
 	 * Constructs a <code>RemoteAuthenticationException</code> with the specified message
 	 * and no root cause.
-	 *
 	 * @param msg the detail message
 	 */
 	public RemoteAuthenticationException(String msg) {
 		super(msg);
 	}
+
 }

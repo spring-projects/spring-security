@@ -45,8 +45,7 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 	// @formatter:on
 
 	@Test
-	public void buildWebAuthenticationDetailsUsingDifferentConstructors()
-			throws IOException {
+	public void buildWebAuthenticationDetailsUsingDifferentConstructors() throws IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("localhost");
 		request.setSession(new MockHttpSession(null, "1"));
@@ -59,8 +58,7 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 	}
 
 	@Test
-	public void webAuthenticationDetailsSerializeTest()
-			throws JsonProcessingException, JSONException {
+	public void webAuthenticationDetailsSerializeTest() throws JsonProcessingException, JSONException {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("/localhost");
 		request.setSession(new MockHttpSession(null, "1"));
@@ -70,12 +68,12 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 	}
 
 	@Test
-	public void webAuthenticationDetailsDeserializeTest()
-			throws IOException {
+	public void webAuthenticationDetailsDeserializeTest() throws IOException {
 		WebAuthenticationDetails details = mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
 		assertThat(details).isNotNull();
 		assertThat(details.getRemoteAddress()).isEqualTo("/localhost");
 		assertThat(details.getSessionId()).isEqualTo("1");
 	}
+
 }

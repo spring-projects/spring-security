@@ -45,31 +45,24 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockServerConfigurersTests {
+
 	private GrantedAuthority authority1 = new SimpleGrantedAuthority("one");
 
 	private GrantedAuthority authority2 = new SimpleGrantedAuthority("two");
 
-	private WebTestClient client = WebTestClient
-			.bindToController(securityContextController)
+	private WebTestClient client = WebTestClient.bindToController(securityContextController)
 			.webFilter(new SecurityContextServerWebExchangeWebFilter())
-			.argumentResolvers(resolvers -> resolvers.addCustomResolver(
-					new CurrentSecurityContextArgumentResolver(new ReactiveAdapterRegistry())))
-			.apply(springSecurity())
-			.configureClient()
-			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-			.build();
+			.argumentResolvers(resolvers -> resolvers
+					.addCustomResolver(new CurrentSecurityContextArgumentResolver(new ReactiveAdapterRegistry())))
+			.apply(springSecurity()).configureClient()
+			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 
 	@Test
 	public void mockOpaqueTokenWhenUsingDefaultsThenBearerTokenAuthentication() {
-		this.client
-				.mutateWith(mockOpaqueToken())
-				.get()
-				.exchange()
-				.expectStatus().isOk();
+		this.client.mutateWith(mockOpaqueToken()).get().exchange().expectStatus().isOk();
 
 		SecurityContext context = securityContextController.removeSecurityContext();
-		assertThat(context.getAuthentication()).isInstanceOf(
-				BearerTokenAuthentication.class);
+		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication token = (BearerTokenAuthentication) context.getAuthentication();
 		assertThat(token.getAuthorities()).isNotEmpty();
 		assertThat(token.getToken()).isNotNull();
@@ -78,27 +71,19 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 
 	@Test
 	public void mockOpaqueTokenWhenAuthoritiesThenBearerTokenAuthentication() {
-		this.client
-				.mutateWith(mockOpaqueToken()
-						.authorities(this.authority1, this.authority2))
-				.get()
-				.exchange()
+		this.client.mutateWith(mockOpaqueToken().authorities(this.authority1, this.authority2)).get().exchange()
 				.expectStatus().isOk();
 
 		SecurityContext context = securityContextController.removeSecurityContext();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
-				.containsOnly(this.authority1, this.authority2);
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1,
+				this.authority2);
 	}
 
 	@Test
 	public void mockOpaqueTokenWhenAttributesThenBearerTokenAuthentication() {
 		String sub = new String("my-subject");
-		this.client
-				.mutateWith(mockOpaqueToken()
-						.attributes(attributes -> attributes.put(SUBJECT, sub)))
-						.get()
-						.exchange()
-						.expectStatus().isOk();
+		this.client.mutateWith(mockOpaqueToken().attributes(attributes -> attributes.put(SUBJECT, sub))).get()
+				.exchange().expectStatus().isOk();
 
 		SecurityContext context = securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
@@ -109,12 +94,7 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 	@Test
 	public void mockOpaqueTokenWhenPrincipalThenBearerTokenAuthentication() {
 		OAuth2AuthenticatedPrincipal principal = active();
-		this.client
-				.mutateWith(mockOpaqueToken()
-						.principal(principal))
-				.get()
-				.exchange()
-				.expectStatus().isOk();
+		this.client.mutateWith(mockOpaqueToken().principal(principal)).get().exchange().expectStatus().isOk();
 
 		SecurityContext context = securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
@@ -126,13 +106,8 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 	public void mockOpaqueTokenWhenPrincipalSpecifiedThenLastCalledTakesPrecedence() {
 		OAuth2AuthenticatedPrincipal principal = active(a -> a.put("scope", "user"));
 
-		this.client
-				.mutateWith(mockOpaqueToken()
-						.attributes(a -> a.put(SUBJECT, "foo"))
-						.principal(principal))
-				.get()
-				.exchange()
-				.expectStatus().isOk();
+		this.client.mutateWith(mockOpaqueToken().attributes(a -> a.put(SUBJECT, "foo")).principal(principal)).get()
+				.exchange().expectStatus().isOk();
 
 		SecurityContext context = securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
@@ -140,13 +115,8 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 		assertThat((String) ((OAuth2AuthenticatedPrincipal) token.getPrincipal()).getAttribute(SUBJECT))
 				.isEqualTo(principal.getAttribute(SUBJECT));
 
-		this.client
-				.mutateWith(mockOpaqueToken()
-						.principal(principal)
-						.attributes(a -> a.put(SUBJECT, "bar")))
-				.get()
-				.exchange()
-				.expectStatus().isOk();
+		this.client.mutateWith(mockOpaqueToken().principal(principal).attributes(a -> a.put(SUBJECT, "bar"))).get()
+				.exchange().expectStatus().isOk();
 
 		context = securityContextController.removeSecurityContext();
 		assertThat(context.getAuthentication()).isInstanceOf(BearerTokenAuthentication.class);
@@ -154,4 +124,5 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 		assertThat((String) ((OAuth2AuthenticatedPrincipal) token.getPrincipal()).getAttribute(SUBJECT))
 				.isEqualTo("bar");
 	}
+
 }

@@ -40,8 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SecurityTestExecutionListeners
 public class PlaceHolderAndELConfigTests {
 
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/http/PlaceHolderAndELConfigTests";
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/PlaceHolderAndELConfigTests";
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -50,23 +49,20 @@ public class PlaceHolderAndELConfigTests {
 	MockMvc mvc;
 
 	@Test
-	public void getWhenUsingPlaceholderThenUnsecuredPatternCorrectlyConfigured()
-			throws Exception {
+	public void getWhenUsingPlaceholderThenUnsecuredPatternCorrectlyConfigured() throws Exception {
 
 		System.setProperty("pattern.nofilters", "/unsecured");
 
 		this.spring.configLocations(this.xml("UnsecuredPattern")).autowire();
 
-		this.mvc.perform(get("/unsecured"))
-				.andExpect(status().isOk());
+		this.mvc.perform(get("/unsecured")).andExpect(status().isOk());
 	}
 
 	/**
 	 * SEC-1201
 	 */
 	@Test
-	public void loginWhenUsingPlaceholderThenInterceptUrlsAndFormLoginWorks()
-			throws Exception {
+	public void loginWhenUsingPlaceholderThenInterceptUrlsAndFormLoginWorks() throws Exception {
 
 		System.setProperty("secure.Url", "/secured");
 		System.setProperty("secure.role", "ROLE_NUNYA");
@@ -78,22 +74,17 @@ public class PlaceHolderAndELConfigTests {
 
 		// login-page setting
 
-		this.mvc.perform(get("/secured"))
-				.andExpect(redirectedUrl("http://localhost/loginPage"));
+		this.mvc.perform(get("/secured")).andExpect(redirectedUrl("http://localhost/loginPage"));
 
 		// login-processing-url setting
 		// default-target-url setting
 
-		this.mvc.perform(post("/loginPage")
-				.param("username", "user")
-				.param("password", "password"))
+		this.mvc.perform(post("/loginPage").param("username", "user").param("password", "password"))
 				.andExpect(redirectedUrl("/defaultTarget"));
 
 		// authentication-failure-url setting
 
-		this.mvc.perform(post("/loginPage")
-				.param("username", "user")
-				.param("password", "wrong"))
+		this.mvc.perform(post("/loginPage").param("username", "user").param("password", "wrong"))
 				.andExpect(redirectedUrl("/authFailure"));
 	}
 
@@ -101,8 +92,7 @@ public class PlaceHolderAndELConfigTests {
 	 * SEC-1309
 	 */
 	@Test
-	public void loginWhenUsingSpELThenInterceptUrlsAndFormLoginWorks()
-			throws Exception {
+	public void loginWhenUsingSpELThenInterceptUrlsAndFormLoginWorks() throws Exception {
 
 		System.setProperty("secure.url", "/secured");
 		System.setProperty("secure.role", "ROLE_NUNYA");
@@ -110,91 +100,77 @@ public class PlaceHolderAndELConfigTests {
 		System.setProperty("default.target", "/defaultTarget");
 		System.setProperty("auth.failure", "/authFailure");
 
-		this.spring.configLocations(
-				this.xml("InterceptUrlAndFormLoginWithSpEL")).autowire();
+		this.spring.configLocations(this.xml("InterceptUrlAndFormLoginWithSpEL")).autowire();
 
 		// login-page setting
 
-		this.mvc.perform(get("/secured"))
-				.andExpect(redirectedUrl("http://localhost/loginPage"));
+		this.mvc.perform(get("/secured")).andExpect(redirectedUrl("http://localhost/loginPage"));
 
 		// login-processing-url setting
 		// default-target-url setting
 
-		this.mvc.perform(post("/loginPage")
-				.param("username", "user")
-				.param("password", "password"))
+		this.mvc.perform(post("/loginPage").param("username", "user").param("password", "password"))
 				.andExpect(redirectedUrl("/defaultTarget"));
 
 		// authentication-failure-url setting
 
-		this.mvc.perform(post("/loginPage")
-				.param("username", "user")
-				.param("password", "wrong"))
+		this.mvc.perform(post("/loginPage").param("username", "user").param("password", "wrong"))
 				.andExpect(redirectedUrl("/authFailure"));
 
 	}
 
 	@Test
 	@WithMockUser
-	public void requestWhenUsingPlaceholderOrSpELThenPortMapperWorks()
-			throws Exception {
+	public void requestWhenUsingPlaceholderOrSpELThenPortMapperWorks() throws Exception {
 
 		System.setProperty("http", "9080");
 		System.setProperty("https", "9443");
 
 		this.spring.configLocations(this.xml("PortMapping")).autowire();
 
-		this.mvc.perform(get("http://localhost:9080/secured"))
-				.andExpect(status().isFound())
+		this.mvc.perform(get("http://localhost:9080/secured")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("https://localhost:9443/secured"));
 
-		this.mvc.perform(get("https://localhost:9443/unsecured"))
-				.andExpect(status().isFound())
+		this.mvc.perform(get("https://localhost:9443/unsecured")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost:9080/unsecured"));
 	}
 
 	@Test
 	@WithMockUser
-	public void requestWhenUsingPlaceholderThenRequiresChannelWorks()
-			throws Exception {
+	public void requestWhenUsingPlaceholderThenRequiresChannelWorks() throws Exception {
 
 		System.setProperty("secure.url", "/secured");
 		System.setProperty("required.channel", "https");
 
 		this.spring.configLocations(this.xml("RequiresChannel")).autowire();
 
-		this.mvc.perform(get("http://localhost/secured"))
-				.andExpect(status().isFound())
+		this.mvc.perform(get("http://localhost/secured")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("https://localhost/secured"));
 	}
 
 	@Test
 	@WithMockUser
-	public void requestWhenUsingPlaceholderThenAccessDeniedPageWorks()
-			throws Exception {
+	public void requestWhenUsingPlaceholderThenAccessDeniedPageWorks() throws Exception {
 
 		System.setProperty("accessDenied", "/go-away");
 
 		this.spring.configLocations(this.xml("AccessDeniedPage")).autowire();
 
-		this.mvc.perform(get("/secured"))
-				.andExpect(forwardedUrl("/go-away"));
+		this.mvc.perform(get("/secured")).andExpect(forwardedUrl("/go-away"));
 	}
 
 	@Test
 	@WithMockUser
-	public void requestWhenUsingSpELThenAccessDeniedPageWorks()
-			throws Exception {
+	public void requestWhenUsingSpELThenAccessDeniedPageWorks() throws Exception {
 
 		this.spring.configLocations(this.xml("AccessDeniedPageWithSpEL")).autowire();
 
-		this.mvc.perform(get("/secured"))
-				.andExpect(forwardedUrl("/go-away"));
+		this.mvc.perform(get("/secured")).andExpect(forwardedUrl("/go-away"));
 	}
 
 	@RestController
 	static class SimpleController {
+
 		@GetMapping("/unsecured")
 		String unsecured() {
 			return "unsecured";
@@ -204,9 +180,11 @@ public class PlaceHolderAndELConfigTests {
 		String secured() {
 			return "secured";
 		}
+
 	}
 
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
+
 }

@@ -33,13 +33,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Ben Alex
  */
 public class MethodSecurityInterceptorWithAopConfigTests {
-	static final String AUTH_PROVIDER_XML = "<authentication-manager>"
-			+ "    <authentication-provider>"
+
+	static final String AUTH_PROVIDER_XML = "<authentication-manager>" + "    <authentication-provider>"
 			+ "        <user-service>"
 			+ "            <user name='bob' password='bobspassword' authorities='ROLE_USER,ROLE_ADMIN' />"
 			+ "            <user name='bill' password='billspassword' authorities='ROLE_USER' />"
-			+ "        </user-service>" + "    </authentication-provider>"
-			+ "</authentication-manager>";
+			+ "        </user-service>" + "    </authentication-provider>" + "</authentication-manager>";
 
 	static final String ACCESS_MANAGER_XML = "<b:bean id='accessDecisionManager' class='org.springframework.security.access.vote.AffirmativeBased'>"
 			+ "   <b:constructor-arg>"
@@ -48,14 +47,11 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 
 	static final String TARGET_BEAN_AND_INTERCEPTOR = "<b:bean id='target' class='org.springframework.security.TargetObject'/>"
 			+ "<b:bean id='securityInterceptor' class='org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor' autowire='byType' >"
-			+ "     <b:property name='securityMetadataSource'>"
-			+ "         <method-security-metadata-source>"
+			+ "     <b:property name='securityMetadataSource'>" + "         <method-security-metadata-source>"
 			+ "             <protect method='org.springframework.security.ITargetObject.makeLower*' access='ROLE_A'/>"
 			+ "             <protect method='org.springframework.security.ITargetObject.makeUpper*' access='ROLE_A'/>"
 			+ "             <protect method='org.springframework.security.ITargetObject.computeHashCode*' access='ROLE_B'/>"
-			+ "         </method-security-metadata-source>"
-			+ "     </b:property>"
-			+ "</b:bean>";
+			+ "         </method-security-metadata-source>" + "     </b:property>" + "</b:bean>";
 
 	private AbstractXmlApplicationContext appContext;
 
@@ -77,9 +73,8 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 	public void securityInterceptorIsAppliedWhenUsedWithAopConfig() {
 		setContext("<aop:config>"
 				+ "     <aop:pointcut id='targetMethods' expression='execution(* org.springframework.security.TargetObject.*(..))'/>"
-				+ "     <aop:advisor advice-ref='securityInterceptor' pointcut-ref='targetMethods' />"
-				+ "</aop:config>" + TARGET_BEAN_AND_INTERCEPTOR + AUTH_PROVIDER_XML
-				+ ACCESS_MANAGER_XML);
+				+ "     <aop:advisor advice-ref='securityInterceptor' pointcut-ref='targetMethods' />" + "</aop:config>"
+				+ TARGET_BEAN_AND_INTERCEPTOR + AUTH_PROVIDER_XML + ACCESS_MANAGER_XML);
 
 		ITargetObject target = (ITargetObject) appContext.getBean("target");
 
@@ -96,20 +91,14 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
 	public void securityInterceptorIsAppliedWhenUsedWithBeanNameAutoProxyCreator() {
-		setContext("<b:bean id='autoProxyCreator' class='org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator'>"
-				+ "   <b:property name='interceptorNames'>"
-				+ "       <b:list>"
-				+ "          <b:value>securityInterceptor</b:value>"
-				+ "       </b:list>"
-				+ "   </b:property>"
-				+ "   <b:property name='beanNames'>"
-				+ "       <b:list>"
-				+ "          <b:value>target</b:value>"
-				+ "       </b:list>"
-				+ "   </b:property>"
-				+ "   <b:property name='proxyTargetClass' value='false'/>"
-				+ "</b:bean>"
-				+ TARGET_BEAN_AND_INTERCEPTOR + AUTH_PROVIDER_XML + ACCESS_MANAGER_XML);
+		setContext(
+				"<b:bean id='autoProxyCreator' class='org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator'>"
+						+ "   <b:property name='interceptorNames'>" + "       <b:list>"
+						+ "          <b:value>securityInterceptor</b:value>" + "       </b:list>" + "   </b:property>"
+						+ "   <b:property name='beanNames'>" + "       <b:list>" + "          <b:value>target</b:value>"
+						+ "       </b:list>" + "   </b:property>"
+						+ "   <b:property name='proxyTargetClass' value='false'/>" + "</b:bean>"
+						+ TARGET_BEAN_AND_INTERCEPTOR + AUTH_PROVIDER_XML + ACCESS_MANAGER_XML);
 
 		ITargetObject target = (ITargetObject) appContext.getBean("target");
 
@@ -127,4 +116,5 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 	private void setContext(String context) {
 		appContext = new InMemoryXmlApplicationContext(context);
 	}
+
 }

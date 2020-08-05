@@ -25,48 +25,46 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * Implementations of this interface are responsible for the persistence
- * of {@link OAuth2AuthorizationRequest} between requests.
+ * Implementations of this interface are responsible for the persistence of
+ * {@link OAuth2AuthorizationRequest} between requests.
  *
  * <p>
- * Used by the {@link OAuth2AuthorizationRequestRedirectFilter} for persisting the Authorization Request
- * before it initiates the authorization code grant flow.
- * As well, used by the {@link OAuth2LoginAuthenticationFilter} for resolving
- * the associated Authorization Request when handling the callback of the Authorization Response.
+ * Used by the {@link OAuth2AuthorizationRequestRedirectFilter} for persisting the
+ * Authorization Request before it initiates the authorization code grant flow. As well,
+ * used by the {@link OAuth2LoginAuthenticationFilter} for resolving the associated
+ * Authorization Request when handling the callback of the Authorization Response.
  *
  * @author Rob Winch
  * @since 5.1
  * @see OAuth2AuthorizationRequest
  * @see HttpSessionOAuth2AuthorizationRequestRepository
- *
  * @param <T> The type of OAuth 2.0 Authorization Request
  */
 public interface ServerAuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
 
 	/**
-	 * Returns the {@link OAuth2AuthorizationRequest} associated to the provided {@code HttpServletRequest}
-	 * or {@code null} if not available.
-	 *
+	 * Returns the {@link OAuth2AuthorizationRequest} associated to the provided
+	 * {@code HttpServletRequest} or {@code null} if not available.
 	 * @param exchange the {@code ServerWebExchange}
 	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 */
 	Mono<T> loadAuthorizationRequest(ServerWebExchange exchange);
 
 	/**
-	 * Persists the {@link OAuth2AuthorizationRequest} associating it to
-	 * the provided {@code HttpServletRequest} and/or {@code HttpServletResponse}.
-	 *
+	 * Persists the {@link OAuth2AuthorizationRequest} associating it to the provided
+	 * {@code HttpServletRequest} and/or {@code HttpServletResponse}.
 	 * @param authorizationRequest the {@link OAuth2AuthorizationRequest}
-	 * @param exchange             the {@code ServerWebExchange}
+	 * @param exchange the {@code ServerWebExchange}
 	 */
 	Mono<Void> saveAuthorizationRequest(T authorizationRequest, ServerWebExchange exchange);
 
 	/**
 	 * Removes and returns the {@link OAuth2AuthorizationRequest} associated to the
 	 * provided {@code HttpServletRequest} or if not available returns {@code null}.
-	 *
 	 * @param exchange the {@code ServerWebExchange}
-	 * @return the removed {@link OAuth2AuthorizationRequest} or {@code null} if not available
+	 * @return the removed {@link OAuth2AuthorizationRequest} or {@code null} if not
+	 * available
 	 */
 	Mono<T> removeAuthorizationRequest(ServerWebExchange exchange);
+
 }

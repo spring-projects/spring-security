@@ -32,8 +32,7 @@ public class ObjectPostProcessorTests {
 
 	@Test
 	public void convertTypes() {
-		assertThat((Object) PerformConversion.perform(new ArrayList<>()))
-				.isInstanceOf(LinkedList.class);
+		assertThat((Object) PerformConversion.perform(new ArrayList<>())).isInstanceOf(LinkedList.class);
 	}
 
 	static class ListToLinkedListObjectPostProcessor implements ObjectPostProcessor<List<?>> {
@@ -41,13 +40,15 @@ public class ObjectPostProcessorTests {
 		public <O extends List<?>> O postProcess(O l) {
 			return (O) new LinkedList(l);
 		}
+
 	}
 
 	static class PerformConversion {
+
 		public static List<?> perform(ArrayList<?> l) {
 			return new ListToLinkedListObjectPostProcessor().postProcess(l);
 		}
+
 	}
+
 }
-
-

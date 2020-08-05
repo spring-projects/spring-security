@@ -59,13 +59,13 @@ public class NamespaceHttpRequestCacheTests {
 	@Test
 	public void requestWhenCustomRequestCacheThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(RequestCacheRefConfig.class).autowire();
-		this.mvc.perform(get("/"))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/")).andExpect(status().isForbidden());
 		verifyBean(RequestCache.class).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@EnableWebSecurity
 	static class RequestCacheRefConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -90,15 +90,14 @@ public class NamespaceHttpRequestCacheTests {
 		public RequestCache requestCache() {
 			return mock(RequestCache.class);
 		}
+
 	}
 
 	@Test
 	public void requestWhenDefaultConfigurationThenUsesHttpSessionRequestCache() throws Exception {
 		this.spring.register(DefaultRequestCacheRefConfig.class).autowire();
 
-		MvcResult result = this.mvc.perform(get("/"))
-				.andExpect(status().isForbidden())
-				.andReturn();
+		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isForbidden()).andReturn();
 
 		HttpSession session = result.getRequest().getSession(false);
 		assertThat(session).isNotNull();
@@ -107,6 +106,7 @@ public class NamespaceHttpRequestCacheTests {
 
 	@EnableWebSecurity
 	static class DefaultRequestCacheRefConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -123,9 +123,11 @@ public class NamespaceHttpRequestCacheTests {
 					.withUser(PasswordEncodedUser.admin());
 			// @formatter:on
 		}
+
 	}
 
 	private <T> T verifyBean(Class<T> beanClass) {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
+
 }

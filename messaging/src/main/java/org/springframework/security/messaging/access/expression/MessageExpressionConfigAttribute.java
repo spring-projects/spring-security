@@ -34,13 +34,13 @@ import java.util.Map;
  */
 @SuppressWarnings("serial")
 class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationContextPostProcessor<Message<?>> {
-	private final Expression authorizeExpression;
-	private final MessageMatcher<?> matcher;
 
+	private final Expression authorizeExpression;
+
+	private final MessageMatcher<?> matcher;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param authorizeExpression the {@link Expression} to use. Cannot be null
 	 * @param matcher the {@link MessageMatcher} used to match the messages.
 	 */
@@ -50,7 +50,6 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 		this.authorizeExpression = authorizeExpression;
 		this.matcher = matcher;
 	}
-
 
 	Expression getAuthorizeExpression() {
 		return authorizeExpression;
@@ -68,11 +67,13 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 	@Override
 	public EvaluationContext postProcess(EvaluationContext ctx, Message<?> message) {
 		if (matcher instanceof SimpDestinationMessageMatcher) {
-			final Map<String, String> variables = ((SimpDestinationMessageMatcher) matcher).extractPathVariables(message);
-			for (Map.Entry<String, String> entry : variables.entrySet()){
+			final Map<String, String> variables = ((SimpDestinationMessageMatcher) matcher)
+					.extractPathVariables(message);
+			for (Map.Entry<String, String> entry : variables.entrySet()) {
 				ctx.setVariable(entry.getKey(), entry.getValue());
 			}
 		}
 		return ctx;
 	}
+
 }

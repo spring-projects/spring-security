@@ -60,8 +60,7 @@ public class RegexRequestMatcherTests {
 	public void queryStringIsMatcherCorrectly() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*\\?x=y", "GET");
 
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				"/any/path?x=y");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/any/path?x=y");
 		request.setServletPath("/any");
 		request.setPathInfo("/path");
 		request.setQueryString("x=y");
@@ -119,4 +118,5 @@ public class RegexRequestMatcherTests {
 		when(request.getServletPath()).thenReturn(path);
 		return request;
 	}
+
 }

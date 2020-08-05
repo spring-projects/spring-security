@@ -54,10 +54,8 @@ public class AuthenticationTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.apply(springSecurity())
-				.defaultRequest(get("/").accept(MediaType.TEXT_HTML))
-				.build();
+		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity())
+				.defaultRequest(get("/").accept(MediaType.TEXT_HTML)).build();
 	}
 
 	@Test
@@ -67,29 +65,26 @@ public class AuthenticationTests {
 
 	@Test
 	public void httpBasicAuthenticationSuccess() throws Exception {
-		mvc.perform(get("/secured/butnotfound").with(httpBasic("user", "password")))
-				.andExpect(status().isNotFound())
+		mvc.perform(get("/secured/butnotfound").with(httpBasic("user", "password"))).andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void authenticationSuccess() throws Exception {
-		mvc.perform(formLogin()).andExpect(status().isFound())
-				.andExpect(redirectedUrl("/"))
+		mvc.perform(formLogin()).andExpect(status().isFound()).andExpect(redirectedUrl("/"))
 				.andExpect(authenticated().withUsername("user"));
 	}
 
 	@Test
 	public void authenticationFailed() throws Exception {
-		mvc.perform(formLogin().user("user").password("invalid"))
-				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("/login?error"))
-				.andExpect(unauthenticated());
+		mvc.perform(formLogin().user("user").password("invalid")).andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error")).andExpect(unauthenticated());
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
+
 		@Bean
 		public UserDetailsService userDetailsService() {
 			// @formatter:off
@@ -97,5 +92,7 @@ public class AuthenticationTests {
 			return new InMemoryUserDetailsManager(user);
 			// @formatter:on
 		}
+
 	}
+
 }

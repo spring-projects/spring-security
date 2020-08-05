@@ -22,6 +22,7 @@ package org.springframework.security;
  * @author Ben Alex
  */
 public interface ITargetObject {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -34,4 +35,5 @@ public interface ITargetObject {
 	String makeUpperCase(String input);
 
 	String publicMakeLowerCase(String input);
+
 }

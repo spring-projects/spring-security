@@ -45,4 +45,5 @@ public class AuthenticationMethodTests {
 	public void getValueWhenFormAuthenticationTypeThenReturnQuery() {
 		assertThat(AuthenticationMethod.QUERY.getValue()).isEqualTo("query");
 	}
+
 }

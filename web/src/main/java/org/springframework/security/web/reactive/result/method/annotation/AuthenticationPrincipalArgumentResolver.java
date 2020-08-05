@@ -40,6 +40,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Resolves the Authentication
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -70,18 +71,15 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext,
 			ServerWebExchange exchange) {
 		ReactiveAdapter adapter = getAdapterRegistry().getAdapter(parameter.getParameterType());
-		return ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
-			.flatMap(a -> {
-				Object p = resolvePrincipal(parameter, a.getPrincipal());
-				Mono<Object> principal = Mono.justOrEmpty(p);
-				return adapter == null ? principal : Mono.just(adapter.fromPublisher(principal));
-			});
+		return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication).flatMap(a -> {
+			Object p = resolvePrincipal(parameter, a.getPrincipal());
+			Mono<Object> principal = Mono.justOrEmpty(p);
+			return adapter == null ? principal : Mono.just(adapter.fromPublisher(principal));
+		});
 	}
 
 	private Object resolvePrincipal(MethodParameter parameter, Object principal) {
-		AuthenticationPrincipal authPrincipal = findMethodAnnotation(
-			AuthenticationPrincipal.class, parameter);
+		AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
 
 		String expressionToParse = authPrincipal.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
@@ -97,8 +95,7 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 		if (isInvalidType(parameter, principal)) {
 
 			if (authPrincipal.errorOnInvalidType()) {
-				throw new ClassCastException(principal + " is not assignable to "
-					+ parameter.getParameterType());
+				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}
 			else {
 				return null;
@@ -127,22 +124,19 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 
 	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-			MethodParameter parameter) {
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(),
-				annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
 			if (annotation != null) {
 				return annotation;
 			}

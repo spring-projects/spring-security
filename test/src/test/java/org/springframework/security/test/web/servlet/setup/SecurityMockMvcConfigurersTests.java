@@ -42,46 +42,45 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 public class SecurityMockMvcConfigurersTests {
+
 	@Autowired
 	WebApplicationContext wac;
 
 	Filter noOpFilter = mock(Filter.class);
 
 	/**
-	 * Since noOpFilter is first does not continue the chain, security will not be invoked and the status should be OK
-	 *
+	 * Since noOpFilter is first does not continue the chain, security will not be invoked
+	 * and the status should be OK
 	 * @throws Exception
 	 */
 	@Test
 	public void applySpringSecurityWhenAddFilterFirstThenFilterFirst() throws Exception {
-		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
-			.addFilters(this.noOpFilter)
-			.apply(springSecurity())
-			.build();
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).addFilters(this.noOpFilter)
+				.apply(springSecurity()).build();
 
-		mockMvc.perform(get("/"))
-			.andExpect(status().isOk());
+		mockMvc.perform(get("/")).andExpect(status().isOk());
 	}
 
 	/**
-	 * Since noOpFilter is second security will be invoked and the status will be not OK. We know this because if noOpFilter
-	 * were first security would not be invoked sincet noOpFilter does not continue the FilterChain
+	 * Since noOpFilter is second security will be invoked and the status will be not OK.
+	 * We know this because if noOpFilter were first security would not be invoked sincet
+	 * noOpFilter does not continue the FilterChain
 	 * @throws Exception
 	 */
 	@Test
 	public void applySpringSecurityWhenAddFilterSecondThenSecurityFirst() throws Exception {
-		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac)
-				.apply(springSecurity())
-				.addFilters(this.noOpFilter)
-				.build();
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).apply(springSecurity())
+				.addFilters(this.noOpFilter).build();
 
-		mockMvc.perform(get("/"))
-				.andExpect(status().is4xxClientError());
+		mockMvc.perform(get("/")).andExpect(status().is4xxClientError());
 	}
 
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
-	static class Config {}
+	static class Config {
+
+	}
+
 }

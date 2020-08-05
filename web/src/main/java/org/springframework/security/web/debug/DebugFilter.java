@@ -39,39 +39,36 @@ import java.util.*;
  * are being handled by Spring Security and provide them with other relevant information
  * (such as when sessions are being created).
  *
- *
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.1
  */
 public final class DebugFilter implements Filter {
-	static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName()
-			.concat(".FILTERED");
+
+	static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName().concat(".FILTERED");
 
 	private final FilterChainProxy fcp;
+
 	private final Logger logger = new Logger();
 
 	public DebugFilter(FilterChainProxy fcp) {
 		this.fcp = fcp;
 	}
 
-	public void doFilter(ServletRequest srvltRequest,
-			ServletResponse srvltResponse, FilterChain filterChain)
+	public void doFilter(ServletRequest srvltRequest, ServletResponse srvltResponse, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		if (!(srvltRequest instanceof HttpServletRequest)
-				|| !(srvltResponse instanceof HttpServletResponse)) {
+		if (!(srvltRequest instanceof HttpServletRequest) || !(srvltResponse instanceof HttpServletResponse)) {
 			throw new ServletException("DebugFilter just supports HTTP requests");
 		}
 		HttpServletRequest request = (HttpServletRequest) srvltRequest;
 		HttpServletResponse response = (HttpServletResponse) srvltResponse;
 
 		List<Filter> filters = getFilters(request);
-		logger.info("Request received for " + request.getMethod() + " '"
-				+ UrlUtils.buildRequestUrl(request) + "':\n\n" + request + "\n\n"
-				+ "servletPath:" + request.getServletPath() + "\n" + "pathInfo:"
-				+ request.getPathInfo() + "\n" + "headers: \n" + formatHeaders(request)
-				+ "\n\n" + formatFilters(filters));
+		logger.info("Request received for " + request.getMethod() + " '" + UrlUtils.buildRequestUrl(request) + "':\n\n"
+				+ request + "\n\n" + "servletPath:" + request.getServletPath() + "\n" + "pathInfo:"
+				+ request.getPathInfo() + "\n" + "headers: \n" + formatHeaders(request) + "\n\n"
+				+ formatFilters(filters));
 
 		if (request.getAttribute(ALREADY_FILTERED_ATTR_NAME) == null) {
 			invokeWithWrappedRequest(request, response, filterChain);
@@ -81,9 +78,8 @@ public final class DebugFilter implements Filter {
 		}
 	}
 
-	private void invokeWithWrappedRequest(HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain) throws IOException,
-			ServletException {
+	private void invokeWithWrappedRequest(HttpServletRequest request, HttpServletResponse response,
+			FilterChain filterChain) throws IOException, ServletException {
 		request.setAttribute(ALREADY_FILTERED_ATTR_NAME, Boolean.TRUE);
 		request = new DebugRequestWrapper(request);
 		try {
@@ -148,9 +144,11 @@ public final class DebugFilter implements Filter {
 
 	public void destroy() {
 	}
+
 }
 
 class DebugRequestWrapper extends HttpServletRequestWrapper {
+
 	private static final Logger logger = new Logger();
 
 	DebugRequestWrapper(HttpServletRequest request) {
@@ -176,4 +174,5 @@ class DebugRequestWrapper extends HttpServletRequestWrapper {
 		}
 		return getSession();
 	}
+
 }

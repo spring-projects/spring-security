@@ -25,7 +25,6 @@ import org.springframework.security.test.context.TestSecurityContextHolder;
  * {@link SecurityContext} that is populated in the {@link TestSecurityContextHolder}.
  *
  * @author Rob Winch
- *
  * @param <A>
  * @see WithSecurityContext
  * @see WithMockUser
@@ -36,10 +35,10 @@ public interface WithSecurityContextFactory<A extends Annotation> {
 
 	/**
 	 * Create a {@link SecurityContext} given an Annotation.
-	 *
 	 * @param annotation the {@link Annotation} to create the {@link SecurityContext}
 	 * from. Cannot be null.
 	 * @return the {@link SecurityContext} to use. Cannot be null.
 	 */
 	SecurityContext createSecurityContext(A annotation);
+
 }

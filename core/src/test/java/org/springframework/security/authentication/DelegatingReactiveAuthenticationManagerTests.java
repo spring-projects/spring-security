@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingReactiveAuthenticationManagerTests {
+
 	@Mock
 	ReactiveAuthenticationManager delegate1;
 
@@ -50,31 +51,34 @@ public class DelegatingReactiveAuthenticationManagerTests {
 		when(this.delegate1.authenticate(any())).thenReturn(Mono.empty());
 		when(this.delegate2.authenticate(any())).thenReturn(Mono.just(this.authentication));
 
-		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1, this.delegate2);
+		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1,
+				this.delegate2);
 
 		assertThat(manager.authenticate(this.authentication).block()).isEqualTo(this.authentication);
 	}
 
 	@Test
 	public void authenticateWhenNotEmptyThenOtherDelegatesNotSubscribed() {
-		// delay to try and force delegate2 to finish (i.e. make sure we didn't use flatMap)
-		when(this.delegate1.authenticate(any())).thenReturn(Mono.just(this.authentication).delayElement(Duration.ofMillis(100)));
+		// delay to try and force delegate2 to finish (i.e. make sure we didn't use
+		// flatMap)
+		when(this.delegate1.authenticate(any()))
+				.thenReturn(Mono.just(this.authentication).delayElement(Duration.ofMillis(100)));
 
-		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1, this.delegate2);
+		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1,
+				this.delegate2);
 
-		StepVerifier.create(manager.authenticate(this.authentication))
-			.expectNext(this.authentication)
-			.verifyComplete();
+		StepVerifier.create(manager.authenticate(this.authentication)).expectNext(this.authentication).verifyComplete();
 	}
 
 	@Test
 	public void authenticateWhenBadCredentialsThenDelegate2NotInvokedAndError() {
 		when(this.delegate1.authenticate(any())).thenReturn(Mono.error(new BadCredentialsException("Test")));
 
-		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1, this.delegate2);
+		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1,
+				this.delegate2);
 
-		StepVerifier.create(manager.authenticate(this.authentication))
-			.expectError(BadCredentialsException.class)
-			.verify();
+		StepVerifier.create(manager.authenticate(this.authentication)).expectError(BadCredentialsException.class)
+				.verify();
 	}
+
 }

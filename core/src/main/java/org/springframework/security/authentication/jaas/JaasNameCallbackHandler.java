@@ -28,13 +28,13 @@ import javax.security.auth.callback.NameCallback;
  * specifically tailored to handling the NameCallback. <br>
  *
  * @author Ray Krueger
- *
- * @see <a
- * href="https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
- * @see <a
- * href="https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/NameCallback.html">NameCallback</a>
+ * @see <a href=
+ * "https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
+ * @see <a href=
+ * "https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/NameCallback.html">NameCallback</a>
  */
 public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandler {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -42,7 +42,6 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
 	 * If the callback passed to the 'handle' method is an instance of NameCallback, the
 	 * JaasNameCallbackHandler will call,
 	 * callback.setName(authentication.getPrincipal().toString()).
-	 *
 	 * @param callback
 	 * @param authentication
 	 *
@@ -64,4 +63,5 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
 			ncb.setName(username);
 		}
 	}
+
 }

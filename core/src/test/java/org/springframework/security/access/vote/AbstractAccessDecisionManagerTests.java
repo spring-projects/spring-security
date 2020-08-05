@@ -136,14 +136,13 @@ public class AbstractAccessDecisionManagerTests {
 
 	private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
 
-		protected MockDecisionManagerImpl(
-				List<AccessDecisionVoter<? extends Object>> decisionVoters) {
+		protected MockDecisionManagerImpl(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
 			super(decisionVoters);
 		}
 
-		public void decide(Authentication authentication, Object object,
-				Collection<ConfigAttribute> configAttributes) {
+		public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
 		}
+
 	}
 
 	private class MockStringOnlyVoter implements AccessDecisionVoter<Object> {
@@ -156,9 +155,10 @@ public class AbstractAccessDecisionManagerTests {
 			throw new UnsupportedOperationException("mock method not implemented");
 		}
 
-		public int vote(Authentication authentication, Object object,
-				Collection<ConfigAttribute> attributes) {
+		public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 			throw new UnsupportedOperationException("mock method not implemented");
 		}
+
 	}
+
 }

@@ -29,6 +29,7 @@ import javax.servlet.jsp.tagext.Tag;
  * @author Luke Taylor
  */
 public final class TagLibConfig {
+
 	static Log logger = LogFactory.getLog("spring-security-taglibs");
 
 	static final boolean DISABLE_UI_SECURITY;
@@ -53,7 +54,6 @@ public final class TagLibConfig {
 	/**
 	 * Returns EVAL_BODY_INCLUDE if the authorized flag is true or UI security has been
 	 * disabled. Otherwise returns SKIP_BODY.
-	 *
 	 * @param authorized whether the user is authorized to see the content or not
 	 */
 	public static int evalOrSkip(boolean authorized) {
@@ -75,4 +75,5 @@ public final class TagLibConfig {
 	public static String getSecuredUiSuffix() {
 		return SECURED_UI_SUFFIX;
 	}
+
 }

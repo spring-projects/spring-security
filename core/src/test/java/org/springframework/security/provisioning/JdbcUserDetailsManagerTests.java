@@ -50,15 +50,20 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Luke Taylor
  */
 public class JdbcUserDetailsManagerTests {
+
 	private static final String SELECT_JOE_SQL = "select * from users where username = 'joe'";
+
 	private static final String SELECT_JOE_AUTHORITIES_SQL = "select * from authorities where username = 'joe'";
 
-	private static final UserDetails joe = new User("joe", "password", true, true, true,
-			true, AuthorityUtils.createAuthorityList("A", "C", "B"));
+	private static final UserDetails joe = new User("joe", "password", true, true, true, true,
+			AuthorityUtils.createAuthorityList("A", "C", "B"));
 
 	private static TestDataSource dataSource;
+
 	private JdbcUserDetailsManager manager;
+
 	private MockUserCache cache;
+
 	private JdbcTemplate template;
 
 	@BeforeClass
@@ -182,7 +187,6 @@ public class JdbcUserDetailsManagerTests {
 		assertThat(cache.getUserMap().containsKey(newJoe.getUsername())).isFalse();
 	}
 
-
 	@Test
 	public void userExistsReturnsFalseForNonExistentUsername() {
 		assertThat(manager.userExists("joe")).isFalse();
@@ -236,8 +240,7 @@ public class JdbcUserDetailsManagerTests {
 		insertJoe();
 		authenticateJoe();
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(
-				new BadCredentialsException(""));
+		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
 
 		manager.setAuthenticationManager(am);
 
@@ -279,12 +282,10 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createGroupInsertsCorrectData() {
-		manager.createGroup("TEST_GROUP",
-				AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
+		manager.createGroup("TEST_GROUP", AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
 
-		List roles = template
-				.queryForList("select ga.authority from groups g, group_authorities ga "
-						+ "where ga.group_id = g.id " + "and g.group_name = 'TEST_GROUP'");
+		List roles = template.queryForList("select ga.authority from groups g, group_authorities ga "
+				+ "where ga.group_id = g.id " + "and g.group_name = 'TEST_GROUP'");
 
 		assertThat(roles).hasSize(2);
 	}
@@ -305,26 +306,22 @@ public class JdbcUserDetailsManagerTests {
 	public void renameGroupIsSuccessful() {
 		manager.renameGroup("GROUP_0", "GROUP_X");
 
-		assertThat(template.queryForObject("select id from groups where group_name = 'GROUP_X'",
-				Integer.class)).isZero();
+		assertThat(template.queryForObject("select id from groups where group_name = 'GROUP_X'", Integer.class))
+				.isZero();
 	}
 
 	@Test
 	public void addingGroupUserSetsCorrectData() {
 		manager.addUserToGroup("tom", "GROUP_0");
 
-		assertThat(
-				template.queryForList(
-						"select username from group_members where group_id = 0")).hasSize(2);
+		assertThat(template.queryForList("select username from group_members where group_id = 0")).hasSize(2);
 	}
 
 	@Test
 	public void removeUserFromGroupDeletesGroupMemberRow() {
 		manager.removeUserFromGroup("jerry", "GROUP_1");
 
-		assertThat(
-								template.queryForList(
-						"select group_id from group_members where username = 'jerry'")).hasSize(1);
+		assertThat(template.queryForList("select group_id from group_members where username = 'jerry'")).hasSize(1);
 	}
 
 	@Test
@@ -337,8 +334,7 @@ public class JdbcUserDetailsManagerTests {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_X");
 		manager.addGroupAuthority("GROUP_0", auth);
 
-		template.queryForObject(
-				"select authority from group_authorities where authority = 'ROLE_X' and group_id = 0",
+		template.queryForObject("select authority from group_authorities where authority = 'ROLE_X' and group_id = 0",
 				String.class);
 	}
 
@@ -346,14 +342,10 @@ public class JdbcUserDetailsManagerTests {
 	public void deleteGroupAuthorityRemovesCorrectRows() {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_A");
 		manager.removeGroupAuthority("GROUP_0", auth);
-		assertThat(
-				template.queryForList(
-						"select authority from group_authorities where group_id = 0")).isEmpty();
+		assertThat(template.queryForList("select authority from group_authorities where group_id = 0")).isEmpty();
 
 		manager.removeGroupAuthority("GROUP_2", auth);
-		assertThat(
-				template.queryForList(
-						"select authority from group_authorities where group_id = 2")).hasSize(2);
+		assertThat(template.queryForList("select authority from group_authorities where group_id = 2")).hasSize(2);
 	}
 
 	// SEC-1156
@@ -378,15 +370,15 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void createNewAuthenticationUsesNullPasswordToKeepPassordsSave() {
 		insertJoe();
-		UsernamePasswordAuthenticationToken currentAuth = new UsernamePasswordAuthenticationToken(
-				"joe", null, AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UsernamePasswordAuthenticationToken currentAuth = new UsernamePasswordAuthenticationToken("joe", null,
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		Authentication updatedAuth = manager.createNewAuthentication(currentAuth, "new");
 		assertThat(updatedAuth.getCredentials()).isNull();
 	}
 
 	private Authentication authenticateJoe() {
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-				"joe", "password", joe.getAuthorities());
+		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("joe", "password",
+				joe.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		return auth;
@@ -401,6 +393,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	private class MockUserCache implements UserCache {
+
 		private Map<String, UserDetails> cache = new HashMap<>();
 
 		public UserDetails getUserFromCache(String username) {
@@ -418,5 +411,7 @@ public class JdbcUserDetailsManagerTests {
 		Map<String, UserDetails> getUserMap() {
 			return cache;
 		}
+
 	}
+
 }

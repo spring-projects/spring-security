@@ -59,9 +59,9 @@ import java.util.*;
  * and a list of filters which should be applied to matching requests. Most applications
  * will only contain a single filter chain, and if you are using the namespace, you don't
  * have to set the chains explicitly. If you require finer-grained control, you can make
- * use of the {@code <filter-chain>} namespace element. This defines a URI pattern
- * and the list of filters (as comma-separated bean names) which should be applied to
- * requests which match the pattern. An example configuration might look like this:
+ * use of the {@code <filter-chain>} namespace element. This defines a URI pattern and the
+ * list of filters (as comma-separated bean names) which should be applied to requests
+ * which match the pattern. An example configuration might look like this:
  *
  * <pre>
  *  &lt;bean id="myfilterChainProxy" class="org.springframework.security.web.FilterChainProxy"&gt;
@@ -136,6 +136,7 @@ import java.util.*;
  * @author Rob Winch
  */
 public class FilterChainProxy extends GenericFilterBean {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -144,8 +145,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	// ~ Instance fields
 	// ================================================================================================
 
-	private final static String FILTER_APPLIED = FilterChainProxy.class.getName().concat(
-			".APPLIED");
+	private final static String FILTER_APPLIED = FilterChainProxy.class.getName().concat(".APPLIED");
 
 	private List<SecurityFilterChain> filterChains;
 
@@ -175,14 +175,15 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		boolean clearContext = request.getAttribute(FILTER_APPLIED) == null;
 		if (clearContext) {
 			try {
 				request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 				doFilterInternal(request, response, chain);
-			} catch (RequestRejectedException e) {
+			}
+			catch (RequestRejectedException e) {
 				this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, e);
 			}
 			finally {
@@ -195,21 +196,18 @@ public class FilterChainProxy extends GenericFilterBean {
 		}
 	}
 
-	private void doFilterInternal(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
+	private void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 
-		FirewalledRequest fwRequest = firewall
-				.getFirewalledRequest((HttpServletRequest) request);
-		HttpServletResponse fwResponse = firewall
-				.getFirewalledResponse((HttpServletResponse) response);
+		FirewalledRequest fwRequest = firewall.getFirewalledRequest((HttpServletRequest) request);
+		HttpServletResponse fwResponse = firewall.getFirewalledResponse((HttpServletResponse) response);
 
 		List<Filter> filters = getFilters(fwRequest);
 
 		if (filters == null || filters.size() == 0) {
 			if (logger.isDebugEnabled()) {
 				logger.debug(UrlUtils.buildRequestUrl(fwRequest)
-						+ (filters == null ? " has no matching filters"
-								: " has an empty filter list"));
+						+ (filters == null ? " has no matching filters" : " has an empty filter list"));
 			}
 
 			fwRequest.reset();
@@ -225,7 +223,6 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	/**
 	 * Returns the first filter chain matching the supplied URL.
-	 *
 	 * @param request the request to match
 	 * @return an ordered array of Filters defining the filter chain
 	 */
@@ -241,13 +238,11 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	/**
 	 * Convenience method, mainly for testing.
-	 *
 	 * @param url the URL
 	 * @return matching filter list
 	 */
 	public List<Filter> getFilters(String url) {
-		return getFilters(firewall.getFirewalledRequest((new FilterInvocation(url, "GET")
-				.getRequest())));
+		return getFilters(firewall.getFirewalledRequest((new FilterInvocation(url, "GET").getRequest())));
 	}
 
 	/**
@@ -261,7 +256,6 @@ public class FilterChainProxy extends GenericFilterBean {
 	/**
 	 * Used (internally) to specify a validation strategy for the filters in each
 	 * configured chain.
-	 *
 	 * @param filterChainValidator the validator instance which will be invoked on during
 	 * initialization to check the {@code FilterChainProxy} instance.
 	 */
@@ -273,7 +267,6 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * Sets the "firewall" implementation which will be used to validate and wrap (or
 	 * potentially reject) the incoming requests. The default implementation should be
 	 * satisfactory for most requirements.
-	 *
 	 * @param firewall
 	 */
 	public void setFirewall(HttpFirewall firewall) {
@@ -281,7 +274,8 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	/**
-	 * Sets the {@link RequestRejectedHandler} to be used for requests rejected by the firewall.
+	 * Sets the {@link RequestRejectedHandler} to be used for requests rejected by the
+	 * firewall.
 	 *
 	 * @since 5.2
 	 * @param requestRejectedHandler the {@link RequestRejectedHandler}
@@ -310,14 +304,19 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * the additional internal list of filters which match the request.
 	 */
 	private static class VirtualFilterChain implements FilterChain {
+
 		private final FilterChain originalChain;
+
 		private final List<Filter> additionalFilters;
+
 		private final FirewalledRequest firewalledRequest;
+
 		private final int size;
+
 		private int currentPosition = 0;
 
-		private VirtualFilterChain(FirewalledRequest firewalledRequest,
-				FilterChain chain, List<Filter> additionalFilters) {
+		private VirtualFilterChain(FirewalledRequest firewalledRequest, FilterChain chain,
+				List<Filter> additionalFilters) {
 			this.originalChain = chain;
 			this.additionalFilters = additionalFilters;
 			this.size = additionalFilters.size();
@@ -325,8 +324,7 @@ public class FilterChainProxy extends GenericFilterBean {
 		}
 
 		@Override
-		public void doFilter(ServletRequest request, ServletResponse response)
-				throws IOException, ServletException {
+		public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
 			if (currentPosition == size) {
 				if (logger.isDebugEnabled()) {
 					logger.debug(UrlUtils.buildRequestUrl(firewalledRequest)
@@ -344,25 +342,29 @@ public class FilterChainProxy extends GenericFilterBean {
 				Filter nextFilter = additionalFilters.get(currentPosition - 1);
 
 				if (logger.isDebugEnabled()) {
-					logger.debug(UrlUtils.buildRequestUrl(firewalledRequest)
-							+ " at position " + currentPosition + " of " + size
-							+ " in additional filter chain; firing Filter: '"
+					logger.debug(UrlUtils.buildRequestUrl(firewalledRequest) + " at position " + currentPosition
+							+ " of " + size + " in additional filter chain; firing Filter: '"
 							+ nextFilter.getClass().getSimpleName() + "'");
 				}
 
 				nextFilter.doFilter(request, response, this);
 			}
 		}
+
 	}
 
 	public interface FilterChainValidator {
+
 		void validate(FilterChainProxy filterChainProxy);
+
 	}
 
 	private static class NullFilterChainValidator implements FilterChainValidator {
+
 		@Override
 		public void validate(FilterChainProxy filterChainProxy) {
 		}
+
 	}
 
 }

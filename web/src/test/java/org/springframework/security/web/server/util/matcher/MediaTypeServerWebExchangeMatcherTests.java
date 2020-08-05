@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0
  */
 public class MediaTypeServerWebExchangeMatcherTests {
+
 	private MediaTypeServerWebExchangeMatcher matcher;
 
 	@Test(expected = IllegalArgumentException.class)
@@ -87,7 +88,8 @@ public class MediaTypeServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchWhenDefaultResolverAndAcceptImpliedThenMatch() {
-		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(MediaType.parseMediaTypes("text/*"));
+		MediaTypeServerWebExchangeMatcher matcher = new MediaTypeServerWebExchangeMatcher(
+				MediaType.parseMediaTypes("text/*"));
 
 		assertThat(matcher.matches(exchange(MediaType.TEXT_HTML)).block().isMatch()).isTrue();
 	}
@@ -103,4 +105,5 @@ public class MediaTypeServerWebExchangeMatcherTests {
 	private static ServerWebExchange exchange(MediaType... accept) {
 		return MockServerWebExchange.from(MockServerHttpRequest.get("/").accept(accept).build());
 	}
+
 }

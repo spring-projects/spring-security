@@ -24,7 +24,6 @@ package org.springframework.security.cas.authentication;
  * are not using the stateless session management.
  *
  * @author Scott Battaglia
- *
  * @see CasAuthenticationProvider
  */
 public final class NullStatelessTicketCache implements StatelessTicketCache {
@@ -56,4 +55,5 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	public void removeTicketFromCache(final String serviceTicket) {
 		// nothing to do
 	}
+
 }

@@ -35,4 +35,5 @@ public abstract class AbstractMixinTests {
 		ClassLoader loader = getClass().getClassLoader();
 		mapper.registerModules(SecurityJackson2Modules.getModules(loader));
 	}
+
 }

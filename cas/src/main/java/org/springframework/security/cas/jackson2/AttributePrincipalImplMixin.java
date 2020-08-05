@@ -22,9 +22,10 @@ import org.jasig.cas.client.proxy.ProxyRetriever;
 import java.util.Map;
 
 /**
- * Helps in deserialize {@link org.jasig.cas.client.authentication.AttributePrincipalImpl} which is used with
- * {@link org.springframework.security.cas.authentication.CasAuthenticationToken}. Type information will be stored
- * in property named @class.
+ * Helps in deserialize {@link org.jasig.cas.client.authentication.AttributePrincipalImpl}
+ * which is used with
+ * {@link org.springframework.security.cas.authentication.CasAuthenticationToken}. Type
+ * information will be stored in property named @class.
  * <p>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -43,16 +44,19 @@ import java.util.Map;
 class AttributePrincipalImplMixin {
 
 	/**
-	 * Mixin Constructor helps in deserialize {@link org.jasig.cas.client.authentication.AttributePrincipalImpl}
-	 *
+	 * Mixin Constructor helps in deserialize
+	 * {@link org.jasig.cas.client.authentication.AttributePrincipalImpl}
 	 * @param name the unique identifier for the principal.
 	 * @param attributes the key/value pairs for this principal.
 	 * @param proxyGrantingTicket the ticket associated with this principal.
-	 * @param proxyRetriever the ProxyRetriever implementation to call back to the CAS server.
+	 * @param proxyRetriever the ProxyRetriever implementation to call back to the CAS
+	 * server.
 	 */
 	@JsonCreator
-	AttributePrincipalImplMixin(@JsonProperty("name") String name, @JsonProperty("attributes") Map<String, Object> attributes,
-										@JsonProperty("proxyGrantingTicket") String proxyGrantingTicket,
-										@JsonProperty("proxyRetriever") ProxyRetriever proxyRetriever) {
+	AttributePrincipalImplMixin(@JsonProperty("name") String name,
+			@JsonProperty("attributes") Map<String, Object> attributes,
+			@JsonProperty("proxyGrantingTicket") String proxyGrantingTicket,
+			@JsonProperty("proxyRetriever") ProxyRetriever proxyRetriever) {
 	}
+
 }

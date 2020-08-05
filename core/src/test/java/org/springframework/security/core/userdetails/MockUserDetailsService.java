@@ -30,16 +30,16 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @author Luke Taylor
  */
 public class MockUserDetailsService implements UserDetailsService {
+
 	private Map<String, User> users = new HashMap<>();
-	private List<GrantedAuthority> auths = AuthorityUtils
-			.createAuthorityList("ROLE_USER");
+
+	private List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_USER");
 
 	public MockUserDetailsService() {
 		users.put("valid", new User("valid", "", true, true, true, true, auths));
 		users.put("locked", new User("locked", "", true, true, true, false, auths));
 		users.put("disabled", new User("disabled", "", false, true, true, true, auths));
-		users.put("credentialsExpired", new User("credentialsExpired", "", true, true,
-				false, true, auths));
+		users.put("credentialsExpired", new User("credentialsExpired", "", true, true, false, true, auths));
 		users.put("expired", new User("expired", "", true, false, true, true, auths));
 	}
 
@@ -50,4 +50,5 @@ public class MockUserDetailsService implements UserDetailsService {
 
 		return users.get(username);
 	}
+
 }

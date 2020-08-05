@@ -99,6 +99,7 @@ import java.util.List;
  *     }
  * }
  * </pre>
+ *
  * @author Rob Winch
  * @author Jesús Ascama Arias
  * @author Luis Felipe Vega
@@ -123,12 +124,12 @@ public class RSocketSecurity {
 	private ReactiveAuthenticationManager authenticationManager;
 
 	/**
-	 * Adds a {@link PayloadInterceptor} to be used. This is typically only used
-	 * when using the DSL does not meet a users needs. In order to ensure the
-	 * {@link PayloadInterceptor} is done in the proper order the {@link PayloadInterceptor} should
-	 * either implement {@link org.springframework.core.Ordered} or be annotated with
+	 * Adds a {@link PayloadInterceptor} to be used. This is typically only used when
+	 * using the DSL does not meet a users needs. In order to ensure the
+	 * {@link PayloadInterceptor} is done in the proper order the
+	 * {@link PayloadInterceptor} should either implement
+	 * {@link org.springframework.core.Ordered} or be annotated with
 	 * {@link org.springframework.core.annotation.Order}.
-	 *
 	 * @param interceptor
 	 * @return the builder for additional customizations
 	 * @see PayloadInterceptorOrder
@@ -144,8 +145,9 @@ public class RSocketSecurity {
 	}
 
 	/**
-	 * Adds support for validating a username and password using
-	 * <a href="https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple Authentication</a>
+	 * Adds support for validating a username and password using <a href=
+	 * "https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple
+	 * Authentication</a>
 	 * @param simple a customizer
 	 * @return RSocketSecurity for additional configuration
 	 * @since 5.3
@@ -162,6 +164,7 @@ public class RSocketSecurity {
 	 * @since 5.3
 	 */
 	public class SimpleAuthenticationSpec {
+
 		private ReactiveAuthenticationManager authenticationManager;
 
 		public SimpleAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
@@ -184,12 +187,13 @@ public class RSocketSecurity {
 			return result;
 		}
 
-		private SimpleAuthenticationSpec() {}
+		private SimpleAuthenticationSpec() {
+		}
+
 	}
 
 	/**
 	 * Adds authentication with BasicAuthenticationPayloadExchangeConverter.
-	 *
 	 * @param basic
 	 * @return
 	 * @deprecated Use {@link #simpleAuthentication(Customizer)}
@@ -204,6 +208,7 @@ public class RSocketSecurity {
 	}
 
 	public class BasicAuthenticationSpec {
+
 		private ReactiveAuthenticationManager authenticationManager;
 
 		public BasicAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
@@ -225,7 +230,9 @@ public class RSocketSecurity {
 			return result;
 		}
 
-		private BasicAuthenticationSpec() {}
+		private BasicAuthenticationSpec() {
+		}
+
 	}
 
 	public RSocketSecurity jwt(Customizer<JwtSpec> jwt) {
@@ -237,6 +244,7 @@ public class RSocketSecurity {
 	}
 
 	public class JwtSpec {
+
 		private ReactiveAuthenticationManager authenticationManager;
 
 		public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
@@ -269,7 +277,9 @@ public class RSocketSecurity {
 			return Arrays.asList(standard, legacy);
 		}
 
-		private JwtSpec() {}
+		private JwtSpec() {
+		}
+
 	}
 
 	public RSocketSecurity authorizePayload(Customizer<AuthorizePayloadsSpec> authorize) {
@@ -281,8 +291,7 @@ public class RSocketSecurity {
 	}
 
 	public PayloadSocketAcceptorInterceptor build() {
-		PayloadSocketAcceptorInterceptor interceptor = new PayloadSocketAcceptorInterceptor(
-				payloadInterceptors());
+		PayloadSocketAcceptorInterceptor interceptor = new PayloadSocketAcceptorInterceptor(payloadInterceptors());
 		RSocketMessageHandler handler = getBean(RSocketMessageHandler.class);
 		interceptor.setDefaultDataMimeType(handler.getDefaultDataMimeType());
 		interceptor.setDefaultMetadataMimeType(handler.getDefaultMetadataMimeType());
@@ -318,16 +327,17 @@ public class RSocketSecurity {
 
 	public class AuthorizePayloadsSpec {
 
-		private PayloadExchangeMatcherReactiveAuthorizationManager.Builder authzBuilder =
-				PayloadExchangeMatcherReactiveAuthorizationManager.builder();
+		private PayloadExchangeMatcherReactiveAuthorizationManager.Builder authzBuilder = PayloadExchangeMatcherReactiveAuthorizationManager
+				.builder();
 
 		public Access setup() {
 			return matcher(PayloadExchangeMatchers.setup());
 		}
 
 		/**
-		 * Matches if {@link org.springframework.security.rsocket.api.PayloadExchangeType#isRequest()} is true, else
-		 * not a match
+		 * Matches if
+		 * {@link org.springframework.security.rsocket.api.PayloadExchangeType#isRequest()}
+		 * is true, else not a match
 		 * @return the Access to set up the authorization rule.
 		 */
 		public Access anyRequest() {
@@ -350,10 +360,8 @@ public class RSocketSecurity {
 
 		public Access route(String pattern) {
 			RSocketMessageHandler handler = getBean(RSocketMessageHandler.class);
-			PayloadExchangeMatcher matcher = new RoutePayloadExchangeMatcher(
-					handler.getMetadataExtractor(),
-					handler.getRouteMatcher(),
-					pattern);
+			PayloadExchangeMatcher matcher = new RoutePayloadExchangeMatcher(handler.getMetadataExtractor(),
+					handler.getRouteMatcher(), pattern);
 			return matcher(matcher);
 		}
 
@@ -386,8 +394,7 @@ public class RSocketSecurity {
 			}
 
 			public AuthorizePayloadsSpec permitAll() {
-				return access((a, ctx) -> Mono
-						.just(new AuthorizationDecision(true)));
+				return access((a, ctx) -> Mono.just(new AuthorizationDecision(true)));
 			}
 
 			public AuthorizePayloadsSpec hasAnyAuthority(String... authorities) {
@@ -396,15 +403,17 @@ public class RSocketSecurity {
 
 			public AuthorizePayloadsSpec access(
 					ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext> authorization) {
-				AuthorizePayloadsSpec.this.authzBuilder.add(new PayloadExchangeMatcherEntry<>(this.matcher, authorization));
+				AuthorizePayloadsSpec.this.authzBuilder
+						.add(new PayloadExchangeMatcherEntry<>(this.matcher, authorization));
 				return AuthorizePayloadsSpec.this;
 			}
 
 			public AuthorizePayloadsSpec denyAll() {
-				return access((a, ctx) -> Mono
-						.just(new AuthorizationDecision(false)));
+				return access((a, ctx) -> Mono.just(new AuthorizationDecision(false)));
 			}
+
 		}
+
 	}
 
 	private <T> T getBean(Class<T> beanClass) {
@@ -422,15 +431,15 @@ public class RSocketSecurity {
 		if (this.context == null) {
 			return null;
 		}
-		String[] names =  this.context.getBeanNamesForType(type);
+		String[] names = this.context.getBeanNamesForType(type);
 		if (names.length == 1) {
 			return (T) this.context.getBean(names[0]);
 		}
 		return null;
 	}
 
-	protected void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.context = applicationContext;
 	}
+
 }

@@ -19,4 +19,5 @@ public class StubUserRepository implements UserRepository {
 
 	public void doSomething() {
 	}
+
 }

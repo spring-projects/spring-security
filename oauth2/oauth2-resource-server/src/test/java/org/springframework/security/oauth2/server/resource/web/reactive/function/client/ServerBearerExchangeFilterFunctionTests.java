@@ -42,14 +42,14 @@ import static org.springframework.http.HttpMethod.GET;
  * @author Josh Cummings
  */
 public class ServerBearerExchangeFilterFunctionTests {
+
 	private ServerBearerExchangeFilterFunction function = new ServerBearerExchangeFilterFunction();
 
 	private MockExchangeFunction exchange = new MockExchangeFunction();
 
-	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-			"token-0",
-			Instant.now(),
-			Instant.now().plus(Duration.ofDays(1)));
+	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token-0",
+			Instant.now(), Instant.now().plus(Duration.ofDays(1)));
+
 	private Authentication authentication = new AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken>(accessToken) {
 		@Override
 		public Map<String, Object> getTokenAttributes() {
@@ -59,8 +59,7 @@ public class ServerBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenUnauthenticatedThenAuthorizationHeaderNull() {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.build();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange).block();
 
@@ -69,12 +68,10 @@ public class ServerBearerExchangeFilterFunctionTests {
 
 	@Test
 	public void filterWhenAuthenticatedThenAuthorizationHeaderNull() throws Exception {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.build();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
 
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
-				.block();
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
@@ -83,29 +80,25 @@ public class ServerBearerExchangeFilterFunctionTests {
 	// gh-7353
 	@Test
 	public void filterWhenAuthenticatedWithOtherTokenThenAuthorizationHeaderNull() throws Exception {
-		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.build();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com")).build();
 
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(token))
-				.block();
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(token)).block();
 
-		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
-				.isNull();
+		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION)).isNull();
 	}
 
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.header(HttpHeaders.AUTHORIZATION, "Existing")
-				.build();
+				.header(HttpHeaders.AUTHORIZATION, "Existing").build();
 
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
-				.block();
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
 	}
+
 }

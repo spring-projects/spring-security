@@ -22,12 +22,13 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.util.Assert;
 
 /**
- *
  * @author Luke Taylor
  * @since 2.0
  */
 public class CachingUserDetailsService implements UserDetailsService {
+
 	private UserCache userCache = new NullUserCache();
+
 	private final UserDetailsService delegate;
 
 	public CachingUserDetailsService(UserDetailsService delegate) {
@@ -49,12 +50,12 @@ public class CachingUserDetailsService implements UserDetailsService {
 			user = delegate.loadUserByUsername(username);
 		}
 
-		Assert.notNull(user, () -> "UserDetailsService " + delegate
-				+ " returned null for username " + username + ". "
+		Assert.notNull(user, () -> "UserDetailsService " + delegate + " returned null for username " + username + ". "
 				+ "This is an interface contract violation");
 
 		userCache.putUserInCache(user);
 
 		return user;
 	}
+
 }

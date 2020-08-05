@@ -37,7 +37,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * See {@link DelegatingAuthenticationEntryPoint} for an example configuration.
  * </p>
  *
- *
  * @author Mike Wiesner
  * @since 3.0.2
  */
@@ -58,7 +57,6 @@ public class ELRequestMatcher implements RequestMatcher {
 	/**
 	 * Subclasses can override this methode if they want to use a different EL root
 	 * context
-	 *
 	 * @return EL root context which is used to evaluate the expression
 	 */
 	public EvaluationContext createELContext(HttpServletRequest request) {
@@ -72,4 +70,5 @@ public class ELRequestMatcher implements RequestMatcher {
 		sb.append("]");
 		return sb.toString();
 	}
+
 }

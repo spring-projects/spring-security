@@ -21,15 +21,20 @@ import org.springframework.util.Assert;
 import java.io.Serializable;
 
 /**
- * The authentication method used when authenticating the client with the authorization server.
+ * The authentication method used when authenticating the client with the authorization
+ * server.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2.3">Section 2.3 Client Authentication</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2.3">Section
+ * 2.3 Client Authentication</a>
  */
 public final class ClientAuthenticationMethod implements Serializable {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	public static final ClientAuthenticationMethod BASIC = new ClientAuthenticationMethod("basic");
+
 	public static final ClientAuthenticationMethod POST = new ClientAuthenticationMethod("post");
 
 	/**
@@ -41,7 +46,6 @@ public final class ClientAuthenticationMethod implements Serializable {
 
 	/**
 	 * Constructs a {@code ClientAuthenticationMethod} using the provided value.
-	 *
 	 * @param value the value of the client authentication method
 	 */
 	public ClientAuthenticationMethod(String value) {
@@ -51,7 +55,6 @@ public final class ClientAuthenticationMethod implements Serializable {
 
 	/**
 	 * Returns the value of the client authentication method.
-	 *
 	 * @return the value of the client authentication method
 	 */
 	public String getValue() {
@@ -74,4 +77,5 @@ public final class ClientAuthenticationMethod implements Serializable {
 	public int hashCode() {
 		return this.getValue().hashCode();
 	}
+
 }

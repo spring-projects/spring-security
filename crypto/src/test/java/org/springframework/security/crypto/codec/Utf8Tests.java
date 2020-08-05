@@ -37,4 +37,5 @@ public class Utf8Tests {
 
 		assertThat(decoded).isEqualTo("6048b75ed560785c");
 	}
+
 }

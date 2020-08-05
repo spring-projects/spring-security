@@ -27,22 +27,23 @@ import java.util.List;
  * @author Rob Winch
  * @since 5.0
  */
-class ReactiveMethodSecuritySelector extends
-	AdviceModeImportSelector<EnableReactiveMethodSecurity> {
+class ReactiveMethodSecuritySelector extends AdviceModeImportSelector<EnableReactiveMethodSecurity> {
 
 	@Override
 	protected String[] selectImports(AdviceMode adviceMode) {
 		switch (adviceMode) {
-			case PROXY:
-				return getProxyImports();
-			default:
-				throw new IllegalStateException("AdviceMode " + adviceMode + " is not supported");
+		case PROXY:
+			return getProxyImports();
+		default:
+			throw new IllegalStateException("AdviceMode " + adviceMode + " is not supported");
 		}
 	}
 
 	/**
-	 * Return the imports to use if the {@link AdviceMode} is set to {@link AdviceMode#PROXY}.
-	 * <p>Take care of adding the necessary JSR-107 import if it is available.
+	 * Return the imports to use if the {@link AdviceMode} is set to
+	 * {@link AdviceMode#PROXY}.
+	 * <p>
+	 * Take care of adding the necessary JSR-107 import if it is available.
 	 */
 	private String[] getProxyImports() {
 		List<String> result = new ArrayList<>();
@@ -50,4 +51,5 @@ class ReactiveMethodSecuritySelector extends
 		result.add(ReactiveMethodSecurityConfiguration.class.getName());
 		return result.toArray(new String[0]);
 	}
+
 }

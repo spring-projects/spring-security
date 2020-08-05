@@ -53,10 +53,12 @@ import org.apache.commons.logging.LogFactory;
  * @author Luke Taylor
  */
 class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	protected static final Log logger = LogFactory.getLog(SavedRequestAwareWrapper.class);
+
 	protected static final TimeZone GMT_ZONE = TimeZone.getTimeZone("GMT");
 
 	/** The default Locale if none are specified. */
@@ -250,4 +252,5 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
 		return combinedParams.toArray(new String[0]);
 	}
+
 }

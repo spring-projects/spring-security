@@ -47,4 +47,5 @@ public class InterceptorStatusTokenTests {
 		assertThat(token.getSecureObject()).isEqualTo(mi);
 		assertThat(token.getSecurityContext()).isSameAs(ctx);
 	}
+
 }

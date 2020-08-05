@@ -40,7 +40,9 @@ import static org.mockito.Mockito.mock;
  * @author Ben Alex
  */
 public class DefaultFilterInvocationSecurityMetadataSourceTests {
+
 	private DefaultFilterInvocationSecurityMetadataSource fids;
+
 	private Collection<ConfigAttribute> def = SecurityConfig.createList("ROLE_ONE");
 
 	// ~ Methods
@@ -55,8 +57,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	public void lookupNotRequiringExactMatchSucceedsIfNotMatching() {
 		createFids("/secure/super/**", null);
 
-		FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null,
-				null, null);
+		FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null, null, null);
 
 		assertThat(this.fids.getAttributes(fi)).isEqualTo(this.def);
 	}
@@ -69,8 +70,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	public void lookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
 		createFids("/secure/super/**", null);
 
-		FilterInvocation fi = createFilterInvocation("/secure", "/super/somefile.html",
-				null, null);
+		FilterInvocation fi = createFilterInvocation("/secure", "/super/somefile.html", null, null);
 
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response).isEqualTo(this.def);
@@ -80,8 +80,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	public void lookupRequiringExactMatchIsSuccessful() {
 		createFids("/SeCurE/super/**", null);
 
-		FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null,
-				null, null);
+		FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null, null, null);
 
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response).isEqualTo(this.def);
@@ -91,8 +90,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	public void lookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
 		createFids("/someAdminPage.html**", null);
 
-		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null,
-				"a=/test", null);
+		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, "a=/test", null);
 
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response); // see SEC-161 (it should truncate after ?
@@ -138,8 +136,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		Collection<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
 
 		requestMap.put(new AntPathRequestMatcher("/user/**", null), userAttrs);
-		requestMap.put(new AntPathRequestMatcher("/teller/**", "GET"),
-				SecurityConfig.createList("B"));
+		requestMap.put(new AntPathRequestMatcher("/teller/**", "GET"), SecurityConfig.createList("B"));
 		this.fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
 
 		FilterInvocation fi = createFilterInvocation("/user", null, null, "GET");
@@ -154,8 +151,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	public void extraQuestionMarkStillMatches() {
 		createFids("/someAdminPage.html*", null);
 
-		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, null,
-				null);
+		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, null, null);
 
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response).isEqualTo(this.def);
@@ -166,8 +162,8 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		assertThat(response).isEqualTo(this.def);
 	}
 
-	private FilterInvocation createFilterInvocation(String servletPath, String pathInfo,
-			String queryString, String method) {
+	private FilterInvocation createFilterInvocation(String servletPath, String pathInfo, String queryString,
+			String method) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI(null);
 		request.setMethod(method);
@@ -175,7 +171,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		request.setPathInfo(pathInfo);
 		request.setQueryString(queryString);
 
-		return new FilterInvocation(request, new MockHttpServletResponse(),
-				mock(FilterChain.class));
+		return new FilterInvocation(request, new MockHttpServletResponse(), mock(FilterChain.class));
 	}
+
 }

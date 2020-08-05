@@ -35,11 +35,11 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 
-
 /**
  * @author Luke Taylor
  */
 public class PersistentTokenBasedRememberMeServicesTests {
+
 	private PersistentTokenBasedRememberMeServices services;
 
 	private MockTokenRepository repo;
@@ -47,8 +47,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 	@Before
 	public void setUpData() throws Exception {
 		services = new PersistentTokenBasedRememberMeServices("key",
-				new AbstractRememberMeServicesTests.MockUserDetailsService(
-						AbstractRememberMeServicesTests.joe, false),
+				new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false),
 				new InMemoryTokenRepositoryImpl());
 		services.setCookieName("mycookiename");
 		// Default to 100 days (see SEC-1081).
@@ -58,15 +57,15 @@ public class PersistentTokenBasedRememberMeServicesTests {
 
 	@Test(expected = InvalidCookieException.class)
 	public void loginIsRejectedWithWrongNumberOfCookieTokens() {
-		services.processAutoLoginCookie(new String[] { "series", "token", "extra" },
-				new MockHttpServletRequest(), new MockHttpServletResponse());
+		services.processAutoLoginCookie(new String[] { "series", "token", "extra" }, new MockHttpServletRequest(),
+				new MockHttpServletResponse());
 	}
 
 	@Test(expected = RememberMeAuthenticationException.class)
 	public void loginIsRejectedWhenNoTokenMatchingSeriesIsFound() {
 		services = create(null);
-		services.processAutoLoginCookie(new String[] { "series", "token" },
-				new MockHttpServletRequest(), new MockHttpServletResponse());
+		services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
+				new MockHttpServletResponse());
 	}
 
 	@Test(expected = RememberMeAuthenticationException.class)
@@ -75,31 +74,27 @@ public class PersistentTokenBasedRememberMeServicesTests {
 				new Date(System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(1) - 100)));
 		services.setTokenValiditySeconds(1);
 
-		services.processAutoLoginCookie(new String[] { "series", "token" },
-				new MockHttpServletRequest(), new MockHttpServletResponse());
+		services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
+				new MockHttpServletResponse());
 	}
 
 	@Test(expected = CookieTheftException.class)
 	public void cookieTheftIsDetectedWhenSeriesAndTokenDontMatch() {
-		services = create(new PersistentRememberMeToken("joe", "series", "wrongtoken",
-				new Date()));
-		services.processAutoLoginCookie(new String[] { "series", "token" },
-				new MockHttpServletRequest(), new MockHttpServletResponse());
+		services = create(new PersistentRememberMeToken("joe", "series", "wrongtoken", new Date()));
+		services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(),
+				new MockHttpServletResponse());
 	}
 
 	@Test
 	public void successfulAutoLoginCreatesNewTokenAndCookieWithSameSeries() {
-		services = create(new PersistentRememberMeToken("joe", "series", "token",
-				new Date()));
+		services = create(new PersistentRememberMeToken("joe", "series", "token", new Date()));
 		// 12 => b64 length will be 16
 		services.setTokenLength(12);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		services.processAutoLoginCookie(new String[] { "series", "token" },
-				new MockHttpServletRequest(), response);
+		services.processAutoLoginCookie(new String[] { "series", "token" }, new MockHttpServletRequest(), response);
 		assertThat(repo.getStoredToken().getSeries()).isEqualTo("series");
 		assertThat(repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
-		String[] cookie = services.decodeCookie(response.getCookie("mycookiename")
-				.getValue());
+		String[] cookie = services.decodeCookie(response.getCookie("mycookiename").getValue());
 		assertThat(cookie[0]).isEqualTo("series");
 		assertThat(cookie[1]).isEqualTo(repo.getStoredToken().getTokenValue());
 	}
@@ -116,8 +111,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		assertThat(repo.getStoredToken().getSeries().length()).isEqualTo(16);
 		assertThat(repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
 
-		String[] cookie = services.decodeCookie(response.getCookie("mycookiename")
-				.getValue());
+		String[] cookie = services.decodeCookie(response.getCookie("mycookiename").getValue());
 
 		assertThat(cookie[0]).isEqualTo(repo.getStoredToken().getSeries());
 		assertThat(cookie[1]).isEqualTo(repo.getStoredToken().getTokenValue());
@@ -129,10 +123,8 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(cookie);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		services = create(new PersistentRememberMeToken("joe", "series", "token",
-				new Date()));
-		services.logout(request, response, new TestingAuthenticationToken("joe",
-				"somepass", "SOME_AUTH"));
+		services = create(new PersistentRememberMeToken("joe", "series", "token", new Date()));
+		services.logout(request, response, new TestingAuthenticationToken("joe", "somepass", "SOME_AUTH"));
 		Cookie returnedCookie = response.getCookie("mycookiename");
 		assertThat(returnedCookie).isNotNull();
 		assertThat(returnedCookie.getMaxAge()).isZero();
@@ -143,15 +135,16 @@ public class PersistentTokenBasedRememberMeServicesTests {
 
 	private PersistentTokenBasedRememberMeServices create(PersistentRememberMeToken token) {
 		repo = new MockTokenRepository(token);
-		PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices(
-				"key", new AbstractRememberMeServicesTests.MockUserDetailsService(
-						AbstractRememberMeServicesTests.joe, false), repo);
+		PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices("key",
+				new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false),
+				repo);
 
 		services.setCookieName("mycookiename");
 		return services;
 	}
 
 	private class MockTokenRepository implements PersistentTokenRepository {
+
 		private PersistentRememberMeToken storedToken;
 
 		private MockTokenRepository(PersistentRememberMeToken token) {
@@ -163,8 +156,8 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		}
 
 		public void updateToken(String series, String tokenValue, Date lastUsed) {
-			storedToken = new PersistentRememberMeToken(storedToken.getUsername(),
-					storedToken.getSeries(), tokenValue, lastUsed);
+			storedToken = new PersistentRememberMeToken(storedToken.getUsername(), storedToken.getSeries(), tokenValue,
+					lastUsed);
 		}
 
 		public PersistentRememberMeToken getTokenForSeries(String seriesId) {
@@ -177,5 +170,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		PersistentRememberMeToken getStoredToken() {
 			return storedToken;
 		}
+
 	}
+
 }

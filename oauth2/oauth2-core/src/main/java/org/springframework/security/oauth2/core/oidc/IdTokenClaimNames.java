@@ -16,13 +16,14 @@
 package org.springframework.security.oauth2.core.oidc;
 
 /**
- * The names of the &quot;claims&quot; defined by the OpenID Connect Core 1.0 specification
- * that can be returned in the ID Token.
+ * The names of the &quot;claims&quot; defined by the OpenID Connect Core 1.0
+ * specification that can be returned in the ID Token.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see OidcIdToken
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
 
 public interface IdTokenClaimNames {
@@ -43,7 +44,8 @@ public interface IdTokenClaimNames {
 	String AUD = "aud";
 
 	/**
-	 * {@code exp} - the Expiration time on or after which the ID Token MUST NOT be accepted
+	 * {@code exp} - the Expiration time on or after which the ID Token MUST NOT be
+	 * accepted
 	 */
 	String EXP = "exp";
 
@@ -58,8 +60,8 @@ public interface IdTokenClaimNames {
 	String AUTH_TIME = "auth_time";
 
 	/**
-	 * {@code nonce} - a {@code String} value used to associate a Client session with an ID Token,
-	 * and to mitigate replay attacks.
+	 * {@code nonce} - a {@code String} value used to associate a Client session with an
+	 * ID Token, and to mitigate replay attacks.
 	 */
 	String NONCE = "nonce";
 

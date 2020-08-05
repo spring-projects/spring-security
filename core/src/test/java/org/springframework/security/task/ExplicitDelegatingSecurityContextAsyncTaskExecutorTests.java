@@ -25,8 +25,8 @@ import org.junit.Before;
  * @since 3.2
  *
  */
-public class ExplicitDelegatingSecurityContextAsyncTaskExecutorTests extends
-		AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
+public class ExplicitDelegatingSecurityContextAsyncTaskExecutorTests
+		extends AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
 
 	@Before
 	public void setUp() throws Exception {
@@ -35,8 +35,7 @@ public class ExplicitDelegatingSecurityContextAsyncTaskExecutorTests extends
 
 	@Override
 	protected DelegatingSecurityContextAsyncTaskExecutor create() {
-		return new DelegatingSecurityContextAsyncTaskExecutor(taskExecutorDelegate,
-				securityContext);
+		return new DelegatingSecurityContextAsyncTaskExecutor(taskExecutorDelegate, securityContext);
 	}
 
 }

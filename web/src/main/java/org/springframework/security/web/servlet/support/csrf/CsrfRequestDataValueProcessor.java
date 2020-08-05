@@ -33,8 +33,8 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * @since 3.2
  */
 public final class CsrfRequestDataValueProcessor implements RequestDataValueProcessor {
-	private Pattern DISABLE_CSRF_TOKEN_PATTERN = Pattern
-			.compile("(?i)^(GET|HEAD|TRACE|OPTIONS)$");
+
+	private Pattern DISABLE_CSRF_TOKEN_PATTERN = Pattern.compile("(?i)^(GET|HEAD|TRACE|OPTIONS)$");
 
 	private String DISABLE_CSRF_TOKEN_ATTR = "DISABLE_CSRF_TOKEN_ATTR";
 
@@ -52,8 +52,7 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 		return action;
 	}
 
-	public String processFormFieldValue(HttpServletRequest request, String name,
-			String value, String type) {
+	public String processFormFieldValue(HttpServletRequest request, String name, String value, String type) {
 		return value;
 	}
 
@@ -75,4 +74,5 @@ public final class CsrfRequestDataValueProcessor implements RequestDataValueProc
 	public String processUrl(HttpServletRequest request, String url) {
 		return url;
 	}
+
 }

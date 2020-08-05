@@ -36,31 +36,27 @@ import java.util.List;
  * @since 5.0
  */
 public class DelegatingReactiveAuthorizationManager implements ReactiveAuthorizationManager<ServerWebExchange> {
+
 	private static final Log logger = LogFactory.getLog(DelegatingReactiveAuthorizationManager.class);
+
 	private final List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings;
 
-	private DelegatingReactiveAuthorizationManager(List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings) {
+	private DelegatingReactiveAuthorizationManager(
+			List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings) {
 		this.mappings = mappings;
 	}
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
-		return Flux.fromIterable(mappings)
-			.concatMap(mapping -> mapping.getMatcher().matches(exchange)
-				.filter(MatchResult::isMatch)
-				.map(MatchResult::getVariables)
-				.flatMap(variables -> {
+		return Flux.fromIterable(mappings).concatMap(mapping -> mapping.getMatcher().matches(exchange)
+				.filter(MatchResult::isMatch).map(MatchResult::getVariables).flatMap(variables -> {
 					if (logger.isDebugEnabled()) {
-						logger.debug("Checking authorization on '"
-							+ exchange.getRequest().getPath().pathWithinApplication()
-							+ "' using " + mapping.getEntry());
+						logger.debug(
+								"Checking authorization on '" + exchange.getRequest().getPath().pathWithinApplication()
+										+ "' using " + mapping.getEntry());
 					}
-					return mapping.getEntry()
-						.check(authentication, new AuthorizationContext(exchange, variables));
-				})
-			)
-			.next()
-			.defaultIfEmpty(new AuthorizationDecision(false));
+					return mapping.getEntry().check(authentication, new AuthorizationContext(exchange, variables));
+				})).next().defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
 	public static DelegatingReactiveAuthorizationManager.Builder builder() {
@@ -68,12 +64,14 @@ public class DelegatingReactiveAuthorizationManager implements ReactiveAuthoriza
 	}
 
 	public static class Builder {
+
 		private final List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings = new ArrayList<>();
 
 		private Builder() {
 		}
 
-		public DelegatingReactiveAuthorizationManager.Builder add(ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>> entry) {
+		public DelegatingReactiveAuthorizationManager.Builder add(
+				ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>> entry) {
 			this.mappings.add(entry);
 			return this;
 		}
@@ -81,5 +79,7 @@ public class DelegatingReactiveAuthorizationManager implements ReactiveAuthoriza
 		public DelegatingReactiveAuthorizationManager build() {
 			return new DelegatingReactiveAuthorizationManager(mappings);
 		}
+
 	}
+
 }

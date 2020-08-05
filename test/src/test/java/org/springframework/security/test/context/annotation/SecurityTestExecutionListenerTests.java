@@ -39,16 +39,13 @@ public class SecurityTestExecutionListenerTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
 	}
 
-
 	@WithMockUser
 	@Test
 	public void reactorContextTestSecurityContextHolderExecutionListenerTestIsRegistered() {
-		Mono<String> name = ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
-			.map(Principal::getName);
+		Mono<String> name = ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
+				.map(Principal::getName);
 
-		StepVerifier.create(name)
-			.expectNext("user")
-			.verifyComplete();
+		StepVerifier.create(name).expectNext("user").verifyComplete();
 	}
+
 }

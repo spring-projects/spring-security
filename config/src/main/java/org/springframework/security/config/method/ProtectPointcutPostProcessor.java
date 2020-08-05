@@ -59,17 +59,19 @@ import org.springframework.util.StringUtils;
  */
 final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
-	private static final Log logger = LogFactory
-			.getLog(ProtectPointcutPostProcessor.class);
+	private static final Log logger = LogFactory.getLog(ProtectPointcutPostProcessor.class);
 
 	private final Map<String, List<ConfigAttribute>> pointcutMap = new LinkedHashMap<>();
+
 	private final MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
+
 	private final Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<>();
+
 	private final PointcutParser parser;
+
 	private final Set<String> processedBeans = new HashSet<>();
 
-	ProtectPointcutPostProcessor(
-			MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
+	ProtectPointcutPostProcessor(MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
 		Assert.notNull(mapBasedMethodSecurityMetadataSource,
 				"MapBasedMethodSecurityMetadataSource to populate is required");
 		this.mapBasedMethodSecurityMetadataSource = mapBasedMethodSecurityMetadataSource;
@@ -86,17 +88,15 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 		// supportedPrimitives.add(PointcutPrimitive.AT_WITHIN);
 		// supportedPrimitives.add(PointcutPrimitive.AT_ARGS);
 		// supportedPrimitives.add(PointcutPrimitive.AT_TARGET);
-		parser = PointcutParser
-				.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(supportedPrimitives);
+		parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(
+				supportedPrimitives);
 	}
 
-	public Object postProcessAfterInitialization(Object bean, String beanName)
-			throws BeansException {
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
 	}
 
-	public Object postProcessBeforeInitialization(Object bean, String beanName)
-			throws BeansException {
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (processedBeans.contains(beanName)) {
 			// We already have the metadata for this bean
 			return bean;
@@ -136,27 +136,22 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 		return bean;
 	}
 
-	private boolean attemptMatch(Class<?> targetClass, Method method,
-			PointcutExpression expression, String beanName) {
+	private boolean attemptMatch(Class<?> targetClass, Method method, PointcutExpression expression, String beanName) {
 		// Determine if the presented AspectJ pointcut expression matches this method
 		boolean matches = expression.matchesMethodExecution(method).alwaysMatches();
 
 		// Handle accordingly
 		if (matches) {
-			List<ConfigAttribute> attr = pointcutMap.get(expression
-					.getPointcutExpression());
+			List<ConfigAttribute> attr = pointcutMap.get(expression.getPointcutExpression());
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("AspectJ pointcut expression '"
-						+ expression.getPointcutExpression() + "' matches target class '"
-						+ targetClass.getName() + "' (bean ID '" + beanName
-						+ "') for method '" + method
-						+ "'; registering security configuration attribute '" + attr
+				logger.debug("AspectJ pointcut expression '" + expression.getPointcutExpression()
+						+ "' matches target class '" + targetClass.getName() + "' (bean ID '" + beanName
+						+ "') for method '" + method + "'; registering security configuration attribute '" + attr
 						+ "'");
 			}
 
-			mapBasedMethodSecurityMetadataSource.addSecureMethod(targetClass, method,
-					attr);
+			mapBasedMethodSecurityMetadataSource.addSecureMethod(targetClass, method, attr);
 		}
 
 		return matches;
@@ -180,8 +175,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("AspectJ pointcut expression '" + pointcutExpression
-					+ "' registered for security configuration attribute '" + definition
-					+ "'");
+					+ "' registered for security configuration attribute '" + definition + "'");
 		}
 	}
 

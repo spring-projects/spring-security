@@ -31,11 +31,12 @@ import java.util.*;
  * @author Ben Alex
  */
 public class AuthorizationFailureEventTests {
-	private final UsernamePasswordAuthenticationToken foo = new UsernamePasswordAuthenticationToken(
-			"foo", "bar");
+
+	private final UsernamePasswordAuthenticationToken foo = new UsernamePasswordAuthenticationToken("foo", "bar");
+
 	private List<ConfigAttribute> attributes = SecurityConfig.createList("TEST");
-	private AccessDeniedException exception = new AuthorizationServiceException("error",
-			new Throwable());
+
+	private AccessDeniedException exception = new AuthorizationServiceException("error", new Throwable());
 
 	@Test(expected = IllegalArgumentException.class)
 	public void rejectsNullSecureObject() {
@@ -49,8 +50,7 @@ public class AuthorizationFailureEventTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void rejectsNullAuthentication() {
-		new AuthorizationFailureEvent(new SimpleMethodInvocation(), attributes, null,
-				exception);
+		new AuthorizationFailureEvent(new SimpleMethodInvocation(), attributes, null, exception);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -60,10 +60,10 @@ public class AuthorizationFailureEventTests {
 
 	@Test
 	public void gettersReturnCtorSuppliedData() {
-		AuthorizationFailureEvent event = new AuthorizationFailureEvent(new Object(),
-				attributes, foo, exception);
+		AuthorizationFailureEvent event = new AuthorizationFailureEvent(new Object(), attributes, foo, exception);
 		assertThat(event.getConfigAttributes()).isSameAs(attributes);
 		assertThat(event.getAccessDeniedException()).isSameAs(exception);
 		assertThat(event.getAuthentication()).isSameAs(foo);
 	}
+
 }

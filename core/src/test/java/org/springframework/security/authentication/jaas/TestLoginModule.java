@@ -27,11 +27,14 @@ import javax.security.auth.spi.LoginModule;
  * @author Ray Krueger
  */
 public class TestLoginModule implements LoginModule {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private String password;
+
 	private String user;
+
 	private Subject subject;
 
 	// ~ Methods
@@ -46,8 +49,7 @@ public class TestLoginModule implements LoginModule {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void initialize(Subject subject, CallbackHandler callbackHandler,
-			Map sharedState, Map options) {
+	public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
 		this.subject = subject;
 
 		try {
@@ -55,8 +57,7 @@ public class TestLoginModule implements LoginModule {
 			NameCallback nameCallback = new NameCallback("prompt");
 			PasswordCallback passwordCallback = new PasswordCallback("prompt", false);
 
-			callbackHandler.handle(new Callback[] { textCallback, nameCallback,
-					passwordCallback });
+			callbackHandler.handle(new Callback[] { textCallback, nameCallback, passwordCallback });
 
 			password = new String(passwordCallback.getPassword());
 			user = nameCallback.getName();
@@ -85,4 +86,5 @@ public class TestLoginModule implements LoginModule {
 	public boolean logout() {
 		return true;
 	}
+
 }

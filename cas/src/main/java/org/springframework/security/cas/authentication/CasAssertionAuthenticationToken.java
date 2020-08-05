@@ -53,4 +53,5 @@ public final class CasAssertionAuthenticationToken extends AbstractAuthenticatio
 	public Assertion getAssertion() {
 		return this.assertion;
 	}
+
 }

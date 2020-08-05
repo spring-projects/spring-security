@@ -32,7 +32,9 @@ import static org.springframework.security.oauth2.core.endpoint.TestOAuth2Author
  * @author Joe Grandja
  */
 public class OAuth2AuthorizationCodeGrantRequestTests {
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AuthorizationExchange authorizationExchange;
 
 	@Before
@@ -53,11 +55,12 @@ public class OAuth2AuthorizationCodeGrantRequestTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest =
-			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange);
+		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = new OAuth2AuthorizationCodeGrantRequest(
+				this.clientRegistration, this.authorizationExchange);
 
 		assertThat(authorizationCodeGrantRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationCodeGrantRequest.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authorizationCodeGrantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
+
 }

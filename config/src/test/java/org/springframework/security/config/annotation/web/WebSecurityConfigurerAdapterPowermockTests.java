@@ -53,14 +53,15 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ SpringFactoriesLoader.class, WebAsyncManager.class })
-@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*", "javax.xml.transform.*" })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*",
+		"javax.xml.transform.*" })
 public class WebSecurityConfigurerAdapterPowermockTests {
+
 	ConfigurableWebApplicationContext context;
 
 	@Rule
@@ -80,9 +81,8 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 	public void loadConfigWhenDefaultConfigurerAsSpringFactoryhenDefaultConfigurerApplied() {
 		spy(SpringFactoriesLoader.class);
 		DefaultConfigurer configurer = new DefaultConfigurer();
-		when(SpringFactoriesLoader
-				.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
-			.thenReturn(Arrays.<AbstractHttpConfigurer>asList(configurer));
+		when(SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
+				.thenReturn(Arrays.<AbstractHttpConfigurer>asList(configurer));
 
 		loadConfig(Config.class);
 
@@ -100,13 +100,17 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
+
 	}
 
 	static class DefaultConfigurer extends AbstractHttpConfigurer<DefaultConfigurer, HttpSecurity> {
+
 		boolean init;
+
 		boolean configure;
 
 		@Override
@@ -118,6 +122,7 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 		public void configure(HttpSecurity builder) {
 			this.configure = true;
 		}
+
 	}
 
 	@Test
@@ -128,15 +133,15 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 
 		this.mockMvc.perform(get("/").requestAttr(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE, webAsyncManager));
 
-		ArgumentCaptor<CallableProcessingInterceptor> callableProcessingInterceptorArgCaptor =
-				ArgumentCaptor.forClass(CallableProcessingInterceptor.class);
-		verify(webAsyncManager, atLeastOnce()).registerCallableInterceptor(any(), callableProcessingInterceptorArgCaptor.capture());
+		ArgumentCaptor<CallableProcessingInterceptor> callableProcessingInterceptorArgCaptor = ArgumentCaptor
+				.forClass(CallableProcessingInterceptor.class);
+		verify(webAsyncManager, atLeastOnce()).registerCallableInterceptor(any(),
+				callableProcessingInterceptorArgCaptor.capture());
 
-		CallableProcessingInterceptor callableProcessingInterceptor =
-				callableProcessingInterceptorArgCaptor.getAllValues().stream()
-						.filter(e -> SecurityContextCallableProcessingInterceptor.class.isAssignableFrom(e.getClass()))
-						.findFirst()
-						.orElse(null);
+		CallableProcessingInterceptor callableProcessingInterceptor = callableProcessingInterceptorArgCaptor
+				.getAllValues().stream()
+				.filter(e -> SecurityContextCallableProcessingInterceptor.class.isAssignableFrom(e.getClass()))
+				.findFirst().orElse(null);
 
 		assertThat(callableProcessingInterceptor).isNotNull();
 	}
@@ -156,5 +161,7 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
+
 	}
+
 }

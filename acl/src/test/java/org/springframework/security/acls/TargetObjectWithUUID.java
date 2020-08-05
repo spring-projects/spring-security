@@ -33,4 +33,5 @@ public final class TargetObjectWithUUID {
 	public void setId(UUID id) {
 		this.id = id;
 	}
+
 }

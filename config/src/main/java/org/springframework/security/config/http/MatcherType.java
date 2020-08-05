@@ -34,8 +34,9 @@ import org.w3c.dom.Element;
  * @since 3.1
  */
 public enum MatcherType {
-	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(
-			RegexRequestMatcher.class), mvc(MvcRequestMatcher.class);
+
+	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(RegexRequestMatcher.class), mvc(
+			MvcRequestMatcher.class);
 
 	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
 
@@ -56,8 +57,7 @@ public enum MatcherType {
 			return new RootBeanDefinition(AnyRequestMatcher.class);
 		}
 
-		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder
-				.rootBeanDefinition(type);
+		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(type);
 
 		if (this == mvc) {
 			matcherBldr.addConstructorArgValue(new RootBeanDefinition(HandlerMappingIntrospectorFactoryBean.class));
@@ -86,4 +86,5 @@ public enum MatcherType {
 
 		return ant;
 	}
+
 }

@@ -26,12 +26,10 @@ import static org.springframework.security.oauth2.core.oidc.OidcIdToken.withToke
  * @author Josh Cummings
  */
 public class TestOidcIdTokens {
+
 	public static OidcIdToken.Builder idToken() {
-		return withTokenValue("id-token")
-				.issuer("https://example.com")
-				.subject("subject")
-				.issuedAt(Instant.now())
-				.expiresAt(Instant.now().plusSeconds(86400))
-				.claim("id", "id");
+		return withTokenValue("id-token").issuer("https://example.com").subject("subject").issuedAt(Instant.now())
+				.expiresAt(Instant.now().plusSeconds(86400)).claim("id", "id");
 	}
+
 }

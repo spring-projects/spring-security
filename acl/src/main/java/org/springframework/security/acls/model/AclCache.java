@@ -26,6 +26,7 @@ import java.io.Serializable;
  *
  */
 public interface AclCache {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -40,4 +41,5 @@ public interface AclCache {
 	void putInCache(MutableAcl acl);
 
 	void clearCache();
+
 }

@@ -47,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  */
 public class NamespaceHttpHeadersTests {
+
 	static final Map<String, String> defaultHeaders = new LinkedHashMap<>();
 
 	static {
@@ -69,12 +70,12 @@ public class NamespaceHttpHeadersTests {
 	public void secureRequestWhenDefaultConfigThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HeadersDefaultConfig.class).autowire();
 
-		this.mvc.perform(get("/").secure(true))
-				.andExpect(includesDefaults());
+		this.mvc.perform(get("/").secure(true)).andExpect(includesDefaults());
 	}
 
 	@EnableWebSecurity
 	static class HeadersDefaultConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -82,18 +83,19 @@ public class NamespaceHttpHeadersTests {
 				.headers();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void secureRequestWhenCacheControlOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HeadersCacheControlConfig.class).autowire();
 
-		this.mvc.perform(get("/").secure(true))
-				.andExpect(includes("Cache-Control", "Expires", "Pragma"));
+		this.mvc.perform(get("/").secure(true)).andExpect(includes("Cache-Control", "Expires", "Pragma"));
 	}
 
 	@EnableWebSecurity
 	static class HeadersCacheControlConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -103,18 +105,19 @@ public class NamespaceHttpHeadersTests {
 					.cacheControl();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void secureRequestWhenHstsOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HstsConfig.class).autowire();
 
-		this.mvc.perform(get("/").secure(true))
-				.andExpect(includes("Strict-Transport-Security"));
+		this.mvc.perform(get("/").secure(true)).andExpect(includes("Strict-Transport-Security"));
 	}
 
 	@EnableWebSecurity
 	static class HstsConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -124,6 +127,7 @@ public class NamespaceHttpHeadersTests {
 					.httpStrictTransportSecurity();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -136,6 +140,7 @@ public class NamespaceHttpHeadersTests {
 
 	@EnableWebSecurity
 	static class HstsCustomConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -149,18 +154,19 @@ public class NamespaceHttpHeadersTests {
 						.includeSubDomains(false);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenFrameOptionsSameOriginThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(FrameOptionsSameOriginConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(includes(Collections.singletonMap("X-Frame-Options", "SAMEORIGIN")));
+		this.mvc.perform(get("/")).andExpect(includes(Collections.singletonMap("X-Frame-Options", "SAMEORIGIN")));
 	}
 
 	@EnableWebSecurity
 	static class FrameOptionsSameOriginConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -172,9 +178,11 @@ public class NamespaceHttpHeadersTests {
 						.sameOrigin();
 			// @formatter:on
 		}
+
 	}
 
-	// frame-options@strategy, frame-options@value, frame-options@parameter are not provided instead use frame-options@ref
+	// frame-options@strategy, frame-options@value, frame-options@parameter are not
+	// provided instead use frame-options@ref
 
 	@Test
 	public void requestWhenFrameOptionsAllowFromThenBehaviorMatchesNamespace() throws Exception {
@@ -186,6 +194,7 @@ public class NamespaceHttpHeadersTests {
 
 	@EnableWebSecurity
 	static class FrameOptionsAllowFromConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -197,18 +206,19 @@ public class NamespaceHttpHeadersTests {
 							new StaticAllowFromStrategy(URI.create("https://example.com"))));
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenXssOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(XssProtectionConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(includes("X-XSS-Protection"));
+		this.mvc.perform(get("/")).andExpect(includes("X-XSS-Protection"));
 	}
 
 	@EnableWebSecurity
 	static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -219,18 +229,19 @@ public class NamespaceHttpHeadersTests {
 					.xssProtection();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenXssCustomThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(XssProtectionCustomConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(includes(Collections.singletonMap("X-XSS-Protection", "1")));
+		this.mvc.perform(get("/")).andExpect(includes(Collections.singletonMap("X-XSS-Protection", "1")));
 	}
 
 	@EnableWebSecurity
 	static class XssProtectionCustomConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -243,18 +254,19 @@ public class NamespaceHttpHeadersTests {
 						.block(false);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenXContentTypeOptionsOnlyThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(ContentTypeOptionsConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(includes("X-Content-Type-Options"));
+		this.mvc.perform(get("/")).andExpect(includes("X-Content-Type-Options"));
 	}
 
 	@EnableWebSecurity
 	static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -265,6 +277,7 @@ public class NamespaceHttpHeadersTests {
 					.contentTypeOptions();
 			// @formatter:on
 		}
+
 	}
 
 	// header@name / header@value are not provided instead use header@ref
@@ -279,6 +292,7 @@ public class NamespaceHttpHeadersTests {
 
 	@EnableWebSecurity
 	static class HeaderRefConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -288,6 +302,7 @@ public class NamespaceHttpHeadersTests {
 					.addHeaderWriter(new StaticHeadersWriter("customHeaderName", "customHeaderValue"));
 			// @formatter:on
 		}
+
 	}
 
 	private static ResultMatcher includesDefaults() {
@@ -310,4 +325,5 @@ public class NamespaceHttpHeadersTests {
 			}
 		};
 	}
+
 }

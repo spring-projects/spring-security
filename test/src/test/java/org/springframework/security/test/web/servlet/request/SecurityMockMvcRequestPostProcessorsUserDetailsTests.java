@@ -45,10 +45,13 @@ import org.springframework.security.web.context.SecurityContextRepository;
 
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(WebTestUtils.class)
-@PowerMockIgnore({"javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*"})
+@PowerMockIgnore({ "javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*",
+		"javax.xml.parsers.*" })
 public class SecurityMockMvcRequestPostProcessorsUserDetailsTests {
+
 	@Captor
 	private ArgumentCaptor<SecurityContext> contextCaptor;
+
 	@Mock
 	private SecurityContextRepository repository;
 
@@ -72,11 +75,9 @@ public class SecurityMockMvcRequestPostProcessorsUserDetailsTests {
 	public void userDetails() {
 		user(userDetails).postProcessRequest(request);
 
-		verify(repository).saveContext(contextCaptor.capture(), eq(request),
-				any(HttpServletResponse.class));
+		verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
 		SecurityContext context = contextCaptor.getValue();
-		assertThat(context.getAuthentication()).isInstanceOf(
-				UsernamePasswordAuthenticationToken.class);
+		assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(context.getAuthentication().getPrincipal()).isSameAs(userDetails);
 	}
 
@@ -84,4 +85,5 @@ public class SecurityMockMvcRequestPostProcessorsUserDetailsTests {
 		spy(WebTestUtils.class);
 		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
 	}
+
 }

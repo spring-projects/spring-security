@@ -27,8 +27,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class NullRequestCache implements RequestCache {
 
-	public SavedRequest getRequest(HttpServletRequest request,
-			HttpServletResponse response) {
+	public SavedRequest getRequest(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 
@@ -39,8 +38,7 @@ public class NullRequestCache implements RequestCache {
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 	}
 
-	public HttpServletRequest getMatchingRequest(HttpServletRequest request,
-			HttpServletResponse response) {
+	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 

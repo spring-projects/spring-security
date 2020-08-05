@@ -31,9 +31,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 /**
- * A {@link Converter} that converts the provided {@link OAuth2PasswordGrantRequest}
- * to a {@link RequestEntity} representation of an OAuth 2.0 Access Token Request
- * for the Resource Owner Password Credentials Grant.
+ * A {@link Converter} that converts the provided {@link OAuth2PasswordGrantRequest} to a
+ * {@link RequestEntity} representation of an OAuth 2.0 Access Token Request for the
+ * Resource Owner Password Credentials Grant.
  *
  * @author Joe Grandja
  * @since 5.2
@@ -41,11 +41,11 @@ import java.net.URI;
  * @see OAuth2PasswordGrantRequest
  * @see RequestEntity
  */
-public class OAuth2PasswordGrantRequestEntityConverter implements Converter<OAuth2PasswordGrantRequest, RequestEntity<?>> {
+public class OAuth2PasswordGrantRequestEntityConverter
+		implements Converter<OAuth2PasswordGrantRequest, RequestEntity<?>> {
 
 	/**
 	 * Returns the {@link RequestEntity} used for the Access Token Request.
-	 *
 	 * @param passwordGrantRequest the password grant request
 	 * @return the {@link RequestEntity} used for the Access Token Request
 	 */
@@ -55,18 +55,18 @@ public class OAuth2PasswordGrantRequestEntityConverter implements Converter<OAut
 
 		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
 		MultiValueMap<String, String> formParameters = buildFormParameters(passwordGrantRequest);
-		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri())
-				.build()
+		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri()).build()
 				.toUri();
 
 		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
 	}
 
 	/**
-	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token Request body.
-	 *
+	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token
+	 * Request body.
 	 * @param passwordGrantRequest the password grant request
-	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token Request body
+	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token
+	 * Request body
 	 */
 	private MultiValueMap<String, String> buildFormParameters(OAuth2PasswordGrantRequest passwordGrantRequest) {
 		ClientRegistration clientRegistration = passwordGrantRequest.getClientRegistration();
@@ -86,4 +86,5 @@ public class OAuth2PasswordGrantRequestEntityConverter implements Converter<OAut
 
 		return formParameters;
 	}
+
 }

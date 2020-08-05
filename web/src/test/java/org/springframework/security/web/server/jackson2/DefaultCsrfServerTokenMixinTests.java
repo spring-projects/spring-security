@@ -70,4 +70,5 @@ public class DefaultCsrfServerTokenMixinTests extends AbstractMixinTests {
 		String tokenJson = "{\"@class\": \"org.springframework.security.web.server.csrf.DefaultCsrfToken\", \"headerName\": \"\", \"parameterName\": null, \"token\": \"1\"}";
 		mapper.readValue(tokenJson, DefaultCsrfToken.class);
 	}
+
 }

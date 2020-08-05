@@ -46,6 +46,7 @@ import java.util.Collections;
  * @since 5.0
  */
 public class WebSessionServerRequestCache implements ServerRequestCache {
+
 	private static final String DEFAULT_SAVED_REQUEST_ATTR = "SPRING_SECURITY_SAVED_REQUEST";
 
 	private static final Log logger = LogFactory.getLog(WebSessionServerRequestCache.class);
@@ -55,9 +56,8 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	private ServerWebExchangeMatcher saveRequestMatcher = createDefaultRequestMacher();
 
 	/**
-	 * Sets the matcher to determine if the request should be saved. The default is to match
-	 * on any GET request.
-	 *
+	 * Sets the matcher to determine if the request should be saved. The default is to
+	 * match on any GET request.
 	 * @param saveRequestMatcher
 	 */
 	public void setSaveRequestMatcher(ServerWebExchangeMatcher saveRequestMatcher) {
@@ -67,43 +67,35 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 
 	@Override
 	public Mono<Void> saveRequest(ServerWebExchange exchange) {
-		return this.saveRequestMatcher.matches(exchange)
-			.filter(MatchResult::isMatch)
-			.flatMap(m -> exchange.getSession())
-			.map(WebSession::getAttributes)
-			.doOnNext(attrs -> {
-				String requestPath = pathInApplication(exchange.getRequest());
-				attrs.put(this.sessionAttrName, requestPath);
-				if (logger.isDebugEnabled()) {
-					logger.debug("Request added to WebSession: '" + requestPath + "'");
-				}
-			})
-			.then();
+		return this.saveRequestMatcher.matches(exchange).filter(MatchResult::isMatch)
+				.flatMap(m -> exchange.getSession()).map(WebSession::getAttributes).doOnNext(attrs -> {
+					String requestPath = pathInApplication(exchange.getRequest());
+					attrs.put(this.sessionAttrName, requestPath);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Request added to WebSession: '" + requestPath + "'");
+					}
+				}).then();
 	}
 
 	@Override
 	public Mono<URI> getRedirectUri(ServerWebExchange exchange) {
 		return exchange.getSession()
-			.flatMap(session -> Mono.justOrEmpty(session.<String>getAttribute(this.sessionAttrName)))
-			.map(URI::create);
+				.flatMap(session -> Mono.justOrEmpty(session.<String>getAttribute(this.sessionAttrName)))
+				.map(URI::create);
 	}
 
 	@Override
-	public Mono<ServerHttpRequest> removeMatchingRequest(
-		ServerWebExchange exchange) {
-		return exchange.getSession()
-			.map(WebSession::getAttributes)
-			.filter(attributes -> {
-				String requestPath = pathInApplication(exchange.getRequest());
-				boolean removed = attributes.remove(this.sessionAttrName, requestPath);
-				if (removed) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Request removed from WebSession: '" + requestPath + "'");
-					}
+	public Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange) {
+		return exchange.getSession().map(WebSession::getAttributes).filter(attributes -> {
+			String requestPath = pathInApplication(exchange.getRequest());
+			boolean removed = attributes.remove(this.sessionAttrName, requestPath);
+			if (removed) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Request removed from WebSession: '" + requestPath + "'");
 				}
-				return removed;
-			})
-			.map(attributes -> exchange.getRequest());
+			}
+			return removed;
+		}).map(attributes -> exchange.getRequest());
 	}
 
 	private static String pathInApplication(ServerHttpRequest request) {
@@ -114,9 +106,11 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 
 	private static ServerWebExchangeMatcher createDefaultRequestMacher() {
 		ServerWebExchangeMatcher get = ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/**");
-		ServerWebExchangeMatcher notFavicon = new NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/favicon.*"));
+		ServerWebExchangeMatcher notFavicon = new NegatedServerWebExchangeMatcher(
+				ServerWebExchangeMatchers.pathMatchers("/favicon.*"));
 		MediaTypeServerWebExchangeMatcher html = new MediaTypeServerWebExchangeMatcher(MediaType.TEXT_HTML);
 		html.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		return new AndServerWebExchangeMatcher(get, notFavicon, html);
 	}
+
 }

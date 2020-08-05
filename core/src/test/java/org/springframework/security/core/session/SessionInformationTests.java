@@ -37,8 +37,7 @@ public class SessionInformationTests {
 		String sessionId = "1234567890";
 		Date currentDate = new Date();
 
-		SessionInformation info = new SessionInformation(principal, sessionId,
-				currentDate);
+		SessionInformation info = new SessionInformation(principal, sessionId, currentDate);
 		assertThat(info.getPrincipal()).isEqualTo(principal);
 		assertThat(info.getSessionId()).isEqualTo(sessionId);
 		assertThat(info.getLastRequest()).isEqualTo(currentDate);
@@ -49,4 +48,5 @@ public class SessionInformationTests {
 
 		assertThat(info.getLastRequest().after(currentDate)).isTrue();
 	}
+
 }

@@ -71,8 +71,7 @@ public class OpenIDLoginConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(OpenIDAuthenticationFilter.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(OpenIDAuthenticationFilter.class));
 	}
 
 	@Test
@@ -80,12 +79,12 @@ public class OpenIDLoginConfigurerTests {
 		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(OpenIDAuthenticationProvider.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(OpenIDAuthenticationProvider.class));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor;
 
 		@Override
@@ -100,21 +99,23 @@ public class OpenIDLoginConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
 
 	@Test
 	public void openidLoginWhenInvokedTwiceThenUsesOriginalLoginPage() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverrideConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().isFound())
+		this.mvc.perform(get("/")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login/custom"));
 	}
 
@@ -142,19 +143,20 @@ public class OpenIDLoginConfigurerTests {
 				.openidLogin();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void requestWhenOpenIdLoginPageInLambdaThenRedirectsToLoginPAge() throws Exception {
 		this.spring.register(OpenIdLoginPageInLambdaConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(status().isFound())
+		this.mvc.perform(get("/")).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login/custom"));
 	}
 
 	@EnableWebSecurity
 	static class OpenIdLoginPageInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -169,6 +171,7 @@ public class OpenIDLoginConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -177,43 +180,41 @@ public class OpenIDLoginConfigurerTests {
 		AuthRequest mockAuthRequest = mock(AuthRequest.class);
 		DiscoveryInformation mockDiscoveryInformation = mock(DiscoveryInformation.class);
 		when(mockAuthRequest.getDestinationUrl(anyBoolean())).thenReturn("mockUrl");
-		when(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.associate(any()))
-				.thenReturn(mockDiscoveryInformation);
-		when(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(), any()))
-				.thenReturn(mockAuthRequest);
+		when(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.associate(any())).thenReturn(mockDiscoveryInformation);
+		when(OpenIdAttributesInLambdaConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
+				any())).thenReturn(mockAuthRequest);
 		this.spring.register(OpenIdAttributesInLambdaConfig.class).autowire();
 
-		try ( MockWebServer server = new MockWebServer() ) {
+		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
 
-			server.enqueue(new MockResponse()
-					.addHeader(YADIS_XRDS_LOCATION, endpoint));
+			server.enqueue(new MockResponse().addHeader(YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
 
-			MvcResult mvcResult = this.mvc.perform(get("/login/openid")
-					.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
-					.andExpect(status().isFound())
-					.andReturn();
+			MvcResult mvcResult = this.mvc.perform(
+					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
+					.andExpect(status().isFound()).andReturn();
 
-			Object attributeObject = mvcResult.getRequest().getSession().getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
+			Object attributeObject = mvcResult.getRequest().getSession()
+					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);
 			List<OpenIDAttribute> attributeList = (List<OpenIDAttribute>) attributeObject;
-			assertThat(attributeList.stream().anyMatch(attribute ->
-					"nickname".equals(attribute.getName())
-							&& "https://schema.openid.net/namePerson/friendly".equals(attribute.getType())))
-					.isTrue();
-			assertThat(attributeList.stream().anyMatch(attribute ->
-					"email".equals(attribute.getName())
+			assertThat(
+					attributeList.stream()
+							.anyMatch(attribute -> "nickname".equals(attribute.getName())
+									&& "https://schema.openid.net/namePerson/friendly".equals(attribute.getType())))
+											.isTrue();
+			assertThat(attributeList.stream()
+					.anyMatch(attribute -> "email".equals(attribute.getName())
 							&& "https://schema.openid.net/contact/email".equals(attribute.getType())
-							&& attribute.isRequired()
-							&& attribute.getCount() == 2))
-					.isTrue();
+							&& attribute.isRequired() && attribute.getCount() == 2)).isTrue();
 		}
 	}
 
 	@EnableWebSecurity
 	static class OpenIdAttributesInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		static ConsumerManager CONSUMER_MANAGER;
 
 		@Override
@@ -246,35 +247,33 @@ public class OpenIDLoginConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
-	public void requestWhenAttributeNameNotSpecifiedThenAttributeNameDefaulted()
-			throws Exception {
+	public void requestWhenAttributeNameNotSpecifiedThenAttributeNameDefaulted() throws Exception {
 		OpenIdAttributesNullNameConfig.CONSUMER_MANAGER = mock(ConsumerManager.class);
 		AuthRequest mockAuthRequest = mock(AuthRequest.class);
 		DiscoveryInformation mockDiscoveryInformation = mock(DiscoveryInformation.class);
 		when(mockAuthRequest.getDestinationUrl(anyBoolean())).thenReturn("mockUrl");
-		when(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.associate(any()))
-				.thenReturn(mockDiscoveryInformation);
-		when(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(), any()))
-				.thenReturn(mockAuthRequest);
+		when(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.associate(any())).thenReturn(mockDiscoveryInformation);
+		when(OpenIdAttributesNullNameConfig.CONSUMER_MANAGER.authenticate(any(DiscoveryInformation.class), any(),
+				any())).thenReturn(mockAuthRequest);
 		this.spring.register(OpenIdAttributesNullNameConfig.class).autowire();
 
-		try ( MockWebServer server = new MockWebServer() ) {
+		try (MockWebServer server = new MockWebServer()) {
 			String endpoint = server.url("/").toString();
 
-			server.enqueue(new MockResponse()
-					.addHeader(YADIS_XRDS_LOCATION, endpoint));
+			server.enqueue(new MockResponse().addHeader(YADIS_XRDS_LOCATION, endpoint));
 			server.enqueue(new MockResponse()
 					.setBody(String.format("<XRDS><XRD><Service><URI>%s</URI></Service></XRD></XRDS>", endpoint)));
 
-			MvcResult mvcResult = this.mvc.perform(get("/login/openid")
-					.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
-					.andExpect(status().isFound())
-					.andReturn();
+			MvcResult mvcResult = this.mvc.perform(
+					get("/login/openid").param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, endpoint))
+					.andExpect(status().isFound()).andReturn();
 
-			Object attributeObject = mvcResult.getRequest().getSession().getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
+			Object attributeObject = mvcResult.getRequest().getSession()
+					.getAttribute("SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST");
 			assertThat(attributeObject).isInstanceOf(List.class);
 			List<OpenIDAttribute> attributeList = (List<OpenIDAttribute>) attributeObject;
 			assertThat(attributeList).hasSize(1);
@@ -284,6 +283,7 @@ public class OpenIDLoginConfigurerTests {
 
 	@EnableWebSecurity
 	static class OpenIdAttributesNullNameConfig extends WebSecurityConfigurerAdapter {
+
 		static ConsumerManager CONSUMER_MANAGER;
 
 		@Override
@@ -305,5 +305,7 @@ public class OpenIDLoginConfigurerTests {
 				);
 			// @formatter:on
 		}
+
 	}
+
 }

@@ -47,8 +47,7 @@ public class ELRequestMatcherTests {
 
 	@Test
 	public void testHasHeaderTrue() {
-		ELRequestMatcher requestMatcher = new ELRequestMatcher(
-				"hasHeader('User-Agent','MSIE')");
+		ELRequestMatcher requestMatcher = new ELRequestMatcher("hasHeader('User-Agent','MSIE')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("User-Agent", "MSIE");
 
@@ -73,8 +72,7 @@ public class ELRequestMatcherTests {
 
 	@Test
 	public void testHasHeaderFalse() {
-		ELRequestMatcher requestMatcher = new ELRequestMatcher(
-				"hasHeader('User-Agent','MSIE')");
+		ELRequestMatcher requestMatcher = new ELRequestMatcher("hasHeader('User-Agent','MSIE')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("User-Agent", "wrong");
 
@@ -83,8 +81,7 @@ public class ELRequestMatcherTests {
 
 	@Test
 	public void testHasHeaderNull() {
-		ELRequestMatcher requestMatcher = new ELRequestMatcher(
-				"hasHeader('User-Agent','MSIE')");
+		ELRequestMatcher requestMatcher = new ELRequestMatcher("hasHeader('User-Agent','MSIE')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
 		assertThat(requestMatcher.matches(request)).isFalse();
@@ -92,8 +89,8 @@ public class ELRequestMatcherTests {
 
 	@Test
 	public void toStringThenFormatted() {
-		ELRequestMatcher requestMatcher = new ELRequestMatcher(
-				"hasHeader('User-Agent','MSIE')");
+		ELRequestMatcher requestMatcher = new ELRequestMatcher("hasHeader('User-Agent','MSIE')");
 		assertThat(requestMatcher.toString()).isEqualTo("EL [el=\"hasHeader('User-Agent','MSIE')\"]");
 	}
+
 }

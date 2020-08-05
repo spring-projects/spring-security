@@ -48,27 +48,44 @@ import javax.servlet.http.HttpSession;
  * @since 2.0
  */
 public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
-	public static final String DEFAULT_LOGIN_PAGE_URL = "/login";
-	public static final String ERROR_PARAMETER_NAME = "error";
-	private String loginPageUrl;
-	private String logoutSuccessUrl;
-	private String failureUrl;
-	private boolean formLoginEnabled;
-	private boolean openIdEnabled;
-	private boolean oauth2LoginEnabled;
-	private boolean saml2LoginEnabled;
-	private String authenticationUrl;
-	private String usernameParameter;
-	private String passwordParameter;
-	private String rememberMeParameter;
-	private String openIDauthenticationUrl;
-	private String openIDusernameParameter;
-	private String openIDrememberMeParameter;
-	private Map<String, String> oauth2AuthenticationUrlToClientName;
-	private Map<String, String> saml2AuthenticationUrlToProviderName;
-	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = request -> Collections
-		.emptyMap();
 
+	public static final String DEFAULT_LOGIN_PAGE_URL = "/login";
+
+	public static final String ERROR_PARAMETER_NAME = "error";
+
+	private String loginPageUrl;
+
+	private String logoutSuccessUrl;
+
+	private String failureUrl;
+
+	private boolean formLoginEnabled;
+
+	private boolean openIdEnabled;
+
+	private boolean oauth2LoginEnabled;
+
+	private boolean saml2LoginEnabled;
+
+	private String authenticationUrl;
+
+	private String usernameParameter;
+
+	private String passwordParameter;
+
+	private String rememberMeParameter;
+
+	private String openIDauthenticationUrl;
+
+	private String openIDusernameParameter;
+
+	private String openIDrememberMeParameter;
+
+	private Map<String, String> oauth2AuthenticationUrlToClientName;
+
+	private Map<String, String> saml2AuthenticationUrlToProviderName;
+
+	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = request -> Collections.emptyMap();
 
 	public DefaultLoginPageGeneratingFilter() {
 	}
@@ -82,8 +99,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		}
 	}
 
-	public DefaultLoginPageGeneratingFilter(
-			UsernamePasswordAuthenticationFilter authFilter,
+	public DefaultLoginPageGeneratingFilter(UsernamePasswordAuthenticationFilter authFilter,
 			AbstractAuthenticationProcessingFilter openIDFilter) {
 		init(authFilter, openIDFilter);
 	}
@@ -99,8 +115,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			passwordParameter = authFilter.getPasswordParameter();
 
 			if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-				rememberMeParameter = ((AbstractRememberMeServices) authFilter
-						.getRememberMeServices()).getParameter();
+				rememberMeParameter = ((AbstractRememberMeServices) authFilter.getRememberMeServices()).getParameter();
 			}
 		}
 
@@ -109,8 +124,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			openIDusernameParameter = "openid_identifier";
 
 			if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-				openIDrememberMeParameter = ((AbstractRememberMeServices) openIDFilter
-						.getRememberMeServices()).getParameter();
+				openIDrememberMeParameter = ((AbstractRememberMeServices) openIDFilter.getRememberMeServices())
+						.getParameter();
 			}
 		}
 	}
@@ -121,8 +136,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	 * to resolve the CSRF token.
 	 * @param resolveHiddenInputs the function to resolve the inputs
 	 */
-	public void setResolveHiddenInputs(
-		Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs) {
+	public void setResolveHiddenInputs(Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs) {
 		Assert.notNull(resolveHiddenInputs, "resolveHiddenInputs cannot be null");
 		this.resolveHiddenInputs = resolveHiddenInputs;
 	}
@@ -204,8 +218,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		boolean loginError = isErrorPage(request);
 		boolean logoutSuccess = isLogoutSuccess(request);
 		if (isLoginUrlRequest(request) || loginError || logoutSuccess) {
-			String loginPageHtml = generateLoginPageHtml(request, loginError,
-					logoutSuccess);
+			String loginPageHtml = generateLoginPageHtml(request, loginError, logoutSuccess);
 			response.setContentType("text/html;charset=UTF-8");
 			response.setContentLength(loginPageHtml.getBytes(StandardCharsets.UTF_8).length);
 			response.getWriter().write(loginPageHtml);
@@ -216,8 +229,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		chain.doFilter(request, response);
 	}
 
-	private String generateLoginPageHtml(HttpServletRequest request, boolean loginError,
-			boolean logoutSuccess) {
+	private String generateLoginPageHtml(HttpServletRequest request, boolean loginError, boolean logoutSuccess) {
 		String errorMsg = "Invalid credentials";
 
 		if (loginError) {
@@ -232,51 +244,40 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("<!DOCTYPE html>\n"
-				+ "<html lang=\"en\">\n"
-				+ "  <head>\n"
-				+ "    <meta charset=\"utf-8\">\n"
+		sb.append("<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n" + "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-				+ "    <meta name=\"description\" content=\"\">\n"
-				+ "    <meta name=\"author\" content=\"\">\n"
+				+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
 				+ "    <title>Please sign in</title>\n"
 				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
 				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
-				+ "  </head>\n"
-				+ "  <body>\n"
-				+ "     <div class=\"container\">\n");
+				+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n");
 
 		String contextPath = request.getContextPath();
 		if (this.formLoginEnabled) {
-			sb.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath + this.authenticationUrl + "\">\n"
+			sb.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath
+					+ this.authenticationUrl + "\">\n"
 					+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-					+ createError(loginError, errorMsg)
-					+ createLogoutSuccess(logoutSuccess)
-					+ "        <p>\n"
+					+ createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n"
 					+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
-					+ "          <input type=\"text\" id=\"username\" name=\"" + this.usernameParameter + "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-					+ "        </p>\n"
-					+ "        <p>\n"
-					+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
-					+ "          <input type=\"password\" id=\"password\" name=\"" + this.passwordParameter + "\" class=\"form-control\" placeholder=\"Password\" required>\n"
-					+ "        </p>\n"
-					+ createRememberMe(this.rememberMeParameter)
-					+ renderHiddenInputs(request)
+					+ "          <input type=\"text\" id=\"username\" name=\"" + this.usernameParameter
+					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" + "        </p>\n"
+					+ "        <p>\n" + "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
+					+ "          <input type=\"password\" id=\"password\" name=\"" + this.passwordParameter
+					+ "\" class=\"form-control\" placeholder=\"Password\" required>\n" + "        </p>\n"
+					+ createRememberMe(this.rememberMeParameter) + renderHiddenInputs(request)
 					+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 					+ "      </form>\n");
 		}
 
 		if (openIdEnabled) {
-			sb.append("      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"" + contextPath + this.openIDauthenticationUrl + "\">\n"
+			sb.append("      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"" + contextPath
+					+ this.openIDauthenticationUrl + "\">\n"
 					+ "        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n"
-					+ createError(loginError, errorMsg)
-					+ createLogoutSuccess(logoutSuccess)
-					+ "        <p>\n"
+					+ createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n"
 					+ "          <label for=\"username\" class=\"sr-only\">Identity</label>\n"
-					+ "          <input type=\"text\" id=\"username\" name=\"" + this.openIDusernameParameter + "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
-					+ "        </p>\n"
-					+ createRememberMe(this.openIDrememberMeParameter)
-					+ renderHiddenInputs(request)
+					+ "          <input type=\"text\" id=\"username\" name=\"" + this.openIDusernameParameter
+					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n" + "        </p>\n"
+					+ createRememberMe(this.openIDrememberMeParameter) + renderHiddenInputs(request)
 					+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 					+ "      </form>\n");
 		}
@@ -286,7 +287,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append(createError(loginError, errorMsg));
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
-			for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName.entrySet()) {
+			for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName
+					.entrySet()) {
 				sb.append(" <tr><td>");
 				String url = clientAuthenticationUrlToClientName.getKey();
 				sb.append("<a href=\"").append(contextPath).append(url).append("\">");
@@ -323,7 +325,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	private String renderHiddenInputs(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, String> input : this.resolveHiddenInputs.apply(request).entrySet()) {
-			sb.append("<input name=\"").append(input.getKey()).append("\" type=\"hidden\" value=\"").append(input.getValue()).append("\" />\n");
+			sb.append("<input name=\"").append(input.getKey()).append("\" type=\"hidden\" value=\"")
+					.append(input.getValue()).append("\" />\n");
 		}
 		return sb.toString();
 	}
@@ -332,9 +335,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		if (paramName == null) {
 			return "";
 		}
-		return "<p><input type='checkbox' name='"
-				+ paramName
-				+ "'/> Remember me on this computer.</p>\n";
+		return "<p><input type='checkbox' name='" + paramName + "'/> Remember me on this computer.</p>\n";
 	}
 
 	private boolean isLogoutSuccess(HttpServletRequest request) {
@@ -350,11 +351,13 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	private static String createError(boolean isError, String message) {
-		return isError ? "<div class=\"alert alert-danger\" role=\"alert\">" + HtmlUtils.htmlEscape(message) + "</div>" : "";
+		return isError ? "<div class=\"alert alert-danger\" role=\"alert\">" + HtmlUtils.htmlEscape(message) + "</div>"
+				: "";
 	}
 
 	private static String createLogoutSuccess(boolean isLogoutSuccess) {
-		return isLogoutSuccess ? "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>" : "";
+		return isLogoutSuccess ? "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>"
+				: "";
 	}
 
 	private boolean matches(HttpServletRequest request, String url) {
@@ -379,4 +382,5 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 		return uri.equals(request.getContextPath() + url);
 	}
+
 }

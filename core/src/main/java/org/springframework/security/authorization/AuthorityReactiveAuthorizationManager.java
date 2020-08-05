@@ -32,6 +32,7 @@ import java.util.List;
  * @param <T> the type of object being authorized
  */
 public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
+
 	private final List<String> authorities;
 
 	private AuthorityReactiveAuthorizationManager(String... authorities) {
@@ -40,19 +41,15 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
-		return authentication
-			.filter(a -> a.isAuthenticated())
-			.flatMapIterable( a -> a.getAuthorities())
-			.map(g -> g.getAuthority())
-			.any(a -> this.authorities.contains(a))
-			.map( hasAuthority -> new AuthorizationDecision(hasAuthority))
-			.defaultIfEmpty(new AuthorizationDecision(false));
+		return authentication.filter(a -> a.isAuthenticated()).flatMapIterable(a -> a.getAuthorities())
+				.map(g -> g.getAuthority()).any(a -> this.authorities.contains(a))
+				.map(hasAuthority -> new AuthorizationDecision(hasAuthority))
+				.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
 	/**
 	 * Creates an instance of {@link AuthorityReactiveAuthorizationManager} with the
 	 * provided authority.
-	 *
 	 * @param authority the authority to check for
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
@@ -83,7 +80,6 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 	/**
 	 * Creates an instance of {@link AuthorityReactiveAuthorizationManager} with the
 	 * provided authority.
-	 *
 	 * @param role the authority to check for prefixed with "ROLE_"
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
@@ -113,9 +109,10 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 
 	private static String[] toNamedRolesArray(String... roles) {
 		String[] result = new String[roles.length];
-		for (int i=0; i < roles.length; i++) {
+		for (int i = 0; i < roles.length; i++) {
 			result[i] = "ROLE_" + roles[i];
 		}
 		return result;
 	}
+
 }

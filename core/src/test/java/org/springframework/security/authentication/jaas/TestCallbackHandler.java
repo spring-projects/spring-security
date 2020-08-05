@@ -28,6 +28,7 @@ import javax.security.auth.callback.TextInputCallback;
  * @author Ray Krueger
  */
 public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -37,4 +38,5 @@ public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
 			tic.setText(auth.getPrincipal().toString());
 		}
 	}
+
 }

@@ -32,33 +32,57 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class OidcIdTokenTests {
+
 	private static final String ISS_CLAIM = "iss";
+
 	private static final String SUB_CLAIM = "sub";
+
 	private static final String AUD_CLAIM = "aud";
+
 	private static final String IAT_CLAIM = "iat";
+
 	private static final String EXP_CLAIM = "exp";
+
 	private static final String AUTH_TIME_CLAIM = "auth_time";
+
 	private static final String NONCE_CLAIM = "nonce";
+
 	private static final String ACR_CLAIM = "acr";
+
 	private static final String AMR_CLAIM = "amr";
+
 	private static final String AZP_CLAIM = "azp";
+
 	private static final String AT_HASH_CLAIM = "at_hash";
+
 	private static final String C_HASH_CLAIM = "c_hash";
 
 	private static final String ISS_VALUE = "https://provider.com";
+
 	private static final String SUB_VALUE = "subject1";
+
 	private static final List<String> AUD_VALUE = Arrays.asList("aud1", "aud2");
+
 	private static final long IAT_VALUE = Instant.now().toEpochMilli();
+
 	private static final long EXP_VALUE = Instant.now().plusSeconds(60).toEpochMilli();
+
 	private static final long AUTH_TIME_VALUE = Instant.now().minusSeconds(5).toEpochMilli();
+
 	private static final String NONCE_VALUE = "nonce";
+
 	private static final String ACR_VALUE = "acr";
+
 	private static final List<String> AMR_VALUE = Arrays.asList("amr1", "amr2");
+
 	private static final String AZP_VALUE = "azp";
+
 	private static final String AT_HASH_VALUE = "at_hash";
+
 	private static final String C_HASH_VALUE = "c_hash";
 
 	private static final Map<String, Object> CLAIMS;
+
 	private static final String ID_TOKEN_VALUE = "id-token-value";
 
 	static {
@@ -84,14 +108,14 @@ public class OidcIdTokenTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClaimsIsEmptyThenThrowIllegalArgumentException() {
-		new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), Collections.emptyMap());
+		new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE),
+				Collections.emptyMap());
 	}
 
 	@Test
 	public void constructorWhenParametersProvidedAndValidThenCreated() {
 		OidcIdToken idToken = new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), CLAIMS);
+				Instant.ofEpochMilli(EXP_VALUE), CLAIMS);
 
 		assertThat(idToken.getClaims()).isEqualTo(CLAIMS);
 		assertThat(idToken.getTokenValue()).isEqualTo(ID_TOKEN_VALUE);
@@ -108,4 +132,5 @@ public class OidcIdTokenTests {
 		assertThat(idToken.getAccessTokenHash()).isEqualTo(AT_HASH_VALUE);
 		assertThat(idToken.getAuthorizationCodeHash()).isEqualTo(C_HASH_VALUE);
 	}
+
 }

@@ -41,4 +41,5 @@ public class LdapAuthenticationProviderConfigurerTests {
 		assertThat(configurer.getAuthoritiesMapper()).isInstanceOf(NullAuthoritiesMapper.class);
 
 	}
+
 }

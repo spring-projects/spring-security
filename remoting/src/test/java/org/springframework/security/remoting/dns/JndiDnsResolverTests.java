@@ -30,14 +30,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
  * @author Mike Wiesner
  * @since 3.0
  */
 public class JndiDnsResolverTests {
 
 	private JndiDnsResolver dnsResolver;
+
 	private InitialContextFactory contextFactory;
+
 	private DirContext context;
 
 	@Before
@@ -53,8 +54,7 @@ public class JndiDnsResolverTests {
 	public void testResolveIpAddress() throws Exception {
 		Attributes records = new BasicAttributes("A", "63.246.7.80");
 
-		when(context.getAttributes("www.springsource.com", new String[] { "A" }))
-				.thenReturn(records);
+		when(context.getAttributes("www.springsource.com", new String[] { "A" })).thenReturn(records);
 
 		String ipAddress = dnsResolver.resolveIpAddress("www.springsource.com");
 		assertThat(ipAddress).isEqualTo("63.246.7.80");
@@ -62,8 +62,8 @@ public class JndiDnsResolverTests {
 
 	@Test(expected = DnsEntryNotFoundException.class)
 	public void testResolveIpAddressNotExisting() throws Exception {
-		when(context.getAttributes(any(String.class), any(String[].class))).thenThrow(
-				new NameNotFoundException("not found"));
+		when(context.getAttributes(any(String.class), any(String[].class)))
+				.thenThrow(new NameNotFoundException("not found"));
 
 		dnsResolver.resolveIpAddress("notexisting.ansdansdugiuzgguzgioansdiandwq.foo");
 	}
@@ -72,8 +72,7 @@ public class JndiDnsResolverTests {
 	public void testResolveServiceEntry() throws Exception {
 		BasicAttributes records = createSrvRecords();
 
-		when(context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" }))
-				.thenReturn(records);
+		when(context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" })).thenReturn(records);
 
 		String hostname = dnsResolver.resolveServiceEntry("ldap", "springsource.com");
 		assertThat(hostname).isEqualTo("kdc.springsource.com");
@@ -81,8 +80,8 @@ public class JndiDnsResolverTests {
 
 	@Test(expected = DnsEntryNotFoundException.class)
 	public void testResolveServiceEntryNotExisting() throws Exception {
-		when(context.getAttributes(any(String.class), any(String[].class))).thenThrow(
-				new NameNotFoundException("not found"));
+		when(context.getAttributes(any(String.class), any(String[].class)))
+				.thenThrow(new NameNotFoundException("not found"));
 
 		dnsResolver.resolveServiceEntry("wrong", "secpod.de");
 	}
@@ -91,20 +90,16 @@ public class JndiDnsResolverTests {
 	public void testResolveServiceIpAddress() throws Exception {
 		BasicAttributes srvRecords = createSrvRecords();
 		BasicAttributes aRecords = new BasicAttributes("A", "63.246.7.80");
-		when(context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" }))
-				.thenReturn(srvRecords);
-		when(context.getAttributes("kdc.springsource.com", new String[] { "A" }))
-				.thenReturn(aRecords);
+		when(context.getAttributes("_ldap._tcp.springsource.com", new String[] { "SRV" })).thenReturn(srvRecords);
+		when(context.getAttributes("kdc.springsource.com", new String[] { "A" })).thenReturn(aRecords);
 
-		String ipAddress = dnsResolver
-				.resolveServiceIpAddress("ldap", "springsource.com");
+		String ipAddress = dnsResolver.resolveServiceIpAddress("ldap", "springsource.com");
 		assertThat(ipAddress).isEqualTo("63.246.7.80");
 	}
 
 	@Test(expected = DnsLookupException.class)
 	public void testUnknowError() throws Exception {
-		when(context.getAttributes(any(String.class), any(String[].class))).thenThrow(
-				new NamingException("error"));
+		when(context.getAttributes(any(String.class), any(String[].class))).thenThrow(new NamingException("error"));
 		dnsResolver.resolveIpAddress("");
 	}
 
@@ -121,4 +116,5 @@ public class JndiDnsResolverTests {
 		records.put(record);
 		return records;
 	}
+
 }

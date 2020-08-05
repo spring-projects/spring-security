@@ -65,8 +65,8 @@ import org.springframework.util.Assert;
  * application context is closed to allow the bean to be disposed of and the server
  * shutdown prior to attempting to start it again.
  * <p>
- * This class is intended for testing and internal security namespace use, only, and is not
- * considered part of the framework's public API.
+ * This class is intended for testing and internal security namespace use, only, and is
+ * not considered part of the framework's public API.
  *
  * @author Luke Taylor
  * @author Rob Winch
@@ -76,26 +76,36 @@ import org.springframework.util.Assert;
  * supported with no GA version to replace it.
  */
 @Deprecated
-public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle,
-		ApplicationContextAware {
+public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	final DefaultDirectoryService service;
+
 	LdapServer server;
 
 	private TcpTransport transport;
+
 	private ApplicationContext ctxt;
+
 	private File workingDir;
 
 	private boolean running;
+
 	private final String ldifResources;
+
 	private final JdbmPartition partition;
+
 	private final String root;
+
 	private int port = 53389;
+
 	private int localPort;
 
 	private boolean ldapOverSslEnabled;
+
 	private File keyStoreFile;
+
 	private String certificatePassord;
 
 	public ApacheDSContainer(String root, String ldifs) throws Exception {
@@ -150,9 +160,9 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
 		this.transport = new TcpTransport(port);
 		if (ldapOverSslEnabled) {
-				transport.setEnableSSL(true);
-				server.setKeystoreFile(this.keyStoreFile.getAbsolutePath());
-				server.setCertificatePassword(this.certificatePassord);
+			transport.setEnableSSL(true);
+			server.setKeystoreFile(this.keyStoreFile.getAbsolutePath());
+			server.setCertificatePassword(this.certificatePassord);
 		}
 		server.setTransports(transport);
 		start();
@@ -162,24 +172,20 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		stop();
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		ctxt = applicationContext;
 	}
 
 	public void setWorkingDirectory(File workingDir) {
 		Assert.notNull(workingDir, "workingDir cannot be null");
 
-		logger.info("Setting working directory for LDAP_PROVIDER: "
-				+ workingDir.getAbsolutePath());
+		logger.info("Setting working directory for LDAP_PROVIDER: " + workingDir.getAbsolutePath());
 
 		if (workingDir.exists()) {
-			throw new IllegalArgumentException(
-					"The specified working directory '"
-							+ workingDir.getAbsolutePath()
-							+ "' already exists. Another directory service instance may be using it or it may be from a "
-							+ " previous unclean shutdown. Please confirm and delete it or configure a different "
-							+ "working directory");
+			throw new IllegalArgumentException("The specified working directory '" + workingDir.getAbsolutePath()
+					+ "' already exists. Another directory service instance may be using it or it may be from a "
+					+ " previous unclean shutdown. Please confirm and delete it or configure a different "
+					+ "working directory");
 		}
 
 		this.workingDir = workingDir;
@@ -197,7 +203,6 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
 	/**
 	 * Returns the port that is resolved by {@link TcpTransport}.
-	 *
 	 * @return the port that is resolved by {@link TcpTransport}
 	 */
 	public int getLocalPort() {
@@ -207,7 +212,6 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	/**
 	 * If set to {@code true} will enable LDAP over SSL (LDAPs). If set to {@code true}
 	 * {@link ApacheDSContainer#setCertificatePassord(String)} must be set as well.
-	 *
 	 * @param ldapOverSslEnabled If not set, will default to false
 	 */
 	public void setLdapOverSslEnabled(boolean ldapOverSslEnabled) {
@@ -215,7 +219,8 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	}
 
 	/**
-	 * The keyStore must not be null and must be a valid file. Will set the keyStore file on the underlying {@link LdapServer}.
+	 * The keyStore must not be null and must be a valid file. Will set the keyStore file
+	 * on the underlying {@link LdapServer}.
 	 * @param keyStoreFile Mandatory if LDAPs is enabled
 	 */
 	public void setKeyStoreFile(File keyStoreFile) {
@@ -226,7 +231,6 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
 	/**
 	 * Will set the certificate password on the underlying {@link LdapServer}.
-	 *
 	 * @param certificatePassord May be null
 	 */
 	public void setCertificatePassord(String certificatePassord) {
@@ -345,14 +349,13 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 				ldifFile = ldifs[0].getURI().toString();
 			}
 			logger.info("Loading LDIF file: " + ldifFile);
-			LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(),
-					new File(ldifFile), null, getClass().getClassLoader());
+			LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), new File(ldifFile), null,
+					getClass().getClassLoader());
 			loader.execute();
 		}
 		else {
-			throw new IllegalArgumentException(
-					"More than one LDIF resource found with the supplied pattern:"
-							+ ldifResources + " Got " + Arrays.toString(ldifs));
+			throw new IllegalArgumentException("More than one LDIF resource found with the supplied pattern:"
+					+ ldifResources + " Got " + Arrays.toString(ldifs));
 		}
 	}
 
@@ -369,8 +372,8 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 			fileName = fileNamePrefix + "~" + i;
 		}
 
-		throw new IOException("Failed to create a temporary directory for file at "
-				+ new File(parentTempDir, fileNamePrefix));
+		throw new IOException(
+				"Failed to create a temporary directory for file at " + new File(parentTempDir, fileNamePrefix));
 	}
 
 	private boolean deleteDir(File dir) {
@@ -390,4 +393,5 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 	public boolean isRunning() {
 		return running;
 	}
+
 }

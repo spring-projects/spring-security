@@ -30,14 +30,19 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
+
 	private final HttpHeaders headersToAdd;
 
 	public StaticServerHttpHeadersWriter(HttpHeaders headersToAdd) {
 		this.headersToAdd = headersToAdd;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.springframework.web.server.ServerWebExchange)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.
+	 * springframework.web.server.ServerWebExchange)
 	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
@@ -56,9 +61,10 @@ public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 	}
 
 	public static class Builder {
+
 		private HttpHeaders headers = new HttpHeaders();
 
-		public Builder header(String headerName, String...values) {
+		public Builder header(String headerName, String... values) {
 			headers.put(headerName, Arrays.asList(values));
 			return this;
 		}
@@ -66,5 +72,7 @@ public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 		public StaticServerHttpHeadersWriter build() {
 			return new StaticServerHttpHeadersWriter(headers);
 		}
+
 	}
+
 }

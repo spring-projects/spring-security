@@ -27,11 +27,14 @@ import java.lang.reflect.Method;
  * @author Ben Alex
  */
 public class SimpleMethodInvocation implements MethodInvocation {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private Method method;
+
 	private Object[] arguments;
+
 	private Object targetObject;
 
 	// ~ Constructors
@@ -68,4 +71,5 @@ public class SimpleMethodInvocation implements MethodInvocation {
 	public Object proceed() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
+
 }

@@ -35,6 +35,7 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FrameOptionsHeaderWriterTests {
+
 	@Mock
 	private AllowFromStrategy strategy;
 
@@ -94,8 +95,7 @@ public class FrameOptionsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
-				.isEqualTo("DENY");
+		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}
 
 	@Test
@@ -105,8 +105,7 @@ public class FrameOptionsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
-				.isEqualTo("SAMEORIGIN");
+		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("SAMEORIGIN");
 	}
 
 	@Test
@@ -118,7 +117,7 @@ public class FrameOptionsHeaderWriterTests {
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
-				.isEqualTo("DENY");
+		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
 	}
+
 }

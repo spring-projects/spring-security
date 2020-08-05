@@ -49,8 +49,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 	@Test
 	public void testNormalOperation() throws Exception {
 		// Setup client-side context
-		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken(
-				"Aladdin", "open sesame");
+		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("Aladdin", "open sesame");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 
 		// Create a connection and ensure our executor sets its
@@ -62,8 +61,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 		// Check connection properties
 		// See https://tools.ietf.org/html/rfc1945 section 11.1 for example
 		// we are comparing against
-		assertThat(conn.getRequestProperty("Authorization")).isEqualTo(
-				"Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
+		assertThat(conn.getRequestProperty("Authorization")).isEqualTo("Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
 	}
 
 	@Test
@@ -83,8 +81,8 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 	// SEC-1975
 	@Test
 	public void testNullContextHolderWhenAnonymous() throws Exception {
-		AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key",
-				"principal", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key", "principal",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 		SecurityContextHolder.getContext().setAuthentication(anonymous);
 
 		// Create a connection and ensure our executor sets its
@@ -127,5 +125,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 		public boolean usingProxy() {
 			throw new UnsupportedOperationException("mock not implemented");
 		}
+
 	}
+
 }

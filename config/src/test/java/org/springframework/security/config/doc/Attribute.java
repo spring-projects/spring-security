@@ -16,15 +16,16 @@
 package org.springframework.security.config.doc;
 
 /**
- * Represents a Spring Security XSD Attribute. It is created when parsing the current xsd to compare to the documented appendix.
+ * Represents a Spring Security XSD Attribute. It is created when parsing the current xsd
+ * to compare to the documented appendix.
  *
  * @author Rob Winch
  * @author Josh Cummings
- *
  * @see SpringSecurityXsdParser
  * @see XsdDocumentedTests
  */
 public class Attribute {
+
 	private String name;
 
 	private String desc;
@@ -63,4 +64,5 @@ public class Attribute {
 	public String getId() {
 		return String.format("%s-%s", this.elmt.getId(), this.name);
 	}
+
 }

@@ -54,12 +54,19 @@ import java.util.List;
  * @author Rob Winch
  */
 public class AspectJMethodSecurityInterceptorTests {
+
 	private TestingAuthenticationToken token;
+
 	private AspectJMethodSecurityInterceptor interceptor;
+
 	private @Mock AccessDecisionManager adm;
+
 	private @Mock MethodSecurityMetadataSource mds;
+
 	private @Mock AuthenticationManager authman;
+
 	private @Mock AspectJCallback aspectJCallback;
+
 	private ProceedingJoinPoint joinPoint;
 
 	// ~ Methods
@@ -87,8 +94,7 @@ public class AspectJMethodSecurityInterceptorTests {
 		when(codeSig.getDeclaringType()).thenReturn(TargetObject.class);
 		when(codeSig.getParameterTypes()).thenReturn(new Class[] { String.class });
 		when(staticPart.getSignature()).thenReturn(codeSig);
-		when(mds.getAttributes(any())).thenReturn(
-				SecurityConfig.createList("ROLE_USER"));
+		when(mds.getAttributes(any())).thenReturn(SecurityConfig.createList("ROLE_USER"));
 		when(authman.authenticate(token)).thenReturn(token);
 	}
 
@@ -110,8 +116,7 @@ public class AspectJMethodSecurityInterceptorTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void callbackIsNotInvokedWhenPermissionDenied() {
-		doThrow(new AccessDeniedException("denied")).when(adm).decide(
-				any(), any(), any());
+		doThrow(new AccessDeniedException("denied")).when(adm).decide(any(), any(), any());
 
 		SecurityContextHolder.getContext().setAuthentication(token);
 		try {
@@ -126,8 +131,7 @@ public class AspectJMethodSecurityInterceptorTests {
 	@Test
 	public void adapterHoldsCorrectData() {
 		TargetObject to = new TargetObject();
-		Method m = ClassUtils.getMethodIfAvailable(TargetObject.class, "countLength",
-				new Class[] { String.class });
+		Method m = ClassUtils.getMethodIfAvailable(TargetObject.class, "countLength", new Class[] { String.class });
 
 		when(joinPoint.getTarget()).thenReturn(to);
 		when(joinPoint.getArgs()).thenReturn(new Object[] { "Hi" });
@@ -166,11 +170,10 @@ public class AspectJMethodSecurityInterceptorTests {
 		ctx.setAuthentication(token);
 		token.setAuthenticated(true);
 		final RunAsManager runAs = mock(RunAsManager.class);
-		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds",
-				token.getAuthorities(), TestingAuthenticationToken.class);
+		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds", token.getAuthorities(),
+				TestingAuthenticationToken.class);
 		interceptor.setRunAsManager(runAs);
-		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class)))
-				.thenReturn(runAsToken);
+		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class))).thenReturn(runAsToken);
 		when(aspectJCallback.proceedWithObject()).thenThrow(new RuntimeException());
 
 		try {
@@ -193,11 +196,10 @@ public class AspectJMethodSecurityInterceptorTests {
 		ctx.setAuthentication(token);
 		token.setAuthenticated(true);
 		final RunAsManager runAs = mock(RunAsManager.class);
-		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds",
-				token.getAuthorities(), TestingAuthenticationToken.class);
+		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds", token.getAuthorities(),
+				TestingAuthenticationToken.class);
 		interceptor.setRunAsManager(runAs);
-		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class)))
-				.thenReturn(runAsToken);
+		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class))).thenReturn(runAsToken);
 		when(joinPoint.proceed()).thenThrow(new RuntimeException());
 
 		try {
@@ -211,4 +213,5 @@ public class AspectJMethodSecurityInterceptorTests {
 		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(token);
 	}
+
 }

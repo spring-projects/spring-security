@@ -38,6 +38,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  * @since 5.2
  */
 public class ReactiveJwtAuthenticationConverterTests {
+
 	ReactiveJwtAuthenticationConverter jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
 
 	@Test
@@ -47,8 +48,7 @@ public class ReactiveJwtAuthenticationConverterTests {
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("SCOPE_message:read"),
+		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
 
@@ -63,15 +63,15 @@ public class ReactiveJwtAuthenticationConverterTests {
 	public void convertWithOverriddenGrantedAuthoritiesConverter() {
 		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
 
-		Converter<Jwt, Flux<GrantedAuthority>> grantedAuthoritiesConverter =
-				token -> Flux.just(new SimpleGrantedAuthority("blah"));
+		Converter<Jwt, Flux<GrantedAuthority>> grantedAuthoritiesConverter = token -> Flux
+				.just(new SimpleGrantedAuthority("blah"));
 
 		this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("blah"));
+		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("blah"));
 	}
+
 }

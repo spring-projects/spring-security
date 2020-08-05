@@ -35,6 +35,6 @@ public interface RedirectStrategy {
 	 * @param response the response to redirect
 	 * @param url the target URL to redirect to, for example "/login"
 	 */
-	void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
-			throws IOException;
+	void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException;
+
 }

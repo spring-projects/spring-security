@@ -49,14 +49,15 @@ import static org.mockito.Mockito.when;
  * Tests for {@link OidcClientInitiatedServerLogoutSuccessHandler}
  */
 public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
-	ClientRegistration registration = TestClientRegistrations
-			.clientRegistration()
-			.providerConfigurationMetadata(
-					Collections.singletonMap("end_session_endpoint", "https://endpoint"))
+
+	ClientRegistration registration = TestClientRegistrations.clientRegistration()
+			.providerConfigurationMetadata(Collections.singletonMap("end_session_endpoint", "https://endpoint"))
 			.build();
+
 	ReactiveClientRegistrationRepository repository = new InMemoryReactiveClientRegistrationRepository(registration);
 
 	ServerWebExchange exchange;
+
 	WebFilterChain chain;
 
 	OidcClientInitiatedServerLogoutSuccessHandler handler;
@@ -72,10 +73,8 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 
 	@Test
 	public void logoutWhenOidcRedirectUrlConfiguredThenRedirects() {
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				this.registration.getRegistrationId());
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
@@ -99,10 +98,8 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 
 	@Test
 	public void logoutWhenNotOidcUserThenDefaults() {
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOAuth2Users.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				this.registration.getRegistrationId());
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOAuth2Users.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
@@ -117,15 +114,13 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	public void logoutWhenClientRegistrationHasNoEndSessionEndpointThenDefaults() {
 
 		ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
-		ReactiveClientRegistrationRepository repository =
-				new InMemoryReactiveClientRegistrationRepository(registration);
-		OidcClientInitiatedServerLogoutSuccessHandler handler =
-				new OidcClientInitiatedServerLogoutSuccessHandler(repository);
+		ReactiveClientRegistrationRepository repository = new InMemoryReactiveClientRegistrationRepository(
+				registration);
+		OidcClientInitiatedServerLogoutSuccessHandler handler = new OidcClientInitiatedServerLogoutSuccessHandler(
+				repository);
 
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				registration.getRegistrationId());
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, registration.getRegistrationId());
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
@@ -139,10 +134,8 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	@Test
 	public void logoutWhenUsingPostLogoutRedirectUriThenIncludesItInRedirect() {
 
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				this.registration.getRegistrationId());
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
@@ -150,20 +143,16 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
 		this.handler.onLogoutSuccess(f, token).block();
 
-		assertThat(redirectedUrl(this.exchange))
-				.isEqualTo("https://endpoint?" +
-						"id_token_hint=id-token&" +
-						"post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?" + "id_token_hint=id-token&"
+				+ "post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
 	}
 
 	@Test
 	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect()
 			throws IOException, ServletException {
 
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
-				TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES,
-				this.registration.getRegistrationId());
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		MockServerHttpRequest request = MockServerHttpRequest.get("https://rp.example.org/").build();
 		when(this.exchange.getRequest()).thenReturn(request);
@@ -172,10 +161,8 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		this.handler.setPostLogoutRedirectUri("{baseUrl}");
 		this.handler.onLogoutSuccess(f, token).block();
 
-		assertThat(redirectedUrl(this.exchange))
-				.isEqualTo("https://endpoint?" +
-						"id_token_hint=id-token&" +
-						"post_logout_redirect_uri=https://rp.example.org");
+		assertThat(redirectedUrl(this.exchange)).isEqualTo(
+				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
 	}
 
 	@Test
@@ -193,4 +180,5 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	private String redirectedUrl(ServerWebExchange exchange) {
 		return exchange.getResponse().getHeaders().getFirst("Location");
 	}
+
 }

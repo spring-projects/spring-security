@@ -49,6 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Joe Grandja
  */
 public class HttpConfigurationTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -57,11 +58,11 @@ public class HttpConfigurationTests {
 
 	@Test
 	public void configureWhenAddFilterUnregisteredThenThrowsBeanCreationException() {
-		Throwable thrown = catchThrowable(() -> this.spring.register(UnregisteredFilterConfig.class).autowire() );
+		Throwable thrown = catchThrowable(() -> this.spring.register(UnregisteredFilterConfig.class).autowire());
 		assertThat(thrown).isInstanceOf(BeanCreationException.class);
-		assertThat(thrown.getMessage()).contains("The Filter class " + UnregisteredFilter.class.getName() +
-			" does not have a registered order and cannot be added without a specified order." +
-			" Consider using addFilterBefore or addFilterAfter instead.");
+		assertThat(thrown.getMessage()).contains("The Filter class " + UnregisteredFilter.class.getName()
+				+ " does not have a registered order and cannot be added without a specified order."
+				+ " Consider using addFilterBefore or addFilterAfter instead.");
 	}
 
 	@EnableWebSecurity
@@ -81,15 +82,17 @@ public class HttpConfigurationTests {
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
+
 	}
 
 	static class UnregisteredFilter extends OncePerRequestFilter {
+
 		@Override
-		protected void doFilterInternal(HttpServletRequest request,
-										HttpServletResponse response,
-										FilterChain filterChain) throws ServletException, IOException {
+		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+				FilterChain filterChain) throws ServletException, IOException {
 			filterChain.doFilter(request, response);
 		}
+
 	}
 
 	// https://github.com/spring-projects/spring-security-javaconfig/issues/104
@@ -100,12 +103,13 @@ public class HttpConfigurationTests {
 
 		this.mockMvc.perform(get("/"));
 
-		verify(CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER).doFilter(
-			any(ServletRequest.class), any(ServletResponse.class), any(FilterChain.class));
+		verify(CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER).doFilter(any(ServletRequest.class),
+				any(ServletResponse.class), any(FilterChain.class));
 	}
 
 	@EnableWebSecurity
 	static class CasAuthenticationFilterConfig extends WebSecurityConfigurerAdapter {
+
 		static CasAuthenticationFilter CAS_AUTHENTICATION_FILTER;
 
 		protected void configure(HttpSecurity http) {
@@ -114,6 +118,7 @@ public class HttpConfigurationTests {
 				.addFilter(CAS_AUTHENTICATION_FILTER);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -128,6 +133,7 @@ public class HttpConfigurationTests {
 
 	@EnableWebSecurity
 	static class RequestMatcherRegistryConfigs extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -142,5 +148,7 @@ public class HttpConfigurationTests {
 				.httpBasic();
 			// @formatter:on
 		}
+
 	}
+
 }

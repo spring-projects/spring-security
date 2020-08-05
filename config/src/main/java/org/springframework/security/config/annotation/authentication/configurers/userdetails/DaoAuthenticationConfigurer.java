@@ -24,14 +24,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  *
  * @author Rob Winch
  * @since 3.2
- *
  * @param <B> The type of {@link ProviderManagerBuilder} this is
  * @param <U> The type of {@link UserDetailsService} that is being used
  *
  */
 public class DaoAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, U extends UserDetailsService>
-		extends
-		AbstractDaoAuthenticationConfigurer<B, DaoAuthenticationConfigurer<B, U>, U> {
+		extends AbstractDaoAuthenticationConfigurer<B, DaoAuthenticationConfigurer<B, U>, U> {
 
 	/**
 	 * Creates a new instance
@@ -40,4 +38,5 @@ public class DaoAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, U 
 	public DaoAuthenticationConfigurer(U userDetailsService) {
 		super(userDetailsService);
 	}
+
 }

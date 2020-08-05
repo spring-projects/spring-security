@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.core.userdetails;
 
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,9 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  */
 @RunWith(SpringRunner.class)
 public class ReactiveUserDetailsServiceResourceFactoryBeanStringITests {
-	@Autowired ReactiveUserDetailsService users;
+
+	@Autowired
+	ReactiveUserDetailsService users;
 
 	@Test
 	public void findByUsernameWhenUserFoundThenNotNull() {
@@ -42,9 +43,12 @@ public class ReactiveUserDetailsServiceResourceFactoryBeanStringITests {
 
 	@Configuration
 	static class Config {
+
 		@Bean
 		public ReactiveUserDetailsServiceResourceFactoryBean userDetailsService() {
 			return ReactiveUserDetailsServiceResourceFactoryBean.fromString("user=password,ROLE_USER");
 		}
+
 	}
+
 }

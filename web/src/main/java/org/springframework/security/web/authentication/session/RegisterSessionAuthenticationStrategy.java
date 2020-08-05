@@ -39,13 +39,12 @@ import org.springframework.util.Assert;
  * {@link HttpSessionEventPublisher}.
  *
  * @see CompositeSessionAuthenticationStrategy
- *
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.2
  */
-public class RegisterSessionAuthenticationStrategy implements
-		SessionAuthenticationStrategy {
+public class RegisterSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
+
 	private final SessionRegistry sessionRegistry;
 
 	/**
@@ -61,9 +60,9 @@ public class RegisterSessionAuthenticationStrategy implements
 	 * In addition to the steps from the superclass, the sessionRegistry will be updated
 	 * with the new session information.
 	 */
-	public void onAuthentication(Authentication authentication,
-			HttpServletRequest request, HttpServletResponse response) {
-		sessionRegistry.registerNewSession(request.getSession().getId(),
-				authentication.getPrincipal());
+	public void onAuthentication(Authentication authentication, HttpServletRequest request,
+			HttpServletResponse response) {
+		sessionRegistry.registerNewSession(request.getSession().getId(), authentication.getPrincipal());
 	}
+
 }

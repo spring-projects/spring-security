@@ -36,20 +36,26 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * An {@link OAuth2TokenValidator} responsible for
- * validating the claims in an {@link OidcIdToken ID Token}.
+ * An {@link OAuth2TokenValidator} responsible for validating the claims in an
+ * {@link OidcIdToken ID Token}.
  *
  * @author Rob Winch
  * @author Joe Grandja
  * @since 5.1
  * @see OAuth2TokenValidator
  * @see Jwt
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">ID Token Validation</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">ID Token
+ * Validation</a>
  */
 public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
+
 	private static final Duration DEFAULT_CLOCK_SKEW = Duration.ofSeconds(60);
+
 	private final ClientRegistration clientRegistration;
+
 	private Duration clockSkew = DEFAULT_CLOCK_SKEW;
+
 	private Clock clock = Clock.systemUTC();
 
 	public OidcIdTokenValidator(ClientRegistration clientRegistration) {
@@ -59,7 +65,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt idToken) {
-		// 3.1.3.7  ID Token Validation
+		// 3.1.3.7 ID Token Validation
 		// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 
 		Map<String, Object> invalidClaims = validateRequiredClaims(idToken);
@@ -67,7 +73,8 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 			return OAuth2TokenValidatorResult.failure(invalidIdToken(invalidClaims));
 		}
 
-		// 2. The Issuer Identifier for the OpenID Provider (which is typically obtained during Discovery)
+		// 2. The Issuer Identifier for the OpenID Provider (which is typically obtained
+		// during Discovery)
 		// MUST exactly match the value of the iss (issuer) Claim.
 		String metadataIssuer = this.clientRegistration.getProviderDetails().getIssuerUri();
 
@@ -75,10 +82,12 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 			invalidClaims.put(IdTokenClaimNames.ISS, idToken.getIssuer());
 		}
 
-		// 3. The Client MUST validate that the aud (audience) Claim contains its client_id value
+		// 3. The Client MUST validate that the aud (audience) Claim contains its
+		// client_id value
 		// registered at the Issuer identified by the iss (issuer) Claim as an audience.
 		// The aud (audience) Claim MAY contain an array with more than one element.
-		// The ID Token MUST be rejected if the ID Token does not list the Client as a valid audience,
+		// The ID Token MUST be rejected if the ID Token does not list the Client as a
+		// valid audience,
 		// or if it contains additional audiences not trusted by the Client.
 		if (!idToken.getAudience().contains(this.clientRegistration.getClientId())) {
 			invalidClaims.put(IdTokenClaimNames.AUD, idToken.getAudience());
@@ -97,7 +106,8 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 			invalidClaims.put(IdTokenClaimNames.AZP, authorizedParty);
 		}
 
-		// 7. The alg value SHOULD be the default of RS256 or the algorithm sent by the Client
+		// 7. The alg value SHOULD be the default of RS256 or the algorithm sent by the
+		// Client
 		// in the id_token_signed_response_alg parameter during Registration.
 		// TODO Depends on gh-4413
 
@@ -107,7 +117,8 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 			invalidClaims.put(IdTokenClaimNames.EXP, idToken.getExpiresAt());
 		}
 
-		// 10. The iat Claim can be used to reject tokens that were issued too far away from the current time,
+		// 10. The iat Claim can be used to reject tokens that were issued too far away
+		// from the current time,
 		// limiting the amount of time that nonces need to be stored to prevent attacks.
 		// The acceptable range is Client specific.
 		if (now.plus(this.clockSkew).isBefore(idToken.getIssuedAt())) {
@@ -122,9 +133,9 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	/**
-	 * Sets the maximum acceptable clock skew. The default is 60 seconds.
-	 * The clock skew is used when validating the {@link JwtClaimNames#EXP exp}
-	 * and {@link JwtClaimNames#IAT iat} claims.
+	 * Sets the maximum acceptable clock skew. The default is 60 seconds. The clock skew
+	 * is used when validating the {@link JwtClaimNames#EXP exp} and
+	 * {@link JwtClaimNames#IAT iat} claims.
 	 *
 	 * @since 5.2
 	 * @param clockSkew the maximum acceptable clock skew
@@ -136,9 +147,8 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	/**
-	 * Sets the {@link Clock} used in {@link Instant#now(Clock)}
-	 * when validating the {@link JwtClaimNames#EXP exp}
-	 * and {@link JwtClaimNames#IAT iat} claims.
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when validating the
+	 * {@link JwtClaimNames#EXP exp} and {@link JwtClaimNames#IAT iat} claims.
 	 *
 	 * @since 5.3
 	 * @param clock the clock
@@ -149,8 +159,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	private static OAuth2Error invalidIdToken(Map<String, Object> invalidClaims) {
-		return new OAuth2Error("invalid_id_token",
-				"The ID Token contains invalid claims: " + invalidClaims,
+		return new OAuth2Error("invalid_id_token", "The ID Token contains invalid claims: " + invalidClaims,
 				"https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation");
 	}
 
@@ -180,4 +189,5 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 		return requiredClaims;
 	}
+
 }

@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ServerFormLoginAuthenticationConverterTests {
+
 	@Mock
 	private ServerWebExchange exchange;
 
@@ -98,4 +99,5 @@ public class ServerFormLoginAuthenticationConverterTests {
 	public void setPasswordParameterWhenNullThenIllegalArgumentException() {
 		this.converter.setPasswordParameter(null);
 	}
+
 }

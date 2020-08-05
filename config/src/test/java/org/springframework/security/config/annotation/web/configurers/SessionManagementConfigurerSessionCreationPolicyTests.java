@@ -38,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  */
 public class SessionManagementConfigurerSessionCreationPolicyTests {
+
 	@Autowired
 	MockMvc mvc;
 
@@ -45,8 +46,7 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 	public final SpringTestRule spring = new SpringTestRule();
 
 	@Test
-	public void getWhenSharedObjectSessionCreationPolicyConfigurationThenOverrides()
-			throws Exception {
+	public void getWhenSharedObjectSessionCreationPolicyConfigurationThenOverrides() throws Exception {
 
 		this.spring.register(StatelessCreateSessionSharedObjectConfig.class).autowire();
 
@@ -57,16 +57,17 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 
 	@EnableWebSecurity
 	static class StatelessCreateSessionSharedObjectConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			super.configure(http);
 			http.setSharedObject(SessionCreationPolicy.class, SessionCreationPolicy.STATELESS);
 		}
+
 	}
 
 	@Test
-	public void getWhenUserSessionCreationPolicyConfigurationThenOverrides()
-			throws Exception {
+	public void getWhenUserSessionCreationPolicyConfigurationThenOverrides() throws Exception {
 
 		this.spring.register(StatelessCreateSessionUserConfig.class).autowire();
 
@@ -77,6 +78,7 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 
 	@EnableWebSecurity
 	static class StatelessCreateSessionUserConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			super.configure(http);
@@ -87,31 +89,32 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 
 			http.setSharedObject(SessionCreationPolicy.class, SessionCreationPolicy.ALWAYS);
 		}
+
 	}
 
 	@Test
-	public void getWhenDefaultsThenLoginChallengeCreatesSession()
-			throws Exception {
+	public void getWhenDefaultsThenLoginChallengeCreatesSession() throws Exception {
 
 		this.spring.register(DefaultConfig.class, BasicController.class).autowire();
 
-		MvcResult result =
-				this.mvc.perform(get("/"))
-						.andExpect(status().isUnauthorized())
-						.andReturn();
+		MvcResult result = this.mvc.perform(get("/")).andExpect(status().isUnauthorized()).andReturn();
 
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
 	@EnableWebSecurity
 	static class DefaultConfig extends WebSecurityConfigurerAdapter {
+
 	}
 
 	@RestController
 	static class BasicController {
+
 		@GetMapping("/")
 		public String root() {
 			return "ok";
 		}
+
 	}
+
 }

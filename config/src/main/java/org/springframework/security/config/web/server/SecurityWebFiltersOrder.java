@@ -15,14 +15,13 @@
  */
 package org.springframework.security.config.web.server;
 
-
 /**
  * @author Rob Winch
  * @since 5.0
  */
 public enum SecurityWebFiltersOrder {
-	FIRST(Integer.MIN_VALUE),
-	HTTP_HEADERS_WRITER,
+
+	FIRST(Integer.MIN_VALUE), HTTP_HEADERS_WRITER,
 	/**
 	 * {@link org.springframework.security.web.server.transport.HttpsRedirectWebFilter}
 	 */
@@ -46,15 +45,11 @@ public enum SecurityWebFiltersOrder {
 	/**
 	 * Instance of AuthenticationWebFilter
 	 */
-	FORM_LOGIN,
-	AUTHENTICATION,
+	FORM_LOGIN, AUTHENTICATION,
 	/**
 	 * Instance of AnonymousAuthenticationWebFilter
 	 */
-	ANONYMOUS_AUTHENTICATION,
-	OAUTH2_AUTHORIZATION_CODE,
-	LOGIN_PAGE_GENERATING,
-	LOGOUT_PAGE_GENERATING,
+	ANONYMOUS_AUTHENTICATION, OAUTH2_AUTHORIZATION_CODE, LOGIN_PAGE_GENERATING, LOGOUT_PAGE_GENERATING,
 	/**
 	 * {@link org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter}
 	 */
@@ -62,11 +57,7 @@ public enum SecurityWebFiltersOrder {
 	/**
 	 * {@link org.springframework.security.web.server.savedrequest.ServerRequestCacheWebFilter}
 	 */
-	SERVER_REQUEST_CACHE,
-	LOGOUT,
-	EXCEPTION_TRANSLATION,
-	AUTHORIZATION,
-	LAST(Integer.MAX_VALUE);
+	SERVER_REQUEST_CACHE, LOGOUT, EXCEPTION_TRANSLATION, AUTHORIZATION, LAST(Integer.MAX_VALUE);
 
 	private static final int INTERVAL = 100;
 
@@ -83,4 +74,5 @@ public enum SecurityWebFiltersOrder {
 	public int getOrder() {
 		return this.order;
 	}
+
 }

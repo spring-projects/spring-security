@@ -44,4 +44,5 @@ public class NullUserCacheTests {
 		assertThat(cache.getUserFromCache(null)).isNull();
 		cache.removeUserFromCache(null);
 	}
+
 }

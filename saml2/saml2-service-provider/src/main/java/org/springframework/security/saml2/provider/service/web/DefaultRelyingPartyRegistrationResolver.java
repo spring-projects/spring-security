@@ -37,8 +37,8 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 
 /**
  * A {@link Converter} that resolves a {@link RelyingPartyRegistration} by extracting the
- * registration id from the request, querying a {@link RelyingPartyRegistrationRepository},
- * and resolving any template values.
+ * registration id from the request, querying a
+ * {@link RelyingPartyRegistrationRepository}, and resolving any template values.
  *
  * @since 5.4
  * @author Josh Cummings
@@ -49,10 +49,11 @@ public final class DefaultRelyingPartyRegistrationResolver
 	private static final char PATH_DELIMITER = '/';
 
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
+
 	private final Converter<HttpServletRequest, String> registrationIdResolver = new RegistrationIdResolver();
 
-	public DefaultRelyingPartyRegistrationResolver
-			(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
+	public DefaultRelyingPartyRegistrationResolver(
+			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
 
 		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
@@ -64,8 +65,8 @@ public final class DefaultRelyingPartyRegistrationResolver
 		if (registrationId == null) {
 			return null;
 		}
-		RelyingPartyRegistration relyingPartyRegistration =
-				this.relyingPartyRegistrationRepository.findByRegistrationId(registrationId);
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
+				.findByRegistrationId(registrationId);
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
@@ -73,12 +74,10 @@ public final class DefaultRelyingPartyRegistrationResolver
 		String applicationUri = getApplicationUri(request);
 		Function<String, String> templateResolver = templateResolver(applicationUri, relyingPartyRegistration);
 		String relyingPartyEntityId = templateResolver.apply(relyingPartyRegistration.getEntityId());
-		String assertionConsumerServiceLocation = templateResolver.apply(
-				relyingPartyRegistration.getAssertionConsumerServiceLocation());
-		return withRelyingPartyRegistration(relyingPartyRegistration)
-				.entityId(relyingPartyEntityId)
-				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.build();
+		String assertionConsumerServiceLocation = templateResolver
+				.apply(relyingPartyRegistration.getAssertionConsumerServiceLocation());
+		return withRelyingPartyRegistration(relyingPartyRegistration).entityId(relyingPartyEntityId)
+				.assertionConsumerServiceLocation(assertionConsumerServiceLocation).build();
 	}
 
 	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
@@ -89,9 +88,7 @@ public final class DefaultRelyingPartyRegistrationResolver
 		String entityId = relyingParty.getAssertingPartyDetails().getEntityId();
 		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl)
-				.replaceQuery(null)
-				.fragment(null)
+		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl).replaceQuery(null).fragment(null)
 				.build();
 		String scheme = uriComponents.getScheme();
 		uriVariables.put("baseScheme", scheme == null ? "" : scheme);
@@ -109,21 +106,17 @@ public final class DefaultRelyingPartyRegistrationResolver
 		uriVariables.put("entityId", StringUtils.hasText(entityId) ? entityId : "");
 		uriVariables.put("registrationId", StringUtils.hasText(registrationId) ? registrationId : "");
 
-		return UriComponentsBuilder.fromUriString(template)
-				.buildAndExpand(uriVariables)
-				.toUriString();
+		return UriComponentsBuilder.fromUriString(template).buildAndExpand(uriVariables).toUriString();
 	}
 
 	private static String getApplicationUri(HttpServletRequest request) {
-		UriComponents uriComponents = fromHttpUrl(buildFullRequestUrl(request))
-				.replacePath(request.getContextPath())
-				.replaceQuery(null)
-				.fragment(null)
-				.build();
+		UriComponents uriComponents = fromHttpUrl(buildFullRequestUrl(request)).replacePath(request.getContextPath())
+				.replaceQuery(null).fragment(null).build();
 		return uriComponents.toUriString();
 	}
 
 	private static class RegistrationIdResolver implements Converter<HttpServletRequest, String> {
+
 		private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/**/{registrationId}");
 
 		@Override
@@ -131,5 +124,7 @@ public final class DefaultRelyingPartyRegistrationResolver
 			RequestMatcher.MatchResult result = this.requestMatcher.matcher(request);
 			return result.getVariables().get("registrationId");
 		}
+
 	}
+
 }

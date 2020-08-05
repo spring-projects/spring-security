@@ -32,14 +32,15 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  */
 public class AbstractSecurityExpressionHandlerTests {
+
 	private AbstractSecurityExpressionHandler<Object> handler;
 
 	@Before
 	public void setUp() {
 		handler = new AbstractSecurityExpressionHandler<Object>() {
 			@Override
-			protected SecurityExpressionOperations createSecurityExpressionRoot(
-					Authentication authentication, Object o) {
+			protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+					Object o) {
 				return new SecurityExpressionRoot(authentication) {
 				};
 			}
@@ -48,13 +49,11 @@ public class AbstractSecurityExpressionHandlerTests {
 
 	@Test
 	public void beanNamesAreCorrectlyResolved() {
-		handler.setApplicationContext(new AnnotationConfigApplicationContext(
-				TestConfiguration.class));
+		handler.setApplicationContext(new AnnotationConfigApplicationContext(TestConfiguration.class));
 
-		Expression expression = handler.getExpressionParser().parseExpression(
-				"@number10.compareTo(@number20) < 0");
-		assertThat(expression.getValue(handler.createEvaluationContext(
-				mock(Authentication.class), new Object()))).isEqualTo(true);
+		Expression expression = handler.getExpressionParser().parseExpression("@number10.compareTo(@number20) < 0");
+		assertThat(expression.getValue(handler.createEvaluationContext(mock(Authentication.class), new Object())))
+				.isEqualTo(true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -68,6 +67,7 @@ public class AbstractSecurityExpressionHandlerTests {
 		handler.setExpressionParser(parser);
 		assertThat(parser == handler.getExpressionParser()).isTrue();
 	}
+
 }
 
 @Configuration
@@ -82,4 +82,5 @@ class TestConfiguration {
 	Integer number20() {
 		return 20;
 	}
+
 }

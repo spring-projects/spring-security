@@ -29,12 +29,12 @@ import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
- *
  * @author Rob Winch
  * @since 3.2
  */
 @SuppressWarnings("unchecked")
 public class DefaultSecurityParameterNameDiscovererTests {
+
 	private DefaultSecurityParameterNameDiscoverer discoverer;
 
 	@Before
@@ -51,12 +51,11 @@ public class DefaultSecurityParameterNameDiscovererTests {
 
 		ParameterNameDiscoverer annotationDisc = discoverers.get(0);
 		assertThat(annotationDisc).isInstanceOf(AnnotationParameterNameDiscoverer.class);
-		Set<String> annotationsToUse = (Set<String>) ReflectionTestUtils.getField(
-				annotationDisc, "annotationClassesToUse");
+		Set<String> annotationsToUse = (Set<String>) ReflectionTestUtils.getField(annotationDisc,
+				"annotationClassesToUse");
 		assertThat(annotationsToUse).containsOnly("org.springframework.security.access.method.P", P.class.getName());
 
-		assertThat(discoverers.get(1).getClass()).isEqualTo(
-				DefaultParameterNameDiscoverer.class);
+		assertThat(discoverers.get(1).getClass()).isEqualTo(DefaultParameterNameDiscoverer.class);
 	}
 
 	@Test
@@ -68,16 +67,15 @@ public class DefaultSecurityParameterNameDiscovererTests {
 				.getField(discoverer, "parameterNameDiscoverers");
 
 		assertThat(discoverers).hasSize(3);
-		assertThat(discoverers.get(0)).isInstanceOf(
-				LocalVariableTableParameterNameDiscoverer.class);
+		assertThat(discoverers.get(0)).isInstanceOf(LocalVariableTableParameterNameDiscoverer.class);
 
 		ParameterNameDiscoverer annotationDisc = discoverers.get(1);
 		assertThat(annotationDisc).isInstanceOf(AnnotationParameterNameDiscoverer.class);
-		Set<String> annotationsToUse = (Set<String>) ReflectionTestUtils.getField(
-				annotationDisc, "annotationClassesToUse");
+		Set<String> annotationsToUse = (Set<String>) ReflectionTestUtils.getField(annotationDisc,
+				"annotationClassesToUse");
 		assertThat(annotationsToUse).containsOnly("org.springframework.security.access.method.P", P.class.getName());
 
-		assertThat(discoverers.get(2)).isInstanceOf(
-				DefaultParameterNameDiscoverer.class);
+		assertThat(discoverers.get(2)).isInstanceOf(DefaultParameterNameDiscoverer.class);
 	}
+
 }

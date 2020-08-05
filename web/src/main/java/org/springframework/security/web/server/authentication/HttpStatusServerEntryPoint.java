@@ -33,6 +33,7 @@ import reactor.core.publisher.Mono;
  * @since 5.1
  */
 public class HttpStatusServerEntryPoint implements ServerAuthenticationEntryPoint {
+
 	private final HttpStatus httpStatus;
 
 	public HttpStatusServerEntryPoint(HttpStatus httpStatus) {
@@ -44,4 +45,5 @@ public class HttpStatusServerEntryPoint implements ServerAuthenticationEntryPoin
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException authException) {
 		return Mono.fromRunnable(() -> exchange.getResponse().setStatusCode(this.httpStatus));
 	}
+
 }

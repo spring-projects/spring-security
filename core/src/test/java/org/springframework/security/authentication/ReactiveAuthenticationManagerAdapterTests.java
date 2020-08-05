@@ -35,8 +35,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ReactiveAuthenticationManagerAdapterTests {
+
 	@Mock
 	AuthenticationManager delegate;
+
 	@Mock
 	Authentication authentication;
 
@@ -82,8 +84,7 @@ public class ReactiveAuthenticationManagerAdapterTests {
 
 		Mono<Authentication> result = manager.authenticate(authentication);
 
-		StepVerifier.create(result)
-			.expectError(BadCredentialsException.class)
-			.verify();
+		StepVerifier.create(result).expectError(BadCredentialsException.class).verify();
 	}
+
 }

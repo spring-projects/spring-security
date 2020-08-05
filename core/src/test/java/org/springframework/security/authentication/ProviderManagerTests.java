@@ -63,8 +63,7 @@ public class ProviderManagerTests {
 
 	@Test
 	public void credentialsAreClearedByDefault() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				"Test", "Password");
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
 		ProviderManager mgr = makeProviderManager();
 		Authentication result = mgr.authenticate(token);
 		assertThat(result.getCredentials()).isNull();
@@ -90,8 +89,8 @@ public class ProviderManagerTests {
 	@Test
 	public void authenticationSucceedsWhenFirstProviderReturnsNullButSecondAuthenticates() {
 		final Authentication a = mock(Authentication.class);
-		ProviderManager mgr = new ProviderManager(Arrays.asList(
-				createProviderWhichReturns(null), createProviderWhichReturns(a)));
+		ProviderManager mgr = new ProviderManager(
+				Arrays.asList(createProviderWhichReturns(null), createProviderWhichReturns(a)));
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		mgr.setAuthenticationEventPublisher(publisher);
 
@@ -132,8 +131,7 @@ public class ProviderManagerTests {
 
 		// A provider which sets the details object
 		AuthenticationProvider provider = new AuthenticationProvider() {
-			public Authentication authenticate(Authentication authentication)
-					throws AuthenticationException {
+			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 				((TestingAuthenticationToken) authentication).setDetails(resultDetails);
 				return authentication;
 			}
@@ -169,17 +167,16 @@ public class ProviderManagerTests {
 	public void authenticationExceptionIsIgnoredIfLaterProviderAuthenticates() {
 		final Authentication authReq = mock(Authentication.class);
 		ProviderManager mgr = new ProviderManager(
-				createProviderWhichThrows(new BadCredentialsException("",
-						new Throwable())), createProviderWhichReturns(authReq));
+				createProviderWhichThrows(new BadCredentialsException("", new Throwable())),
+				createProviderWhichReturns(authReq));
 		assertThat(mgr.authenticate(mock(Authentication.class))).isSameAs(authReq);
 	}
 
 	@Test
 	public void authenticationExceptionIsRethrownIfNoLaterProviderAuthenticates() {
 
-		ProviderManager mgr = new ProviderManager(Arrays.asList(
-				createProviderWhichThrows(new BadCredentialsException("")),
-				createProviderWhichReturns(null)));
+		ProviderManager mgr = new ProviderManager(Arrays
+				.asList(createProviderWhichThrows(new BadCredentialsException("")), createProviderWhichReturns(null)));
 		try {
 			mgr.authenticate(mock(Authentication.class));
 			fail("Expected BadCredentialsException");
@@ -191,13 +188,11 @@ public class ProviderManagerTests {
 	// SEC-546
 	@Test
 	public void accountStatusExceptionPreventsCallsToSubsequentProviders() {
-		AuthenticationProvider iThrowAccountStatusException = createProviderWhichThrows(new AccountStatusException(
-				"") {
+		AuthenticationProvider iThrowAccountStatusException = createProviderWhichThrows(new AccountStatusException("") {
 		});
 		AuthenticationProvider otherProvider = mock(AuthenticationProvider.class);
 
-		ProviderManager authMgr = new ProviderManager(Arrays.asList(
-				iThrowAccountStatusException, otherProvider));
+		ProviderManager authMgr = new ProviderManager(Arrays.asList(iThrowAccountStatusException, otherProvider));
 
 		try {
 			authMgr.authenticate(mock(Authentication.class));
@@ -213,19 +208,18 @@ public class ProviderManagerTests {
 		AuthenticationManager parent = mock(AuthenticationManager.class);
 		Authentication authReq = mock(Authentication.class);
 		when(parent.authenticate(authReq)).thenReturn(authReq);
-		ProviderManager mgr = new ProviderManager(
-				Collections.singletonList(mock(AuthenticationProvider.class)), parent);
+		ProviderManager mgr = new ProviderManager(Collections.singletonList(mock(AuthenticationProvider.class)),
+				parent);
 		assertThat(mgr.authenticate(authReq)).isSameAs(authReq);
 	}
 
 	@Test
 	public void parentIsNotCalledIfAccountStatusExceptionIsThrown() {
-		AuthenticationProvider iThrowAccountStatusException = createProviderWhichThrows(new AccountStatusException(
-				"", new Throwable()) {
-		});
+		AuthenticationProvider iThrowAccountStatusException = createProviderWhichThrows(
+				new AccountStatusException("", new Throwable()) {
+				});
 		AuthenticationManager parent = mock(AuthenticationManager.class);
-		ProviderManager mgr = new ProviderManager(
-				Collections.singletonList(iThrowAccountStatusException), parent);
+		ProviderManager mgr = new ProviderManager(Collections.singletonList(iThrowAccountStatusException), parent);
 		try {
 			mgr.authenticate(mock(Authentication.class));
 			fail("Expected exception");
@@ -245,8 +239,7 @@ public class ProviderManagerTests {
 		// Set a provider that throws an exception - this is the exception we expect to be
 		// propagated
 		ProviderManager mgr = new ProviderManager(
-				Collections.singletonList(createProviderWhichThrows(new BadCredentialsException(""))),
-				parent);
+				Collections.singletonList(createProviderWhichThrows(new BadCredentialsException(""))), parent);
 		mgr.setAuthenticationEventPublisher(publisher);
 
 		try {
@@ -262,15 +255,13 @@ public class ProviderManagerTests {
 	public void authenticationExceptionFromParentOverridesPreviousOnes() {
 		AuthenticationManager parent = mock(AuthenticationManager.class);
 		ProviderManager mgr = new ProviderManager(
-				Collections.singletonList(createProviderWhichThrows(new BadCredentialsException(""))),
-				parent);
+				Collections.singletonList(createProviderWhichThrows(new BadCredentialsException(""))), parent);
 		final Authentication authReq = mock(Authentication.class);
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		mgr.setAuthenticationEventPublisher(publisher);
 		// Set a provider that throws an exception - this is the exception we expect to be
 		// propagated
-		final BadCredentialsException expected = new BadCredentialsException(
-				"I'm the one from the parent");
+		final BadCredentialsException expected = new BadCredentialsException("I'm the one from the parent");
 		when(parent.authenticate(authReq)).thenThrow(expected);
 		try {
 			mgr.authenticate(authReq);
@@ -285,8 +276,8 @@ public class ProviderManagerTests {
 	public void statusExceptionIsPublished() {
 		AuthenticationManager parent = mock(AuthenticationManager.class);
 		final LockedException expected = new LockedException("");
-		ProviderManager mgr = new ProviderManager(
-				Collections.singletonList(createProviderWhichThrows(expected)), parent);
+		ProviderManager mgr = new ProviderManager(Collections.singletonList(createProviderWhichThrows(expected)),
+				parent);
 		final Authentication authReq = mock(Authentication.class);
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		mgr.setAuthenticationEventPublisher(publisher);
@@ -303,10 +294,8 @@ public class ProviderManagerTests {
 	// SEC-2367
 	@Test
 	public void providerThrowsInternalAuthenticationServiceException() {
-		InternalAuthenticationServiceException expected = new InternalAuthenticationServiceException(
-				"Expected");
-		ProviderManager mgr = new ProviderManager(Arrays.asList(
-				createProviderWhichThrows(expected),
+		InternalAuthenticationServiceException expected = new InternalAuthenticationServiceException("Expected");
+		ProviderManager mgr = new ProviderManager(Arrays.asList(createProviderWhichThrows(expected),
 				createProviderWhichThrows(new BadCredentialsException("Oops"))), null);
 		final Authentication authReq = mock(Authentication.class);
 
@@ -323,8 +312,8 @@ public class ProviderManagerTests {
 	public void authenticateWhenFailsInParentAndPublishesThenChildDoesNotPublish() {
 		BadCredentialsException badCredentialsExParent = new BadCredentialsException("Bad Credentials in parent");
 		ProviderManager parentMgr = new ProviderManager(createProviderWhichThrows(badCredentialsExParent));
-		ProviderManager childMgr = new ProviderManager(Collections.singletonList(createProviderWhichThrows(
-				new BadCredentialsException("Bad Credentials in child"))), parentMgr);
+		ProviderManager childMgr = new ProviderManager(Collections.singletonList(
+				createProviderWhichThrows(new BadCredentialsException("Bad Credentials in child"))), parentMgr);
 
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		parentMgr.setAuthenticationEventPublisher(publisher);
@@ -339,12 +328,12 @@ public class ProviderManagerTests {
 		catch (BadCredentialsException e) {
 			assertThat(e).isSameAs(badCredentialsExParent);
 		}
-		verify(publisher).publishAuthenticationFailure(badCredentialsExParent, authReq);		// Parent publishes
-		verifyNoMoreInteractions(publisher);		// Child should not publish (duplicate event)
+		verify(publisher).publishAuthenticationFailure(badCredentialsExParent, authReq); // Parent
+																							// publishes
+		verifyNoMoreInteractions(publisher); // Child should not publish (duplicate event)
 	}
 
-	private AuthenticationProvider createProviderWhichThrows(
-			final AuthenticationException e) {
+	private AuthenticationProvider createProviderWhichThrows(final AuthenticationException e) {
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
 		when(provider.supports(any(Class.class))).thenReturn(true);
 		when(provider.authenticate(any(Authentication.class))).thenThrow(e);
@@ -361,8 +350,7 @@ public class ProviderManagerTests {
 	}
 
 	private TestingAuthenticationToken createAuthenticationToken() {
-		return new TestingAuthenticationToken("name", "password",
-				new ArrayList<>(0));
+		return new TestingAuthenticationToken("name", "password", new ArrayList<>(0));
 	}
 
 	private ProviderManager makeProviderManager() {
@@ -374,8 +362,8 @@ public class ProviderManagerTests {
 	// ==================================================================================================
 
 	private static class MockProvider implements AuthenticationProvider {
-		public Authentication authenticate(Authentication authentication)
-				throws AuthenticationException {
+
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			if (supports(authentication.getClass())) {
 				return authentication;
 			}
@@ -386,8 +374,9 @@ public class ProviderManagerTests {
 
 		public boolean supports(Class<?> authentication) {
 			return TestingAuthenticationToken.class.isAssignableFrom(authentication)
-					|| UsernamePasswordAuthenticationToken.class
-					.isAssignableFrom(authentication);
+					|| UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
 		}
+
 	}
+
 }

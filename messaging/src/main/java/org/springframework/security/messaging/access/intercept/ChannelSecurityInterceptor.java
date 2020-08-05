@@ -36,15 +36,14 @@ import org.springframework.util.Assert;
  * @since 4.0
  * @author Rob Winch
  */
-public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor
-		implements ChannelInterceptor {
+public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor implements ChannelInterceptor {
+
 	private static final ThreadLocal<InterceptorStatusToken> tokenHolder = new ThreadLocal<>();
 
 	private final MessageSecurityMetadataSource metadataSource;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param metadataSource the MessageSecurityMetadataSource to use. Cannot be null.
 	 *
 	 * @see DefaultMessageSecurityMetadataSource
@@ -78,8 +77,7 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 		afterInvocation(token, null);
 	}
 
-	public void afterSendCompletion(Message<?> message, MessageChannel channel,
-			boolean sent, Exception ex) {
+	public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
 		InterceptorStatusToken token = clearToken();
 		finallyInvocation(token);
 	}
@@ -92,8 +90,7 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 		return message;
 	}
 
-	public void afterReceiveCompletion(Message<?> message, MessageChannel channel,
-			Exception ex) {
+	public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
 	}
 
 	private InterceptorStatusToken clearToken() {
@@ -101,4 +98,5 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 		tokenHolder.remove();
 		return token;
 	}
+
 }

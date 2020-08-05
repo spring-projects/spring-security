@@ -30,6 +30,7 @@ import reactor.test.StepVerifier;
  * @since 5.0
  */
 public class NoOpServerSecurityContextRepositoryTests {
+
 	NoOpServerSecurityContextRepository repository = NoOpServerSecurityContextRepository.getInstance();
 
 	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
@@ -38,12 +39,10 @@ public class NoOpServerSecurityContextRepositoryTests {
 	public void saveAndLoad() {
 		SecurityContext context = new SecurityContextImpl();
 
-		Mono<SecurityContext> result =
-			this.repository.save(this.exchange, context)
-			.then(this.repository.load(this.exchange));
+		Mono<SecurityContext> result = this.repository.save(this.exchange, context)
+				.then(this.repository.load(this.exchange));
 
-		StepVerifier.create(result)
-			.verifyComplete();
+		StepVerifier.create(result).verifyComplete();
 	}
 
 }

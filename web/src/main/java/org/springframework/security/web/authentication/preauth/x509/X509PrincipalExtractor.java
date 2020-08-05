@@ -28,4 +28,5 @@ public interface X509PrincipalExtractor {
 	 * Returns the principal (usually a String) for the given certificate.
 	 */
 	Object extractPrincipal(X509Certificate cert);
+
 }

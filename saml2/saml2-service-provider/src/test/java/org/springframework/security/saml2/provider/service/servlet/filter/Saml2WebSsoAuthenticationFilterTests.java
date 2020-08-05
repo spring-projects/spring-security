@@ -36,8 +36,11 @@ import static org.mockito.Mockito.when;
 public class Saml2WebSsoAuthenticationFilterTests {
 
 	private Saml2WebSsoAuthenticationFilter filter;
+
 	private RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
+
 	private MockHttpServletRequest request = new MockHttpServletRequest();
+
 	private HttpServletResponse response = new MockHttpServletResponse();
 
 	@Rule
@@ -87,9 +90,11 @@ public class Saml2WebSsoAuthenticationFilterTests {
 		try {
 			filter.attemptAuthentication(request, response);
 			failBecauseExceptionWasNotThrown(Saml2AuthenticationException.class);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			assertThat(e).isInstanceOf(Saml2AuthenticationException.class);
 			assertThat(e.getMessage()).isEqualTo("No relying party registration found");
 		}
 	}
+
 }

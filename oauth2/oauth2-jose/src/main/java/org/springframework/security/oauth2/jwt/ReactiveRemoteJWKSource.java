@@ -37,6 +37,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @since 5.1
  */
 class ReactiveRemoteJWKSource implements ReactiveJWKSource {
+
 	/**
 	 * The cached JWK set.
 	 */
@@ -52,8 +53,7 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	}
 
 	public Mono<List<JWK>> get(JWKSelector jwkSelector) {
-		return this.cachedJWKSet.get()
-				.switchIfEmpty(Mono.defer(() -> getJWKSet()))
+		return this.cachedJWKSet.get().switchIfEmpty(Mono.defer(() -> getJWKSet()))
 				.flatMap(jwkSet -> get(jwkSelector, jwkSet))
 				.switchIfEmpty(Mono.defer(() -> getJWKSet().map(jwkSet -> jwkSelector.select(jwkSet))));
 	}
@@ -90,19 +90,12 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 
 	/**
 	 * Updates the cached JWK set from the configured URL.
-	 *
 	 * @return The updated JWK set.
-	 *
 	 * @throws RemoteKeySourceException If JWK retrieval failed.
 	 */
 	private Mono<JWKSet> getJWKSet() {
-		return this.webClient.get()
-				.uri(this.jwkSetURL)
-				.retrieve()
-				.bodyToMono(String.class)
-				.map(this::parse)
-				.doOnNext(jwkSet -> this.cachedJWKSet.set(Mono.just(jwkSet)))
-				.cache();
+		return this.webClient.get().uri(this.jwkSetURL).retrieve().bodyToMono(String.class).map(this::parse)
+				.doOnNext(jwkSet -> this.cachedJWKSet.set(Mono.just(jwkSet))).cache();
 	}
 
 	private JWKSet parse(String body) {
@@ -116,9 +109,7 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 
 	/**
 	 * Returns the first specified key ID (kid) for a JWK matcher.
-	 *
 	 * @param jwkMatcher The JWK matcher. Must not be {@code null}.
-	 *
 	 * @return The first key ID, {@code null} if none.
 	 */
 	protected static String getFirstSpecifiedKeyID(final JWKMatcher jwkMatcher) {
@@ -129,7 +120,7 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 			return null;
 		}
 
-		for (String id: keyIDs) {
+		for (String id : keyIDs) {
 			if (id != null) {
 				return id;
 			}
@@ -140,4 +131,5 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	public void setWebClient(WebClient webClient) {
 		this.webClient = webClient;
 	}
+
 }

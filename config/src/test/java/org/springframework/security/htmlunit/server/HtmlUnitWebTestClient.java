@@ -55,20 +55,14 @@ final class HtmlUnitWebTestClient {
 		Assert.notNull(webClient, "WebClient must not be null");
 		Assert.notNull(webTestClient, "WebTestClient must not be null");
 		this.webClient = webClient;
-		this.webTestClient = webTestClient.mutate()
-			.filter(new FollowRedirects())
-			.filter(new CookieManager())
-			.build();
+		this.webTestClient = webTestClient.mutate().filter(new FollowRedirects()).filter(new CookieManager()).build();
 	}
 
 	public FluxExchangeResult<String> getResponse(WebRequest webRequest) {
-		WebTestClient.RequestBodySpec request = this.webTestClient
-				.method(httpMethod(webRequest))
-				.uri(uri(webRequest));
+		WebTestClient.RequestBodySpec request = this.webTestClient.method(httpMethod(webRequest)).uri(uri(webRequest));
 		contentType(request, webRequest);
 		cookies(request, webRequest);
 		headers(request, webRequest);
-
 
 		return content(request, webRequest).exchange().returnResult(String.class);
 	}
@@ -87,7 +81,7 @@ final class HtmlUnitWebTestClient {
 
 	private MultiValueMap<String, String> formData(List<NameValuePair> params) {
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<>(params.size());
-		params.forEach( pair -> result.add(pair.getName(), pair.getValue()));
+		params.forEach(pair -> result.add(pair.getName(), pair.getValue()));
 		return result;
 	}
 
@@ -109,9 +103,8 @@ final class HtmlUnitWebTestClient {
 			StringTokenizer tokens = new StringTokenizer(cookieHeaderValue, "=;");
 			while (tokens.hasMoreTokens()) {
 				String cookieName = tokens.nextToken().trim();
-				Assert.isTrue(tokens.hasMoreTokens(),
-						() -> "Expected value for cookie name '" + cookieName +
-								"': full cookie header was [" + cookieHeaderValue + "]");
+				Assert.isTrue(tokens.hasMoreTokens(), () -> "Expected value for cookie name '" + cookieName
+						+ "': full cookie header was [" + cookieHeaderValue + "]");
 				String cookieValue = tokens.nextToken().trim();
 				request.cookie(cookieName, cookieValue);
 			}
@@ -129,7 +122,7 @@ final class HtmlUnitWebTestClient {
 	}
 
 	private void headers(WebTestClient.RequestBodySpec request, WebRequest webRequest) {
-		webRequest.getAdditionalHeaders().forEach( (name, value) -> request.header(name, value));
+		webRequest.getAdditionalHeaders().forEach((name, value) -> request.header(name, value));
 	}
 
 	private HttpMethod httpMethod(WebRequest webRequest) {
@@ -143,66 +136,67 @@ final class HtmlUnitWebTestClient {
 	}
 
 	static class FollowRedirects implements ExchangeFilterFunction {
+
 		@Override
 		public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-			return next.exchange(request)
-				.flatMap( response -> redirectIfNecessary(request, next, response));
+			return next.exchange(request).flatMap(response -> redirectIfNecessary(request, next, response));
 		}
 
-		private Mono<ClientResponse> redirectIfNecessary(ClientRequest request, ExchangeFunction next, ClientResponse response) {
+		private Mono<ClientResponse> redirectIfNecessary(ClientRequest request, ExchangeFunction next,
+				ClientResponse response) {
 			URI location = response.headers().asHttpHeaders().getLocation();
 			String host = request.url().getHost();
 			String scheme = request.url().getScheme();
 			if (location != null) {
 				String redirectUrl = location.toASCIIString();
 				if (location.getHost() == null) {
-					redirectUrl = scheme+ "://" + host + location.toASCIIString();
+					redirectUrl = scheme + "://" + host + location.toASCIIString();
 				}
 				ClientRequest redirect = ClientRequest.method(HttpMethod.GET, URI.create(redirectUrl))
-					.headers(headers -> headers.addAll(request.headers()))
-					.cookies(cookies -> cookies.addAll(request.cookies()))
-					.attributes(attributes -> attributes.putAll(request.attributes()))
-					.build();
+						.headers(headers -> headers.addAll(request.headers()))
+						.cookies(cookies -> cookies.addAll(request.cookies()))
+						.attributes(attributes -> attributes.putAll(request.attributes())).build();
 
-				return next.exchange(redirect).flatMap( r -> redirectIfNecessary(request, next, r));
+				return next.exchange(redirect).flatMap(r -> redirectIfNecessary(request, next, r));
 			}
 
 			return Mono.just(response);
 		}
+
 	}
 
 	static class CookieManager implements ExchangeFilterFunction {
+
 		private Map<String, ResponseCookie> cookies = new HashMap<>();
 
 		@Override
 		public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-			return next.exchange(withClientCookies(request))
-				.doOnSuccess( response -> {
-					response.cookies().values().forEach( cookies -> {
-						cookies.forEach( cookie -> {
-							if (cookie.getMaxAge().isZero()) {
-								this.cookies.remove(cookie.getName());
-							} else {
-								this.cookies.put(cookie.getName(), cookie);
-							}
-						});
+			return next.exchange(withClientCookies(request)).doOnSuccess(response -> {
+				response.cookies().values().forEach(cookies -> {
+					cookies.forEach(cookie -> {
+						if (cookie.getMaxAge().isZero()) {
+							this.cookies.remove(cookie.getName());
+						}
+						else {
+							this.cookies.put(cookie.getName(), cookie);
+						}
 					});
 				});
+			});
 		}
 
 		private ClientRequest withClientCookies(ClientRequest request) {
-			return ClientRequest.from(request)
-				.cookies( c -> {
-					c.addAll(clientCookies());
-				}).build();
+			return ClientRequest.from(request).cookies(c -> {
+				c.addAll(clientCookies());
+			}).build();
 		}
 
 		private MultiValueMap<String, String> clientCookies() {
 			MultiValueMap<String, String> result = new LinkedMultiValueMap<>(this.cookies.size());
-			this.cookies.values().forEach( cookie ->
-				result.add(cookie.getName(), cookie.getValue())
-			);
+			this.cookies.values().forEach(cookie -> result.add(cookie.getName(), cookie.getValue()));
 			return result;
 		}
+
 	}
+
 }

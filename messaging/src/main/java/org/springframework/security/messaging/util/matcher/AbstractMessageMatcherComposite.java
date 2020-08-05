@@ -29,20 +29,19 @@ import org.apache.commons.logging.Log;
  * @since 4.0
  */
 abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
+
 	protected final Log LOGGER = getLog(getClass());
 
 	private final List<MessageMatcher<T>> messageMatchers;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
 		notEmpty(messageMatchers, "messageMatchers must contain a value");
 		if (messageMatchers.contains(null)) {
-			throw new IllegalArgumentException(
-					"messageMatchers cannot contain null values");
+			throw new IllegalArgumentException("messageMatchers cannot contain null values");
 		}
 		this.messageMatchers = messageMatchers;
 
@@ -50,7 +49,6 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	@SafeVarargs
@@ -66,4 +64,5 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 	public String toString() {
 		return getClass().getSimpleName() + "[messageMatchers=" + messageMatchers + "]";
 	}
+
 }

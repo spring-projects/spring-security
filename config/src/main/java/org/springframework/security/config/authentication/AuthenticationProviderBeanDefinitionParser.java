@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  */
 public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser {
+
 	private static final String ATT_USER_DETAILS_REF = "user-service-ref";
 
 	public BeanDefinition parse(Element element, ParserContext pc) {
@@ -45,35 +46,28 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 		PasswordEncoderParser pep = new PasswordEncoderParser(passwordEncoderElt, pc);
 		BeanMetadataElement passwordEncoder = pep.getPasswordEncoder();
 		if (passwordEncoder != null) {
-			authProvider.getPropertyValues()
-				.addPropertyValue("passwordEncoder", passwordEncoder);
+			authProvider.getPropertyValues().addPropertyValue("passwordEncoder", passwordEncoder);
 		}
 
-		Element userServiceElt = DomUtils.getChildElementByTagName(element,
-				Elements.USER_SERVICE);
+		Element userServiceElt = DomUtils.getChildElementByTagName(element, Elements.USER_SERVICE);
 		if (userServiceElt == null) {
-			userServiceElt = DomUtils.getChildElementByTagName(element,
-					Elements.JDBC_USER_SERVICE);
+			userServiceElt = DomUtils.getChildElementByTagName(element, Elements.JDBC_USER_SERVICE);
 		}
 		if (userServiceElt == null) {
-			userServiceElt = DomUtils.getChildElementByTagName(element,
-					Elements.LDAP_USER_SERVICE);
+			userServiceElt = DomUtils.getChildElementByTagName(element, Elements.LDAP_USER_SERVICE);
 		}
 
 		String ref = element.getAttribute(ATT_USER_DETAILS_REF);
 
 		if (StringUtils.hasText(ref)) {
 			if (userServiceElt != null) {
-				pc.getReaderContext().error(
-						"The " + ATT_USER_DETAILS_REF
-								+ " attribute cannot be used in combination with child"
-								+ "elements '" + Elements.USER_SERVICE + "', '"
-								+ Elements.JDBC_USER_SERVICE + "' or '"
+				pc.getReaderContext()
+						.error("The " + ATT_USER_DETAILS_REF + " attribute cannot be used in combination with child"
+								+ "elements '" + Elements.USER_SERVICE + "', '" + Elements.JDBC_USER_SERVICE + "' or '"
 								+ Elements.LDAP_USER_SERVICE + "'", element);
 			}
 
-			authProvider.getPropertyValues().add("userDetailsService",
-					new RuntimeBeanReference(ref));
+			authProvider.getPropertyValues().add("userDetailsService", new RuntimeBeanReference(ref));
 		}
 		else {
 			// Use the child elements to create the UserDetailsService
@@ -85,15 +79,14 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 			}
 
 			// Pinch the cache-ref from the UserDetailService element, if set.
-			String cacheRef = userServiceElt
-					.getAttribute(AbstractUserDetailsServiceBeanDefinitionParser.CACHE_REF);
+			String cacheRef = userServiceElt.getAttribute(AbstractUserDetailsServiceBeanDefinitionParser.CACHE_REF);
 
 			if (StringUtils.hasText(cacheRef)) {
-				authProvider.getPropertyValues().addPropertyValue("userCache",
-						new RuntimeBeanReference(cacheRef));
+				authProvider.getPropertyValues().addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
 			}
 		}
 
 		return authProvider;
 	}
+
 }

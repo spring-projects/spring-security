@@ -42,6 +42,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WithUserDetailsTests.Config.class)
 public class WithUserDetailsTests {
+
 	@Autowired
 	private MessageService messageService;
 
@@ -67,7 +68,7 @@ public class WithUserDetailsTests {
 	}
 
 	@Test
-	@WithUserDetails(value="customUsername", userDetailsServiceBeanName="myUserDetailsService")
+	@WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "myUserDetailsService")
 	public void getMessageWithUserDetailsServiceBeanName() {
 		String message = messageService.getMessage();
 		assertThat(message).contains("customUsername");
@@ -77,6 +78,7 @@ public class WithUserDetailsTests {
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
+
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -89,6 +91,7 @@ public class WithUserDetailsTests {
 		public UserDetailsService myUserDetailsService() {
 			return new CustomUserDetailsService();
 		}
+
 	}
 
 	private Object getPrincipal() {
@@ -97,9 +100,10 @@ public class WithUserDetailsTests {
 
 	static class CustomUserDetailsService implements UserDetailsService {
 
-		public UserDetails loadUserByUsername(final String username)
-				throws UsernameNotFoundException {
+		public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 			return new CustomUserDetails("name", username);
 		}
+
 	}
+
 }

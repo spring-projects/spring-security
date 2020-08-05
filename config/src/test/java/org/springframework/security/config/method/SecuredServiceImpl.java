@@ -16,11 +16,13 @@
 package org.springframework.security.config.method;
 
 /**
-*
-* @author Rob Winch
-*
-*/
+ * @author Rob Winch
+ *
+ */
 public class SecuredServiceImpl {
+
 	@SecuredAdminRole
-	public void securedAdminRole() {}
+	public void securedAdminRole() {
+	}
+
 }

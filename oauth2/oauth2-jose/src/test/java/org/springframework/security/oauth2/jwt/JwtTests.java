@@ -33,24 +33,39 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class JwtTests {
+
 	private static final String ISS_CLAIM = "iss";
+
 	private static final String SUB_CLAIM = "sub";
+
 	private static final String AUD_CLAIM = "aud";
+
 	private static final String EXP_CLAIM = "exp";
+
 	private static final String NBF_CLAIM = "nbf";
+
 	private static final String IAT_CLAIM = "iat";
+
 	private static final String JTI_CLAIM = "jti";
 
 	private static final String ISS_VALUE = "https://provider.com";
+
 	private static final String SUB_VALUE = "subject1";
+
 	private static final List<String> AUD_VALUE = Arrays.asList("aud1", "aud2");
+
 	private static final long EXP_VALUE = Instant.now().plusSeconds(60).toEpochMilli();
+
 	private static final long NBF_VALUE = Instant.now().plusSeconds(5).toEpochMilli();
+
 	private static final long IAT_VALUE = Instant.now().toEpochMilli();
+
 	private static final String JTI_VALUE = "jwt-id-1";
 
 	private static final Map<String, Object> HEADERS;
+
 	private static final Map<String, Object> CLAIMS;
+
 	private static final String JWT_TOKEN_VALUE = "jwt-token-value";
 
 	static {
@@ -74,20 +89,20 @@ public class JwtTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenHeadersIsEmptyThenThrowIllegalArgumentException() {
-		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), Collections.emptyMap(), CLAIMS);
+		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE),
+				Collections.emptyMap(), CLAIMS);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClaimsIsEmptyThenThrowIllegalArgumentException() {
-		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), HEADERS, Collections.emptyMap());
+		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), HEADERS,
+				Collections.emptyMap());
 	}
 
 	@Test
 	public void constructorWhenParametersProvidedAndValidThenCreated() {
-		Jwt jwt = new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), HEADERS, CLAIMS);
+		Jwt jwt = new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), HEADERS,
+				CLAIMS);
 
 		assertThat(jwt.getTokenValue()).isEqualTo(JWT_TOKEN_VALUE);
 		assertThat(jwt.getHeaders()).isEqualTo(HEADERS);
@@ -100,4 +115,5 @@ public class JwtTests {
 		assertThat(jwt.getIssuedAt().toEpochMilli()).isEqualTo(IAT_VALUE);
 		assertThat(jwt.getId()).isEqualTo(JTI_VALUE);
 	}
+
 }

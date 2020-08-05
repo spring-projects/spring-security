@@ -51,11 +51,13 @@ import org.xml.sax.SAXException;
  * @author Luke Taylor
  * @since 2.0
  */
-public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
-		MappableAttributesRetriever, InitializingBean {
+public class WebXmlMappableAttributesRetriever
+		implements ResourceLoaderAware, MappableAttributesRetriever, InitializingBean {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private ResourceLoader resourceLoader;
+
 	private Set<String> mappableAttributes;
 
 	public void setResourceLoader(ResourceLoader resourceLoader) {
@@ -76,11 +78,9 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 		Document doc = getDocument(webXml.getInputStream());
 		NodeList webApp = doc.getElementsByTagName("web-app");
 		if (webApp.getLength() != 1) {
-			throw new IllegalArgumentException(
-					"Failed to find 'web-app' element in resource" + webXml);
+			throw new IllegalArgumentException("Failed to find 'web-app' element in resource" + webXml);
 		}
-		NodeList securityRoles = ((Element) webApp.item(0))
-				.getElementsByTagName("security-role");
+		NodeList securityRoles = ((Element) webApp.item(0)).getElementsByTagName("security-role");
 
 		ArrayList<String> roleNames = new ArrayList<>();
 
@@ -116,7 +116,8 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 		}
 		catch (FactoryConfigurationError | IOException | SAXException | ParserConfigurationException e) {
 			throw new RuntimeException("Unable to parse document object", e);
-		} finally {
+		}
+		finally {
 			try {
 				aStream.close();
 			}
@@ -130,8 +131,11 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 	 * We do not need to resolve external entities, so just return an empty String.
 	 */
 	private static final class MyEntityResolver implements EntityResolver {
+
 		public InputSource resolveEntity(String publicId, String systemId) {
 			return new InputSource(new StringReader(""));
 		}
+
 	}
+
 }

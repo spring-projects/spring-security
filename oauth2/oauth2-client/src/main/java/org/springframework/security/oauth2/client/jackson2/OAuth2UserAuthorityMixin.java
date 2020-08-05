@@ -39,8 +39,8 @@ import java.util.Map;
 abstract class OAuth2UserAuthorityMixin {
 
 	@JsonCreator
-	OAuth2UserAuthorityMixin(
-			@JsonProperty("authority") String authority,
+	OAuth2UserAuthorityMixin(@JsonProperty("authority") String authority,
 			@JsonProperty("attributes") Map<String, Object> attributes) {
 	}
+
 }

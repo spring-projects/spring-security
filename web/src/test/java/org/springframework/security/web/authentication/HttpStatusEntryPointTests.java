@@ -25,13 +25,15 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
 
 /**
- *
  * @author Rob Winch
  * @since 4.0
  */
 public class HttpStatusEntryPointTests {
+
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	AuthenticationException authException;
 
 	HttpStatusEntryPoint entryPoint;

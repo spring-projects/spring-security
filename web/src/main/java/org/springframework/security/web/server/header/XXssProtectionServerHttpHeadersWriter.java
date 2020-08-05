@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersWriter {
+
 	public static final String X_XSS_PROTECTION = "X-XSS-Protection";
 
 	private boolean enabled;
@@ -43,8 +44,12 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 		updateDelegate();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.springframework.web.server.ServerWebExchange)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.
+	 * springframework.web.server.ServerWebExchange)
 	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
@@ -71,7 +76,6 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	 * <pre>
 	 * X-XSS-Protection: 0
 	 * </pre>
-	 *
 	 * @param enabled the new value
 	 */
 	public void setEnabled(boolean enabled) {
@@ -85,13 +89,11 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	/**
 	 * If false, will not specify the mode as blocked. In this instance, any content will
 	 * be attempted to be fixed. If true, the content will be replaced with "#".
-	 *
 	 * @param block the new value
 	 */
 	public void setBlock(boolean block) {
 		if (!enabled && block) {
-			throw new IllegalArgumentException(
-					"Cannot set block to true with enabled false");
+			throw new IllegalArgumentException("Cannot set block to true with enabled false");
 		}
 		this.block = block;
 		updateDelegate();
@@ -99,18 +101,17 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 
 	private void updateDelegate() {
 
-		this.delegate = StaticServerHttpHeadersWriter.builder()
-				.header(X_XSS_PROTECTION, createHeaderValue())
-				.build();
+		this.delegate = StaticServerHttpHeadersWriter.builder().header(X_XSS_PROTECTION, createHeaderValue()).build();
 	}
 
 	private String createHeaderValue() {
 		if (!enabled) {
-			return  "0";
+			return "0";
 		}
 		if (!block) {
 			return "1";
 		}
 		return "1 ; mode=block";
 	}
+
 }

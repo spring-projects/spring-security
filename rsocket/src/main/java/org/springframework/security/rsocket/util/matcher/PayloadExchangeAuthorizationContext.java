@@ -26,7 +26,9 @@ import java.util.Map;
  * @since 5.2
  */
 public class PayloadExchangeAuthorizationContext {
+
 	private final PayloadExchange exchange;
+
 	private final Map<String, Object> variables;
 
 	public PayloadExchangeAuthorizationContext(PayloadExchange exchange) {
@@ -45,4 +47,5 @@ public class PayloadExchangeAuthorizationContext {
 	public Map<String, Object> getVariables() {
 		return Collections.unmodifiableMap(this.variables);
 	}
+
 }

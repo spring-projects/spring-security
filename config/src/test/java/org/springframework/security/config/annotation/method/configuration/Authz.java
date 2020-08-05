@@ -35,7 +35,7 @@ public class Authz {
 	}
 
 	public boolean check(Authentication authentication, String message) {
-		return message != null &&
-				message.contains(authentication.getName());
+		return message != null && message.contains(authentication.getName());
 	}
+
 }

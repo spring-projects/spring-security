@@ -56,5 +56,7 @@ public class ObjectIdentityRetrievalStrategyImplTests {
 		public void setId(Object id) {
 			this.id = id;
 		}
+
 	}
+
 }

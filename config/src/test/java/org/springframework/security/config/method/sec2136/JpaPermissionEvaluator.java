@@ -24,11 +24,11 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 
 /**
- *
  * @author Rob Winch
  *
  */
 public class JpaPermissionEvaluator implements PermissionEvaluator {
+
 	@Autowired
 	private EntityManager entityManager;
 
@@ -36,13 +36,13 @@ public class JpaPermissionEvaluator implements PermissionEvaluator {
 		System.out.println("initializing " + this);
 	}
 
-	public boolean hasPermission(Authentication authentication,
-			Object targetDomainObject, Object permission) {
+	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 		return true;
 	}
 
-	public boolean hasPermission(Authentication authentication, Serializable targetId,
-			String targetType, Object permission) {
+	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+			Object permission) {
 		return true;
 	}
+
 }

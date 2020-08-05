@@ -34,20 +34,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * An {@link AuthenticationEntryPoint} implementation used to commence authentication of protected resource requests
- * using {@link BearerTokenAuthenticationFilter}.
+ * An {@link AuthenticationEntryPoint} implementation used to commence authentication of
+ * protected resource requests using {@link BearerTokenAuthenticationFilter}.
  * <p>
- * Uses information provided by {@link BearerTokenError} to set HTTP response status code and populate
- * {@code WWW-Authenticate} HTTP header.
+ * Uses information provided by {@link BearerTokenError} to set HTTP response status code
+ * and populate {@code WWW-Authenticate} HTTP header.
  *
  * @author Rob Winch
  * @see BearerTokenError
- * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750 Section 3: The WWW-Authenticate
- * Response Header Field</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750
+ * Section 3: The WWW-Authenticate Response Header Field</a>
  * @since 5.1
  */
-public final class BearerTokenServerAuthenticationEntryPoint implements
-		ServerAuthenticationEntryPoint {
+public final class BearerTokenServerAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
 	private String realmName;
 
@@ -127,4 +126,5 @@ public final class BearerTokenServerAuthenticationEntryPoint implements
 
 		return wwwAuthenticate.toString();
 	}
+
 }

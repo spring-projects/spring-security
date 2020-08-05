@@ -43,8 +43,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Transactional
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {ApplicationConfig.class, SecurityConfig.class})
+@ContextConfiguration(classes = { ApplicationConfig.class, SecurityConfig.class })
 public class Issue50Tests {
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
@@ -53,7 +54,8 @@ public class Issue50Tests {
 
 	@Before
 	public void setup() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test", null, "ROLE_ADMIN"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("test", null, "ROLE_ADMIN"));
 	}
 
 	@After
@@ -82,7 +84,7 @@ public class Issue50Tests {
 	public void authenticateWhenValidUserThenAuthenticates() {
 		this.userRepo.save(User.withUsernameAndPassword("test", "password"));
 		Authentication result = this.authenticationManager
-			.authenticate(new UsernamePasswordAuthenticationToken("test", "password"));
+				.authenticate(new UsernamePasswordAuthenticationToken("test", "password"));
 		assertThat(result.getName()).isEqualTo("test");
 	}
 
@@ -91,6 +93,7 @@ public class Issue50Tests {
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test", null, "ROLE_USER"));
 		this.userRepo.save(User.withUsernameAndPassword("denied", "password"));
 		Authentication result = this.authenticationManager
-			.authenticate(new UsernamePasswordAuthenticationToken("test", "password"));
+				.authenticate(new UsernamePasswordAuthenticationToken("test", "password"));
 	}
+
 }

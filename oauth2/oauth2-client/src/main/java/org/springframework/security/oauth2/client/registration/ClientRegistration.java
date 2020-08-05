@@ -36,22 +36,34 @@ import org.springframework.util.StringUtils;
 import static java.util.Collections.EMPTY_MAP;
 
 /**
- * A representation of a client registration with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+ * A representation of a client registration with an OAuth 2.0 or OpenID Connect 1.0
+ * Provider.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2 Client Registration</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2
+ * Client Registration</a>
  */
 public final class ClientRegistration implements Serializable {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private String registrationId;
+
 	private String clientId;
+
 	private String clientSecret;
+
 	private ClientAuthenticationMethod clientAuthenticationMethod;
+
 	private AuthorizationGrantType authorizationGrantType;
+
 	private String redirectUri;
+
 	private Set<String> scopes = Collections.emptySet();
+
 	private ProviderDetails providerDetails = new ProviderDetails();
+
 	private String clientName;
 
 	private ClientRegistration() {
@@ -59,7 +71,6 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the identifier for the registration.
-	 *
 	 * @return the identifier for the registration
 	 */
 	public String getRegistrationId() {
@@ -68,7 +79,6 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the client identifier.
-	 *
 	 * @return the client identifier
 	 */
 	public String getClientId() {
@@ -77,7 +87,6 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the client secret.
-	 *
 	 * @return the client secret
 	 */
 	public String getClientSecret() {
@@ -85,9 +94,8 @@ public final class ClientRegistration implements Serializable {
 	}
 
 	/**
-	 * Returns the {@link ClientAuthenticationMethod authentication method} used
-	 * when authenticating the client with the authorization server.
-	 *
+	 * Returns the {@link ClientAuthenticationMethod authentication method} used when
+	 * authenticating the client with the authorization server.
 	 * @return the {@link ClientAuthenticationMethod}
 	 */
 	public ClientAuthenticationMethod getClientAuthenticationMethod() {
@@ -95,8 +103,8 @@ public final class ClientRegistration implements Serializable {
 	}
 
 	/**
-	 * Returns the {@link AuthorizationGrantType authorization grant type} used for the client.
-	 *
+	 * Returns the {@link AuthorizationGrantType authorization grant type} used for the
+	 * client.
 	 * @return the {@link AuthorizationGrantType}
 	 */
 	public AuthorizationGrantType getAuthorizationGrantType() {
@@ -105,7 +113,6 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the uri (or uri template) for the redirection endpoint.
-	 *
 	 * @deprecated Use {@link #getRedirectUri()} instead
 	 * @return the uri (or uri template) for the redirection endpoint
 	 */
@@ -118,14 +125,17 @@ public final class ClientRegistration implements Serializable {
 	 * Returns the uri (or uri template) for the redirection endpoint.
 	 *
 	 * <br />
-	 * The supported uri template variables are: {baseScheme}, {baseHost}, {basePort}, {basePath} and {registrationId}.
+	 * The supported uri template variables are: {baseScheme}, {baseHost}, {basePort},
+	 * {basePath} and {registrationId}.
 	 *
 	 * <br />
-	 * <b>NOTE:</b> {baseUrl} is also supported, which is the same as {baseScheme}://{baseHost}{basePort}{basePath}.
+	 * <b>NOTE:</b> {baseUrl} is also supported, which is the same as
+	 * {baseScheme}://{baseHost}{basePort}{basePath}.
 	 *
 	 * <br />
-	 * Configuring uri template variables is especially useful when the client is running behind a Proxy Server.
-	 * This ensures that the X-Forwarded-* headers are used when expanding the redirect-uri.
+	 * Configuring uri template variables is especially useful when the client is running
+	 * behind a Proxy Server. This ensures that the X-Forwarded-* headers are used when
+	 * expanding the redirect-uri.
 	 *
 	 * @since 5.4
 	 * @return the uri (or uri template) for the redirection endpoint
@@ -136,7 +146,6 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the scope(s) used for the client.
-	 *
 	 * @return the {@code Set} of scope(s)
 	 */
 	public Set<String> getScopes() {
@@ -145,7 +154,6 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the details of the provider.
-	 *
 	 * @return the {@link ProviderDetails}
 	 */
 	public ProviderDetails getProviderDetails() {
@@ -154,7 +162,6 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the logical name of the client or registration.
-	 *
 	 * @return the client or registration name
 	 */
 	public String getClientName() {
@@ -163,29 +170,30 @@ public final class ClientRegistration implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ClientRegistration{"
-			+ "registrationId='" + this.registrationId + '\''
-			+ ", clientId='" + this.clientId + '\''
-			+ ", clientSecret='" + this.clientSecret + '\''
-			+ ", clientAuthenticationMethod=" + this.clientAuthenticationMethod
-			+ ", authorizationGrantType=" + this.authorizationGrantType
-			+ ", redirectUri='" + this.redirectUri + '\''
-			+ ", scopes=" + this.scopes
-			+ ", providerDetails=" + this.providerDetails
-			+ ", clientName='" + this.clientName
-			+ '\'' + '}';
+		return "ClientRegistration{" + "registrationId='" + this.registrationId + '\'' + ", clientId='" + this.clientId
+				+ '\'' + ", clientSecret='" + this.clientSecret + '\'' + ", clientAuthenticationMethod="
+				+ this.clientAuthenticationMethod + ", authorizationGrantType=" + this.authorizationGrantType
+				+ ", redirectUri='" + this.redirectUri + '\'' + ", scopes=" + this.scopes + ", providerDetails="
+				+ this.providerDetails + ", clientName='" + this.clientName + '\'' + '}';
 	}
 
 	/**
 	 * Details of the Provider.
 	 */
 	public class ProviderDetails implements Serializable {
+
 		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 		private String authorizationUri;
+
 		private String tokenUri;
+
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
+
 		private String jwkSetUri;
+
 		private String issuerUri;
+
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
 		private ProviderDetails() {
@@ -193,7 +201,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Returns the uri for the authorization endpoint.
-		 *
 		 * @return the uri for the authorization endpoint
 		 */
 		public String getAuthorizationUri() {
@@ -202,7 +209,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Returns the uri for the token endpoint.
-		 *
 		 * @return the uri for the token endpoint
 		 */
 		public String getTokenUri() {
@@ -211,7 +217,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Returns the details of the {@link UserInfoEndpoint UserInfo Endpoint}.
-		 *
 		 * @return the {@link UserInfoEndpoint}
 		 */
 		public UserInfoEndpoint getUserInfoEndpoint() {
@@ -220,7 +225,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Returns the uri for the JSON Web Key (JWK) Set endpoint.
-		 *
 		 * @return the uri for the JSON Web Key (JWK) Set endpoint
 		 */
 		public String getJwkSetUri() {
@@ -228,11 +232,12 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
-		 * Returns the issuer identifier uri for the OpenID Connect 1.0 provider
-		 * or the OAuth 2.0 Authorization Server.
+		 * Returns the issuer identifier uri for the OpenID Connect 1.0 provider or the
+		 * OAuth 2.0 Authorization Server.
 		 *
 		 * @since 5.4
-		 * @return the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server
+		 * @return the issuer identifier uri for the OpenID Connect 1.0 provider or the
+		 * OAuth 2.0 Authorization Server
 		 */
 		public String getIssuerUri() {
 			return this.issuerUri;
@@ -252,9 +257,13 @@ public final class ClientRegistration implements Serializable {
 		 * Details of the UserInfo Endpoint.
 		 */
 		public class UserInfoEndpoint implements Serializable {
+
 			private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 			private String uri;
+
 			private AuthenticationMethod authenticationMethod = AuthenticationMethod.HEADER;
+
 			private String userNameAttributeName;
 
 			private UserInfoEndpoint() {
@@ -262,7 +271,6 @@ public final class ClientRegistration implements Serializable {
 
 			/**
 			 * Returns the uri for the user info endpoint.
-			 *
 			 * @return the uri for the user info endpoint
 			 */
 			public String getUri() {
@@ -280,19 +288,22 @@ public final class ClientRegistration implements Serializable {
 			}
 
 			/**
-			 * Returns the attribute name used to access the user's name from the user info response.
-			 *
-			 * @return the attribute name used to access the user's name from the user info response
+			 * Returns the attribute name used to access the user's name from the user
+			 * info response.
+			 * @return the attribute name used to access the user's name from the user
+			 * info response
 			 */
 			public String getUserNameAttributeName() {
 				return this.userNameAttributeName;
 			}
+
 		}
+
 	}
 
 	/**
-	 * Returns a new {@link Builder}, initialized with the provided registration identifier.
-	 *
+	 * Returns a new {@link Builder}, initialized with the provided registration
+	 * identifier.
 	 * @param registrationId the identifier for the registration
 	 * @return the {@link Builder}
 	 */
@@ -302,8 +313,8 @@ public final class ClientRegistration implements Serializable {
 	}
 
 	/**
-	 * Returns a new {@link Builder}, initialized with the provided {@link ClientRegistration}.
-	 *
+	 * Returns a new {@link Builder}, initialized with the provided
+	 * {@link ClientRegistration}.
 	 * @param clientRegistration the {@link ClientRegistration} to copy from
 	 * @return the {@link Builder}
 	 */
@@ -316,22 +327,39 @@ public final class ClientRegistration implements Serializable {
 	 * A builder for {@link ClientRegistration}.
 	 */
 	public static class Builder implements Serializable {
+
 		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 		private String registrationId;
+
 		private String clientId;
+
 		private String clientSecret;
+
 		private ClientAuthenticationMethod clientAuthenticationMethod;
+
 		private AuthorizationGrantType authorizationGrantType;
+
 		private String redirectUri;
+
 		private Set<String> scopes;
+
 		private String authorizationUri;
+
 		private String tokenUri;
+
 		private String userInfoUri;
+
 		private AuthenticationMethod userInfoAuthenticationMethod = AuthenticationMethod.HEADER;
+
 		private String userNameAttributeName;
+
 		private String jwkSetUri;
+
 		private String issuerUri;
+
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
+
 		private String clientName;
 
 		private Builder(String registrationId) {
@@ -362,7 +390,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the registration id.
-		 *
 		 * @param registrationId the registration id
 		 * @return the {@link Builder}
 		 */
@@ -373,7 +400,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the client identifier.
-		 *
 		 * @param clientId the client identifier
 		 * @return the {@link Builder}
 		 */
@@ -384,7 +410,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the client secret.
-		 *
 		 * @param clientSecret the client secret
 		 * @return the {@link Builder}
 		 */
@@ -394,9 +419,8 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
-		 * Sets the {@link ClientAuthenticationMethod authentication method} used
-		 * when authenticating the client with the authorization server.
-		 *
+		 * Sets the {@link ClientAuthenticationMethod authentication method} used when
+		 * authenticating the client with the authorization server.
 		 * @param clientAuthenticationMethod the authentication method used for the client
 		 * @return the {@link Builder}
 		 */
@@ -406,8 +430,8 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
-		 * Sets the {@link AuthorizationGrantType authorization grant type} used for the client.
-		 *
+		 * Sets the {@link AuthorizationGrantType authorization grant type} used for the
+		 * client.
 		 * @param authorizationGrantType the authorization grant type used for the client
 		 * @return the {@link Builder}
 		 */
@@ -418,9 +442,9 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the uri (or uri template) for the redirection endpoint.
-		 *
 		 * @deprecated Use {@link #redirectUri(String)} instead
-		 * @param redirectUriTemplate the uri (or uri template) for the redirection endpoint
+		 * @param redirectUriTemplate the uri (or uri template) for the redirection
+		 * endpoint
 		 * @return the {@link Builder}
 		 */
 		@Deprecated
@@ -432,14 +456,17 @@ public final class ClientRegistration implements Serializable {
 		 * Sets the uri (or uri template) for the redirection endpoint.
 		 *
 		 * <br />
-		 * The supported uri template variables are: {baseScheme}, {baseHost}, {basePort}, {basePath} and {registrationId}.
+		 * The supported uri template variables are: {baseScheme}, {baseHost}, {basePort},
+		 * {basePath} and {registrationId}.
 		 *
 		 * <br />
-		 * <b>NOTE:</b> {baseUrl} is also supported, which is the same as {baseScheme}://{baseHost}{basePort}{basePath}.
+		 * <b>NOTE:</b> {baseUrl} is also supported, which is the same as
+		 * {baseScheme}://{baseHost}{basePort}{basePath}.
 		 *
 		 * <br />
-		 * Configuring uri template variables is especially useful when the client is running behind a Proxy Server.
-		 * This ensures that the X-Forwarded-* headers are used when expanding the redirect-uri.
+		 * Configuring uri template variables is especially useful when the client is
+		 * running behind a Proxy Server. This ensures that the X-Forwarded-* headers are
+		 * used when expanding the redirect-uri.
 		 *
 		 * @since 5.4
 		 * @param redirectUri the uri (or uri template) for the redirection endpoint
@@ -452,35 +479,30 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the scope(s) used for the client.
-		 *
 		 * @param scope the scope(s) used for the client
 		 * @return the {@link Builder}
 		 */
 		public Builder scope(String... scope) {
 			if (scope != null && scope.length > 0) {
-				this.scopes = Collections.unmodifiableSet(
-						new LinkedHashSet<>(Arrays.asList(scope)));
+				this.scopes = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(scope)));
 			}
 			return this;
 		}
 
 		/**
 		 * Sets the scope(s) used for the client.
-		 *
 		 * @param scope the scope(s) used for the client
 		 * @return the {@link Builder}
 		 */
 		public Builder scope(Collection<String> scope) {
 			if (scope != null && !scope.isEmpty()) {
-				this.scopes = Collections.unmodifiableSet(
-						new LinkedHashSet<>(scope));
+				this.scopes = Collections.unmodifiableSet(new LinkedHashSet<>(scope));
 			}
 			return this;
 		}
 
 		/**
 		 * Sets the uri for the authorization endpoint.
-		 *
 		 * @param authorizationUri the uri for the authorization endpoint
 		 * @return the {@link Builder}
 		 */
@@ -491,7 +513,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the uri for the token endpoint.
-		 *
 		 * @param tokenUri the uri for the token endpoint
 		 * @return the {@link Builder}
 		 */
@@ -502,7 +523,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the uri for the user info endpoint.
-		 *
 		 * @param userInfoUri the uri for the user info endpoint
 		 * @return the {@link Builder}
 		 */
@@ -515,7 +535,8 @@ public final class ClientRegistration implements Serializable {
 		 * Sets the authentication method for the user info endpoint.
 		 *
 		 * @since 5.1
-		 * @param userInfoAuthenticationMethod the authentication method for the user info endpoint
+		 * @param userInfoAuthenticationMethod the authentication method for the user info
+		 * endpoint
 		 * @return the {@link Builder}
 		 */
 		public Builder userInfoAuthenticationMethod(AuthenticationMethod userInfoAuthenticationMethod) {
@@ -524,9 +545,10 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
-		 * Sets the attribute name used to access the user's name from the user info response.
-		 *
-		 * @param userNameAttributeName the attribute name used to access the user's name from the user info response
+		 * Sets the attribute name used to access the user's name from the user info
+		 * response.
+		 * @param userNameAttributeName the attribute name used to access the user's name
+		 * from the user info response
 		 * @return the {@link Builder}
 		 */
 		public Builder userNameAttributeName(String userNameAttributeName) {
@@ -536,7 +558,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the uri for the JSON Web Key (JWK) Set endpoint.
-		 *
 		 * @param jwkSetUri the uri for the JSON Web Key (JWK) Set endpoint
 		 * @return the {@link Builder}
 		 */
@@ -546,11 +567,12 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
-		 * Sets the issuer identifier uri for the OpenID Connect 1.0 provider
-		 * or the OAuth 2.0 Authorization Server.
+		 * Sets the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth
+		 * 2.0 Authorization Server.
 		 *
 		 * @since 5.4
-		 * @param issuerUri the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server
+		 * @param issuerUri the issuer identifier uri for the OpenID Connect 1.0 provider
+		 * or the OAuth 2.0 Authorization Server
 		 * @return the {@link Builder}
 		 */
 		public Builder issuerUri(String issuerUri) {
@@ -562,7 +584,8 @@ public final class ClientRegistration implements Serializable {
 		 * Sets the metadata describing the provider's configuration.
 		 *
 		 * @since 5.1
-		 * @param configurationMetadata the metadata describing the provider's configuration
+		 * @param configurationMetadata the metadata describing the provider's
+		 * configuration
 		 * @return the {@link Builder}
 		 */
 		public Builder providerConfigurationMetadata(Map<String, Object> configurationMetadata) {
@@ -574,7 +597,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the logical name of the client or registration.
-		 *
 		 * @param clientName the client or registration name
 		 * @return the {@link Builder}
 		 */
@@ -585,18 +607,20 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Builds a new {@link ClientRegistration}.
-		 *
 		 * @return a {@link ClientRegistration}
 		 */
 		public ClientRegistration build() {
 			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
 			if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType)) {
 				this.validateClientCredentialsGrantType();
-			} else if (AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType)) {
+			}
+			else if (AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType)) {
 				this.validatePasswordGrantType();
-			} else if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
+			}
+			else if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
 				this.validateImplicitGrantType();
-			} else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
+			}
+			else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
 				this.validateAuthorizationCodeGrantType();
 			}
 			this.validateScopes();
@@ -611,11 +635,13 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.clientSecret = StringUtils.hasText(this.clientSecret) ? this.clientSecret : "";
 			if (this.clientAuthenticationMethod != null) {
 				clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
-			} else {
-				if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType) &&
-						!StringUtils.hasText(this.clientSecret)) {
+			}
+			else {
+				if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
+						&& !StringUtils.hasText(this.clientSecret)) {
 					clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.NONE;
-				} else {
+				}
+				else {
 					clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 				}
 			}
@@ -634,8 +660,8 @@ public final class ClientRegistration implements Serializable {
 			providerDetails.configurationMetadata = Collections.unmodifiableMap(this.configurationMetadata);
 			clientRegistration.providerDetails = providerDetails;
 
-			clientRegistration.clientName = StringUtils.hasText(this.clientName) ?
-					this.clientName : this.registrationId;
+			clientRegistration.clientName = StringUtils.hasText(this.clientName) ? this.clientName
+					: this.registrationId;
 
 			return clientRegistration;
 		}
@@ -686,15 +712,14 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		private static boolean validateScope(String scope) {
-			return scope == null ||
-					scope.chars().allMatch(c ->
-							withinTheRangeOf(c, 0x21, 0x21) ||
-							withinTheRangeOf(c, 0x23, 0x5B) ||
-							withinTheRangeOf(c, 0x5D, 0x7E));
+			return scope == null || scope.chars().allMatch(c -> withinTheRangeOf(c, 0x21, 0x21)
+					|| withinTheRangeOf(c, 0x23, 0x5B) || withinTheRangeOf(c, 0x5D, 0x7E));
 		}
 
 		private static boolean withinTheRangeOf(int c, int min, int max) {
 			return c >= min && c <= max;
 		}
+
 	}
+
 }

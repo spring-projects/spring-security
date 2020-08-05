@@ -15,7 +15,6 @@
  */
 package org.springframework.security.util;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.*;
@@ -42,15 +41,21 @@ public class FieldUtilsTests {
 		catch (IllegalStateException expected) {
 		}
 	}
+
 }
 
 @SuppressWarnings("unused")
 class TestClass {
+
 	private String protectedField = "x";
+
 	private Nested nested = new Nested();
+
 }
 
 @SuppressWarnings("unused")
 class Nested {
+
 	private String protectedField = "z";
+
 }

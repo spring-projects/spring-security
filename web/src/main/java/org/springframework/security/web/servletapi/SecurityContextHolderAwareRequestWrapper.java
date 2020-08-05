@@ -42,13 +42,13 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @see SecurityContextHolderAwareRequestFilter
- *
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @author Luke Taylor
  * @author Rob Winch
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -65,18 +65,15 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 
 	/**
 	 * Creates a new instance with {@link AuthenticationTrustResolverImpl}.
-	 *
 	 * @param request
 	 * @param rolePrefix
 	 */
-	public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request,
-			String rolePrefix) {
+	public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, String rolePrefix) {
 		this(request, new AuthenticationTrustResolverImpl(), rolePrefix);
 	}
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param request the original {@link HttpServletRequest}
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
@@ -96,7 +93,6 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 
 	/**
 	 * Obtain the current active <code>Authentication</code>
-	 *
 	 * @return the authentication object or <code>null</code>
 	 */
 	private Authentication getAuthentication() {
@@ -113,7 +109,6 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 * Returns the principal's name, as obtained from the
 	 * <code>SecurityContextHolder</code>. Properly handles both <code>String</code>-based
 	 * and <code>UserDetails</code>-based principals.
-	 *
 	 * @return the username or <code>null</code> if unavailable
 	 */
 	@Override
@@ -134,7 +129,6 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	/**
 	 * Returns the <code>Authentication</code> (which is a subclass of
 	 * <code>Principal</code>), or <code>null</code> if unavailable.
-	 *
 	 * @return the <code>Authentication</code>, or <code>null</code>
 	 */
 	@Override
@@ -181,10 +175,8 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 * Will always return <code>false</code> if the <code>SecurityContextHolder</code>
 	 * contains an <code>Authentication</code> with <code>null</code>
 	 * <code>principal</code> and/or <code>GrantedAuthority[]</code> objects.
-	 *
 	 * @param role the <code>GrantedAuthority</code><code>String</code> representation to
 	 * check for
-	 *
 	 * @return <code>true</code> if an <b>exact</b> (case sensitive) matching granted
 	 * authority is located, <code>false</code> otherwise
 	 */
@@ -197,4 +189,5 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	public String toString() {
 		return "SecurityContextHolderAwareRequestWrapper[ " + getRequest() + "]";
 	}
+
 }

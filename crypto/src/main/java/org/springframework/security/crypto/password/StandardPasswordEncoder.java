@@ -45,8 +45,8 @@ import java.security.MessageDigest;
  * @deprecated Digest based password encoding is not considered secure. Instead use an
  * adaptive one way function like BCryptPasswordEncoder, Pbkdf2PasswordEncoder, or
  * SCryptPasswordEncoder. Even better use {@link DelegatingPasswordEncoder} which supports
- * password upgrades. There are no plans to remove this support. It is deprecated to indicate
- * that this is a legacy implementation and using it is considered insecure.
+ * password upgrades. There are no plans to remove this support. It is deprecated to
+ * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
 public final class StandardPasswordEncoder implements PasswordEncoder {
@@ -67,7 +67,6 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	/**
 	 * Constructs a standard password encoder with a secret value which is also included
 	 * in the password hash.
-	 *
 	 * @param secret the secret key used in the encoding process (should not be shared)
 	 */
 	public StandardPasswordEncoder(CharSequence secret) {
@@ -98,8 +97,7 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	}
 
 	private byte[] digest(CharSequence rawPassword, byte[] salt) {
-		byte[] digest = digester.digest(concatenate(salt, secret,
-				Utf8.encode(rawPassword)));
+		byte[] digest = digester.digest(concatenate(salt, secret, Utf8.encode(rawPassword)));
 		return concatenate(salt, digest);
 	}
 

@@ -55,4 +55,5 @@ public class BadCredentialsExceptionMixinTests extends AbstractMixinTests {
 		assertThat(exception.getMessage()).isEqualTo("message");
 		assertThat(exception.getLocalizedMessage()).isEqualTo("message");
 	}
+
 }

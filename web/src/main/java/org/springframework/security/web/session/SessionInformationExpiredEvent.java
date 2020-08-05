@@ -25,22 +25,24 @@ import org.springframework.util.Assert;
 
 /**
  * An event for when a {@link SessionInformation} is expired.
+ *
  * @author Rob Winch
  * @since 4.2
  */
 public final class SessionInformationExpiredEvent extends ApplicationEvent {
 
 	private HttpServletRequest request;
+
 	private HttpServletResponse response;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param sessionInformation the SessionInformation that is expired
 	 * @param request the HttpServletRequest
 	 * @param response the HttpServletResponse
 	 */
-	public SessionInformationExpiredEvent(SessionInformation sessionInformation, HttpServletRequest request, HttpServletResponse response) {
+	public SessionInformationExpiredEvent(SessionInformation sessionInformation, HttpServletRequest request,
+			HttpServletResponse response) {
 		super(sessionInformation);
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
@@ -65,4 +67,5 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	public SessionInformation getSessionInformation() {
 		return (SessionInformation) getSource();
 	}
+
 }

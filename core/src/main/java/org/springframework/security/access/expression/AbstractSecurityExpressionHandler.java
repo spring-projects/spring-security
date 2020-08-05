@@ -36,11 +36,15 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.1
  */
-public abstract class AbstractSecurityExpressionHandler<T> implements
-		SecurityExpressionHandler<T>, ApplicationContextAware {
+public abstract class AbstractSecurityExpressionHandler<T>
+		implements SecurityExpressionHandler<T>, ApplicationContextAware {
+
 	private ExpressionParser expressionParser = new SpelExpressionParser();
+
 	private BeanResolver br;
+
 	private RoleHierarchy roleHierarchy;
+
 	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
 	public final ExpressionParser getExpressionParser() {
@@ -55,18 +59,14 @@ public abstract class AbstractSecurityExpressionHandler<T> implements
 	/**
 	 * Invokes the internal template methods to create {@code StandardEvaluationContext}
 	 * and {@code SecurityExpressionRoot} objects.
-	 *
 	 * @param authentication the current authentication object
 	 * @param invocation the invocation (filter, method, channel)
 	 * @return the context object for use in evaluating the expression, populated with a
 	 * suitable root object.
 	 */
-	public final EvaluationContext createEvaluationContext(Authentication authentication,
-			T invocation) {
-		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication,
-				invocation);
-		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication,
-				invocation);
+	public final EvaluationContext createEvaluationContext(Authentication authentication, T invocation) {
+		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
+		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
 		ctx.setBeanResolver(br);
 		ctx.setRootObject(root);
 
@@ -79,27 +79,24 @@ public abstract class AbstractSecurityExpressionHandler<T> implements
 	 * The returned object will have a {@code SecurityExpressionRootPropertyAccessor}
 	 * added, allowing beans in the {@code ApplicationContext} to be accessed via
 	 * expression properties.
-	 *
 	 * @param authentication the current authentication object
 	 * @param invocation the invocation (filter, method, channel)
 	 * @return A {@code StandardEvaluationContext} or potentially a custom subclass if
 	 * overridden.
 	 */
-	protected StandardEvaluationContext createEvaluationContextInternal(
-			Authentication authentication, T invocation) {
+	protected StandardEvaluationContext createEvaluationContextInternal(Authentication authentication, T invocation) {
 		return new StandardEvaluationContext();
 	}
 
 	/**
 	 * Implement in order to create a root object of the correct type for the supported
 	 * invocation type.
-	 *
 	 * @param authentication the current authentication object
 	 * @param invocation the invocation (filter, method, channel)
 	 * @return the object wh
 	 */
-	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(
-			Authentication authentication, T invocation);
+	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+			T invocation);
 
 	protected RoleHierarchy getRoleHierarchy() {
 		return roleHierarchy;
@@ -120,4 +117,5 @@ public abstract class AbstractSecurityExpressionHandler<T> implements
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		br = new BeanFactoryResolver(applicationContext);
 	}
+
 }

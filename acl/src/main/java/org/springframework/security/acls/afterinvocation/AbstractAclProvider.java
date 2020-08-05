@@ -40,14 +40,20 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public abstract class AbstractAclProvider implements AfterInvocationProvider {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	protected final AclService aclService;
+
 	protected Class<?> processDomainObjectClass = Object.class;
+
 	protected ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+
 	protected SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+
 	protected String processConfigAttribute;
+
 	protected final List<Permission> requirePermission;
 
 	// ~ Constructors
@@ -59,8 +65,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 		Assert.notNull(aclService, "An AclService is mandatory");
 
 		if (requirePermission == null || requirePermission.isEmpty()) {
-			throw new IllegalArgumentException(
-					"One or more requirePermission entries is mandatory");
+			throw new IllegalArgumentException("One or more requirePermission entries is mandatory");
 		}
 
 		this.aclService = aclService;
@@ -77,8 +82,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 
 	protected boolean hasPermission(Authentication authentication, Object domainObject) {
 		// Obtain the OID applicable to the domain object
-		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy
-				.getObjectIdentity(domainObject);
+		ObjectIdentity objectIdentity = objectIdentityRetrievalStrategy.getObjectIdentity(domainObject);
 
 		// Obtain the SIDs applicable to the principal
 		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
@@ -94,10 +98,8 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 		}
 	}
 
-	public void setObjectIdentityRetrievalStrategy(
-			ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
-		Assert.notNull(objectIdentityRetrievalStrategy,
-				"ObjectIdentityRetrievalStrategy required");
+	public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
+		Assert.notNull(objectIdentityRetrievalStrategy, "ObjectIdentityRetrievalStrategy required");
 		this.objectIdentityRetrievalStrategy = objectIdentityRetrievalStrategy;
 	}
 
@@ -107,8 +109,7 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 	}
 
 	public void setProcessDomainObjectClass(Class<?> processDomainObjectClass) {
-		Assert.notNull(processDomainObjectClass,
-				"processDomainObjectClass cannot be set to null");
+		Assert.notNull(processDomainObjectClass, "processDomainObjectClass cannot be set to null");
 		this.processDomainObjectClass = processDomainObjectClass;
 	}
 
@@ -124,12 +125,11 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 	/**
 	 * This implementation supports any type of class, because it does not query the
 	 * presented secure object.
-	 *
 	 * @param clazz the secure object
-	 *
 	 * @return always <code>true</code>
 	 */
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
+
 }

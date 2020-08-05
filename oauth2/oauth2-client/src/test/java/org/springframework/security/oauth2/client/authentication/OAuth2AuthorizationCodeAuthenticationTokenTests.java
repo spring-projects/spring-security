@@ -37,15 +37,17 @@ import static org.springframework.security.oauth2.core.endpoint.TestOAuth2Author
  * @author Joe Grandja
  */
 public class OAuth2AuthorizationCodeAuthenticationTokenTests {
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AuthorizationExchange authorizationExchange;
+
 	private OAuth2AccessToken accessToken;
 
 	@Before
 	public void setUp() {
 		this.clientRegistration = clientRegistration().build();
-		this.authorizationExchange = new OAuth2AuthorizationExchange(request().build(),
-				success().code("code").build());
+		this.authorizationExchange = new OAuth2AuthorizationExchange(request().build(), success().code("code").build());
 		this.accessToken = noScopes();
 	}
 
@@ -63,11 +65,12 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 
 	@Test
 	public void constructorAuthorizationRequestResponseWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AuthorizationCodeAuthenticationToken authentication =
-			new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, this.authorizationExchange);
+		OAuth2AuthorizationCodeAuthenticationToken authentication = new OAuth2AuthorizationCodeAuthenticationToken(
+				this.clientRegistration, this.authorizationExchange);
 
 		assertThat(authentication.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
-		assertThat(authentication.getCredentials()).isEqualTo(this.authorizationExchange.getAuthorizationResponse().getCode());
+		assertThat(authentication.getCredentials())
+				.isEqualTo(this.authorizationExchange.getAuthorizationResponse().getCode());
 		assertThat(authentication.getAuthorities()).isEqualTo(Collections.emptyList());
 		assertThat(authentication.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authentication.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
@@ -77,26 +80,27 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 
 	@Test
 	public void constructorTokenRequestResponseWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(null, this.authorizationExchange, this.accessToken))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(null, this.authorizationExchange,
+				this.accessToken)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorTokenRequestResponseWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, null, this.accessToken))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(
+				() -> new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, null, this.accessToken))
+						.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorTokenRequestResponseWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, this.authorizationExchange, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration,
+				this.authorizationExchange, null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorTokenRequestResponseWhenAllParametersProvidedAndValidThenCreated() {
 		OAuth2AuthorizationCodeAuthenticationToken authentication = new OAuth2AuthorizationCodeAuthenticationToken(
-			this.clientRegistration, this.authorizationExchange, this.accessToken);
+				this.clientRegistration, this.authorizationExchange, this.accessToken);
 
 		assertThat(authentication.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
 		assertThat(authentication.getCredentials()).isEqualTo(this.accessToken.getTokenValue());
@@ -106,4 +110,5 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 		assertThat(authentication.getAccessToken()).isEqualTo(this.accessToken);
 		assertThat(authentication.isAuthenticated()).isEqualTo(true);
 	}
+
 }

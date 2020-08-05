@@ -24,17 +24,25 @@ import java.io.Serializable;
  * @author Ray Krueger
  */
 public class SavedCookie implements Serializable {
+
 	private final java.lang.String name;
+
 	private final java.lang.String value;
+
 	private final java.lang.String comment;
+
 	private final java.lang.String domain;
+
 	private final int maxAge;
+
 	private final java.lang.String path;
+
 	private final boolean secure;
+
 	private final int version;
 
-	public SavedCookie(String name, String value, String comment, String domain,
-			int maxAge, String path, boolean secure, int version) {
+	public SavedCookie(String name, String value, String comment, String domain, int maxAge, String path,
+			boolean secure, int version) {
 		this.name = name;
 		this.value = value;
 		this.comment = comment;
@@ -46,9 +54,8 @@ public class SavedCookie implements Serializable {
 	}
 
 	public SavedCookie(Cookie cookie) {
-		this(cookie.getName(), cookie.getValue(), cookie.getComment(),
-				cookie.getDomain(), cookie.getMaxAge(), cookie.getPath(), cookie
-						.getSecure(), cookie.getVersion());
+		this(cookie.getName(), cookie.getValue(), cookie.getComment(), cookie.getDomain(), cookie.getMaxAge(),
+				cookie.getPath(), cookie.getSecure(), cookie.getVersion());
 	}
 
 	public String getName() {
@@ -100,4 +107,5 @@ public class SavedCookie implements Serializable {
 		c.setSecure(isSecure());
 		return c;
 	}
+
 }

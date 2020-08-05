@@ -31,11 +31,11 @@ import org.springframework.util.ObjectUtils;
  *
  */
 public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
+
 	private final SimpMessageType typeToMatch;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param typeToMatch the {@link SimpMessageType} that will result in a match. Cannot
 	 * be null.
 	 */
@@ -75,4 +75,5 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 	public String toString() {
 		return "SimpMessageTypeMatcher [typeToMatch=" + typeToMatch + "]";
 	}
+
 }

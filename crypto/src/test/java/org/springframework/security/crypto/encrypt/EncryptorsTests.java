@@ -29,8 +29,7 @@ public class EncryptorsTests {
 		assertThat(result).isNotNull();
 		assertThat(new String(result).equals("text")).isFalse();
 		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
-		assertThat(new String(result)).isNotEqualTo(
-				new String(encryptor.encrypt("text".getBytes())));
+		assertThat(new String(result)).isNotEqualTo(new String(encryptor.encrypt("text".getBytes())));
 	}
 
 	@Test
@@ -41,8 +40,7 @@ public class EncryptorsTests {
 		assertThat(result).isNotNull();
 		assertThat(new String(result).equals("text")).isFalse();
 		assertThat(new String(encryptor.decrypt(result))).isEqualTo("text");
-		assertThat(new String(result)).isNotEqualTo(
-				new String(encryptor.encrypt("text".getBytes())));
+		assertThat(new String(result)).isNotEqualTo(new String(encryptor.encrypt("text".getBytes())));
 	}
 
 	@Test
@@ -70,8 +68,7 @@ public class EncryptorsTests {
 	@Test
 	public void queryableText() {
 		CryptoAssumptions.assumeCBCJCE();
-		TextEncryptor encryptor = Encryptors.queryableText("password",
-				"5c0744940b5c369b");
+		TextEncryptor encryptor = Encryptors.queryableText("password", "5c0744940b5c369b");
 		String result = encryptor.encrypt("text");
 		assertThat(result).isNotNull();
 		assertThat(result.equals("text")).isFalse();

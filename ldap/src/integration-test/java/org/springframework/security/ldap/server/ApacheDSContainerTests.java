@@ -50,10 +50,8 @@ public class ApacheDSContainerTests {
 	// SEC-2162
 	@Test
 	public void failsToStartThrowsException() throws Exception {
-		ApacheDSContainer server1 = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
-		ApacheDSContainer server2 = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:missing.ldif");
+		ApacheDSContainer server1 = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+		ApacheDSContainer server2 = new ApacheDSContainer("dc=springframework,dc=org", "classpath:missing.ldif");
 		List<Integer> ports = getDefaultPorts(1);
 		server1.setPort(ports.get(0));
 		server2.setPort(ports.get(0));
@@ -83,10 +81,8 @@ public class ApacheDSContainerTests {
 	// SEC-2161
 	@Test
 	public void multipleInstancesSimultanciously() throws Exception {
-		ApacheDSContainer server1 = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
-		ApacheDSContainer server2 = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		ApacheDSContainer server1 = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+		ApacheDSContainer server2 = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
 		List<Integer> ports = getDefaultPorts(2);
 		server1.setPort(ports.get(0));
 		server2.setPort(ports.get(1));
@@ -110,8 +106,7 @@ public class ApacheDSContainerTests {
 
 	@Test
 	public void startWithLdapOverSslWithoutCertificate() throws Exception {
-		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
 		server.setLdapOverSslEnabled(true);
@@ -120,21 +115,21 @@ public class ApacheDSContainerTests {
 			server.afterPropertiesSet();
 			fail("Expected an IllegalArgumentException to be thrown.");
 		}
-		catch (IllegalArgumentException e){
+		catch (IllegalArgumentException e) {
 			assertThat(e).hasMessage("When LdapOverSsl is enabled, the keyStoreFile property must be set.");
 		}
 	}
 
 	@Test
 	public void startWithLdapOverSslWithWrongPassword() throws Exception {
-		final ClassPathResource keyStoreResource = new ClassPathResource("/org/springframework/security/ldap/server/spring.keystore");
+		final ClassPathResource keyStoreResource = new ClassPathResource(
+				"/org/springframework/security/ldap/server/spring.keystore");
 		final File temporaryKeyStoreFile = new File(temporaryFolder.getRoot(), "spring.keystore");
 		FileCopyUtils.copy(keyStoreResource.getInputStream(), new FileOutputStream(temporaryKeyStoreFile));
 
 		assertThat(temporaryKeyStoreFile).isFile();
 
-		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
 
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
@@ -147,15 +142,15 @@ public class ApacheDSContainerTests {
 			server.afterPropertiesSet();
 			fail("Expected a RuntimeException to be thrown.");
 		}
-		catch (RuntimeException e){
+		catch (RuntimeException e) {
 			assertThat(e).hasMessage("Server startup failed");
 			assertThat(e).hasRootCauseInstanceOf(UnrecoverableKeyException.class);
 		}
 	}
 
 	/**
-	 * This test starts an LDAP server using LDAPs (LDAP over SSL). A self-signed certificate is being used, which was
-	 * previously generated with:
+	 * This test starts an LDAP server using LDAPs (LDAP over SSL). A self-signed
+	 * certificate is being used, which was previously generated with:
 	 *
 	 * <pre>
 	 * {@code
@@ -168,14 +163,14 @@ public class ApacheDSContainerTests {
 	@Test
 	public void startWithLdapOverSsl() throws Exception {
 
-		final ClassPathResource keyStoreResource = new ClassPathResource("/org/springframework/security/ldap/server/spring.keystore");
+		final ClassPathResource keyStoreResource = new ClassPathResource(
+				"/org/springframework/security/ldap/server/spring.keystore");
 		final File temporaryKeyStoreFile = new File(temporaryFolder.getRoot(), "spring.keystore");
 		FileCopyUtils.copy(keyStoreResource.getInputStream(), new FileOutputStream(temporaryKeyStoreFile));
 
 		assertThat(temporaryKeyStoreFile).isFile();
 
-		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
 
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
@@ -216,8 +211,7 @@ public class ApacheDSContainerTests {
 
 	@Test
 	public void afterPropertiesSetWhenPortIsZeroThenRandomPortIsSelected() throws Exception {
-		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		ApacheDSContainer server = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
 		server.setPort(0);
 		try {
 			server.afterPropertiesSet();
@@ -229,4 +223,5 @@ public class ApacheDSContainerTests {
 			server.destroy();
 		}
 	}
+
 }

@@ -31,8 +31,7 @@ public class AuthenticationCredentialsNotFoundEventTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNulls() {
-		new AuthenticationCredentialsNotFoundEvent(null,
-				SecurityConfig.createList("TEST"),
+		new AuthenticationCredentialsNotFoundEvent(null, SecurityConfig.createList("TEST"),
 				new AuthenticationCredentialsNotFoundException("test"));
 	}
 
@@ -44,7 +43,8 @@ public class AuthenticationCredentialsNotFoundEventTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRejectsNulls3() {
-		new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(),
-				SecurityConfig.createList("TEST"), null);
+		new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"),
+				null);
 	}
+
 }

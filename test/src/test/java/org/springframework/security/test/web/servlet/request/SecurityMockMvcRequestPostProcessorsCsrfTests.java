@@ -62,10 +62,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsCsrfTests {
+
 	@Autowired
 	WebApplicationContext wac;
+
 	@Autowired
 	TheController controller;
+
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
 
@@ -177,6 +180,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			assertThat(request.getParameter("_csrf")).isNotNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNull();
 		}
+
 	}
 
 	public static ResultMatcher csrfAsHeader() {
@@ -191,18 +195,19 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			assertThat(request.getParameter("_csrf")).isNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNotNull();
 		}
+
 	}
 
 	static class SessionRepositoryFilter extends OncePerRequestFilter {
 
 		@Override
-		protected void doFilterInternal(HttpServletRequest request,
-				HttpServletResponse response, FilterChain filterChain)
-						throws ServletException, IOException {
+		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+				FilterChain filterChain) throws ServletException, IOException {
 			filterChain.doFilter(new SessionRequestWrapper(request), response);
 		}
 
 		static class SessionRequestWrapper extends HttpServletRequestWrapper {
+
 			HttpSession session = new MockHttpSession();
 
 			SessionRequestWrapper(HttpServletRequest request) {
@@ -218,21 +223,28 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			public HttpSession getSession() {
 				return this.session;
 			}
+
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
 
 		@RestController
 		static class TheController {
+
 			@RequestMapping("/")
 			String index() {
 				return "Hi";
 			}
+
 		}
+
 	}
+
 }

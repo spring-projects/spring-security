@@ -31,15 +31,15 @@ import java.util.*;
  * @author Luke Taylor
  * @since 2.0
  */
-public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends
-		WebAuthenticationDetails implements GrantedAuthoritiesContainer {
+public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends WebAuthenticationDetails
+		implements GrantedAuthoritiesContainer {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private final List<GrantedAuthority> authorities;
 
-	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-			HttpServletRequest request, Collection<? extends GrantedAuthority> authorities) {
+	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request,
+			Collection<? extends GrantedAuthority> authorities) {
 		super(request);
 
 		List<GrantedAuthority> temp = new ArrayList<>(authorities.size());
@@ -59,4 +59,5 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends
 		sb.append(authorities);
 		return sb.toString();
 	}
+
 }

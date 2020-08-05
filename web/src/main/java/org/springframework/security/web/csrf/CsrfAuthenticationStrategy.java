@@ -53,9 +53,8 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
-	public void onAuthentication(Authentication authentication,
-			HttpServletRequest request, HttpServletResponse response)
-					throws SessionAuthenticationException {
+	public void onAuthentication(Authentication authentication, HttpServletRequest request,
+			HttpServletResponse response) throws SessionAuthenticationException {
 		boolean containsToken = this.csrfTokenRepository.loadToken(request) != null;
 		if (containsToken) {
 			this.csrfTokenRepository.saveToken(null, request, response);
@@ -67,4 +66,5 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 			request.setAttribute(newToken.getParameterName(), newToken);
 		}
 	}
+
 }

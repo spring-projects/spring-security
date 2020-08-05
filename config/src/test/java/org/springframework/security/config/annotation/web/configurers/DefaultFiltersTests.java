@@ -78,6 +78,7 @@ public class DefaultFiltersTests {
 
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderMissingConfig {
+
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -86,31 +87,36 @@ public class DefaultFiltersTests {
 					.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void nullWebInvocationPrivilegeEvaluator() {
 		this.spring.register(NullWebInvocationPrivilegeEvaluatorConfig.class, UserDetailsServiceConfig.class);
-		List<SecurityFilterChain> filterChains = this.spring.getContext().getBean(FilterChainProxy.class).getFilterChains();
+		List<SecurityFilterChain> filterChains = this.spring.getContext().getBean(FilterChainProxy.class)
+				.getFilterChains();
 		assertThat(filterChains.size()).isEqualTo(1);
 		DefaultSecurityFilterChain filterChain = (DefaultSecurityFilterChain) filterChains.get(0);
 		assertThat(filterChain.getRequestMatcher()).isInstanceOf(AnyRequestMatcher.class);
 		assertThat(filterChain.getFilters().size()).isEqualTo(1);
-		long filter = filterChain.getFilters().stream()
-				.filter(it -> it instanceof UsernamePasswordAuthenticationFilter).count();
+		long filter = filterChain.getFilters().stream().filter(it -> it instanceof UsernamePasswordAuthenticationFilter)
+				.count();
 		assertThat(filter).isEqualTo(1);
 	}
 
 	@Configuration
 	static class UserDetailsServiceConfig {
+
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user(), PasswordEncodedUser.admin());
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class NullWebInvocationPrivilegeEvaluatorConfig extends WebSecurityConfigurerAdapter {
+
 		NullWebInvocationPrivilegeEvaluatorConfig() {
 			super(true);
 		}
@@ -118,12 +124,14 @@ public class DefaultFiltersTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.formLogin();
 		}
+
 	}
 
 	@Test
 	public void filterChainProxyBuilderIgnoringResources() {
 		this.spring.register(FilterChainProxyBuilderIgnoringConfig.class, UserDetailsServiceConfig.class);
-		List<SecurityFilterChain> filterChains = this.spring.getContext().getBean(FilterChainProxy.class).getFilterChains();
+		List<SecurityFilterChain> filterChains = this.spring.getContext().getBean(FilterChainProxy.class)
+				.getFilterChains();
 		assertThat(filterChains.size()).isEqualTo(2);
 		DefaultSecurityFilterChain firstFilter = (DefaultSecurityFilterChain) filterChains.get(0);
 		DefaultSecurityFilterChain secondFilter = (DefaultSecurityFilterChain) filterChains.get(1);
@@ -148,6 +156,7 @@ public class DefaultFiltersTests {
 
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderIgnoringConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(WebSecurity web) {
 			// @formatter:off
@@ -165,6 +174,7 @@ public class DefaultFiltersTests {
 					.anyRequest().hasRole("USER");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -185,7 +195,10 @@ public class DefaultFiltersTests {
 
 	@EnableWebSecurity
 	static class DefaultFiltersConfigPermitAll extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) {
 		}
+
 	}
+
 }

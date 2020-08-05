@@ -39,8 +39,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 public class AuthenticatedVoterTests {
 
 	private Authentication createAnonymous() {
-		return new AnonymousAuthenticationToken("ignored", "ignored",
-				AuthorityUtils.createAuthorityList("ignored"));
+		return new AnonymousAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"));
 	}
 
 	private Authentication createFullyAuthenticated() {
@@ -49,47 +48,34 @@ public class AuthenticatedVoterTests {
 	}
 
 	private Authentication createRememberMe() {
-		return new RememberMeAuthenticationToken("ignored", "ignored",
-				AuthorityUtils.createAuthorityList("ignored"));
+		return new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"));
 	}
 
 	@Test
 	public void testAnonymousWorks() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-		List<ConfigAttribute> def = SecurityConfig.createList(
-				AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY);
-		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(
-				voter.vote(createAnonymous(), null, def));
-		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(
-				voter.vote(createRememberMe(), null, def));
-		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(
-				voter.vote(createFullyAuthenticated(), null, def));
+		List<ConfigAttribute> def = SecurityConfig.createList(AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY);
+		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createAnonymous(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createRememberMe(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createFullyAuthenticated(), null, def));
 	}
 
 	@Test
 	public void testFullyWorks() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-		List<ConfigAttribute> def = SecurityConfig.createList(
-				AuthenticatedVoter.IS_AUTHENTICATED_FULLY);
-		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(
-				voter.vote(createAnonymous(), null, def));
-		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(
-				voter.vote(createRememberMe(), null, def));
-		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(
-				voter.vote(createFullyAuthenticated(), null, def));
+		List<ConfigAttribute> def = SecurityConfig.createList(AuthenticatedVoter.IS_AUTHENTICATED_FULLY);
+		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(createAnonymous(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(createRememberMe(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createFullyAuthenticated(), null, def));
 	}
 
 	@Test
 	public void testRememberMeWorks() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
-		List<ConfigAttribute> def = SecurityConfig.createList(
-				AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED);
-		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(
-				voter.vote(createAnonymous(), null, def));
-		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(
-				voter.vote(createRememberMe(), null, def));
-		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(
-				voter.vote(createFullyAuthenticated(), null, def));
+		List<ConfigAttribute> def = SecurityConfig.createList(AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED);
+		assertThat(AccessDecisionVoter.ACCESS_DENIED).isEqualTo(voter.vote(createAnonymous(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createRememberMe(), null, def));
+		assertThat(AccessDecisionVoter.ACCESS_GRANTED).isEqualTo(voter.vote(createFullyAuthenticated(), null, def));
 	}
 
 	@Test
@@ -109,12 +95,10 @@ public class AuthenticatedVoterTests {
 	public void testSupports() {
 		AuthenticatedVoter voter = new AuthenticatedVoter();
 		assertThat(voter.supports(String.class)).isTrue();
-		assertThat(voter.supports(new SecurityConfig(
-				AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY))).isTrue();
-		assertThat(voter.supports(
-				new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_FULLY))).isTrue();
-		assertThat(voter.supports(new SecurityConfig(
-				AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED))).isTrue();
+		assertThat(voter.supports(new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_ANONYMOUSLY))).isTrue();
+		assertThat(voter.supports(new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_FULLY))).isTrue();
+		assertThat(voter.supports(new SecurityConfig(AuthenticatedVoter.IS_AUTHENTICATED_REMEMBERED))).isTrue();
 		assertThat(voter.supports(new SecurityConfig("FOO"))).isFalse();
 	}
+
 }

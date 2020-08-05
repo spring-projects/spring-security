@@ -36,11 +36,9 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  */
 public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor {
 
-	public boolean beforeHandshake(ServerHttpRequest request,
-			ServerHttpResponse response, WebSocketHandler wsHandler,
+	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Map<String, Object> attributes) {
-		HttpServletRequest httpRequest = ((ServletServerHttpRequest) request)
-				.getServletRequest();
+		HttpServletRequest httpRequest = ((ServletServerHttpRequest) request).getServletRequest();
 		CsrfToken token = (CsrfToken) httpRequest.getAttribute(CsrfToken.class.getName());
 		if (token == null) {
 			return true;
@@ -49,7 +47,8 @@ public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor
 		return true;
 	}
 
-	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
-			WebSocketHandler wsHandler, Exception exception) {
+	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
+			Exception exception) {
 	}
+
 }

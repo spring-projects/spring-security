@@ -44,16 +44,22 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelSecurityInterceptorTests {
+
 	@Mock
 	Message<Object> message;
+
 	@Mock
 	MessageChannel channel;
+
 	@Mock
 	MessageSecurityMetadataSource source;
+
 	@Mock
 	AccessDecisionManager accessDecisionManager;
+
 	@Mock
 	RunAsManager runAsManager;
+
 	@Mock
 	Authentication runAs;
 
@@ -65,7 +71,7 @@ public class ChannelSecurityInterceptorTests {
 
 	@Before
 	public void setup() {
-		attrs = Arrays.<ConfigAttribute> asList(new SecurityConfig("ROLE_USER"));
+		attrs = Arrays.<ConfigAttribute>asList(new SecurityConfig("ROLE_USER"));
 		interceptor = new ChannelSecurityInterceptor(source);
 		interceptor.setAccessDecisionManager(accessDecisionManager);
 		interceptor.setRunAsManager(runAsManager);
@@ -111,8 +117,8 @@ public class ChannelSecurityInterceptorTests {
 	@Test(expected = AccessDeniedException.class)
 	public void preSendDeny() {
 		when(source.getAttributes(message)).thenReturn(attrs);
-		doThrow(new AccessDeniedException("")).when(accessDecisionManager).decide(
-				any(Authentication.class), eq(message), eq(attrs));
+		doThrow(new AccessDeniedException("")).when(accessDecisionManager).decide(any(Authentication.class),
+				eq(message), eq(attrs));
 
 		interceptor.preSend(message, channel);
 	}
@@ -121,19 +127,15 @@ public class ChannelSecurityInterceptorTests {
 	@Test
 	public void preSendPostSendRunAs() {
 		when(source.getAttributes(message)).thenReturn(attrs);
-		when(
-				runAsManager.buildRunAs(any(Authentication.class), any(),
-						any(Collection.class))).thenReturn(runAs);
+		when(runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class))).thenReturn(runAs);
 
 		Message<?> preSend = interceptor.preSend(message, channel);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication())
-				.isSameAs(runAs);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(runAs);
 
 		interceptor.postSend(preSend, channel, true);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(
-				originalAuth);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(originalAuth);
 	}
 
 	@Test
@@ -145,19 +147,15 @@ public class ChannelSecurityInterceptorTests {
 	@Test
 	public void preSendFinallySendRunAs() {
 		when(source.getAttributes(message)).thenReturn(attrs);
-		when(
-				runAsManager.buildRunAs(any(Authentication.class), any(),
-						any(Collection.class))).thenReturn(runAs);
+		when(runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class))).thenReturn(runAs);
 
 		Message<?> preSend = interceptor.preSend(message, channel);
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication())
-				.isSameAs(runAs);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(runAs);
 
 		interceptor.afterSendCompletion(preSend, channel, true, new RuntimeException());
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(
-				originalAuth);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(originalAuth);
 	}
 
 	@Test
@@ -174,4 +172,5 @@ public class ChannelSecurityInterceptorTests {
 	public void afterReceiveCompletionNullExceptionNoExceptionThrown() {
 		interceptor.afterReceiveCompletion(message, channel, null);
 	}
+
 }

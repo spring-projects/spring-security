@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public class PostProcessedMockUserDetailsService implements UserDetailsService {
+
 	private String postProcessorWasHere;
 
 	public PostProcessedMockUserDetailsService() {
@@ -36,4 +37,5 @@ public class PostProcessedMockUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) {
 		throw new UnsupportedOperationException("Not for actual use");
 	}
+
 }

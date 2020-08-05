@@ -80,30 +80,22 @@ public class NamespaceRememberMeTests {
 	@Test
 	public void rememberMeLoginWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(RememberMeConfig.class, SecurityController.class).autowire();
-		MvcResult result = this.mvc.perform(post("/login")
-				.with(rememberMeLogin()))
-				.andReturn();
+		MvcResult result = this.mvc.perform(post("/login").with(rememberMeLogin())).andReturn();
 
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		Cookie rememberMe = result.getResponse().getCookie("remember-me");
 		assertThat(rememberMe).isNotNull();
-		this.mvc.perform(get("/authentication-class")
-				.cookie(rememberMe))
+		this.mvc.perform(get("/authentication-class").cookie(rememberMe))
 				.andExpect(content().string(RememberMeAuthenticationToken.class.getName()));
 
-		result = this.mvc.perform(post("/logout").with(csrf())
-				.session(session)
-				.cookie(rememberMe))
-				.andExpect(redirectedUrl("/login?logout"))
-				.andReturn();
+		result = this.mvc.perform(post("/logout").with(csrf()).session(session).cookie(rememberMe))
+				.andExpect(redirectedUrl("/login?logout")).andReturn();
 
 		rememberMe = result.getResponse().getCookie("remember-me");
 		assertThat(rememberMe).isNotNull().extracting(Cookie::getMaxAge).isEqualTo(0);
 
-		this.mvc.perform(post("/authentication-class").with(csrf())
-				.cookie(rememberMe))
-				.andExpect(redirectedUrl("http://localhost/login"))
-				.andReturn();
+		this.mvc.perform(post("/authentication-class").with(csrf()).cookie(rememberMe))
+				.andExpect(redirectedUrl("http://localhost/login")).andReturn();
 	}
 
 	@Configuration
@@ -122,28 +114,33 @@ public class NamespaceRememberMeTests {
 				.rememberMe();
 			// @formatter:on
 		}
+
 	}
 
-	// SEC-3170 - RememberMeService implementations should not have to also implement LogoutHandler
+	// SEC-3170 - RememberMeService implementations should not have to also implement
+	// LogoutHandler
 	@Test
 	public void logoutWhenCustomRememberMeServicesDeclaredThenUses() throws Exception {
 		RememberMeServicesRefConfig.REMEMBER_ME_SERVICES = mock(RememberMeServicesWithoutLogoutHandler.class);
 		this.spring.register(RememberMeServicesRefConfig.class).autowire();
 
 		this.mvc.perform(get("/"));
-		verify(RememberMeServicesRefConfig.REMEMBER_ME_SERVICES)
-				.autoLogin(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(RememberMeServicesRefConfig.REMEMBER_ME_SERVICES).autoLogin(any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 
 		this.mvc.perform(post("/login").with(csrf()));
-		verify(RememberMeServicesRefConfig.REMEMBER_ME_SERVICES)
-				.loginFail(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(RememberMeServicesRefConfig.REMEMBER_ME_SERVICES).loginFail(any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 	}
 
-	interface RememberMeServicesWithoutLogoutHandler extends RememberMeServices {}
+	interface RememberMeServicesWithoutLogoutHandler extends RememberMeServices {
+
+	}
 
 	@Configuration
 	@EnableWebSecurity
 	static class RememberMeServicesRefConfig extends WebSecurityConfigurerAdapter {
+
 		static RememberMeServices REMEMBER_ME_SERVICES;
 
 		@Override
@@ -156,6 +153,7 @@ public class NamespaceRememberMeTests {
 					.rememberMeServices(REMEMBER_ME_SERVICES);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -163,24 +161,22 @@ public class NamespaceRememberMeTests {
 		AuthSuccessConfig.SUCCESS_HANDLER = mock(AuthenticationSuccessHandler.class);
 		this.spring.register(AuthSuccessConfig.class).autowire();
 
-		MvcResult result = this.mvc.perform(post("/login")
-				.with(rememberMeLogin()))
-				.andReturn();
+		MvcResult result = this.mvc.perform(post("/login").with(rememberMeLogin())).andReturn();
 
 		verifyZeroInteractions(AuthSuccessConfig.SUCCESS_HANDLER);
 
 		Cookie rememberMe = result.getResponse().getCookie("remember-me");
 		assertThat(rememberMe).isNotNull();
-		this.mvc.perform(get("/somewhere")
-				.cookie(rememberMe));
+		this.mvc.perform(get("/somewhere").cookie(rememberMe));
 
-		verify(AuthSuccessConfig.SUCCESS_HANDLER).onAuthenticationSuccess
-				(any(HttpServletRequest.class), any(HttpServletResponse.class), any(Authentication.class));
+		verify(AuthSuccessConfig.SUCCESS_HANDLER).onAuthenticationSuccess(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(Authentication.class));
 	}
 
 	@Configuration
 	@EnableWebSecurity
 	static class AuthSuccessConfig extends UsersConfig {
+
 		static AuthenticationSuccessHandler SUCCESS_HANDLER;
 
 		@Override
@@ -193,33 +189,28 @@ public class NamespaceRememberMeTests {
 					.authenticationSuccessHandler(SUCCESS_HANDLER);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void rememberMeLoginWhenKeyDeclaredThenMatchesNamespace() throws Exception {
 		this.spring.register(WithoutKeyConfig.class, KeyConfig.class, SecurityController.class).autowire();
-		Cookie withoutKey = this.mvc.perform(post("/without-key/login")
-				.with(rememberMeLogin()))
-				.andExpect(redirectedUrl("/"))
-				.andReturn().getResponse().getCookie("remember-me");
+		Cookie withoutKey = this.mvc.perform(post("/without-key/login").with(rememberMeLogin()))
+				.andExpect(redirectedUrl("/")).andReturn().getResponse().getCookie("remember-me");
 
-		this.mvc.perform(get("/somewhere")
-				.cookie(withoutKey))
-				.andExpect(status().isFound())
+		this.mvc.perform(get("/somewhere").cookie(withoutKey)).andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
 
-		Cookie withKey = this.mvc.perform(post("/login")
-				.with(rememberMeLogin()))
-				.andReturn().getResponse().getCookie("remember-me");
-		this.mvc.perform(get("/somewhere")
-				.cookie(withKey))
-				.andExpect(status().isNotFound());
+		Cookie withKey = this.mvc.perform(post("/login").with(rememberMeLogin())).andReturn().getResponse()
+				.getCookie("remember-me");
+		this.mvc.perform(get("/somewhere").cookie(withKey)).andExpect(status().isNotFound());
 	}
 
 	@Configuration
 	@EnableWebSecurity
 	@Order(0)
 	static class WithoutKeyConfig extends UsersConfig {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -231,11 +222,13 @@ public class NamespaceRememberMeTests {
 					.rememberMe();
 			// @formatter:on
 		}
+
 	}
 
 	@Configuration
 	@EnableWebSecurity
 	static class KeyConfig extends UsersConfig {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -249,18 +242,20 @@ public class NamespaceRememberMeTests {
 					.key("KeyConfig");
 			// @formatter:on
 		}
+
 	}
 
-	// http/remember-me@services-alias is not supported use standard aliasing instead (i.e. @Bean("alias"))
+	// http/remember-me@services-alias is not supported use standard aliasing instead
+	// (i.e. @Bean("alias"))
 
-	// http/remember-me@data-source-ref is not supported directly. Instead use http/remember-me@token-repository-ref example
+	// http/remember-me@data-source-ref is not supported directly. Instead use
+	// http/remember-me@token-repository-ref example
 	@Test
 	public void rememberMeLoginWhenDeclaredTokenRepositoryThenMatchesNamespace() throws Exception {
 		TokenRepositoryRefConfig.TOKEN_REPOSITORY = mock(PersistentTokenRepository.class);
 		this.spring.register(TokenRepositoryRefConfig.class).autowire();
 
-		this.mvc.perform(post("/login")
-				.with(rememberMeLogin()));
+		this.mvc.perform(post("/login").with(rememberMeLogin()));
 
 		verify(TokenRepositoryRefConfig.TOKEN_REPOSITORY).createNewToken(any(PersistentRememberMeToken.class));
 	}
@@ -268,6 +263,7 @@ public class NamespaceRememberMeTests {
 	@Configuration
 	@EnableWebSecurity
 	static class TokenRepositoryRefConfig extends UsersConfig {
+
 		static PersistentTokenRepository TOKEN_REPOSITORY;
 
 		@Override
@@ -283,14 +279,14 @@ public class NamespaceRememberMeTests {
 					.tokenRepository(TOKEN_REPOSITORY);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void rememberMeLoginWhenTokenValidityDeclaredThenMatchesNamespace() throws Exception {
 		this.spring.register(TokenValiditySecondsConfig.class).autowire();
-		Cookie expiredRememberMe = this.mvc.perform(post("/login")
-				.with(rememberMeLogin()))
-				.andReturn().getResponse().getCookie("remember-me");
+		Cookie expiredRememberMe = this.mvc.perform(post("/login").with(rememberMeLogin())).andReturn().getResponse()
+				.getCookie("remember-me");
 
 		assertThat(expiredRememberMe).extracting(Cookie::getMaxAge).isEqualTo(314);
 	}
@@ -298,6 +294,7 @@ public class NamespaceRememberMeTests {
 	@Configuration
 	@EnableWebSecurity
 	static class TokenValiditySecondsConfig extends UsersConfig {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -311,25 +308,23 @@ public class NamespaceRememberMeTests {
 					.tokenValiditySeconds(314);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void rememberMeLoginWhenUsingDefaultsThenCookieMaxAgeMatchesNamespace() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
-		Cookie expiredRememberMe = this.mvc.perform(post("/login")
-				.with(rememberMeLogin()))
-				.andReturn().getResponse().getCookie("remember-me");
+		Cookie expiredRememberMe = this.mvc.perform(post("/login").with(rememberMeLogin())).andReturn().getResponse()
+				.getCookie("remember-me");
 
-		assertThat(expiredRememberMe).extracting(Cookie::getMaxAge)
-				.isEqualTo(AbstractRememberMeServices.TWO_WEEKS_S);
+		assertThat(expiredRememberMe).extracting(Cookie::getMaxAge).isEqualTo(AbstractRememberMeServices.TWO_WEEKS_S);
 	}
 
 	@Test
 	public void rememberMeLoginWhenUsingSecureCookieThenMatchesNamespace() throws Exception {
 		this.spring.register(UseSecureCookieConfig.class).autowire();
-		Cookie secureCookie = this.mvc.perform(post("/login")
-				.with(rememberMeLogin()))
-				.andReturn().getResponse().getCookie("remember-me");
+		Cookie secureCookie = this.mvc.perform(post("/login").with(rememberMeLogin())).andReturn().getResponse()
+				.getCookie("remember-me");
 
 		assertThat(secureCookie).extracting(Cookie::getSecure).isEqualTo(true);
 	}
@@ -337,6 +332,7 @@ public class NamespaceRememberMeTests {
 	@Configuration
 	@EnableWebSecurity
 	static class UseSecureCookieConfig extends UsersConfig {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -347,15 +343,14 @@ public class NamespaceRememberMeTests {
 					.useSecureCookie(true);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void rememberMeLoginWhenUsingDefaultsThenCookieSecurityMatchesNamespace() throws Exception {
 		this.spring.register(RememberMeConfig.class).autowire();
-		Cookie secureCookie = this.mvc.perform(post("/login")
-				.with(rememberMeLogin())
-				.secure(true))
-				.andReturn().getResponse().getCookie("remember-me");
+		Cookie secureCookie = this.mvc.perform(post("/login").with(rememberMeLogin()).secure(true)).andReturn()
+				.getResponse().getCookie("remember-me");
 
 		assertThat(secureCookie).extracting(Cookie::getSecure).isEqualTo(true);
 	}
@@ -363,9 +358,8 @@ public class NamespaceRememberMeTests {
 	@Test
 	public void rememberMeLoginWhenParameterSpecifiedThenMatchesNamespace() throws Exception {
 		this.spring.register(RememberMeParameterConfig.class).autowire();
-		Cookie rememberMe = this.mvc.perform(post("/login")
-				.with(rememberMeLogin("rememberMe", true)))
-				.andReturn().getResponse().getCookie("remember-me");
+		Cookie rememberMe = this.mvc.perform(post("/login").with(rememberMeLogin("rememberMe", true))).andReturn()
+				.getResponse().getCookie("remember-me");
 
 		assertThat(rememberMe).isNotNull();
 	}
@@ -373,6 +367,7 @@ public class NamespaceRememberMeTests {
 	@Configuration
 	@EnableWebSecurity
 	static class RememberMeParameterConfig extends UsersConfig {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -383,6 +378,7 @@ public class NamespaceRememberMeTests {
 					.rememberMeParameter("rememberMe");
 			// @formatter:on
 		}
+
 	}
 
 	// SEC-2880
@@ -390,9 +386,8 @@ public class NamespaceRememberMeTests {
 	@Test
 	public void rememberMeLoginWhenCookieNameDeclaredThenMatchesNamespace() throws Exception {
 		this.spring.register(RememberMeCookieNameConfig.class).autowire();
-		Cookie rememberMe = this.mvc.perform(post("/login")
-				.with(rememberMeLogin()))
-				.andReturn().getResponse().getCookie("rememberMe");
+		Cookie rememberMe = this.mvc.perform(post("/login").with(rememberMeLogin())).andReturn().getResponse()
+				.getCookie("rememberMe");
 
 		assertThat(rememberMe).isNotNull();
 	}
@@ -400,6 +395,7 @@ public class NamespaceRememberMeTests {
 	@Configuration
 	@EnableWebSecurity
 	static class RememberMeCookieNameConfig extends UsersConfig {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -410,6 +406,7 @@ public class NamespaceRememberMeTests {
 					.rememberMeCookieName("rememberMe");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -417,16 +414,15 @@ public class NamespaceRememberMeTests {
 		DefaultsUserDetailsServiceWithDaoConfig.USERDETAILS_SERVICE = mock(UserDetailsService.class);
 		this.spring.register(DefaultsUserDetailsServiceWithDaoConfig.class).autowire();
 
-		this.mvc.perform(post("/login")
-				.with(rememberMeLogin()));
+		this.mvc.perform(post("/login").with(rememberMeLogin()));
 
-		verify(DefaultsUserDetailsServiceWithDaoConfig.USERDETAILS_SERVICE)
-				.loadUserByUsername("user");
+		verify(DefaultsUserDetailsServiceWithDaoConfig.USERDETAILS_SERVICE).loadUserByUsername("user");
 	}
 
 	@EnableWebSecurity
 	@Configuration
 	static class DefaultsUserDetailsServiceWithDaoConfig extends WebSecurityConfigurerAdapter {
+
 		static UserDetailsService USERDETAILS_SERVICE;
 
 		@Override
@@ -446,6 +442,7 @@ public class NamespaceRememberMeTests {
 				.userDetailsService(USERDETAILS_SERVICE);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -456,16 +453,15 @@ public class NamespaceRememberMeTests {
 		when(UserServiceRefConfig.USERDETAILS_SERVICE.loadUserByUsername("user"))
 				.thenReturn(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
 
-		this.mvc.perform(post("/login")
-				.with(rememberMeLogin()));
+		this.mvc.perform(post("/login").with(rememberMeLogin()));
 
-		verify(UserServiceRefConfig.USERDETAILS_SERVICE)
-				.loadUserByUsername("user");
+		verify(UserServiceRefConfig.USERDETAILS_SERVICE).loadUserByUsername("user");
 	}
 
 	@Configuration
 	@EnableWebSecurity
 	static class UserServiceRefConfig extends UsersConfig {
+
 		static UserDetailsService USERDETAILS_SERVICE;
 
 		@Override
@@ -478,6 +474,7 @@ public class NamespaceRememberMeTests {
 					.userDetailsService(USERDETAILS_SERVICE);
 			// @formatter:on
 		}
+
 	}
 
 	static RequestPostProcessor rememberMeLogin() {
@@ -495,11 +492,12 @@ public class NamespaceRememberMeTests {
 	}
 
 	static class UsersConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-					// @formatter:off
+			// @formatter:off
 					User.withDefaultPasswordEncoder()
 							.username("user")
 							.password("password")
@@ -507,13 +505,17 @@ public class NamespaceRememberMeTests {
 							.build());
 					// @formatter:on
 		}
+
 	}
 
 	@RestController
 	static class SecurityController {
+
 		@GetMapping("/authentication-class")
 		String authenticationClass(Authentication authentication) {
 			return authentication.getClass().getName();
 		}
+
 	}
+
 }

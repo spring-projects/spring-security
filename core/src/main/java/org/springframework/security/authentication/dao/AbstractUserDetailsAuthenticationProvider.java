@@ -76,8 +76,8 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public abstract class AbstractUserDetailsAuthenticationProvider implements
-		AuthenticationProvider, InitializingBean, MessageSourceAware {
+public abstract class AbstractUserDetailsAuthenticationProvider
+		implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -85,11 +85,17 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	// ================================================================================================
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private UserCache userCache = new NullUserCache();
+
 	private boolean forcePrincipalAsString = false;
+
 	protected boolean hideUserNotFoundExceptions = true;
+
 	private UserDetailsChecker preAuthenticationChecks = new DefaultPreAuthenticationChecks();
+
 	private UserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
+
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	// ~ Methods
@@ -103,19 +109,16 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	 * properties of <code>UserDetails</code> and/or
 	 * <code>UsernamePasswordAuthenticationToken</code>, these should also appear in this
 	 * method.
-	 *
 	 * @param userDetails as retrieved from the
 	 * {@link #retrieveUser(String, UsernamePasswordAuthenticationToken)} or
 	 * <code>UserCache</code>
 	 * @param authentication the current request that needs to be authenticated
-	 *
 	 * @throws AuthenticationException AuthenticationException if the credentials could
 	 * not be validated (generally a <code>BadCredentialsException</code>, an
 	 * <code>AuthenticationServiceException</code>)
 	 */
 	protected abstract void additionalAuthenticationChecks(UserDetails userDetails,
-			UsernamePasswordAuthenticationToken authentication)
-			throws AuthenticationException;
+			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException;
 
 	public final void afterPropertiesSet() throws Exception {
 		Assert.notNull(this.userCache, "A user cache must be set");
@@ -123,16 +126,13 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 		doAfterPropertiesSet();
 	}
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
-				() -> messages.getMessage(
-						"AbstractUserDetailsAuthenticationProvider.onlySupports",
+				() -> messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
 						"Only UsernamePasswordAuthenticationToken is supported"));
 
 		// Determine username
-		String username = (authentication.getPrincipal() == null) ? "NONE_PROVIDED"
-				: authentication.getName();
+		String username = (authentication.getPrincipal() == null) ? "NONE_PROVIDED" : authentication.getName();
 
 		boolean cacheWasUsed = true;
 		UserDetails user = this.userCache.getUserFromCache(username);
@@ -141,41 +141,35 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 			cacheWasUsed = false;
 
 			try {
-				user = retrieveUser(username,
-						(UsernamePasswordAuthenticationToken) authentication);
+				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
 			}
 			catch (UsernameNotFoundException notFound) {
 				logger.debug("User '" + username + "' not found");
 
 				if (hideUserNotFoundExceptions) {
-					throw new BadCredentialsException(messages.getMessage(
-							"AbstractUserDetailsAuthenticationProvider.badCredentials",
-							"Bad credentials"));
+					throw new BadCredentialsException(messages
+							.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 				}
 				else {
 					throw notFound;
 				}
 			}
 
-			Assert.notNull(user,
-					"retrieveUser returned null - a violation of the interface contract");
+			Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
 		}
 
 		try {
 			preAuthenticationChecks.check(user);
-			additionalAuthenticationChecks(user,
-					(UsernamePasswordAuthenticationToken) authentication);
+			additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
 		}
 		catch (AuthenticationException exception) {
 			if (cacheWasUsed) {
 				// There was a problem, so try again after checking
 				// we're using latest data (i.e. not from the cache)
 				cacheWasUsed = false;
-				user = retrieveUser(username,
-						(UsernamePasswordAuthenticationToken) authentication);
+				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
 				preAuthenticationChecks.check(user);
-				additionalAuthenticationChecks(user,
-						(UsernamePasswordAuthenticationToken) authentication);
+				additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
 			}
 			else {
 				throw exception;
@@ -206,23 +200,20 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	 * Subclasses will usually store the original credentials the user supplied (not
 	 * salted or encoded passwords) in the returned <code>Authentication</code> object.
 	 * </p>
-	 *
 	 * @param principal that should be the principal in the returned object (defined by
 	 * the {@link #isForcePrincipalAsString()} method)
 	 * @param authentication that was presented to the provider for validation
 	 * @param user that was loaded by the implementation
-	 *
 	 * @return the successful authentication token
 	 */
-	protected Authentication createSuccessAuthentication(Object principal,
-			Authentication authentication, UserDetails user) {
+	protected Authentication createSuccessAuthentication(Object principal, Authentication authentication,
+			UserDetails user) {
 		// Ensure we return the original credentials the user supplied,
 		// so subsequent attempts are successful even with encoded passwords.
 		// Also ensure we return the original getDetails(), so that future
 		// authentication events after cache expiry contain the details
-		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(
-				principal, authentication.getCredentials(),
-				authoritiesMapper.mapAuthorities(user.getAuthorities()));
+		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
+				authentication.getCredentials(), authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		result.setDetails(authentication.getDetails());
 
 		return result;
@@ -271,21 +262,17 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	 * so that code related to credentials validation need not be duplicated across two
 	 * methods.
 	 * </p>
-	 *
 	 * @param username The username to retrieve
 	 * @param authentication The authentication request, which subclasses <em>may</em>
 	 * need to perform a binding-based retrieval of the <code>UserDetails</code>
-	 *
 	 * @return the user information (never <code>null</code> - instead an exception should
 	 * the thrown)
-	 *
 	 * @throws AuthenticationException if the credentials could not be validated
 	 * (generally a <code>BadCredentialsException</code>, an
 	 * <code>AuthenticationServiceException</code> or
 	 * <code>UsernameNotFoundException</code>)
 	 */
-	protected abstract UserDetails retrieveUser(String username,
-			UsernamePasswordAuthenticationToken authentication)
+	protected abstract UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
 			throws AuthenticationException;
 
 	public void setForcePrincipalAsString(boolean forcePrincipalAsString) {
@@ -299,7 +286,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	 * <code>UsernameNotFoundException</code>s to be thrown instead for the former. Note
 	 * this is considered less secure than throwing <code>BadCredentialsException</code>
 	 * for both exceptions.
-	 *
 	 * @param hideUserNotFoundExceptions set to <code>false</code> if you wish
 	 * <code>UsernameNotFoundException</code>s to be thrown instead of the non-specific
 	 * <code>BadCredentialsException</code> (defaults to <code>true</code>)
@@ -317,8 +303,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	}
 
 	public boolean supports(Class<?> authentication) {
-		return (UsernamePasswordAuthenticationToken.class
-				.isAssignableFrom(authentication));
+		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
 	}
 
 	protected UserDetailsChecker getPreAuthenticationChecks() {
@@ -328,7 +313,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	/**
 	 * Sets the policy will be used to verify the status of the loaded
 	 * <tt>UserDetails</tt> <em>before</em> validation of the credentials takes place.
-	 *
 	 * @param preAuthenticationChecks strategy to be invoked prior to authentication.
 	 */
 	public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
@@ -348,42 +332,44 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 	}
 
 	private class DefaultPreAuthenticationChecks implements UserDetailsChecker {
+
 		public void check(UserDetails user) {
 			if (!user.isAccountNonLocked()) {
 				logger.debug("User account is locked");
 
-				throw new LockedException(messages.getMessage(
-						"AbstractUserDetailsAuthenticationProvider.locked",
+				throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
 						"User account is locked"));
 			}
 
 			if (!user.isEnabled()) {
 				logger.debug("User account is disabled");
 
-				throw new DisabledException(messages.getMessage(
-						"AbstractUserDetailsAuthenticationProvider.disabled",
-						"User is disabled"));
+				throw new DisabledException(
+						messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
 			}
 
 			if (!user.isAccountNonExpired()) {
 				logger.debug("User account is expired");
 
-				throw new AccountExpiredException(messages.getMessage(
-						"AbstractUserDetailsAuthenticationProvider.expired",
-						"User account has expired"));
+				throw new AccountExpiredException(messages
+						.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
 			}
 		}
+
 	}
 
 	private class DefaultPostAuthenticationChecks implements UserDetailsChecker {
+
 		public void check(UserDetails user) {
 			if (!user.isCredentialsNonExpired()) {
 				logger.debug("User account credentials have expired");
 
-				throw new CredentialsExpiredException(messages.getMessage(
-						"AbstractUserDetailsAuthenticationProvider.credentialsExpired",
-						"User credentials have expired"));
+				throw new CredentialsExpiredException(
+						messages.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired",
+								"User credentials have expired"));
 			}
 		}
+
 	}
+
 }

@@ -25,6 +25,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
  * @author Luke Taylor
  */
 public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
+
 	private X509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
 
 	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
@@ -42,8 +43,7 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 	}
 
 	private X509Certificate extractClientCertificate(HttpServletRequest request) {
-		X509Certificate[] certs = (X509Certificate[]) request
-				.getAttribute("javax.servlet.request.X509Certificate");
+		X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
 
 		if (certs != null && certs.length > 0) {
 			if (logger.isDebugEnabled()) {
@@ -63,4 +63,5 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 	public void setPrincipalExtractor(X509PrincipalExtractor principalExtractor) {
 		this.principalExtractor = principalExtractor;
 	}
+
 }

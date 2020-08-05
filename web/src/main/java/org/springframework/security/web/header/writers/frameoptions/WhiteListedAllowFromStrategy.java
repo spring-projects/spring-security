@@ -24,14 +24,13 @@ import org.springframework.util.Assert;
  *
  * @author Marten Deinum
  * @since 3.2
- * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern browsers. Instead use
- * Content-Security-Policy with the
- * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
+ * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern
+ * browsers. Instead use Content-Security-Policy with the <a href=
+ * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
  * directive.
  */
 @Deprecated
-public final class WhiteListedAllowFromStrategy extends
-		AbstractRequestParameterAllowFromStrategy {
+public final class WhiteListedAllowFromStrategy extends AbstractRequestParameterAllowFromStrategy {
 
 	private final Collection<String> allowed;
 
@@ -48,4 +47,5 @@ public final class WhiteListedAllowFromStrategy extends
 	protected boolean allowed(String allowFromOrigin) {
 		return allowed.contains(allowFromOrigin);
 	}
+
 }

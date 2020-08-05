@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WithMockUserTests.Config.class)
 public class WithMockUserTests {
+
 	@Autowired
 	private MessageService messageService;
 
@@ -63,8 +64,7 @@ public class WithMockUserTests {
 	@WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
 	public void getMessageWithMockUserCustomUser() {
 		String message = messageService.getMessage();
-		assertThat(message).contains("admin").contains("ROLE_USER")
-				.contains("ROLE_ADMIN");
+		assertThat(message).contains("admin").contains("ROLE_USER").contains("ROLE_ADMIN");
 	}
 
 	@Test
@@ -77,6 +77,7 @@ public class WithMockUserTests {
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
+
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
@@ -85,5 +86,7 @@ public class WithMockUserTests {
 					.withUser("user").password("password").roles("USER");
 			// @formatter:on
 		}
+
 	}
+
 }

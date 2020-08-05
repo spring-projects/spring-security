@@ -30,8 +30,7 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 
 	@Test
 	public void testRole1To4Roles() throws Exception {
-		List<String> ROLE1TO4_EXPECTED_ROLES = Arrays.asList("Role1",
-				"Role2", "Role3", "Role4");
+		List<String> ROLE1TO4_EXPECTED_ROLES = Arrays.asList("Role1", "Role2", "Role3", "Role4");
 		final Resource webXml = new ClassPathResource("webxml/Role1-4.web.xml");
 		WebXmlMappableAttributesRetriever rolesRetriever = new WebXmlMappableAttributesRetriever();
 
@@ -67,4 +66,5 @@ public class WebXmlJ2eeDefinedRolesRetrieverTests {
 		Set<String> j2eeRoles = rolesRetriever.getMappableAttributes();
 		assertThat(j2eeRoles).isEmpty();
 	}
+
 }

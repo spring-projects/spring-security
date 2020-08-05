@@ -33,8 +33,7 @@ abstract class AbstractCsrfTag extends TagSupport {
 	@Override
 	public int doEndTag() throws JspException {
 
-		CsrfToken token = (CsrfToken) this.pageContext.getRequest().getAttribute(
-				CsrfToken.class.getName());
+		CsrfToken token = (CsrfToken) this.pageContext.getRequest().getAttribute(CsrfToken.class.getName());
 		if (token != null) {
 			try {
 				this.pageContext.getOut().write(this.handleToken(token));
@@ -48,4 +47,5 @@ abstract class AbstractCsrfTag extends TagSupport {
 	}
 
 	protected abstract String handleToken(CsrfToken token);
+
 }

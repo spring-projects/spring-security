@@ -54,18 +54,19 @@ import org.springframework.util.Assert;
  * @author colin sampaleanu
  */
 public class RunAsManagerImpl implements RunAsManager, InitializingBean {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private String key;
+
 	private String rolePrefix = "ROLE_";
 
 	// ~ Methods
 	// ========================================================================================================
 
 	public void afterPropertiesSet() {
-		Assert.notNull(
-				key,
+		Assert.notNull(key,
 				"A Key is required and should match that configured for the RunAsImplAuthenticationProvider");
 	}
 
@@ -88,9 +89,8 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 		// Add existing authorities
 		newAuthorities.addAll(authentication.getAuthorities());
 
-		return new RunAsUserToken(this.key, authentication.getPrincipal(),
-				authentication.getCredentials(), newAuthorities,
-				authentication.getClass());
+		return new RunAsUserToken(this.key, authentication.getPrincipal(), authentication.getCredentials(),
+				newAuthorities, authentication.getClass());
 	}
 
 	public String getKey() {
@@ -108,7 +108,6 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 	/**
 	 * Allows the default role prefix of <code>ROLE_</code> to be overridden. May be set
 	 * to an empty value, although this is usually not desirable.
-	 *
 	 * @param rolePrefix the new prefix
 	 */
 	public void setRolePrefix(String rolePrefix) {
@@ -116,19 +115,17 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 	}
 
 	public boolean supports(ConfigAttribute attribute) {
-		return attribute.getAttribute() != null
-				&& attribute.getAttribute().startsWith("RUN_AS_");
+		return attribute.getAttribute() != null && attribute.getAttribute().startsWith("RUN_AS_");
 	}
 
 	/**
 	 * This implementation supports any type of class, because it does not query the
 	 * presented secure object.
-	 *
 	 * @param clazz the secure object
-	 *
 	 * @return always <code>true</code>
 	 */
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
+
 }

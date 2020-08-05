@@ -23,11 +23,11 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */
 public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
+
 	// private FilterInvocation filterInvocation;
 	/** Allows direct access to the request object */
 	public final HttpServletRequest request;
@@ -41,7 +41,6 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	/**
 	 * Takes a specific IP address or a range using the IP/Netmask (e.g. 192.168.1.0/24 or
 	 * 202.24.0.0/14).
-	 *
 	 * @param ipAddress the address or range of addresses from which the request must
 	 * come.
 	 * @return true if the IP address of the current request is in the required range.

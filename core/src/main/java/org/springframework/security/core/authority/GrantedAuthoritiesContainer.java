@@ -31,5 +31,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @since 2.0
  */
 public interface GrantedAuthoritiesContainer extends Serializable {
+
 	Collection<? extends GrantedAuthority> getGrantedAuthorities();
+
 }

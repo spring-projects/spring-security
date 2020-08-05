@@ -29,14 +29,14 @@ import java.util.Map;
  * @author Luke Taylor
  */
 public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
+
 	private final Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<>();
 
 	public synchronized void createNewToken(PersistentRememberMeToken token) {
 		PersistentRememberMeToken current = seriesTokens.get(token.getSeries());
 
 		if (current != null) {
-			throw new DataIntegrityViolationException("Series Id '" + token.getSeries()
-					+ "' already exists!");
+			throw new DataIntegrityViolationException("Series Id '" + token.getSeries() + "' already exists!");
 		}
 
 		seriesTokens.put(token.getSeries(), token);
@@ -45,8 +45,8 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 	public synchronized void updateToken(String series, String tokenValue, Date lastUsed) {
 		PersistentRememberMeToken token = getTokenForSeries(series);
 
-		PersistentRememberMeToken newToken = new PersistentRememberMeToken(
-				token.getUsername(), series, tokenValue, new Date());
+		PersistentRememberMeToken newToken = new PersistentRememberMeToken(token.getUsername(), series, tokenValue,
+				new Date());
 
 		// Store it, overwriting the existing one.
 		seriesTokens.put(series, newToken);
@@ -69,4 +69,5 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 			}
 		}
 	}
+
 }

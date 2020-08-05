@@ -24,17 +24,18 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
 /**
- *
  * @author Luke Taylor
  */
 public class RoleVoterTests {
+
 	@Test
 	public void oneMatchingAttributeGrantsAccess() {
 		RoleVoter voter = new RoleVoter();
 		voter.setRolePrefix("");
 		Authentication userAB = new TestingAuthenticationToken("user", "pass", "A", "B");
 		// Vote on attribute list that has two attributes A and C (i.e. only one matching)
-		assertThat(voter.vote(userAB, this, SecurityConfig.createList("A", "C"))).isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
+		assertThat(voter.vote(userAB, this, SecurityConfig.createList("A", "C")))
+				.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
 
 	// SEC-3128
@@ -43,6 +44,8 @@ public class RoleVoterTests {
 		RoleVoter voter = new RoleVoter();
 		voter.setRolePrefix("");
 		Authentication notAuthenitcated = null;
-		assertThat(voter.vote(notAuthenitcated, this, SecurityConfig.createList("A"))).isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
+		assertThat(voter.vote(notAuthenitcated, this, SecurityConfig.createList("A")))
+				.isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 	}
+
 }

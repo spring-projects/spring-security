@@ -36,11 +36,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * Tests {@link OpenIDAuthenticationProvider}
  *
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author Robin Bramley, Opsera Ltd
  */
 public class OpenIDAuthenticationProviderTests {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -60,8 +62,8 @@ public class OpenIDAuthenticationProviderTests {
 		provider.setUserDetailsService(new MockUserDetailsService());
 		provider.setAuthoritiesMapper(new NullAuthoritiesMapper());
 
-		Authentication preAuth = new OpenIDAuthenticationToken(
-				OpenIDAuthenticationStatus.CANCELLED, USERNAME, "", null);
+		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.CANCELLED, USERNAME, "",
+				null);
 
 		assertThat(preAuth.isAuthenticated()).isFalse();
 
@@ -84,8 +86,7 @@ public class OpenIDAuthenticationProviderTests {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 
-		Authentication preAuth = new OpenIDAuthenticationToken(
-				OpenIDAuthenticationStatus.ERROR, USERNAME, "", null);
+		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.ERROR, USERNAME, "", null);
 
 		assertThat(preAuth.isAuthenticated()).isFalse();
 
@@ -107,11 +108,9 @@ public class OpenIDAuthenticationProviderTests {
 	public void testAuthenticateFailure() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setAuthenticationUserDetailsService(
-				new UserDetailsByNameServiceWrapper<>(
-						new MockUserDetailsService()));
+				new UserDetailsByNameServiceWrapper<>(new MockUserDetailsService()));
 
-		Authentication preAuth = new OpenIDAuthenticationToken(
-				OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
+		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
 
 		assertThat(preAuth.isAuthenticated()).isFalse();
 
@@ -120,8 +119,7 @@ public class OpenIDAuthenticationProviderTests {
 			fail("Should throw an AuthenticationException");
 		}
 		catch (BadCredentialsException expected) {
-			assertThat("Log in failed - identity could not be verified").isEqualTo(
-					expected.getMessage());
+			assertThat("Log in failed - identity could not be verified").isEqualTo(expected.getMessage());
 		}
 	}
 
@@ -135,8 +133,8 @@ public class OpenIDAuthenticationProviderTests {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 
-		Authentication preAuth = new OpenIDAuthenticationToken(
-				OpenIDAuthenticationStatus.SETUP_NEEDED, USERNAME, "", null);
+		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SETUP_NEEDED, USERNAME, "",
+				null);
 
 		assertThat(preAuth.isAuthenticated()).isFalse();
 
@@ -145,9 +143,8 @@ public class OpenIDAuthenticationProviderTests {
 			fail("Should throw an AuthenticationException");
 		}
 		catch (AuthenticationServiceException expected) {
-			assertThat(
-					"The server responded setup was needed, which shouldn't happen").isEqualTo(
-							expected.getMessage());
+			assertThat("The server responded setup was needed, which shouldn't happen")
+					.isEqualTo(expected.getMessage());
 		}
 	}
 
@@ -161,8 +158,7 @@ public class OpenIDAuthenticationProviderTests {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 
-		Authentication preAuth = new OpenIDAuthenticationToken(
-				OpenIDAuthenticationStatus.SUCCESS, USERNAME, "", null);
+		Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS, USERNAME, "", null);
 
 		assertThat(preAuth.isAuthenticated()).isFalse();
 
@@ -175,8 +171,7 @@ public class OpenIDAuthenticationProviderTests {
 		assertThat(postAuth.getPrincipal() instanceof UserDetails).isTrue();
 		assertThat(postAuth.getAuthorities()).isNotNull();
 		assertThat(postAuth.getAuthorities().size() > 0).isTrue();
-		assertThat(
-				((OpenIDAuthenticationToken) postAuth).getStatus() == OpenIDAuthenticationStatus.SUCCESS).isTrue();
+		assertThat(((OpenIDAuthenticationToken) postAuth).getStatus() == OpenIDAuthenticationStatus.SUCCESS).isTrue();
 		assertThat(((OpenIDAuthenticationToken) postAuth).getMessage() == null).isTrue();
 	}
 
@@ -203,8 +198,7 @@ public class OpenIDAuthenticationProviderTests {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 
-		assertThat(
-				provider.supports(UsernamePasswordAuthenticationToken.class)).isFalse();
+		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isFalse();
 	}
 
 	/*
@@ -217,8 +211,7 @@ public class OpenIDAuthenticationProviderTests {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
 
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				USERNAME, "password");
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(USERNAME, "password");
 		assertThat(provider.authenticate(token)).isNull();
 	}
 
@@ -253,10 +246,11 @@ public class OpenIDAuthenticationProviderTests {
 
 	static class MockUserDetailsService implements UserDetailsService {
 
-		public UserDetails loadUserByUsername(String ssoUserId)
-				throws AuthenticationException {
+		public UserDetails loadUserByUsername(String ssoUserId) throws AuthenticationException {
 			return new User(ssoUserId, "password", true, true, true, true,
 					AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_B"));
 		}
+
 	}
+
 }

@@ -37,8 +37,8 @@ import org.springframework.security.core.parameters.DefaultSecurityParameterName
  * @since 3.0
  */
 class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
-	private static final Log logger = LogFactory
-			.getLog(MethodSecurityEvaluationContext.class);
+
+	private static final Log logger = LogFactory.getLog(MethodSecurityEvaluationContext.class);
 
 	/**
 	 * Intended for testing. Don't use in practice as it creates a new parameter resolver
@@ -57,4 +57,5 @@ class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
 	private static Method getSpecificMethod(MethodInvocation mi) {
 		return AopUtils.getMostSpecificMethod(mi.getMethod(), AopProxyUtils.ultimateTargetClass(mi.getThis()));
 	}
+
 }

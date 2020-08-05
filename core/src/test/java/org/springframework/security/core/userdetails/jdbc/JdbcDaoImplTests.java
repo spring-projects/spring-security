@@ -67,20 +67,16 @@ public class JdbcDaoImplTests {
 		assertThat(user.getPassword()).isEqualTo("koala");
 		assertThat(user.isEnabled()).isTrue();
 
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_TELLER");
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_SUPERVISOR");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_TELLER");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_SUPERVISOR");
 	}
 
 	@Test
-	public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser()
-			throws Exception {
+	public void testCheckDaoOnlyReturnsGrantedAuthoritiesGrantedToUser() throws Exception {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		UserDetails user = dao.loadUserByUsername("scott");
 		assertThat(user.getAuthorities()).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ROLE_TELLER");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ROLE_TELLER");
 	}
 
 	@Test
@@ -141,8 +137,7 @@ public class JdbcDaoImplTests {
 		assertThat(user.getUsername()).isEqualTo("rod");
 		assertThat(user.getAuthorities()).hasSize(2);
 
-		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
-				.contains("ARBITRARY_PREFIX_ROLE_TELLER");
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains("ARBITRARY_PREFIX_ROLE_TELLER");
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities()))
 				.contains("ARBITRARY_PREFIX_ROLE_SUPERVISOR");
 	}
@@ -212,4 +207,5 @@ public class JdbcDaoImplTests {
 
 		verify(source).getMessage(eq(code), any(), any());
 	}
+
 }

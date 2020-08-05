@@ -37,8 +37,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class OAuth2RefreshTokenGrantRequestTests {
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AccessToken accessToken;
+
 	private OAuth2RefreshToken refreshToken;
 
 	@Before
@@ -51,22 +54,19 @@ public class OAuth2RefreshTokenGrantRequestTests {
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(null, this.accessToken, this.refreshToken))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistration cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistration cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.clientRegistration, null, this.refreshToken))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("accessToken cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("accessToken cannot be null");
 	}
 
 	@Test
 	public void constructorWhenRefreshTokenIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.clientRegistration, this.accessToken, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("refreshToken cannot be null");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("refreshToken cannot be null");
 	}
 
 	@Test
@@ -79,4 +79,5 @@ public class OAuth2RefreshTokenGrantRequestTests {
 		assertThat(refreshTokenGrantRequest.getRefreshToken()).isSameAs(this.refreshToken);
 		assertThat(refreshTokenGrantRequest.getScopes()).isEqualTo(scopes);
 	}
+
 }

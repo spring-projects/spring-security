@@ -45,4 +45,5 @@ public class ClientAuthenticationMethodTests {
 	public void getValueWhenAuthenticationMethodNoneThenReturnNone() {
 		assertThat(ClientAuthenticationMethod.NONE.getValue()).isEqualTo("none");
 	}
+
 }

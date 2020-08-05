@@ -45,8 +45,8 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class LoginPageGeneratingWebFilter implements WebFilter {
-	private ServerWebExchangeMatcher matcher = ServerWebExchangeMatchers
-		.pathMatchers(HttpMethod.GET, "/login");
+
+	private ServerWebExchangeMatcher matcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/login");
 
 	private Map<String, String> oauth2AuthenticationUrlToClientName = new HashMap<>();
 
@@ -56,18 +56,15 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		this.formLoginEnabled = enabled;
 	}
 
-	public void setOauth2AuthenticationUrlToClientName(
-			Map<String, String> oauth2AuthenticationUrlToClientName) {
+	public void setOauth2AuthenticationUrlToClientName(Map<String, String> oauth2AuthenticationUrlToClientName) {
 		Assert.notNull(oauth2AuthenticationUrlToClientName, "oauth2AuthenticationUrlToClientName cannot be null");
 		this.oauth2AuthenticationUrlToClientName = oauth2AuthenticationUrlToClientName;
 	}
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.matcher.matches(exchange)
-			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-			.flatMap(matchResult -> render(exchange));
+		return this.matcher.matches(exchange).filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).flatMap(matchResult -> render(exchange));
 	}
 
 	private Mono<Void> render(ServerWebExchange exchange) {
@@ -80,36 +77,26 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
 
 		Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
-		return token
-			.map(LoginPageGeneratingWebFilter::csrfToken)
-			.defaultIfEmpty("")
-			.map(csrfTokenHtmlInput -> {
-				byte[] bytes = createPage(exchange, csrfTokenHtmlInput);
-				DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
-				return bufferFactory.wrap(bytes);
-			});
+		return token.map(LoginPageGeneratingWebFilter::csrfToken).defaultIfEmpty("").map(csrfTokenHtmlInput -> {
+			byte[] bytes = createPage(exchange, csrfTokenHtmlInput);
+			DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
+			return bufferFactory.wrap(bytes);
+		});
 	}
 
 	private byte[] createPage(ServerWebExchange exchange, String csrfTokenHtmlInput) {
-		MultiValueMap<String, String> queryParams = exchange.getRequest()
-				.getQueryParams();
+		MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
 		String contextPath = exchange.getRequest().getPath().contextPath().value();
-		String page = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n"
-				+ "    <meta charset=\"utf-8\">\n"
+		String page = "<!DOCTYPE html>\n" + "<html lang=\"en\">\n" + "  <head>\n" + "    <meta charset=\"utf-8\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n"
-				+ "    <meta name=\"description\" content=\"\">\n"
-				+ "    <meta name=\"author\" content=\"\">\n"
+				+ "    <meta name=\"description\" content=\"\">\n" + "    <meta name=\"author\" content=\"\">\n"
 				+ "    <title>Please sign in</title>\n"
 				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
 				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
-				+ "  </head>\n"
-				+ "  <body>\n"
-				+ "     <div class=\"container\">\n"
+				+ "  </head>\n" + "  <body>\n" + "     <div class=\"container\">\n"
 				+ formLogin(queryParams, contextPath, csrfTokenHtmlInput)
-				+ oauth2LoginLinks(queryParams, contextPath, this.oauth2AuthenticationUrlToClientName)
-				+ "    </div>\n"
-				+ "  </body>\n"
-				+ "</html>";
+				+ oauth2LoginLinks(queryParams, contextPath, this.oauth2AuthenticationUrlToClientName) + "    </div>\n"
+				+ "  </body>\n" + "</html>";
 
 		return page.getBytes(Charset.defaultCharset());
 	}
@@ -121,10 +108,8 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		boolean isError = queryParams.containsKey("error");
 		boolean isLogoutSuccess = queryParams.containsKey("logout");
 		return "      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath + "/login\">\n"
-				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
-				+ createError(isError)
-				+ createLogoutSuccess(isLogoutSuccess)
-				+ "        <p>\n"
+				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n" + createError(isError)
+				+ createLogoutSuccess(isLogoutSuccess) + "        <p>\n"
 				+ "          <label for=\"username\" class=\"sr-only\">Username</label>\n"
 				+ "          <input type=\"text\" id=\"username\" name=\"username\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n"
 				+ "        </p>\n" + "        <p>\n"
@@ -135,7 +120,8 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 				+ "      </form>\n";
 	}
 
-	private static String oauth2LoginLinks(MultiValueMap<String, String> queryParams, String contextPath, Map<String, String> oauth2AuthenticationUrlToClientName) {
+	private static String oauth2LoginLinks(MultiValueMap<String, String> queryParams, String contextPath,
+			Map<String, String> oauth2AuthenticationUrlToClientName) {
 		if (oauth2AuthenticationUrlToClientName.isEmpty()) {
 			return "";
 		}
@@ -144,7 +130,8 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		sb.append("<div class=\"container\"><h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
 		sb.append(createError(isError));
 		sb.append("<table class=\"table table-striped\">\n");
-		for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName.entrySet()) {
+		for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName
+				.entrySet()) {
 			sb.append(" <tr><td>");
 			String url = clientAuthenticationUrlToClientName.getKey();
 			sb.append("<a href=\"").append(contextPath).append(url).append("\">");
@@ -158,7 +145,8 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	}
 
 	private static String csrfToken(CsrfToken token) {
-		return "          <input type=\"hidden\" name=\"" + token.getParameterName() + "\" value=\"" + token.getToken() + "\">\n";
+		return "          <input type=\"hidden\" name=\"" + token.getParameterName() + "\" value=\"" + token.getToken()
+				+ "\">\n";
 	}
 
 	private static String createError(boolean isError) {
@@ -166,6 +154,8 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 	}
 
 	private static String createLogoutSuccess(boolean isLogoutSuccess) {
-		return isLogoutSuccess ? "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>" : "";
+		return isLogoutSuccess ? "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>"
+				: "";
 	}
+
 }

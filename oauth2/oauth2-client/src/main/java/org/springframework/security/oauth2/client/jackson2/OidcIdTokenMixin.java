@@ -40,10 +40,8 @@ import java.util.Map;
 abstract class OidcIdTokenMixin {
 
 	@JsonCreator
-	OidcIdTokenMixin(
-			@JsonProperty("tokenValue") String tokenValue,
-			@JsonProperty("issuedAt") Instant issuedAt,
-			@JsonProperty("expiresAt") Instant expiresAt,
-			@JsonProperty("claims") Map<String, Object> claims) {
+	OidcIdTokenMixin(@JsonProperty("tokenValue") String tokenValue, @JsonProperty("issuedAt") Instant issuedAt,
+			@JsonProperty("expiresAt") Instant expiresAt, @JsonProperty("claims") Map<String, Object> claims) {
 	}
+
 }

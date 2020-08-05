@@ -23,6 +23,7 @@ package org.springframework.security.web;
  * @author Ben Alex
  */
 public interface PortMapper {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -31,9 +32,7 @@ public interface PortMapper {
 	 * <P>
 	 * Returns <code>null</code> if unknown.
 	 * </p>
-	 *
 	 * @param httpsPort
-	 *
 	 * @return the HTTP port or <code>null</code> if unknown
 	 */
 	Integer lookupHttpPort(Integer httpsPort);
@@ -43,10 +42,9 @@ public interface PortMapper {
 	 * <P>
 	 * Returns <code>null</code> if unknown.
 	 * </p>
-	 *
 	 * @param httpPort
-	 *
 	 * @return the HTTPS port or <code>null</code> if unknown
 	 */
 	Integer lookupHttpsPort(Integer httpPort);
+
 }

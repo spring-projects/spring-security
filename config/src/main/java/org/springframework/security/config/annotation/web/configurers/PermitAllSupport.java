@@ -24,13 +24,13 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Configures non-null URL's to grant access to every URL
+ *
  * @author Rob Winch
  * @since 3.2
  */
 final class PermitAllSupport {
 
-	public static void permitAll(
-			HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
+	public static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
 		for (String url : urls) {
 			if (url != null) {
 				permitAll(http, new ExactUrlRequestMatcher(url));
@@ -39,32 +39,25 @@ final class PermitAllSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void permitAll(
-			HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
+	public static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
 			RequestMatcher... requestMatchers) {
 		ExpressionUrlAuthorizationConfigurer<?> configurer = http
 				.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
 
 		if (configurer == null) {
-			throw new IllegalStateException(
-					"permitAll only works with HttpSecurity.authorizeRequests()");
+			throw new IllegalStateException("permitAll only works with HttpSecurity.authorizeRequests()");
 		}
 
 		for (RequestMatcher matcher : requestMatchers) {
 			if (matcher != null) {
-				configurer
-						.getRegistry()
-						.addMapping(
-								0,
-								new UrlMapping(
-										matcher,
-										SecurityConfig
-												.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
+				configurer.getRegistry().addMapping(0, new UrlMapping(matcher,
+						SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
 			}
 		}
 	}
 
 	private final static class ExactUrlRequestMatcher implements RequestMatcher {
+
 		private String processUrl;
 
 		private ExactUrlRequestMatcher(String processUrl) {
@@ -92,8 +85,10 @@ final class PermitAllSupport {
 			sb.append("ExactUrl [processUrl='").append(processUrl).append("']");
 			return sb.toString();
 		}
+
 	}
 
 	private PermitAllSupport() {
 	}
+
 }

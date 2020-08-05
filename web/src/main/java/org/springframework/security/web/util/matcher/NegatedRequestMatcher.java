@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public class NegatedRequestMatcher implements RequestMatcher {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final RequestMatcher requestMatcher;
@@ -57,4 +58,5 @@ public class NegatedRequestMatcher implements RequestMatcher {
 	public String toString() {
 		return "NegatedRequestMatcher [requestMatcher=" + requestMatcher + "]";
 	}
+
 }

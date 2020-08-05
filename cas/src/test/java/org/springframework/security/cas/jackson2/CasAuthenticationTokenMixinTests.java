@@ -47,15 +47,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CasAuthenticationTokenMixinTests {
 
 	private static final String KEY = "casKey";
+
 	private static final String PASSWORD = "\"1234\"";
+
 	private static final Date START_DATE = new Date();
+
 	private static final Date END_DATE = new Date();
 
 	public static final String AUTHORITY_JSON = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}";
 
-	public static final String AUTHORITIES_SET_JSON = "[\"java.util.Collections$UnmodifiableSet\", [" + AUTHORITY_JSON + "]]";
+	public static final String AUTHORITIES_SET_JSON = "[\"java.util.Collections$UnmodifiableSet\", [" + AUTHORITY_JSON
+			+ "]]";
 
-	public static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.Collections$UnmodifiableRandomAccessList\", [" + AUTHORITY_JSON + "]]";
+	public static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.Collections$UnmodifiableRandomAccessList\", ["
+			+ AUTHORITY_JSON + "]]";
 
 	// @formatter:off
 	public static final String USER_JSON = "{"
@@ -71,29 +76,18 @@ public class CasAuthenticationTokenMixinTests {
 	// @formatter:on
 
 	private static final String CAS_TOKEN_JSON = "{"
-		+ "\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", "
-		+ "\"keyHash\": " + KEY.hashCode() + ","
-		+ "\"principal\": " + USER_JSON + ", "
-		+ "\"credentials\": " + PASSWORD + ", "
-		+ "\"authorities\": " + AUTHORITIES_ARRAYLIST_JSON + ","
-		+ "\"userDetails\": " + USER_JSON +","
-		+ "\"authenticated\": true, "
-		+ "\"details\": null,"
-		+ "\"assertion\": {"
-			+ "\"@class\": \"org.jasig.cas.client.validation.AssertionImpl\", "
-			+ "\"principal\": {"
-				+ "\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", "
-				+ "\"name\": \"assertName\", "
-				+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, "
-				+ "\"proxyGrantingTicket\": null, "
-				+ "\"proxyRetriever\": null"
-			+ "}, "
+			+ "\"@class\": \"org.springframework.security.cas.authentication.CasAuthenticationToken\", "
+			+ "\"keyHash\": " + KEY.hashCode() + "," + "\"principal\": " + USER_JSON + ", " + "\"credentials\": "
+			+ PASSWORD + ", " + "\"authorities\": " + AUTHORITIES_ARRAYLIST_JSON + "," + "\"userDetails\": " + USER_JSON
+			+ "," + "\"authenticated\": true, " + "\"details\": null," + "\"assertion\": {"
+			+ "\"@class\": \"org.jasig.cas.client.validation.AssertionImpl\", " + "\"principal\": {"
+			+ "\"@class\": \"org.jasig.cas.client.authentication.AttributePrincipalImpl\", "
+			+ "\"name\": \"assertName\", " + "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, "
+			+ "\"proxyGrantingTicket\": null, " + "\"proxyRetriever\": null" + "}, "
 			+ "\"validFromDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
 			+ "\"validUntilDate\": [\"java.util.Date\", " + END_DATE.getTime() + "],"
 			+ "\"authenticationDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
-			+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" +
-		"}"
-	+ "}";
+			+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" + "}" + "}";
 
 	private static final String CAS_TOKEN_CLEARED_JSON = CAS_TOKEN_JSON.replaceFirst(PASSWORD, "null");
 
@@ -114,7 +108,8 @@ public class CasAuthenticationTokenMixinTests {
 	}
 
 	@Test
-	public void serializeCasAuthenticationTestAfterEraseCredentialInvoked() throws JsonProcessingException, JSONException {
+	public void serializeCasAuthenticationTestAfterEraseCredentialInvoked()
+			throws JsonProcessingException, JSONException {
 		CasAuthenticationToken token = createCasAuthenticationToken();
 		token.eraseCredentials();
 		String actualJson = mapper.writeValueAsString(token);
@@ -137,9 +132,8 @@ public class CasAuthenticationTokenMixinTests {
 		assertThat(token.getUserDetails()).isNotNull().isInstanceOf(User.class);
 		assertThat(token.getAssertion()).isNotNull().isInstanceOf(AssertionImpl.class);
 		assertThat(token.getKeyHash()).isEqualTo(KEY.hashCode());
-		assertThat(token.getUserDetails().getAuthorities())
-			.extracting(GrantedAuthority::getAuthority)
-			.containsOnly("ROLE_USER");
+		assertThat(token.getUserDetails().getAuthorities()).extracting(GrantedAuthority::getAuthority)
+				.containsOnly("ROLE_USER");
 		assertThat(token.getAssertion().getAuthenticationDate()).isEqualTo(START_DATE);
 		assertThat(token.getAssertion().getValidFromDate()).isEqualTo(START_DATE);
 		assertThat(token.getAssertion().getValidUntilDate()).isEqualTo(END_DATE);
@@ -149,9 +143,12 @@ public class CasAuthenticationTokenMixinTests {
 
 	private CasAuthenticationToken createCasAuthenticationToken() {
 		User principal = new User("admin", "1234", Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-		Collection<? extends GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-		Assertion assertion = new AssertionImpl(new AttributePrincipalImpl("assertName"), START_DATE, END_DATE, START_DATE, Collections.<String, Object>emptyMap());
+		Collection<? extends GrantedAuthority> authorities = Collections
+				.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+		Assertion assertion = new AssertionImpl(new AttributePrincipalImpl("assertName"), START_DATE, END_DATE,
+				START_DATE, Collections.<String, Object>emptyMap());
 		return new CasAuthenticationToken(KEY, principal, principal.getPassword(), authorities,
 				new User("admin", "1234", authorities), assertion);
 	}
+
 }

@@ -57,8 +57,9 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  * @author Rob Winch
  * @since 3.2
  */
-public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<ServletApiConfigurer<H>, H> {
+public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<ServletApiConfigurer<H>, H> {
+
 	private SecurityContextHolderAwareRequestFilter securityContextRequestFilter = new SecurityContextHolderAwareRequestFilter();
 
 	/**
@@ -76,20 +77,15 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
 	@Override
 	@SuppressWarnings("unchecked")
 	public void configure(H http) {
-		securityContextRequestFilter.setAuthenticationManager(http
-				.getSharedObject(AuthenticationManager.class));
-		ExceptionHandlingConfigurer<H> exceptionConf = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
+		securityContextRequestFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+		ExceptionHandlingConfigurer<H> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null
 				: exceptionConf.getAuthenticationEntryPoint(http);
-		securityContextRequestFilter
-				.setAuthenticationEntryPoint(authenticationEntryPoint);
+		securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
 		LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
-		List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf
-				.getLogoutHandlers();
+		List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf.getLogoutHandlers();
 		securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
-		AuthenticationTrustResolver trustResolver = http
-				.getSharedObject(AuthenticationTrustResolver.class);
+		AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
 			securityContextRequestFilter.setTrustResolver(trustResolver);
 		}
@@ -97,11 +93,13 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
 		if (context != null) {
 			String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
 			if (grantedAuthorityDefaultsBeanNames.length == 1) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+				GrantedAuthorityDefaults grantedAuthorityDefaults = context
+						.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 				securityContextRequestFilter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 			}
 		}
 		securityContextRequestFilter = postProcess(securityContextRequestFilter);
 		http.addFilter(securityContextRequestFilter);
 	}
+
 }

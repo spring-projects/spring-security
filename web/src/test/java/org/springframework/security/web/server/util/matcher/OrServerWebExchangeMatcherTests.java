@@ -31,17 +31,19 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OrServerWebExchangeMatcherTests {
+
 	@Mock
 	ServerWebExchange exchange;
+
 	@Mock
 	ServerWebExchangeMatcher matcher1;
+
 	@Mock
 	ServerWebExchangeMatcher matcher2;
 
@@ -94,4 +96,5 @@ public class OrServerWebExchangeMatcherTests {
 		verify(matcher1).matches(exchange);
 		verify(matcher2).matches(exchange);
 	}
+
 }

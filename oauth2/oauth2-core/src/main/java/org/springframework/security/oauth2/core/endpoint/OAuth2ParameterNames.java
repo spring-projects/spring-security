@@ -16,12 +16,13 @@
 package org.springframework.security.oauth2.core.endpoint;
 
 /**
- * Standard and custom (non-standard) parameter names defined in the OAuth Parameters Registry
- * and used by the authorization endpoint and token endpoint.
+ * Standard and custom (non-standard) parameter names defined in the OAuth Parameters
+ * Registry and used by the authorization endpoint and token endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.2">11.2 OAuth Parameters Registry</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.2">11.2
+ * OAuth Parameters Registry</a>
  */
 public interface OAuth2ParameterNames {
 
@@ -51,7 +52,8 @@ public interface OAuth2ParameterNames {
 	String REDIRECT_URI = "redirect_uri";
 
 	/**
-	 * {@code scope} - used in Authorization Request, Authorization Response, Access Token Request and Access Token Response.
+	 * {@code scope} - used in Authorization Request, Authorization Response, Access Token
+	 * Request and Access Token Response.
 	 */
 	String SCOPE = "scope";
 
@@ -101,7 +103,8 @@ public interface OAuth2ParameterNames {
 	String ERROR = "error";
 
 	/**
-	 * {@code error_description} - used in Authorization Response and Access Token Response.
+	 * {@code error_description} - used in Authorization Response and Access Token
+	 * Response.
 	 */
 	String ERROR_DESCRIPTION = "error_description";
 

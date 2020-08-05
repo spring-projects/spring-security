@@ -47,8 +47,7 @@ import javax.servlet.ServletException;
  *
  * @author Ben Alex
  */
-public class ChannelDecisionManagerImpl implements ChannelDecisionManager,
-		InitializingBean {
+public class ChannelDecisionManagerImpl implements ChannelDecisionManager, InitializingBean {
 
 	public static final String ANY_CHANNEL = "ANY_CHANNEL";
 
@@ -91,9 +90,8 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager,
 		channelProcessors = new ArrayList<>(newList.size());
 
 		for (Object currentObject : newList) {
-			Assert.isInstanceOf(ChannelProcessor.class, currentObject,
-					() -> "ChannelProcessor " + currentObject.getClass().getName()
-							+ " must implement ChannelProcessor");
+			Assert.isInstanceOf(ChannelProcessor.class, currentObject, () -> "ChannelProcessor "
+					+ currentObject.getClass().getName() + " must implement ChannelProcessor");
 			channelProcessors.add((ChannelProcessor) currentObject);
 		}
 	}
@@ -111,4 +109,5 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager,
 
 		return false;
 	}
+
 }

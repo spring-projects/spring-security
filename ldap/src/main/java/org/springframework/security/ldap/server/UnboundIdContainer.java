@@ -37,8 +37,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Eddú Meléndez
  */
-public class UnboundIdContainer implements InitializingBean, DisposableBean, Lifecycle,
-		ApplicationContextAware {
+public class UnboundIdContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
 
 	private InMemoryDirectoryServer directoryServer;
 
@@ -106,7 +105,8 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 			this.port = directoryServer.getListenPort();
 			this.directoryServer = directoryServer;
 			this.running = true;
-		} catch (LDAPException ex) {
+		}
+		catch (LDAPException ex) {
 			throw new RuntimeException("Server startup failed", ex);
 		}
 
@@ -124,7 +124,8 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 						directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
 					}
 				}
-			} catch (Exception ex) {
+			}
+			catch (Exception ex) {
 				throw new IllegalStateException("Unable to load LDIF " + this.ldif, ex);
 			}
 		}
@@ -139,4 +140,5 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	public boolean isRunning() {
 		return this.running;
 	}
+
 }

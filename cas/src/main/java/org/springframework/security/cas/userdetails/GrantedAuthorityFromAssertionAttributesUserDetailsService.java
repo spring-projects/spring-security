@@ -34,8 +34,8 @@ import java.util.ArrayList;
  * @author Scott Battaglia
  * @since 3.0
  */
-public final class GrantedAuthorityFromAssertionAttributesUserDetailsService extends
-		AbstractCasAssertionUserDetailsService {
+public final class GrantedAuthorityFromAssertionAttributesUserDetailsService
+		extends AbstractCasAssertionUserDetailsService {
 
 	private static final String NON_EXISTENT_PASSWORD_VALUE = "NO_PASSWORD";
 
@@ -43,11 +43,9 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
 
 	private boolean convertToUpperCase = true;
 
-	public GrantedAuthorityFromAssertionAttributesUserDetailsService(
-			final String[] attributes) {
+	public GrantedAuthorityFromAssertionAttributesUserDetailsService(final String[] attributes) {
 		Assert.notNull(attributes, "attributes cannot be null.");
-		Assert.isTrue(attributes.length > 0,
-				"At least one attribute is required to retrieve roles from.");
+		Assert.isTrue(attributes.length > 0, "At least one attribute is required to retrieve roles from.");
 		this.attributes = attributes;
 	}
 
@@ -68,29 +66,27 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
 
 				for (final Object o : list) {
 					grantedAuthorities.add(new SimpleGrantedAuthority(
-							this.convertToUpperCase ? o.toString().toUpperCase() : o
-									.toString()));
+							this.convertToUpperCase ? o.toString().toUpperCase() : o.toString()));
 				}
 
 			}
 			else {
 				grantedAuthorities.add(new SimpleGrantedAuthority(
-						this.convertToUpperCase ? value.toString().toUpperCase() : value
-								.toString()));
+						this.convertToUpperCase ? value.toString().toUpperCase() : value.toString()));
 			}
 
 		}
 
-		return new User(assertion.getPrincipal().getName(), NON_EXISTENT_PASSWORD_VALUE,
-				true, true, true, true, grantedAuthorities);
+		return new User(assertion.getPrincipal().getName(), NON_EXISTENT_PASSWORD_VALUE, true, true, true, true,
+				grantedAuthorities);
 	}
 
 	/**
 	 * Converts the returned attribute values to uppercase values.
-	 *
 	 * @param convertToUpperCase true if it should convert, false otherwise.
 	 */
 	public void setConvertToUpperCase(final boolean convertToUpperCase) {
 		this.convertToUpperCase = convertToUpperCase;
 	}
+
 }

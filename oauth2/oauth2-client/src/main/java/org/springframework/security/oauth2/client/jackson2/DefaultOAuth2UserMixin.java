@@ -41,9 +41,9 @@ import java.util.Map;
 abstract class DefaultOAuth2UserMixin {
 
 	@JsonCreator
-	DefaultOAuth2UserMixin(
-			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
+	DefaultOAuth2UserMixin(@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 			@JsonProperty("attributes") Map<String, Object> attributes,
 			@JsonProperty("nameAttributeKey") String nameAttributeKey) {
 	}
+
 }

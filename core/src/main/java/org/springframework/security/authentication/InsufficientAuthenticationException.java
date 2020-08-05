@@ -32,13 +32,13 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class InsufficientAuthenticationException extends AuthenticationException {
+
 	// ~ Constructors
 	// ===================================================================================================
 
 	/**
 	 * Constructs an <code>InsufficientAuthenticationException</code> with the specified
 	 * message.
-	 *
 	 * @param msg the detail message
 	 */
 	public InsufficientAuthenticationException(String msg) {
@@ -48,11 +48,11 @@ public class InsufficientAuthenticationException extends AuthenticationException
 	/**
 	 * Constructs an <code>InsufficientAuthenticationException</code> with the specified
 	 * message and root cause.
-	 *
 	 * @param msg the detail message
 	 * @param t root cause
 	 */
 	public InsufficientAuthenticationException(String msg, Throwable t) {
 		super(msg, t);
 	}
+
 }

@@ -36,16 +36,18 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- *
  * @author Rob Winch
  * @since 3.2
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingSecurityContextRunnableTests {
+
 	@Mock
 	private Runnable delegate;
+
 	@Mock
 	private SecurityContext securityContext;
+
 	@Mock
 	private Object callableResult;
 
@@ -116,8 +118,7 @@ public class DelegatingSecurityContextRunnableTests {
 		originalSecurityContext = securityContext;
 		SecurityContextHolder.setContext(originalSecurityContext);
 		executor = synchronousExecutor();
-		runnable = new DelegatingSecurityContextRunnable(delegate,
-				securityContext);
+		runnable = new DelegatingSecurityContextRunnable(delegate, securityContext);
 		assertWrapped(runnable);
 	}
 
@@ -161,11 +162,11 @@ public class DelegatingSecurityContextRunnableTests {
 		Future<?> submit = executor.submit(runnable);
 		submit.get();
 		verify(delegate).run();
-		assertThat(SecurityContextHolder.getContext()).isEqualTo(
-				originalSecurityContext);
+		assertThat(SecurityContextHolder.getContext()).isEqualTo(originalSecurityContext);
 	}
 
 	private static ExecutorService synchronousExecutor() {
 		return new ExecutorServiceAdapter(new SyncTaskExecutor());
 	}
+
 }

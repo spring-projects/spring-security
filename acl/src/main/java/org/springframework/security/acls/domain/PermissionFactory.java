@@ -32,9 +32,7 @@ public interface PermissionFactory {
 	/**
 	 * Dynamically creates a <code>CumulativePermission</code> or
 	 * <code>BasePermission</code> representing the active bits in the passed mask.
-	 *
 	 * @param mask to build
-	 *
 	 * @return a Permission representing the requested object
 	 */
 	Permission buildFromMask(int mask);
@@ -42,4 +40,5 @@ public interface PermissionFactory {
 	Permission buildFromName(String name);
 
 	List<Permission> buildFromNames(List<String> names);
+
 }

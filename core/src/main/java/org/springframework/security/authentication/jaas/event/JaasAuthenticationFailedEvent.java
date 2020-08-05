@@ -25,6 +25,7 @@ import org.springframework.security.core.Authentication;
  * @author Ray Krueger
  */
 public class JaasAuthenticationFailedEvent extends JaasAuthenticationEvent {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -44,4 +45,5 @@ public class JaasAuthenticationFailedEvent extends JaasAuthenticationEvent {
 	public Exception getException() {
 		return exception;
 	}
+
 }

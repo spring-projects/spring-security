@@ -38,4 +38,5 @@ public class HeaderBearerTokenResolver implements BearerTokenResolver {
 	public String resolve(HttpServletRequest request) {
 		return request.getHeader(this.header);
 	}
+
 }

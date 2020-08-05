@@ -33,20 +33,19 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 public class JwtClaimValidatorTests {
 
 	private static final Predicate<String> test = claim -> claim.equals("http://test");
+
 	private final JwtClaimValidator<String> validator = new JwtClaimValidator<>(ISS, test);
 
 	@Test
 	public void validateWhenClaimPassesTheTestThenReturnsSuccess() {
 		Jwt jwt = jwt().claim(ISS, "http://test").build();
-		assertThat(validator.validate(jwt))
-				.isEqualTo(OAuth2TokenValidatorResult.success());
+		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
 	public void validateWhenClaimFailsTheTestThenReturnsFailure() {
 		Jwt jwt = jwt().claim(ISS, "http://abc").build();
-		assertThat(validator.validate(jwt).getErrors().isEmpty())
-				.isFalse();
+		assertThat(validator.validate(jwt).getErrors().isEmpty()).isFalse();
 	}
 
 	@Test
@@ -56,14 +55,13 @@ public class JwtClaimValidatorTests {
 	}
 
 	@Test
-	public void validateWhenTestIsNullThenThrowsIllegalArgumentException(){
-		assertThatThrownBy(() -> new JwtClaimValidator<>(ISS, null))
-				.isInstanceOf(IllegalArgumentException.class);
+	public void validateWhenTestIsNullThenThrowsIllegalArgumentException() {
+		assertThatThrownBy(() -> new JwtClaimValidator<>(ISS, null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatThrownBy(() -> validator.validate(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> validator.validate(null)).isInstanceOf(IllegalArgumentException.class);
 	}
+
 }

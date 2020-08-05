@@ -44,6 +44,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	public void validate(FilterChainProxy fcp) {
@@ -53,8 +54,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		}
 
 		checkPathOrder(new ArrayList<>(fcp.getFilterChains()));
-		checkForDuplicateMatchers(new ArrayList<>(
-				fcp.getFilterChains()));
+		checkForDuplicateMatchers(new ArrayList<>(fcp.getFilterChains()));
 	}
 
 	private void checkPathOrder(List<SecurityFilterChain> filterChains) {
@@ -62,13 +62,11 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		Iterator<SecurityFilterChain> chains = filterChains.iterator();
 
 		while (chains.hasNext()) {
-			RequestMatcher matcher = ((DefaultSecurityFilterChain) chains.next())
-					.getRequestMatcher();
+			RequestMatcher matcher = ((DefaultSecurityFilterChain) chains.next()).getRequestMatcher();
 			if (AnyRequestMatcher.INSTANCE.equals(matcher) && chains.hasNext()) {
-				throw new IllegalArgumentException(
-						"A universal match pattern ('/**') is defined "
-								+ " before other patterns in the filter chain, causing them to be ignored. Please check the "
-								+ "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
+				throw new IllegalArgumentException("A universal match pattern ('/**') is defined "
+						+ " before other patterns in the filter chain, causing them to be ignored. Please check the "
+						+ "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
 			}
 		}
 	}
@@ -76,18 +74,13 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 	private void checkForDuplicateMatchers(List<SecurityFilterChain> chains) {
 
 		while (chains.size() > 1) {
-			DefaultSecurityFilterChain chain = (DefaultSecurityFilterChain) chains
-					.remove(0);
+			DefaultSecurityFilterChain chain = (DefaultSecurityFilterChain) chains.remove(0);
 
 			for (SecurityFilterChain test : chains) {
-				if (chain.getRequestMatcher().equals(
-						((DefaultSecurityFilterChain) test).getRequestMatcher())) {
-					throw new IllegalArgumentException(
-							"The FilterChainProxy contains two filter chains using the"
-									+ " matcher "
-									+ chain.getRequestMatcher()
-									+ ". If you are using multiple <http> namespace "
-									+ "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.");
+				if (chain.getRequestMatcher().equals(((DefaultSecurityFilterChain) test).getRequestMatcher())) {
+					throw new IllegalArgumentException("The FilterChainProxy contains two filter chains using the"
+							+ " matcher " + chain.getRequestMatcher() + ". If you are using multiple <http> namespace "
+							+ "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.");
 				}
 			}
 		}
@@ -126,8 +119,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 				for (int j = i + 1; j < filters.size(); j++) {
 					Filter f2 = filters.get(j);
 					if (clazz.isAssignableFrom(f2.getClass())) {
-						logger.warn("Possible error: Filters at position " + i + " and "
-								+ j + " are both " + "instances of " + clazz.getName());
+						logger.warn("Possible error: Filters at position " + i + " and " + j + " are both "
+								+ "instances of " + clazz.getName());
 						return;
 					}
 				}
@@ -139,20 +132,15 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 	 * Checks for the common error of having a login page URL protected by the security
 	 * interceptor
 	 */
-	private void checkLoginPageIsntProtected(FilterChainProxy fcp,
-			List<Filter> filterStack) {
-		ExceptionTranslationFilter etf = getFilter(ExceptionTranslationFilter.class,
-				filterStack);
+	private void checkLoginPageIsntProtected(FilterChainProxy fcp, List<Filter> filterStack) {
+		ExceptionTranslationFilter etf = getFilter(ExceptionTranslationFilter.class, filterStack);
 
-		if (etf == null
-				|| !(etf.getAuthenticationEntryPoint() instanceof LoginUrlAuthenticationEntryPoint)) {
+		if (etf == null || !(etf.getAuthenticationEntryPoint() instanceof LoginUrlAuthenticationEntryPoint)) {
 			return;
 		}
 
-		String loginPage = ((LoginUrlAuthenticationEntryPoint) etf
-				.getAuthenticationEntryPoint()).getLoginFormUrl();
-		logger.info("Checking whether login URL '" + loginPage
-				+ "' is accessible with your configuration");
+		String loginPage = ((LoginUrlAuthenticationEntryPoint) etf.getAuthenticationEntryPoint()).getLoginFormUrl();
+		logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
 		FilterInvocation loginRequest = new FilterInvocation(loginPage, "POST");
 		List<Filter> filters = null;
 
@@ -176,8 +164,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			return;
 		}
 
-		FilterSecurityInterceptor fsi = getFilter(FilterSecurityInterceptor.class,
-				filters);
+		FilterSecurityInterceptor fsi = getFilter(FilterSecurityInterceptor.class, filters);
 		FilterInvocationSecurityMetadataSource fids = fsi.getSecurityMetadataSource();
 
 		Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
@@ -191,8 +178,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			return;
 		}
 
-		AnonymousAuthenticationFilter anonPF = getFilter(
-				AnonymousAuthenticationFilter.class, filters);
+		AnonymousAuthenticationFilter anonPF = getFilter(AnonymousAuthenticationFilter.class, filters);
 		if (anonPF == null) {
 			logger.warn("The login page is being protected by the filter chain, but you don't appear to have"
 					+ " anonymous authentication enabled. This is almost certainly an error.");
@@ -200,8 +186,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		}
 
 		// Simulate an anonymous access with the supplied attributes.
-		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key",
-				anonPF.getPrincipal(), anonPF.getAuthorities());
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", anonPF.getPrincipal(),
+				anonPF.getAuthorities());
 		try {
 			fsi.getAccessDecisionManager().decide(token, loginRequest, attributes);
 		}

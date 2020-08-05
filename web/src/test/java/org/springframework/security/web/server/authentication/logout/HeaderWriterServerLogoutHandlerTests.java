@@ -52,4 +52,5 @@ public class HeaderWriterServerLogoutHandlerTests {
 
 		verify(headersWriter).writeHttpHeaders(serverWebExchange);
 	}
+
 }

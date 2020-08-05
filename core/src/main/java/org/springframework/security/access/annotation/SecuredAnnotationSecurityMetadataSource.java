@@ -38,22 +38,21 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  */
 @SuppressWarnings({ "unchecked" })
-public class SecuredAnnotationSecurityMetadataSource extends
-		AbstractFallbackMethodSecurityMetadataSource {
+public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
+
 	private AnnotationMetadataExtractor annotationExtractor;
+
 	private Class<? extends Annotation> annotationType;
 
 	public SecuredAnnotationSecurityMetadataSource() {
 		this(new SecuredAnnotationMetadataExtractor());
 	}
 
-	public SecuredAnnotationSecurityMetadataSource(
-			AnnotationMetadataExtractor annotationMetadataExtractor) {
+	public SecuredAnnotationSecurityMetadataSource(AnnotationMetadataExtractor annotationMetadataExtractor) {
 		Assert.notNull(annotationMetadataExtractor, "annotationMetadataExtractor cannot be null");
 		annotationExtractor = annotationMetadataExtractor;
 		annotationType = (Class<? extends Annotation>) GenericTypeResolver
-				.resolveTypeArgument(annotationExtractor.getClass(),
-						AnnotationMetadataExtractor.class);
+				.resolveTypeArgument(annotationExtractor.getClass(), AnnotationMetadataExtractor.class);
 		Assert.notNull(annotationType, () -> annotationExtractor.getClass().getName()
 				+ " must supply a generic parameter for AnnotationMetadataExtractor");
 	}
@@ -62,8 +61,7 @@ public class SecuredAnnotationSecurityMetadataSource extends
 		return processAnnotation(AnnotationUtils.findAnnotation(clazz, annotationType));
 	}
 
-	protected Collection<ConfigAttribute> findAttributes(Method method,
-			Class<?> targetClass) {
+	protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
 		return processAnnotation(AnnotationUtils.findAnnotation(method, annotationType));
 	}
 
@@ -78,14 +76,14 @@ public class SecuredAnnotationSecurityMetadataSource extends
 
 		return annotationExtractor.extractAttributes(a);
 	}
+
 }
 
 class SecuredAnnotationMetadataExtractor implements AnnotationMetadataExtractor<Secured> {
 
 	public Collection<ConfigAttribute> extractAttributes(Secured secured) {
 		String[] attributeTokens = secured.value();
-		List<ConfigAttribute> attributes = new ArrayList<>(
-				attributeTokens.length);
+		List<ConfigAttribute> attributes = new ArrayList<>(attributeTokens.length);
 
 		for (String token : attributeTokens) {
 			attributes.add(new SecurityConfig(token));
@@ -93,4 +91,5 @@ class SecuredAnnotationMetadataExtractor implements AnnotationMetadataExtractor<
 
 		return attributes;
 	}
+
 }

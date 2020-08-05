@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  */
 public interface AuthenticationEntryPoint {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -44,12 +45,12 @@ public interface AuthenticationEntryPoint {
 	 * <p>
 	 * Implementations should modify the headers on the <code>ServletResponse</code> as
 	 * necessary to commence the authentication process.
-	 *
 	 * @param request that resulted in an <code>AuthenticationException</code>
 	 * @param response so that the user agent can begin authentication
 	 * @param authException that caused the invocation
 	 *
 	 */
-	void commence(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authException) throws IOException, ServletException;
+	void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
+			throws IOException, ServletException;
+
 }

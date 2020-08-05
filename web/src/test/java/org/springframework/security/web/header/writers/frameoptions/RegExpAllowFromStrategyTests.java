@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
- *
  * @author Marten Deinum
  */
 public class RegExpAllowFromStrategyTests {
@@ -40,8 +39,7 @@ public class RegExpAllowFromStrategyTests {
 
 	@Test
 	public void subdomainMatchingRegularExpression() {
-		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy(
-				"^https://([a-z0-9]*?\\.)test\\.com");
+		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy("^https://([a-z0-9]*?\\.)test\\.com");
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -60,10 +58,10 @@ public class RegExpAllowFromStrategyTests {
 
 	@Test
 	public void noParameterShouldDeny() {
-		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy(
-				"^https://([a-z0-9]*?\\.)test\\.com");
+		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy("^https://([a-z0-9]*?\\.)test\\.com");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		String result1 = strategy.getAllowFromValue(request);
 		assertThat(result1).isEqualTo("DENY");
 	}
+
 }

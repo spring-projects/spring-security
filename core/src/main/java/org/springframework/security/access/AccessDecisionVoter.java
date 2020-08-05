@@ -30,11 +30,14 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public interface AccessDecisionVoter<S> {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	int ACCESS_GRANTED = 1;
+
 	int ACCESS_ABSTAIN = 0;
+
 	int ACCESS_DENIED = -1;
 
 	// ~ Methods
@@ -47,10 +50,8 @@ public interface AccessDecisionVoter<S> {
 	 * This allows the {@code AbstractSecurityInterceptor} to check every configuration
 	 * attribute can be consumed by the configured {@code AccessDecisionManager} and/or
 	 * {@code RunAsManager} and/or {@code AfterInvocationManager}.
-	 *
 	 * @param attribute a configuration attribute that has been configured against the
 	 * {@code AbstractSecurityInterceptor}
-	 *
 	 * @return true if this {@code AccessDecisionVoter} can support the passed
 	 * configuration attribute
 	 */
@@ -59,9 +60,7 @@ public interface AccessDecisionVoter<S> {
 	/**
 	 * Indicates whether the {@code AccessDecisionVoter} implementation is able to provide
 	 * access control votes for the indicated secured object type.
-	 *
 	 * @param clazz the class that is being queried
-	 *
 	 * @return true if the implementation can process the indicated class
 	 */
 	boolean supports(Class<?> clazz);
@@ -87,14 +86,12 @@ public interface AccessDecisionVoter<S> {
 	 * parameter to maximise flexibility in making access control decisions, implementing
 	 * classes should not modify it or cause the represented invocation to take place (for
 	 * example, by calling {@code MethodInvocation.proceed()}).
-	 *
 	 * @param authentication the caller making the invocation
 	 * @param object the secured object being invoked
 	 * @param attributes the configuration attributes associated with the secured object
-	 *
 	 * @return either {@link #ACCESS_GRANTED}, {@link #ACCESS_ABSTAIN} or
 	 * {@link #ACCESS_DENIED}
 	 */
-	int vote(Authentication authentication, S object,
-			Collection<ConfigAttribute> attributes);
+	int vote(Authentication authentication, S object, Collection<ConfigAttribute> attributes);
+
 }

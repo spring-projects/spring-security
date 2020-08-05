@@ -32,20 +32,20 @@ import java.util.*;
  */
 @SuppressWarnings({ "unchecked" })
 public class DelegatingMethodSecurityMetadataSourceTests {
+
 	DelegatingMethodSecurityMetadataSource mds;
 
 	@Test
 	public void returnsEmptyListIfDelegateReturnsNull() throws Exception {
 		List sources = new ArrayList();
 		MethodSecurityMetadataSource delegate = mock(MethodSecurityMetadataSource.class);
-		when(delegate.getAttributes(ArgumentMatchers.<Method> any(), ArgumentMatchers.any(Class.class)))
+		when(delegate.getAttributes(ArgumentMatchers.<Method>any(), ArgumentMatchers.any(Class.class)))
 				.thenReturn(null);
 		sources.add(delegate);
 		mds = new DelegatingMethodSecurityMetadataSource(sources);
 		assertThat(mds.getMethodSecurityMetadataSources()).isSameAs(sources);
 		assertThat(mds.getAllConfigAttributes().isEmpty()).isTrue();
-		MethodInvocation mi = new SimpleMethodInvocation(null,
-				String.class.getMethod("toString"));
+		MethodInvocation mi = new SimpleMethodInvocation(null, String.class.getMethod("toString"));
 		assertThat(mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
 		// Exercise the cached case
 		assertThat(mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
@@ -67,8 +67,7 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
 		// Exercise the cached case
 		assertThat(mds.getAttributes(mi)).isSameAs(attributes);
-		assertThat(mds.getAttributes(
-				new SimpleMethodInvocation(null, String.class.getMethod("length")))).isEmpty();
+		assertThat(mds.getAttributes(new SimpleMethodInvocation(null, String.class.getMethod("length")))).isEmpty();
 	}
 
 }

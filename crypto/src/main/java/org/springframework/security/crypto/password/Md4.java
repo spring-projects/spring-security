@@ -22,12 +22,19 @@ package org.springframework.security.crypto.password;
  * @author Alan Stewart
  */
 class Md4 {
+
 	private static final int BLOCK_SIZE = 64;
+
 	private static final int HASH_SIZE = 16;
+
 	private final byte[] buffer = new byte[BLOCK_SIZE];
+
 	private int bufferOffset;
+
 	private long byteCount;
+
 	private final int[] state = new int[4];
+
 	private final int[] tmp = new int[16];
 
 	Md4() {
@@ -99,8 +106,8 @@ class Md4 {
 
 	private void update(byte[] block, int offset) {
 		for (int i = 0; i < 16; i++) {
-			tmp[i] = (block[offset++] & 0xFF) | (block[offset++] & 0xFF) << 8
-					| (block[offset++] & 0xFF) << 16 | (block[offset++] & 0xFF) << 24;
+			tmp[i] = (block[offset++] & 0xFF) | (block[offset++] & 0xFF) << 8 | (block[offset++] & 0xFF) << 16
+					| (block[offset++] & 0xFF) << 24;
 		}
 
 		int A = state[0];
@@ -179,4 +186,5 @@ class Md4 {
 		int t = a + (b ^ c ^ d) + x + 0x6ED9EBA1;
 		return t << s | t >>> (32 - s);
 	}
+
 }

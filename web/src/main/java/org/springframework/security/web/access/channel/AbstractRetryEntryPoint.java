@@ -29,6 +29,7 @@ import java.io.IOException;
  * @author Luke Taylor
  */
 public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 	protected final Log logger = LogFactory.getLog(getClass());
@@ -37,9 +38,12 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	// ================================================================================================
 
 	private PortMapper portMapper = new PortMapperImpl();
+
 	private PortResolver portResolver = new PortResolverImpl();
+
 	/** The scheme ("http://" or "https://") */
 	private final String scheme;
+
 	/** The standard port for the scheme (80 for http, 443 for https) */
 	private final int standardPort;
 
@@ -56,11 +60,9 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void commence(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
+	public void commence(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String queryString = request.getQueryString();
-		String redirectUrl = request.getRequestURI()
-				+ ((queryString == null) ? "" : ("?" + queryString));
+		String redirectUrl = request.getRequestURI() + ((queryString == null) ? "" : ("?" + queryString));
 
 		Integer currentPort = portResolver.getServerPort(request);
 		Integer redirectPort = getMappedPort(currentPort);
@@ -68,8 +70,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 		if (redirectPort != null) {
 			boolean includePort = redirectPort != standardPort;
 
-			redirectUrl = scheme + request.getServerName()
-					+ ((includePort) ? (":" + redirectPort) : "") + redirectUrl;
+			redirectUrl = scheme + request.getServerName() + ((includePort) ? (":" + redirectPort) : "") + redirectUrl;
 		}
 
 		if (logger.isDebugEnabled()) {
@@ -102,7 +103,6 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	/**
 	 * Sets the strategy to be used for redirecting to the required channel URL. A
 	 * {@code DefaultRedirectStrategy} instance will be used if not set.
-	 *
 	 * @param redirectStrategy the strategy instance to which the URL will be passed.
 	 */
 	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
@@ -113,4 +113,5 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	protected final RedirectStrategy getRedirectStrategy() {
 		return redirectStrategy;
 	}
+
 }

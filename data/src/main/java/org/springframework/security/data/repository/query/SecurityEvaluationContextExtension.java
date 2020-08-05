@@ -78,8 +78,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @since 4.0
  * @author Rob Winch
  */
-public class SecurityEvaluationContextExtension
-		implements EvaluationContextExtension {
+public class SecurityEvaluationContextExtension implements EvaluationContextExtension {
+
 	private Authentication authentication;
 
 	/**
@@ -91,7 +91,6 @@ public class SecurityEvaluationContextExtension
 
 	/**
 	 * Creates a new instance that always uses the same {@link Authentication} object.
-	 *
 	 * @param authentication the {@link Authentication} to use
 	 */
 	public SecurityEvaluationContextExtension(Authentication authentication) {
@@ -117,4 +116,5 @@ public class SecurityEvaluationContextExtension
 		SecurityContext context = SecurityContextHolder.getContext();
 		return context.getAuthentication();
 	}
+
 }

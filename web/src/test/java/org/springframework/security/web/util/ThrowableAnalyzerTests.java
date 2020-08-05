@@ -47,18 +47,17 @@ public class ThrowableAnalyzerTests {
 		public Throwable resolveCause() {
 			return this.cause;
 		}
+
 	}
 
 	/**
 	 * <code>ThrowableCauseExtractor</code> for handling <code>NonStandardException</code>
 	 * instances.
 	 */
-	public static final class NonStandardExceptionCauseExtractor
-			implements ThrowableCauseExtractor {
+	public static final class NonStandardExceptionCauseExtractor implements ThrowableCauseExtractor {
 
 		public Throwable extractCause(Throwable throwable) {
-			ThrowableAnalyzer.verifyThrowableHierarchy(throwable,
-					NonStandardException.class);
+			ThrowableAnalyzer.verifyThrowableHierarchy(throwable, NonStandardException.class);
 			return ((NonStandardException) throwable).resolveCause();
 		}
 
@@ -107,8 +106,7 @@ public class ThrowableAnalyzerTests {
 			protected void initExtractorMap() {
 				super.initExtractorMap();
 				// register extractor for NonStandardException
-				registerExtractor(NonStandardException.class,
-						new NonStandardExceptionCauseExtractor());
+				registerExtractor(NonStandardException.class, new NonStandardExceptionCauseExtractor());
 			}
 		};
 	}
@@ -147,9 +145,10 @@ public class ThrowableAnalyzerTests {
 			for (int j = 0; j < i; ++j) {
 				Class prevClazz = registeredTypes[j];
 
-				assertThat(prevClazz.isAssignableFrom(clazz)).withFailMessage(
-						"Unexpected order of registered classes: " + prevClazz
-								+ " is assignable from " + clazz).isFalse();
+				assertThat(prevClazz.isAssignableFrom(clazz))
+						.withFailMessage(
+								"Unexpected order of registered classes: " + prevClazz + " is assignable from " + clazz)
+						.isFalse();
 			}
 		}
 	}
@@ -167,8 +166,8 @@ public class ThrowableAnalyzerTests {
 			}
 		};
 
-		assertThat(analyzer.getRegisteredTypes().length).withFailMessage(
-				"Unexpected number of registered types").isZero();
+		assertThat(analyzer.getRegisteredTypes().length).withFailMessage("Unexpected number of registered types")
+				.isZero();
 
 		Throwable t = this.testTrace[0];
 		Throwable[] chain = analyzer.determineCauseChain(t);
@@ -181,8 +180,8 @@ public class ThrowableAnalyzerTests {
 	public void testDetermineCauseChainWithDefaultExtractors() {
 		ThrowableAnalyzer analyzer = this.standardAnalyzer;
 
-		assertThat(analyzer.getRegisteredTypes().length).withFailMessage(
-				"Unexpected number of registered types").isEqualTo(2);
+		assertThat(analyzer.getRegisteredTypes().length).withFailMessage("Unexpected number of registered types")
+				.isEqualTo(2);
 
 		Throwable[] chain = analyzer.determineCauseChain(this.testTrace[0]);
 
@@ -190,8 +189,7 @@ public class ThrowableAnalyzerTests {
 		// by default
 		assertThat(chain.length).as("Unexpected chain size").isEqualTo(3);
 		for (int i = 0; i < 3; ++i) {
-			assertThat(chain[i]).withFailMessage(
-					"Unexpected chain entry: " + i).isEqualTo(this.testTrace[i]);
+			assertThat(chain[i]).withFailMessage("Unexpected chain entry: " + i).isEqualTo(this.testTrace[i]);
 		}
 	}
 
@@ -201,11 +199,9 @@ public class ThrowableAnalyzerTests {
 
 		Throwable[] chain = analyzer.determineCauseChain(this.testTrace[0]);
 
-		assertThat(chain.length).as("Unexpected chain size").isEqualTo(
-				this.testTrace.length);
+		assertThat(chain.length).as("Unexpected chain size").isEqualTo(this.testTrace.length);
 		for (int i = 0; i < chain.length; ++i) {
-			assertThat(chain[i]).withFailMessage(
-					"Unexpected chain entry: " + i).isEqualTo(this.testTrace[i]);
+			assertThat(chain[i]).withFailMessage("Unexpected chain entry: " + i).isEqualTo(this.testTrace[i]);
 		}
 	}
 
@@ -227,8 +223,7 @@ public class ThrowableAnalyzerTests {
 
 		Throwable[] chain = analyzer.determineCauseChain(this.testTrace[0]);
 
-		Throwable result = analyzer.getFirstThrowableOfType(NonStandardException.class,
-				chain);
+		Throwable result = analyzer.getFirstThrowableOfType(NonStandardException.class, chain);
 
 		assertThat(result).as("null not expected").isNotNull();
 		assertThat(result).as("Unexpected throwable found").isEqualTo(this.testTrace[2]);
@@ -241,8 +236,7 @@ public class ThrowableAnalyzerTests {
 		Throwable[] chain = analyzer.determineCauseChain(this.testTrace[0]);
 
 		// IllegalStateException not in trace
-		Throwable result = analyzer.getFirstThrowableOfType(IllegalStateException.class,
-				chain);
+		Throwable result = analyzer.getFirstThrowableOfType(IllegalStateException.class, chain);
 
 		assertThat(result).as("null expected").isNull();
 	}
@@ -251,8 +245,7 @@ public class ThrowableAnalyzerTests {
 	public void testVerifyThrowableHierarchyWithExactType() {
 
 		Throwable throwable = new IllegalStateException("Test");
-		ThrowableAnalyzer.verifyThrowableHierarchy(throwable,
-				IllegalStateException.class);
+		ThrowableAnalyzer.verifyThrowableHierarchy(throwable, IllegalStateException.class);
 		// No exception expected
 	}
 
@@ -280,12 +273,12 @@ public class ThrowableAnalyzerTests {
 
 		Throwable throwable = new IllegalStateException("Test");
 		try {
-			ThrowableAnalyzer.verifyThrowableHierarchy(throwable,
-					InvocationTargetException.class);
+			ThrowableAnalyzer.verifyThrowableHierarchy(throwable, InvocationTargetException.class);
 			fail("IllegalArgumentException expected");
 		}
 		catch (IllegalArgumentException e) {
 			// ok
 		}
 	}
+
 }

@@ -40,10 +40,10 @@ import reactor.util.context.Context;
  * @see WithSecurityContextTestExecutionListener
  * @see org.springframework.security.test.context.annotation.SecurityTestExecutionListeners
  */
-public class ReactorContextTestExecutionListener
-	extends DelegatingTestExecutionListener {
+public class ReactorContextTestExecutionListener extends DelegatingTestExecutionListener {
 
 	private static final String HOOKS_CLASS_NAME = "reactor.core.publisher.Hooks";
+
 	private static final String CONTEXT_OPERATOR_KEY = SecurityContext.class.getName();
 
 	public ReactorContextTestExecutionListener() {
@@ -51,16 +51,18 @@ public class ReactorContextTestExecutionListener
 	}
 
 	private static TestExecutionListener createDelegate() {
-		return ClassUtils.isPresent(HOOKS_CLASS_NAME, ReactorContextTestExecutionListener.class.getClassLoader()) ?
-			new DelegateTestExecutionListener() :
-			new AbstractTestExecutionListener() {};
+		return ClassUtils.isPresent(HOOKS_CLASS_NAME, ReactorContextTestExecutionListener.class.getClassLoader())
+				? new DelegateTestExecutionListener() : new AbstractTestExecutionListener() {
+				};
 	}
 
 	private static class DelegateTestExecutionListener extends AbstractTestExecutionListener {
+
 		@Override
 		public void beforeTestMethod(TestContext testContext) {
 			SecurityContext securityContext = TestSecurityContextHolder.getContext();
-			Hooks.onLastOperator(CONTEXT_OPERATOR_KEY, Operators.lift((s, sub) -> new SecuritySubContext<>(sub, securityContext)));
+			Hooks.onLastOperator(CONTEXT_OPERATOR_KEY,
+					Operators.lift((s, sub) -> new SecuritySubContext<>(sub, securityContext)));
 		}
 
 		@Override
@@ -69,9 +71,12 @@ public class ReactorContextTestExecutionListener
 		}
 
 		private static class SecuritySubContext<T> implements CoreSubscriber<T> {
-			private static String CONTEXT_DEFAULTED_ATTR_NAME = SecuritySubContext.class.getName().concat(".CONTEXT_DEFAULTED_ATTR_NAME");
+
+			private static String CONTEXT_DEFAULTED_ATTR_NAME = SecuritySubContext.class.getName()
+					.concat(".CONTEXT_DEFAULTED_ATTR_NAME");
 
 			private final CoreSubscriber<T> delegate;
+
 			private final SecurityContext securityContext;
 
 			SecuritySubContext(CoreSubscriber<T> delegate, SecurityContext securityContext) {
@@ -90,8 +95,7 @@ public class ReactorContextTestExecutionListener
 				if (authentication == null) {
 					return context;
 				}
-				Context toMerge = ReactiveSecurityContextHolder.withSecurityContext(
-						Mono.just(this.securityContext));
+				Context toMerge = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(this.securityContext));
 				return toMerge.putAll(context);
 			}
 
@@ -114,7 +118,9 @@ public class ReactorContextTestExecutionListener
 			public void onComplete() {
 				delegate.onComplete();
 			}
+
 		}
+
 	}
 
 	/**
@@ -124,4 +130,5 @@ public class ReactorContextTestExecutionListener
 	public int getOrder() {
 		return 11000;
 	}
+
 }

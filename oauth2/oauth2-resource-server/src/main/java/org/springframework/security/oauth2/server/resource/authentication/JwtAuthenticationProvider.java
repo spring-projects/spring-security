@@ -34,21 +34,22 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link AuthenticationProvider} implementation of the {@link Jwt}-encoded
- * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s
- * for protecting OAuth 2.0 Resource Servers.
+ * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+ * Token</a>s for protecting OAuth 2.0 Resource Servers.
  * <p>
  * <p>
- * This {@link AuthenticationProvider} is responsible for decoding and verifying a {@link Jwt}-encoded access token,
- * returning its claims set as part of the {@link Authentication} statement.
+ * This {@link AuthenticationProvider} is responsible for decoding and verifying a
+ * {@link Jwt}-encoded access token, returning its claims set as part of the
+ * {@link Authentication} statement.
  * <p>
  * <p>
- * Scopes are translated into {@link GrantedAuthority}s according to the following algorithm:
+ * Scopes are translated into {@link GrantedAuthority}s according to the following
+ * algorithm:
  *
- * 1. If there is a "scope" or "scp" attribute, then
- * 		if a {@link String}, then split by spaces and return, or
- * 		if a {@link Collection}, then simply return
- * 2. Take the resulting {@link Collection} of {@link String}s and prepend the "SCOPE_" keyword, adding
- * 		as {@link GrantedAuthority}s.
+ * 1. If there is a "scope" or "scp" attribute, then if a {@link String}, then split by
+ * spaces and return, or if a {@link Collection}, then simply return 2. Take the resulting
+ * {@link Collection} of {@link String}s and prepend the "SCOPE_" keyword, adding as
+ * {@link GrantedAuthority}s.
  *
  * @author Josh Cummings
  * @author Joe Grandja
@@ -57,6 +58,7 @@ import org.springframework.util.Assert;
  * @see JwtDecoder
  */
 public final class JwtAuthenticationProvider implements AuthenticationProvider {
+
 	private final JwtDecoder jwtDecoder;
 
 	private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -68,10 +70,9 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 
 	/**
 	 * Decode and validate the
-	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>.
-	 *
+	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+	 * Token</a>.
 	 * @param authentication the authentication request object.
-	 *
 	 * @return A successful authentication
 	 * @throws AuthenticationException if authentication failed for some reason
 	 */
@@ -82,9 +83,11 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 		Jwt jwt;
 		try {
 			jwt = this.jwtDecoder.decode(bearer.getToken());
-		} catch (BadJwtException failed) {
+		}
+		catch (BadJwtException failed) {
 			throw new InvalidBearerTokenException(failed.getMessage(), failed);
-		} catch (JwtException failed) {
+		}
+		catch (JwtException failed) {
 			throw new AuthenticationServiceException(failed.getMessage(), failed);
 		}
 
@@ -108,4 +111,5 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 		Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
 		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}
+
 }

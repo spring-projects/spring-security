@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class DataSourcePopulator implements InitializingBean {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -35,8 +36,10 @@ public class DataSourcePopulator implements InitializingBean {
 	public void afterPropertiesSet() {
 		Assert.notNull(template, "dataSource required");
 
-		template.execute("CREATE TABLE USERS(USERNAME VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,PASSWORD VARCHAR_IGNORECASE(500) NOT NULL,ENABLED BOOLEAN NOT NULL);");
-		template.execute("CREATE TABLE AUTHORITIES(USERNAME VARCHAR_IGNORECASE(50) NOT NULL,AUTHORITY VARCHAR_IGNORECASE(50) NOT NULL,CONSTRAINT FK_AUTHORITIES_USERS FOREIGN KEY(USERNAME) REFERENCES USERS(USERNAME));");
+		template.execute(
+				"CREATE TABLE USERS(USERNAME VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,PASSWORD VARCHAR_IGNORECASE(500) NOT NULL,ENABLED BOOLEAN NOT NULL);");
+		template.execute(
+				"CREATE TABLE AUTHORITIES(USERNAME VARCHAR_IGNORECASE(50) NOT NULL,AUTHORITY VARCHAR_IGNORECASE(50) NOT NULL,CONSTRAINT FK_AUTHORITIES_USERS FOREIGN KEY(USERNAME) REFERENCES USERS(USERNAME));");
 		template.execute("CREATE UNIQUE INDEX IX_AUTH_USERNAME ON AUTHORITIES(USERNAME,AUTHORITY);");
 
 		/*
@@ -66,4 +69,5 @@ public class DataSourcePopulator implements InitializingBean {
 	public void setDataSource(DataSource dataSource) {
 		this.template = new JdbcTemplate(dataSource);
 	}
+
 }

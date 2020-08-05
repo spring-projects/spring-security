@@ -25,16 +25,15 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- *
  * @author Rob Winch
  * @since 5.0
  *
  */
 public class CacheControlServerHttpHeadersWriterTests {
+
 	CacheControlServerHttpHeadersWriter writer = new CacheControlServerHttpHeadersWriter();
 
-	ServerWebExchange exchange = MockServerWebExchange
-		.from(MockServerHttpRequest.get("/").build());
+	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	HttpHeaders headers = exchange.getResponse().getHeaders();
 
@@ -43,12 +42,10 @@ public class CacheControlServerHttpHeadersWriterTests {
 		writer.writeHttpHeaders(exchange);
 
 		assertThat(headers).hasSize(3);
-		assertThat(headers.get(HttpHeaders.CACHE_CONTROL)).containsOnly(
-			CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
-		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(
-			CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
-		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(
-			CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
+		assertThat(headers.get(HttpHeaders.CACHE_CONTROL))
+				.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
+		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
+		assertThat(headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
 	}
 
 	@Test

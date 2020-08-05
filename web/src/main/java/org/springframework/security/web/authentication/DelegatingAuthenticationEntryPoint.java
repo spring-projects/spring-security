@@ -58,15 +58,15 @@ import org.springframework.util.Assert;
  * @author Mike Wiesner
  * @since 3.0.2
  */
-public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint,
-		InitializingBean {
+public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
+
 	private AuthenticationEntryPoint defaultEntryPoint;
 
-	public DelegatingAuthenticationEntryPoint(
-			LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
+	public DelegatingAuthenticationEntryPoint(LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
 		this.entryPoints = entryPoints;
 	}
 
@@ -106,4 +106,5 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 		Assert.notEmpty(entryPoints, "entryPoints must be specified");
 		Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");
 	}
+
 }

@@ -31,8 +31,8 @@ import org.springframework.security.concurrent.AbstractDelegatingSecurityContext
  * @since 3.2
  *
  */
-public class ExplicitDelegatingSecurityContextTaskExecutorTests extends
-		AbstractDelegatingSecurityContextExecutorTests {
+public class ExplicitDelegatingSecurityContextTaskExecutorTests extends AbstractDelegatingSecurityContextExecutorTests {
+
 	@Mock
 	private TaskExecutor taskExecutorDelegate;
 
@@ -46,7 +46,7 @@ public class ExplicitDelegatingSecurityContextTaskExecutorTests extends
 	}
 
 	protected DelegatingSecurityContextExecutor create() {
-		return new DelegatingSecurityContextTaskExecutor(taskExecutorDelegate,
-				securityContext);
+		return new DelegatingSecurityContextTaskExecutor(taskExecutorDelegate, securityContext);
 	}
+
 }

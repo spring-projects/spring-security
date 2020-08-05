@@ -41,21 +41,26 @@ import org.springframework.web.context.request.async.WebAsyncManager;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 
 /**
- *
  * @author Rob Winch
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class WebAsyncManagerIntegrationFilterTests {
+
 	@Mock
 	private SecurityContext securityContext;
+
 	@Mock
 	private HttpServletRequest request;
+
 	@Mock
 	private HttpServletResponse response;
+
 	@Mock
 	private AsyncWebRequest asyncWebRequest;
+
 	private WebAsyncManager asyncManager;
+
 	private JoinableThreadFactory threadFactory;
 
 	private MockFilterChain filterChain;
@@ -73,8 +78,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 		asyncManager = WebAsyncUtils.getAsyncManager(request);
 		asyncManager.setAsyncWebRequest(asyncWebRequest);
 		asyncManager.setTaskExecutor(executor);
-		when(request.getAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE)).thenReturn(
-				asyncManager);
+		when(request.getAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE)).thenReturn(asyncManager);
 
 		filter = new WebAsyncManagerIntegrationFilter();
 	}
@@ -85,18 +89,14 @@ public class WebAsyncManagerIntegrationFilterTests {
 	}
 
 	@Test
-	public void doFilterInternalRegistersSecurityContextCallableProcessor()
-			throws Exception {
+	public void doFilterInternalRegistersSecurityContextCallableProcessor() throws Exception {
 		SecurityContextHolder.setContext(securityContext);
-		asyncManager
-				.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
-					@Override
-					public <T> void postProcess(NativeWebRequest request,
-							Callable<T> task, Object concurrentResult) {
-						assertThat(SecurityContextHolder.getContext()).isNotSameAs(
-								securityContext);
-					}
-				});
+		asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
+			@Override
+			public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
+				assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+			}
+		});
 		filter.doFilterInternal(request, response, filterChain);
 
 		VerifyingCallable verifyingCallable = new VerifyingCallable();
@@ -106,18 +106,14 @@ public class WebAsyncManagerIntegrationFilterTests {
 	}
 
 	@Test
-	public void doFilterInternalRegistersSecurityContextCallableProcessorContextUpdated()
-			throws Exception {
+	public void doFilterInternalRegistersSecurityContextCallableProcessorContextUpdated() throws Exception {
 		SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
-		asyncManager
-				.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
-					@Override
-					public <T> void postProcess(NativeWebRequest request,
-							Callable<T> task, Object concurrentResult) {
-						assertThat(SecurityContextHolder.getContext()).isNotSameAs(
-								securityContext);
-					}
-				});
+		asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
+			@Override
+			public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
+				assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+			}
+		});
 		filter.doFilterInternal(request, response, filterChain);
 		SecurityContextHolder.setContext(securityContext);
 
@@ -128,6 +124,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 	}
 
 	private static final class JoinableThreadFactory implements ThreadFactory {
+
 		private Thread t;
 
 		public Thread newThread(Runnable r) {
@@ -138,6 +135,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 		public void join() throws InterruptedException {
 			t.join();
 		}
+
 	}
 
 	private class VerifyingCallable implements Callable<SecurityContext> {
@@ -147,4 +145,5 @@ public class WebAsyncManagerIntegrationFilterTests {
 		}
 
 	}
+
 }

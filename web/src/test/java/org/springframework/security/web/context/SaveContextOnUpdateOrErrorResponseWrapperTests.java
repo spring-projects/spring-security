@@ -30,24 +30,24 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- *
  * @author Rob Winch
  *
  */
 
 @RunWith(MockitoJUnitRunner.class)
 public class SaveContextOnUpdateOrErrorResponseWrapperTests {
+
 	@Mock
 	private SecurityContext securityContext;
 
 	private MockHttpServletResponse response;
+
 	private SaveContextOnUpdateOrErrorResponseWrapperStub wrappedResponse;
 
 	@Before
 	public void setUp() {
 		response = new MockHttpServletResponse();
-		wrappedResponse = new SaveContextOnUpdateOrErrorResponseWrapperStub(response,
-				true);
+		wrappedResponse = new SaveContextOnUpdateOrErrorResponseWrapperStub(response, true);
 		SecurityContextHolder.setContext(securityContext);
 	}
 
@@ -176,12 +176,12 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
 		assertThat(wrappedResponse.securityContext).isNull();
 	}
 
-	private static class SaveContextOnUpdateOrErrorResponseWrapperStub extends
-			SaveContextOnUpdateOrErrorResponseWrapper {
+	private static class SaveContextOnUpdateOrErrorResponseWrapperStub
+			extends SaveContextOnUpdateOrErrorResponseWrapper {
+
 		private SecurityContext securityContext;
 
-		SaveContextOnUpdateOrErrorResponseWrapperStub(
-				HttpServletResponse response, boolean disableUrlRewriting) {
+		SaveContextOnUpdateOrErrorResponseWrapperStub(HttpServletResponse response, boolean disableUrlRewriting) {
 			super(response, disableUrlRewriting);
 		}
 
@@ -189,5 +189,7 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
 		protected void saveContext(SecurityContext context) {
 			securityContext = context;
 		}
+
 	}
+
 }

@@ -31,7 +31,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
  *
  * @see EnableWebSecurity
  * @see EnableGlobalMethodSecurity
- *
  * @author Rob Winch
  * @since 3.2
  */
@@ -41,8 +40,8 @@ public class ObjectPostProcessorConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public ObjectPostProcessor<Object> objectPostProcessor(
-			AutowireCapableBeanFactory beanFactory) {
+	public ObjectPostProcessor<Object> objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
 		return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
 	}
+
 }

@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.*;
  * @since 3.2
  */
 public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTests {
+
 	private static CacheManager cacheManager;
 
 	// ~ Methods
@@ -44,8 +45,7 @@ public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCac
 
 	@Test
 	public void testCacheOperation() throws Exception {
-		SpringCacheBasedTicketCache cache = new SpringCacheBasedTicketCache(
-				cacheManager.getCache("castickets"));
+		SpringCacheBasedTicketCache cache = new SpringCacheBasedTicketCache(cacheManager.getCache("castickets"));
 
 		final CasAuthenticationToken token = getToken();
 
@@ -66,4 +66,5 @@ public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCac
 	public void testStartupDetectsMissingCache() throws Exception {
 		new SpringCacheBasedTicketCache(null);
 	}
+
 }

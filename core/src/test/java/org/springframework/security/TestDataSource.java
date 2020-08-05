@@ -26,6 +26,7 @@ import org.springframework.beans.factory.DisposableBean;
  * @author Luke Taylor
  */
 public class TestDataSource extends DriverManagerDataSource implements DisposableBean {
+
 	String name;
 
 	public TestDataSource(String databaseName) {
@@ -41,4 +42,5 @@ public class TestDataSource extends DriverManagerDataSource implements Disposabl
 		System.out.println("Shutting down database: " + name);
 		new JdbcTemplate(this).execute("SHUTDOWN");
 	}
+
 }

@@ -56,16 +56,19 @@ import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSe
  *
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Resource Server Support.
  *
- * By default, this wires a {@link BearerTokenAuthenticationFilter}, which can be used to parse the request
- * for bearer tokens and make an authentication attempt.
+ * By default, this wires a {@link BearerTokenAuthenticationFilter}, which can be used to
+ * parse the request for bearer tokens and make an authentication attempt.
  *
  * <p>
  * The following configuration options are available:
  *
  * <ul>
- * <li>{@link #accessDeniedHandler(AccessDeniedHandler)}</li> - customizes how access denied errors are handled
- * <li>{@link #authenticationEntryPoint(AuthenticationEntryPoint)}</li> - customizes how authentication failures are handled
- * <li>{@link #bearerTokenResolver(BearerTokenResolver)} - customizes how to resolve a bearer token from the request</li>
+ * <li>{@link #accessDeniedHandler(AccessDeniedHandler)}</li> - customizes how access
+ * denied errors are handled
+ * <li>{@link #authenticationEntryPoint(AuthenticationEntryPoint)}</li> - customizes how
+ * authentication failures are handled
+ * <li>{@link #bearerTokenResolver(BearerTokenResolver)} - customizes how to resolve a
+ * bearer token from the request</li>
  * <li>{@link #jwt(Customizer)} - enables Jwt-encoded bearer token support</li>
  * <li>{@link #opaqueToken(Customizer)} - enables opaque bearer token support</li>
  * </ul>
@@ -74,33 +77,28 @@ import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSe
  * When using {@link #jwt(Customizer)}, either
  *
  * <ul>
- * <li>
- * supply a Jwk Set Uri via {@link JwtConfigurer#jwkSetUri}, or
- * </li>
- * <li>
- * supply a {@link JwtDecoder} instance via {@link JwtConfigurer#decoder}, or
- * </li>
- * <li>
- * expose a {@link JwtDecoder} bean
- * </li>
+ * <li>supply a Jwk Set Uri via {@link JwtConfigurer#jwkSetUri}, or</li>
+ * <li>supply a {@link JwtDecoder} instance via {@link JwtConfigurer#decoder}, or</li>
+ * <li>expose a {@link JwtDecoder} bean</li>
  * </ul>
  *
  * Also with {@link #jwt(Customizer)} consider
  *
  * <ul>
- * <li>
- * customizing the conversion from a {@link Jwt} to an {@link org.springframework.security.core.Authentication} with
- * {@link JwtConfigurer#jwtAuthenticationConverter(Converter)}
- * </li>
+ * <li>customizing the conversion from a {@link Jwt} to an
+ * {@link org.springframework.security.core.Authentication} with
+ * {@link JwtConfigurer#jwtAuthenticationConverter(Converter)}</li>
  * </ul>
  *
  * <p>
- * When using {@link #opaqueToken(Customizer)}, supply an introspection endpoint and its authentication configuration
+ * When using {@link #opaqueToken(Customizer)}, supply an introspection endpoint and its
+ * authentication configuration
  * </p>
  *
  * <h2>Security Filters</h2>
  *
- * The following {@code Filter}s are populated when {@link #jwt(Customizer)} is configured:
+ * The following {@code Filter}s are populated when {@link #jwt(Customizer)} is
+ * configured:
  *
  * <ul>
  * <li>{@link BearerTokenAuthenticationFilter}</li>
@@ -130,19 +128,23 @@ import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSe
  * @see NimbusJwtDecoder
  * @see AbstractHttpConfigurer
  */
-public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<OAuth2ResourceServerConfigurer<H>, H> {
+public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<OAuth2ResourceServerConfigurer<H>, H> {
 
 	private final ApplicationContext context;
 
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
+
 	private BearerTokenResolver bearerTokenResolver;
 
 	private JwtConfigurer jwtConfigurer;
+
 	private OpaqueTokenConfigurer opaqueTokenConfigurer;
 
 	private AccessDeniedHandler accessDeniedHandler = new BearerTokenAccessDeniedHandler();
+
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
+
 	private BearerTokenRequestMatcher requestMatcher = new BearerTokenRequestMatcher();
 
 	public OAuth2ResourceServerConfigurer(ApplicationContext context) {
@@ -162,8 +164,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
-	public OAuth2ResourceServerConfigurer<H> authenticationManagerResolver
-			(AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
+	public OAuth2ResourceServerConfigurer<H> authenticationManagerResolver(
+			AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
 		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
 		this.authenticationManagerResolver = authenticationManagerResolver;
 		return this;
@@ -176,7 +178,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	public JwtConfigurer jwt() {
-		if ( this.jwtConfigurer == null ) {
+		if (this.jwtConfigurer == null) {
 			this.jwtConfigurer = new JwtConfigurer(this.context);
 		}
 
@@ -185,13 +187,12 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	/**
 	 * Enables Jwt-encoded bearer token support.
-	 *
-	 * @param jwtCustomizer the {@link Customizer} to provide more options for
-	 * the {@link JwtConfigurer}
+	 * @param jwtCustomizer the {@link Customizer} to provide more options for the
+	 * {@link JwtConfigurer}
 	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
 	 */
 	public OAuth2ResourceServerConfigurer<H> jwt(Customizer<JwtConfigurer> jwtCustomizer) {
-		if ( this.jwtConfigurer == null ) {
+		if (this.jwtConfigurer == null) {
 			this.jwtConfigurer = new JwtConfigurer(this.context);
 		}
 		jwtCustomizer.customize(this.jwtConfigurer);
@@ -208,9 +209,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	/**
 	 * Enables opaque bearer token support.
-	 *
-	 * @param opaqueTokenCustomizer the {@link Customizer} to provide more options for
-	 * the {@link OpaqueTokenConfigurer}
+	 * @param opaqueTokenCustomizer the {@link Customizer} to provide more options for the
+	 * {@link OpaqueTokenConfigurer}
 	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
 	 */
 	public OAuth2ResourceServerConfigurer<H> opaqueToken(Customizer<OpaqueTokenConfigurer> opaqueTokenCustomizer) {
@@ -257,28 +257,31 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	private void validateConfiguration() {
 		if (this.authenticationManagerResolver == null) {
 			if (this.jwtConfigurer == null && this.opaqueTokenConfigurer == null) {
-				throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens " +
-						"in Spring Security and neither was found. Make sure to configure JWT " +
-						"via http.oauth2ResourceServer().jwt() or Opaque Tokens via " +
-						"http.oauth2ResourceServer().opaqueToken().");
+				throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens "
+						+ "in Spring Security and neither was found. Make sure to configure JWT "
+						+ "via http.oauth2ResourceServer().jwt() or Opaque Tokens via "
+						+ "http.oauth2ResourceServer().opaqueToken().");
 			}
 
 			if (this.jwtConfigurer != null && this.opaqueTokenConfigurer != null) {
-				throw new IllegalStateException("Spring Security only supports JWTs or Opaque Tokens, not both at the " +
-						"same time.");
+				throw new IllegalStateException(
+						"Spring Security only supports JWTs or Opaque Tokens, not both at the " + "same time.");
 			}
-		} else {
+		}
+		else {
 			if (this.jwtConfigurer != null || this.opaqueTokenConfigurer != null) {
-				throw new IllegalStateException("If an authenticationManagerResolver() is configured, then it takes " +
-						"precedence over any jwt() or opaqueToken() configuration.");
+				throw new IllegalStateException("If an authenticationManagerResolver() is configured, then it takes "
+						+ "precedence over any jwt() or opaqueToken() configuration.");
 			}
 		}
 	}
 
 	public class JwtConfigurer {
+
 		private final ApplicationContext context;
 
 		private AuthenticationManager authenticationManager;
+
 		private JwtDecoder decoder;
 
 		private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter;
@@ -303,8 +306,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this;
 		}
 
-		public JwtConfigurer jwtAuthenticationConverter
-				(Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter) {
+		public JwtConfigurer jwtAuthenticationConverter(
+				Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter) {
 
 			this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 			return this;
@@ -318,7 +321,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			if (this.jwtAuthenticationConverter == null) {
 				if (this.context.getBeanNamesForType(JwtAuthenticationConverter.class).length > 0) {
 					this.jwtAuthenticationConverter = this.context.getBean(JwtAuthenticationConverter.class);
-				} else {
+				}
+				else {
 					this.jwtAuthenticationConverter = new JwtAuthenticationConverter();
 				}
 			}
@@ -327,7 +331,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		JwtDecoder getJwtDecoder() {
-			if ( this.decoder == null ) {
+			if (this.decoder == null) {
 				return this.context.getBean(JwtDecoder.class);
 			}
 
@@ -340,11 +344,9 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			}
 
 			JwtDecoder decoder = getJwtDecoder();
-			Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
-					getJwtAuthenticationConverter();
+			Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter = getJwtAuthenticationConverter();
 
-			JwtAuthenticationProvider provider =
-					new JwtAuthenticationProvider(decoder);
+			JwtAuthenticationProvider provider = new JwtAuthenticationProvider(decoder);
 			provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
 			return postProcess(provider);
 		}
@@ -356,15 +358,21 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 			return http.getSharedObject(AuthenticationManager.class);
 		}
+
 	}
 
 	public class OpaqueTokenConfigurer {
+
 		private final ApplicationContext context;
 
 		private AuthenticationManager authenticationManager;
+
 		private String introspectionUri;
+
 		private String clientId;
+
 		private String clientSecret;
+
 		private Supplier<OpaqueTokenIntrospector> introspector;
 
 		OpaqueTokenConfigurer(ApplicationContext context) {
@@ -380,8 +388,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		public OpaqueTokenConfigurer introspectionUri(String introspectionUri) {
 			Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 			this.introspectionUri = introspectionUri;
-			this.introspector = () ->
-					new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId, this.clientSecret);
+			this.introspector = () -> new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
+					this.clientSecret);
 			return this;
 		}
 
@@ -390,8 +398,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			Assert.notNull(clientSecret, "clientSecret cannot be null");
 			this.clientId = clientId;
 			this.clientSecret = clientSecret;
-			this.introspector = () ->
-					new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId, this.clientSecret);
+			this.introspector = () -> new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
+					this.clientSecret);
 			return this;
 		}
 
@@ -423,35 +431,29 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 			return http.getSharedObject(AuthenticationManager.class);
 		}
+
 	}
 
 	private void registerDefaultAccessDeniedHandler(H http) {
-		ExceptionHandlingConfigurer<H> exceptionHandling = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
+		ExceptionHandlingConfigurer<H> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionHandling == null) {
 			return;
 		}
 
-		exceptionHandling.defaultAccessDeniedHandlerFor(
-				this.accessDeniedHandler,
-				this.requestMatcher);
+		exceptionHandling.defaultAccessDeniedHandlerFor(this.accessDeniedHandler, this.requestMatcher);
 	}
 
 	private void registerDefaultEntryPoint(H http) {
-		ExceptionHandlingConfigurer<H> exceptionHandling = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
+		ExceptionHandlingConfigurer<H> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionHandling == null) {
 			return;
 		}
 
-		exceptionHandling.defaultAuthenticationEntryPointFor(
-				this.authenticationEntryPoint,
-				this.requestMatcher);
+		exceptionHandling.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, this.requestMatcher);
 	}
 
 	private void registerDefaultCsrfOverride(H http) {
-		CsrfConfigurer<H> csrf = http
-				.getConfigurer(CsrfConfigurer.class);
+		CsrfConfigurer<H> csrf = http.getConfigurer(CsrfConfigurer.class);
 		if (csrf == null) {
 			return;
 		}
@@ -484,10 +486,11 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	BearerTokenResolver getBearerTokenResolver() {
-		if ( this.bearerTokenResolver == null ) {
-			if ( this.context.getBeanNamesForType(BearerTokenResolver.class).length > 0 ) {
+		if (this.bearerTokenResolver == null) {
+			if (this.context.getBeanNamesForType(BearerTokenResolver.class).length > 0) {
 				this.bearerTokenResolver = this.context.getBean(BearerTokenResolver.class);
-			} else {
+			}
+			else {
 				this.bearerTokenResolver = new DefaultBearerTokenResolver();
 			}
 		}
@@ -496,13 +499,15 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	private static final class BearerTokenRequestMatcher implements RequestMatcher {
+
 		private BearerTokenResolver bearerTokenResolver;
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			try {
 				return this.bearerTokenResolver.resolve(request) != null;
-			} catch ( OAuth2AuthenticationException e ) {
+			}
+			catch (OAuth2AuthenticationException e) {
 				return false;
 			}
 		}
@@ -511,5 +516,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			Assert.notNull(tokenResolver, "resolver cannot be null");
 			this.bearerTokenResolver = tokenResolver;
 		}
+
 	}
+
 }

@@ -22,6 +22,7 @@ package org.springframework.security.access.vote;
  * @author Ben Alex
  */
 public class SomeDomainObject {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -40,4 +41,5 @@ public class SomeDomainObject {
 	public String getParent() {
 		return "parentOf" + identity;
 	}
+
 }

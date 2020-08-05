@@ -23,13 +23,13 @@ import org.springframework.util.Assert;
 
 /**
  * <p>
- * Wraps a delegate {@link Callable} with logic for setting up a
- * {@link SecurityContext} before invoking the delegate {@link Callable} and
- * then removing the {@link SecurityContext} after the delegate has completed.
+ * Wraps a delegate {@link Callable} with logic for setting up a {@link SecurityContext}
+ * before invoking the delegate {@link Callable} and then removing the
+ * {@link SecurityContext} after the delegate has completed.
  * </p>
  * <p>
- * If there is a {@link SecurityContext} that already exists, it will be
- * restored after the {@link #call()} method is invoked.
+ * If there is a {@link SecurityContext} that already exists, it will be restored after
+ * the {@link #call()} method is invoked.
  * </p>
  *
  * @author Rob Winch
@@ -39,16 +39,14 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 
 	private final Callable<V> delegate;
 
-
 	/**
-	 * The {@link SecurityContext} that the delegate {@link Callable} will be
-	 * ran as.
+	 * The {@link SecurityContext} that the delegate {@link Callable} will be ran as.
 	 */
 	private final SecurityContext delegateSecurityContext;
 
 	/**
-	 * The {@link SecurityContext} that was on the {@link SecurityContextHolder}
-	 * prior to being set to the delegateSecurityContext.
+	 * The {@link SecurityContext} that was on the {@link SecurityContextHolder} prior to
+	 * being set to the delegateSecurityContext.
 	 */
 	private SecurityContext originalSecurityContext;
 
@@ -60,8 +58,7 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	 * @param securityContext the {@link SecurityContext} to establish for the delegate
 	 * {@link Callable}. Cannot be null.
 	 */
-	public DelegatingSecurityContextCallable(Callable<V> delegate,
-			SecurityContext securityContext) {
+	public DelegatingSecurityContextCallable(Callable<V> delegate, SecurityContext securityContext) {
 		Assert.notNull(delegate, "delegate cannot be null");
 		Assert.notNull(securityContext, "securityContext cannot be null");
 		this.delegate = delegate;
@@ -90,7 +87,8 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 			SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
 			if (emptyContext.equals(originalSecurityContext)) {
 				SecurityContextHolder.clearContext();
-			} else {
+			}
+			else {
 				SecurityContextHolder.setContext(originalSecurityContext);
 			}
 			this.originalSecurityContext = null;
@@ -107,17 +105,15 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	 * {@link Callable} and {@link SecurityContext}, but if the securityContext is null
 	 * will defaults to the current {@link SecurityContext} on the
 	 * {@link SecurityContextHolder}
-	 *
 	 * @param delegate the delegate {@link DelegatingSecurityContextCallable} to run with
 	 * the specified {@link SecurityContext}. Cannot be null.
 	 * @param securityContext the {@link SecurityContext} to establish for the delegate
 	 * {@link Callable}. If null, defaults to {@link SecurityContextHolder#getContext()}
 	 * @return
 	 */
-	public static <V> Callable<V> create(Callable<V> delegate,
-			SecurityContext securityContext) {
-		return securityContext == null ? new DelegatingSecurityContextCallable<>(
-				delegate) : new DelegatingSecurityContextCallable<>(delegate,
-				securityContext);
+	public static <V> Callable<V> create(Callable<V> delegate, SecurityContext securityContext) {
+		return securityContext == null ? new DelegatingSecurityContextCallable<>(delegate)
+				: new DelegatingSecurityContextCallable<>(delegate, securityContext);
 	}
+
 }

@@ -69,6 +69,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
+
 	@Autowired
 	WebApplicationContext context;
 
@@ -89,19 +90,15 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 		TestSecurityContextHolder.clearContext();
 	}
 
-
 	@Test
-	public void oauth2ClientWhenUsingDefaultsThenException()
-			throws Exception {
+	public void oauth2ClientWhenUsingDefaultsThenException() throws Exception {
 
 		assertThatCode(() -> oauth2Client().postProcessRequest(new MockHttpServletRequest()))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("ClientRegistration");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("ClientRegistration");
 	}
 
 	@Test
-	public void oauth2ClientWhenUsingDefaultsThenProducesDefaultAuthorizedClient()
-		throws Exception {
+	public void oauth2ClientWhenUsingDefaultsThenProducesDefaultAuthorizedClient() throws Exception {
 
 		this.mvc.perform(get("/access-token").with(oauth2Client("registration-id")))
 				.andExpect(content().string("access-token"));
@@ -110,19 +107,16 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 	}
 
 	@Test
-	public void oauth2ClientWhenClientRegistrationThenUses()
-			throws Exception {
+	public void oauth2ClientWhenClientRegistrationThenUses() throws Exception {
 
-		ClientRegistration clientRegistration = clientRegistration()
-				.registrationId("registration-id").clientId("client-id").build();
-		this.mvc.perform(get("/client-id")
-				.with(oauth2Client().clientRegistration(clientRegistration)))
+		ClientRegistration clientRegistration = clientRegistration().registrationId("registration-id")
+				.clientId("client-id").build();
+		this.mvc.perform(get("/client-id").with(oauth2Client().clientRegistration(clientRegistration)))
 				.andExpect(content().string("client-id"));
 	}
 
 	@Test
-	public void oauth2ClientWhenClientRegistrationConsumerThenUses()
-			throws Exception {
+	public void oauth2ClientWhenClientRegistrationConsumerThenUses() throws Exception {
 
 		this.mvc.perform(get("/client-id")
 				.with(oauth2Client("registration-id").clientRegistration(c -> c.clientId("client-id"))))
@@ -131,38 +125,35 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 	@Test
 	public void oauth2ClientWhenPrincipalNameThenUses() throws Exception {
-		this.mvc.perform(get("/principal-name")
-				.with(oauth2Client("registration-id").principalName("test-subject")))
+		this.mvc.perform(get("/principal-name").with(oauth2Client("registration-id").principalName("test-subject")))
 				.andExpect(content().string("test-subject"));
 	}
 
 	@Test
 	public void oauth2ClientWhenAccessTokenThenUses() throws Exception {
 		OAuth2AccessToken accessToken = noScopes();
-		this.mvc.perform(get("/access-token")
-				.with(oauth2Client("registration-id").accessToken(accessToken)))
+		this.mvc.perform(get("/access-token").with(oauth2Client("registration-id").accessToken(accessToken)))
 				.andExpect(content().string("no-scopes"));
 	}
 
 	@Test
 	public void oauth2ClientWhenUsedOnceThenDoesNotAffectRemainingTests() throws Exception {
-		this.mvc.perform(get("/client-id")
-				.with(oauth2Client("registration-id")))
+		this.mvc.perform(get("/client-id").with(oauth2Client("registration-id")))
 				.andExpect(content().string("test-client"));
 
 		OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(clientRegistration().build(), "sub", noScopes());
 		OAuth2AuthorizedClientRepository repository = this.context.getBean(OAuth2AuthorizedClientRepository.class);
-		when(repository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class), any(HttpServletRequest.class)))
-				.thenReturn(client);
-		this.mvc.perform(get("/client-id"))
-				.andExpect(content().string("client-id"));
-		verify(repository).loadAuthorizedClient(
-				eq("registration-id"), any(Authentication.class), any(HttpServletRequest.class));
+		when(repository.loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
+				any(HttpServletRequest.class))).thenReturn(client);
+		this.mvc.perform(get("/client-id")).andExpect(content().string("client-id"));
+		verify(repository).loadAuthorizedClient(eq("registration-id"), any(Authentication.class),
+				any(HttpServletRequest.class));
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -179,7 +170,6 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 			return mock(ClientRegistrationRepository.class);
 		}
 
-
 		@Bean
 		OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return mock(OAuth2AuthorizedClientRepository.class);
@@ -187,20 +177,27 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 
 		@RestController
 		static class PrincipalController {
+
 			@GetMapping("/access-token")
-			String accessToken(@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
+			String accessToken(
+					@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient.getAccessToken().getTokenValue();
 			}
 
 			@GetMapping("/principal-name")
-			String principalName(@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
+			String principalName(
+					@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient.getPrincipalName();
 			}
 
 			@GetMapping("/client-id")
-			String clientId(@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
+			String clientId(
+					@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient.getClientRegistration().getClientId();
 			}
+
 		}
+
 	}
+
 }

@@ -46,4 +46,5 @@ public interface MessageMatcher<T> {
 			return "ANY_MESSAGE";
 		}
 	};
+
 }

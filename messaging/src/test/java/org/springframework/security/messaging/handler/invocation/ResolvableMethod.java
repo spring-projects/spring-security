@@ -57,27 +57,29 @@ import org.springframework.util.ReflectionUtils;
 import static java.util.stream.Collectors.joining;
 
 /**
- * NOTE: This class is a replica of the same class in spring-web so it can
- * be used for tests in spring-messaging.
+ * NOTE: This class is a replica of the same class in spring-web so it can be used for
+ * tests in spring-messaging.
  *
- * <p>Convenience class to resolve method parameters from hints.
+ * <p>
+ * Convenience class to resolve method parameters from hints.
  *
  * <h1>Background</h1>
  *
- * <p>When testing annotated methods we create test classes such as
- * "TestController" with a diverse range of method signatures representing
- * supported annotations and argument types. It becomes challenging to use
- * naming strategies to keep track of methods and arguments especially in
- * combination with variables for reflection metadata.
+ * <p>
+ * When testing annotated methods we create test classes such as "TestController" with a
+ * diverse range of method signatures representing supported annotations and argument
+ * types. It becomes challenging to use naming strategies to keep track of methods and
+ * arguments especially in combination with variables for reflection metadata.
  *
- * <p>The idea with {@link ResolvableMethod} is NOT to rely on naming techniques
- * but to use hints to zero in on method parameters. Such hints can be strongly
- * typed and explicit about what is being tested.
+ * <p>
+ * The idea with {@link ResolvableMethod} is NOT to rely on naming techniques but to use
+ * hints to zero in on method parameters. Such hints can be strongly typed and explicit
+ * about what is being tested.
  *
  * <h2>1. Declared Return Type</h2>
  *
- * When testing return types it's likely to have many methods with a unique
- * return type, possibly with or without an annotation.
+ * When testing return types it's likely to have many methods with a unique return type,
+ * possibly with or without an annotation.
  *
  * <pre>
  * import static org.springframework.web.method.ResolvableMethod.on;
@@ -100,8 +102,8 @@ import static java.util.stream.Collectors.joining;
  *
  * <h2>2. Method Arguments</h2>
  *
- * When testing method arguments it's more likely to have one or a small number
- * of methods with a wide array of argument types and parameter annotations.
+ * When testing method arguments it's more likely to have one or a small number of methods
+ * with a wide array of argument types and parameter annotations.
  *
  * <pre>
  * import static org.springframework.web.method.MvcAnnotationPredicates.requestParam;
@@ -136,15 +138,12 @@ public class ResolvableMethod {
 	// Matches ValueConstants.DEFAULT_NONE (spring-web and spring-messaging)
 	private static final String DEFAULT_VALUE_NONE = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
 
-
 	private final Method method;
-
 
 	private ResolvableMethod(Method method) {
 		Assert.notNull(method, "'method' is required");
 		this.method = method;
 	}
-
 
 	/**
 	 * Return the resolved method.
@@ -188,8 +187,8 @@ public class ResolvableMethod {
 	}
 
 	/**
-	 * Filter on method arguments with annotation.
-	 * See {@link org.springframework.web.method.MvcAnnotationPredicates}.
+	 * Filter on method arguments with annotation. See
+	 * {@link org.springframework.web.method.MvcAnnotationPredicates}.
 	 */
 	@SafeVarargs
 	public final ArgResolver annot(Predicate<MethodParameter>... filter) {
@@ -210,25 +209,21 @@ public class ResolvableMethod {
 		return new ArgResolver().annotNotPresent(annotationTypes);
 	}
 
-
 	@Override
 	public String toString() {
 		return "ResolvableMethod=" + formatMethod();
 	}
 
-
 	private String formatMethod() {
-		return (method().getName() +
-				Arrays.stream(this.method.getParameters())
-						.map(this::formatParameter)
-						.collect(joining(",\n\t", "(\n\t", "\n)")));
+		return (method().getName() + Arrays.stream(this.method.getParameters()).map(this::formatParameter)
+				.collect(joining(",\n\t", "(\n\t", "\n)")));
 	}
 
 	private String formatParameter(Parameter param) {
 		Annotation[] anns = param.getAnnotations();
-		return (anns.length > 0 ?
-				Arrays.stream(anns).map(this::formatAnnotation).collect(joining(",", "[", "]")) + " " + param :
-				param.toString());
+		return (anns.length > 0
+				? Arrays.stream(anns).map(this::formatAnnotation).collect(joining(",", "[", "]")) + " " + param
+				: param.toString());
 	}
 
 	private String formatAnnotation(Annotation annotation) {
@@ -242,8 +237,8 @@ public class ResolvableMethod {
 	}
 
 	private static ResolvableType toResolvableType(Class<?> type, Class<?>... generics) {
-		return (ObjectUtils.isEmpty(generics) ? ResolvableType.forClass(type) :
-				ResolvableType.forClassWithGenerics(type, generics));
+		return (ObjectUtils.isEmpty(generics) ? ResolvableType.forClass(type)
+				: ResolvableType.forClassWithGenerics(type, generics));
 	}
 
 	private static ResolvableType toResolvableType(Class<?> type, ResolvableType generic, ResolvableType... generics) {
@@ -253,14 +248,12 @@ public class ResolvableMethod {
 		return ResolvableType.forClassWithGenerics(type, genericTypes);
 	}
 
-
 	/**
 	 * Create a {@code ResolvableMethod} builder for the given handler class.
 	 */
 	public static <T> Builder<T> on(Class<T> objectClass) {
 		return new Builder<>(objectClass);
 	}
-
 
 	/**
 	 * Builder for {@code ResolvableMethod}.
@@ -271,12 +264,10 @@ public class ResolvableMethod {
 
 		private final List<Predicate<Method>> filters = new ArrayList<>(4);
 
-
 		private Builder(Class<?> objectClass) {
 			Assert.notNull(objectClass, "Class must not be null");
 			this.objectClass = objectClass;
 		}
-
 
 		private void addFilter(String message, Predicate<Method> filter) {
 			this.filters.add(new LabeledPredicate<>(message, filter));
@@ -294,15 +285,14 @@ public class ResolvableMethod {
 		 * Filter on methods with the given parameter types.
 		 */
 		public Builder<T> argTypes(Class<?>... argTypes) {
-			addFilter("argTypes=" + Arrays.toString(argTypes), method ->
-					ObjectUtils.isEmpty(argTypes) ? method.getParameterCount() == 0 :
-							Arrays.equals(method.getParameterTypes(), argTypes));
+			addFilter("argTypes=" + Arrays.toString(argTypes), method -> ObjectUtils.isEmpty(argTypes)
+					? method.getParameterCount() == 0 : Arrays.equals(method.getParameterTypes(), argTypes));
 			return this;
 		}
 
 		/**
-		 * Filter on annotated methods.
-		 * See {@link org.springframework.web.method.MvcAnnotationPredicates}.
+		 * Filter on annotated methods. See
+		 * {@link org.springframework.web.method.MvcAnnotationPredicates}.
 		 */
 		@SafeVarargs
 		public final Builder<T> annot(Predicate<Method>... filters) {
@@ -312,15 +302,14 @@ public class ResolvableMethod {
 
 		/**
 		 * Filter on methods annotated with the given annotation type.
-		 * @see #annot(Predicate[])
-		 * See {@link org.springframework.web.method.MvcAnnotationPredicates}.
+		 * @see #annot(Predicate[]) See
+		 * {@link org.springframework.web.method.MvcAnnotationPredicates}.
 		 */
 		@SafeVarargs
 		public final Builder<T> annotPresent(Class<? extends Annotation>... annotationTypes) {
 			String message = "annotationPresent=" + Arrays.toString(annotationTypes);
-			addFilter(message, method ->
-					Arrays.stream(annotationTypes).allMatch(annotType ->
-							AnnotatedElementUtils.findMergedAnnotation(method, annotType) != null));
+			addFilter(message, method -> Arrays.stream(annotationTypes)
+					.allMatch(annotType -> AnnotatedElementUtils.findMergedAnnotation(method, annotType) != null));
 			return this;
 		}
 
@@ -332,8 +321,8 @@ public class ResolvableMethod {
 			String message = "annotationNotPresent=" + Arrays.toString(annotationTypes);
 			addFilter(message, method -> {
 				if (annotationTypes.length != 0) {
-					return Arrays.stream(annotationTypes).noneMatch(annotType ->
-							AnnotatedElementUtils.findMergedAnnotation(method, annotType) != null);
+					return Arrays.stream(annotationTypes).noneMatch(
+							annotType -> AnnotatedElementUtils.findMergedAnnotation(method, annotType) != null);
 				}
 				else {
 					return method.getAnnotations().length == 0;
@@ -373,10 +362,11 @@ public class ResolvableMethod {
 		}
 
 		/**
-		 * Build a {@code ResolvableMethod} from the provided filters which must
-		 * resolve to a unique, single method.
-		 * <p>See additional resolveXxx shortcut methods going directly to
-		 * {@link Method} or return type parameter.
+		 * Build a {@code ResolvableMethod} from the provided filters which must resolve
+		 * to a unique, single method.
+		 * <p>
+		 * See additional resolveXxx shortcut methods going directly to {@link Method} or
+		 * return type parameter.
 		 * @throws IllegalStateException for no match or multiple matches
 		 */
 		public ResolvableMethod method() {
@@ -391,8 +381,8 @@ public class ResolvableMethod {
 		}
 
 		private String formatMethods(Set<Method> methods) {
-			return "\nMatched:\n" + methods.stream()
-					.map(Method::toGenericString).collect(joining(",\n\t", "[\n\t", "\n]"));
+			return "\nMatched:\n"
+					+ methods.stream().map(Method::toGenericString).collect(joining(",\n\t", "[\n\t", "\n]"));
 		}
 
 		public ResolvableMethod mockCall(Consumer<T> invoker) {
@@ -403,12 +393,12 @@ public class ResolvableMethod {
 			return new ResolvableMethod(method);
 		}
 
-
 		// Build & resolve shortcuts...
 
 		/**
 		 * Resolve and return the {@code Method} equivalent to:
-		 * <p>{@code build().method()}
+		 * <p>
+		 * {@code build().method()}
 		 */
 		public final Method resolveMethod() {
 			return method().method();
@@ -416,7 +406,8 @@ public class ResolvableMethod {
 
 		/**
 		 * Resolve and return the {@code Method} equivalent to:
-		 * <p>{@code named(methodName).build().method()}
+		 * <p>
+		 * {@code named(methodName).build().method()}
 		 */
 		public Method resolveMethod(String methodName) {
 			return named(methodName).method().method();
@@ -424,7 +415,8 @@ public class ResolvableMethod {
 
 		/**
 		 * Resolve and return the declared return type equivalent to:
-		 * <p>{@code build().returnType()}
+		 * <p>
+		 * {@code build().returnType()}
 		 */
 		public final MethodParameter resolveReturnType() {
 			return method().returnType();
@@ -432,7 +424,8 @@ public class ResolvableMethod {
 
 		/**
 		 * Shortcut to the unique return type equivalent to:
-		 * <p>{@code returning(returnType).build().returnType()}
+		 * <p>
+		 * {@code returning(returnType).build().returnType()}
 		 * @param returnType the return type
 		 * @param generics optional array of generic types
 		 */
@@ -442,7 +435,8 @@ public class ResolvableMethod {
 
 		/**
 		 * Shortcut to the unique return type equivalent to:
-		 * <p>{@code returning(returnType).build().returnType()}
+		 * <p>
+		 * {@code returning(returnType).build().returnType()}
 		 * @param returnType the return type
 		 * @param generic at least one generic type
 		 * @param generics optional extra generic types
@@ -457,20 +451,17 @@ public class ResolvableMethod {
 			return returning(returnType).method().returnType();
 		}
 
-
 		@Override
 		public String toString() {
-			return "ResolvableMethod.Builder[\n" +
-					"\tobjectClass = " + this.objectClass.getName() + ",\n" +
-					"\tfilters = " + formatFilters() + "\n]";
+			return "ResolvableMethod.Builder[\n" + "\tobjectClass = " + this.objectClass.getName() + ",\n"
+					+ "\tfilters = " + formatFilters() + "\n]";
 		}
 
 		private String formatFilters() {
-			return this.filters.stream().map(Object::toString)
-					.collect(joining(",\n\t\t", "[\n\t\t", "\n\t]"));
+			return this.filters.stream().map(Object::toString).collect(joining(",\n\t\t", "[\n\t\t", "\n\t]"));
 		}
-	}
 
+	}
 
 	/**
 	 * Predicate with a descriptive label.
@@ -481,12 +472,10 @@ public class ResolvableMethod {
 
 		private final Predicate<T> delegate;
 
-
 		private LabeledPredicate(String label, Predicate<T> delegate) {
 			this.label = label;
 			this.delegate = delegate;
 		}
-
 
 		@Override
 		public boolean test(T method) {
@@ -512,8 +501,8 @@ public class ResolvableMethod {
 		public String toString() {
 			return this.label;
 		}
-	}
 
+	}
 
 	/**
 	 * Resolver for method arguments.
@@ -522,15 +511,14 @@ public class ResolvableMethod {
 
 		private final List<Predicate<MethodParameter>> filters = new ArrayList<>(4);
 
-
 		@SafeVarargs
 		private ArgResolver(Predicate<MethodParameter>... filter) {
 			this.filters.addAll(Arrays.asList(filter));
 		}
 
 		/**
-		 * Filter on method arguments with annotations.
-		 * See {@link org.springframework.web.method.MvcAnnotationPredicates}.
+		 * Filter on method arguments with annotations. See
+		 * {@link org.springframework.web.method.MvcAnnotationPredicates}.
 		 */
 		@SafeVarargs
 		public final ArgResolver annot(Predicate<MethodParameter>... filters) {
@@ -541,8 +529,8 @@ public class ResolvableMethod {
 		/**
 		 * Filter on method arguments that have the given annotations.
 		 * @param annotationTypes the annotation types
-		 * @see #annot(Predicate[])
-		 * See {@link org.springframework.web.method.MvcAnnotationPredicates}.
+		 * @see #annot(Predicate[]) See
+		 * {@link org.springframework.web.method.MvcAnnotationPredicates}.
 		 */
 		@SafeVarargs
 		public final ArgResolver annotPresent(Class<? extends Annotation>... annotationTypes) {
@@ -556,10 +544,9 @@ public class ResolvableMethod {
 		 */
 		@SafeVarargs
 		public final ArgResolver annotNotPresent(Class<? extends Annotation>... annotationTypes) {
-			this.filters.add(param ->
-					(annotationTypes.length > 0 ?
-							Arrays.stream(annotationTypes).noneMatch(param::hasParameterAnnotation) :
-							param.getParameterAnnotations().length == 0));
+			this.filters.add(param -> (annotationTypes.length > 0
+					? Arrays.stream(annotationTypes).noneMatch(param::hasParameterAnnotation)
+					: param.getParameterAnnotations().length == 0));
 			return this;
 		}
 
@@ -593,13 +580,11 @@ public class ResolvableMethod {
 		 */
 		public final MethodParameter arg() {
 			List<MethodParameter> matches = applyFilters();
-			Assert.state(!matches.isEmpty(), () ->
-					"No matching arg in method\n" + formatMethod());
-			Assert.state(matches.size() == 1, () ->
-					"Multiple matching args in method\n" + formatMethod() + "\nMatches:\n\t" + matches);
+			Assert.state(!matches.isEmpty(), () -> "No matching arg in method\n" + formatMethod());
+			Assert.state(matches.size() == 1,
+					() -> "Multiple matching args in method\n" + formatMethod() + "\nMatches:\n\t" + matches);
 			return matches.get(0);
 		}
-
 
 		private List<MethodParameter> applyFilters() {
 			List<MethodParameter> matches = new ArrayList<>();
@@ -612,14 +597,13 @@ public class ResolvableMethod {
 			}
 			return matches;
 		}
-	}
 
+	}
 
 	private static class MethodInvocationInterceptor
 			implements org.springframework.cglib.proxy.MethodInterceptor, MethodInterceptor {
 
 		private Method invokedMethod;
-
 
 		Method getInvokedMethod() {
 			return this.invokedMethod;
@@ -642,6 +626,7 @@ public class ResolvableMethod {
 		public Object invoke(org.aopalliance.intercept.MethodInvocation inv) throws Throwable {
 			return intercept(inv.getThis(), inv.getMethod(), inv.getArguments(), null);
 		}
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -658,7 +643,7 @@ public class ResolvableMethod {
 		else {
 			Enhancer enhancer = new Enhancer();
 			enhancer.setSuperclass(type);
-			enhancer.setInterfaces(new Class<?>[] {Supplier.class});
+			enhancer.setInterfaces(new Class<?>[] { Supplier.class });
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
 			enhancer.setCallbackType(org.springframework.cglib.proxy.MethodInterceptor.class);
 
@@ -679,12 +664,13 @@ public class ResolvableMethod {
 					proxy = ReflectionUtils.accessibleConstructor(proxyClass).newInstance();
 				}
 				catch (Throwable ex) {
-					throw new IllegalStateException("Unable to instantiate proxy " +
-							"via both Objenesis and default constructor fails as well", ex);
+					throw new IllegalStateException(
+							"Unable to instantiate proxy " + "via both Objenesis and default constructor fails as well",
+							ex);
 				}
 			}
 
-			((Factory) proxy).setCallbacks(new Callback[] {interceptor});
+			((Factory) proxy).setCallbacks(new Callback[] { interceptor });
 			return (T) proxy;
 		}
 	}

@@ -32,7 +32,7 @@ import static java.util.zip.Deflater.DEFLATED;
 
 public final class Saml2Utils {
 
-	private static Base64 BASE64 = new Base64(0, new byte[]{'\n'});
+	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' });
 
 	public static String samlEncode(byte[] b) {
 		return BASE64.encodeAsString(b);
@@ -67,4 +67,5 @@ public final class Saml2Utils {
 			throw new Saml2Exception("Unable to inflate string", e);
 		}
 	}
+
 }

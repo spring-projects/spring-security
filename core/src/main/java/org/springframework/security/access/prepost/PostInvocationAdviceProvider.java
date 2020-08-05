@@ -35,6 +35,7 @@ import org.springframework.security.core.Authentication;
  * @since 3.0
  */
 public class PostInvocationAdviceProvider implements AfterInvocationProvider {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final PostInvocationAuthorizationAdvice postAdvice;
@@ -43,9 +44,8 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 		this.postAdvice = postAdvice;
 	}
 
-	public Object decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config, Object returnedObject)
-			throws AccessDeniedException {
+	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
+			Object returnedObject) throws AccessDeniedException {
 
 		PostInvocationAttribute pia = findPostInvocationAttribute(config);
 
@@ -53,12 +53,10 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 			return returnedObject;
 		}
 
-		return postAdvice.after(authentication, (MethodInvocation) object, pia,
-				returnedObject);
+		return postAdvice.after(authentication, (MethodInvocation) object, pia, returnedObject);
 	}
 
-	private PostInvocationAttribute findPostInvocationAttribute(
-			Collection<ConfigAttribute> config) {
+	private PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PostInvocationAttribute) {
 				return (PostInvocationAttribute) attribute;
@@ -75,4 +73,5 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 	public boolean supports(Class<?> clazz) {
 		return clazz.isAssignableFrom(MethodInvocation.class);
 	}
+
 }

@@ -98,8 +98,7 @@ public class FilterInvocationTests {
 		request.setRequestURI("/mycontext/HelloWorld");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld?foo=bar");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld?foo=bar");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld?foo=bar");
@@ -116,8 +115,7 @@ public class FilterInvocationTests {
 		request.setRequestURI("/mycontext/HelloWorld");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld");
@@ -125,8 +123,7 @@ public class FilterInvocationTests {
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void dummyChainRejectsInvocation() throws Exception {
-		FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class),
-				mock(HttpServletResponse.class));
+		FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
 	}
 
 	@Test

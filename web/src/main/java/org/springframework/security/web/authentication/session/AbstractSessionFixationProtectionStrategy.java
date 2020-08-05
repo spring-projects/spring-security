@@ -34,15 +34,17 @@ import org.springframework.web.util.WebUtils;
  * @author Rob Winch
  * @since 3.2
  */
-abstract class AbstractSessionFixationProtectionStrategy implements
-		SessionAuthenticationStrategy, ApplicationEventPublisherAware {
+abstract class AbstractSessionFixationProtectionStrategy
+		implements SessionAuthenticationStrategy, ApplicationEventPublisherAware {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
+
 	/**
 	 * Used for publishing events related to session fixation protection, such as
 	 * {@link SessionFixationProtectionEvent}.
 	 */
 	private ApplicationEventPublisher applicationEventPublisher = new NullEventPublisher();
+
 	/**
 	 * If set to {@code true}, a session will always be created, even if one didn't exist
 	 * at the start of the request. Defaults to {@code false}.
@@ -62,8 +64,8 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 	 * property is set, in which case a session will be created if one doesn't already
 	 * exist.
 	 */
-	public void onAuthentication(Authentication authentication,
-			HttpServletRequest request, HttpServletResponse response) {
+	public void onAuthentication(Authentication authentication, HttpServletRequest request,
+			HttpServletResponse response) {
 		boolean hadSessionAlready = request.getSession(false) != null;
 
 		if (!hadSessionAlready && !alwaysCreateSession) {
@@ -89,8 +91,9 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 			}
 
 			if (originalSessionId.equals(newSessionId)) {
-				logger.warn("Your servlet container did not change the session ID when a new session was created. You will"
-						+ " not be adequately protected against session-fixation attacks");
+				logger.warn(
+						"Your servlet container did not change the session ID when a new session was created. You will"
+								+ " not be adequately protected against session-fixation attacks");
 			}
 
 			onSessionChange(originalSessionId, session, authentication);
@@ -99,7 +102,6 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 
 	/**
 	 * Applies session fixation
-	 *
 	 * @param request the {@link HttpServletRequest} to apply session fixation protection
 	 * for
 	 * @return the new {@link HttpSession} to use. Cannot be null.
@@ -116,29 +118,24 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 	 * ID has changed. If you override this method and still wish these events to be
 	 * published, you should call {@code super.onSessionChange()} within your overriding
 	 * method.
-	 *
 	 * @param originalSessionId the original session identifier
 	 * @param newSession the newly created session
 	 * @param auth the token for the newly authenticated principal
 	 */
-	protected void onSessionChange(String originalSessionId, HttpSession newSession,
-			Authentication auth) {
-		applicationEventPublisher.publishEvent(new SessionFixationProtectionEvent(auth,
-				originalSessionId, newSession.getId()));
+	protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
+		applicationEventPublisher
+				.publishEvent(new SessionFixationProtectionEvent(auth, originalSessionId, newSession.getId()));
 	}
 
 	/**
 	 * Sets the {@link ApplicationEventPublisher} to use for submitting
 	 * {@link SessionFixationProtectionEvent}. The default is to not submit the
 	 * {@link SessionFixationProtectionEvent}.
-	 *
 	 * @param applicationEventPublisher the {@link ApplicationEventPublisher}. Cannot be
 	 * null.
 	 */
-	public void setApplicationEventPublisher(
-			ApplicationEventPublisher applicationEventPublisher) {
-		Assert.notNull(applicationEventPublisher,
-				"applicationEventPublisher cannot be null");
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
@@ -147,11 +144,13 @@ abstract class AbstractSessionFixationProtectionStrategy implements
 	}
 
 	protected static final class NullEventPublisher implements ApplicationEventPublisher {
+
 		public void publishEvent(ApplicationEvent event) {
 		}
 
 		public void publishEvent(Object event) {
 		}
+
 	}
 
 }

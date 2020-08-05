@@ -33,8 +33,9 @@ import org.mockito.Mock;
  * @see CurrentDelegatingSecurityContextExecutorTests
  * @see ExplicitDelegatingSecurityContextExecutorTests
  */
-public abstract class AbstractDelegatingSecurityContextExecutorTests extends
-		AbstractDelegatingSecurityContextTestSupport {
+public abstract class AbstractDelegatingSecurityContextExecutorTests
+		extends AbstractDelegatingSecurityContextTestSupport {
+
 	@Mock
 	protected ScheduledExecutorService delegate;
 
@@ -61,4 +62,5 @@ public abstract class AbstractDelegatingSecurityContextExecutorTests extends
 	}
 
 	protected abstract DelegatingSecurityContextExecutor create();
+
 }

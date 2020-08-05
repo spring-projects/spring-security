@@ -56,8 +56,7 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenJwtIsNullThenThrowsException() {
-		assertThatCode(() -> new JwtAuthenticationToken(null))
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatCode(() -> new JwtAuthenticationToken(null)).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("token cannot be null");
 	}
 
@@ -127,4 +126,5 @@ public class JwtAuthenticationTokenTests {
 	private Jwt.Builder builder() {
 		return Jwt.withTokenValue("token").header("alg", RS256);
 	}
+
 }

@@ -26,11 +26,12 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  */
 public class DebugBeanDefinitionParser implements BeanDefinitionParser {
+
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		RootBeanDefinition debugPP = new RootBeanDefinition(
-				SecurityDebugBeanFactoryPostProcessor.class);
+		RootBeanDefinition debugPP = new RootBeanDefinition(SecurityDebugBeanFactoryPostProcessor.class);
 		parserContext.getReaderContext().registerWithGeneratedName(debugPP);
 
 		return null;
 	}
+
 }

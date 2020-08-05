@@ -44,11 +44,17 @@ import org.springframework.util.StringUtils;
  * @author Rob Winch
  */
 public class MessageSecurityMetadataSourceRegistry {
+
 	private static final String permitAll = "permitAll";
+
 	private static final String denyAll = "denyAll";
+
 	private static final String anonymous = "anonymous";
+
 	private static final String authenticated = "authenticated";
+
 	private static final String fullyAuthenticated = "fullyAuthenticated";
+
 	private static final String rememberMe = "rememberMe";
 
 	private SecurityExpressionHandler<Message<Object>> expressionHandler = new DefaultMessageSecurityExpressionHandler<>();
@@ -61,7 +67,6 @@ public class MessageSecurityMetadataSourceRegistry {
 
 	/**
 	 * Maps any {@link Message} to a security expression.
-	 *
 	 * @return the Expression to associate
 	 */
 	public Constraint anyMessage() {
@@ -72,7 +77,6 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * Maps any {@link Message} that has a null SimpMessageHeaderAccessor destination
 	 * header (i.e. CONNECT, CONNECT_ACK, HEARTBEAT, UNSUBSCRIBE, DISCONNECT,
 	 * DISCONNECT_ACK, OTHER)
-	 *
 	 * @return the Expression to associate
 	 */
 	public Constraint nullDestMatcher() {
@@ -81,7 +85,6 @@ public class MessageSecurityMetadataSourceRegistry {
 
 	/**
 	 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances.
-	 *
 	 * @param typesToMatch the {@link SimpMessageType} instance to match on
 	 * @return the {@link Constraint} associated to the matchers.
 	 */
@@ -98,12 +101,10 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances without
 	 * regard to the {@link SimpMessageType}. If no destination is found on the Message,
 	 * then the Matcher returns false.
-	 *
 	 * @param patterns the patterns to create
 	 * {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
 	 * from. Uses
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)} .
-	 *
 	 * @return the {@link Constraint} that is associated to the {@link MessageMatcher}
 	 * @see MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)
 	 */
@@ -115,12 +116,10 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances that match
 	 * on {@code SimpMessageType.MESSAGE}. If no destination is found on the Message, then
 	 * the Matcher returns false.
-	 *
 	 * @param patterns the patterns to create
 	 * {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
 	 * from. Uses
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
-	 *
 	 * @return the {@link Constraint} that is associated to the {@link MessageMatcher}
 	 * @see MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)
 	 */
@@ -132,12 +131,10 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances that match
 	 * on {@code SimpMessageType.SUBSCRIBE}. If no destination is found on the Message,
 	 * then the Matcher returns false.
-	 *
 	 * @param patterns the patterns to create
 	 * {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
 	 * from. Uses
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
-	 *
 	 * @return the {@link Constraint} that is associated to the {@link MessageMatcher}
 	 * @see MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)
 	 */
@@ -148,14 +145,12 @@ public class MessageSecurityMetadataSourceRegistry {
 	/**
 	 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances. If no
 	 * destination is found on the Message, then the Matcher returns false.
-	 *
 	 * @param type the {@link SimpMessageType} to match on. If null, the
 	 * {@link SimpMessageType} is not considered for matching.
 	 * @param patterns the patterns to create
 	 * {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
 	 * from. Uses
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
-	 *
 	 * @return the {@link Constraint} that is associated to the {@link MessageMatcher}
 	 * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
 	 */
@@ -171,13 +166,11 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * The {@link PathMatcher} to be used with the
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestMatchers(String...)}. The
 	 * default is to use the default constructor of {@link AntPathMatcher}.
-	 *
 	 * @param pathMatcher the {@link PathMatcher} to use. Cannot be null.
 	 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 	 * customization.
 	 */
-	public MessageSecurityMetadataSourceRegistry simpDestPathMatcher(
-			PathMatcher pathMatcher) {
+	public MessageSecurityMetadataSourceRegistry simpDestPathMatcher(PathMatcher pathMatcher) {
 		Assert.notNull(pathMatcher, "pathMatcher cannot be null");
 		this.pathMatcher.setPathMatcher(pathMatcher);
 		this.defaultPathMatcher = false;
@@ -185,9 +178,10 @@ public class MessageSecurityMetadataSourceRegistry {
 	}
 
 	/**
-	 * Determines if the {@link #simpDestPathMatcher(PathMatcher)} has been explicitly set.
-	 *
-	 * @return true if {@link #simpDestPathMatcher(PathMatcher)} has been explicitly set, else false.
+	 * Determines if the {@link #simpDestPathMatcher(PathMatcher)} has been explicitly
+	 * set.
+	 * @return true if {@link #simpDestPathMatcher(PathMatcher)} has been explicitly set,
+	 * else false.
 	 */
 	protected boolean isSimpDestPathMatcherConfigured() {
 		return !this.defaultPathMatcher;
@@ -195,7 +189,6 @@ public class MessageSecurityMetadataSourceRegistry {
 
 	/**
 	 * Maps a {@link List} of {@link MessageMatcher} instances to a security expression.
-	 *
 	 * @param matchers the {@link MessageMatcher} instances to map.
 	 * @return The {@link Constraint} that is associated to the {@link MessageMatcher}
 	 * instances
@@ -209,14 +202,15 @@ public class MessageSecurityMetadataSourceRegistry {
 	}
 
 	/**
-	 * The {@link SecurityExpressionHandler} to be used. The
-	 * default is to use {@link DefaultMessageSecurityExpressionHandler}.
-	 *
-	 * @param expressionHandler the {@link SecurityExpressionHandler} to use. Cannot be null.
+	 * The {@link SecurityExpressionHandler} to be used. The default is to use
+	 * {@link DefaultMessageSecurityExpressionHandler}.
+	 * @param expressionHandler the {@link SecurityExpressionHandler} to use. Cannot be
+	 * null.
 	 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 	 * customization.
 	 */
-	public MessageSecurityMetadataSourceRegistry expressionHandler(SecurityExpressionHandler<Message<Object>> expressionHandler) {
+	public MessageSecurityMetadataSourceRegistry expressionHandler(
+			SecurityExpressionHandler<Message<Object>> expressionHandler) {
 		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
 		this.expressionHandler = expressionHandler;
 		return this;
@@ -229,13 +223,11 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * This is not exposed so as not to confuse users of the API, which should never
 	 * invoke this method.
 	 * </p>
-	 *
 	 * @return the {@link MessageSecurityMetadataSource} to use
 	 */
 	protected MessageSecurityMetadataSource createMetadataSource() {
 		LinkedHashMap<MessageMatcher<?>, String> matcherToExpression = new LinkedHashMap<>();
-		for (Map.Entry<MatcherBuilder, String> entry : this.matcherToExpression
-				.entrySet()) {
+		for (Map.Entry<MatcherBuilder, String> entry : this.matcherToExpression.entrySet()) {
 			matcherToExpression.put(entry.getKey().build(), entry.getValue());
 		}
 		return ExpressionBasedMessageSecurityMetadataSourceFactory
@@ -249,7 +241,6 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * This is not exposed so as not to confuse users of the API, which should never need
 	 * to invoke this method.
 	 * </p>
-	 *
 	 * @return true if a mapping was added, else false
 	 */
 	protected boolean containsMapping() {
@@ -261,11 +252,11 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * instances.
 	 */
 	public class Constraint {
+
 		private final List<? extends MatcherBuilder> messageMatchers;
 
 		/**
 		 * Creates a new instance
-		 *
 		 * @param messageMatchers the {@link MessageMatcher} instances to map to this
 		 * constraint
 		 */
@@ -278,7 +269,6 @@ public class MessageSecurityMetadataSourceRegistry {
 		 * Shortcut for specifying {@link Message} instances require a particular role. If
 		 * you do not want to have "ROLE_" automatically inserted see
 		 * {@link #hasAuthority(String)}.
-		 *
 		 * @param role the role to require (i.e. USER, ADMIN, etc). Note, it should not
 		 * start with "ROLE_" as this is automatically inserted.
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
@@ -292,7 +282,6 @@ public class MessageSecurityMetadataSourceRegistry {
 		 * Shortcut for specifying {@link Message} instances require any of a number of
 		 * roles. If you do not want to have "ROLE_" automatically inserted see
 		 * {@link #hasAnyAuthority(String...)}
-		 *
 		 * @param roles the roles to require (i.e. USER, ADMIN, etc). Note, it should not
 		 * start with "ROLE_" as this is automatically inserted.
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
@@ -304,7 +293,6 @@ public class MessageSecurityMetadataSourceRegistry {
 
 		/**
 		 * Specify that {@link Message} instances require a particular authority.
-		 *
 		 * @param authority the authority to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
@@ -315,22 +303,18 @@ public class MessageSecurityMetadataSourceRegistry {
 
 		/**
 		 * Specify that {@link Message} instances requires any of a number authorities.
-		 *
 		 * @param authorities the requests require at least one of the authorities (i.e.
 		 * "ROLE_USER","ROLE_ADMIN" would mean either "ROLE_USER" or "ROLE_ADMIN" is
 		 * required).
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
 		 */
-		public MessageSecurityMetadataSourceRegistry hasAnyAuthority(
-				String... authorities) {
-			return access(MessageSecurityMetadataSourceRegistry
-					.hasAnyAuthority(authorities));
+		public MessageSecurityMetadataSourceRegistry hasAnyAuthority(String... authorities) {
+			return access(MessageSecurityMetadataSourceRegistry.hasAnyAuthority(authorities));
 		}
 
 		/**
 		 * Specify that Messages are allowed by anyone.
-		 *
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
 		 */
@@ -340,7 +324,6 @@ public class MessageSecurityMetadataSourceRegistry {
 
 		/**
 		 * Specify that Messages are allowed by anonymous users.
-		 *
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
 		 */
@@ -350,7 +333,6 @@ public class MessageSecurityMetadataSourceRegistry {
 
 		/**
 		 * Specify that Messages are allowed by users that have been remembered.
-		 *
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
 		 * @see RememberMeConfigurer
@@ -361,7 +343,6 @@ public class MessageSecurityMetadataSourceRegistry {
 
 		/**
 		 * Specify that Messages are not allowed by anyone.
-		 *
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
 		 */
@@ -371,7 +352,6 @@ public class MessageSecurityMetadataSourceRegistry {
 
 		/**
 		 * Specify that Messages are allowed by any authenticated user.
-		 *
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
 		 */
@@ -382,7 +362,6 @@ public class MessageSecurityMetadataSourceRegistry {
 		/**
 		 * Specify that Messages are allowed by users who have authenticated and were not
 		 * "remembered".
-		 *
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
 		 * @see RememberMeConfigurer
@@ -393,9 +372,8 @@ public class MessageSecurityMetadataSourceRegistry {
 
 		/**
 		 * Allows specifying that Messages are secured by an arbitrary expression
-		 *
-		 * @param attribute the expression to secure the URLs (i.e.
-		 * "hasRole('ROLE_USER') and hasRole('ROLE_SUPER')")
+		 * @param attribute the expression to secure the URLs (i.e. "hasRole('ROLE_USER')
+		 * and hasRole('ROLE_SUPER')")
 		 * @return the {@link MessageSecurityMetadataSourceRegistry} for further
 		 * customization
 		 */
@@ -405,11 +383,11 @@ public class MessageSecurityMetadataSourceRegistry {
 			}
 			return MessageSecurityMetadataSourceRegistry.this;
 		}
+
 	}
 
 	private static String hasAnyRole(String... authorities) {
-		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities,
-				"','ROLE_");
+		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','ROLE_");
 		return "hasAnyRole('ROLE_" + anyAuthorities + "')";
 	}
 
@@ -417,8 +395,7 @@ public class MessageSecurityMetadataSourceRegistry {
 		Assert.notNull(role, "role cannot be null");
 		if (role.startsWith("ROLE_")) {
 			throw new IllegalArgumentException(
-					"role should not start with 'ROLE_' since it is automatically inserted. Got '"
-							+ role + "'");
+					"role should not start with 'ROLE_' since it is automatically inserted. Got '" + role + "'");
 		}
 		return "hasRole('ROLE_" + role + "')";
 	}
@@ -433,6 +410,7 @@ public class MessageSecurityMetadataSourceRegistry {
 	}
 
 	private static class PreBuiltMatcherBuilder implements MatcherBuilder {
+
 		private MessageMatcher<?> matcher;
 
 		private PreBuiltMatcherBuilder(MessageMatcher<?> matcher) {
@@ -442,10 +420,13 @@ public class MessageSecurityMetadataSourceRegistry {
 		public MessageMatcher<?> build() {
 			return matcher;
 		}
+
 	}
 
 	private class PathMatcherMessageMatcherBuilder implements MatcherBuilder {
+
 		private final String pattern;
+
 		private final SimpMessageType type;
 
 		private PathMatcherMessageMatcherBuilder(String pattern, SimpMessageType type) {
@@ -458,22 +439,21 @@ public class MessageSecurityMetadataSourceRegistry {
 				return new SimpDestinationMessageMatcher(pattern, pathMatcher);
 			}
 			else if (SimpMessageType.MESSAGE == type) {
-				return SimpDestinationMessageMatcher.createMessageMatcher(pattern,
-						pathMatcher);
+				return SimpDestinationMessageMatcher.createMessageMatcher(pattern, pathMatcher);
 			}
 			else if (SimpMessageType.SUBSCRIBE == type) {
-				return SimpDestinationMessageMatcher.createSubscribeMatcher(pattern,
-						pathMatcher);
+				return SimpDestinationMessageMatcher.createSubscribeMatcher(pattern, pathMatcher);
 			}
-			throw new IllegalStateException(type
-					+ " is not supported since it does not have a destination");
+			throw new IllegalStateException(type + " is not supported since it does not have a destination");
 		}
+
 	}
 
 	private interface MatcherBuilder {
-		MessageMatcher<?> build();
-	}
 
+		MessageMatcher<?> build();
+
+	}
 
 	static class DelegatingPathMatcher implements PathMatcher {
 
@@ -510,5 +490,7 @@ public class MessageSecurityMetadataSourceRegistry {
 		void setPathMatcher(PathMatcher pathMatcher) {
 			this.delegate = pathMatcher;
 		}
+
 	}
+
 }

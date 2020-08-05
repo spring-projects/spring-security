@@ -34,4 +34,5 @@ public class TestOAuth2AuthorizationExchanges {
 		OAuth2AuthorizationResponse response = TestOAuth2AuthorizationResponses.error().build();
 		return new OAuth2AuthorizationExchange(request, response);
 	}
+
 }

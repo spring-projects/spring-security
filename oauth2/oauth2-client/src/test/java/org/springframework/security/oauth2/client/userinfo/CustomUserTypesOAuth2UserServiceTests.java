@@ -51,9 +51,13 @@ import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.no
  * @author Eddú Meléndez
  */
 public class CustomUserTypesOAuth2UserServiceTests {
+
 	private ClientRegistration.Builder clientRegistrationBuilder;
+
 	private OAuth2AccessToken accessToken;
+
 	private CustomUserTypesOAuth2UserService userService;
+
 	private MockWebServer server;
 
 	@Rule
@@ -109,8 +113,8 @@ public class CustomUserTypesOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenCustomUserTypeNotFoundThenReturnNull() {
-		ClientRegistration clientRegistration =
-				clientRegistration().registrationId("other-client-registration-id-1").build();
+		ClientRegistration clientRegistration = clientRegistration().registrationId("other-client-registration-id-1")
+				.build();
 
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 		assertThat(user).isNull();
@@ -118,18 +122,13 @@ public class CustomUserTypesOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
-		String userInfoResponse = "{\n" +
-			"	\"id\": \"12345\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"login\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n" +
-			"}\n";
+		String userInfoResponse = "{\n" + "	\"id\": \"12345\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"login\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 
@@ -147,20 +146,17 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
-		String userInfoResponse = "{\n" +
-			"	\"id\": \"12345\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"login\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n";
-//			"}\n";		// Make the JSON invalid/malformed
+		String userInfoResponse = "{\n" + "	\"id\": \"12345\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"login\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n";
+		// "}\n"; // Make the JSON invalid/malformed
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
@@ -168,14 +164,14 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenServerErrorThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
 
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
@@ -183,35 +179,36 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
 		String userInfoUri = "https://invalid-provider.com/user";
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	private ClientRegistration.Builder withRegistrationId(String registrationId) {
-		return ClientRegistration
-				.withRegistrationId(registrationId)
-				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-				.clientId("client")
+		return ClientRegistration.withRegistrationId(registrationId)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS).clientId("client")
 				.tokenUri("/token");
 	}
 
 	private MockResponse jsonResponse(String json) {
-		return new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(json);
+		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
 
 	public static class CustomOAuth2User implements OAuth2User {
+
 		private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+
 		private String id;
+
 		private String name;
+
 		private String login;
+
 		private String email;
 
 		public CustomOAuth2User() {
@@ -264,5 +261,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		public void setEmail(String email) {
 			this.email = email;
 		}
+
 	}
+
 }

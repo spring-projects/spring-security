@@ -26,43 +26,40 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @author Joe Grandja
  */
 public class OAuth2AuthorizationResponseTests {
+
 	private static final String AUTH_CODE = "auth-code";
+
 	private static final String REDIRECT_URI = "https://example.com";
+
 	private static final String STATE = "state";
+
 	private static final String ERROR_CODE = "error-code";
+
 	private static final String ERROR_DESCRIPTION = "error-description";
+
 	private static final String ERROR_URI = "error-uri";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildSuccessResponseWhenAuthCodeIsNullThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationResponse.success(null)
-			.redirectUri(REDIRECT_URI)
-			.state(STATE)
-			.build();
+		OAuth2AuthorizationResponse.success(null).redirectUri(REDIRECT_URI).state(STATE).build();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildSuccessResponseWhenRedirectUriIsNullThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationResponse.success(AUTH_CODE)
-			.redirectUri(null)
-			.state(STATE)
-			.build();
+		OAuth2AuthorizationResponse.success(AUTH_CODE).redirectUri(null).state(STATE).build();
 	}
 
 	@Test
 	public void buildSuccessResponseWhenStateIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationResponse.success(AUTH_CODE)
-			.redirectUri(REDIRECT_URI)
-			.state(null)
-			.build()).doesNotThrowAnyException();
+		assertThatCode(
+				() -> OAuth2AuthorizationResponse.success(AUTH_CODE).redirectUri(REDIRECT_URI).state(null).build())
+						.doesNotThrowAnyException();
 	}
 
 	@Test
 	public void buildSuccessResponseWhenAllAttributesProvidedThenAllAttributesAreSet() {
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponse.success(AUTH_CODE)
-			.redirectUri(REDIRECT_URI)
-			.state(STATE)
-			.build();
+				.redirectUri(REDIRECT_URI).state(STATE).build();
 		assertThat(authorizationResponse.getCode()).isEqualTo(AUTH_CODE);
 		assertThat(authorizationResponse.getRedirectUri()).isEqualTo(REDIRECT_URI);
 		assertThat(authorizationResponse.getState()).isEqualTo(STATE);
@@ -70,45 +67,31 @@ public class OAuth2AuthorizationResponseTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildSuccessResponseWhenErrorCodeIsSetThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationResponse.success(AUTH_CODE)
-			.redirectUri(REDIRECT_URI)
-			.state(STATE)
-			.errorCode(ERROR_CODE)
-			.build();
+		OAuth2AuthorizationResponse.success(AUTH_CODE).redirectUri(REDIRECT_URI).state(STATE).errorCode(ERROR_CODE)
+				.build();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildErrorResponseWhenErrorCodeIsNullThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationResponse.error(null)
-			.redirectUri(REDIRECT_URI)
-			.state(STATE)
-			.build();
+		OAuth2AuthorizationResponse.error(null).redirectUri(REDIRECT_URI).state(STATE).build();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildErrorResponseWhenRedirectUriIsNullThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationResponse.error(ERROR_CODE)
-			.redirectUri(null)
-			.state(STATE)
-			.build();
+		OAuth2AuthorizationResponse.error(ERROR_CODE).redirectUri(null).state(STATE).build();
 	}
 
 	@Test
 	public void buildErrorResponseWhenStateIsNullThenDoesNotThrowAnyException() {
-		assertThatCode(() -> OAuth2AuthorizationResponse.error(ERROR_CODE)
-			.redirectUri(REDIRECT_URI)
-			.state(null)
-			.build()).doesNotThrowAnyException();
+		assertThatCode(
+				() -> OAuth2AuthorizationResponse.error(ERROR_CODE).redirectUri(REDIRECT_URI).state(null).build())
+						.doesNotThrowAnyException();
 	}
 
 	@Test
 	public void buildErrorResponseWhenAllAttributesProvidedThenAllAttributesAreSet() {
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponse.error(ERROR_CODE)
-			.errorDescription(ERROR_DESCRIPTION)
-			.errorUri(ERROR_URI)
-			.redirectUri(REDIRECT_URI)
-			.state(STATE)
-			.build();
+				.errorDescription(ERROR_DESCRIPTION).errorUri(ERROR_URI).redirectUri(REDIRECT_URI).state(STATE).build();
 		assertThat(authorizationResponse.getError().getErrorCode()).isEqualTo(ERROR_CODE);
 		assertThat(authorizationResponse.getError().getDescription()).isEqualTo(ERROR_DESCRIPTION);
 		assertThat(authorizationResponse.getError().getUri()).isEqualTo(ERROR_URI);
@@ -118,10 +101,7 @@ public class OAuth2AuthorizationResponseTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void buildErrorResponseWhenAuthCodeIsSetThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationResponse.error(ERROR_CODE)
-			.redirectUri(REDIRECT_URI)
-			.state(STATE)
-			.code(AUTH_CODE)
-			.build();
+		OAuth2AuthorizationResponse.error(ERROR_CODE).redirectUri(REDIRECT_URI).state(STATE).code(AUTH_CODE).build();
 	}
+
 }

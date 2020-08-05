@@ -29,8 +29,7 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public abstract class HierarchicalRolesTestHelper {
 
-	public static boolean containTheSameGrantedAuthorities(
-			Collection<? extends GrantedAuthority> authorities1,
+	public static boolean containTheSameGrantedAuthorities(Collection<? extends GrantedAuthority> authorities1,
 			Collection<? extends GrantedAuthority> authorities2) {
 		if (authorities1 == null && authorities2 == null) {
 			return true;
@@ -43,8 +42,7 @@ public abstract class HierarchicalRolesTestHelper {
 	}
 
 	public static boolean containTheSameGrantedAuthoritiesCompareByAuthorityString(
-			Collection<? extends GrantedAuthority> authorities1,
-			Collection<? extends GrantedAuthority> authorities2) {
+			Collection<? extends GrantedAuthority> authorities1, Collection<? extends GrantedAuthority> authorities2) {
 		if (authorities1 == null && authorities2 == null) {
 			return true;
 		}
@@ -52,13 +50,11 @@ public abstract class HierarchicalRolesTestHelper {
 		if (authorities1 == null || authorities2 == null) {
 			return false;
 		}
-		return CollectionUtils.isEqualCollection(
-				toCollectionOfAuthorityStrings(authorities1),
+		return CollectionUtils.isEqualCollection(toCollectionOfAuthorityStrings(authorities1),
 				toCollectionOfAuthorityStrings(authorities2));
 	}
 
-	public static List<String> toCollectionOfAuthorityStrings(
-			Collection<? extends GrantedAuthority> authorities) {
+	public static List<String> toCollectionOfAuthorityStrings(Collection<? extends GrantedAuthority> authorities) {
 		if (authorities == null) {
 			return null;
 		}

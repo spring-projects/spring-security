@@ -26,6 +26,7 @@ import org.junit.Test;
  * @author Luke Taylor
  */
 public class PasswordPolicyResponseControlTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -94,8 +95,7 @@ public class PasswordPolicyResponseControlTests {
 
 	@Test
 	public void openLDAP496GraceLoginsRemainingCtrlIsParsedCorrectly() {
-		byte[] ctrlBytes = { 0x30, 0x06, (byte) 0xA0, 0x04, (byte) 0xA1, 0x02, 0x01,
-				(byte) 0xF0 };
+		byte[] ctrlBytes = { 0x30, 0x06, (byte) 0xA0, 0x04, (byte) 0xA1, 0x02, 0x01, (byte) 0xF0 };
 
 		PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(ctrlBytes);
 
@@ -103,13 +103,11 @@ public class PasswordPolicyResponseControlTests {
 		assertThat(ctrl.getGraceLoginsRemaining()).isEqualTo(496);
 	}
 
-	static final byte[] OPENLDAP_5_LOGINS_REMAINING_CTRL = { 0x30, 0x05, (byte) 0xA0,
-			0x03, (byte) 0xA1, 0x01, 0x05 };
+	static final byte[] OPENLDAP_5_LOGINS_REMAINING_CTRL = { 0x30, 0x05, (byte) 0xA0, 0x03, (byte) 0xA1, 0x01, 0x05 };
 
 	@Test
 	public void openLDAP5GraceLoginsRemainingCtrlIsParsedCorrectly() {
-		PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(
-				OPENLDAP_5_LOGINS_REMAINING_CTRL);
+		PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(OPENLDAP_5_LOGINS_REMAINING_CTRL);
 
 		assertThat(ctrl.hasWarning()).isTrue();
 		assertThat(ctrl.getGraceLoginsRemaining()).isEqualTo(5);
@@ -119,8 +117,7 @@ public class PasswordPolicyResponseControlTests {
 
 	@Test
 	public void openLDAPAccountLockedCtrlIsParsedCorrectly() {
-		PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(
-				OPENLDAP_LOCKED_CTRL);
+		PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(OPENLDAP_LOCKED_CTRL);
 
 		assertThat(ctrl.hasError() && ctrl.isLocked()).isTrue();
 		assertThat(ctrl.hasWarning()).isFalse();
@@ -135,4 +132,5 @@ public class PasswordPolicyResponseControlTests {
 		assertThat(ctrl.hasError() && ctrl.isExpired()).isTrue();
 		assertThat(ctrl.hasWarning()).isFalse();
 	}
+
 }

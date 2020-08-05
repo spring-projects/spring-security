@@ -64,6 +64,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
+
 	@Autowired
 	WebApplicationContext context;
 
@@ -80,19 +81,16 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 	}
 
 	@Test
-	public void opaqueTokenWhenUsingDefaultsThenProducesDefaultAuthentication()
-			throws Exception {
+	public void opaqueTokenWhenUsingDefaultsThenProducesDefaultAuthentication() throws Exception {
 
-		this.mvc.perform(get("/name").with(opaqueToken()))
-				.andExpect(content().string("user"));
-		this.mvc.perform(get("/admin/scopes").with(opaqueToken()))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/name").with(opaqueToken())).andExpect(content().string("user"));
+		this.mvc.perform(get("/admin/scopes").with(opaqueToken())).andExpect(status().isForbidden());
 	}
 
 	@Test
 	public void opaqueTokenWhenAttributeSpecifiedThenUserHasAttribute() throws Exception {
-		this.mvc.perform(get("/opaque-token/iss")
-				.with(opaqueToken().attributes(a -> a.put("iss", "https://idp.example.org"))))
+		this.mvc.perform(
+				get("/opaque-token/iss").with(opaqueToken().attributes(a -> a.put("iss", "https://idp.example.org"))))
 				.andExpect(content().string("https://idp.example.org"));
 	}
 
@@ -103,8 +101,7 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 		when(principal.getName()).thenReturn("ben");
 		when(principal.getAuthorities()).thenReturn(authorities);
 
-		this.mvc.perform(get("/name").with(opaqueToken().principal(principal)))
-				.andExpect(content().string("ben"));
+		this.mvc.perform(get("/name").with(opaqueToken().principal(principal))).andExpect(content().string("ben"));
 	}
 
 	// gh-7800
@@ -112,22 +109,18 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 	public void opaqueTokenWhenPrincipalSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OAuth2AuthenticatedPrincipal principal = active(a -> a.put("scope", "user"));
 
-		this.mvc.perform(get("/opaque-token/sub")
-				.with(opaqueToken()
-						.attributes(a -> a.put("sub", "foo"))
-						.principal(principal)))
-				.andExpect(status().isOk())
-				.andExpect(content().string((String) principal.getAttribute("sub")));
-		this.mvc.perform(get("/opaque-token/sub")
-				.with(opaqueToken()
-						.principal(principal)
-						.attributes(a -> a.put("sub", "bar"))))
+		this.mvc.perform(
+				get("/opaque-token/sub").with(opaqueToken().attributes(a -> a.put("sub", "foo")).principal(principal)))
+				.andExpect(status().isOk()).andExpect(content().string((String) principal.getAttribute("sub")));
+		this.mvc.perform(
+				get("/opaque-token/sub").with(opaqueToken().principal(principal).attributes(a -> a.put("sub", "bar"))))
 				.andExpect(content().string("bar"));
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class OAuth2LoginConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -144,6 +137,7 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 
 		@RestController
 		static class PrincipalController {
+
 			@GetMapping("/name")
 			String name(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal) {
 				return principal.getName();
@@ -157,12 +151,14 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 			}
 
 			@GetMapping("/admin/scopes")
-			List<String> scopes(@AuthenticationPrincipal(expression = "authorities")
-					Collection<GrantedAuthority> authorities) {
+			List<String> scopes(
+					@AuthenticationPrincipal(expression = "authorities") Collection<GrantedAuthority> authorities) {
 
-				return authorities.stream().map(GrantedAuthority::getAuthority)
-						.collect(Collectors.toList());
+				return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 			}
+
 		}
+
 	}
+
 }

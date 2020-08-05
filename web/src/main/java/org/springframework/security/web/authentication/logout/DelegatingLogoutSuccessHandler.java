@@ -40,17 +40,15 @@ public class DelegatingLogoutSuccessHandler implements LogoutSuccessHandler {
 
 	private LogoutSuccessHandler defaultLogoutSuccessHandler;
 
-	public DelegatingLogoutSuccessHandler(
-			LinkedHashMap<RequestMatcher, LogoutSuccessHandler> matcherToHandler) {
+	public DelegatingLogoutSuccessHandler(LinkedHashMap<RequestMatcher, LogoutSuccessHandler> matcherToHandler) {
 		Assert.notEmpty(matcherToHandler, "matcherToHandler cannot be null");
 		this.matcherToHandler = matcherToHandler;
 	}
 
 	@Override
-	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
-		for (Map.Entry<RequestMatcher, LogoutSuccessHandler> entry : this.matcherToHandler
-				.entrySet()) {
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException, ServletException {
+		for (Map.Entry<RequestMatcher, LogoutSuccessHandler> entry : this.matcherToHandler.entrySet()) {
 			RequestMatcher matcher = entry.getKey();
 			if (matcher.matches(request)) {
 				LogoutSuccessHandler handler = entry.getValue();
@@ -59,18 +57,15 @@ public class DelegatingLogoutSuccessHandler implements LogoutSuccessHandler {
 			}
 		}
 		if (this.defaultLogoutSuccessHandler != null) {
-			this.defaultLogoutSuccessHandler.onLogoutSuccess(request, response,
-					authentication);
+			this.defaultLogoutSuccessHandler.onLogoutSuccess(request, response, authentication);
 		}
 	}
 
 	/**
 	 * Sets the default {@link LogoutSuccessHandler} if no other handlers available
-	 *
 	 * @param defaultLogoutSuccessHandler the defaultLogoutSuccessHandler to set
 	 */
-	public void setDefaultLogoutSuccessHandler(
-			LogoutSuccessHandler defaultLogoutSuccessHandler) {
+	public void setDefaultLogoutSuccessHandler(LogoutSuccessHandler defaultLogoutSuccessHandler) {
 		this.defaultLogoutSuccessHandler = defaultLogoutSuccessHandler;
 	}
 

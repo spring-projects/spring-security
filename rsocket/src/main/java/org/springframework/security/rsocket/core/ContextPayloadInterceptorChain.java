@@ -26,8 +26,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * A {@link PayloadInterceptorChain} which exposes the Reactor {@link Context} via a member variable.
- * This class is not Thread safe, so a new instance must be created for each Thread.
+ * A {@link PayloadInterceptorChain} which exposes the Reactor {@link Context} via a
+ * member variable. This class is not Thread safe, so a new instance must be created for
+ * each Thread.
  *
  * Internally {@code ContextPayloadInterceptorChain} is used to ensure that the Reactor
  * {@code Context} is captured so it can be transferred to subscribers outside of this
@@ -72,13 +73,8 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 	}
 
 	public Mono<Void> next(PayloadExchange exchange) {
-		return Mono.defer(() ->
-				shouldIntercept() ?
-						this.currentInterceptor.intercept(exchange, this.next) :
-						Mono.subscriberContext()
-							.doOnNext(c -> this.context = c)
-							.then()
-		);
+		return Mono.defer(() -> shouldIntercept() ? this.currentInterceptor.intercept(exchange, this.next)
+				: Mono.subscriberContext().doOnNext(c -> this.context = c).then());
 	}
 
 	Context getContext() {
@@ -96,4 +92,5 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 	public String toString() {
 		return getClass().getSimpleName() + "[currentInterceptor=" + this.currentInterceptor + "]";
 	}
+
 }

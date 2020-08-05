@@ -27,8 +27,8 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
  * @author Ruud Senden
  * @since 2.0
  */
-public class WebSpherePreAuthenticatedProcessingFilter extends
-		AbstractPreAuthenticatedProcessingFilter {
+public class WebSpherePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
+
 	private final WASUsernameAndGroupsExtractor wasHelper;
 
 	/**
@@ -62,4 +62,5 @@ public class WebSpherePreAuthenticatedProcessingFilter extends
 	protected Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest) {
 		return "N/A";
 	}
+
 }

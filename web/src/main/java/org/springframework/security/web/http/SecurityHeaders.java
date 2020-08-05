@@ -30,7 +30,8 @@ import java.util.function.Consumer;
 public final class SecurityHeaders {
 
 	/**
-	 * Sets the provided value as a Bearer token in a header with the name of {@link HttpHeaders#AUTHORIZATION}
+	 * Sets the provided value as a Bearer token in a header with the name of
+	 * {@link HttpHeaders#AUTHORIZATION}
 	 * @param bearerTokenValue the bear token value
 	 * @return a {@link Consumer} that sets the header.
 	 */
@@ -39,5 +40,7 @@ public final class SecurityHeaders {
 		return headers -> headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + bearerTokenValue);
 	}
 
-	private SecurityHeaders() {}
+	private SecurityHeaders() {
+	}
+
 }

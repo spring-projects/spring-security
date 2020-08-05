@@ -198,17 +198,18 @@ public class Argon2PasswordEncoderTests {
 		encoder.upgradeEncoding("thisIsNoValidHash");
 	}
 
-
 	private void injectPredictableSaltGen() throws Exception {
 		byte[] bytes = new byte[16];
 		Arrays.fill(bytes, (byte) 0x41);
 		Mockito.when(keyGeneratorMock.generateKey()).thenReturn(bytes);
 
-		//we can't use the @InjectMock-annotation because the salt-generator is set in the constructor
-		//and Mockito will only inject mocks if they are null
+		// we can't use the @InjectMock-annotation because the salt-generator is set in
+		// the constructor
+		// and Mockito will only inject mocks if they are null
 		Field saltGen = encoder.getClass().getDeclaredField("saltGenerator");
 		saltGen.setAccessible(true);
 		saltGen.set(encoder, keyGeneratorMock);
 		saltGen.setAccessible(false);
 	}
+
 }

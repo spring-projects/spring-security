@@ -30,7 +30,6 @@ import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */
@@ -74,4 +73,5 @@ public class AclPermissionEvaluatorTests {
 
 		Locale.setDefault(systemLocale);
 	}
+
 }

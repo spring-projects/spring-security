@@ -33,12 +33,11 @@ import java.util.*;
  *
  * @see ChannelSecurityInterceptor
  * @see ExpressionBasedMessageSecurityMetadataSourceFactory
- *
  * @since 4.0
  * @author Rob Winch
  */
-public final class DefaultMessageSecurityMetadataSource implements
-		MessageSecurityMetadataSource {
+public final class DefaultMessageSecurityMetadataSource implements MessageSecurityMetadataSource {
+
 	private final Map<MessageMatcher<?>, Collection<ConfigAttribute>> messageMap;
 
 	public DefaultMessageSecurityMetadataSource(
@@ -47,11 +46,9 @@ public final class DefaultMessageSecurityMetadataSource implements
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Collection<ConfigAttribute> getAttributes(Object object)
-			throws IllegalArgumentException {
+	public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
 		final Message message = (Message) object;
-		for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : messageMap
-				.entrySet()) {
+		for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : messageMap.entrySet()) {
 			if (entry.getKey().matches(message)) {
 				return entry.getValue();
 			}
@@ -72,4 +69,5 @@ public final class DefaultMessageSecurityMetadataSource implements
 	public boolean supports(Class<?> clazz) {
 		return Message.class.isAssignableFrom(clazz);
 	}
+
 }

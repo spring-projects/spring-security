@@ -30,20 +30,19 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter {
+
 	private final RequestMatcher requestMatcher;
 
 	private final HeaderWriter delegateHeaderWriter;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param requestMatcher the {@link RequestMatcher} to use. If returns true, the
 	 * delegateHeaderWriter will be invoked.
 	 * @param delegateHeaderWriter the {@link HeaderWriter} to invoke if the
 	 * {@link RequestMatcher} returns true.
 	 */
-	public DelegatingRequestMatcherHeaderWriter(RequestMatcher requestMatcher,
-			HeaderWriter delegateHeaderWriter) {
+	public DelegatingRequestMatcherHeaderWriter(RequestMatcher requestMatcher, HeaderWriter delegateHeaderWriter) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		Assert.notNull(delegateHeaderWriter, "delegateHeaderWriter cannot be null");
 		this.requestMatcher = requestMatcher;
@@ -65,7 +64,8 @@ public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter 
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [requestMatcher=" + this.requestMatcher
-				+ ", delegateHeaderWriter=" + this.delegateHeaderWriter + "]";
+		return getClass().getName() + " [requestMatcher=" + this.requestMatcher + ", delegateHeaderWriter="
+				+ this.delegateHeaderWriter + "]";
 	}
+
 }

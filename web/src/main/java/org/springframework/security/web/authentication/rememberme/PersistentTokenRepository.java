@@ -23,7 +23,6 @@ import java.util.Date;
  *
  * @see JdbcTokenRepositoryImpl
  * @see InMemoryTokenRepositoryImpl
- *
  * @author Luke Taylor
  * @since 2.0
  */

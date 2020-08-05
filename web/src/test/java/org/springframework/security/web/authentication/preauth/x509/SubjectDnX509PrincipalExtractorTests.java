@@ -28,6 +28,7 @@ import org.junit.Before;
  * @author Luke Taylor
  */
 public class SubjectDnX509PrincipalExtractorTests {
+
 	SubjectDnX509PrincipalExtractor extractor;
 
 	@Before
@@ -43,16 +44,14 @@ public class SubjectDnX509PrincipalExtractorTests {
 
 	@Test
 	public void defaultCNPatternReturnsExcpectedPrincipal() throws Exception {
-		Object principal = extractor.extractPrincipal(X509TestUtils
-				.buildTestCertificate());
+		Object principal = extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
 		assertThat(principal).isEqualTo("Luke Taylor");
 	}
 
 	@Test
 	public void matchOnEmailReturnsExpectedPrincipal() throws Exception {
 		extractor.setSubjectDnRegex("emailAddress=(.*?),");
-		Object principal = extractor.extractPrincipal(X509TestUtils
-				.buildTestCertificate());
+		Object principal = extractor.extractPrincipal(X509TestUtils.buildTestCertificate());
 		assertThat(principal).isEqualTo("luke@monkeymachine");
 	}
 
@@ -64,8 +63,8 @@ public class SubjectDnX509PrincipalExtractorTests {
 
 	@Test
 	public void defaultCNPatternReturnsPrincipalAtEndOfDNString() throws Exception {
-		Object principal = extractor.extractPrincipal(X509TestUtils
-				.buildTestCertificateWithCnAtEnd());
+		Object principal = extractor.extractPrincipal(X509TestUtils.buildTestCertificateWithCnAtEnd());
 		assertThat(principal).isEqualTo("Duke");
 	}
+
 }

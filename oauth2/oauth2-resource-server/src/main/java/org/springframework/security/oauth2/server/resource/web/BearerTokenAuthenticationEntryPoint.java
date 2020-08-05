@@ -31,16 +31,16 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.StringUtils;
 
 /**
- * An {@link AuthenticationEntryPoint} implementation used to commence authentication of protected resource requests
- * using {@link BearerTokenAuthenticationFilter}.
+ * An {@link AuthenticationEntryPoint} implementation used to commence authentication of
+ * protected resource requests using {@link BearerTokenAuthenticationFilter}.
  * <p>
- * Uses information provided by {@link BearerTokenError} to set HTTP response status code and populate
- * {@code WWW-Authenticate} HTTP header.
+ * Uses information provided by {@link BearerTokenError} to set HTTP response status code
+ * and populate {@code WWW-Authenticate} HTTP header.
  *
  * @author Vedran Pavic
  * @see BearerTokenError
- * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750 Section 3: The WWW-Authenticate
- * Response Header Field</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750
+ * Section 3: The WWW-Authenticate Response Header Field</a>
  * @since 5.1
  */
 public final class BearerTokenAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -48,16 +48,15 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	private String realmName;
 
 	/**
-	 * Collect error details from the provided parameters and format according to
-	 * RFC 6750, specifically {@code error}, {@code error_description}, {@code error_uri}, and {@code scope}.
-	 *
-	 * @param request       that resulted in an <code>AuthenticationException</code>
-	 * @param response      so that the user agent can begin authentication
+	 * Collect error details from the provided parameters and format according to RFC
+	 * 6750, specifically {@code error}, {@code error_description}, {@code error_uri}, and
+	 * {@code scope}.
+	 * @param request that resulted in an <code>AuthenticationException</code>
+	 * @param response so that the user agent can begin authentication
 	 * @param authException that caused the invocation
 	 */
 	@Override
-	public void commence(
-			HttpServletRequest request, HttpServletResponse response,
+	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) {
 
 		HttpStatus status = HttpStatus.UNAUTHORIZED;
@@ -100,7 +99,6 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 	/**
 	 * Set the default realm name to use in the bearer token error response
-	 *
 	 * @param realmName
 	 */
 	public void setRealmName(String realmName) {
@@ -126,4 +124,5 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 		return wwwAuthenticate.toString();
 	}
+
 }

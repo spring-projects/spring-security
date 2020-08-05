@@ -40,8 +40,10 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationWebFilterTests {
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
 
@@ -50,43 +52,38 @@ public class AuthorizationWebFilterTests {
 	@Test
 	public void filterWhenNoSecurityContextThenThrowsAccessDenied() {
 		when(this.chain.filter(this.exchange)).thenReturn(this.chainResult.mono());
-		AuthorizationWebFilter filter = new AuthorizationWebFilter((a, e) -> Mono.error(new AccessDeniedException("Denied")));
+		AuthorizationWebFilter filter = new AuthorizationWebFilter(
+				(a, e) -> Mono.error(new AccessDeniedException("Denied")));
 
 		Mono<Void> result = filter.filter(this.exchange, this.chain);
 
-		StepVerifier.create(result)
-			.expectError(AccessDeniedException.class)
-			.verify();
+		StepVerifier.create(result).expectError(AccessDeniedException.class).verify();
 		this.chainResult.assertWasNotSubscribed();
 	}
 
 	@Test
 	public void filterWhenNoAuthenticationThenThrowsAccessDenied() {
 		when(this.chain.filter(this.exchange)).thenReturn(this.chainResult.mono());
-		AuthorizationWebFilter filter = new AuthorizationWebFilter((a, e) -> a.flatMap(auth -> Mono.error(new AccessDeniedException("Denied"))));
+		AuthorizationWebFilter filter = new AuthorizationWebFilter(
+				(a, e) -> a.flatMap(auth -> Mono.error(new AccessDeniedException("Denied"))));
 
-		Mono<Void> result = filter
-			.filter(this.exchange, this.chain)
-			.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new SecurityContextImpl())));
+		Mono<Void> result = filter.filter(this.exchange, this.chain).subscriberContext(
+				ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new SecurityContextImpl())));
 
-		StepVerifier.create(result)
-			.expectError(AccessDeniedException.class)
-			.verify();
+		StepVerifier.create(result).expectError(AccessDeniedException.class).verify();
 		this.chainResult.assertWasNotSubscribed();
 	}
 
 	@Test
 	public void filterWhenAuthenticationThenThrowsAccessDenied() {
 		when(this.chain.filter(this.exchange)).thenReturn(this.chainResult.mono());
-		AuthorizationWebFilter filter = new AuthorizationWebFilter((a, e) -> Mono.error(new AccessDeniedException("Denied")));
+		AuthorizationWebFilter filter = new AuthorizationWebFilter(
+				(a, e) -> Mono.error(new AccessDeniedException("Denied")));
 
-		Mono<Void> result = filter
-			.filter(this.exchange, this.chain)
-			.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken("a", "b", "R")));
+		Mono<Void> result = filter.filter(this.exchange, this.chain).subscriberContext(
+				ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken("a", "b", "R")));
 
-		StepVerifier.create(result)
-			.expectError(AccessDeniedException.class)
-			.verify();
+		StepVerifier.create(result).expectError(AccessDeniedException.class).verify();
 		this.chainResult.assertWasNotSubscribed();
 	}
 
@@ -94,15 +91,13 @@ public class AuthorizationWebFilterTests {
 	public void filterWhenDoesNotAccessAuthenticationThenSecurityContextNotSubscribed() {
 		PublisherProbe<SecurityContext> context = PublisherProbe.empty();
 		when(this.chain.filter(this.exchange)).thenReturn(this.chainResult.mono());
-		AuthorizationWebFilter filter = new AuthorizationWebFilter((a, e) -> Mono.error(new AccessDeniedException("Denied")));
+		AuthorizationWebFilter filter = new AuthorizationWebFilter(
+				(a, e) -> Mono.error(new AccessDeniedException("Denied")));
 
-		Mono<Void> result = filter
-			.filter(this.exchange, this.chain)
-			.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.mono()));
+		Mono<Void> result = filter.filter(this.exchange, this.chain)
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.mono()));
 
-		StepVerifier.create(result)
-			.expectError(AccessDeniedException.class)
-			.verify();
+		StepVerifier.create(result).expectError(AccessDeniedException.class).verify();
 		this.chainResult.assertWasNotSubscribed();
 		context.assertWasNotSubscribed();
 	}
@@ -111,14 +106,13 @@ public class AuthorizationWebFilterTests {
 	public void filterWhenGrantedAndDoesNotAccessAuthenticationThenChainSubscribedAndSecurityContextNotSubscribed() {
 		PublisherProbe<SecurityContext> context = PublisherProbe.empty();
 		when(this.chain.filter(this.exchange)).thenReturn(this.chainResult.mono());
-		AuthorizationWebFilter filter = new AuthorizationWebFilter((a, e) -> Mono.just(new AuthorizationDecision(true)));
+		AuthorizationWebFilter filter = new AuthorizationWebFilter(
+				(a, e) -> Mono.just(new AuthorizationDecision(true)));
 
-		Mono<Void> result = filter
-			.filter(this.exchange, this.chain)
-			.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.mono()));
+		Mono<Void> result = filter.filter(this.exchange, this.chain)
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.mono()));
 
-		StepVerifier.create(result)
-			.verifyComplete();
+		StepVerifier.create(result).verifyComplete();
 		this.chainResult.assertWasSubscribed();
 		context.assertWasNotSubscribed();
 	}
@@ -128,17 +122,14 @@ public class AuthorizationWebFilterTests {
 		PublisherProbe<SecurityContext> context = PublisherProbe.empty();
 		when(this.chain.filter(this.exchange)).thenReturn(this.chainResult.mono());
 		AuthorizationWebFilter filter = new AuthorizationWebFilter((a, e) -> a
-			.map( auth -> new AuthorizationDecision(true))
-			.defaultIfEmpty(new AuthorizationDecision(true))
-		);
+				.map(auth -> new AuthorizationDecision(true)).defaultIfEmpty(new AuthorizationDecision(true)));
 
-		Mono<Void> result = filter
-			.filter(this.exchange, this.chain)
-			.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.mono()));
+		Mono<Void> result = filter.filter(this.exchange, this.chain)
+				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.mono()));
 
-		StepVerifier.create(result)
-			.verifyComplete();
+		StepVerifier.create(result).verifyComplete();
 		this.chainResult.assertWasSubscribed();
 		context.assertWasSubscribed();
 	}
+
 }

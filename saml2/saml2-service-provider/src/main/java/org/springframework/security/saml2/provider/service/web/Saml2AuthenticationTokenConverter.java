@@ -35,26 +35,27 @@ import org.springframework.util.Assert;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * An {@link AuthenticationConverter} that generates a {@link Saml2AuthenticationToken} appropriate
- * for authenticated a SAML 2.0 Assertion against an
+ * An {@link AuthenticationConverter} that generates a {@link Saml2AuthenticationToken}
+ * appropriate for authenticated a SAML 2.0 Assertion against an
  * {@link org.springframework.security.authentication.AuthenticationManager}.
  *
  * @author Josh Cummings
  * @since 5.4
  */
 public final class Saml2AuthenticationTokenConverter implements AuthenticationConverter {
-	private static Base64 BASE64 = new Base64(0, new byte[]{'\n'});
+
+	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' });
 
 	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
 
 	/**
-	 * Constructs a {@link Saml2AuthenticationTokenConverter} given a strategy for resolving
+	 * Constructs a {@link Saml2AuthenticationTokenConverter} given a strategy for
+	 * resolving {@link RelyingPartyRegistration}s
+	 * @param relyingPartyRegistrationResolver the strategy for resolving
 	 * {@link RelyingPartyRegistration}s
-	 *
-	 * @param relyingPartyRegistrationResolver the strategy for resolving {@link RelyingPartyRegistration}s
 	 */
-	public Saml2AuthenticationTokenConverter
-			(Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver) {
+	public Saml2AuthenticationTokenConverter(
+			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver) {
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 	}
@@ -102,4 +103,5 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 			throw new Saml2Exception("Unable to inflate string", e);
 		}
 	}
+
 }

@@ -26,6 +26,7 @@ import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
  * @since 3.0.3
  */
 public final class WebAttributes {
+
 	/**
 	 * Used to cache an {@code AccessDeniedException} in the request for rendering.
 	 *
@@ -47,6 +48,7 @@ public final class WebAttributes {
 	 * @see WebInvocationPrivilegeEvaluator
 	 * @since 3.1.3
 	 */
-	public static final String WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE = WebAttributes.class
-			.getName() + ".WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE";
+	public static final String WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE = WebAttributes.class.getName()
+			+ ".WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE";
+
 }

@@ -72,4 +72,5 @@ public class TestSecurityContextHolderTests {
 
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
 	}
+
 }

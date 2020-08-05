@@ -45,14 +45,10 @@ public class PermissionTests {
 	public void expectedIntegerValues() {
 		assertThat(BasePermission.READ.getMask()).isEqualTo(1);
 		assertThat(BasePermission.ADMINISTRATION.getMask()).isEqualTo(16);
-		assertThat(
-				new CumulativePermission().set(BasePermission.READ)
-						.set(BasePermission.WRITE).set(BasePermission.CREATE).getMask())
-				.isEqualTo(7);
-		assertThat(
-				new CumulativePermission().set(BasePermission.READ)
-						.set(BasePermission.ADMINISTRATION).getMask())
-			.isEqualTo(17);
+		assertThat(new CumulativePermission().set(BasePermission.READ).set(BasePermission.WRITE)
+				.set(BasePermission.CREATE).getMask()).isEqualTo(7);
+		assertThat(new CumulativePermission().set(BasePermission.READ).set(BasePermission.ADMINISTRATION).getMask())
+				.isEqualTo(17);
 	}
 
 	@Test
@@ -65,33 +61,28 @@ public class PermissionTests {
 	public void stringConversion() {
 		permissionFactory.registerPublicPermissions(SpecialPermission.class);
 
-		assertThat(BasePermission.READ.toString())
-			.isEqualTo("BasePermission[...............................R=1]");
+		assertThat(BasePermission.READ.toString()).isEqualTo("BasePermission[...............................R=1]");
+
+		assertThat(BasePermission.ADMINISTRATION.toString())
+				.isEqualTo("BasePermission[...........................A....=16]");
+
+		assertThat(new CumulativePermission().set(BasePermission.READ).toString())
+				.isEqualTo("CumulativePermission[...............................R=1]");
 
 		assertThat(
-				BasePermission.ADMINISTRATION.toString())
-			.isEqualTo("BasePermission[...........................A....=16]");
+				new CumulativePermission().set(SpecialPermission.ENTER).set(BasePermission.ADMINISTRATION).toString())
+						.isEqualTo("CumulativePermission[..........................EA....=48]");
 
-		assertThat(
-				new CumulativePermission().set(BasePermission.READ).toString())
-			.isEqualTo("CumulativePermission[...............................R=1]");
+		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION).set(BasePermission.READ).toString())
+				.isEqualTo("CumulativePermission[...........................A...R=17]");
 
-		assertThat(new CumulativePermission().set(SpecialPermission.ENTER)
-						.set(BasePermission.ADMINISTRATION).toString())
-			.isEqualTo("CumulativePermission[..........................EA....=48]");
+		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION).set(BasePermission.READ)
+				.clear(BasePermission.ADMINISTRATION).toString())
+						.isEqualTo("CumulativePermission[...............................R=1]");
 
-		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION)
-						.set(BasePermission.READ).toString())
-			.isEqualTo("CumulativePermission[...........................A...R=17]");
-
-		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION)
-						.set(BasePermission.READ).clear(BasePermission.ADMINISTRATION)
-						.toString())
-			.isEqualTo("CumulativePermission[...............................R=1]");
-
-		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION)
-						.set(BasePermission.READ).clear(BasePermission.ADMINISTRATION)
-						.clear(BasePermission.READ).toString())
-			.isEqualTo("CumulativePermission[................................=0]");
+		assertThat(new CumulativePermission().set(BasePermission.ADMINISTRATION).set(BasePermission.READ)
+				.clear(BasePermission.ADMINISTRATION).clear(BasePermission.READ).toString())
+						.isEqualTo("CumulativePermission[................................=0]");
 	}
+
 }

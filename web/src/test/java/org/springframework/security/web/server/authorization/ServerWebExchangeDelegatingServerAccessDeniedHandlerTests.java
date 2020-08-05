@@ -35,9 +35,13 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
 import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
 
 public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
+
 	private ServerWebExchangeDelegatingServerAccessDeniedHandler delegator;
+
 	private List<ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry> entries;
+
 	private ServerAccessDeniedHandler accessDeniedHandler;
+
 	private ServerWebExchange exchange;
 
 	@Before
@@ -109,4 +113,5 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandlerTests {
 		verify(firstHandler, never()).handle(this.exchange, null);
 		verify(this.accessDeniedHandler, never()).handle(this.exchange, null);
 	}
+
 }

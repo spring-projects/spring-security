@@ -63,4 +63,5 @@ public abstract class AbstractPasswordEncoder implements PasswordEncoder {
 	protected static boolean matches(byte[] expected, byte[] actual) {
 		return MessageDigest.isEqual(expected, actual);
 	}
+
 }

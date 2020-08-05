@@ -38,11 +38,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @see SecurityContextCallableProcessingInterceptor
  */
 public final class WebAsyncManagerIntegrationFilter extends OncePerRequestFilter {
+
 	private static final Object CALLABLE_INTERCEPTOR_KEY = new Object();
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain)
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
@@ -55,4 +55,5 @@ public final class WebAsyncManagerIntegrationFilter extends OncePerRequestFilter
 
 		filterChain.doFilter(request, response);
 	}
+
 }

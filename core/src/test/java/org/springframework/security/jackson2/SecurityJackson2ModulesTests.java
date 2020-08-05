@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package org.springframework.security.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -31,10 +30,11 @@ import java.util.HashMap;
 import static org.assertj.core.api.Assertions.*;
 
 /**
-* @author Rob Winch
-* @since 5.0
-*/
+ * @author Rob Winch
+ * @since 5.0
+ */
 public class SecurityJackson2ModulesTests {
+
 	private ObjectMapper mapper;
 
 	@Before
@@ -47,9 +47,8 @@ public class SecurityJackson2ModulesTests {
 	public void readValueWhenNotAllowedOrMappedThenThrowsException() {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
 		assertThatThrownBy(() -> {
-				mapper.readValue(content, Object.class);
-			}
-		).hasStackTraceContaining("allowlist");
+			mapper.readValue(content, Object.class);
+		}).hasStackTraceContaining("allowlist");
 	}
 
 	@Test
@@ -96,10 +95,13 @@ public class SecurityJackson2ModulesTests {
 	@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
-	public @interface NotJacksonAnnotation {}
+	public @interface NotJacksonAnnotation {
+
+	}
 
 	@NotJacksonAnnotation
 	static class NotAllowlisted {
+
 		private String property = "bar";
 
 		public String getProperty() {
@@ -108,10 +110,12 @@ public class SecurityJackson2ModulesTests {
 
 		public void setProperty(String property) {
 		}
+
 	}
 
 	@JsonIgnoreType(false)
 	static class NotAllowlistedButAnnotated {
+
 		private String property = "bar";
 
 		public String getProperty() {
@@ -120,13 +124,15 @@ public class SecurityJackson2ModulesTests {
 
 		public void setProperty(String property) {
 		}
+
 	}
 
 	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+			isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	abstract class NotAllowlistedMixin {
 
 	}
+
 }

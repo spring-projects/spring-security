@@ -30,8 +30,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author Rob Winch
  */
-public final class DelegatingApplicationListener implements
-		ApplicationListener<ApplicationEvent> {
+public final class DelegatingApplicationListener implements ApplicationListener<ApplicationEvent> {
+
 	private List<SmartApplicationListener> listeners = new CopyOnWriteArrayList<>();
 
 	public void onApplicationEvent(ApplicationEvent event) {
@@ -49,13 +49,12 @@ public final class DelegatingApplicationListener implements
 
 	/**
 	 * Adds a new SmartApplicationListener to use.
-	 *
 	 * @param smartApplicationListener the SmartApplicationListener to use. Cannot be
 	 * null.
 	 */
 	public void addListener(SmartApplicationListener smartApplicationListener) {
-		Assert.notNull(smartApplicationListener,
-				"smartApplicationListener cannot be null");
+		Assert.notNull(smartApplicationListener, "smartApplicationListener cannot be null");
 		listeners.add(smartApplicationListener);
 	}
+
 }

@@ -27,27 +27,23 @@ import org.springframework.security.access.prepost.PostInvocationAuthorizationAd
 import org.springframework.security.core.Authentication;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */
-public class ExpressionBasedPostInvocationAdvice implements
-		PostInvocationAuthorizationAdvice {
+public class ExpressionBasedPostInvocationAdvice implements PostInvocationAuthorizationAdvice {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final MethodSecurityExpressionHandler expressionHandler;
 
-	public ExpressionBasedPostInvocationAdvice(
-			MethodSecurityExpressionHandler expressionHandler) {
+	public ExpressionBasedPostInvocationAdvice(MethodSecurityExpressionHandler expressionHandler) {
 		this.expressionHandler = expressionHandler;
 	}
 
-	public Object after(Authentication authentication, MethodInvocation mi,
-			PostInvocationAttribute postAttr, Object returnedObject)
-			throws AccessDeniedException {
+	public Object after(Authentication authentication, MethodInvocation mi, PostInvocationAttribute postAttr,
+			Object returnedObject) throws AccessDeniedException {
 		PostInvocationExpressionAttribute pia = (PostInvocationExpressionAttribute) postAttr;
-		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
-				mi);
+		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi);
 		Expression postFilter = pia.getFilterExpression();
 		Expression postAuthorize = pia.getAuthorizeExpression();
 
@@ -57,8 +53,7 @@ public class ExpressionBasedPostInvocationAdvice implements
 			}
 
 			if (returnedObject != null) {
-				returnedObject = expressionHandler
-						.filter(returnedObject, postFilter, ctx);
+				returnedObject = expressionHandler.filter(returnedObject, postFilter, ctx);
 			}
 			else {
 				if (logger.isDebugEnabled()) {
@@ -69,8 +64,7 @@ public class ExpressionBasedPostInvocationAdvice implements
 
 		expressionHandler.setReturnObject(returnedObject, ctx);
 
-		if (postAuthorize != null
-				&& !ExpressionUtils.evaluateAsBoolean(postAuthorize, ctx)) {
+		if (postAuthorize != null && !ExpressionUtils.evaluateAsBoolean(postAuthorize, ctx)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("PostAuthorize expression rejected access");
 			}
@@ -79,4 +73,5 @@ public class ExpressionBasedPostInvocationAdvice implements
 
 		return returnedObject;
 	}
+
 }

@@ -17,6 +17,7 @@ package org.springframework.security.crypto.keygen;
 
 /**
  * A generator for unique byte array-based keys.
+ *
  * @author Keith Donald
  */
 public interface BytesKeyGenerator {

@@ -20,11 +20,11 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- *
  * @author Rob Winch
  * @since 5.0
  */
 public interface ServerAccessDeniedHandler {
 
 	Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied);
+
 }

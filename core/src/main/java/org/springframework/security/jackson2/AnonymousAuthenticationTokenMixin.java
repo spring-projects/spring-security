@@ -23,10 +23,11 @@ import java.util.Collection;
 
 /**
  * This is a Jackson mixin class helps in serialize/deserialize
- * {@link org.springframework.security.authentication.AnonymousAuthenticationToken} class. To use this class you need to register it
- * with {@link com.fasterxml.jackson.databind.ObjectMapper} and {@link SimpleGrantedAuthorityMixin} because
- * AnonymousAuthenticationToken contains SimpleGrantedAuthority.
- * <pre>
+ * {@link org.springframework.security.authentication.AnonymousAuthenticationToken} class.
+ * To use this class you need to register it with
+ * {@link com.fasterxml.jackson.databind.ObjectMapper} and
+ * {@link SimpleGrantedAuthorityMixin} because AnonymousAuthenticationToken contains
+ * SimpleGrantedAuthority. <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new CoreJackson2Module());
  * </pre>
@@ -45,15 +46,17 @@ import java.util.Collection;
 class AnonymousAuthenticationTokenMixin {
 
 	/**
-	 * Constructor used by Jackson to create object of {@link org.springframework.security.authentication.AnonymousAuthenticationToken}.
-	 *
+	 * Constructor used by Jackson to create object of
+	 * {@link org.springframework.security.authentication.AnonymousAuthenticationToken}.
 	 * @param keyHash hashCode of key provided at the time of token creation by using
-	 *                {@link org.springframework.security.authentication.AnonymousAuthenticationToken#AnonymousAuthenticationToken(String, Object, Collection)}
+	 * {@link org.springframework.security.authentication.AnonymousAuthenticationToken#AnonymousAuthenticationToken(String, Object, Collection)}
 	 * @param principal the principal (typically a <code>UserDetails</code>)
 	 * @param authorities the authorities granted to the principal
 	 */
 	@JsonCreator
-	AnonymousAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal,
-												@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
+	AnonymousAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash,
+			@JsonProperty("principal") Object principal,
+			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
 	}
+
 }

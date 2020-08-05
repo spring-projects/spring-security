@@ -31,10 +31,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class OAuth2AccessTokenTests {
+
 	private static final OAuth2AccessToken.TokenType TOKEN_TYPE = OAuth2AccessToken.TokenType.BEARER;
+
 	private static final String TOKEN_VALUE = "access-token";
+
 	private static final Instant ISSUED_AT = Instant.now();
+
 	private static final Instant EXPIRES_AT = Instant.from(ISSUED_AT).plusSeconds(60);
+
 	private static final Set<String> SCOPES = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 
 	@Test
@@ -64,8 +69,7 @@ public class OAuth2AccessTokenTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(
-			TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, SCOPES);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, SCOPES);
 
 		assertThat(accessToken.getTokenType()).isEqualTo(TOKEN_TYPE);
 		assertThat(accessToken.getTokenValue()).isEqualTo(TOKEN_VALUE);
@@ -77,8 +81,7 @@ public class OAuth2AccessTokenTests {
 	// gh-5492
 	@Test
 	public void constructorWhenCreatedThenIsSerializableAndDeserializable() {
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(
-				TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, SCOPES);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, SCOPES);
 		byte[] serialized = SerializationUtils.serialize(accessToken);
 		accessToken = (OAuth2AccessToken) SerializationUtils.deserialize(serialized);
 
@@ -89,4 +92,5 @@ public class OAuth2AccessTokenTests {
 		assertThat(accessToken.getExpiresAt()).isEqualTo(EXPIRES_AT);
 		assertThat(accessToken.getScopes()).isEqualTo(SCOPES);
 	}
+
 }

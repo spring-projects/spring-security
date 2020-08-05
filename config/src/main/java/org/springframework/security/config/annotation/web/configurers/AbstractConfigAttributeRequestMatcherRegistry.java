@@ -30,22 +30,20 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  *
  * @author Rob Winch
  * @since 3.2
- *
  * @param <C> The object that is returned or Chained after creating the RequestMatcher
- *
  * @see ChannelSecurityConfigurer
  * @see UrlAuthorizationConfigurer
  * @see ExpressionUrlAuthorizationConfigurer
  */
-public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
-		AbstractRequestMatcherRegistry<C> {
+public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends AbstractRequestMatcherRegistry<C> {
+
 	private List<UrlMapping> urlMappings = new ArrayList<>();
+
 	private List<RequestMatcher> unmappedMatchers;
 
 	/**
 	 * Gets the {@link UrlMapping} added by subclasses in
 	 * {@link #chainRequestMatchers(java.util.List)}. May be empty.
-	 *
 	 * @return the {@link UrlMapping} added by subclasses in
 	 * {@link #chainRequestMatchers(java.util.List)}
 	 */
@@ -57,7 +55,6 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 	 * Adds a {@link UrlMapping} added by subclasses in
 	 * {@link #chainRequestMatchers(java.util.List)} and resets the unmapped
 	 * {@link RequestMatcher}'s.
-	 *
 	 * @param urlMapping {@link UrlMapping} the mapping to add
 	 */
 	final void addMapping(UrlMapping urlMapping) {
@@ -68,7 +65,6 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 	/**
 	 * Marks the {@link RequestMatcher}'s as unmapped and then calls
 	 * {@link #chainRequestMatchersInternal(List)}.
-	 *
 	 * @param requestMatchers the {@link RequestMatcher} instances that were created
 	 * @return the chained Object for the subclass which allows association of something
 	 * else to the {@link RequestMatcher}
@@ -81,7 +77,6 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 	/**
 	 * Subclasses should implement this method for returning the object that is chained to
 	 * the creation of the {@link RequestMatcher} instances.
-	 *
 	 * @param requestMatchers the {@link RequestMatcher} instances that were created
 	 * @return the chained Object for the subclass which allows association of something
 	 * else to the {@link RequestMatcher}
@@ -91,7 +86,6 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 	/**
 	 * Adds a {@link UrlMapping} added by subclasses in
 	 * {@link #chainRequestMatchers(java.util.List)} at a particular index.
-	 *
 	 * @param index the index to add a {@link UrlMapping}
 	 * @param urlMapping {@link UrlMapping} the mapping to add
 	 */
@@ -102,16 +96,13 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 	/**
 	 * Creates the mapping of {@link RequestMatcher} to {@link Collection} of
 	 * {@link ConfigAttribute} instances
-	 *
 	 * @return the mapping of {@link RequestMatcher} to {@link Collection} of
 	 * {@link ConfigAttribute} instances. Cannot be null.
 	 */
 	final LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> createRequestMap() {
 		if (unmappedMatchers != null) {
-			throw new IllegalStateException(
-					"An incomplete mapping was found for "
-							+ unmappedMatchers
-							+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
+			throw new IllegalStateException("An incomplete mapping was found for " + unmappedMatchers
+					+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
 		}
 
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
@@ -128,7 +119,9 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 	 * {@link ConfigAttribute} instances
 	 */
 	static final class UrlMapping {
+
 		private RequestMatcher requestMatcher;
+
 		private Collection<ConfigAttribute> configAttrs;
 
 		UrlMapping(RequestMatcher requestMatcher, Collection<ConfigAttribute> configAttrs) {
@@ -143,5 +136,7 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 		public Collection<ConfigAttribute> getConfigAttrs() {
 			return configAttrs;
 		}
+
 	}
+
 }

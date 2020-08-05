@@ -22,14 +22,17 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * Negates the provided matcher. If the provided matcher returns true, then the result will be false. If the provided
- * matcher returns false, then the result will be true.
+ * Negates the provided matcher. If the provided matcher returns true, then the result
+ * will be false. If the provided matcher returns false, then the result will be true.
+ *
  * @author Tao Qian
  * @author Mathieu Ouellet
  * @since 5.1
  */
 public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+
 	private static final Log logger = LogFactory.getLog(NegatedServerWebExchangeMatcher.class);
+
 	private final ServerWebExchangeMatcher matcher;
 
 	public NegatedServerWebExchangeMatcher(ServerWebExchangeMatcher matcher) {
@@ -37,24 +40,25 @@ public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher
 		this.matcher = matcher;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#matches(org.springframework.web.server.ServerWebExchange)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#
+	 * matches(org.springframework.web.server.ServerWebExchange)
 	 */
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return matcher.matches(exchange)
-			.flatMap(m -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())
-			.doOnNext(it -> {
-				if (logger.isDebugEnabled()) {
-					logger.debug("matches = " + it.isMatch());
-				}
-			});
+		return matcher.matches(exchange).flatMap(m -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())
+				.doOnNext(it -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug("matches = " + it.isMatch());
+					}
+				});
 	}
 
 	@Override
 	public String toString() {
-		return "NegatedServerWebExchangeMatcher{" +
-				"matcher=" + matcher +
-				'}';
+		return "NegatedServerWebExchangeMatcher{" + "matcher=" + matcher + '}';
 	}
+
 }

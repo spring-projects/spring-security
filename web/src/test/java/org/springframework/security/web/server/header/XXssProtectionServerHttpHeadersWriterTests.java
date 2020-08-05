@@ -28,6 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @since 5.0
  */
 public class XXssProtectionServerHttpHeadersWriterTests {
+
 	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	HttpHeaders headers = exchange.getResponse().getHeaders();

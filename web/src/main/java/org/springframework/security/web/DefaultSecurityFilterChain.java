@@ -27,12 +27,14 @@ import java.util.*;
  * Standard implementation of {@code SecurityFilterChain}.
  *
  * @author Luke Taylor
- *
  * @since 3.1
  */
 public final class DefaultSecurityFilterChain implements SecurityFilterChain {
+
 	private static final Log logger = LogFactory.getLog(DefaultSecurityFilterChain.class);
+
 	private final RequestMatcher requestMatcher;
+
 	private final List<Filter> filters;
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
@@ -61,4 +63,5 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	public String toString() {
 		return "[ " + requestMatcher + ", " + filters + "]";
 	}
+
 }

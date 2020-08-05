@@ -24,25 +24,27 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An implementation of an {@link OAuth2AuthorizedClientProvider} that simply delegates
- * to it's internal {@code List} of {@link OAuth2AuthorizedClientProvider}(s).
+ * An implementation of an {@link OAuth2AuthorizedClientProvider} that simply delegates to
+ * it's internal {@code List} of {@link OAuth2AuthorizedClientProvider}(s).
  * <p>
  * Each provider is given a chance to
  * {@link OAuth2AuthorizedClientProvider#authorize(OAuth2AuthorizationContext) authorize}
- * the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided context
- * with the first {@code non-null} {@link OAuth2AuthorizedClient} being returned.
+ * the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided
+ * context with the first {@code non-null} {@link OAuth2AuthorizedClient} being returned.
  *
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClientProvider
  */
 public final class DelegatingOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
+
 	private final List<OAuth2AuthorizedClientProvider> authorizedClientProviders;
 
 	/**
-	 * Constructs a {@code DelegatingOAuth2AuthorizedClientProvider} using the provided parameters.
-	 *
-	 * @param authorizedClientProviders a list of {@link OAuth2AuthorizedClientProvider}(s)
+	 * Constructs a {@code DelegatingOAuth2AuthorizedClientProvider} using the provided
+	 * parameters.
+	 * @param authorizedClientProviders a list of
+	 * {@link OAuth2AuthorizedClientProvider}(s)
 	 */
 	public DelegatingOAuth2AuthorizedClientProvider(OAuth2AuthorizedClientProvider... authorizedClientProviders) {
 		Assert.notEmpty(authorizedClientProviders, "authorizedClientProviders cannot be empty");
@@ -50,9 +52,10 @@ public final class DelegatingOAuth2AuthorizedClientProvider implements OAuth2Aut
 	}
 
 	/**
-	 * Constructs a {@code DelegatingOAuth2AuthorizedClientProvider} using the provided parameters.
-	 *
-	 * @param authorizedClientProviders a {@code List} of {@link OAuth2AuthorizedClientProvider}(s)
+	 * Constructs a {@code DelegatingOAuth2AuthorizedClientProvider} using the provided
+	 * parameters.
+	 * @param authorizedClientProviders a {@code List} of
+	 * {@link OAuth2AuthorizedClientProvider}(s)
 	 */
 	public DelegatingOAuth2AuthorizedClientProvider(List<OAuth2AuthorizedClientProvider> authorizedClientProviders) {
 		Assert.notEmpty(authorizedClientProviders, "authorizedClientProviders cannot be empty");
@@ -71,4 +74,5 @@ public final class DelegatingOAuth2AuthorizedClientProvider implements OAuth2Aut
 		}
 		return null;
 	}
+
 }

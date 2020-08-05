@@ -30,9 +30,13 @@ import org.springframework.security.authentication.event.AbstractAuthenticationF
  * @since 3.1
  */
 public class CollectingAppListener implements ApplicationListener {
+
 	Set<ApplicationEvent> events = new HashSet<>();
+
 	Set<AbstractAuthenticationEvent> authenticationEvents = new HashSet<>();
+
 	Set<AbstractAuthenticationFailureEvent> authenticationFailureEvents = new HashSet<>();
+
 	Set<AbstractAuthorizationEvent> authorizationEvents = new HashSet<>();
 
 	public void onApplicationEvent(ApplicationEvent event) {
@@ -65,4 +69,5 @@ public class CollectingAppListener implements ApplicationListener {
 	public Set<AbstractAuthorizationEvent> getAuthorizationEvents() {
 		return authorizationEvents;
 	}
+
 }

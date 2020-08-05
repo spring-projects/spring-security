@@ -40,11 +40,13 @@ import org.springframework.web.reactive.result.view.AbstractView;
  */
 @Configuration(proxyBeanMethods = false)
 class WebFluxSecurityConfiguration {
+
 	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = 0 - 100;
 
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.";
 
-	private static final String SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME = BEAN_NAME_PREFIX + "WebFilterChainFilter";
+	private static final String SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME = BEAN_NAME_PREFIX
+			+ "WebFilterChainFilter";
 
 	public static final String REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME = "org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository";
 
@@ -104,7 +106,8 @@ class WebFluxSecurityConfiguration {
 
 		if (isOAuth2Present && OAuth2ClasspathGuard.shouldConfigure(this.context)) {
 			OAuth2ClasspathGuard.configure(this.context, http);
-		} else {
+		}
+		else {
 			// @formatter:off
 			http
 				.httpBasic().and()
@@ -117,6 +120,7 @@ class WebFluxSecurityConfiguration {
 	}
 
 	private static class OAuth2ClasspathGuard {
+
 		static void configure(ApplicationContext context, ServerHttpSecurity http) {
 			// @formatter:off
 			http
@@ -127,8 +131,11 @@ class WebFluxSecurityConfiguration {
 
 		static boolean shouldConfigure(ApplicationContext context) {
 			ClassLoader loader = context.getClassLoader();
-			Class<?> reactiveClientRegistrationRepositoryClass = ClassUtils.resolveClassName(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, loader);
+			Class<?> reactiveClientRegistrationRepositoryClass = ClassUtils
+					.resolveClassName(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, loader);
 			return context.getBeanNamesForType(reactiveClientRegistrationRepositoryClass).length == 1;
 		}
+
 	}
+
 }

@@ -60,13 +60,12 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  * @author Paulo Neves
  */
-public class AclEntryAfterInvocationCollectionFilteringProvider extends
-		AbstractAclProvider {
+public class AclEntryAfterInvocationCollectionFilteringProvider extends AbstractAclProvider {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	protected static final Log logger = LogFactory
-			.getLog(AclEntryAfterInvocationCollectionFilteringProvider.class);
+	protected static final Log logger = LogFactory.getLog(AclEntryAfterInvocationCollectionFilteringProvider.class);
 
 	// ~ Constructors
 	// ===================================================================================================
@@ -80,9 +79,8 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends
 	// ========================================================================================================
 
 	@SuppressWarnings("unchecked")
-	public Object decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config, Object returnedObject)
-			throws AccessDeniedException {
+	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
+			Object returnedObject) throws AccessDeniedException {
 
 		if (returnedObject == null) {
 			logger.debug("Return object is null, skipping");
@@ -105,19 +103,15 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends
 				filterer = new ArrayFilterer((Object[]) returnedObject);
 			}
 			else {
-				throw new AuthorizationServiceException(
-						"A Collection or an array (or null) was required as the "
-								+ "returnedObject, but the returnedObject was: "
-								+ returnedObject);
+				throw new AuthorizationServiceException("A Collection or an array (or null) was required as the "
+						+ "returnedObject, but the returnedObject was: " + returnedObject);
 			}
 
 			// Locate unauthorised Collection elements
 			for (Object domainObject : filterer) {
 				// Ignore nulls or entries which aren't instances of the configured domain
 				// object class
-				if (domainObject == null
-						|| !getProcessDomainObjectClass().isAssignableFrom(
-								domainObject.getClass())) {
+				if (domainObject == null || !getProcessDomainObjectClass().isAssignableFrom(domainObject.getClass())) {
 					continue;
 				}
 
@@ -125,8 +119,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends
 					filterer.remove(domainObject);
 
 					if (logger.isDebugEnabled()) {
-						logger.debug("Principal is NOT authorised for element: "
-								+ domainObject);
+						logger.debug("Principal is NOT authorised for element: " + domainObject);
 					}
 				}
 			}
@@ -136,4 +129,5 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends
 
 		return returnedObject;
 	}
+
 }

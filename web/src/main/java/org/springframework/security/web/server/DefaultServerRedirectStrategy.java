@@ -34,7 +34,9 @@ import java.net.URI;
  * @since 5.0
  */
 public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
+
 	private static final Log logger = LogFactory.getLog(DefaultServerRedirectStrategy.class);
+
 	private HttpStatus httpStatus = HttpStatus.FOUND;
 
 	private boolean contextRelative = true;
@@ -76,10 +78,11 @@ public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 
 	/**
 	 * Sets if the location is relative to the context.
-	 * @param contextRelative if redirects should be relative to the context.
-	 * Default is true.
+	 * @param contextRelative if redirects should be relative to the context. Default is
+	 * true.
 	 */
 	public void setContextRelative(boolean contextRelative) {
 		this.contextRelative = contextRelative;
 	}
+
 }

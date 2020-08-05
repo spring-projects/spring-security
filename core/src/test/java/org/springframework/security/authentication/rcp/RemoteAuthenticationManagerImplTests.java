@@ -31,6 +31,7 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class RemoteAuthenticationManagerImplTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -38,8 +39,7 @@ public class RemoteAuthenticationManagerImplTests {
 	public void testFailedAuthenticationReturnsRemoteAuthenticationException() {
 		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(
-				new BadCredentialsException(""));
+		when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
 		manager.setAuthenticationManager(am);
 
 		manager.attemptAuthentication("rod", "password");
@@ -65,10 +65,10 @@ public class RemoteAuthenticationManagerImplTests {
 	public void testSuccessfulAuthentication() {
 		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenReturn(
-				new TestingAuthenticationToken("u", "p", "A"));
+		when(am.authenticate(any(Authentication.class))).thenReturn(new TestingAuthenticationToken("u", "p", "A"));
 		manager.setAuthenticationManager(am);
 
 		manager.attemptAuthentication("rod", "password");
 	}
+
 }

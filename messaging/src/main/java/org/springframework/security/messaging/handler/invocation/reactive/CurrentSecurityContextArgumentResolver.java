@@ -56,9 +56,9 @@ import java.lang.annotation.Annotation;
  * </pre>
  *
  * <p>
- * Will resolve the SecurityContext argument using the {@link ReactiveSecurityContextHolder}.
- * If the {@link SecurityContext} is empty, it will return null. If the types do not
- * match, null will be returned unless
+ * Will resolve the SecurityContext argument using the
+ * {@link ReactiveSecurityContextHolder}. If the {@link SecurityContext} is empty, it will
+ * return null. If the types do not match, null will be returned unless
  * {@link CurrentSecurityContext#errorOnInvalidType()} is true in which case a
  * {@link ClassCastException} will be thrown.
  *
@@ -85,18 +85,17 @@ import java.lang.annotation.Annotation;
  *     }
  * }
  * </pre>
+ *
  * @author Rob Winch
  * @since 5.2
  */
-public class CurrentSecurityContextArgumentResolver
-		implements HandlerMethodArgumentResolver {
+public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgumentResolver {
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
 	private BeanResolver beanResolver;
 
-	private ReactiveAdapterRegistry adapterRegistry = ReactiveAdapterRegistry
-			.getSharedInstance();
+	private ReactiveAdapterRegistry adapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
 	/**
 	 * Sets the {@link BeanResolver} to be used on the expressions
@@ -108,8 +107,8 @@ public class CurrentSecurityContextArgumentResolver
 
 	/**
 	 * Sets the {@link ReactiveAdapterRegistry} to be used.
-	 * @param adapterRegistry the {@link ReactiveAdapterRegistry} to use. Cannot be null. Default is
-	 * {@link ReactiveAdapterRegistry#getSharedInstance()}
+	 * @param adapterRegistry the {@link ReactiveAdapterRegistry} to use. Cannot be null.
+	 * Default is {@link ReactiveAdapterRegistry#getSharedInstance()}
 	 */
 	public void setAdapterRegistry(ReactiveAdapterRegistry adapterRegistry) {
 		Assert.notNull(adapterRegistry, "adapterRegistry cannot be null");
@@ -122,21 +121,16 @@ public class CurrentSecurityContextArgumentResolver
 	}
 
 	public Mono<Object> resolveArgument(MethodParameter parameter, Message<?> message) {
-		ReactiveAdapter adapter = this.adapterRegistry
-				.getAdapter(parameter.getParameterType());
-		return ReactiveSecurityContextHolder.getContext()
-				.flatMap(securityContext -> {
-					Object sc = resolveSecurityContext(parameter, securityContext);
-					Mono<Object> result = Mono.justOrEmpty(sc);
-					return adapter == null ?
-							result :
-							Mono.just(adapter.fromPublisher(result));
-				});
+		ReactiveAdapter adapter = this.adapterRegistry.getAdapter(parameter.getParameterType());
+		return ReactiveSecurityContextHolder.getContext().flatMap(securityContext -> {
+			Object sc = resolveSecurityContext(parameter, securityContext);
+			Mono<Object> result = Mono.justOrEmpty(sc);
+			return adapter == null ? result : Mono.just(adapter.fromPublisher(result));
+		});
 	}
 
 	private Object resolveSecurityContext(MethodParameter parameter, Object securityContext) {
-		CurrentSecurityContext contextAnno = findMethodAnnotation(
-				CurrentSecurityContext.class, parameter);
+		CurrentSecurityContext contextAnno = findMethodAnnotation(CurrentSecurityContext.class, parameter);
 
 		String expressionToParse = contextAnno.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
@@ -152,9 +146,7 @@ public class CurrentSecurityContextArgumentResolver
 		if (isInvalidType(parameter, securityContext)) {
 
 			if (contextAnno.errorOnInvalidType()) {
-				throw new ClassCastException(
-						securityContext + " is not assignable to " + parameter
-								.getParameterType());
+				throw new ClassCastException(securityContext + " is not assignable to " + parameter.getParameterType());
 			}
 			else {
 				return null;
@@ -169,8 +161,7 @@ public class CurrentSecurityContextArgumentResolver
 			return false;
 		}
 		Class<?> typeToCheck = parameter.getParameterType();
-		boolean isParameterPublisher = Publisher.class
-				.isAssignableFrom(parameter.getParameterType());
+		boolean isParameterPublisher = Publisher.class.isAssignableFrom(parameter.getParameterType());
 		if (isParameterPublisher) {
 			ResolvableType resolvableType = ResolvableType.forMethodParameter(parameter);
 			Class<?> genericType = resolvableType.resolveGeneric(0);
@@ -184,26 +175,24 @@ public class CurrentSecurityContextArgumentResolver
 
 	/**
 	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
-	 *                        {@link MethodParameter}
-	 * @param parameter       the {@link MethodParameter} to search for an {@link Annotation}
+	 * {@link MethodParameter}
+	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
-			MethodParameter parameter) {
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
 		T annotation = parameter.getParameterAnnotation(annotationClass);
 		if (annotation != null) {
 			return annotation;
 		}
 		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
 		for (Annotation toSearch : annotationsToSearch) {
-			annotation = AnnotationUtils
-					.findAnnotation(toSearch.annotationType(), annotationClass);
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
 			if (annotation != null) {
 				return annotation;
 			}
 		}
 		return null;
 	}
+
 }

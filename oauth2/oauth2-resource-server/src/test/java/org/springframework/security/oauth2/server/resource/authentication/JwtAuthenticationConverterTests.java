@@ -38,6 +38,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  * @author Evgeniy Cheban
  */
 public class JwtAuthenticationConverterTests {
+
 	JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
 
 	@Test
@@ -47,8 +48,7 @@ public class JwtAuthenticationConverterTests {
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("SCOPE_message:read"),
+		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
 
@@ -63,16 +63,15 @@ public class JwtAuthenticationConverterTests {
 	public void convertWithOverriddenGrantedAuthoritiesConverter() {
 		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
 
-		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter =
-				token -> Arrays.asList(new SimpleGrantedAuthority("blah"));
+		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter = token -> Arrays
+				.asList(new SimpleGrantedAuthority("blah"));
 
 		this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("blah"));
+		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("blah"));
 	}
 
 	@Test
@@ -84,8 +83,7 @@ public class JwtAuthenticationConverterTests {
 
 	@Test
 	public void whenSettingEmptyPrincipalClaimName() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(""))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(""))
 				.withMessage("principalClaimName cannot be empty");
 	}
 
@@ -105,4 +103,5 @@ public class JwtAuthenticationConverterTests {
 
 		assertThat(authentication.getName()).isEqualTo("100");
 	}
+
 }

@@ -43,11 +43,8 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 
 	@Test
 	public void helloWorld() {
-		WebTestClient webTestClient = WebTestClient
-			.bindToController(new HelloWorldController())
-			.build();
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
-			.webTestClientSetup(webTestClient).build();
+		WebTestClient webTestClient = WebTestClient.bindToController(new HelloWorldController()).build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
 
 		driver.get("http://localhost/");
 
@@ -60,27 +57,20 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 	 */
 	@Controller
 	class HelloWorldController {
+
 		@ResponseBody
 		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
 		public String index() {
-			return "<html>\n"
-				+ "<head>\n"
-				+ "<title>Hello World</title>\n"
-				+ "</head>\n"
-				+ "<body>\n"
-				+ "<h1>Hello World</h1>\n"
-				+ "</body>\n"
-				+ "</html>";
+			return "<html>\n" + "<head>\n" + "<title>Hello World</title>\n" + "</head>\n" + "<body>\n"
+					+ "<h1>Hello World</h1>\n" + "</body>\n" + "</html>";
 		}
+
 	}
 
 	@Test
 	public void cookies() {
-		WebTestClient webTestClient = WebTestClient
-			.bindToController(new CookieController())
-			.build();
-		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
-			.webTestClientSetup(webTestClient).build();
+		WebTestClient webTestClient = WebTestClient.bindToController(new CookieController()).build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
 
 		driver.get("http://localhost/cookie");
 
@@ -94,16 +84,11 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 	@Controller
 	@ResponseBody
 	class CookieController {
+
 		@GetMapping(path = "/", produces = MediaType.TEXT_HTML_VALUE)
 		public String view(@CookieValue(required = false) String cookieName) {
-			return "<html>\n"
-				+ "<head>\n"
-				+ "<title>Hello World</title>\n"
-				+ "</head>\n"
-				+ "<body>\n"
-				+ "<h1>" + TextEscapeUtils.escapeEntities(cookieName) + "</h1>\n"
-				+ "</body>\n"
-				+ "</html>";
+			return "<html>\n" + "<head>\n" + "<title>Hello World</title>\n" + "</head>\n" + "<body>\n" + "<h1>"
+					+ TextEscapeUtils.escapeEntities(cookieName) + "</h1>\n" + "</body>\n" + "</html>";
 		}
 
 		@GetMapping("/cookie")
@@ -120,9 +105,10 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 
 		@GetMapping("/cookie/delete")
 		public Mono<Void> deleteCookie(ServerHttpResponse response) {
-			response.addCookie(
-				ResponseCookie.from("cookieName", "").maxAge(Duration.ofSeconds(0)).build());
+			response.addCookie(ResponseCookie.from("cookieName", "").maxAge(Duration.ofSeconds(0)).build());
 			return redirect(response);
 		}
+
 	}
+
 }

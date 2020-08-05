@@ -25,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Ben Alex
  */
 public class TargetObject implements ITargetObject {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -38,9 +39,7 @@ public class TargetObject implements ITargetObject {
 
 	/**
 	 * Returns the lowercase string, followed by security environment information.
-	 *
 	 * @param input the message to make lowercase
-	 *
 	 * @return the lowercase message, a space, the <code>Authentication</code> class that
 	 * was on the <code>SecurityContext</code> at the time of method invocation, and a
 	 * boolean indicating if the <code>Authentication</code> object is authenticated or
@@ -53,16 +52,13 @@ public class TargetObject implements ITargetObject {
 			return input.toLowerCase() + " Authentication empty";
 		}
 		else {
-			return input.toLowerCase() + " " + auth.getClass().getName() + " "
-					+ auth.isAuthenticated();
+			return input.toLowerCase() + " " + auth.getClass().getName() + " " + auth.isAuthenticated();
 		}
 	}
 
 	/**
 	 * Returns the uppercase string, followed by security environment information.
-	 *
 	 * @param input the message to make uppercase
-	 *
 	 * @return the uppercase message, a space, the <code>Authentication</code> class that
 	 * was on the <code>SecurityContext</code> at the time of method invocation, and a
 	 * boolean indicating if the <code>Authentication</code> object is authenticated or
@@ -71,16 +67,15 @@ public class TargetObject implements ITargetObject {
 	public String makeUpperCase(String input) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-		return input.toUpperCase() + " " + auth.getClass().getName() + " "
-				+ auth.isAuthenticated();
+		return input.toUpperCase() + " " + auth.getClass().getName() + " " + auth.isAuthenticated();
 	}
 
 	/**
 	 * Delegates through to the {@link #makeLowerCase(String)} method.
-	 *
 	 * @param input the message to be made lower-case
 	 */
 	public String publicMakeLowerCase(String input) {
 		return this.makeLowerCase(input);
 	}
+
 }

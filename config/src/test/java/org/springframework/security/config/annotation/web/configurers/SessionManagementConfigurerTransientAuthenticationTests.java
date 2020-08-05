@@ -48,8 +48,7 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 	public final SpringTestRule spring = new SpringTestRule();
 
 	@Test
-	public void postWhenTransientAuthenticationThenNoSessionCreated()
-			throws Exception {
+	public void postWhenTransientAuthenticationThenNoSessionCreated() throws Exception {
 
 		this.spring.register(WithTransientAuthenticationConfig.class).autowire();
 		MvcResult result = this.mvc.perform(post("/login")).andReturn();
@@ -57,8 +56,7 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 	}
 
 	@Test
-	public void postWhenTransientAuthenticationThenAlwaysSessionOverrides()
-			throws Exception {
+	public void postWhenTransientAuthenticationThenAlwaysSessionOverrides() throws Exception {
 
 		this.spring.register(AlwaysCreateSessionConfig.class).autowire();
 		MvcResult result = this.mvc.perform(post("/login")).andReturn();
@@ -67,6 +65,7 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 
 	@EnableWebSecurity
 	static class WithTransientAuthenticationConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			super.configure(http);
@@ -83,10 +82,12 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 				.authenticationProvider(new TransientAuthenticationProvider());
 			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class AlwaysCreateSessionConfig extends WithTransientAuthenticationConfig {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -94,6 +95,7 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
 			// @formatter:on
 		}
+
 	}
 
 	static class TransientAuthenticationProvider implements AuthenticationProvider {
@@ -107,10 +109,12 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 		public boolean supports(Class<?> authentication) {
 			return true;
 		}
+
 	}
 
 	@Transient
 	static class SomeTransientAuthentication extends AbstractAuthenticationToken {
+
 		SomeTransientAuthentication() {
 			super(null);
 		}
@@ -124,5 +128,7 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 		public Object getPrincipal() {
 			return null;
 		}
+
 	}
+
 }

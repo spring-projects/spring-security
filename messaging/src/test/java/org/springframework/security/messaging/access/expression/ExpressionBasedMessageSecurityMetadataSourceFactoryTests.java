@@ -35,12 +35,16 @@ import java.util.LinkedHashMap;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
+
 	@Mock
 	MessageMatcher<Object> matcher1;
+
 	@Mock
 	MessageMatcher<Object> matcher2;
+
 	@Mock
 	Message<Object> message;
+
 	@Mock
 	Authentication authentication;
 
@@ -83,9 +87,8 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 		assertThat(attrs).hasSize(1);
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
-		assertThat(
-				((MessageExpressionConfigAttribute) attr).getAuthorizeExpression()
-						.getValue(rootObject)).isEqualTo(true);
+		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(rootObject))
+				.isEqualTo(true);
 	}
 
 	@Test
@@ -97,8 +100,8 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 		assertThat(attrs).hasSize(1);
 		ConfigAttribute attr = attrs.iterator().next();
 		assertThat(attr).isInstanceOf(MessageExpressionConfigAttribute.class);
-		assertThat(
-				((MessageExpressionConfigAttribute) attr).getAuthorizeExpression()
-						.getValue(rootObject)).isEqualTo(false);
+		assertThat(((MessageExpressionConfigAttribute) attr).getAuthorizeExpression().getValue(rootObject))
+				.isEqualTo(false);
 	}
+
 }

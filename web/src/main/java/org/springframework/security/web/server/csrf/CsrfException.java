@@ -30,4 +30,5 @@ public class CsrfException extends AccessDeniedException {
 	public CsrfException(String message) {
 		super(message);
 	}
+
 }

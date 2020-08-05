@@ -15,7 +15,6 @@
  */
 package org.springframework.security.acls.afterinvocation;
 
-
 import static org.assertj.core.api.Assertions.*;
 
 import static org.mockito.Mockito.*;
@@ -36,14 +35,13 @@ import java.util.List;
  */
 @SuppressWarnings({ "unchecked" })
 public class AclEntryAfterInvocationCollectionFilteringProviderTests {
+
 	@Test
 	public void objectsAreRemovedIfPermissionDenied() {
 		AclService service = mock(AclService.class);
 		Acl acl = mock(Acl.class);
-		when(acl.isGranted(any(), any(), anyBoolean())).thenReturn(
-				false);
-		when(service.readAclById(any(), any())).thenReturn(
-				acl);
+		when(acl.isGranted(any(), any(), anyBoolean())).thenReturn(false);
+		when(service.readAclById(any(), any())).thenReturn(acl);
 		AclEntryAfterInvocationCollectionFilteringProvider provider = new AclEntryAfterInvocationCollectionFilteringProvider(
 				service, Arrays.asList(mock(Permission.class)));
 		provider.setObjectIdentityRetrievalStrategy(mock(ObjectIdentityRetrievalStrategy.class));
@@ -51,8 +49,8 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 		provider.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 
 		Object returned = provider.decide(mock(Authentication.class), new Object(),
-				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), new ArrayList(
-						Arrays.asList(new Object(), new Object())));
+				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"),
+				new ArrayList(Arrays.asList(new Object(), new Object())));
 		assertThat(returned).isInstanceOf(List.class);
 		assertThat(((List) returned)).isEmpty();
 		returned = provider.decide(mock(Authentication.class), new Object(),
@@ -68,10 +66,8 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 				mock(AclService.class), Arrays.asList(mock(Permission.class)));
 		Object returned = new Object();
 
-		assertThat(returned)
-			.isSameAs(
-				provider.decide(mock(Authentication.class), new Object(),
-						Collections.<ConfigAttribute> emptyList(), returned));
+		assertThat(returned).isSameAs(provider.decide(mock(Authentication.class), new Object(),
+				Collections.<ConfigAttribute>emptyList(), returned));
 	}
 
 	@Test
@@ -81,8 +77,7 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 				service, Arrays.asList(mock(Permission.class)));
 
 		assertThat(provider.decide(mock(Authentication.class), new Object(),
-				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null))
-				.isNull();
+				SecurityConfig.createList("AFTER_ACL_COLLECTION_READ"), null)).isNull();
 		verify(service, never()).readAclById(any(ObjectIdentity.class), any(List.class));
 	}
 

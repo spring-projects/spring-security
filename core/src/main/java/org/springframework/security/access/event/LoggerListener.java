@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationListener;
  * @author Ben Alex
  */
 public class LoggerListener implements ApplicationListener<AbstractAuthorizationEvent> {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -43,10 +44,8 @@ public class LoggerListener implements ApplicationListener<AbstractAuthorization
 			AuthenticationCredentialsNotFoundEvent authEvent = (AuthenticationCredentialsNotFoundEvent) event;
 
 			if (logger.isWarnEnabled()) {
-				logger.warn("Security interception failed due to: "
-						+ authEvent.getCredentialsNotFoundException()
-						+ "; secure object: " + authEvent.getSource()
-						+ "; configuration attributes: "
+				logger.warn("Security interception failed due to: " + authEvent.getCredentialsNotFoundException()
+						+ "; secure object: " + authEvent.getSource() + "; configuration attributes: "
 						+ authEvent.getConfigAttributes());
 			}
 		}
@@ -55,12 +54,9 @@ public class LoggerListener implements ApplicationListener<AbstractAuthorization
 			AuthorizationFailureEvent authEvent = (AuthorizationFailureEvent) event;
 
 			if (logger.isWarnEnabled()) {
-				logger.warn("Security authorization failed due to: "
-						+ authEvent.getAccessDeniedException()
-						+ "; authenticated principal: " + authEvent.getAuthentication()
-						+ "; secure object: " + authEvent.getSource()
-						+ "; configuration attributes: "
-						+ authEvent.getConfigAttributes());
+				logger.warn("Security authorization failed due to: " + authEvent.getAccessDeniedException()
+						+ "; authenticated principal: " + authEvent.getAuthentication() + "; secure object: "
+						+ authEvent.getSource() + "; configuration attributes: " + authEvent.getConfigAttributes());
 			}
 		}
 
@@ -68,9 +64,8 @@ public class LoggerListener implements ApplicationListener<AbstractAuthorization
 			AuthorizedEvent authEvent = (AuthorizedEvent) event;
 
 			if (logger.isInfoEnabled()) {
-				logger.info("Security authorized for authenticated principal: "
-						+ authEvent.getAuthentication() + "; secure object: "
-						+ authEvent.getSource() + "; configuration attributes: "
+				logger.info("Security authorized for authenticated principal: " + authEvent.getAuthentication()
+						+ "; secure object: " + authEvent.getSource() + "; configuration attributes: "
 						+ authEvent.getConfigAttributes());
 			}
 		}
@@ -79,9 +74,9 @@ public class LoggerListener implements ApplicationListener<AbstractAuthorization
 			PublicInvocationEvent authEvent = (PublicInvocationEvent) event;
 
 			if (logger.isInfoEnabled()) {
-				logger.info("Security interception not required for public secure object: "
-						+ authEvent.getSource());
+				logger.info("Security interception not required for public secure object: " + authEvent.getSource());
 			}
 		}
 	}
+
 }

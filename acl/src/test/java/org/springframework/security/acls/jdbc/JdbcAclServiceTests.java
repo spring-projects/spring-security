@@ -41,8 +41,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit and Integration tests the ACL JdbcAclService using an
- * in-memory database.
+ * Unit and Integration tests the ACL JdbcAclService using an in-memory database.
  *
  * @author Nena Raab
  */
@@ -61,6 +60,7 @@ public class JdbcAclServiceTests {
 	JdbcOperations jdbcOperations;
 
 	private JdbcAclService aclServiceIntegration;
+
 	private JdbcAclService aclService;
 
 	@Before
@@ -72,9 +72,7 @@ public class JdbcAclServiceTests {
 	@Before
 	public void setUpEmbeddedDatabase() {
 		embeddedDatabase = new EmbeddedDatabaseBuilder()//
-				.addScript("createAclSchemaWithAclClassIdType.sql")
-				.addScript("db/sql/test_data_hierarchy.sql")
-				.build();
+				.addScript("createAclSchemaWithAclClassIdType.sql").addScript("db/sql/test_data_hierarchy.sql").build();
 	}
 
 	@After
@@ -86,9 +84,7 @@ public class JdbcAclServiceTests {
 	@Test(expected = NotFoundException.class)
 	public void readAclByIdMissingAcl() {
 		Map<ObjectIdentity, Acl> result = new HashMap<>();
-		when(
-				lookupStrategy.readAclsById(anyList(),
-						anyList())).thenReturn(result);
+		when(lookupStrategy.readAclsById(anyList(), anyList())).thenReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 1);
 		List<Sid> sids = Arrays.<Sid>asList(new PrincipalSid("user"));
 
@@ -99,10 +95,8 @@ public class JdbcAclServiceTests {
 	public void findOneChildren() {
 		List<ObjectIdentity> result = new ArrayList<>();
 		result.add(new ObjectIdentityImpl(Object.class, "5577"));
-		Object[] args = {"1", "org.springframework.security.acls.jdbc.JdbcAclServiceTests$MockLongIdDomainObject"};
-		when(
-				jdbcOperations.query(anyString(),
-						aryEq(args), any(RowMapper.class))).thenReturn(result);
+		Object[] args = { "1", "org.springframework.security.acls.jdbc.JdbcAclServiceTests$MockLongIdDomainObject" };
+		when(jdbcOperations.query(anyString(), aryEq(args), any(RowMapper.class))).thenReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 1L);
 
 		List<ObjectIdentity> objectIdentities = aclService.findChildren(objectIdentity);
@@ -170,10 +164,12 @@ public class JdbcAclServiceTests {
 		List<ObjectIdentity> objectIdentities = aclServiceIntegration.findChildren(objectIdentity);
 		assertThat(objectIdentities.size()).isEqualTo(1);
 		assertThat(objectIdentities.get(0).getType()).isEqualTo("costcenter");
-		assertThat(objectIdentities.get(0).getIdentifier()).isEqualTo(UUID.fromString("25d93b3f-c3aa-4814-9d5e-c7c96ced7762"));
+		assertThat(objectIdentities.get(0).getIdentifier())
+				.isEqualTo(UUID.fromString("25d93b3f-c3aa-4814-9d5e-c7c96ced7762"));
 	}
 
 	private class MockLongIdDomainObject {
+
 		private Object id;
 
 		public Object getId() {
@@ -183,9 +179,11 @@ public class JdbcAclServiceTests {
 		public void setId(Object id) {
 			this.id = id;
 		}
+
 	}
 
 	private class MockUntypedIdDomainObject {
+
 		private Object id;
 
 		public Object getId() {
@@ -195,5 +193,7 @@ public class JdbcAclServiceTests {
 		public void setId(Object id) {
 			this.id = id;
 		}
+
 	}
+
 }

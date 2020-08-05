@@ -24,8 +24,10 @@ package org.springframework.security.access.intercept.aspectj;
  * @author Ben Alex
  */
 public interface AspectJCallback {
+
 	// ~ Methods
 	// ========================================================================================================
 
 	Object proceedWithObject();
+
 }

@@ -25,8 +25,7 @@ import javax.servlet.http.HttpSession;
  * @author Rob Winch
  * @since 3.2
  */
-public final class ChangeSessionIdAuthenticationStrategy
-		extends AbstractSessionFixationProtectionStrategy {
+public final class ChangeSessionIdAuthenticationStrategy extends AbstractSessionFixationProtectionStrategy {
 
 	/*
 	 * (non-Javadoc)
@@ -40,4 +39,5 @@ public final class ChangeSessionIdAuthenticationStrategy
 		request.changeSessionId();
 		return request.getSession();
 	}
+
 }

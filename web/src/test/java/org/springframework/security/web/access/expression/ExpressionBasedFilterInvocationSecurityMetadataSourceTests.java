@@ -40,11 +40,9 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 		ExpressionBasedFilterInvocationSecurityMetadataSource mds = new ExpressionBasedFilterInvocationSecurityMetadataSource(
 				requestMap, new DefaultWebSecurityExpressionHandler());
 		assertThat(mds.getAllConfigAttributes()).hasSize(1);
-		Collection<ConfigAttribute> attrs = mds.getAttributes(new FilterInvocation(
-				"/path", "GET"));
+		Collection<ConfigAttribute> attrs = mds.getAttributes(new FilterInvocation("/path", "GET"));
 		assertThat(attrs).hasSize(1);
-		WebExpressionConfigAttribute attribute = (WebExpressionConfigAttribute) attrs
-				.toArray()[0];
+		WebExpressionConfigAttribute attribute = (WebExpressionConfigAttribute) attrs.toArray()[0];
 		assertThat(attribute.getAttribute()).isNull();
 		assertThat(attribute.getAuthorizeExpression().getExpressionString()).isEqualTo(expression);
 		assertThat(attribute.toString()).isEqualTo(expression);
@@ -53,9 +51,9 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void invalidExpressionIsRejected() {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
-		requestMap.put(AnyRequestMatcher.INSTANCE,
-				SecurityConfig.createList("hasRole('X'"));
+		requestMap.put(AnyRequestMatcher.INSTANCE, SecurityConfig.createList("hasRole('X'"));
 		ExpressionBasedFilterInvocationSecurityMetadataSource mds = new ExpressionBasedFilterInvocationSecurityMetadataSource(
 				requestMap, new DefaultWebSecurityExpressionHandler());
 	}
+
 }

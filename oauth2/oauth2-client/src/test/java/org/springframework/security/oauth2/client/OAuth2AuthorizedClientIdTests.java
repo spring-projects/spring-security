@@ -30,15 +30,13 @@ public class OAuth2AuthorizedClientIdTests {
 	@Test
 	public void constructorWhenRegistrationIdNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new OAuth2AuthorizedClientId(null, "test-principal"))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistrationId cannot be empty");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("clientRegistrationId cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenPrincipalNameNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new OAuth2AuthorizedClientId("test-client", null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("principalName cannot be empty");
+				.isInstanceOf(IllegalArgumentException.class).hasMessage("principalName cannot be empty");
 	}
 
 	@Test
@@ -82,4 +80,5 @@ public class OAuth2AuthorizedClientIdTests {
 		OAuth2AuthorizedClientId id2 = new OAuth2AuthorizedClientId("test-client", "test-principal2");
 		assertThat(id1.hashCode()).isNotEqualTo(id2.hashCode());
 	}
+
 }

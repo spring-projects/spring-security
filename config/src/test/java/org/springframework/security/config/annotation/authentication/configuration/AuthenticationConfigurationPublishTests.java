@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AuthenticationConfigurationPublishTests {
+
 	@Autowired
 	MockEventListener<AuthenticationSuccessEvent> listener;
 
@@ -58,6 +59,7 @@ public class AuthenticationConfigurationPublishTests {
 	@EnableGlobalAuthentication
 	@Import(AuthenticationTestConfiguration.class)
 	static class Config {
+
 		@Bean
 		AuthenticationEventPublisher publisher() {
 			return new DefaultAuthenticationEventPublisher();
@@ -65,8 +67,10 @@ public class AuthenticationConfigurationPublishTests {
 
 		@Bean
 		MockEventListener<AuthenticationSuccessEvent> eventListener() {
-			return new MockEventListener<AuthenticationSuccessEvent>(){};
+			return new MockEventListener<AuthenticationSuccessEvent>() {
+			};
 		}
+
 	}
 
 }

@@ -70,8 +70,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * @author Rob Winch
  * @author Keesun Baik
  */
-public abstract class AbstractSecurityWebApplicationInitializer
-		implements WebApplicationInitializer {
+public abstract class AbstractSecurityWebApplicationInitializer implements WebApplicationInitializer {
 
 	private static final String SERVLET_CONTEXT_PREFIX = "org.springframework.web.servlet.FrameworkServlet.CONTEXT.";
 
@@ -94,11 +93,9 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	/**
 	 * Creates a new instance that will instantiate the {@link ContextLoaderListener} with
 	 * the specified classes.
-	 *
 	 * @param configurationClasses
 	 */
-	protected AbstractSecurityWebApplicationInitializer(
-			Class<?>... configurationClasses) {
+	protected AbstractSecurityWebApplicationInitializer(Class<?>... configurationClasses) {
 		this.configurationClasses = configurationClasses;
 	}
 
@@ -116,8 +113,7 @@ public abstract class AbstractSecurityWebApplicationInitializer
 			servletContext.addListener(new ContextLoaderListener(rootAppContext));
 		}
 		if (enableHttpSessionEventPublisher()) {
-			servletContext.addListener(
-					"org.springframework.security.web.session.HttpSessionEventPublisher");
+			servletContext.addListener("org.springframework.security.web.session.HttpSessionEventPublisher");
 		}
 		servletContext.setSessionTrackingModes(getSessionTrackingModes());
 		insertSpringSecurityFilterChain(servletContext);
@@ -128,7 +124,6 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * Override this if {@link HttpSessionEventPublisher} should be added as a listener.
 	 * This should be true, if session management has specified a maximum number of
 	 * sessions.
-	 *
 	 * @return true to add {@link HttpSessionEventPublisher}, else false
 	 */
 	protected boolean enableHttpSessionEventPublisher() {
@@ -141,8 +136,7 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 */
 	private void insertSpringSecurityFilterChain(ServletContext servletContext) {
 		String filterName = DEFAULT_FILTER_NAME;
-		DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(
-				filterName);
+		DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(filterName);
 		String contextAttribute = getWebApplicationContextAttribute();
 		if (contextAttribute != null) {
 			springSecurityFilterChain.setContextAttribute(contextAttribute);
@@ -154,7 +148,6 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * Inserts the provided {@link Filter}s before existing {@link Filter}s using default
 	 * generated names, {@link #getSecurityDispatcherTypes()}, and
 	 * {@link #isAsyncSecuritySupported()}.
-	 *
 	 * @param servletContext the {@link ServletContext} to use
 	 * @param filters the {@link Filter}s to register
 	 */
@@ -166,7 +159,6 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * Inserts the provided {@link Filter}s after existing {@link Filter}s using default
 	 * generated names, {@link #getSecurityDispatcherTypes()}, and
 	 * {@link #isAsyncSecuritySupported()}.
-	 *
 	 * @param servletContext the {@link ServletContext} to use
 	 * @param filters the {@link Filter}s to register
 	 */
@@ -177,22 +169,18 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	/**
 	 * Registers the provided {@link Filter}s using default generated names,
 	 * {@link #getSecurityDispatcherTypes()}, and {@link #isAsyncSecuritySupported()}.
-	 *
 	 * @param servletContext the {@link ServletContext} to use
 	 * @param insertBeforeOtherFilters if true, will insert the provided {@link Filter}s
 	 * before other {@link Filter}s. Otherwise, will insert the {@link Filter}s after
 	 * other {@link Filter}s.
 	 * @param filters the {@link Filter}s to register
 	 */
-	private void registerFilters(ServletContext servletContext,
-			boolean insertBeforeOtherFilters, Filter... filters) {
+	private void registerFilters(ServletContext servletContext, boolean insertBeforeOtherFilters, Filter... filters) {
 		Assert.notEmpty(filters, "filters cannot be null or empty");
 
 		for (Filter filter : filters) {
 			if (filter == null) {
-				throw new IllegalArgumentException(
-						"filters cannot contain null values. Got "
-								+ Arrays.asList(filters));
+				throw new IllegalArgumentException("filters cannot contain null values. Got " + Arrays.asList(filters));
 			}
 			String filterName = Conventions.getVariableName(filter);
 			registerFilter(servletContext, insertBeforeOtherFilters, filterName, filter);
@@ -202,25 +190,22 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	/**
 	 * Registers the provided filter using the {@link #isAsyncSecuritySupported()} and
 	 * {@link #getSecurityDispatcherTypes()}.
-	 *
 	 * @param servletContext
 	 * @param insertBeforeOtherFilters should this Filter be inserted before or after
 	 * other {@link Filter}
 	 * @param filterName
 	 * @param filter
 	 */
-	private void registerFilter(ServletContext servletContext,
-								boolean insertBeforeOtherFilters, String filterName, Filter filter) {
+	private void registerFilter(ServletContext servletContext, boolean insertBeforeOtherFilters, String filterName,
+			Filter filter) {
 		Dynamic registration = servletContext.addFilter(filterName, filter);
 		if (registration == null) {
-			throw new IllegalStateException(
-					"Duplicate Filter registration for '" + filterName
-							+ "'. Check to ensure the Filter is only configured once.");
+			throw new IllegalStateException("Duplicate Filter registration for '" + filterName
+					+ "'. Check to ensure the Filter is only configured once.");
 		}
 		registration.setAsyncSupported(isAsyncSecuritySupported());
 		EnumSet<DispatcherType> dispatcherTypes = getSecurityDispatcherTypes();
-		registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters,
-				"/*");
+		registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters, "/*");
 	}
 
 	/**
@@ -233,7 +218,6 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * {@link WebApplicationContext} for the Dispatcher will be used. This means the child
 	 * {@link ApplicationContext} is used to look up the springSecurityFilterChain bean.
 	 * </p>
-	 *
 	 * @return the {@link DelegatingFilterProxy#getContextAttribute()} or null if the
 	 * parent {@link ApplicationContext} should be used
 	 */
@@ -259,7 +243,6 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * <p>
 	 * Subclasses can override this method to make customizations.
 	 * </p>
-	 *
 	 * @return
 	 */
 	protected Set<SessionTrackingMode> getSessionTrackingModes() {
@@ -277,7 +260,6 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * name, you can return "dispatcher" from this method to use the DispatcherServlet's
 	 * {@link WebApplicationContext}.
 	 * </p>
-	 *
 	 * @return the &lt;servlet-name&gt; of the DispatcherServlet to use its
 	 * {@link WebApplicationContext} or null (default) to use the parent
 	 * {@link ApplicationContext}.
@@ -307,17 +289,16 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * @return
 	 */
 	protected EnumSet<DispatcherType> getSecurityDispatcherTypes() {
-		return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR,
-				DispatcherType.ASYNC);
+		return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.ASYNC);
 	}
 
 	/**
 	 * Determine if the springSecurityFilterChain should be marked as supporting asynch.
 	 * Default is true.
-	 *
 	 * @return true if springSecurityFilterChain should be marked as supporting asynch
 	 */
 	protected boolean isAsyncSecuritySupported() {
 		return true;
 	}
+
 }

@@ -33,8 +33,7 @@ public class UnboundIdContainerTests {
 
 	@Test
 	public void startLdapServer() throws Exception {
-		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
 		server.setApplicationContext(new GenericApplicationContext());
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
@@ -42,7 +41,8 @@ public class UnboundIdContainerTests {
 		try {
 			server.afterPropertiesSet();
 			assertThat(server.getPort()).isEqualTo(ports.get(0));
-		} finally {
+		}
+		finally {
 			server.destroy();
 		}
 	}
@@ -55,7 +55,8 @@ public class UnboundIdContainerTests {
 		try {
 			server.afterPropertiesSet();
 			assertThat(server.getPort()).isNotEqualTo(0);
-		} finally {
+		}
+		finally {
 			server.destroy();
 		}
 	}
@@ -70,7 +71,8 @@ public class UnboundIdContainerTests {
 				availablePorts.add(socket.getLocalPort());
 			}
 			return availablePorts;
-		} finally {
+		}
+		finally {
 			for (ServerSocket conn : connections) {
 				conn.close();
 			}

@@ -28,6 +28,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 final class GlobalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -56,4 +57,5 @@ final class GlobalSecurityContextHolderStrategy implements SecurityContextHolder
 	public SecurityContext createEmptyContext() {
 		return new SecurityContextImpl();
 	}
+
 }

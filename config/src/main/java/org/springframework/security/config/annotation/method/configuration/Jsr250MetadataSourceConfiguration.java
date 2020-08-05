@@ -30,4 +30,5 @@ class Jsr250MetadataSourceConfiguration {
 	public Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource() {
 		return new Jsr250MethodSecurityMetadataSource();
 	}
+
 }

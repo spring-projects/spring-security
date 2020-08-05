@@ -27,7 +27,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
- *
  * @author TSARDD
  * @since 18-okt-2007
  */
@@ -42,11 +41,9 @@ public class PreAuthenticatedAuthenticationProviderTests {
 
 	@Test
 	public final void authenticateInvalidToken() throws Exception {
-		UserDetails ud = new User("dummyUser", "dummyPwd", true, true, true, true,
-				AuthorityUtils.NO_AUTHORITIES);
+		UserDetails ud = new User("dummyUser", "dummyPwd", true, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
-		Authentication request = new UsernamePasswordAuthenticationToken("dummyUser",
-				"dummyPwd");
+		Authentication request = new UsernamePasswordAuthenticationToken("dummyUser", "dummyPwd");
 		Authentication result = provider.authenticate(request);
 		assertThat(result).isNull();
 	}
@@ -54,19 +51,16 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	@Test
 	public final void nullPrincipalReturnsNullAuthentication() {
 		PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-		Authentication request = new PreAuthenticatedAuthenticationToken(null,
-				"dummyPwd");
+		Authentication request = new PreAuthenticatedAuthenticationToken(null, "dummyPwd");
 		Authentication result = provider.authenticate(request);
 		assertThat(result).isNull();
 	}
 
 	@Test
 	public final void authenticateKnownUser() throws Exception {
-		UserDetails ud = new User("dummyUser", "dummyPwd", true, true, true, true,
-				AuthorityUtils.NO_AUTHORITIES);
+		UserDetails ud = new User("dummyUser", "dummyPwd", true, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
-		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser",
-				"dummyPwd");
+		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser", "dummyPwd");
 		Authentication result = provider.authenticate(request);
 		assertThat(result).isNotNull();
 		assertThat(ud).isEqualTo(result.getPrincipal());
@@ -75,11 +69,9 @@ public class PreAuthenticatedAuthenticationProviderTests {
 
 	@Test
 	public final void authenticateIgnoreCredentials() throws Exception {
-		UserDetails ud = new User("dummyUser1", "dummyPwd1", true, true, true, true,
-				AuthorityUtils.NO_AUTHORITIES);
+		UserDetails ud = new User("dummyUser1", "dummyPwd1", true, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
-		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser1",
-				"dummyPwd2");
+		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser1", "dummyPwd2");
 		Authentication result = provider.authenticate(request);
 		assertThat(result).isNotNull();
 		assertThat(ud).isEqualTo(result.getPrincipal());
@@ -88,11 +80,9 @@ public class PreAuthenticatedAuthenticationProviderTests {
 
 	@Test(expected = UsernameNotFoundException.class)
 	public final void authenticateUnknownUserThrowsException() throws Exception {
-		UserDetails ud = new User("dummyUser1", "dummyPwd", true, true, true, true,
-				AuthorityUtils.NO_AUTHORITIES);
+		UserDetails ud = new User("dummyUser1", "dummyPwd", true, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
-		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser2",
-				"dummyPwd");
+		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser2", "dummyPwd");
 		provider.authenticate(request);
 	}
 
@@ -117,8 +107,7 @@ public class PreAuthenticatedAuthenticationProviderTests {
 
 	private PreAuthenticatedAuthenticationProvider getProvider(UserDetails aUserDetails) {
 		PreAuthenticatedAuthenticationProvider result = new PreAuthenticatedAuthenticationProvider();
-		result.setPreAuthenticatedUserDetailsService(
-				getPreAuthenticatedUserDetailsService(aUserDetails));
+		result.setPreAuthenticatedUserDetailsService(getPreAuthenticatedUserDetailsService(aUserDetails));
 		result.afterPropertiesSet();
 		return result;
 	}
@@ -126,8 +115,7 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getPreAuthenticatedUserDetailsService(
 			final UserDetails aUserDetails) {
 		return token -> {
-			if (aUserDetails != null
-					&& aUserDetails.getUsername().equals(token.getName())) {
+			if (aUserDetails != null && aUserDetails.getUsername().equals(token.getName())) {
 				return aUserDetails;
 			}
 

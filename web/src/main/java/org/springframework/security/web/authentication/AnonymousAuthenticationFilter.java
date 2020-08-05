@@ -42,21 +42,22 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public class AnonymousAuthenticationFilter extends GenericFilterBean implements
-		InitializingBean {
+public class AnonymousAuthenticationFilter extends GenericFilterBean implements InitializingBean {
 
 	// ~ Instance fields
 	// ================================================================================================
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+
 	private String key;
+
 	private Object principal;
+
 	private List<GrantedAuthority> authorities;
 
 	/**
 	 * Creates a filter with a principal named "anonymousUser" and the single authority
 	 * "ROLE_ANONYMOUS".
-	 *
 	 * @param key the key to identify tokens created by this filter
 	 */
 	public AnonymousAuthenticationFilter(String key) {
@@ -64,13 +65,11 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements
 	}
 
 	/**
-	 *
 	 * @param key key the key to identify tokens created by this filter
 	 * @param principal the principal which will be used to represent anonymous users
 	 * @param authorities the authority list for anonymous users
 	 */
-	public AnonymousAuthenticationFilter(String key, Object principal,
-			List<GrantedAuthority> authorities) {
+	public AnonymousAuthenticationFilter(String key, Object principal, List<GrantedAuthority> authorities) {
 		Assert.hasLength(key, "key cannot be null or empty");
 		Assert.notNull(principal, "Anonymous authentication principal must be set");
 		Assert.notNull(authorities, "Anonymous authorities must be set");
@@ -93,8 +92,7 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements
 			throws IOException, ServletException {
 
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
-			SecurityContextHolder.getContext().setAuthentication(
-					createAuthentication((HttpServletRequest) req));
+			SecurityContextHolder.getContext().setAuthentication(createAuthentication((HttpServletRequest) req));
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Populated SecurityContextHolder with anonymous token: '"
@@ -112,8 +110,7 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements
 	}
 
 	protected Authentication createAuthentication(HttpServletRequest request) {
-		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key,
-				principal, authorities);
+		AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key, principal, authorities);
 		auth.setDetails(authenticationDetailsSource.buildDetails(request));
 
 		return auth;
@@ -121,8 +118,7 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements
 
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
-		Assert.notNull(authenticationDetailsSource,
-				"AuthenticationDetailsSource required");
+		Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
 		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 
@@ -133,4 +129,5 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements
 	public List<GrantedAuthority> getAuthorities() {
 		return authorities;
 	}
+
 }

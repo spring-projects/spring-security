@@ -55,8 +55,8 @@ import javax.servlet.http.HttpSession;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SessionFixationProtectionStrategy extends
-		AbstractSessionFixationProtectionStrategy {
+public class SessionFixationProtectionStrategy extends AbstractSessionFixationProtectionStrategy {
+
 	/**
 	 * Indicates that the session attributes of an existing session should be migrated to
 	 * the new session. Defaults to <code>true</code>.
@@ -70,7 +70,6 @@ public class SessionFixationProtectionStrategy extends
 	 * <p>
 	 * You can override this method to control exactly what is transferred to the new
 	 * session.
-	 *
 	 * @param session the session from which the attributes should be extracted
 	 * @return the map of session attributes which should be transferred to the new
 	 * session
@@ -85,8 +84,7 @@ public class SessionFixationProtectionStrategy extends
 		String originalSessionId = session.getId();
 		if (logger.isDebugEnabled()) {
 			logger.debug("Invalidating session with Id '" + originalSessionId + "' "
-					+ (migrateSessionAttributes ? "and" : "without")
-					+ " migrating attributes.");
+					+ (migrateSessionAttributes ? "and" : "without") + " migrating attributes.");
 		}
 
 		Map<String, Object> attributesToMigrate = extractAttributes(session);
@@ -143,11 +141,11 @@ public class SessionFixationProtectionStrategy extends
 	 * <p>
 	 * Attributes used by Spring Security (to store cached requests, for example) will
 	 * still be retained by default, even if you set this value to {@code false}.
-	 *
 	 * @param migrateSessionAttributes whether the attributes from the session should be
 	 * transferred to the new, authenticated session.
 	 */
 	public void setMigrateSessionAttributes(boolean migrateSessionAttributes) {
 		this.migrateSessionAttributes = migrateSessionAttributes;
 	}
+
 }

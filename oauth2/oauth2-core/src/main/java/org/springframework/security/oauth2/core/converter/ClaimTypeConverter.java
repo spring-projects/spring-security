@@ -32,12 +32,13 @@ import java.util.Map;
  * @see Converter
  */
 public final class ClaimTypeConverter implements Converter<Map<String, Object>, Map<String, Object>> {
+
 	private final Map<String, Converter<Object, ?>> claimTypeConverters;
 
 	/**
 	 * Constructs a {@code ClaimTypeConverter} using the provided parameters.
-	 *
-	 * @param claimTypeConverters a {@link Map} of {@link Converter}(s) keyed by claim name
+	 * @param claimTypeConverters a {@link Map} of {@link Converter}(s) keyed by claim
+	 * name
 	 */
 	public ClaimTypeConverter(Map<String, Converter<Object, ?>> claimTypeConverters) {
 		Assert.notEmpty(claimTypeConverters, "claimTypeConverters cannot be empty");
@@ -64,4 +65,5 @@ public final class ClaimTypeConverter implements Converter<Map<String, Object>, 
 
 		return result;
 	}
+
 }

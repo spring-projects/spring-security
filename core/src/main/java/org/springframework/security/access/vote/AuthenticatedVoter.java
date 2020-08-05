@@ -47,12 +47,16 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	public static final String IS_AUTHENTICATED_FULLY = "IS_AUTHENTICATED_FULLY";
+
 	public static final String IS_AUTHENTICATED_REMEMBERED = "IS_AUTHENTICATED_REMEMBERED";
+
 	public static final String IS_AUTHENTICATED_ANONYMOUSLY = "IS_AUTHENTICATED_ANONYMOUSLY";
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -62,22 +66,19 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 	// ========================================================================================================
 
 	private boolean isFullyAuthenticated(Authentication authentication) {
-		return (!authenticationTrustResolver.isAnonymous(authentication) && !authenticationTrustResolver
-				.isRememberMe(authentication));
+		return (!authenticationTrustResolver.isAnonymous(authentication)
+				&& !authenticationTrustResolver.isRememberMe(authentication));
 	}
 
-	public void setAuthenticationTrustResolver(
-			AuthenticationTrustResolver authenticationTrustResolver) {
-		Assert.notNull(authenticationTrustResolver,
-				"AuthenticationTrustResolver cannot be set to null");
+	public void setAuthenticationTrustResolver(AuthenticationTrustResolver authenticationTrustResolver) {
+		Assert.notNull(authenticationTrustResolver, "AuthenticationTrustResolver cannot be set to null");
 		this.authenticationTrustResolver = authenticationTrustResolver;
 	}
 
 	public boolean supports(ConfigAttribute attribute) {
-		if ((attribute.getAttribute() != null)
-				&& (IS_AUTHENTICATED_FULLY.equals(attribute.getAttribute())
-						|| IS_AUTHENTICATED_REMEMBERED.equals(attribute.getAttribute()) || IS_AUTHENTICATED_ANONYMOUSLY
-							.equals(attribute.getAttribute()))) {
+		if ((attribute.getAttribute() != null) && (IS_AUTHENTICATED_FULLY.equals(attribute.getAttribute())
+				|| IS_AUTHENTICATED_REMEMBERED.equals(attribute.getAttribute())
+				|| IS_AUTHENTICATED_ANONYMOUSLY.equals(attribute.getAttribute()))) {
 			return true;
 		}
 		else {
@@ -88,17 +89,14 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 	/**
 	 * This implementation supports any type of class, because it does not query the
 	 * presented secure object.
-	 *
 	 * @param clazz the secure object type
-	 *
 	 * @return always {@code true}
 	 */
 	public boolean supports(Class<?> clazz) {
 		return true;
 	}
 
-	public int vote(Authentication authentication, Object object,
-			Collection<ConfigAttribute> attributes) {
+	public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 		int result = ACCESS_ABSTAIN;
 
 		for (ConfigAttribute attribute : attributes) {
@@ -119,8 +117,7 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 				}
 
 				if (IS_AUTHENTICATED_ANONYMOUSLY.equals(attribute.getAttribute())) {
-					if (authenticationTrustResolver.isAnonymous(authentication)
-							|| isFullyAuthenticated(authentication)
+					if (authenticationTrustResolver.isAnonymous(authentication) || isFullyAuthenticated(authentication)
 							|| authenticationTrustResolver.isRememberMe(authentication)) {
 						return ACCESS_GRANTED;
 					}
@@ -130,4 +127,5 @@ public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 
 		return result;
 	}
+
 }

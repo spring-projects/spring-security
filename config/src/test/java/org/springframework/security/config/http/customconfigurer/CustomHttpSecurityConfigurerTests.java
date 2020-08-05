@@ -43,6 +43,7 @@ import org.springframework.security.web.FilterChainProxy;
  *
  */
 public class CustomHttpSecurityConfigurerTests {
+
 	@Autowired
 	ConfigurableApplicationContext context;
 
@@ -50,7 +51,9 @@ public class CustomHttpSecurityConfigurerTests {
 	FilterChainProxy springSecurityFilterChain;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Before
@@ -137,6 +140,7 @@ public class CustomHttpSecurityConfigurerTests {
 			propertyPlaceholderConfigurer.setProperties(properties);
 			return propertyPlaceholderConfigurer;
 		}
+
 	}
 
 	@EnableWebSecurity
@@ -164,5 +168,7 @@ public class CustomHttpSecurityConfigurerTests {
 			propertyPlaceholderConfigurer.setProperties(properties);
 			return propertyPlaceholderConfigurer;
 		}
+
 	}
+
 }

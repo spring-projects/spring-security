@@ -35,11 +35,12 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticatedReactiveAuthorizationManagerTests {
+
 	@Mock
 	Authentication authentication;
 
 	AuthenticatedReactiveAuthorizationManager<Object> manager = AuthenticatedReactiveAuthorizationManager
-		.authenticated();
+			.authenticated();
 
 	@Test
 	public void checkWhenAuthenticatedThenReturnTrue() {
@@ -77,9 +78,7 @@ public class AuthenticatedReactiveAuthorizationManagerTests {
 	public void checkWhenErrorThenError() {
 		Mono<AuthorizationDecision> result = manager.check(Mono.error(new RuntimeException("ooops")), null);
 
-		StepVerifier
-			.create(result)
-			.expectError()
-			.verify();
+		StepVerifier.create(result).expectError().verify();
 	}
+
 }

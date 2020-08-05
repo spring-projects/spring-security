@@ -56,8 +56,11 @@ import org.springframework.web.filter.CorsFilter;
 
 @SuppressWarnings("serial")
 final class FilterComparator implements Comparator<Filter>, Serializable {
+
 	private static final int INITIAL_ORDER = 100;
+
 	private static final int ORDER_STEP = 100;
+
 	private final Map<String, Integer> filterToOrder = new HashMap<>();
 
 	FilterComparator() {
@@ -70,40 +73,35 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 		put(CorsFilter.class, order.next());
 		put(CsrfFilter.class, order.next());
 		put(LogoutFilter.class, order.next());
-		filterToOrder.put(
-			"org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",
+		filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",
 				order.next());
 		filterToOrder.put(
 				"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter",
 				order.next());
 		put(X509AuthenticationFilter.class, order.next());
 		put(AbstractPreAuthenticatedProcessingFilter.class, order.next());
-		filterToOrder.put("org.springframework.security.cas.web.CasAuthenticationFilter",
-				order.next());
-		filterToOrder.put(
-			"org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter",
+		filterToOrder.put("org.springframework.security.cas.web.CasAuthenticationFilter", order.next());
+		filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter",
 				order.next());
 		filterToOrder.put(
 				"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter",
 				order.next());
 		put(UsernamePasswordAuthenticationFilter.class, order.next());
 		order.next(); // gh-8105
-		filterToOrder.put(
-				"org.springframework.security.openid.OpenIDAuthenticationFilter", order.next());
+		filterToOrder.put("org.springframework.security.openid.OpenIDAuthenticationFilter", order.next());
 		put(DefaultLoginPageGeneratingFilter.class, order.next());
 		put(DefaultLogoutPageGeneratingFilter.class, order.next());
 		put(ConcurrentSessionFilter.class, order.next());
 		put(DigestAuthenticationFilter.class, order.next());
-		filterToOrder.put(
-				"org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter", order.next());
+		filterToOrder.put("org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter",
+				order.next());
 		put(BasicAuthenticationFilter.class, order.next());
 		put(RequestCacheAwareFilter.class, order.next());
 		put(SecurityContextHolderAwareRequestFilter.class, order.next());
 		put(JaasApiIntegrationFilter.class, order.next());
 		put(RememberMeAuthenticationFilter.class, order.next());
 		put(AnonymousAuthenticationFilter.class, order.next());
-		filterToOrder.put(
-			"org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter",
+		filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter",
 				order.next());
 		put(SessionManagementFilter.class, order.next());
 		put(ExceptionTranslationFilter.class, order.next());
@@ -119,7 +117,6 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 
 	/**
 	 * Determines if a particular {@link Filter} is registered to be sorted
-	 *
 	 * @param filter
 	 * @return
 	 */
@@ -134,12 +131,10 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 * @param afterFilter the {@link Filter} that is already registered and that
 	 * {@code filter} should be placed after.
 	 */
-	public void registerAfter(Class<? extends Filter> filter,
-			Class<? extends Filter> afterFilter) {
+	public void registerAfter(Class<? extends Filter> filter, Class<? extends Filter> afterFilter) {
 		Integer position = getOrder(afterFilter);
 		if (position == null) {
-			throw new IllegalArgumentException(
-					"Cannot register after unregistered Filter " + afterFilter);
+			throw new IllegalArgumentException("Cannot register after unregistered Filter " + afterFilter);
 		}
 
 		put(filter, position + 1);
@@ -151,12 +146,10 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 * @param atFilter the {@link Filter} that is already registered and that
 	 * {@code filter} should be placed at.
 	 */
-	public void registerAt(Class<? extends Filter> filter,
-			Class<? extends Filter> atFilter) {
+	public void registerAt(Class<? extends Filter> filter, Class<? extends Filter> atFilter) {
 		Integer position = getOrder(atFilter);
 		if (position == null) {
-			throw new IllegalArgumentException(
-					"Cannot register after unregistered Filter " + atFilter);
+			throw new IllegalArgumentException("Cannot register after unregistered Filter " + atFilter);
 		}
 
 		put(filter, position);
@@ -169,12 +162,10 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	 * @param beforeFilter the {@link Filter} that is already registered and that
 	 * {@code filter} should be placed before.
 	 */
-	public void registerBefore(Class<? extends Filter> filter,
-			Class<? extends Filter> beforeFilter) {
+	public void registerBefore(Class<? extends Filter> filter, Class<? extends Filter> beforeFilter) {
 		Integer position = getOrder(beforeFilter);
 		if (position == null) {
-			throw new IllegalArgumentException(
-					"Cannot register after unregistered Filter " + beforeFilter);
+			throw new IllegalArgumentException("Cannot register after unregistered Filter " + beforeFilter);
 		}
 
 		put(filter, position - 1);
@@ -188,7 +179,6 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	/**
 	 * Gets the order of a particular {@link Filter} class taking into consideration
 	 * superclasses.
-	 *
 	 * @param clazz the {@link Filter} class to determine the sort order
 	 * @return the sort order or null if not defined
 	 */
@@ -206,6 +196,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	private static class Step {
 
 		private int value;
+
 		private final int stepSize;
 
 		Step(int initialValue, int stepSize) {

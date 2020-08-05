@@ -25,8 +25,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 5.0
  */
-class DelegatingTestExecutionListener
-	extends AbstractTestExecutionListener {
+class DelegatingTestExecutionListener extends AbstractTestExecutionListener {
 
 	private final TestExecutionListener delegate;
 
@@ -69,4 +68,5 @@ class DelegatingTestExecutionListener
 	public void afterTestClass(TestContext testContext) throws Exception {
 		delegate.afterTestClass(testContext);
 	}
+
 }

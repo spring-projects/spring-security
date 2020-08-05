@@ -50,7 +50,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * An implementation of an {@link OAuth2UserService} that supports OpenID Connect 1.0 Provider's.
+ * An implementation of an {@link OAuth2UserService} that supports OpenID Connect 1.0
+ * Provider's.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -61,20 +62,26 @@ import org.springframework.util.StringUtils;
  * @see OidcUserInfo
  */
 public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
+
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
-	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER =
-			new ClaimTypeConverter(createDefaultClaimTypeConverters());
-	private Set<String> accessibleScopes = new HashSet<>(Arrays.asList(
-			OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
+
+	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
+			createDefaultClaimTypeConverters());
+
+	private Set<String> accessibleScopes = new HashSet<>(
+			Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
+
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultOAuth2UserService();
-	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory =
-			clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
+
+	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
 
 	/**
-	 * Returns the default {@link Converter}'s used for type conversion of claim values for an {@link OidcUserInfo}.
-
+	 * Returns the default {@link Converter}'s used for type conversion of claim values
+	 * for an {@link OidcUserInfo}.
+	 *
 	 * @since 5.2
-	 * @return a {@link Map} of {@link Converter}'s keyed by {@link StandardClaimNames claim name}
+	 * @return a {@link Map} of {@link Converter}'s keyed by {@link StandardClaimNames
+	 * claim name}
 	 */
 	public static Map<String, Converter<Object, ?>> createDefaultClaimTypeConverters() {
 		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
@@ -100,11 +107,12 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
 
 			Map<String, Object> claims;
-			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter =
-					this.claimTypeConverterFactory.apply(userRequest.getClientRegistration());
+			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
+					.apply(userRequest.getClientRegistration());
 			if (claimTypeConverter != null) {
 				claims = claimTypeConverter.convert(oauth2User.getAttributes());
-			} else {
+			}
+			else {
 				claims = DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
 			}
 			userInfo = new OidcUserInfo(claims);
@@ -117,7 +125,8 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 
-			// 2) Due to the possibility of token substitution attacks (see Section 16.11),
+			// 2) Due to the possibility of token substitution attacks (see Section
+			// 16.11),
 			// the UserInfo Response is not guaranteed to be about the End-User
 			// identified by the sub (subject) element of the ID Token.
 			// The sub Claim in the UserInfo Response MUST be verified to exactly match
@@ -138,11 +147,12 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 
 		OidcUser user;
 
-		String userNameAttributeName = userRequest.getClientRegistration()
-			.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+		String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
+				.getUserNameAttributeName();
 		if (StringUtils.hasText(userNameAttributeName)) {
 			user = new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
-		} else {
+		}
+		else {
 			user = new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 		}
 
@@ -151,24 +161,28 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 
 	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
 		// Auto-disabled if UserInfo Endpoint URI is not provided
-		if (StringUtils.isEmpty(userRequest.getClientRegistration().getProviderDetails()
-			.getUserInfoEndpoint().getUri())) {
+		if (StringUtils
+				.isEmpty(userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri())) {
 
 			return false;
 		}
 
 		// The Claims requested by the profile, email, address, and phone scope values
 		// are returned from the UserInfo Endpoint (as described in Section 5.3.2),
-		// when a response_type value is used that results in an Access Token being issued.
-		// However, when no Access Token is issued, which is the case for the response_type=id_token,
+		// when a response_type value is used that results in an Access Token being
+		// issued.
+		// However, when no Access Token is issued, which is the case for the
+		// response_type=id_token,
 		// the resulting Claims are returned in the ID Token.
-		// The Authorization Code Grant Flow, which is response_type=code, results in an Access Token being issued.
-		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(
-			userRequest.getClientRegistration().getAuthorizationGrantType())) {
+		// The Authorization Code Grant Flow, which is response_type=code, results in an
+		// Access Token being issued.
+		if (AuthorizationGrantType.AUTHORIZATION_CODE
+				.equals(userRequest.getClientRegistration().getAuthorizationGrantType())) {
 
-			// Return true if there is at least one match between the authorized scope(s) and accessible scope(s)
-			return this.accessibleScopes.isEmpty() ||
-					CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.accessibleScopes);
+			// Return true if there is at least one match between the authorized scope(s)
+			// and accessible scope(s)
+			return this.accessibleScopes.isEmpty()
+					|| CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.accessibleScopes);
 		}
 
 		return false;
@@ -178,7 +192,8 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * Sets the {@link OAuth2UserService} used when requesting the user info resource.
 	 *
 	 * @since 5.1
-	 * @param oauth2UserService the {@link OAuth2UserService} used when requesting the user info resource.
+	 * @param oauth2UserService the {@link OAuth2UserService} used when requesting the
+	 * user info resource.
 	 */
 	public final void setOauth2UserService(OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService) {
 		Assert.notNull(oauth2UserService, "oauth2UserService cannot be null");
@@ -186,24 +201,29 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	}
 
 	/**
-	 * Sets the factory that provides a {@link Converter} used for type conversion of claim values for an {@link OidcUserInfo}.
-	 * The default is {@link ClaimTypeConverter} for all {@link ClientRegistration clients}.
+	 * Sets the factory that provides a {@link Converter} used for type conversion of
+	 * claim values for an {@link OidcUserInfo}. The default is {@link ClaimTypeConverter}
+	 * for all {@link ClientRegistration clients}.
 	 *
 	 * @since 5.2
-	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used for type conversion
-	 *                                  of claim values for a specific {@link ClientRegistration client}
+	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used
+	 * for type conversion of claim values for a specific {@link ClientRegistration
+	 * client}
 	 */
-	public final void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
+	public final void setClaimTypeConverterFactory(
+			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
 	}
 
 	/**
-	 * Sets the scope(s) that allow access to the user info resource.
-	 * The default is {@link OidcScopes#PROFILE profile}, {@link OidcScopes#EMAIL email}, {@link OidcScopes#ADDRESS address} and {@link OidcScopes#PHONE phone}.
-	 * The scope(s) are checked against the "granted" scope(s) associated to the {@link OidcUserRequest#getAccessToken() access token}
-	 * to determine if the user info resource is accessible or not.
-	 * If there is at least one match, the user info resource will be requested, otherwise it will not.
+	 * Sets the scope(s) that allow access to the user info resource. The default is
+	 * {@link OidcScopes#PROFILE profile}, {@link OidcScopes#EMAIL email},
+	 * {@link OidcScopes#ADDRESS address} and {@link OidcScopes#PHONE phone}. The scope(s)
+	 * are checked against the "granted" scope(s) associated to the
+	 * {@link OidcUserRequest#getAccessToken() access token} to determine if the user info
+	 * resource is accessible or not. If there is at least one match, the user info
+	 * resource will be requested, otherwise it will not.
 	 *
 	 * @since 5.2
 	 * @param accessibleScopes the scope(s) that allow access to the user info resource
@@ -212,4 +232,5 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		Assert.notNull(accessibleScopes, "accessibleScopes cannot be null");
 		this.accessibleScopes = accessibleScopes;
 	}
+
 }

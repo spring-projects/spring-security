@@ -23,9 +23,9 @@ import org.springframework.security.access.SecurityMetadataSource;
  *
  * @see ChannelSecurityInterceptor
  * @see DefaultMessageSecurityMetadataSource
- *
  * @since 4.0
  * @author Rob Winch
  */
 public interface MessageSecurityMetadataSource extends SecurityMetadataSource {
+
 }

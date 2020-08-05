@@ -72,19 +72,21 @@ import org.springframework.util.StringUtils;
  *
  */
 public class KeyBasedPersistenceTokenService implements TokenService, InitializingBean {
+
 	private int pseudoRandomNumberBytes = 32;
+
 	private String serverSecret;
+
 	private Integer serverInteger;
+
 	private SecureRandom secureRandom;
 
 	public Token allocateToken(String extendedInformation) {
-		Assert.notNull(extendedInformation,
-				"Must provided non-null extendedInformation (but it can be empty)");
+		Assert.notNull(extendedInformation, "Must provided non-null extendedInformation (but it can be empty)");
 		long creationTime = new Date().getTime();
 		String serverSecret = computeServerSecretApplicableAt(creationTime);
 		String pseudoRandomNumber = generatePseudoRandomNumber();
-		String content = creationTime + ":" + pseudoRandomNumber + ":"
-				+ extendedInformation;
+		String content = creationTime + ":" + pseudoRandomNumber + ":" + extendedInformation;
 
 		// Compute key
 		String sha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
@@ -98,10 +100,9 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		if (key == null || "".equals(key)) {
 			return null;
 		}
-		String[] tokens = StringUtils.delimitedListToStringArray(
-				Utf8.decode(Base64.getDecoder().decode(Utf8.encode(key))), ":");
-		Assert.isTrue(tokens.length >= 4, () -> "Expected 4 or more tokens but found "
-				+ tokens.length);
+		String[] tokens = StringUtils
+				.delimitedListToStringArray(Utf8.decode(Base64.getDecoder().decode(Utf8.encode(key))), ":");
+		Assert.isTrue(tokens.length >= 4, () -> "Expected 4 or more tokens but found " + tokens.length);
 
 		long creationTime;
 		try {
@@ -126,8 +127,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		String sha1Hex = tokens[tokens.length - 1];
 
 		// Verification
-		String content = creationTime + ":" + pseudoRandomNumber + ":"
-				+ extendedInfo.toString();
+		String content = creationTime + ":" + pseudoRandomNumber + ":" + extendedInfo.toString();
 		String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
 		Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
 
@@ -164,8 +164,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	 * defaults to 256)
 	 */
 	public void setPseudoRandomNumberBytes(int pseudoRandomNumberBytes) {
-		Assert.isTrue(pseudoRandomNumberBytes >= 0,
-				"Must have a positive pseudo random number bit size");
+		Assert.isTrue(pseudoRandomNumberBytes >= 0, "Must have a positive pseudo random number bit size");
 		this.pseudoRandomNumberBytes = pseudoRandomNumberBytes;
 	}
 
@@ -178,4 +177,5 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		Assert.notNull(serverInteger, "Server integer required");
 		Assert.notNull(secureRandom, "SecureRandom instance required");
 	}
+
 }

@@ -29,4 +29,5 @@ public interface TestBusinessBean {
 	void doSomething();
 
 	void unprotected();
+
 }

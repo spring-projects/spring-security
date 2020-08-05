@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 /**
- * Enables use of Spring's <code>HttpInvoker</code> extension points to
- * present the <code>principal</code> and <code>credentials</code> located
- * in the <code>ContextHolder</code> via BASIC authentication.
+ * Enables use of Spring's <code>HttpInvoker</code> extension points to present the
+ * <code>principal</code> and <code>credentials</code> located in the
+ * <code>ContextHolder</code> via BASIC authentication.
  * <p>
  * The beans are wired as follows:
  *
@@ -32,4 +32,3 @@
  * </pre>
  */
 package org.springframework.security.remoting.httpinvoker;
-

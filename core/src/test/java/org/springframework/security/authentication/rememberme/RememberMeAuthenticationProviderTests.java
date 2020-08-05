@@ -34,15 +34,14 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Ben Alex
  */
 public class RememberMeAuthenticationProviderTests {
+
 	// ~ Methods
 	// ========================================================================================================
 	@Test
 	public void testDetectsAnInvalidKey() {
-		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
-				"qwerty");
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
 
-		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(
-				"WRONG_KEY", "Test",
+		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("WRONG_KEY", "Test",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		try {
@@ -66,19 +65,16 @@ public class RememberMeAuthenticationProviderTests {
 
 	@Test
 	public void testGettersSetters() throws Exception {
-		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
-				"qwerty");
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
 		aap.afterPropertiesSet();
 		assertThat(aap.getKey()).isEqualTo("qwerty");
 	}
 
 	@Test
 	public void testIgnoresClassesItDoesNotSupport() {
-		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
-				"qwerty");
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
 
-		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
-				"password", "ROLE_A");
+		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 
 		// Try it anyway
@@ -87,11 +83,10 @@ public class RememberMeAuthenticationProviderTests {
 
 	@Test
 	public void testNormalOperation() {
-		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
-				"qwerty");
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
 
-		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("qwerty",
-				"Test", AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("qwerty", "Test",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		Authentication result = aap.authenticate(token);
 
@@ -100,9 +95,9 @@ public class RememberMeAuthenticationProviderTests {
 
 	@Test
 	public void testSupports() {
-		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
-				"qwerty");
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
 		assertThat(aap.supports(RememberMeAuthenticationToken.class)).isTrue();
 		assertThat(aap.supports(TestingAuthenticationToken.class)).isFalse();
 	}
+
 }

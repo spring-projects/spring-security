@@ -28,6 +28,7 @@ import javax.servlet.Filter;
  * @author Rob Winch
  */
 public final class SecurityMockMvcConfigurers {
+
 	/**
 	 * Configures the MockMvcBuilder for use with Spring Security. Specifically the
 	 * configurer adds the Spring Bean named "springSecurityFilterChain" as a Filter. It
@@ -35,7 +36,6 @@ public final class SecurityMockMvcConfigurers {
 	 * by applying
 	 * {@link org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors#testSecurityContext()}
 	 * .
-	 *
 	 * @return the {@link org.springframework.test.web.servlet.setup.MockMvcConfigurer} to
 	 * use
 	 */
@@ -49,15 +49,13 @@ public final class SecurityMockMvcConfigurers {
 	 * TestSecurityContextHolder is leveraged for each request by applying
 	 * {@link org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors#testSecurityContext()}
 	 * .
-	 *
 	 * @param springSecurityFilterChain the Filter to be added
-	 *
 	 * @return the {@link org.springframework.test.web.servlet.setup.MockMvcConfigurer} to
 	 * use
 	 */
 	public static MockMvcConfigurer springSecurity(Filter springSecurityFilterChain) {
-		Assert.notNull(springSecurityFilterChain,
-				"springSecurityFilterChain cannot be null");
+		Assert.notNull(springSecurityFilterChain, "springSecurityFilterChain cannot be null");
 		return new SecurityMockMvcConfigurer(springSecurityFilterChain);
 	}
+
 }

@@ -36,9 +36,9 @@ import java.util.Map;
  * @author Rob Winch
  */
 public final class SimpDestinationMessageMatcher implements MessageMatcher<Object> {
+
 	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = message -> {
-		String destination = SimpMessageHeaderAccessor.getDestination(message
-				.getHeaders());
+		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 		return destination == null;
 	};
 
@@ -49,6 +49,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * null, this matcher will match every Message.
 	 */
 	private final MessageMatcher<Object> messageTypeMatcher;
+
 	private final String pattern;
 
 	/**
@@ -77,7 +78,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * <li>{@code com/&#42;&#42;/test} - matches all destinations ending with {@code test}
 	 * underneath the {@code com} path</li>
 	 * </ul>
-	 *
 	 * @param pattern the pattern to use
 	 */
 	public SimpDestinationMessageMatcher(String pattern) {
@@ -87,7 +87,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	/**
 	 * <p>
 	 * Creates a new instance with the specified pattern and {@link PathMatcher}.
-	 *
 	 * @param pattern the pattern to use
 	 * @param pathMatcher the {@link PathMatcher} to use.
 	 */
@@ -99,24 +98,21 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * <p>
 	 * Creates a new instance with the specified pattern, {@link SimpMessageType}, and
 	 * {@link PathMatcher}.
-	 *
 	 * @param pattern the pattern to use
 	 * @param type the {@link SimpMessageType} to match on or null if any
 	 * {@link SimpMessageType} should be matched.
 	 * @param pathMatcher the {@link PathMatcher} to use.
 	 */
-	private SimpDestinationMessageMatcher(String pattern, SimpMessageType type,
-			PathMatcher pathMatcher) {
+	private SimpDestinationMessageMatcher(String pattern, SimpMessageType type, PathMatcher pathMatcher) {
 		Assert.notNull(pattern, "pattern cannot be null");
 		Assert.notNull(pathMatcher, "pathMatcher cannot be null");
 		if (!isTypeWithDestination(type)) {
-			throw new IllegalArgumentException("SimpMessageType " + type
-					+ " does not contain a destination and so cannot be matched on.");
+			throw new IllegalArgumentException(
+					"SimpMessageType " + type + " does not contain a destination and so cannot be matched on.");
 		}
 
 		this.matcher = pathMatcher;
-		this.messageTypeMatcher = type == null ? ANY_MESSAGE
-				: new SimpMessageTypeMatcher(type);
+		this.messageTypeMatcher = type == null ? ANY_MESSAGE : new SimpMessageTypeMatcher(type);
 		this.pattern = pattern;
 	}
 
@@ -125,17 +121,13 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 			return false;
 		}
 
-		String destination = SimpMessageHeaderAccessor.getDestination(message
-				.getHeaders());
+		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 		return destination != null && matcher.match(pattern, destination);
 	}
 
-
-	public Map<String, String> extractPathVariables(Message<?> message){
-		final String destination = SimpMessageHeaderAccessor.getDestination(message
-				.getHeaders());
-		return destination != null ? matcher.extractUriTemplateVariables(pattern, destination)
-				: Collections.emptyMap();
+	public Map<String, String> extractPathVariables(Message<?> message) {
+		final String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
+		return destination != null ? matcher.extractUriTemplateVariables(pattern, destination) : Collections.emptyMap();
 	}
 
 	public MessageMatcher<Object> getMessageTypeMatcher() {
@@ -144,44 +136,37 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 
 	@Override
 	public String toString() {
-		return "SimpDestinationMessageMatcher [matcher=" + matcher
-				+ ", messageTypeMatcher=" + messageTypeMatcher + ", pattern=" + pattern
-				+ "]";
+		return "SimpDestinationMessageMatcher [matcher=" + matcher + ", messageTypeMatcher=" + messageTypeMatcher
+				+ ", pattern=" + pattern + "]";
 	}
 
 	private boolean isTypeWithDestination(SimpMessageType type) {
 		if (type == null) {
 			return true;
 		}
-		return SimpMessageType.MESSAGE.equals(type)
-				|| SimpMessageType.SUBSCRIBE.equals(type);
+		return SimpMessageType.MESSAGE.equals(type) || SimpMessageType.SUBSCRIBE.equals(type);
 	}
 
 	/**
 	 * <p>
 	 * Creates a new instance with the specified pattern,
 	 * {@code SimpMessageType.SUBSCRIBE}, and {@link PathMatcher}.
-	 *
 	 * @param pattern the pattern to use
 	 * @param matcher the {@link PathMatcher} to use.
 	 */
-	public static SimpDestinationMessageMatcher createSubscribeMatcher(String pattern,
-			PathMatcher matcher) {
-		return new SimpDestinationMessageMatcher(pattern, SimpMessageType.SUBSCRIBE,
-				matcher);
+	public static SimpDestinationMessageMatcher createSubscribeMatcher(String pattern, PathMatcher matcher) {
+		return new SimpDestinationMessageMatcher(pattern, SimpMessageType.SUBSCRIBE, matcher);
 	}
 
 	/**
 	 * <p>
 	 * Creates a new instance with the specified pattern, {@code SimpMessageType.MESSAGE},
 	 * and {@link PathMatcher}.
-	 *
 	 * @param pattern the pattern to use
 	 * @param matcher the {@link PathMatcher} to use.
 	 */
-	public static SimpDestinationMessageMatcher createMessageMatcher(String pattern,
-			PathMatcher matcher) {
-		return new SimpDestinationMessageMatcher(pattern, SimpMessageType.MESSAGE,
-				matcher);
+	public static SimpDestinationMessageMatcher createMessageMatcher(String pattern, PathMatcher matcher) {
+		return new SimpDestinationMessageMatcher(pattern, SimpMessageType.MESSAGE, matcher);
 	}
+
 }

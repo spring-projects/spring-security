@@ -34,6 +34,7 @@ import org.springframework.security.web.access.channel.SecureChannelProcessor;
  * @author Ben Alex
  */
 public class SecureChannelProcessorTests {
+
 	// ~ Methods
 	// ========================================================================================================
 	@Test
@@ -48,12 +49,10 @@ public class SecureChannelProcessorTests {
 		request.setServerPort(8443);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 
 		SecureChannelProcessor processor = new SecureChannelProcessor();
-		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE",
-				"REQUIRES_SECURE_CHANNEL"));
+		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"));
 
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
@@ -69,14 +68,11 @@ public class SecureChannelProcessorTests {
 		request.setServerPort(8080);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 
 		SecureChannelProcessor processor = new SecureChannelProcessor();
-		processor.decide(
-				fi,
-				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE",
-						"REQUIRES_SECURE_CHANNEL" }));
+		processor.decide(fi,
+				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL" }));
 
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
@@ -152,4 +148,5 @@ public class SecureChannelProcessorTests {
 		assertThat(processor.supports(null)).isFalse();
 		assertThat(processor.supports(new SecurityConfig("NOT_SUPPORTED"))).isFalse();
 	}
+
 }

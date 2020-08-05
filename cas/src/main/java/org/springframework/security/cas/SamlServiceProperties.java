@@ -32,4 +32,5 @@ public final class SamlServiceProperties extends ServiceProperties {
 		super.setArtifactParameter(DEFAULT_SAML_ARTIFACT_PARAMETER);
 		super.setServiceParameter(DEFAULT_SAML_SERVICE_PARAMETER);
 	}
+
 }

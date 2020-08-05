@@ -21,25 +21,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a Spring Security XSD Element. It is created when parsing
- * the current xsd to compare to the documented appendix.
+ * Represents a Spring Security XSD Element. It is created when parsing the current xsd to
+ * compare to the documented appendix.
  *
  * @author Rob Winch
  * @author Josh Cummings
- *
  * @see SpringSecurityXsdParser
  * @see XsdDocumentedTests
-*/
+ */
 public class Element {
+
 	private String name;
+
 	private String desc;
+
 	private Collection<Attribute> attrs = new ArrayList<>();
 
 	/**
-	 * Contains the elements that extend this element (i.e. any-user-service contains ldap-user-service)
+	 * Contains the elements that extend this element (i.e. any-user-service contains
+	 * ldap-user-service)
 	 */
 	private Collection<Element> subGrps = new ArrayList<>();
+
 	private Map<String, Element> childElmts = new HashMap<>();
+
 	private Map<String, Element> parentElmts = new HashMap<>();
 
 	public String getId() {
@@ -95,25 +100,28 @@ public class Element {
 	}
 
 	/**
-	 * Gets all the ids related to this Element including attributes, parent elements, and child elements.
+	 * Gets all the ids related to this Element including attributes, parent elements, and
+	 * child elements.
 	 *
 	 * <p>
 	 * The expected ids to be found are documented below.
 	 * <ul>
-	 * <li>Elements - any xml element will have the nsa-&lt;element&gt;. For example the http element will have the id
-	 * nsa-http</li>
-	 * <li>Parent Section - Any element with a parent other than beans will have a section named
-	 * nsa-&lt;element&gt;-parents. For example, authentication-provider would have a section id of
-	 * nsa-authentication-provider-parents. The section would then contain a list of links pointing to the
-	 * documentation for each parent element.</li>
-	 * <li>Attributes Section - Any element with attributes will have a section with the id
-	 * nsa-&lt;element&gt;-attributes. For example the http element would require a section with the id
-	 * http-attributes.</li>
-	 * <li>Attribute - Each attribute of an element would have an id of nsa-&lt;element&gt;-&lt;attributeName&gt;. For
-	 * example the attribute create-session for the http attribute would have the id http-create-session.</li>
-	 * <li>Child Section - Any element with a child element will have a section named nsa-&lt;element&gt;-children.
-	 * For example, authentication-provider would have a section id of nsa-authentication-provider-children. The
-	 * section would then contain a list of links pointing to the documentation for each child element.</li>
+	 * <li>Elements - any xml element will have the nsa-&lt;element&gt;. For example the
+	 * http element will have the id nsa-http</li>
+	 * <li>Parent Section - Any element with a parent other than beans will have a section
+	 * named nsa-&lt;element&gt;-parents. For example, authentication-provider would have
+	 * a section id of nsa-authentication-provider-parents. The section would then contain
+	 * a list of links pointing to the documentation for each parent element.</li>
+	 * <li>Attributes Section - Any element with attributes will have a section with the
+	 * id nsa-&lt;element&gt;-attributes. For example the http element would require a
+	 * section with the id http-attributes.</li>
+	 * <li>Attribute - Each attribute of an element would have an id of
+	 * nsa-&lt;element&gt;-&lt;attributeName&gt;. For example the attribute create-session
+	 * for the http attribute would have the id http-create-session.</li>
+	 * <li>Child Section - Any element with a child element will have a section named
+	 * nsa-&lt;element&gt;-children. For example, authentication-provider would have a
+	 * section id of nsa-authentication-provider-children. The section would then contain
+	 * a list of links pointing to the documentation for each child element.</li>
 	 * </ul>
 	 * @return
 	 */
@@ -121,20 +129,19 @@ public class Element {
 		Collection<String> ids = new ArrayList<>();
 		ids.add(getId());
 
-		this.childElmts.values()
-			.forEach(elmt -> ids.add(elmt.getId()));
+		this.childElmts.values().forEach(elmt -> ids.add(elmt.getId()));
 
 		this.attrs.forEach(attr -> ids.add(attr.getId()));
 
-		if ( !this.childElmts.isEmpty() ) {
+		if (!this.childElmts.isEmpty()) {
 			ids.add(getId() + "-children");
 		}
 
-		if ( !this.attrs.isEmpty() ) {
+		if (!this.attrs.isEmpty()) {
 			ids.add(getId() + "-attributes");
 		}
 
-		if ( !this.parentElmts.isEmpty() ) {
+		if (!this.parentElmts.isEmpty()) {
 			ids.add(getId() + "-parents");
 		}
 
@@ -144,10 +151,7 @@ public class Element {
 	public Map<String, Element> getAllChildElmts() {
 		Map<String, Element> result = new HashMap<>();
 
-		this.childElmts.values()
-			.forEach(elmt ->
-				elmt.subGrps.forEach(
-					subElmt -> result.put(subElmt.name, subElmt)));
+		this.childElmts.values().forEach(elmt -> elmt.subGrps.forEach(subElmt -> result.put(subElmt.name, subElmt)));
 
 		result.putAll(this.childElmts);
 
@@ -157,13 +161,11 @@ public class Element {
 	public Map<String, Element> getAllParentElmts() {
 		Map<String, Element> result = new HashMap<>();
 
-		this.parentElmts.values()
-			.forEach(elmt ->
-				elmt.subGrps.forEach(
-					subElmt -> result.put(subElmt.name, subElmt)));
+		this.parentElmts.values().forEach(elmt -> elmt.subGrps.forEach(subElmt -> result.put(subElmt.name, subElmt)));
 
 		result.putAll(this.parentElmts);
 
 		return result;
 	}
+
 }

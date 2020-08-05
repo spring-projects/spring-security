@@ -18,8 +18,8 @@ package org.springframework.security.access.prepost;
 import org.springframework.security.access.ConfigAttribute;
 
 /**
- * Marker interface for attributes which are created from combined @PostFilter and @PostAuthorize
- * annotations.
+ * Marker interface for attributes which are created from combined @PostFilter
+ * and @PostAuthorize annotations.
  * <p>
  * Consumed by a {@link PostInvocationAuthorizationAdvice}.
  *

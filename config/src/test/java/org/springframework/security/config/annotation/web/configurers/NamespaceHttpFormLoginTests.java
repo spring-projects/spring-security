@@ -59,22 +59,15 @@ public class NamespaceHttpFormLoginTests {
 	@Autowired
 	MockMvc mvc;
 
-
 	@Test
 	public void formLoginWhenDefaultConfigurationThenMatchesNamespace() throws Exception {
 		this.spring.register(FormLoginConfig.class, UserDetailsServiceConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 
-		this.mvc.perform(post("/login")
-				.with(csrf()))
-				.andExpect(redirectedUrl("/login?error"));
+		this.mvc.perform(post("/login").with(csrf())).andExpect(redirectedUrl("/login?error"));
 
-		this.mvc.perform(post("/login")
-				.param("username", "user")
-				.param("password", "password")
-				.with(csrf()))
+		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
 				.andExpect(redirectedUrl("/"));
 	}
 
@@ -83,9 +76,7 @@ public class NamespaceHttpFormLoginTests {
 
 		@Override
 		public void configure(WebSecurity web) {
-			web
-				.ignoring()
-					.antMatchers("/resources/**");
+			web.ignoring().antMatchers("/resources/**");
 		}
 
 		@Override
@@ -98,28 +89,25 @@ public class NamespaceHttpFormLoginTests {
 				.formLogin();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void formLoginWithCustomEndpointsThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(FormLoginCustomConfig.class, UserDetailsServiceConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost/authentication/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/authentication/login"));
 
-		this.mvc.perform(post("/authentication/login/process")
-				.with(csrf()))
+		this.mvc.perform(post("/authentication/login/process").with(csrf()))
 				.andExpect(redirectedUrl("/authentication/login?failed"));
 
-		this.mvc.perform(post("/authentication/login/process")
-				.param("username", "user")
-				.param("password", "password")
-				.with(csrf()))
-				.andExpect(redirectedUrl("/default"));
+		this.mvc.perform(post("/authentication/login/process").param("username", "user").param("password", "password")
+				.with(csrf())).andExpect(redirectedUrl("/default"));
 	}
 
 	@EnableWebSecurity
 	static class FormLoginCustomConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			boolean alwaysUseDefaultSuccess = true;
 			// @formatter:off
@@ -136,32 +124,27 @@ public class NamespaceHttpFormLoginTests {
 					.defaultSuccessUrl("/default", alwaysUseDefaultSuccess); // form-login@default-target-url / form-login@always-use-default-target
 			// @formatter:on
 		}
+
 	}
 
 	@Test
 	public void formLoginWithCustomHandlersThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(FormLoginCustomRefsConfig.class, UserDetailsServiceConfig.class).autowire();
 
-		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
 
-		this.mvc.perform(post("/login")
-				.with(csrf()))
-				.andExpect(redirectedUrl("/custom/failure"));
+		this.mvc.perform(post("/login").with(csrf())).andExpect(redirectedUrl("/custom/failure"));
 		verifyBean(WebAuthenticationDetailsSource.class).buildDetails(any(HttpServletRequest.class));
 
-		this.mvc.perform(post("/login")
-				.param("username", "user")
-				.param("password", "password")
-				.with(csrf()))
+		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf()))
 				.andExpect(redirectedUrl("/custom/targetUrl"));
 	}
 
 	@EnableWebSecurity
 	static class FormLoginCustomRefsConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
-			SavedRequestAwareAuthenticationSuccessHandler successHandler =
-					new SavedRequestAwareAuthenticationSuccessHandler();
+			SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 			successHandler.setDefaultTargetUrl("/custom/targetUrl");
 			// @formatter:off
 			http
@@ -181,14 +164,16 @@ public class NamespaceHttpFormLoginTests {
 		WebAuthenticationDetailsSource authenticationDetailsSource() {
 			return spy(WebAuthenticationDetailsSource.class);
 		}
+
 	}
 
 	@Configuration
 	static class UserDetailsServiceConfig {
+
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-					// @formatter:off
+			// @formatter:off
 					User.withDefaultPasswordEncoder()
 							.username("user")
 							.password("password")
@@ -196,9 +181,11 @@ public class NamespaceHttpFormLoginTests {
 							.build());
 					// @formatter:on
 		}
+
 	}
 
 	private <T> T verifyBean(Class<T> beanClass) {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
+
 }

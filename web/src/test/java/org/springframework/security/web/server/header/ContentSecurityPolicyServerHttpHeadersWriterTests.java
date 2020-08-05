@@ -60,9 +60,8 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(
-				ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY))
-						.containsOnly(DEFAULT_POLICY_DIRECTIVES);
+		assertThat(headers.get(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY))
+				.containsOnly(DEFAULT_POLICY_DIRECTIVES);
 	}
 
 	@Test
@@ -73,9 +72,8 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(
-				ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY_REPORT_ONLY))
-						.containsOnly(DEFAULT_POLICY_DIRECTIVES);
+		assertThat(headers.get(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY_REPORT_ONLY))
+				.containsOnly(DEFAULT_POLICY_DIRECTIVES);
 	}
 
 	@Test
@@ -90,16 +88,14 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenAlreadyWrittenThenWritesHeader() {
 		String headerValue = "default-src https: 'self'";
-		this.exchange.getResponse().getHeaders().set(
-				ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY,
-				headerValue);
+		this.exchange.getResponse().getHeaders()
+				.set(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY, headerValue);
 		this.writer.writeHttpHeaders(this.exchange);
 
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(
-				ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY))
-						.containsOnly(headerValue);
+		assertThat(headers.get(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY))
+				.containsOnly(headerValue);
 	}
 
 }

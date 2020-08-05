@@ -40,8 +40,7 @@ final class AutowiredWebSecurityConfigurersIgnoreParents {
 
 	private final ConfigurableListableBeanFactory beanFactory;
 
-	AutowiredWebSecurityConfigurersIgnoreParents(
-			ConfigurableListableBeanFactory beanFactory) {
+	AutowiredWebSecurityConfigurersIgnoreParents(ConfigurableListableBeanFactory beanFactory) {
 		Assert.notNull(beanFactory, "beanFactory cannot be null");
 		this.beanFactory = beanFactory;
 	}
@@ -49,11 +48,11 @@ final class AutowiredWebSecurityConfigurersIgnoreParents {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<SecurityConfigurer<Filter, WebSecurity>> getWebSecurityConfigurers() {
 		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new ArrayList<>();
-		Map<String, WebSecurityConfigurer> beansOfType = beanFactory
-				.getBeansOfType(WebSecurityConfigurer.class);
+		Map<String, WebSecurityConfigurer> beansOfType = beanFactory.getBeansOfType(WebSecurityConfigurer.class);
 		for (Entry<String, WebSecurityConfigurer> entry : beansOfType.entrySet()) {
 			webSecurityConfigurers.add(entry.getValue());
 		}
 		return webSecurityConfigurers;
 	}
+
 }

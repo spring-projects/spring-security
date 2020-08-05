@@ -33,6 +33,7 @@ import org.springframework.security.web.PortMapperImpl;
  * @author colin sampaleanu
  */
 public class LoginUrlAuthenticationEntryPointTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -43,22 +44,19 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testDetectsMissingPortMapper() {
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/login");
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/login");
 		ep.setPortMapper(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testDetectsMissingPortResolver() {
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/login");
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/login");
 		ep.setPortResolver(null);
 	}
 
 	@Test
 	public void testGettersSetters() {
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/hello");
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
 		assertThat(ep.getLoginFormUrl()).isEqualTo("/hello");
@@ -85,8 +83,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/hello");
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setForceHttps(true);
 		ep.setPortMapper(new PortMapperImpl());
@@ -136,8 +133,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/hello");
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setForceHttps(true);
 		ep.setPortMapper(new PortMapperImpl());
@@ -156,8 +152,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 	@Test
 	public void testNormalOperation() throws Exception {
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/hello");
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setPortResolver(new MockPortResolver(80, 443));
 		ep.afterPropertiesSet();
@@ -178,8 +173,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 	@Test
 	public void testOperationWhenHttpsRequestsButHttpsPortUnknown() throws Exception {
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/hello");
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setPortResolver(new MockPortResolver(8888, 1234));
 		ep.setForceHttps(true);
 		ep.afterPropertiesSet();
@@ -202,10 +196,8 @@ public class LoginUrlAuthenticationEntryPointTests {
 	}
 
 	@Test
-	public void testServerSideRedirectWithoutForceHttpsForwardsToLoginPage()
-			throws Exception {
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/hello");
+	public void testServerSideRedirectWithoutForceHttpsForwardsToLoginPage() throws Exception {
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setUseForward(true);
 		ep.afterPropertiesSet();
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -224,10 +216,8 @@ public class LoginUrlAuthenticationEntryPointTests {
 	}
 
 	@Test
-	public void testServerSideRedirectWithForceHttpsRedirectsCurrentRequest()
-			throws Exception {
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"/hello");
+	public void testServerSideRedirectWithForceHttpsRedirectsCurrentRequest() throws Exception {
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setUseForward(true);
 		ep.setForceHttps(true);
 		ep.afterPropertiesSet();
@@ -250,8 +240,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 	@Test
 	public void absoluteLoginFormUrlIsSupported() throws Exception {
 		final String loginFormUrl = "https://somesite.com/login";
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				loginFormUrl);
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(loginFormUrl);
 		ep.afterPropertiesSet();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ep.commence(new MockHttpServletRequest("GET", "/someUrl"), response, null);
@@ -261,9 +250,9 @@ public class LoginUrlAuthenticationEntryPointTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void absoluteLoginFormUrlCantBeUsedWithForwarding() throws Exception {
 		final String loginFormUrl = "https://somesite.com/login";
-		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"https://somesite.com/login");
+		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("https://somesite.com/login");
 		ep.setUseForward(true);
 		ep.afterPropertiesSet();
 	}
+
 }

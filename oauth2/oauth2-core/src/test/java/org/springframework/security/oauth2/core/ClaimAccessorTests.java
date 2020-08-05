@@ -34,7 +34,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
  * @author Joe Grandja
  */
 public class ClaimAccessorTests {
+
 	private Map<String, Object> claims = new HashMap<>();
+
 	private ClaimAccessor claimAccessor = (() -> this.claims);
 
 	@Before
@@ -49,8 +51,8 @@ public class ClaimAccessorTests {
 		String claimName = "date";
 		this.claims.put(claimName, Date.from(expectedClaimValue));
 
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	// gh-5191
@@ -60,8 +62,8 @@ public class ClaimAccessorTests {
 		String claimName = "longSeconds";
 		this.claims.put(claimName, expectedClaimValue.getEpochSecond());
 
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	@Test
@@ -70,8 +72,8 @@ public class ClaimAccessorTests {
 		String claimName = "instant";
 		this.claims.put(claimName, expectedClaimValue);
 
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	// gh-5250
@@ -81,8 +83,8 @@ public class ClaimAccessorTests {
 		String claimName = "integerSeconds";
 		this.claims.put(claimName, Long.valueOf(expectedClaimValue.getEpochSecond()).intValue());
 
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	// gh-5250
@@ -92,8 +94,8 @@ public class ClaimAccessorTests {
 		String claimName = "doubleSeconds";
 		this.claims.put(claimName, Long.valueOf(expectedClaimValue.getEpochSecond()).doubleValue());
 
-		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
-				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(expectedClaimValue.minusSeconds(1),
+				expectedClaimValue.plusSeconds(1));
 	}
 
 	// gh-5608
@@ -140,8 +142,11 @@ public class ClaimAccessorTests {
 		String claimName = "boolean";
 		this.claims.put(claimName, expectedClaimValue);
 
-		Throwable thrown = catchThrowable(() -> { boolean actualClaimValue = this.claimAccessor.getClaim(claimName); });
+		Throwable thrown = catchThrowable(() -> {
+			boolean actualClaimValue = this.claimAccessor.getClaim(claimName);
+		});
 
 		assertThat(thrown).isInstanceOf(ClassCastException.class);
 	}
+
 }

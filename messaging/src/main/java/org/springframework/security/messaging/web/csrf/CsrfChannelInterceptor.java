@@ -37,8 +37,8 @@ import org.springframework.security.web.csrf.MissingCsrfTokenException;
  * @since 4.0
  */
 public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
-	private final MessageMatcher<Object> matcher = new SimpMessageTypeMatcher(
-			SimpMessageType.CONNECT);
+
+	private final MessageMatcher<Object> matcher = new SimpMessageTypeMatcher(SimpMessageType.CONNECT);
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -46,8 +46,7 @@ public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
 			return message;
 		}
 
-		Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor
-				.getSessionAttributes(message.getHeaders());
+		Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor.getSessionAttributes(message.getHeaders());
 		CsrfToken expectedToken = sessionAttributes == null ? null
 				: (CsrfToken) sessionAttributes.get(CsrfToken.class.getName());
 
@@ -64,4 +63,5 @@ public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
 		}
 		throw new InvalidCsrfTokenException(expectedToken, actualTokenValue);
 	}
+
 }

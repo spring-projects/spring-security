@@ -29,5 +29,7 @@ package org.springframework.security.core;
  * @since 3.0.3
  */
 public interface CredentialsContainer {
+
 	void eraseCredentials();
+
 }

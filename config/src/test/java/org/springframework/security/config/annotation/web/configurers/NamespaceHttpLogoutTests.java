@@ -71,18 +71,17 @@ public class NamespaceHttpLogoutTests {
 	public void logoutWhenUsingDefaultsThenMatchesNamespace() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
 
-		this.mvc.perform(post("/logout").with(csrf()))
-				.andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/login?logout"))
-				.andExpect(noCookies())
-				.andExpect(session(Objects::isNull));
+		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/login?logout")).andExpect(noCookies()).andExpect(session(Objects::isNull));
 	}
 
 	@EnableWebSecurity
 	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
+
 	}
 
 	@Test
@@ -90,16 +89,17 @@ public class NamespaceHttpLogoutTests {
 	public void logoutWhenDisabledInLambdaThenRespondsWithNotFound() throws Exception {
 		this.spring.register(HttpLogoutDisabledInLambdaConfig.class).autowire();
 
-		this.mvc.perform(post("/logout").with(csrf()).with(user("user")))
-				.andExpect(status().isNotFound());
+		this.mvc.perform(post("/logout").with(csrf()).with(user("user"))).andExpect(status().isNotFound());
 	}
 
 	@EnableWebSecurity
 	static class HttpLogoutDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.logout(AbstractHttpConfigurer::disable);
 		}
+
 	}
 
 	/**
@@ -110,16 +110,15 @@ public class NamespaceHttpLogoutTests {
 	public void logoutWhenUsingVariousCustomizationsMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpLogoutConfig.class).autowire();
 
-		this.mvc.perform(post("/custom-logout").with(csrf()))
-				.andExpect(authenticated(false))
+		this.mvc.perform(post("/custom-logout").with(csrf())).andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/logout-success"))
 				.andExpect(result -> assertThat(result.getResponse().getCookies()).hasSize(1))
-				.andExpect(cookie().maxAge("remove", 0))
-				.andExpect(session(Objects::nonNull));
+				.andExpect(cookie().maxAge("remove", 0)).andExpect(session(Objects::nonNull));
 	}
 
 	@EnableWebSecurity
 	static class CustomHttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -131,6 +130,7 @@ public class NamespaceHttpLogoutTests {
 					.logoutSuccessUrl("/logout-success"); // logout@success-url (default is /login?logout)
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -138,16 +138,15 @@ public class NamespaceHttpLogoutTests {
 	public void logoutWhenUsingVariousCustomizationsInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomHttpLogoutInLambdaConfig.class).autowire();
 
-		this.mvc.perform(post("/custom-logout").with(csrf()))
-				.andExpect(authenticated(false))
+		this.mvc.perform(post("/custom-logout").with(csrf())).andExpect(authenticated(false))
 				.andExpect(redirectedUrl("/logout-success"))
 				.andExpect(result -> assertThat(result.getResponse().getCookies()).hasSize(1))
-				.andExpect(cookie().maxAge("remove", 0))
-				.andExpect(session(Objects::nonNull));
+				.andExpect(cookie().maxAge("remove", 0)).andExpect(session(Objects::nonNull));
 	}
 
 	@EnableWebSecurity
 	static class CustomHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -160,6 +159,7 @@ public class NamespaceHttpLogoutTests {
 				);
 			// @formatter:on
 		}
+
 	}
 
 	/**
@@ -170,19 +170,17 @@ public class NamespaceHttpLogoutTests {
 	public void logoutWhenUsingSuccessHandlerRefThenMatchesNamespace() throws Exception {
 		this.spring.register(SuccessHandlerRefHttpLogoutConfig.class).autowire();
 
-		this.mvc.perform(post("/logout").with(csrf()))
-				.andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig"))
-				.andExpect(noCookies())
+		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
 	}
 
 	@EnableWebSecurity
 	static class SuccessHandlerRefHttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			SimpleUrlLogoutSuccessHandler logoutSuccessHandler =
-					new SimpleUrlLogoutSuccessHandler();
+			SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
 			logoutSuccessHandler.setDefaultTargetUrl("/SuccessHandlerRefHttpLogoutConfig");
 			// @formatter:off
 			http
@@ -190,6 +188,7 @@ public class NamespaceHttpLogoutTests {
 					.logoutSuccessHandler(logoutSuccessHandler);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -197,15 +196,14 @@ public class NamespaceHttpLogoutTests {
 	public void logoutWhenUsingSuccessHandlerRefInLambdaThenMatchesNamespace() throws Exception {
 		this.spring.register(SuccessHandlerRefHttpLogoutInLambdaConfig.class).autowire();
 
-		this.mvc.perform(post("/logout").with(csrf()))
-				.andExpect(authenticated(false))
-				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig"))
-				.andExpect(noCookies())
+		this.mvc.perform(post("/logout").with(csrf())).andExpect(authenticated(false))
+				.andExpect(redirectedUrl("/SuccessHandlerRefHttpLogoutConfig")).andExpect(noCookies())
 				.andExpect(session(Objects::isNull));
 	}
 
 	@EnableWebSecurity
 	static class SuccessHandlerRefHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
@@ -216,13 +214,12 @@ public class NamespaceHttpLogoutTests {
 				.logout(logout -> logout.logoutSuccessHandler(logoutSuccessHandler));
 			// @formatter:on
 		}
+
 	}
 
 	ResultMatcher authenticated(boolean authenticated) {
-		return result -> assertThat(
-				Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-						.map(Authentication::isAuthenticated)
-						.orElse(false)).isEqualTo(authenticated);
+		return result -> assertThat(Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+				.map(Authentication::isAuthenticated).orElse(false)).isEqualTo(authenticated);
 	}
 
 	ResultMatcher noCookies() {
@@ -233,4 +230,5 @@ public class NamespaceHttpLogoutTests {
 		return result -> assertThat(result.getRequest().getSession(false))
 				.is(new Condition<HttpSession>(sessionPredicate, "sessionPredicate failed"));
 	}
+
 }

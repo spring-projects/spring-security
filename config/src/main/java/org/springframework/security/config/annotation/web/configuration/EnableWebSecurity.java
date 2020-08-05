@@ -72,10 +72,8 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 @Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target(value = { java.lang.annotation.ElementType.TYPE })
 @Documented
-@Import({ WebSecurityConfiguration.class,
-		SpringWebMvcImportSelector.class,
-		OAuth2ImportSelector.class,
-		HttpSecurityConfiguration.class})
+@Import({ WebSecurityConfiguration.class, SpringWebMvcImportSelector.class, OAuth2ImportSelector.class,
+		HttpSecurityConfiguration.class })
 @EnableGlobalAuthentication
 @Configuration
 public @interface EnableWebSecurity {
@@ -85,4 +83,5 @@ public @interface EnableWebSecurity {
 	 * @return if true, enables debug support with Spring Security
 	 */
 	boolean debug() default false;
+
 }

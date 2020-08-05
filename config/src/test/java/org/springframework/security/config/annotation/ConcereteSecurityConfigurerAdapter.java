@@ -22,8 +22,8 @@ import java.util.List;
  * @author Rob Winch
  *
  */
-class ConcereteSecurityConfigurerAdapter extends
-		SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+class ConcereteSecurityConfigurerAdapter extends SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+
 	private List<Object> list = new ArrayList<>();
 
 	@Override
@@ -35,4 +35,5 @@ class ConcereteSecurityConfigurerAdapter extends
 		this.list = l;
 		return this;
 	}
+
 }

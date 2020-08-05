@@ -32,15 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Josh Cummings
  */
 public class JwtBearerTokenAuthenticationConverterTests {
-	private final JwtBearerTokenAuthenticationConverter converter =
-			new JwtBearerTokenAuthenticationConverter();
+
+	private final JwtBearerTokenAuthenticationConverter converter = new JwtBearerTokenAuthenticationConverter();
 
 	@Test
 	public void convertWhenJwtThenBearerTokenAuthentication() {
-		Jwt jwt = Jwt.withTokenValue("token-value")
-				.claim("claim", "value")
-				.header("header", "value")
-				.build();
+		Jwt jwt = Jwt.withTokenValue("token-value").claim("claim", "value").header("header", "value").build();
 
 		AbstractAuthenticationToken token = this.converter.convert(jwt);
 
@@ -53,33 +50,28 @@ public class JwtBearerTokenAuthenticationConverterTests {
 
 	@Test
 	public void convertWhenJwtWithScopeAttributeThenBearerTokenAuthentication() {
-		Jwt jwt = Jwt.withTokenValue("token-value")
-				.claim("scope", "message:read message:write")
-				.header("header", "value")
-				.build();
+		Jwt jwt = Jwt.withTokenValue("token-value").claim("scope", "message:read message:write")
+				.header("header", "value").build();
 
 		AbstractAuthenticationToken token = this.converter.convert(jwt);
 
 		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
-		assertThat(bearerToken.getAuthorities())
-				.containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
-						new SimpleGrantedAuthority("SCOPE_message:write"));
+		assertThat(bearerToken.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
+				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
 
 	@Test
 	public void convertWhenJwtWithScpAttributeThenBearerTokenAuthentication() {
-		Jwt jwt = Jwt.withTokenValue("token-value")
-				.claim("scp", Arrays.asList("message:read", "message:write"))
-				.header("header", "value")
-				.build();
+		Jwt jwt = Jwt.withTokenValue("token-value").claim("scp", Arrays.asList("message:read", "message:write"))
+				.header("header", "value").build();
 
 		AbstractAuthenticationToken token = this.converter.convert(jwt);
 
 		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
-		assertThat(bearerToken.getAuthorities())
-				.containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
-						new SimpleGrantedAuthority("SCOPE_message:write"));
+		assertThat(bearerToken.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
+				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
+
 }

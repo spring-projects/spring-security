@@ -40,8 +40,8 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint,
-		InitializingBean {
+public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+
 	// ~ Instance fields
 	// ================================================================================================
 

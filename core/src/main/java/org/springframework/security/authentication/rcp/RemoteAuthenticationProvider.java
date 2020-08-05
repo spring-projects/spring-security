@@ -50,8 +50,8 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class RemoteAuthenticationProvider implements AuthenticationProvider,
-		InitializingBean {
+public class RemoteAuthenticationProvider implements AuthenticationProvider, InitializingBean {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -61,17 +61,15 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider,
 	// ========================================================================================================
 
 	public void afterPropertiesSet() {
-		Assert.notNull(this.remoteAuthenticationManager,
-				"remoteAuthenticationManager is mandatory");
+		Assert.notNull(this.remoteAuthenticationManager, "remoteAuthenticationManager is mandatory");
 	}
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		String username = authentication.getPrincipal().toString();
 		Object credentials = authentication.getCredentials();
 		String password = credentials == null ? null : credentials.toString();
-		Collection<? extends GrantedAuthority> authorities = remoteAuthenticationManager
-				.attemptAuthentication(username, password);
+		Collection<? extends GrantedAuthority> authorities = remoteAuthenticationManager.attemptAuthentication(username,
+				password);
 
 		return new UsernamePasswordAuthenticationToken(username, password, authorities);
 	}
@@ -80,13 +78,12 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider,
 		return remoteAuthenticationManager;
 	}
 
-	public void setRemoteAuthenticationManager(
-			RemoteAuthenticationManager remoteAuthenticationManager) {
+	public void setRemoteAuthenticationManager(RemoteAuthenticationManager remoteAuthenticationManager) {
 		this.remoteAuthenticationManager = remoteAuthenticationManager;
 	}
 
 	public boolean supports(Class<?> authentication) {
-		return (UsernamePasswordAuthenticationToken.class
-				.isAssignableFrom(authentication));
+		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
 	}
+
 }

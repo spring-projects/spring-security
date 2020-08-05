@@ -19,6 +19,7 @@ import org.springframework.security.acls.model.Sid;
 
 /**
  * This class is example of custom {@link Sid} implementation
+ *
  * @author Mikhail Stryzhonok
  */
 public class CustomSid implements Sid {
@@ -36,4 +37,5 @@ public class CustomSid implements Sid {
 	public void setSid(String sid) {
 		this.sid = sid;
 	}
+
 }

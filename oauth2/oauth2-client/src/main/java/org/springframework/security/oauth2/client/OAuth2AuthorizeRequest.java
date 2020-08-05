@@ -30,17 +30,22 @@ import java.util.function.Consumer;
 
 /**
  * Represents a request the {@link OAuth2AuthorizedClientManager} uses to
- * {@link OAuth2AuthorizedClientManager#authorize(OAuth2AuthorizeRequest) authorize} (or re-authorize)
- * the {@link ClientRegistration client} identified by the provided {@link #getClientRegistrationId() clientRegistrationId}.
+ * {@link OAuth2AuthorizedClientManager#authorize(OAuth2AuthorizeRequest) authorize} (or
+ * re-authorize) the {@link ClientRegistration client} identified by the provided
+ * {@link #getClientRegistrationId() clientRegistrationId}.
  *
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClientManager
  */
 public final class OAuth2AuthorizeRequest {
+
 	private String clientRegistrationId;
+
 	private OAuth2AuthorizedClient authorizedClient;
+
 	private Authentication principal;
+
 	private Map<String, Object> attributes;
 
 	private OAuth2AuthorizeRequest() {
@@ -48,7 +53,6 @@ public final class OAuth2AuthorizeRequest {
 
 	/**
 	 * Returns the identifier for the {@link ClientRegistration client registration}.
-	 *
 	 * @return the identifier for the client registration
 	 */
 	public String getClientRegistrationId() {
@@ -56,8 +60,8 @@ public final class OAuth2AuthorizeRequest {
 	}
 
 	/**
-	 * Returns the {@link OAuth2AuthorizedClient authorized client} or {@code null} if it was not provided.
-	 *
+	 * Returns the {@link OAuth2AuthorizedClient authorized client} or {@code null} if it
+	 * was not provided.
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if it was not provided
 	 */
 	@Nullable
@@ -67,7 +71,6 @@ public final class OAuth2AuthorizeRequest {
 
 	/**
 	 * Returns the {@code Principal} (to be) associated to the authorized client.
-	 *
 	 * @return the {@code Principal} (to be) associated to the authorized client
 	 */
 	public Authentication getPrincipal() {
@@ -76,7 +79,6 @@ public final class OAuth2AuthorizeRequest {
 
 	/**
 	 * Returns the attributes associated to the request.
-	 *
 	 * @return a {@code Map} of the attributes associated to the request
 	 */
 	public Map<String, Object> getAttributes() {
@@ -84,8 +86,8 @@ public final class OAuth2AuthorizeRequest {
 	}
 
 	/**
-	 * Returns the value of an attribute associated to the request or {@code null} if not available.
-	 *
+	 * Returns the value of an attribute associated to the request or {@code null} if not
+	 * available.
 	 * @param name the name of the attribute
 	 * @param <T> the type of the attribute
 	 * @return the value of the attribute associated to the request
@@ -97,9 +99,10 @@ public final class OAuth2AuthorizeRequest {
 	}
 
 	/**
-	 * Returns a new {@link Builder} initialized with the identifier for the {@link ClientRegistration client registration}.
-	 *
-	 * @param clientRegistrationId the identifier for the {@link ClientRegistration client registration}
+	 * Returns a new {@link Builder} initialized with the identifier for the
+	 * {@link ClientRegistration client registration}.
+	 * @param clientRegistrationId the identifier for the {@link ClientRegistration client
+	 * registration}
 	 * @return the {@link Builder}
 	 */
 	public static Builder withClientRegistrationId(String clientRegistrationId) {
@@ -107,8 +110,8 @@ public final class OAuth2AuthorizeRequest {
 	}
 
 	/**
-	 * Returns a new {@link Builder} initialized with the {@link OAuth2AuthorizedClient authorized client}.
-	 *
+	 * Returns a new {@link Builder} initialized with the {@link OAuth2AuthorizedClient
+	 * authorized client}.
 	 * @param authorizedClient the {@link OAuth2AuthorizedClient authorized client}
 	 * @return the {@link Builder}
 	 */
@@ -120,9 +123,13 @@ public final class OAuth2AuthorizeRequest {
 	 * A builder for {@link OAuth2AuthorizeRequest}.
 	 */
 	public static class Builder {
+
 		private String clientRegistrationId;
+
 		private OAuth2AuthorizedClient authorizedClient;
+
 		private Authentication principal;
+
 		private Map<String, Object> attributes;
 
 		private Builder(String clientRegistrationId) {
@@ -136,10 +143,12 @@ public final class OAuth2AuthorizeRequest {
 		}
 
 		/**
-		 * Sets the name of the {@code Principal} (to be) associated to the authorized client.
+		 * Sets the name of the {@code Principal} (to be) associated to the authorized
+		 * client.
 		 *
 		 * @since 5.3
-		 * @param principalName the name of the {@code Principal} (to be) associated to the authorized client
+		 * @param principalName the name of the {@code Principal} (to be) associated to
+		 * the authorized client
 		 * @return the {@link Builder}
 		 */
 		public Builder principal(String principalName) {
@@ -164,8 +173,8 @@ public final class OAuth2AuthorizeRequest {
 
 		/**
 		 * Sets the {@code Principal} (to be) associated to the authorized client.
-		 *
-		 * @param principal the {@code Principal} (to be) associated to the authorized client
+		 * @param principal the {@code Principal} (to be) associated to the authorized
+		 * client
 		 * @return the {@link Builder}
 		 */
 		public Builder principal(Authentication principal) {
@@ -175,8 +184,8 @@ public final class OAuth2AuthorizeRequest {
 
 		/**
 		 * Provides a {@link Consumer} access to the attributes associated to the request.
-		 *
-		 * @param attributesConsumer a {@link Consumer} of the attributes associated to the request
+		 * @param attributesConsumer a {@link Consumer} of the attributes associated to
+		 * the request
 		 * @return the {@link Builder}
 		 */
 		public Builder attributes(Consumer<Map<String, Object>> attributesConsumer) {
@@ -189,7 +198,6 @@ public final class OAuth2AuthorizeRequest {
 
 		/**
 		 * Sets an attribute associated to the request.
-		 *
 		 * @param name the name of the attribute
 		 * @param value the value of the attribute
 		 * @return the {@link Builder}
@@ -204,23 +212,25 @@ public final class OAuth2AuthorizeRequest {
 
 		/**
 		 * Builds a new {@link OAuth2AuthorizeRequest}.
-		 *
 		 * @return a {@link OAuth2AuthorizeRequest}
 		 */
 		public OAuth2AuthorizeRequest build() {
 			Assert.notNull(this.principal, "principal cannot be null");
 			OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest();
 			if (this.authorizedClient != null) {
-				authorizeRequest.clientRegistrationId = this.authorizedClient.getClientRegistration().getRegistrationId();
+				authorizeRequest.clientRegistrationId = this.authorizedClient.getClientRegistration()
+						.getRegistrationId();
 				authorizeRequest.authorizedClient = this.authorizedClient;
-			} else {
+			}
+			else {
 				authorizeRequest.clientRegistrationId = this.clientRegistrationId;
 			}
 			authorizeRequest.principal = this.principal;
-			authorizeRequest.attributes = Collections.unmodifiableMap(
-					CollectionUtils.isEmpty(this.attributes) ?
-							Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
+			authorizeRequest.attributes = Collections.unmodifiableMap(CollectionUtils.isEmpty(this.attributes)
+					? Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
 			return authorizeRequest;
 		}
+
 	}
+
 }

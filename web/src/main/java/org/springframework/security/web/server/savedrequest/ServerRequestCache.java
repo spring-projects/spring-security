@@ -47,10 +47,11 @@ public interface ServerRequestCache {
 	Mono<URI> getRedirectUri(ServerWebExchange exchange);
 
 	/**
-	 * If the provided {@link ServerWebExchange} matches the saved {@link ServerHttpRequest}
-	 * gets the saved {@link ServerHttpRequest}
+	 * If the provided {@link ServerWebExchange} matches the saved
+	 * {@link ServerHttpRequest} gets the saved {@link ServerHttpRequest}
 	 * @param exchange the exchange to obtain the request from
 	 * @return the {@link ServerHttpRequest}
 	 */
 	Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange);
+
 }

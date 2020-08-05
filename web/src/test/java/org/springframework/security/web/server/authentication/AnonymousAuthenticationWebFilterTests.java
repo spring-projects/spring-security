@@ -45,26 +45,21 @@ public class AnonymousAuthenticationWebFilterTests {
 	public void anonymousAuthenticationFilterWorking() {
 
 		WebTestClient client = WebTestClientBuilder.bindToControllerAndWebFilters(HttpMeController.class,
-				new AnonymousAuthenticationWebFilter(UUID.randomUUID().toString()))
-				.build();
+				new AnonymousAuthenticationWebFilter(UUID.randomUUID().toString())).build();
 
-		client.get()
-				.uri("/me")
-				.exchange()
-				.expectStatus().isOk()
-				.expectBody(String.class).isEqualTo("anonymousUser");
+		client.get().uri("/me").exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("anonymousUser");
 	}
 
 	@RestController
 	@RequestMapping("/me")
 	public static class HttpMeController {
+
 		@GetMapping
 		public Mono<String> me(ServerWebExchange exchange) {
-			return ReactiveSecurityContextHolder
-					.getContext()
-					.map(SecurityContext::getAuthentication)
-					.map(Authentication::getPrincipal)
-					.ofType(String.class);
+			return ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication)
+					.map(Authentication::getPrincipal).ofType(String.class);
 		}
+
 	}
+
 }

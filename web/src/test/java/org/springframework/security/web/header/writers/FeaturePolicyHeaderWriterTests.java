@@ -55,26 +55,23 @@ public class FeaturePolicyHeaderWriterTests {
 		writer.writeHeaders(this.request, this.response);
 
 		assertThat(this.response.getHeaderNames()).hasSize(1);
-		assertThat(this.response.getHeader("Feature-Policy"))
-				.isEqualTo(DEFAULT_POLICY_DIRECTIVES);
+		assertThat(this.response.getHeader("Feature-Policy")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);
 	}
 
 	@Test
 	public void createWriterWithNullDirectivesShouldThrowException() {
-		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter(null))
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter(null)).isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("policyDirectives must not be null or empty");
 	}
 
 	@Test
 	public void createWriterWithEmptyDirectivesShouldThrowException() {
-		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter(""))
-				.isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter("")).isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("policyDirectives must not be null or empty");
 	}
 
 	@Test
-	public void writeHeaderOnlyIfNotPresent(){
+	public void writeHeaderOnlyIfNotPresent() {
 		String value = new String("value");
 		this.response.setHeader(FEATURE_POLICY_HEADER, value);
 		this.writer.writeHeaders(this.request, this.response);

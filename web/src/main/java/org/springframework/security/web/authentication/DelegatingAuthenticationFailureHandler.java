@@ -35,8 +35,7 @@ import java.util.Map;
  * @author Kazuki Shimizu
  * @since 4.0
  */
-public class DelegatingAuthenticationFailureHandler implements
-		AuthenticationFailureHandler {
+public class DelegatingAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
 	private final LinkedHashMap<Class<? extends AuthenticationException>, AuthenticationFailureHandler> handlers;
 
@@ -44,7 +43,6 @@ public class DelegatingAuthenticationFailureHandler implements
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param handlers a map of the {@link AuthenticationException} class to the
 	 * {@link AuthenticationFailureHandler} that should be used. Each is considered in the
 	 * order they are specified and only the first {@link AuthenticationFailureHandler} is
@@ -66,13 +64,11 @@ public class DelegatingAuthenticationFailureHandler implements
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onAuthenticationFailure(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException exception)
-			throws IOException, ServletException {
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
 		for (Map.Entry<Class<? extends AuthenticationException>, AuthenticationFailureHandler> entry : handlers
 				.entrySet()) {
-			Class<? extends AuthenticationException> handlerMappedExceptionClass = entry
-					.getKey();
+			Class<? extends AuthenticationException> handlerMappedExceptionClass = entry.getKey();
 			if (handlerMappedExceptionClass.isAssignableFrom(exception.getClass())) {
 				AuthenticationFailureHandler handler = entry.getValue();
 				handler.onAuthenticationFailure(request, response, exception);

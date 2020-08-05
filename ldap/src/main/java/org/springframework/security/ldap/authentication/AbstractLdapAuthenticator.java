@@ -35,8 +35,8 @@ import java.util.List;
  *
  * @author Luke Taylor
  */
-public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
-		InitializingBean, MessageSourceAware {
+public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, InitializingBean, MessageSourceAware {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -47,6 +47,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 	 * isn't sufficient
 	 */
 	private LdapUserSearch userSearch;
+
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	/**
@@ -64,7 +65,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 
 	/**
 	 * Create an initialized instance with the {@link ContextSource} provided.
-	 *
 	 * @param contextSource
 	 */
 	public AbstractLdapAuthenticator(ContextSource contextSource) {
@@ -91,9 +91,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 	/**
 	 * Builds list of possible DNs for the user, worked out from the
 	 * <tt>userDnPatterns</tt> property.
-	 *
 	 * @param username the user's login name
-	 *
 	 * @return the list of possible DN matches, empty if <tt>userDnPatterns</tt> wasn't
 	 * set.
 	 */
@@ -125,12 +123,10 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 
 	/**
 	 * Sets the user attributes which will be retrieved from the directory.
-	 *
 	 * @param userAttributes
 	 */
 	public void setUserAttributes(String[] userAttributes) {
-		Assert.notNull(userAttributes,
-				"The userAttributes property cannot be set to null");
+		Assert.notNull(userAttributes, "The userAttributes property cannot be set to null");
 		this.userAttributes = userAttributes;
 	}
 
@@ -138,7 +134,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 	 * Sets the pattern which will be used to supply a DN for the user. The pattern should
 	 * be the name relative to the root DN. The pattern argument {0} will contain the
 	 * username. An example would be "cn={0},ou=people".
-	 *
 	 * @param dnPattern the array of patterns which will be tried when converting a
 	 * username to a DN.
 	 */
@@ -156,4 +151,5 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 		Assert.notNull(userSearch, "The userSearch cannot be set to null");
 		this.userSearch = userSearch;
 	}
+
 }

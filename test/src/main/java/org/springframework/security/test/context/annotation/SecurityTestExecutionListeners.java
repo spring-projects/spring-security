@@ -28,11 +28,10 @@ import org.springframework.security.test.context.support.WithSecurityContextTest
 import org.springframework.test.context.TestExecutionListeners;
 
 /**
- * There are many times a user may want to use Spring Security's test support
- * (i.e. WithMockUser) but have no need for any other
- * {@link TestExecutionListeners} (i.e. no need to setup an
- * {@link ApplicationContext}). This annotation is a meta annotation that only
- * enables Spring Security's {@link TestExecutionListeners}.
+ * There are many times a user may want to use Spring Security's test support (i.e.
+ * WithMockUser) but have no need for any other {@link TestExecutionListeners} (i.e. no
+ * need to setup an {@link ApplicationContext}). This annotation is a meta annotation that
+ * only enables Spring Security's {@link TestExecutionListeners}.
  *
  * @author Rob Winch
  * @since 4.0.2
@@ -43,7 +42,8 @@ import org.springframework.test.context.TestExecutionListeners;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@TestExecutionListeners(inheritListeners = false, listeners = {WithSecurityContextTestExecutionListener.class,
-	ReactorContextTestExecutionListener.class})
+@TestExecutionListeners(inheritListeners = false,
+		listeners = { WithSecurityContextTestExecutionListener.class, ReactorContextTestExecutionListener.class })
 public @interface SecurityTestExecutionListeners {
+
 }

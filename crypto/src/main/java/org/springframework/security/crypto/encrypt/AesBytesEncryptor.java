@@ -59,10 +59,10 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 
 	public enum CipherAlgorithm {
 
-		CBC(AES_CBC_ALGORITHM, NULL_IV_GENERATOR), GCM(AES_GCM_ALGORITHM, KeyGenerators
-				.secureRandom(16));
+		CBC(AES_CBC_ALGORITHM, NULL_IV_GENERATOR), GCM(AES_GCM_ALGORITHM, KeyGenerators.secureRandom(16));
 
 		private BytesKeyGenerator ivGenerator;
+
 		private String name;
 
 		CipherAlgorithm(String name, BytesKeyGenerator ivGenerator) {
@@ -86,29 +86,28 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		public BytesKeyGenerator defaultIvGenerator() {
 			return this.ivGenerator;
 		}
+
 	}
 
 	public AesBytesEncryptor(String password, CharSequence salt) {
 		this(password, salt, null);
 	}
 
-	public AesBytesEncryptor(String password, CharSequence salt,
-			BytesKeyGenerator ivGenerator) {
+	public AesBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator) {
 		this(password, salt, ivGenerator, CipherAlgorithm.CBC);
 	}
 
-	public AesBytesEncryptor(String password, CharSequence salt,
-			BytesKeyGenerator ivGenerator, CipherAlgorithm alg) {
-		this(newSecretKey("PBKDF2WithHmacSHA1", new PBEKeySpec(password.toCharArray(), Hex.decode(salt),
-				1024, 256)), ivGenerator, alg);
+	public AesBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator, CipherAlgorithm alg) {
+		this(newSecretKey("PBKDF2WithHmacSHA1", new PBEKeySpec(password.toCharArray(), Hex.decode(salt), 1024, 256)),
+				ivGenerator, alg);
 	}
 
 	/**
 	 * Constructs an encryptor that uses AES encryption.
-	 *
 	 * @param secretKey the secret (symmetric) key
-	 * @param ivGenerator the generator used to generate the initialization vector. If null,
-	 * then a default algorithm will be used based on the provided {@link CipherAlgorithm}
+	 * @param ivGenerator the generator used to generate the initialization vector. If
+	 * null, then a default algorithm will be used based on the provided
+	 * {@link CipherAlgorithm}
 	 * @param alg the {@link CipherAlgorithm} to be used
 	 */
 	public AesBytesEncryptor(SecretKey secretKey, BytesKeyGenerator ivGenerator, CipherAlgorithm alg) {
@@ -122,31 +121,26 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	public byte[] encrypt(byte[] bytes) {
 		synchronized (this.encryptor) {
 			byte[] iv = this.ivGenerator.generateKey();
-			initCipher(this.encryptor, Cipher.ENCRYPT_MODE, this.secretKey,
-					this.alg.getParameterSpec(iv));
+			initCipher(this.encryptor, Cipher.ENCRYPT_MODE, this.secretKey, this.alg.getParameterSpec(iv));
 			byte[] encrypted = doFinal(this.encryptor, bytes);
-			return this.ivGenerator != NULL_IV_GENERATOR ? concatenate(iv, encrypted)
-					: encrypted;
+			return this.ivGenerator != NULL_IV_GENERATOR ? concatenate(iv, encrypted) : encrypted;
 		}
 	}
 
 	public byte[] decrypt(byte[] encryptedBytes) {
 		synchronized (this.decryptor) {
 			byte[] iv = iv(encryptedBytes);
-			initCipher(this.decryptor, Cipher.DECRYPT_MODE, this.secretKey,
-					this.alg.getParameterSpec(iv));
-			return doFinal(
-					this.decryptor,
-					this.ivGenerator != NULL_IV_GENERATOR ? encrypted(encryptedBytes,
-							iv.length) : encryptedBytes);
+			initCipher(this.decryptor, Cipher.DECRYPT_MODE, this.secretKey, this.alg.getParameterSpec(iv));
+			return doFinal(this.decryptor,
+					this.ivGenerator != NULL_IV_GENERATOR ? encrypted(encryptedBytes, iv.length) : encryptedBytes);
 		}
 	}
 
 	// internal helpers
 
 	private byte[] iv(byte[] encrypted) {
-		return this.ivGenerator != NULL_IV_GENERATOR ? subArray(encrypted, 0,
-				this.ivGenerator.getKeyLength()) : NULL_IV_GENERATOR.generateKey();
+		return this.ivGenerator != NULL_IV_GENERATOR ? subArray(encrypted, 0, this.ivGenerator.getKeyLength())
+				: NULL_IV_GENERATOR.generateKey();
 	}
 
 	private byte[] encrypted(byte[] encryptedBytes, int ivLength) {
@@ -166,4 +160,5 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		}
 
 	};
+
 }

@@ -32,8 +32,11 @@ import static org.mockito.Mockito.mock;
  * @author Joe Grandja
  */
 public class OAuth2AuthenticationTokenTests {
+
 	private OAuth2User principal;
+
 	private Collection<? extends GrantedAuthority> authorities;
+
 	private String authorizedClientRegistrationId;
 
 	@Before
@@ -65,8 +68,8 @@ public class OAuth2AuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
-			this.principal, this.authorities, this.authorizedClientRegistrationId);
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(this.principal, this.authorities,
+				this.authorizedClientRegistrationId);
 
 		assertThat(authentication.getPrincipal()).isEqualTo(this.principal);
 		assertThat(authentication.getCredentials()).isEqualTo("");
@@ -74,4 +77,5 @@ public class OAuth2AuthenticationTokenTests {
 		assertThat(authentication.getAuthorizedClientRegistrationId()).isEqualTo(this.authorizedClientRegistrationId);
 		assertThat(authentication.isAuthenticated()).isEqualTo(true);
 	}
+
 }

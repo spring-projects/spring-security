@@ -23,8 +23,7 @@ package org.springframework.security.oauth2.core.endpoint;
 public class TestOAuth2AuthorizationResponses {
 
 	public static OAuth2AuthorizationResponse.Builder success() {
-		return OAuth2AuthorizationResponse.success("authorization-code")
-				.state("state")
+		return OAuth2AuthorizationResponse.success("authorization-code").state("state")
 				.redirectUri("https://example.com/authorize/oauth2/code/registration-id");
 	}
 
@@ -33,4 +32,5 @@ public class TestOAuth2AuthorizationResponses {
 				.redirectUri("https://example.com/authorize/oauth2/code/registration-id")
 				.errorUri("https://example.com/error");
 	}
+
 }

@@ -31,6 +31,7 @@ import java.util.Set;
  * @author Paulo Neves
  */
 class CollectionFilterer<T> implements Filterer<T> {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
@@ -77,8 +78,8 @@ class CollectionFilterer<T> implements Filterer<T> {
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Original collection contained " + originalSize
-					+ " elements; now contains " + collection.size() + " elements");
+			logger.debug("Original collection contained " + originalSize + " elements; now contains "
+					+ collection.size() + " elements");
 		}
 
 		return collection;
@@ -99,4 +100,5 @@ class CollectionFilterer<T> implements Filterer<T> {
 	public void remove(T object) {
 		removeList.add(object);
 	}
+
 }

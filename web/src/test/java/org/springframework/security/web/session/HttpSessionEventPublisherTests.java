@@ -32,6 +32,7 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
  * @author Ray Krueger
  */
 public class HttpSessionEventPublisherTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -45,17 +46,14 @@ public class HttpSessionEventPublisherTests {
 		StaticWebApplicationContext context = new StaticWebApplicationContext();
 
 		MockServletContext servletContext = new MockServletContext();
-		servletContext.setAttribute(
-				StaticWebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
-				context);
+		servletContext.setAttribute(StaticWebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
 
 		context.setServletContext(servletContext);
 		context.registerSingleton("listener", MockApplicationListener.class, null);
 		context.refresh();
 
 		MockHttpSession session = new MockHttpSession(servletContext);
-		MockApplicationListener listener = (MockApplicationListener) context
-				.getBean("listener");
+		MockApplicationListener listener = (MockApplicationListener) context.getBean("listener");
 
 		HttpSessionEvent event = new HttpSessionEvent(session);
 
@@ -86,17 +84,14 @@ public class HttpSessionEventPublisherTests {
 		StaticWebApplicationContext context = new StaticWebApplicationContext();
 
 		MockServletContext servletContext = new MockServletContext();
-		servletContext.setAttribute(
-				"org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher",
-				context);
+		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", context);
 
 		context.setServletContext(servletContext);
 		context.registerSingleton("listener", MockApplicationListener.class, null);
 		context.refresh();
 
 		MockHttpSession session = new MockHttpSession(servletContext);
-		MockApplicationListener listener = (MockApplicationListener) context
-				.getBean("listener");
+		MockApplicationListener listener = (MockApplicationListener) context.getBean("listener");
 
 		HttpSessionEvent event = new HttpSessionEvent(session);
 
@@ -151,4 +146,5 @@ public class HttpSessionEventPublisherTests {
 
 		publisher.sessionIdChanged(event, "oldSessionId");
 	}
+
 }

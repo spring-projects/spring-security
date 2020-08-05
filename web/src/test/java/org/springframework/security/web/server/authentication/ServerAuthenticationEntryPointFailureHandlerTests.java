@@ -38,10 +38,13 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ServerAuthenticationEntryPointFailureHandlerTests {
+
 	@Mock
 	private ServerAuthenticationEntryPoint authenticationEntryPoint;
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
 
@@ -65,4 +68,5 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 
 		assertThat(this.handler.onAuthenticationFailure(this.filterExchange, e)).isEqualTo(result);
 	}
+
 }

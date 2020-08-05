@@ -28,12 +28,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.test.context.TestContext;
 
 /**
- * When used with {@link WithSecurityContextTestExecutionListener} this
- * annotation can be added to a test method to emulate running with an anonymous
- * user. The {@link SecurityContext} that is used will contain an
- * {@link AnonymousAuthenticationToken}. This is useful when a user wants to run
- * a majority of tests as a specific user and wishes to override a few methods
- * to be anonymous. For example:
+ * When used with {@link WithSecurityContextTestExecutionListener} this annotation can be
+ * added to a test method to emulate running with an anonymous user. The
+ * {@link SecurityContext} that is used will contain an
+ * {@link AnonymousAuthenticationToken}. This is useful when a user wants to run a
+ * majority of tests as a specific user and wishes to override a few methods to be
+ * anonymous. For example:
  *
  * <pre>
  * <code>
@@ -47,8 +47,7 @@ import org.springframework.test.context.TestContext;
  *
  *     // ... lots of tests ran with a default user ...
  * }
- * </code>
- * </pre>
+ * </code> </pre>
  *
  * @author Rob Winch
  * @since 4.1
@@ -69,4 +68,5 @@ public @interface WithAnonymousUser {
 	 */
 	@AliasFor(annotation = WithSecurityContext.class)
 	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;
+
 }

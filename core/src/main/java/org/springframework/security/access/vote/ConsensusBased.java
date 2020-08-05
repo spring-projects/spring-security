@@ -33,6 +33,7 @@ import org.springframework.security.core.Authentication;
  * {@link UnanimousBased}.
  */
 public class ConsensusBased extends AbstractAccessDecisionManager {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -56,16 +57,14 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 	 * If every <code>AccessDecisionVoter</code> abstained from voting, the decision will
 	 * be based on the {@link #isAllowIfAllAbstainDecisions()} property (defaults to
 	 * false).
-	 *
 	 * @param authentication the caller invoking the method
 	 * @param object the secured object
 	 * @param configAttributes the configuration attributes associated with the method
 	 * being invoked
-	 *
 	 * @throws AccessDeniedException if access is denied
 	 */
-	public void decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> configAttributes) throws AccessDeniedException {
+	public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
+			throws AccessDeniedException {
 		int grant = 0;
 		int deny = 0;
 
@@ -97,8 +96,8 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 		}
 
 		if (deny > grant) {
-			throw new AccessDeniedException(messages.getMessage(
-					"AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+			throw new AccessDeniedException(
+					messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 		}
 
 		if ((grant == deny) && (grant != 0)) {
@@ -106,8 +105,8 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 				return;
 			}
 			else {
-				throw new AccessDeniedException(messages.getMessage(
-						"AbstractAccessDecisionManager.accessDenied", "Access is denied"));
+				throw new AccessDeniedException(
+						messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access is denied"));
 			}
 		}
 
@@ -119,8 +118,8 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 		return allowIfEqualGrantedDeniedDecisions;
 	}
 
-	public void setAllowIfEqualGrantedDeniedDecisions(
-			boolean allowIfEqualGrantedDeniedDecisions) {
+	public void setAllowIfEqualGrantedDeniedDecisions(boolean allowIfEqualGrantedDeniedDecisions) {
 		this.allowIfEqualGrantedDeniedDecisions = allowIfEqualGrantedDeniedDecisions;
 	}
+
 }

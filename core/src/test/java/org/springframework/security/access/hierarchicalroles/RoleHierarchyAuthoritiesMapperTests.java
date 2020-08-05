@@ -41,9 +41,9 @@ public class RoleHierarchyAuthoritiesMapperTests {
 
 		mapper = new RoleHierarchyAuthoritiesMapper(new NullRoleHierarchy());
 
-		authorities = mapper.mapAuthorities(AuthorityUtils.createAuthorityList("ROLE_A",
-				"ROLE_D"));
+		authorities = mapper.mapAuthorities(AuthorityUtils.createAuthorityList("ROLE_A", "ROLE_D"));
 
 		assertThat(authorities).hasSize(2);
 	}
+
 }

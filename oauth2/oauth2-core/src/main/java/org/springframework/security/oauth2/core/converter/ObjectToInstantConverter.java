@@ -50,14 +50,17 @@ final class ObjectToInstantConverter implements GenericConverter {
 		}
 		try {
 			return Instant.ofEpochSecond(Long.parseLong(source.toString()));
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			// Ignore
 		}
 		try {
 			return Instant.parse(source.toString());
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			// Ignore
 		}
 		return null;
 	}
+
 }

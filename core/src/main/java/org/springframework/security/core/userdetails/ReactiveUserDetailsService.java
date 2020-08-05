@@ -32,4 +32,5 @@ public interface ReactiveUserDetailsService {
 	 * @return the {@link UserDetails}. Cannot be null
 	 */
 	Mono<UserDetails> findByUsername(String username);
+
 }

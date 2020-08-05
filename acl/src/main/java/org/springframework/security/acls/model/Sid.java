@@ -31,15 +31,14 @@ import java.io.Serializable;
  * @author Ben Alex
  */
 public interface Sid extends Serializable {
+
 	// ~ Methods
 	// ========================================================================================================
 
 	/**
 	 * Refer to the <code>java.lang.Object</code> documentation for the interface
 	 * contract.
-	 *
 	 * @param obj to be compared
-	 *
 	 * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
 	 */
 	boolean equals(Object obj);
@@ -47,8 +46,8 @@ public interface Sid extends Serializable {
 	/**
 	 * Refer to the <code>java.lang.Object</code> documentation for the interface
 	 * contract.
-	 *
 	 * @return a hash code representation of this object
 	 */
 	int hashCode();
+
 }

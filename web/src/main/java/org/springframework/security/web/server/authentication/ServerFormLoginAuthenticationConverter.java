@@ -35,4 +35,5 @@ public class ServerFormLoginAuthenticationConverter
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		return apply(exchange);
 	}
+
 }

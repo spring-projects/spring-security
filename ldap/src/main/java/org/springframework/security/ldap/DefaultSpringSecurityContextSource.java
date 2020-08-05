@@ -47,6 +47,7 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class DefaultSpringSecurityContextSource extends LdapContextSource {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private String rootDn;
@@ -55,7 +56,6 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	 * Create and initialize an instance which will connect to the supplied LDAP URL. If
 	 * you want to use more than one server for fail-over, rather use the
 	 * {@link #DefaultSpringSecurityContextSource(List, String)} constructor.
-	 *
 	 * @param providerUrl an LDAP URL of the form
 	 * <code>ldap://localhost:389/base_dn</code>
 	 */
@@ -79,8 +79,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 				this.rootDn = urlRootDn;
 			}
 			else if (!this.rootDn.equals(urlRootDn)) {
-				throw new IllegalArgumentException(
-						"Root DNs must be the same when using multiple URLs");
+				throw new IllegalArgumentException("Root DNs must be the same when using multiple URLs");
 			}
 		}
 
@@ -96,8 +95,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 				// user.
 				if (!DefaultSpringSecurityContextSource.this.userDn.equals(dn)
 						&& env.containsKey(SUN_LDAP_POOLING_FLAG)) {
-					DefaultSpringSecurityContextSource.this.logger
-							.debug("Removing pooling flag for user " + dn);
+					DefaultSpringSecurityContextSource.this.logger.debug("Removing pooling flag for user " + dn);
 					env.remove(SUN_LDAP_POOLING_FLAG);
 				}
 			}
@@ -107,7 +105,6 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	/**
 	 * Create and initialize an instance which will connect of the LDAP Spring Security
 	 * Context Source. It will connect to any of the provided LDAP server URLs.
-	 *
 	 * @param urls A list of string values which are LDAP server URLs. An example would be
 	 * <code>ldap://ldap.company.com:389</code>. LDAPS URLs (SSL-secured) may be used as
 	 * well, given that Spring Security is able to connect to the server. Note that these
@@ -128,7 +125,6 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 	 * Builds a Spring LDAP-compliant Provider URL string, i.e. a space-separated list of
 	 * LDAP servers with their base DNs. As the base DN must be identical for all servers,
 	 * it needs to be supplied only once.
-	 *
 	 * @param urls A list of string values which are LDAP server URLs. An example would be
 	 *
 	 * <pre>

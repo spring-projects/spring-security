@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Joe Scalise
  */
 public class BusinessServiceImpl<E extends Entity> implements BusinessService {
@@ -67,4 +66,5 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
 	public void rolesAllowedUser() {
 
 	}
+
 }

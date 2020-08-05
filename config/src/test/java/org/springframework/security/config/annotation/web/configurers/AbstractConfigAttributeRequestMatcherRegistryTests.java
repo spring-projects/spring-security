@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 public class AbstractConfigAttributeRequestMatcherRegistryTests {
+
 	private ConcreteAbstractRequestMatcherMappingConfigurer registry;
 
 	@Before
@@ -37,7 +38,7 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void testGetRequestMatcherIsTypeRegexMatcher(){
+	public void testGetRequestMatcherIsTypeRegexMatcher() {
 		List<RequestMatcher> requestMatchers = registry.regexMatchers(HttpMethod.GET, "/a.*");
 
 		for (RequestMatcher requestMatcher : requestMatchers) {
@@ -46,8 +47,8 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void testRequestMatcherIsTypeRegexMatcher(){
-		List<RequestMatcher> requestMatchers = registry.regexMatchers( "/a.*");
+	public void testRequestMatcherIsTypeRegexMatcher() {
+		List<RequestMatcher> requestMatchers = registry.regexMatchers("/a.*");
 
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(RegexRequestMatcher.class);
@@ -55,7 +56,7 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void testGetRequestMatcherIsTypeAntPathRequestMatcher(){
+	public void testGetRequestMatcherIsTypeAntPathRequestMatcher() {
 		List<RequestMatcher> requestMatchers = registry.antMatchers(HttpMethod.GET, "/a.*");
 
 		for (RequestMatcher requestMatcher : requestMatchers) {
@@ -64,7 +65,7 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void testRequestMatcherIsTypeAntPathRequestMatcher(){
+	public void testRequestMatcherIsTypeAntPathRequestMatcher() {
 		List<RequestMatcher> requestMatchers = registry.antMatchers("/a.*");
 
 		for (RequestMatcher requestMatcher : requestMatchers) {
@@ -72,7 +73,9 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 		}
 	}
 
-	static class ConcreteAbstractRequestMatcherMappingConfigurer extends AbstractConfigAttributeRequestMatcherRegistry<List<RequestMatcher>> {
+	static class ConcreteAbstractRequestMatcherMappingConfigurer
+			extends AbstractConfigAttributeRequestMatcherRegistry<List<RequestMatcher>> {
+
 		List<AccessDecisionVoter> decisionVoters() {
 			return null;
 		}
@@ -88,5 +91,7 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 		public List<RequestMatcher> mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			return null;
 		}
+
 	}
+
 }

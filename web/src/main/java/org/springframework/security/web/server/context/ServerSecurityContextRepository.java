@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * Strategy used for persisting a {@link SecurityContext} between requests.
+ *
  * @author Rob Winch
  * @since 5.0
  * @see ReactorContextWebFilter
@@ -42,4 +43,5 @@ public interface ServerSecurityContextRepository {
 	 * @return the {@link SecurityContext} to lookup or empty if not found. Never null
 	 */
 	Mono<SecurityContext> load(ServerWebExchange exchange);
+
 }

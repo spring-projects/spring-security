@@ -67,4 +67,5 @@ public class PasswordEncoderUtilsTests {
 	public void equalsWhenSameThenTrue() {
 		assertThat(PasswordEncoderUtils.equals("abcdef", "abcdef")).isTrue();
 	}
+
 }

@@ -75,8 +75,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @RunWith(SpringJUnit4ClassRunner.class)
 @SecurityTestExecutionListeners
 public class WebSocketMessageBrokerConfigTests {
-	private static final String CONFIG_LOCATION_PREFIX =
-			"classpath:org/springframework/security/config/websocket/WebSocketMessageBrokerConfigTests";
+
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/websocket/WebSocketMessageBrokerConfigTests";
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -112,8 +112,7 @@ public class WebSocketMessageBrokerConfigTests {
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
 		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
 
-		assertThatCode(() -> this.clientInboundChannel.send(message("/permitAll", headers)))
-				.doesNotThrowAnyException();
+		assertThatCode(() -> this.clientInboundChannel.send(message("/permitAll", headers))).doesNotThrowAnyException();
 	}
 
 	@Test
@@ -244,56 +243,49 @@ public class WebSocketMessageBrokerConfigTests {
 
 	@Test
 	public void configureWhenUsingConnectMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () ->
-				this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire();
+		ThrowingCallable bad = () -> this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire();
 
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingConnectAckMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () ->
-				this.spring.configLocations(xml("ConnectAckInterceptTypeConfig")).autowire();
+		ThrowingCallable bad = () -> this.spring.configLocations(xml("ConnectAckInterceptTypeConfig")).autowire();
 
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingDisconnectMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () ->
-				this.spring.configLocations(xml("DisconnectInterceptTypeConfig")).autowire();
+		ThrowingCallable bad = () -> this.spring.configLocations(xml("DisconnectInterceptTypeConfig")).autowire();
 
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingDisconnectAckMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () ->
-				this.spring.configLocations(xml("DisconnectAckInterceptTypeConfig")).autowire();
+		ThrowingCallable bad = () -> this.spring.configLocations(xml("DisconnectAckInterceptTypeConfig")).autowire();
 
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingHeartbeatMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () ->
-				this.spring.configLocations(xml("HeartbeatInterceptTypeConfig")).autowire();
+		ThrowingCallable bad = () -> this.spring.configLocations(xml("HeartbeatInterceptTypeConfig")).autowire();
 
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingOtherMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () ->
-				this.spring.configLocations(xml("OtherInterceptTypeConfig")).autowire();
+		ThrowingCallable bad = () -> this.spring.configLocations(xml("OtherInterceptTypeConfig")).autowire();
 
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
 
 	@Test
 	public void configureWhenUsingUnsubscribeMessageTypeThenAutowireFails() {
-		ThrowingCallable bad = () ->
-				this.spring.configLocations(xml("UnsubscribeInterceptTypeConfig")).autowire();
+		ThrowingCallable bad = () -> this.spring.configLocations(xml("UnsubscribeInterceptTypeConfig")).autowire();
 
 		assertThatThrownBy(bad).isInstanceOf(BeanDefinitionParsingException.class);
 	}
@@ -317,17 +309,14 @@ public class WebSocketMessageBrokerConfigTests {
 		String csrfAttributeName = CsrfToken.class.getName();
 		String customAttributeName = this.getClass().getName();
 
-		MvcResult result = mvc.perform(get("/app")
-								.requestAttr(csrfAttributeName, this.token)
-								.sessionAttr(customAttributeName, "attributeValue"))
-							.andReturn();
+		MvcResult result = mvc.perform(get("/app").requestAttr(csrfAttributeName, this.token)
+				.sessionAttr(customAttributeName, "attributeValue")).andReturn();
 
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
 
-		assertThat(handshakeToken).isEqualTo(this.token)
-				.withFailMessage("CsrfToken is populated");
+		assertThat(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
 
 		assertThat(handshakeValue).isEqualTo(sessionValue)
 				.withFailMessage("Explicitly listed session variables are not overridden");
@@ -343,17 +332,14 @@ public class WebSocketMessageBrokerConfigTests {
 		String csrfAttributeName = CsrfToken.class.getName();
 		String customAttributeName = this.getClass().getName();
 
-		MvcResult result = mvc.perform(get("/app/289/tpyx6mde/websocket")
-								.requestAttr(csrfAttributeName, this.token)
-								.sessionAttr(customAttributeName, "attributeValue"))
-							.andReturn();
+		MvcResult result = mvc.perform(get("/app/289/tpyx6mde/websocket").requestAttr(csrfAttributeName, this.token)
+				.sessionAttr(customAttributeName, "attributeValue")).andReturn();
 
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
 
-		assertThat(handshakeToken).isEqualTo(this.token)
-				.withFailMessage("CsrfToken is populated");
+		assertThat(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
 
 		assertThat(handshakeValue).isEqualTo(sessionValue)
 				.withFailMessage("Explicitly listed session variables are not overridden");
@@ -452,28 +438,33 @@ public class WebSocketMessageBrokerConfigTests {
 
 	@Controller
 	static class MessageController {
+
 		String username;
 
 		@MessageMapping("/message")
 		public void authentication(@AuthenticationPrincipal String username) {
 			this.username = username;
 		}
+
 	}
 
 	@Controller
 	static class MessageWithArgumentController {
+
 		MessageArgument messageArgument;
 
 		@MessageMapping("/message-with-argument")
 		public void myCustom(MessageArgument messageArgument) {
 			this.messageArgument = messageArgument;
 		}
+
 	}
 
-
 	static class MessageArgument {
+
 		MessageArgument(String notDefaultConstructor) {
 		}
+
 	}
 
 	static class MessageArgumentResolver implements HandlerMethodArgumentResolver {
@@ -487,22 +478,23 @@ public class WebSocketMessageBrokerConfigTests {
 		public Object resolveArgument(MethodParameter parameter, Message<?> message) {
 			return new MessageArgument("");
 		}
+
 	}
 
 	static class TestHandshakeHandler implements HandshakeHandler {
+
 		Map<String, Object> attributes;
 
 		@Override
-		public boolean doHandshake(
-				ServerHttpRequest request,
-				org.springframework.http.server.ServerHttpResponse response,
-				WebSocketHandler wsHandler,
+		public boolean doHandshake(ServerHttpRequest request,
+				org.springframework.http.server.ServerHttpResponse response, WebSocketHandler wsHandler,
 				Map<String, Object> attributes) throws HandshakeFailureException {
 
 			this.attributes = attributes;
 
 			return true;
 		}
+
 	}
 
 	static class InboundExecutorPostProcessor implements BeanDefinitionRegistryPostProcessor {
@@ -510,14 +502,15 @@ public class WebSocketMessageBrokerConfigTests {
 		@Override
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 			BeanDefinition inbound = registry.getBeanDefinition("clientInboundChannel");
-			inbound.getConstructorArgumentValues()
-					.addIndexedArgumentValue(0, new RootBeanDefinition(SyncTaskExecutor.class));
+			inbound.getConstructorArgumentValues().addIndexedArgumentValue(0,
+					new RootBeanDefinition(SyncTaskExecutor.class));
 		}
 
 		@Override
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
 		}
+
 	}
 
 	static class ExceptingInterceptor extends ChannelInterceptorAdapter {
@@ -526,14 +519,13 @@ public class WebSocketMessageBrokerConfigTests {
 		public Message<?> preSend(Message<?> message, MessageChannel channel) {
 			throw new UnsupportedOperationException("no");
 		}
+
 	}
 
-	static class DenyNileMessageSecurityExpressionHandler
-			extends DefaultMessageSecurityExpressionHandler<Object> {
+	static class DenyNileMessageSecurityExpressionHandler extends DefaultMessageSecurityExpressionHandler<Object> {
 
 		@Override
-		protected SecurityExpressionOperations createSecurityExpressionRoot(
-				Authentication authentication,
+		protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 				Message<Object> invocation) {
 
 			return new MessageSecurityExpressionRoot(authentication, invocation) {
@@ -543,5 +535,7 @@ public class WebSocketMessageBrokerConfigTests {
 				}
 			};
 		}
+
 	}
+
 }

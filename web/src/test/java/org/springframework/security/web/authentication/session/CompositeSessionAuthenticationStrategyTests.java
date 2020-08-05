@@ -62,14 +62,12 @@ public class CompositeSessionAuthenticationStrategyTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorEmptyDelegates() {
-		new CompositeSessionAuthenticationStrategy(
-				Collections.<SessionAuthenticationStrategy> emptyList());
+		new CompositeSessionAuthenticationStrategy(Collections.<SessionAuthenticationStrategy>emptyList());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorDelegatesContainNull() {
-		new CompositeSessionAuthenticationStrategy(
-				Collections.<SessionAuthenticationStrategy> singletonList(null));
+		new CompositeSessionAuthenticationStrategy(Collections.<SessionAuthenticationStrategy>singletonList(null));
 	}
 
 	@Test
@@ -84,8 +82,8 @@ public class CompositeSessionAuthenticationStrategyTests {
 
 	@Test
 	public void delegateShortCircuits() {
-		doThrow(new SessionAuthenticationException("oops")).when(
-				strategy1).onAuthentication(authentication, request, response);
+		doThrow(new SessionAuthenticationException("oops")).when(strategy1).onAuthentication(authentication, request,
+				response);
 
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
 				Arrays.asList(strategy1, strategy2));
@@ -100,4 +98,5 @@ public class CompositeSessionAuthenticationStrategyTests {
 		verify(strategy1).onAuthentication(authentication, request, response);
 		verify(strategy2, times(0)).onAuthentication(authentication, request, response);
 	}
+
 }

@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +29,7 @@ import static org.mockito.Mockito.mock;
  *
  */
 public class SecurityConfigurerAdapterClosureTests {
+
 	ConcereteSecurityConfigurerAdapter conf = new ConcereteSecurityConfigurerAdapter();
 
 	@Test
@@ -49,8 +49,8 @@ public class SecurityConfigurerAdapterClosureTests {
 		assertThat(this.conf.list).contains("a");
 	}
 
-	static class ConcereteSecurityConfigurerAdapter extends
-			SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+	static class ConcereteSecurityConfigurerAdapter extends SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+
 		private List<Object> list = new ArrayList<Object>();
 
 		@Override
@@ -62,5 +62,7 @@ public class SecurityConfigurerAdapterClosureTests {
 			this.list = l;
 			return this;
 		}
+
 	}
+
 }

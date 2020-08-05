@@ -93,17 +93,21 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	// ================================================================================================
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
+
 	private AuthenticationManager authenticationManager;
+
 	private RememberMeServices rememberMeServices = new NullRememberMeServices();
+
 	private boolean ignoreFailure = false;
+
 	private String credentialsCharset = "UTF-8";
+
 	private BasicAuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
 
 	/**
 	 * Creates an instance which will authenticate against the supplied
 	 * {@code AuthenticationManager} and which will ignore failed authentication attempts,
 	 * allowing the request to proceed down the filter chain.
-	 *
 	 * @param authenticationManager the bean to submit authentication requests to
 	 */
 	public BasicAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -116,7 +120,6 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	 * Creates an instance which will authenticate against the supplied
 	 * {@code AuthenticationManager} and use the supplied {@code AuthenticationEntryPoint}
 	 * to handle authentication failures.
-	 *
 	 * @param authenticationManager the bean to submit authentication requests to
 	 * @param authenticationEntryPoint will be invoked when authentication fails.
 	 * Typically an instance of {@link BasicAuthenticationEntryPoint}.
@@ -124,8 +127,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	public BasicAuthenticationFilter(AuthenticationManager authenticationManager,
 			AuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
-		Assert.notNull(authenticationEntryPoint,
-				"authenticationEntryPoint cannot be null");
+		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationManager = authenticationManager;
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
@@ -135,19 +137,16 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	@Override
 	public void afterPropertiesSet() {
-		Assert.notNull(this.authenticationManager,
-				"An AuthenticationManager is required");
+		Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
 
 		if (!isIgnoreFailure()) {
-			Assert.notNull(this.authenticationEntryPoint,
-					"An AuthenticationEntryPoint is required");
+			Assert.notNull(this.authenticationEntryPoint, "An AuthenticationEntryPoint is required");
 		}
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response, FilterChain chain)
-					throws IOException, ServletException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		final boolean debug = this.logger.isDebugEnabled();
 		try {
 			UsernamePasswordAuthenticationToken authRequest = authenticationConverter.convert(request);
@@ -159,14 +158,11 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			String username = authRequest.getName();
 
 			if (debug) {
-				this.logger
-						.debug("Basic Authentication Authorization header found for user '"
-								+ username + "'");
+				this.logger.debug("Basic Authentication Authorization header found for user '" + username + "'");
 			}
 
 			if (authenticationIsRequired(username)) {
-				Authentication authResult = this.authenticationManager
-						.authenticate(authRequest);
+				Authentication authResult = this.authenticationManager.authenticate(authRequest);
 
 				if (debug) {
 					this.logger.debug("Authentication success: " + authResult);
@@ -208,8 +204,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		// Only reauthenticate if username doesn't match SecurityContextHolder and user
 		// isn't authenticated
 		// (see SEC-53)
-		Authentication existingAuth = SecurityContextHolder.getContext()
-				.getAuthentication();
+		Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
 
 		if (existingAuth == null || !existingAuth.isAuthenticated()) {
 			return true;
@@ -219,8 +214,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		// UsernamePasswordAuthenticationToken)
 		// (see SEC-348)
 
-		if (existingAuth instanceof UsernamePasswordAuthenticationToken
-				&& !existingAuth.getName().equals(username)) {
+		if (existingAuth instanceof UsernamePasswordAuthenticationToken && !existingAuth.getName().equals(username)) {
 			return true;
 		}
 
@@ -244,12 +238,12 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		return false;
 	}
 
-	protected void onSuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, Authentication authResult) throws IOException {
+	protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			Authentication authResult) throws IOException {
 	}
 
-	protected void onUnsuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException failed) throws IOException {
+	protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException failed) throws IOException {
 	}
 
 	protected AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -283,4 +277,5 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	protected String getCredentialsCharset(HttpServletRequest httpRequest) {
 		return this.credentialsCharset;
 	}
+
 }

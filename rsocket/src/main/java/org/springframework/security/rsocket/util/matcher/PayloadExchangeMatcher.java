@@ -24,6 +24,7 @@ import java.util.Map;
 
 /**
  * An interface for determining if a {@link PayloadExchangeMatcher} matches.
+ *
  * @author Rob Winch
  * @since 5.2
  */
@@ -40,7 +41,9 @@ public interface PayloadExchangeMatcher {
 	 * The result of matching
 	 */
 	class MatchResult {
+
 		private final boolean match;
+
 		private final Map<String, Object> variables;
 
 		private MatchResult(boolean match, Map<String, Object> variables) {
@@ -70,7 +73,8 @@ public interface PayloadExchangeMatcher {
 
 		/**
 		 *
-		 * Creates an instance of {@link MatchResult} that is a match with the specified variables
+		 * Creates an instance of {@link MatchResult} that is a match with the specified
+		 * variables
 		 * @param variables
 		 * @return
 		 */
@@ -85,5 +89,7 @@ public interface PayloadExchangeMatcher {
 		public static Mono<MatchResult> notMatch() {
 			return Mono.just(new MatchResult(false, Collections.emptyMap()));
 		}
+
 	}
+
 }

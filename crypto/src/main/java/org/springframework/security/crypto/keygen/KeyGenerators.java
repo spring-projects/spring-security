@@ -20,6 +20,7 @@ import java.security.SecureRandom;
 /**
  * Factory for commonly used key generators. Public API for constructing a
  * {@link BytesKeyGenerator} or {@link StringKeyGenerator}.
+ *
  * @author Keith Donald
  */
 public class KeyGenerators {
@@ -62,4 +63,5 @@ public class KeyGenerators {
 
 	private KeyGenerators() {
 	}
+
 }

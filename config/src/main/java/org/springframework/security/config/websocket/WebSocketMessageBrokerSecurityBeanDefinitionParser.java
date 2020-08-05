@@ -93,8 +93,8 @@ import org.w3c.dom.Element;
  * @author Rob Winch
  * @since 4.0
  */
-public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
-		BeanDefinitionParser {
+public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements BeanDefinitionParser {
+
 	private static final String ID_ATTR = "id";
 
 	private static final String DISABLED_ATTR = "same-origin-disabled";
@@ -119,23 +119,19 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		ManagedMap<BeanDefinition, String> matcherToExpression = new ManagedMap<>();
 
 		String id = element.getAttribute(ID_ATTR);
-		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element,
-				EXPRESSION_HANDLER);
+		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, EXPRESSION_HANDLER);
 		String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
 		boolean expressionHandlerDefined = StringUtils.hasText(expressionHandlerRef);
 
-		boolean sameOriginDisabled = Boolean.parseBoolean(element
-				.getAttribute(DISABLED_ATTR));
+		boolean sameOriginDisabled = Boolean.parseBoolean(element.getAttribute(DISABLED_ATTR));
 
-		List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element,
-				Elements.INTERCEPT_MESSAGE);
+		List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_MESSAGE);
 		for (Element interceptMessage : interceptMessages) {
 			String matcherPattern = interceptMessage.getAttribute(PATTERN_ATTR);
 			String accessExpression = interceptMessage.getAttribute(ACCESS_ATTR);
 			String messageType = interceptMessage.getAttribute(TYPE_ATTR);
 
-			BeanDefinition matcher = createMatcher(matcherPattern, messageType,
-					parserContext, interceptMessage);
+			BeanDefinition matcher = createMatcher(matcherPattern, messageType, parserContext, interceptMessage);
 			matcherToExpression.put(matcher, accessExpression);
 		}
 
@@ -150,24 +146,21 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		String mdsId = context.registerWithGeneratedName(mds.getBeanDefinition());
 
 		ManagedList<BeanDefinition> voters = new ManagedList<>();
-		BeanDefinitionBuilder messageExpressionVoterBldr = BeanDefinitionBuilder.rootBeanDefinition(MessageExpressionVoter.class);
+		BeanDefinitionBuilder messageExpressionVoterBldr = BeanDefinitionBuilder
+				.rootBeanDefinition(MessageExpressionVoter.class);
 		if (expressionHandlerDefined) {
 			messageExpressionVoterBldr.addPropertyReference("expressionHandler", expressionHandlerRef);
 		}
 		voters.add(messageExpressionVoterBldr.getBeanDefinition());
-		BeanDefinitionBuilder adm = BeanDefinitionBuilder
-				.rootBeanDefinition(ConsensusBased.class);
+		BeanDefinitionBuilder adm = BeanDefinitionBuilder.rootBeanDefinition(ConsensusBased.class);
 		adm.addConstructorArgValue(voters);
 
 		BeanDefinitionBuilder inboundChannelSecurityInterceptor = BeanDefinitionBuilder
 				.rootBeanDefinition(ChannelSecurityInterceptor.class);
-		inboundChannelSecurityInterceptor.addConstructorArgValue(registry
-				.getBeanDefinition(mdsId));
-		inboundChannelSecurityInterceptor.addPropertyValue("accessDecisionManager",
-				adm.getBeanDefinition());
+		inboundChannelSecurityInterceptor.addConstructorArgValue(registry.getBeanDefinition(mdsId));
+		inboundChannelSecurityInterceptor.addPropertyValue("accessDecisionManager", adm.getBeanDefinition());
 		String inSecurityInterceptorName = context
-				.registerWithGeneratedName(inboundChannelSecurityInterceptor
-						.getBeanDefinition());
+				.registerWithGeneratedName(inboundChannelSecurityInterceptor.getBeanDefinition());
 
 		if (StringUtils.hasText(id)) {
 			registry.registerAlias(inSecurityInterceptorName, id);
@@ -177,8 +170,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			}
 		}
 		else {
-			BeanDefinitionBuilder mspp = BeanDefinitionBuilder
-					.rootBeanDefinition(MessageSecurityPostProcessor.class);
+			BeanDefinitionBuilder mspp = BeanDefinitionBuilder.rootBeanDefinition(MessageSecurityPostProcessor.class);
 			mspp.addConstructorArgValue(inSecurityInterceptorName);
 			mspp.addConstructorArgValue(sameOriginDisabled);
 			context.registerWithGeneratedName(mspp.getBeanDefinition());
@@ -187,13 +179,12 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		return null;
 	}
 
-	private BeanDefinition createMatcher(String matcherPattern, String messageType,
-			ParserContext parserContext, Element interceptMessage) {
+	private BeanDefinition createMatcher(String matcherPattern, String messageType, ParserContext parserContext,
+			Element interceptMessage) {
 		boolean hasPattern = StringUtils.hasText(matcherPattern);
 		boolean hasMessageType = StringUtils.hasText(messageType);
 		if (!hasPattern) {
-			BeanDefinitionBuilder matcher = BeanDefinitionBuilder
-					.rootBeanDefinition(SimpMessageTypeMatcher.class);
+			BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpMessageTypeMatcher.class);
 			matcher.addConstructorArgValue(messageType);
 			return matcher.getBeanDefinition();
 		}
@@ -208,25 +199,19 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				factoryName = "createSubscribeMatcher";
 			}
 			else {
-				parserContext
-						.getReaderContext()
-						.error("Cannot use intercept-websocket@message-type="
-								+ messageType
-								+ " with a pattern because the type does not have a destination.",
-								interceptMessage);
+				parserContext.getReaderContext().error("Cannot use intercept-websocket@message-type=" + messageType
+						+ " with a pattern because the type does not have a destination.", interceptMessage);
 			}
 		}
 
-		BeanDefinitionBuilder matcher = BeanDefinitionBuilder
-				.rootBeanDefinition(SimpDestinationMessageMatcher.class);
+		BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpDestinationMessageMatcher.class);
 		matcher.setFactoryMethod(factoryName);
 		matcher.addConstructorArgValue(matcherPattern);
 		matcher.addConstructorArgValue(new RuntimeBeanReference("springSecurityMessagePathMatcher"));
 		return matcher.getBeanDefinition();
 	}
 
-	static class MessageSecurityPostProcessor implements
-			BeanDefinitionRegistryPostProcessor {
+	static class MessageSecurityPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
 		/**
 		 * This is not available prior to Spring 4.2
@@ -248,22 +233,19 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			this.sameOriginDisabled = sameOriginDisabled;
 		}
 
-		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
-				throws BeansException {
+		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 			String[] beanNames = registry.getBeanDefinitionNames();
 			for (String beanName : beanNames) {
 				BeanDefinition bd = registry.getBeanDefinition(beanName);
 				String beanClassName = bd.getBeanClassName();
-				if (SimpAnnotationMethodMessageHandler.class.getName().equals(beanClassName) ||
-						WEB_SOCKET_AMMH_CLASS_NAME.equals(beanClassName)) {
-					PropertyValue current = bd.getPropertyValues().getPropertyValue(
-							CUSTOM_ARG_RESOLVERS_PROP);
+				if (SimpAnnotationMethodMessageHandler.class.getName().equals(beanClassName)
+						|| WEB_SOCKET_AMMH_CLASS_NAME.equals(beanClassName)) {
+					PropertyValue current = bd.getPropertyValues().getPropertyValue(CUSTOM_ARG_RESOLVERS_PROP);
 					ManagedList<Object> argResolvers = new ManagedList<>();
 					if (current != null) {
 						argResolvers.addAll((ManagedList<?>) current.getValue());
 					}
-					argResolvers.add(new RootBeanDefinition(
-							AuthenticationPrincipalArgumentResolver.class));
+					argResolvers.add(new RootBeanDefinition(AuthenticationPrincipalArgumentResolver.class));
 					bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);
 
 					if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
@@ -292,20 +274,17 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				return;
 			}
 			ManagedList<Object> interceptors = new ManagedList();
-			interceptors.add(new RootBeanDefinition(
-					SecurityContextChannelInterceptor.class));
+			interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
 			if (!sameOriginDisabled) {
 				interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
 			}
 			interceptors.add(registry.getBeanDefinition(inboundSecurityInterceptorId));
 
-			BeanDefinition inboundChannel = registry
-					.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
+			BeanDefinition inboundChannel = registry.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
 			PropertyValue currentInterceptorsPv = inboundChannel.getPropertyValues()
 					.getPropertyValue(INTERCEPTORS_PROP);
 			if (currentInterceptorsPv != null) {
-				ManagedList<?> currentInterceptors = (ManagedList<?>) currentInterceptorsPv
-						.getValue();
+				ManagedList<?> currentInterceptors = (ManagedList<?>) currentInterceptorsPv.getValue();
 				interceptors.addAll(currentInterceptors);
 			}
 
@@ -323,15 +302,14 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			String interceptorPropertyName = "handshakeInterceptors";
 			ManagedList<? super Object> interceptors = new ManagedList<>();
 			interceptors.add(new RootBeanDefinition(CsrfTokenHandshakeInterceptor.class));
-			interceptors.addAll((ManagedList<Object>) bd.getPropertyValues().get(
-					interceptorPropertyName));
+			interceptors.addAll((ManagedList<Object>) bd.getPropertyValues().get(interceptorPropertyName));
 			bd.getPropertyValues().add(interceptorPropertyName, interceptors);
 		}
 
-		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
-				throws BeansException {
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
 		}
+
 	}
 
 	static class DelegatingPathMatcher implements PathMatcher {
@@ -369,5 +347,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		void setPathMatcher(PathMatcher pathMatcher) {
 			this.delegate = pathMatcher;
 		}
+
 	}
+
 }

@@ -23,14 +23,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
 /**
- * A {@link ReactiveAuthenticationManager} that uses a {@link ReactiveUserDetailsService} to validate the provided
- * username and password.
+ * A {@link ReactiveAuthenticationManager} that uses a {@link ReactiveUserDetailsService}
+ * to validate the provided username and password.
  *
  * @author Rob Winch
  * @author Eddú Meléndez
  * @since 5.0
  */
-public class UserDetailsRepositoryReactiveAuthenticationManager extends AbstractUserDetailsReactiveAuthenticationManager {
+public class UserDetailsRepositoryReactiveAuthenticationManager
+		extends AbstractUserDetailsReactiveAuthenticationManager {
 
 	private ReactiveUserDetailsService userDetailsService;
 

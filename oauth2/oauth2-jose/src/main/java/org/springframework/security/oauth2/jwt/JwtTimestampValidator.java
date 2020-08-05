@@ -30,20 +30,23 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
 
 /**
- * An implementation of {@link OAuth2TokenValidator} for verifying claims in a Jwt-based access token
+ * An implementation of {@link OAuth2TokenValidator} for verifying claims in a Jwt-based
+ * access token
  *
  * <p>
- * Because clocks can differ between the Jwt source, say the Authorization Server, and its destination, say the
- * Resource Server, there is a default clock leeway exercised when deciding if the current time is within the Jwt's
- * specified operating window
+ * Because clocks can differ between the Jwt source, say the Authorization Server, and its
+ * destination, say the Resource Server, there is a default clock leeway exercised when
+ * deciding if the current time is within the Jwt's specified operating window
  *
  * @author Josh Cummings
  * @since 5.1
  * @see Jwt
  * @see OAuth2TokenValidator
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token
+ * (JWT)</a>
  */
 public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private static final Duration DEFAULT_MAX_CLOCK_SKEW = Duration.of(60, ChronoUnit.SECONDS);
@@ -94,21 +97,18 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 	private OAuth2Error createOAuth2Error(String reason) {
 		logger.debug(reason);
-		return new OAuth2Error(
-				OAuth2ErrorCodes.INVALID_REQUEST,
-				reason,
+		return new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, reason,
 				"https://tools.ietf.org/html/rfc6750#section-3.1");
 	}
 
 	/**
-	 * '
-	 * Use this {@link Clock} with {@link Instant#now()} for assessing
-	 * timestamp validity
-	 *
+	 * ' Use this {@link Clock} with {@link Instant#now()} for assessing timestamp
+	 * validity
 	 * @param clock
 	 */
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
 	}
+
 }

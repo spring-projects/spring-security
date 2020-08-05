@@ -51,11 +51,9 @@ import java.util.Collections;
  *
  * @see FormLoginConfigurer
  * @see OpenIDLoginConfigurer
- *
  * @param T refers to "this" for returning the current configurer
  * @param F refers to the {@link AbstractAuthenticationProcessingFilter} that is being
  * built
- *
  * @author Rob Winch
  * @since 3.2
  */
@@ -67,12 +65,15 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
 	private SavedRequestAwareAuthenticationSuccessHandler defaultSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+
 	private AuthenticationSuccessHandler successHandler = this.defaultSuccessHandler;
 
 	private LoginUrlAuthenticationEntryPoint authenticationEntryPoint;
 
 	private boolean customLoginPage;
+
 	private String loginPage;
+
 	private String loginProcessingUrl;
 
 	private AuthenticationFailureHandler failureHandler;
@@ -95,8 +96,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * @param defaultLoginProcessingUrl the default URL to use for
 	 * {@link #loginProcessingUrl(String)}
 	 */
-	protected AbstractAuthenticationFilterConfigurer(F authenticationFilter,
-			String defaultLoginProcessingUrl) {
+	protected AbstractAuthenticationFilterConfigurer(F authenticationFilter, String defaultLoginProcessingUrl) {
 		this();
 		this.authFilter = authenticationFilter;
 		if (defaultLoginProcessingUrl != null) {
@@ -105,10 +105,9 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Specifies where users will be redirected after authenticating successfully if
-	 * they have not visited a secured page prior to authenticating. This is a shortcut
-	 * for calling {@link #defaultSuccessUrl(String, boolean)}.
-	 *
+	 * Specifies where users will be redirected after authenticating successfully if they
+	 * have not visited a secured page prior to authenticating. This is a shortcut for
+	 * calling {@link #defaultSuccessUrl(String, boolean)}.
 	 * @param defaultSuccessUrl the default success url
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
@@ -117,11 +116,10 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Specifies where users will be redirected after authenticating successfully if
-	 * they have not visited a secured page prior to authenticating or {@code alwaysUse}
-	 * is true. This is a shortcut for calling
+	 * Specifies where users will be redirected after authenticating successfully if they
+	 * have not visited a secured page prior to authenticating or {@code alwaysUse} is
+	 * true. This is a shortcut for calling
 	 * {@link #successHandler(AuthenticationSuccessHandler)}.
-	 *
 	 * @param defaultSuccessUrl the default success url
 	 * @param alwaysUse true if the {@code defaultSuccesUrl} should be used after
 	 * authentication despite if a protected page had been previously visited
@@ -137,14 +135,12 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Specifies the URL to validate the credentials.
-	 *
 	 * @param loginProcessingUrl the URL to validate username and password
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
 	public T loginProcessingUrl(String loginProcessingUrl) {
 		this.loginProcessingUrl = loginProcessingUrl;
-		authFilter
-				.setRequiresAuthenticationRequestMatcher(createLoginProcessingUrlMatcher(loginProcessingUrl));
+		authFilter.setRequiresAuthenticationRequestMatcher(createLoginProcessingUrlMatcher(loginProcessingUrl));
 		return getSelf();
 	}
 
@@ -154,13 +150,11 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * loginProcessingUrl
 	 * @return the {@link RequestMatcher} to use based upon the loginProcessingUrl
 	 */
-	protected abstract RequestMatcher createLoginProcessingUrlMatcher(
-			String loginProcessingUrl);
+	protected abstract RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl);
 
 	/**
 	 * Specifies a custom {@link AuthenticationDetailsSource}. The default is
 	 * {@link WebAuthenticationDetailsSource}.
-	 *
 	 * @param authenticationDetailsSource the custom {@link AuthenticationDetailsSource}
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
@@ -174,7 +168,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * Specifies the {@link AuthenticationSuccessHandler} to be used. The default is
 	 * {@link SavedRequestAwareAuthenticationSuccessHandler} with no additional properties
 	 * set.
-	 *
 	 * @param successHandler the {@link AuthenticationSuccessHandler}.
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
@@ -192,9 +185,9 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Ensures the urls for {@link #failureUrl(String)} as well as for the {@link HttpSecurityBuilder}, the
-	 * {@link #getLoginPage} and {@link #getLoginProcessingUrl} are granted access to any user.
-	 *
+	 * Ensures the urls for {@link #failureUrl(String)} as well as for the
+	 * {@link HttpSecurityBuilder}, the {@link #getLoginPage} and
+	 * {@link #getLoginProcessingUrl} are granted access to any user.
 	 * @param permitAll true to grant access to the URLs false to skip this step
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
@@ -207,14 +200,12 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * The URL to send users if authentication fails. This is a shortcut for invoking
 	 * {@link #failureHandler(AuthenticationFailureHandler)}. The default is
 	 * "/login?error".
-	 *
 	 * @param authenticationFailureUrl the URL to send users if authentication fails (i.e.
 	 * "/login?error").
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
 	public final T failureUrl(String authenticationFailureUrl) {
-		T result = failureHandler(new SimpleUrlAuthenticationFailureHandler(
-				authenticationFailureUrl));
+		T result = failureHandler(new SimpleUrlAuthenticationFailureHandler(authenticationFailureUrl));
 		this.failureUrl = authenticationFailureUrl;
 		return result;
 	}
@@ -223,13 +214,11 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * Specifies the {@link AuthenticationFailureHandler} to use when authentication
 	 * fails. The default is redirecting to "/login?error" using
 	 * {@link SimpleUrlAuthenticationFailureHandler}
-	 *
 	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} to use
 	 * when authentication fails.
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
-	public final T failureHandler(
-			AuthenticationFailureHandler authenticationFailureHandler) {
+	public final T failureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
 		this.failureUrl = null;
 		this.failureHandler = authenticationFailureHandler;
 		return getSelf();
@@ -249,25 +238,23 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	@SuppressWarnings("unchecked")
 	protected final void registerAuthenticationEntryPoint(B http, AuthenticationEntryPoint authenticationEntryPoint) {
-		ExceptionHandlingConfigurer<B> exceptionHandling = http
-				.getConfigurer(ExceptionHandlingConfigurer.class);
+		ExceptionHandlingConfigurer<B> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionHandling == null) {
 			return;
 		}
-		exceptionHandling.defaultAuthenticationEntryPointFor(
-				postProcess(authenticationEntryPoint), getAuthenticationEntryPointMatcher(http));
+		exceptionHandling.defaultAuthenticationEntryPointFor(postProcess(authenticationEntryPoint),
+				getAuthenticationEntryPointMatcher(http));
 	}
 
 	protected final RequestMatcher getAuthenticationEntryPointMatcher(B http) {
-		ContentNegotiationStrategy contentNegotiationStrategy = http
-				.getSharedObject(ContentNegotiationStrategy.class);
+		ContentNegotiationStrategy contentNegotiationStrategy = http.getSharedObject(ContentNegotiationStrategy.class);
 		if (contentNegotiationStrategy == null) {
 			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 		}
 
-		MediaTypeRequestMatcher mediaMatcher = new MediaTypeRequestMatcher(
-				contentNegotiationStrategy, MediaType.APPLICATION_XHTML_XML,
-				new MediaType("image", "*"), MediaType.TEXT_HTML, MediaType.TEXT_PLAIN);
+		MediaTypeRequestMatcher mediaMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy,
+				MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
+				MediaType.TEXT_PLAIN);
 		mediaMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
@@ -288,8 +275,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 			this.defaultSuccessHandler.setRequestCache(requestCache);
 		}
 
-		authFilter.setAuthenticationManager(http
-				.getSharedObject(AuthenticationManager.class));
+		authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
 		authFilter.setAuthenticationSuccessHandler(successHandler);
 		authFilter.setAuthenticationFailureHandler(failureHandler);
 		if (authenticationDetailsSource != null) {
@@ -300,8 +286,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (sessionAuthenticationStrategy != null) {
 			authFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
 		}
-		RememberMeServices rememberMeServices = http
-				.getSharedObject(RememberMeServices.class);
+		RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
 		if (rememberMeServices != null) {
 			authFilter.setRememberMeServices(rememberMeServices);
 		}
@@ -330,7 +315,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 *
 	 * @return true if a custom login page has been specified, else false
 	 */
 	public final boolean isCustomLoginPage() {
@@ -339,7 +323,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Gets the Authentication Filter
-	 *
 	 * @return the Authentication Filter
 	 */
 	protected final F getAuthenticationFilter() {
@@ -348,7 +331,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Sets the Authentication Filter
-	 *
 	 * @param authFilter the Authentication Filter
 	 */
 	protected final void setAuthenticationFilter(F authFilter) {
@@ -357,7 +339,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Gets the login page
-	 *
 	 * @return the login page
 	 */
 	protected final String getLoginPage() {
@@ -366,7 +347,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Gets the Authentication Entry Point
-	 *
 	 * @return the Authentication Entry Point
 	 */
 	protected final AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -376,7 +356,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	/**
 	 * Gets the URL to submit an authentication request to (i.e. where username/password
 	 * must be submitted)
-	 *
 	 * @return the URL to submit an authentication request to
 	 */
 	protected final String getLoginProcessingUrl() {
@@ -385,7 +364,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Gets the URL to send users to if authentication fails
-	 *
 	 * @return the URL to send users if authentication fails (e.g. "/login?error").
 	 */
 	protected final String getFailureUrl() {
@@ -394,7 +372,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Updates the default values for authentication.
-	 *
 	 * @throws Exception
 	 */
 	protected final void updateAuthenticationDefaults() {
@@ -405,8 +382,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 			failureUrl(loginPage + "?error");
 		}
 
-		final LogoutConfigurer<B> logoutConfigurer = getBuilder().getConfigurer(
-				LogoutConfigurer.class);
+		final LogoutConfigurer<B> logoutConfigurer = getBuilder().getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null && !logoutConfigurer.isCustomLogoutSuccess()) {
 			logoutConfigurer.logoutSuccessUrl(loginPage + "?logout");
 		}
@@ -434,4 +410,5 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	private T getSelf() {
 		return (T) this;
 	}
+
 }

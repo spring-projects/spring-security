@@ -24,20 +24,20 @@ import java.util.Map;
  * @since 5.1
  */
 public class TestOAuth2AuthorizationRequests {
+
 	public static OAuth2AuthorizationRequest.Builder request() {
 		String registrationId = "registration-id";
 		String clientId = "client-id";
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registrationId);
 		return OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://example.com/login/oauth/authorize")
-				.clientId(clientId)
-				.redirectUri("https://example.com/authorize/oauth2/code/registration-id")
-				.state("state")
+				.authorizationUri("https://example.com/login/oauth/authorize").clientId(clientId)
+				.redirectUri("https://example.com/authorize/oauth2/code/registration-id").state("state")
 				.attributes(attributes);
 	}
 
 	public static OAuth2AuthorizationRequest.Builder oidcRequest() {
 		return request().scope("openid");
 	}
+
 }

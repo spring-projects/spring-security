@@ -30,7 +30,6 @@ import java.io.Serializable;
 public interface ObjectIdentityGenerator {
 
 	/**
-	 *
 	 * @param id the identifier of the domain object, not null
 	 * @param type the type of the object (often a class name), not null
 	 * @return the identity constructed using the supplied identifier and type

@@ -42,7 +42,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
- *
  * @author Rob Winch
  *
  */
@@ -50,6 +49,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ContextConfiguration
 @WebAppConfiguration
 public class AuthenticationPrincipalArgumentResolverTests {
+
 	@Autowired
 	WebApplicationContext wac;
 
@@ -62,21 +62,19 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	public void authenticationPrincipalExpressionWhenBeanExpressionSuppliedThenBeanUsed() throws Exception {
 		User user = new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		context.setAuthentication(new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
+		context.setAuthentication(
+				new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
 		SecurityContextHolder.setContext(context);
 
-		MockMvc mockMvc = MockMvcBuilders
-			.webAppContextSetup(wac)
-			.build();
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 
-		mockMvc.perform(get("/users/self"))
-			.andExpect(status().isOk())
-			.andExpect(content().string("extracted-user"));
+		mockMvc.perform(get("/users/self")).andExpect(status().isOk()).andExpect(content().string("extracted-user"));
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config {
+
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off

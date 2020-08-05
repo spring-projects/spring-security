@@ -43,32 +43,30 @@ import org.springframework.util.Assert;
  * If the key does not match, a <code>BadCredentialsException</code> is thrown.
  * </p>
  */
-public class RunAsImplAuthenticationProvider implements InitializingBean,
-		AuthenticationProvider, MessageSourceAware {
+public class RunAsImplAuthenticationProvider implements InitializingBean, AuthenticationProvider, MessageSourceAware {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private String key;
 
 	// ~ Methods
 	// ========================================================================================================
 
 	public void afterPropertiesSet() {
-		Assert.notNull(key,
-				"A Key is required and should match that configured for the RunAsManagerImpl");
+		Assert.notNull(key, "A Key is required and should match that configured for the RunAsManagerImpl");
 	}
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		RunAsUserToken token = (RunAsUserToken) authentication;
 
 		if (token.getKeyHash() == key.hashCode()) {
 			return authentication;
 		}
 		else {
-			throw new BadCredentialsException(messages.getMessage(
-					"RunAsImplAuthenticationProvider.incorrectKey",
+			throw new BadCredentialsException(messages.getMessage("RunAsImplAuthenticationProvider.incorrectKey",
 					"The presented RunAsUserToken does not contain the expected key"));
 		}
 	}
@@ -88,4 +86,5 @@ public class RunAsImplAuthenticationProvider implements InitializingBean,
 	public boolean supports(Class<?> authentication) {
 		return RunAsUserToken.class.isAssignableFrom(authentication);
 	}
+
 }

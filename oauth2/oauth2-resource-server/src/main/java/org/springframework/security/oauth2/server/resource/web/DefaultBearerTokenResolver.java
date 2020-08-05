@@ -33,13 +33,13 @@ import static org.springframework.security.oauth2.server.resource.BearerTokenErr
  *
  * @author Vedran Pavic
  * @since 5.1
- * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750 Section 2: Authenticated Requests</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750
+ * Section 2: Authenticated Requests</a>
  */
 public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
-	private static final Pattern authorizationPattern = Pattern.compile(
-		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
-		Pattern.CASE_INSENSITIVE);
+	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
+			Pattern.CASE_INSENSITIVE);
 
 	private boolean allowFormEncodedBodyParameter = false;
 
@@ -68,19 +68,21 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	}
 
 	/**
-	 * Set if transport of access token using form-encoded body parameter is supported. Defaults to {@code false}.
-	 * @param allowFormEncodedBodyParameter if the form-encoded body parameter is supported
+	 * Set if transport of access token using form-encoded body parameter is supported.
+	 * Defaults to {@code false}.
+	 * @param allowFormEncodedBodyParameter if the form-encoded body parameter is
+	 * supported
 	 */
 	public void setAllowFormEncodedBodyParameter(boolean allowFormEncodedBodyParameter) {
 		this.allowFormEncodedBodyParameter = allowFormEncodedBodyParameter;
 	}
 
 	/**
-	 * Set if transport of access token using URI query parameter is supported. Defaults to {@code false}.
+	 * Set if transport of access token using URI query parameter is supported. Defaults
+	 * to {@code false}.
 	 *
-	 * The spec recommends against using this mechanism for sending bearer tokens, and even goes as far as
-	 * stating that it was only included for completeness.
-	 *
+	 * The spec recommends against using this mechanism for sending bearer tokens, and
+	 * even goes as far as stating that it was only included for completeness.
 	 * @param allowUriQueryParameter if the URI query parameter is supported
 	 */
 	public void setAllowUriQueryParameter(boolean allowUriQueryParameter) {
@@ -91,8 +93,8 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	 * Set this value to configure what header is checked when resolving a Bearer Token.
 	 * This value is defaulted to {@link HttpHeaders#AUTHORIZATION}.
 	 *
-	 * This allows other headers to be used as the Bearer Token source such as {@link HttpHeaders#PROXY_AUTHORIZATION}
-	 *
+	 * This allows other headers to be used as the Bearer Token source such as
+	 * {@link HttpHeaders#PROXY_AUTHORIZATION}
 	 * @param bearerTokenHeaderName the header to check when retrieving the Bearer Token.
 	 * @since 5.4
 	 */
@@ -117,7 +119,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private static String resolveFromRequestParameters(HttpServletRequest request) {
 		String[] values = request.getParameterValues("access_token");
-		if (values == null || values.length == 0)  {
+		if (values == null || values.length == 0) {
 			return null;
 		}
 
@@ -133,4 +135,5 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		return ((this.allowFormEncodedBodyParameter && "POST".equals(request.getMethod()))
 				|| (this.allowUriQueryParameter && "GET".equals(request.getMethod())));
 	}
+
 }

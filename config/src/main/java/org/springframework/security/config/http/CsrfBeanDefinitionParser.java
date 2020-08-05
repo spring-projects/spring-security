@@ -62,30 +62,31 @@ import org.springframework.util.StringUtils;
 public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String REQUEST_DATA_VALUE_PROCESSOR = "requestDataValueProcessor";
+
 	private static final String DISPATCHER_SERVLET_CLASS_NAME = "org.springframework.web.servlet.DispatcherServlet";
+
 	private static final String ATT_MATCHER = "request-matcher-ref";
+
 	private static final String ATT_REPOSITORY = "token-repository-ref";
 
 	private String csrfRepositoryRef;
+
 	private BeanDefinition csrfFilter;
 
 	private String requestMatcherRef;
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
-		boolean disabled = element != null
-				&& "true".equals(element.getAttribute("disabled"));
+		boolean disabled = element != null && "true".equals(element.getAttribute("disabled"));
 		if (disabled) {
 			return null;
 		}
-		boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME,
-				getClass().getClassLoader());
+		boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME, getClass().getClassLoader());
 		if (webmvcPresent) {
 			if (!pc.getRegistry().containsBeanDefinition(REQUEST_DATA_VALUE_PROCESSOR)) {
-				RootBeanDefinition beanDefinition = new RootBeanDefinition(
-						CsrfRequestDataValueProcessor.class);
-				BeanComponentDefinition componentDefinition = new BeanComponentDefinition(
-						beanDefinition, REQUEST_DATA_VALUE_PROCESSOR);
+				RootBeanDefinition beanDefinition = new RootBeanDefinition(CsrfRequestDataValueProcessor.class);
+				BeanComponentDefinition componentDefinition = new BeanComponentDefinition(beanDefinition,
+						REQUEST_DATA_VALUE_PROCESSOR);
 				pc.registerBeanComponent(componentDefinition);
 			}
 		}
@@ -97,19 +98,16 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
 
-			RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(
-					HttpSessionCsrfTokenRepository.class);
+			RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(HttpSessionCsrfTokenRepository.class);
 			BeanDefinitionBuilder lazyTokenRepository = BeanDefinitionBuilder
 					.rootBeanDefinition(LazyCsrfTokenRepository.class);
 			lazyTokenRepository.addConstructorArgValue(csrfTokenRepository);
-			this.csrfRepositoryRef = pc.getReaderContext()
-					.generateBeanName(lazyTokenRepository.getBeanDefinition());
-			pc.registerBeanComponent(new BeanComponentDefinition(
-					lazyTokenRepository.getBeanDefinition(), this.csrfRepositoryRef));
+			this.csrfRepositoryRef = pc.getReaderContext().generateBeanName(lazyTokenRepository.getBeanDefinition());
+			pc.registerBeanComponent(
+					new BeanComponentDefinition(lazyTokenRepository.getBeanDefinition(), this.csrfRepositoryRef));
 		}
 
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder
-				.rootBeanDefinition(CsrfFilter.class);
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(CsrfFilter.class);
 		builder.addConstructorArgReference(this.csrfRepositoryRef);
 
 		if (StringUtils.hasText(this.requestMatcherRef)) {
@@ -122,16 +120,13 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	/**
 	 * Populate the AccessDeniedHandler on the {@link CsrfFilter}
-	 *
 	 * @param invalidSessionStrategy the {@link InvalidSessionStrategy} to use
 	 * @param defaultDeniedHandler the {@link AccessDeniedHandler} to use
 	 */
-	void initAccessDeniedHandler(BeanDefinition invalidSessionStrategy,
-			BeanMetadataElement defaultDeniedHandler) {
-		BeanMetadataElement accessDeniedHandler = createAccessDeniedHandler(
-				invalidSessionStrategy, defaultDeniedHandler);
-		this.csrfFilter.getPropertyValues().addPropertyValue("accessDeniedHandler",
-				accessDeniedHandler);
+	void initAccessDeniedHandler(BeanDefinition invalidSessionStrategy, BeanMetadataElement defaultDeniedHandler) {
+		BeanMetadataElement accessDeniedHandler = createAccessDeniedHandler(invalidSessionStrategy,
+				defaultDeniedHandler);
+		this.csrfFilter.getPropertyValues().addPropertyValue("accessDeniedHandler", accessDeniedHandler);
 	}
 
 	/**
@@ -143,15 +138,12 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 	 * {@link InvalidSessionAccessDeniedHandler} and the
 	 * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)}. Otherwise, only
 	 * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)} is used.
-	 *
 	 * @param invalidSessionStrategy the {@link InvalidSessionStrategy} to use
 	 * @param defaultDeniedHandler the {@link AccessDeniedHandler} to use
-	 *
 	 * @return the {@link BeanMetadataElement} that is the {@link AccessDeniedHandler} to
 	 * populate on the {@link CsrfFilter}
 	 */
-	private BeanMetadataElement createAccessDeniedHandler(
-			BeanDefinition invalidSessionStrategy,
+	private BeanMetadataElement createAccessDeniedHandler(BeanDefinition invalidSessionStrategy,
 			BeanMetadataElement defaultDeniedHandler) {
 		if (invalidSessionStrategy == null) {
 			return defaultDeniedHandler;
@@ -160,8 +152,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		BeanDefinitionBuilder invalidSessionHandlerBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(InvalidSessionAccessDeniedHandler.class);
 		invalidSessionHandlerBldr.addConstructorArgValue(invalidSessionStrategy);
-		handlers.put(MissingCsrfTokenException.class,
-				invalidSessionHandlerBldr.getBeanDefinition());
+		handlers.put(MissingCsrfTokenException.class, invalidSessionHandlerBldr.getBeanDefinition());
 
 		BeanDefinitionBuilder deniedBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(DelegatingAccessDeniedHandler.class);
@@ -190,29 +181,26 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 			BeanMetadataElement requestMatcher;
 			if (StringUtils.hasText(this.requestMatcherRef)) {
 				requestMatcher = new RuntimeBeanReference(this.requestMatcherRef);
-			} else {
+			}
+			else {
 				requestMatcher = new RootBeanDefinition(DefaultRequiresCsrfMatcher.class);
 			}
-			BeanDefinitionBuilder and = BeanDefinitionBuilder
-					.rootBeanDefinition(AndRequestMatcher.class);
-			BeanDefinitionBuilder negated = BeanDefinitionBuilder
-					.rootBeanDefinition(NegatedRequestMatcher.class);
-			BeanDefinitionBuilder or = BeanDefinitionBuilder
-					.rootBeanDefinition(OrRequestMatcher.class);
+			BeanDefinitionBuilder and = BeanDefinitionBuilder.rootBeanDefinition(AndRequestMatcher.class);
+			BeanDefinitionBuilder negated = BeanDefinitionBuilder.rootBeanDefinition(NegatedRequestMatcher.class);
+			BeanDefinitionBuilder or = BeanDefinitionBuilder.rootBeanDefinition(OrRequestMatcher.class);
 			or.addConstructorArgValue(requestMatchers);
 			negated.addConstructorArgValue(or.getBeanDefinition());
 			List<BeanMetadataElement> ands = new ManagedList<>();
 			ands.add(requestMatcher);
 			ands.add(negated.getBeanDefinition());
 			and.addConstructorArgValue(ands);
-			this.csrfFilter.getPropertyValues()
-					.add("requireCsrfProtectionMatcher", and.getBeanDefinition());
+			this.csrfFilter.getPropertyValues().add("requireCsrfProtectionMatcher", and.getBeanDefinition());
 		}
 	}
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
-		private final HashSet<String> allowedMethods = new HashSet<>(
-				Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
+
+		private final HashSet<String> allowedMethods = new HashSet<>(Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
 
 		/*
 		 * (non-Javadoc)
@@ -225,5 +213,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		public boolean matches(HttpServletRequest request) {
 			return !this.allowedMethods.contains(request.getMethod());
 		}
+
 	}
+
 }

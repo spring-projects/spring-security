@@ -31,12 +31,13 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository {
+
 	private static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
 
 	private static final String DEFAULT_CSRF_HEADER_NAME = "X-CSRF-TOKEN";
 
-	private static final String DEFAULT_CSRF_TOKEN_ATTR_NAME = HttpSessionCsrfTokenRepository.class
-			.getName().concat(".CSRF_TOKEN");
+	private static final String DEFAULT_CSRF_TOKEN_ATTR_NAME = HttpSessionCsrfTokenRepository.class.getName()
+			.concat(".CSRF_TOKEN");
 
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
 
@@ -51,8 +52,7 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	 * springframework .security.web.csrf.CsrfToken,
 	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
-	public void saveToken(CsrfToken token, HttpServletRequest request,
-			HttpServletResponse response) {
+	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		if (token == null) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -87,8 +87,7 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	 * servlet .http.HttpServletRequest)
 	 */
 	public CsrfToken generateToken(HttpServletRequest request) {
-		return new DefaultCsrfToken(this.headerName, this.parameterName,
-				createNewToken());
+		return new DefaultCsrfToken(this.headerName, this.parameterName, createNewToken());
 	}
 
 	/**
@@ -104,7 +103,6 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	/**
 	 * Sets the header name that the {@link CsrfToken} is expected to appear on and the
 	 * header that the response will contain the {@link CsrfToken}.
-	 *
 	 * @param headerName the new header name to use
 	 */
 	public void setHeaderName(String headerName) {
@@ -117,12 +115,12 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	 * @param sessionAttributeName the new attribute name to use
 	 */
 	public void setSessionAttributeName(String sessionAttributeName) {
-		Assert.hasLength(sessionAttributeName,
-				"sessionAttributename cannot be null or empty");
+		Assert.hasLength(sessionAttributeName, "sessionAttributename cannot be null or empty");
 		this.sessionAttributeName = sessionAttributeName;
 	}
 
 	private String createNewToken() {
 		return UUID.randomUUID().toString();
 	}
+
 }

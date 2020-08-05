@@ -36,13 +36,15 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public abstract class AbstractAuthenticationToken implements Authentication,
-		CredentialsContainer {
+public abstract class AbstractAuthenticationToken implements Authentication, CredentialsContainer {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final Collection<GrantedAuthority> authorities;
+
 	private Object details;
+
 	private boolean authenticated = false;
 
 	// ~ Constructors
@@ -50,9 +52,8 @@ public abstract class AbstractAuthenticationToken implements Authentication,
 
 	/**
 	 * Creates a token with the supplied array of authorities.
-	 *
 	 * @param authorities the collection of <tt>GrantedAuthority</tt>s for the principal
-	 *                    represented by this authentication object.
+	 * represented by this authentication object.
 	 */
 	public AbstractAuthenticationToken(Collection<? extends GrantedAuthority> authorities) {
 		if (authorities == null) {
@@ -62,12 +63,10 @@ public abstract class AbstractAuthenticationToken implements Authentication,
 
 		for (GrantedAuthority a : authorities) {
 			if (a == null) {
-				throw new IllegalArgumentException(
-						"Authorities collection cannot contain any null elements");
+				throw new IllegalArgumentException("Authorities collection cannot contain any null elements");
 			}
 		}
-		ArrayList<GrantedAuthority> temp = new ArrayList<>(
-				authorities.size());
+		ArrayList<GrantedAuthority> temp = new ArrayList<>(authorities.size());
 		temp.addAll(authorities);
 		this.authorities = Collections.unmodifiableList(temp);
 	}
@@ -154,8 +153,7 @@ public abstract class AbstractAuthenticationToken implements Authentication,
 			return false;
 		}
 
-		if ((this.getCredentials() != null)
-				&& !this.getCredentials().equals(test.getCredentials())) {
+		if ((this.getCredentials() != null) && !this.getCredentials().equals(test.getCredentials())) {
 			return false;
 		}
 
@@ -163,8 +161,7 @@ public abstract class AbstractAuthenticationToken implements Authentication,
 			return false;
 		}
 
-		if (this.getPrincipal() != null
-				&& !this.getPrincipal().equals(test.getPrincipal())) {
+		if (this.getPrincipal() != null && !this.getPrincipal().equals(test.getPrincipal())) {
 			return false;
 		}
 
@@ -218,10 +215,12 @@ public abstract class AbstractAuthenticationToken implements Authentication,
 
 				sb.append(authority);
 			}
-		} else {
+		}
+		else {
 			sb.append("Not granted any authorities");
 		}
 
 		return sb.toString();
 	}
+
 }

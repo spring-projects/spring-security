@@ -35,24 +35,25 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  */
 public class LdapUserDetailsService implements UserDetailsService {
+
 	private final LdapUserSearch userSearch;
+
 	private final LdapAuthoritiesPopulator authoritiesPopulator;
+
 	private UserDetailsContextMapper userDetailsMapper = new LdapUserDetailsMapper();
 
 	public LdapUserDetailsService(LdapUserSearch userSearch) {
 		this(userSearch, new NullLdapAuthoritiesPopulator());
 	}
 
-	public LdapUserDetailsService(LdapUserSearch userSearch,
-			LdapAuthoritiesPopulator authoritiesPopulator) {
+	public LdapUserDetailsService(LdapUserSearch userSearch, LdapAuthoritiesPopulator authoritiesPopulator) {
 		Assert.notNull(userSearch, "userSearch must not be null");
 		Assert.notNull(authoritiesPopulator, "authoritiesPopulator must not be null");
 		this.userSearch = userSearch;
 		this.authoritiesPopulator = authoritiesPopulator;
 	}
 
-	public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		DirContextOperations userData = userSearch.searchForUser(username);
 
 		return userDetailsMapper.mapUserFromContext(userData, username,
@@ -64,11 +65,12 @@ public class LdapUserDetailsService implements UserDetailsService {
 		this.userDetailsMapper = userDetailsMapper;
 	}
 
-	private static final class NullLdapAuthoritiesPopulator implements
-			LdapAuthoritiesPopulator {
-		public Collection<GrantedAuthority> getGrantedAuthorities(
-				DirContextOperations userDetails, String username) {
+	private static final class NullLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
+
+		public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userDetails, String username) {
 			return AuthorityUtils.NO_AUTHORITIES;
 		}
+
 	}
+
 }

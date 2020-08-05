@@ -31,46 +31,85 @@ import static org.springframework.security.oauth2.core.oidc.DefaultAddressStanda
  * @author Joe Grandja
  */
 public class OidcUserInfoTests {
+
 	private static final String SUB_CLAIM = "sub";
+
 	private static final String NAME_CLAIM = "name";
+
 	private static final String GIVEN_NAME_CLAIM = "given_name";
+
 	private static final String FAMILY_NAME_CLAIM = "family_name";
+
 	private static final String MIDDLE_NAME_CLAIM = "middle_name";
+
 	private static final String NICKNAME_CLAIM = "nickname";
+
 	private static final String PREFERRED_USERNAME_CLAIM = "preferred_username";
+
 	private static final String PROFILE_CLAIM = "profile";
+
 	private static final String PICTURE_CLAIM = "picture";
+
 	private static final String WEBSITE_CLAIM = "website";
+
 	private static final String EMAIL_CLAIM = "email";
+
 	private static final String EMAIL_VERIFIED_CLAIM = "email_verified";
+
 	private static final String GENDER_CLAIM = "gender";
+
 	private static final String BIRTHDATE_CLAIM = "birthdate";
+
 	private static final String ZONEINFO_CLAIM = "zoneinfo";
+
 	private static final String LOCALE_CLAIM = "locale";
+
 	private static final String PHONE_NUMBER_CLAIM = "phone_number";
+
 	private static final String PHONE_NUMBER_VERIFIED_CLAIM = "phone_number_verified";
+
 	private static final String ADDRESS_CLAIM = "address";
+
 	private static final String UPDATED_AT_CLAIM = "updated_at";
 
 	private static final String SUB_VALUE = "subject1";
+
 	private static final String NAME_VALUE = "full_name";
+
 	private static final String GIVEN_NAME_VALUE = "given_name";
+
 	private static final String FAMILY_NAME_VALUE = "family_name";
+
 	private static final String MIDDLE_NAME_VALUE = "middle_name";
+
 	private static final String NICKNAME_VALUE = "nickname";
+
 	private static final String PREFERRED_USERNAME_VALUE = "preferred_username";
+
 	private static final String PROFILE_VALUE = "profile";
+
 	private static final String PICTURE_VALUE = "picture";
+
 	private static final String WEBSITE_VALUE = "website";
+
 	private static final String EMAIL_VALUE = "email";
+
 	private static final Boolean EMAIL_VERIFIED_VALUE = true;
+
 	private static final String GENDER_VALUE = "gender";
+
 	private static final String BIRTHDATE_VALUE = "birthdate";
+
 	private static final String ZONEINFO_VALUE = "zoneinfo";
+
 	private static final String LOCALE_VALUE = "locale";
+
 	private static final String PHONE_NUMBER_VALUE = "phone_number";
+
 	private static final Boolean PHONE_NUMBER_VERIFIED_VALUE = true;
+
 	private static final Map<String, Object> ADDRESS_VALUE;
+
 	private static final long UPDATED_AT_VALUE = Instant.now().minusSeconds(60).toEpochMilli();
 
 	private static final Map<String, Object> CLAIMS;
@@ -139,4 +178,5 @@ public class OidcUserInfoTests {
 		assertThat(userInfo.getAddress()).isEqualTo(new DefaultAddressStandardClaim.Builder(ADDRESS_VALUE).build());
 		assertThat(userInfo.getUpdatedAt().getEpochSecond()).isEqualTo(UPDATED_AT_VALUE);
 	}
+
 }

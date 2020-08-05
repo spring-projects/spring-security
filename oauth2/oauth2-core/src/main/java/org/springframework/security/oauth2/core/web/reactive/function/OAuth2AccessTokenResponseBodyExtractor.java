@@ -41,7 +41,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Provides a way to create an {@link OAuth2AccessTokenResponse} from a {@link ReactiveHttpInputMessage}
+ * Provides a way to create an {@link OAuth2AccessTokenResponse} from a
+ * {@link ReactiveHttpInputMessage}
+ *
  * @author Rob Winch
  * @since 5.1
  */
@@ -50,16 +52,18 @@ class OAuth2AccessTokenResponseBodyExtractor
 
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
-	OAuth2AccessTokenResponseBodyExtractor() {}
+	OAuth2AccessTokenResponseBodyExtractor() {
+	}
 
 	@Override
-	public Mono<OAuth2AccessTokenResponse> extract(ReactiveHttpInputMessage inputMessage,
-			Context context) {
-		ParameterizedTypeReference<Map<String, Object>> type = new ParameterizedTypeReference<Map<String, Object>>() {};
+	public Mono<OAuth2AccessTokenResponse> extract(ReactiveHttpInputMessage inputMessage, Context context) {
+		ParameterizedTypeReference<Map<String, Object>> type = new ParameterizedTypeReference<Map<String, Object>>() {
+		};
 		BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors.toMono(type);
 		return delegate.extract(inputMessage, context)
 				.onErrorMap(e -> new OAuth2AuthorizationException(
-						invalidTokenResponse("An error occurred parsing the Access Token response: " + e.getMessage()), e))
+						invalidTokenResponse("An error occurred parsing the Access Token response: " + e.getMessage()),
+						e))
 				.switchIfEmpty(Mono.error(() -> new OAuth2AuthorizationException(
 						invalidTokenResponse("Empty OAuth 2.0 Access Token Response"))))
 				.map(OAuth2AccessTokenResponseBodyExtractor::parse)
@@ -79,23 +83,20 @@ class OAuth2AccessTokenResponseBodyExtractor
 	}
 
 	private static OAuth2Error invalidTokenResponse(String message) {
-		return new OAuth2Error(
-				INVALID_TOKEN_RESPONSE_ERROR_CODE,
-				message,
-				null);
+		return new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE, message, null);
 	}
 
 	private static Mono<AccessTokenResponse> oauth2AccessTokenResponse(TokenResponse tokenResponse) {
 		if (tokenResponse.indicatesSuccess()) {
-			return Mono.just(tokenResponse)
-					.cast(AccessTokenResponse.class);
+			return Mono.just(tokenResponse).cast(AccessTokenResponse.class);
 		}
 		TokenErrorResponse tokenErrorResponse = (TokenErrorResponse) tokenResponse;
 		ErrorObject errorObject = tokenErrorResponse.getErrorObject();
 		OAuth2Error oauth2Error;
 		if (errorObject == null) {
 			oauth2Error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR);
-		} else {
+		}
+		else {
 			oauth2Error = new OAuth2Error(
 					errorObject.getCode() != null ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
 					errorObject.getDescription(),
@@ -107,14 +108,13 @@ class OAuth2AccessTokenResponseBodyExtractor
 	private static OAuth2AccessTokenResponse oauth2AccessTokenResponse(AccessTokenResponse accessTokenResponse) {
 		AccessToken accessToken = accessTokenResponse.getTokens().getAccessToken();
 		OAuth2AccessToken.TokenType accessTokenType = null;
-		if (OAuth2AccessToken.TokenType.BEARER.getValue()
-				.equalsIgnoreCase(accessToken.getType().getValue())) {
+		if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(accessToken.getType().getValue())) {
 			accessTokenType = OAuth2AccessToken.TokenType.BEARER;
 		}
 		long expiresIn = accessToken.getLifetime();
 
-		Set<String> scopes = accessToken.getScope() == null ?
-				Collections.emptySet() : new LinkedHashSet<>(accessToken.getScope().toStringList());
+		Set<String> scopes = accessToken.getScope() == null ? Collections.emptySet()
+				: new LinkedHashSet<>(accessToken.getScope().toStringList());
 
 		String refreshToken = null;
 		if (accessTokenResponse.getTokens().getRefreshToken() != null) {
@@ -123,12 +123,9 @@ class OAuth2AccessTokenResponseBodyExtractor
 
 		Map<String, Object> additionalParameters = new LinkedHashMap<>(accessTokenResponse.getCustomParameters());
 
-		return OAuth2AccessTokenResponse.withToken(accessToken.getValue())
-				.tokenType(accessTokenType)
-				.expiresIn(expiresIn)
-				.scopes(scopes)
-				.refreshToken(refreshToken)
-				.additionalParameters(additionalParameters)
-				.build();
+		return OAuth2AccessTokenResponse.withToken(accessToken.getValue()).tokenType(accessTokenType)
+				.expiresIn(expiresIn).scopes(scopes).refreshToken(refreshToken)
+				.additionalParameters(additionalParameters).build();
 	}
+
 }

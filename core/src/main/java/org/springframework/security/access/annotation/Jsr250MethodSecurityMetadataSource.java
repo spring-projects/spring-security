@@ -36,8 +36,7 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  * @author Ben Alex
  * @since 2.0
  */
-public class Jsr250MethodSecurityMetadataSource extends
-		AbstractFallbackMethodSecurityMetadataSource {
+public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
 	private String defaultRolePrefix = "ROLE_";
 
@@ -51,7 +50,6 @@ public class Jsr250MethodSecurityMetadataSource extends
 	 * <p>
 	 * If null or empty, then no default role prefix is used.
 	 * </p>
-	 *
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
@@ -62,8 +60,7 @@ public class Jsr250MethodSecurityMetadataSource extends
 		return processAnnotations(clazz.getAnnotations());
 	}
 
-	protected Collection<ConfigAttribute> findAttributes(Method method,
-			Class<?> targetClass) {
+	protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
 		return processAnnotations(AnnotationUtils.getAnnotations(method));
 	}
 
@@ -111,4 +108,5 @@ public class Jsr250MethodSecurityMetadataSource extends
 		}
 		return defaultRolePrefix + role;
 	}
+
 }

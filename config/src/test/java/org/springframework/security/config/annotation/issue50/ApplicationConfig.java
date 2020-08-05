@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories("org.springframework.security.config.annotation.issue50.repo")
 @EnableTransactionManagement
 public class ApplicationConfig {
+
 	@Bean
 	public DataSource dataSource() {
 		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
@@ -65,4 +66,5 @@ public class ApplicationConfig {
 		txManager.setEntityManagerFactory(entityManagerFactory().getObject());
 		return txManager;
 	}
+
 }

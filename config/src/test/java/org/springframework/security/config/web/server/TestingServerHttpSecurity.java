@@ -24,9 +24,10 @@ import org.springframework.context.ApplicationContext;
  * @since 5.1
  */
 public class TestingServerHttpSecurity extends ServerHttpSecurity {
-	public TestingServerHttpSecurity applicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+
+	public TestingServerHttpSecurity applicationContext(ApplicationContext applicationContext) throws BeansException {
 		super.setApplicationContext(applicationContext);
 		return this;
 	}
+
 }

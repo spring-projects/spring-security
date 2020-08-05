@@ -82,24 +82,31 @@ import org.springframework.util.Assert;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-public class GlobalMethodSecurityConfiguration
-		implements ImportAware, SmartInitializingSingleton, BeanFactoryAware {
-	private static final Log logger = LogFactory
-			.getLog(GlobalMethodSecurityConfiguration.class);
+public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInitializingSingleton, BeanFactoryAware {
+
+	private static final Log logger = LogFactory.getLog(GlobalMethodSecurityConfiguration.class);
+
 	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
 		public <T> T postProcess(T object) {
 			throw new IllegalStateException(ObjectPostProcessor.class.getName()
-					+ " is a required bean. Ensure you have used @"
-					+ EnableGlobalMethodSecurity.class.getName());
+					+ " is a required bean. Ensure you have used @" + EnableGlobalMethodSecurity.class.getName());
 		}
 	};
+
 	private DefaultMethodSecurityExpressionHandler defaultMethodExpressionHandler = new DefaultMethodSecurityExpressionHandler();
+
 	private AuthenticationManager authenticationManager;
+
 	private AuthenticationManagerBuilder auth;
+
 	private boolean disableAuthenticationRegistry;
+
 	private AnnotationAttributes enableMethodSecurity;
+
 	private BeanFactory context;
+
 	private MethodSecurityExpressionHandler expressionHandler;
+
 	private MethodSecurityInterceptor methodSecurityInterceptor;
 
 	/**
@@ -117,19 +124,17 @@ public class GlobalMethodSecurityConfiguration
 	 * Subclasses can override this method to provide a different
 	 * {@link MethodInterceptor}.
 	 * </p>
-	 * @param methodSecurityMetadataSource the default {@link MethodSecurityMetadataSource}.
-	 *
+	 * @param methodSecurityMetadataSource the default
+	 * {@link MethodSecurityMetadataSource}.
 	 * @return the {@link MethodInterceptor}.
 	 */
 	@Bean
 	public MethodInterceptor methodSecurityInterceptor(MethodSecurityMetadataSource methodSecurityMetadataSource) {
-		this.methodSecurityInterceptor = isAspectJ()
-				? new AspectJMethodSecurityInterceptor()
+		this.methodSecurityInterceptor = isAspectJ() ? new AspectJMethodSecurityInterceptor()
 				: new MethodSecurityInterceptor();
 		methodSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
 		methodSecurityInterceptor.setAfterInvocationManager(afterInvocationManager());
-		methodSecurityInterceptor
-				.setSecurityMetadataSource(methodSecurityMetadataSource);
+		methodSecurityInterceptor.setSecurityMetadataSource(methodSecurityMetadataSource);
 		RunAsManager runAsManager = runAsManager();
 		if (runAsManager != null) {
 			methodSecurityInterceptor.setRunAsManager(runAsManager);
@@ -153,11 +158,9 @@ public class GlobalMethodSecurityConfiguration
 			throw new RuntimeException(e);
 		}
 
-		PermissionEvaluator permissionEvaluator = getSingleBeanOrNull(
-				PermissionEvaluator.class);
+		PermissionEvaluator permissionEvaluator = getSingleBeanOrNull(PermissionEvaluator.class);
 		if (permissionEvaluator != null) {
-			this.defaultMethodExpressionHandler
-					.setPermissionEvaluator(permissionEvaluator);
+			this.defaultMethodExpressionHandler.setPermissionEvaluator(permissionEvaluator);
 		}
 
 		RoleHierarchy roleHierarchy = getSingleBeanOrNull(RoleHierarchy.class);
@@ -165,24 +168,23 @@ public class GlobalMethodSecurityConfiguration
 			this.defaultMethodExpressionHandler.setRoleHierarchy(roleHierarchy);
 		}
 
-		AuthenticationTrustResolver trustResolver = getSingleBeanOrNull(
-				AuthenticationTrustResolver.class);
+		AuthenticationTrustResolver trustResolver = getSingleBeanOrNull(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
 			this.defaultMethodExpressionHandler.setTrustResolver(trustResolver);
 		}
 
-		GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(
-				GrantedAuthorityDefaults.class);
+		GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(GrantedAuthorityDefaults.class);
 		if (grantedAuthorityDefaults != null) {
-			this.defaultMethodExpressionHandler.setDefaultRolePrefix(
-					grantedAuthorityDefaults.getRolePrefix());
+			this.defaultMethodExpressionHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
 	}
 
 	private <T> T getSingleBeanOrNull(Class<T> type) {
 		try {
 			return context.getBean(type);
-		} catch (NoSuchBeanDefinitionException e) {}
+		}
+		catch (NoSuchBeanDefinitionException e) {
+		}
 		return null;
 	}
 
@@ -195,14 +197,14 @@ public class GlobalMethodSecurityConfiguration
 
 	/**
 	 * Provide a custom {@link AfterInvocationManager} for the default implementation of
-	 * {@link #methodSecurityInterceptor(MethodSecurityMetadataSource)}. The default is null
-	 * if pre post is not enabled. Otherwise, it returns a {@link AfterInvocationProviderManager}.
+	 * {@link #methodSecurityInterceptor(MethodSecurityMetadataSource)}. The default is
+	 * null if pre post is not enabled. Otherwise, it returns a
+	 * {@link AfterInvocationProviderManager}.
 	 *
 	 * <p>
 	 * Subclasses should override this method to provide a custom
 	 * {@link AfterInvocationManager}
 	 * </p>
-	 *
 	 * @return the {@link AfterInvocationManager} to use
 	 */
 	protected AfterInvocationManager afterInvocationManager() {
@@ -210,8 +212,7 @@ public class GlobalMethodSecurityConfiguration
 			AfterInvocationProviderManager invocationProviderManager = new AfterInvocationProviderManager();
 			ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(
 					getExpressionHandler());
-			PostInvocationAdviceProvider postInvocationAdviceProvider = new PostInvocationAdviceProvider(
-					postAdvice);
+			PostInvocationAdviceProvider postInvocationAdviceProvider = new PostInvocationAdviceProvider(postAdvice);
 			List<AfterInvocationProvider> afterInvocationProviders = new ArrayList<>();
 			afterInvocationProviders.add(postInvocationAdviceProvider);
 			invocationProviderManager.setProviders(afterInvocationProviders);
@@ -222,8 +223,8 @@ public class GlobalMethodSecurityConfiguration
 
 	/**
 	 * Provide a custom {@link RunAsManager} for the default implementation of
-	 * {@link #methodSecurityInterceptor(MethodSecurityMetadataSource)}. The default is null.
-	 *
+	 * {@link #methodSecurityInterceptor(MethodSecurityMetadataSource)}. The default is
+	 * null.
 	 * @return the {@link RunAsManager} to use
 	 */
 	protected RunAsManager runAsManager() {
@@ -239,24 +240,20 @@ public class GlobalMethodSecurityConfiguration
 	 * <li>{@link RoleVoter}</li>
 	 * <li>{@link AuthenticatedVoter}</li>
 	 * </ul>
-	 *
 	 * @return the {@link AccessDecisionManager} to use
 	 */
 	protected AccessDecisionManager accessDecisionManager() {
 		List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
 		if (prePostEnabled()) {
-			ExpressionBasedPreInvocationAdvice expressionAdvice =
-					new ExpressionBasedPreInvocationAdvice();
+			ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
 			expressionAdvice.setExpressionHandler(getExpressionHandler());
-			decisionVoters
-					.add(new PreInvocationAuthorizationAdviceVoter(expressionAdvice));
+			decisionVoters.add(new PreInvocationAuthorizationAdviceVoter(expressionAdvice));
 		}
 		if (jsr250Enabled()) {
 			decisionVoters.add(new Jsr250Voter());
 		}
 		RoleVoter roleVoter = new RoleVoter();
-		GrantedAuthorityDefaults grantedAuthorityDefaults =
-				getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+		GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(GrantedAuthorityDefaults.class);
 		if (grantedAuthorityDefaults != null) {
 			roleVoter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
@@ -275,7 +272,6 @@ public class GlobalMethodSecurityConfiguration
 	 * Subclasses may override this method to provide a custom
 	 * {@link MethodSecurityExpressionHandler}
 	 * </p>
-	 *
 	 * @return the {@link MethodSecurityExpressionHandler} to use
 	 */
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
@@ -285,7 +281,6 @@ public class GlobalMethodSecurityConfiguration
 	/**
 	 * Gets the {@link MethodSecurityExpressionHandler} or creates it using
 	 * {@link #expressionHandler}.
-	 *
 	 * @return a non {@code null} {@link MethodSecurityExpressionHandler}
 	 */
 	protected final MethodSecurityExpressionHandler getExpressionHandler() {
@@ -298,7 +293,6 @@ public class GlobalMethodSecurityConfiguration
 	/**
 	 * Provides a custom {@link MethodSecurityMetadataSource} that is registered with the
 	 * {@link #methodSecurityMetadataSource()}. Default is null.
-	 *
 	 * @return a custom {@link MethodSecurityMetadataSource} that is registered with the
 	 * {@link #methodSecurityMetadataSource()}
 	 */
@@ -312,7 +306,6 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link #configure(AuthenticationManagerBuilder)}. If
 	 * {@link #configure(AuthenticationManagerBuilder)} was not overridden, then an
 	 * {@link AuthenticationManager} is attempted to be autowired by type.
-	 *
 	 * @return the {@link AuthenticationManager} to use
 	 */
 	protected AuthenticationManager authenticationManager() throws Exception {
@@ -323,8 +316,7 @@ public class GlobalMethodSecurityConfiguration
 			auth.authenticationEventPublisher(eventPublisher);
 			configure(auth);
 			if (disableAuthenticationRegistry) {
-				authenticationManager = getAuthenticationConfiguration()
-						.getAuthenticationManager();
+				authenticationManager = getAuthenticationConfiguration().getAuthenticationManager();
 			}
 			else {
 				authenticationManager = auth.build();
@@ -337,7 +329,6 @@ public class GlobalMethodSecurityConfiguration
 	 * Sub classes can override this method to register different types of authentication.
 	 * If not overridden, {@link #configure(AuthenticationManagerBuilder)} will attempt to
 	 * autowire by type.
-	 *
 	 * @param auth the {@link AuthenticationManagerBuilder} used to register different
 	 * authentication mechanisms for the global method security.
 	 * @throws Exception
@@ -351,7 +342,6 @@ public class GlobalMethodSecurityConfiguration
 	 * creates a {@link DelegatingMethodSecurityMetadataSource} based upon
 	 * {@link #customMethodSecurityMetadataSource()} and the attributes on
 	 * {@link EnableGlobalMethodSecurity}.
-	 *
 	 * @return the {@link MethodSecurityMetadataSource}
 	 */
 	@Bean
@@ -370,8 +360,8 @@ public class GlobalMethodSecurityConfiguration
 		boolean isJsr250Enabled = jsr250Enabled();
 
 		if (!isPrePostEnabled && !isSecuredEnabled && !isJsr250Enabled && !hasCustom) {
-			throw new IllegalStateException("In the composition of all global method configuration, " +
-					"no annotation support was actually activated");
+			throw new IllegalStateException("In the composition of all global method configuration, "
+					+ "no annotation support was actually activated");
 		}
 
 		if (isPrePostEnabled) {
@@ -381,12 +371,11 @@ public class GlobalMethodSecurityConfiguration
 			sources.add(new SecuredAnnotationSecurityMetadataSource());
 		}
 		if (isJsr250Enabled) {
-			GrantedAuthorityDefaults grantedAuthorityDefaults =
-					getSingleBeanOrNull(GrantedAuthorityDefaults.class);
-			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource = this.context.getBean(Jsr250MethodSecurityMetadataSource.class);
+			GrantedAuthorityDefaults grantedAuthorityDefaults = getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource = this.context
+					.getBean(Jsr250MethodSecurityMetadataSource.class);
 			if (grantedAuthorityDefaults != null) {
-				jsr250MethodSecurityMetadataSource.setDefaultRolePrefix(
-						grantedAuthorityDefaults.getRolePrefix());
+				jsr250MethodSecurityMetadataSource.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 			}
 			sources.add(jsr250MethodSecurityMetadataSource);
 		}
@@ -396,7 +385,6 @@ public class GlobalMethodSecurityConfiguration
 	/**
 	 * Creates the {@link PreInvocationAuthorizationAdvice} to be used. The default is
 	 * {@link ExpressionBasedPreInvocationAdvice}.
-	 *
 	 * @return the {@link PreInvocationAuthorizationAdvice}
 	 */
 	@Bean
@@ -419,16 +407,13 @@ public class GlobalMethodSecurityConfiguration
 	@Autowired(required = false)
 	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
-		this.defaultMethodExpressionHandler = objectPostProcessor
-				.postProcess(defaultMethodExpressionHandler);
+		this.defaultMethodExpressionHandler = objectPostProcessor.postProcess(defaultMethodExpressionHandler);
 	}
 
 	@Autowired(required = false)
-	public void setMethodSecurityExpressionHandler(
-			List<MethodSecurityExpressionHandler> handlers) {
+	public void setMethodSecurityExpressionHandler(List<MethodSecurityExpressionHandler> handlers) {
 		if (handlers.size() != 1) {
-			logger.debug("Not autowiring MethodSecurityExpressionHandler since size != 1. Got "
-					+ handlers);
+			logger.debug("Not autowiring MethodSecurityExpressionHandler since size != 1. Got " + handlers);
 			return;
 		}
 		this.expressionHandler = handlers.get(0);
@@ -466,14 +451,13 @@ public class GlobalMethodSecurityConfiguration
 	private AnnotationAttributes enableMethodSecurity() {
 		if (enableMethodSecurity == null) {
 			// if it is null look at this instance (i.e. a subclass was used)
-			EnableGlobalMethodSecurity methodSecurityAnnotation = AnnotationUtils
-					.findAnnotation(getClass(), EnableGlobalMethodSecurity.class);
-			Assert.notNull(methodSecurityAnnotation,
-					() -> EnableGlobalMethodSecurity.class.getName() + " is required");
-			Map<String, Object> methodSecurityAttrs = AnnotationUtils
-					.getAnnotationAttributes(methodSecurityAnnotation);
+			EnableGlobalMethodSecurity methodSecurityAnnotation = AnnotationUtils.findAnnotation(getClass(),
+					EnableGlobalMethodSecurity.class);
+			Assert.notNull(methodSecurityAnnotation, () -> EnableGlobalMethodSecurity.class.getName() + " is required");
+			Map<String, Object> methodSecurityAttrs = AnnotationUtils.getAnnotationAttributes(methodSecurityAnnotation);
 			this.enableMethodSecurity = AnnotationAttributes.fromMap(methodSecurityAttrs);
 		}
 		return this.enableMethodSecurity;
 	}
+
 }

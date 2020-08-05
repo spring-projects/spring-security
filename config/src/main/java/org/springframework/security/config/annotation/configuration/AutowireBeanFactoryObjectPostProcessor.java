@@ -39,13 +39,16 @@ import org.springframework.util.Assert;
  */
 final class AutowireBeanFactoryObjectPostProcessor
 		implements ObjectPostProcessor<Object>, DisposableBean, SmartInitializingSingleton {
+
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final AutowireCapableBeanFactory autowireBeanFactory;
+
 	private final List<DisposableBean> disposableBeans = new ArrayList<>();
+
 	private final List<SmartInitializingSingleton> smartSingletons = new ArrayList<>();
 
-	AutowireBeanFactoryObjectPostProcessor(
-			AutowireCapableBeanFactory autowireBeanFactory) {
+	AutowireBeanFactoryObjectPostProcessor(AutowireCapableBeanFactory autowireBeanFactory) {
 		Assert.notNull(autowireBeanFactory, "autowireBeanFactory cannot be null");
 		this.autowireBeanFactory = autowireBeanFactory;
 	}
@@ -64,13 +67,11 @@ final class AutowireBeanFactoryObjectPostProcessor
 		}
 		T result = null;
 		try {
-			result = (T) this.autowireBeanFactory.initializeBean(object,
-					object.toString());
+			result = (T) this.autowireBeanFactory.initializeBean(object, object.toString());
 		}
 		catch (RuntimeException e) {
 			Class<?> type = object.getClass();
-			throw new RuntimeException(
-					"Could not postProcess " + object + " of type " + type, e);
+			throw new RuntimeException("Could not postProcess " + object + " of type " + type, e);
 		}
 		this.autowireBeanFactory.autowireBean(object);
 		if (result instanceof DisposableBean) {
@@ -82,8 +83,11 @@ final class AutowireBeanFactoryObjectPostProcessor
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.beans.factory.SmartInitializingSingleton#afterSingletonsInstantiated()
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.springframework.beans.factory.SmartInitializingSingleton#
+	 * afterSingletonsInstantiated()
 	 */
 	@Override
 	public void afterSingletonsInstantiated() {

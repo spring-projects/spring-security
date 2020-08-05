@@ -45,17 +45,19 @@ import org.springframework.util.Assert;
  * telephone numbers etc can easily be stored.
  *
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author Robin Bramley, Opsera Ltd.
  * @author Luke Taylor
  */
-public class OpenIDAuthenticationProvider
-		implements AuthenticationProvider, InitializingBean {
+public class OpenIDAuthenticationProvider implements AuthenticationProvider, InitializingBean {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private AuthenticationUserDetailsService<OpenIDAuthenticationToken> userDetailsService;
+
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	// ~ Methods
@@ -72,8 +74,7 @@ public class OpenIDAuthenticationProvider
 	 * org.springframework.security.authentication.AuthenticationProvider#authenticate
 	 * (org.springframework.security.Authentication)
 	 */
-	public Authentication authenticate(final Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
 
 		if (!supports(authentication.getClass())) {
 			return null;
@@ -86,8 +87,7 @@ public class OpenIDAuthenticationProvider
 			// handle the various possibilities
 			if (status == OpenIDAuthenticationStatus.SUCCESS) {
 				// Lookup user details
-				UserDetails userDetails = this.userDetailsService
-						.loadUserDetails(response);
+				UserDetails userDetails = this.userDetailsService.loadUserDetails(response);
 
 				return createSuccessfulAuthentication(userDetails, response);
 
@@ -96,20 +96,17 @@ public class OpenIDAuthenticationProvider
 				throw new AuthenticationCancelledException("Log in cancelled");
 			}
 			else if (status == OpenIDAuthenticationStatus.ERROR) {
-				throw new AuthenticationServiceException(
-						"Error message from server: " + response.getMessage());
+				throw new AuthenticationServiceException("Error message from server: " + response.getMessage());
 			}
 			else if (status == OpenIDAuthenticationStatus.FAILURE) {
-				throw new BadCredentialsException(
-						"Log in failed - identity could not be verified");
+				throw new BadCredentialsException("Log in failed - identity could not be verified");
 			}
 			else if (status == OpenIDAuthenticationStatus.SETUP_NEEDED) {
 				throw new AuthenticationServiceException(
 						"The server responded setup was needed, which shouldn't happen");
 			}
 			else {
-				throw new AuthenticationServiceException(
-						"Unrecognized return value " + status.toString());
+				throw new AuthenticationServiceException("Unrecognized return value " + status.toString());
 			}
 		}
 
@@ -123,24 +120,21 @@ public class OpenIDAuthenticationProvider
 	 * The default implementation just creates a new OpenIDAuthenticationToken from the
 	 * original, but with the UserDetails as the principal and including the authorities
 	 * loaded by the UserDetailsService.
-	 *
 	 * @param userDetails the loaded UserDetails object
 	 * @param auth the token passed to the authenticate method, containing
 	 * @return the token which will represent the authenticated user.
 	 */
-	protected Authentication createSuccessfulAuthentication(UserDetails userDetails,
-			OpenIDAuthenticationToken auth) {
+	protected Authentication createSuccessfulAuthentication(UserDetails userDetails, OpenIDAuthenticationToken auth) {
 		return new OpenIDAuthenticationToken(userDetails,
-				this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()),
-				auth.getIdentityUrl(), auth.getAttributes());
+				this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), auth.getIdentityUrl(),
+				auth.getAttributes());
 	}
 
 	/**
 	 * Used to load the {@code UserDetails} for the authenticated OpenID user.
 	 */
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = new UserDetailsByNameServiceWrapper<>(
-				userDetailsService);
+		this.userDetailsService = new UserDetailsByNameServiceWrapper<>(userDetailsService);
 	}
 
 	/**
@@ -165,4 +159,5 @@ public class OpenIDAuthenticationProvider
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		this.authoritiesMapper = authoritiesMapper;
 	}
+
 }

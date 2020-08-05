@@ -50,15 +50,11 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * The following shared objects are used:
  *
  * <ul>
- * <li>
- * {@link AuthenticationManager}
- * </li>
+ * <li>{@link AuthenticationManager}</li>
  * </ul>
- *
  *
  * @param <C> the AbstractInterceptUrlConfigurer
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
- *
  * @author Rob Winch
  * @since 3.2
  * @see ExpressionUrlAuthorizationConfigurer
@@ -66,6 +62,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  */
 abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConfigurer<C, H>, H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<C, H> {
+
 	private Boolean filterSecurityInterceptorOncePerRequest;
 
 	private AccessDecisionManager accessDecisionManager;
@@ -76,11 +73,10 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 		if (metadataSource == null) {
 			return;
 		}
-		FilterSecurityInterceptor securityInterceptor = createFilterSecurityInterceptor(
-				http, metadataSource, http.getSharedObject(AuthenticationManager.class));
+		FilterSecurityInterceptor securityInterceptor = createFilterSecurityInterceptor(http, metadataSource,
+				http.getSharedObject(AuthenticationManager.class));
 		if (filterSecurityInterceptorOncePerRequest != null) {
-			securityInterceptor
-					.setObserveOncePerRequest(filterSecurityInterceptorOncePerRequest);
+			securityInterceptor.setObserveOncePerRequest(filterSecurityInterceptorOncePerRequest);
 		}
 		securityInterceptor = postProcess(securityInterceptor);
 		http.addFilter(securityInterceptor);
@@ -91,9 +87,7 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 	 * Subclasses should implement this method to provide a
 	 * {@link FilterInvocationSecurityMetadataSource} for the
 	 * {@link FilterSecurityInterceptor}.
-	 *
 	 * @param http the builder to use
-	 *
 	 * @return the {@link FilterInvocationSecurityMetadataSource} to set on the
 	 * {@link FilterSecurityInterceptor}. Cannot be null.
 	 */
@@ -102,9 +96,7 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 	/**
 	 * Subclasses should implement this method to provide the {@link AccessDecisionVoter}
 	 * instances used to create the default {@link AccessDecisionManager}
-	 *
 	 * @param http the builder to use
-	 *
 	 * @return the {@link AccessDecisionVoter} instances used to create the default
 	 * {@link AccessDecisionManager}
 	 */
@@ -116,7 +108,6 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 		/**
 		 * Allows setting the {@link AccessDecisionManager}. If none is provided, a
 		 * default {@link AccessDecisionManager} is created.
-		 *
 		 * @param accessDecisionManager the {@link AccessDecisionManager} to use
 		 * @return the {@link AbstractInterceptUrlConfigurer} for further customization
 		 */
@@ -129,26 +120,24 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 		 * Allows setting if the {@link FilterSecurityInterceptor} should be only applied
 		 * once per request (i.e. if the filter intercepts on a forward, should it be
 		 * applied again).
-		 *
 		 * @param filterSecurityInterceptorOncePerRequest if the
 		 * {@link FilterSecurityInterceptor} should be only applied once per request
 		 * @return the {@link AbstractInterceptUrlConfigurer} for further customization
 		 */
-		public R filterSecurityInterceptorOncePerRequest(
-				boolean filterSecurityInterceptorOncePerRequest) {
+		public R filterSecurityInterceptorOncePerRequest(boolean filterSecurityInterceptorOncePerRequest) {
 			AbstractInterceptUrlConfigurer.this.filterSecurityInterceptorOncePerRequest = filterSecurityInterceptorOncePerRequest;
 			return getSelf();
 		}
 
 		/**
 		 * Returns a reference to the current object with a single suppression of the type
-		 *
 		 * @return a reference to the current object
 		 */
 		@SuppressWarnings("unchecked")
 		private R getSelf() {
 			return (R) this;
 		}
+
 	}
 
 	/**
@@ -162,11 +151,9 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 
 	/**
 	 * If currently null, creates a default {@link AccessDecisionManager} using
-	 * {@link #createDefaultAccessDecisionManager(HttpSecurityBuilder)}. Otherwise returns the
-	 * {@link AccessDecisionManager}.
-	 *
+	 * {@link #createDefaultAccessDecisionManager(HttpSecurityBuilder)}. Otherwise returns
+	 * the {@link AccessDecisionManager}.
 	 * @param http the builder to use
-	 *
 	 * @return the {@link AccessDecisionManager} to use
 	 */
 	private AccessDecisionManager getAccessDecisionManager(H http) {
@@ -178,7 +165,6 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 
 	/**
 	 * Creates the {@link FilterSecurityInterceptor}
-	 *
 	 * @param http the builder to use
 	 * @param metadataSource the {@link FilterInvocationSecurityMetadataSource} to use
 	 * @param authenticationManager the {@link AuthenticationManager} to use
@@ -186,8 +172,8 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 	 * @throws Exception
 	 */
 	private FilterSecurityInterceptor createFilterSecurityInterceptor(H http,
-			FilterInvocationSecurityMetadataSource metadataSource,
-			AuthenticationManager authenticationManager) throws Exception {
+			FilterInvocationSecurityMetadataSource metadataSource, AuthenticationManager authenticationManager)
+			throws Exception {
 		FilterSecurityInterceptor securityInterceptor = new FilterSecurityInterceptor();
 		securityInterceptor.setSecurityMetadataSource(metadataSource);
 		securityInterceptor.setAccessDecisionManager(getAccessDecisionManager(http));
@@ -195,4 +181,5 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
 		securityInterceptor.afterPropertiesSet();
 		return securityInterceptor;
 	}
+
 }

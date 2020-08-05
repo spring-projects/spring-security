@@ -33,8 +33,8 @@ import java.util.regex.Matcher;
  * Subject (as returned by a call to {@link X509Certificate#getSubjectDN()}).
  * <p>
  * The regular expression should contain a single group; for example the default
- * expression "CN=(.*?)(?:,|$)" matches the common name field. So
- * "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".
+ * expression "CN=(.*?)(?:,|$)" matches the common name field. So "CN=Jimi Hendrix,
+ * OU=..." will give a user name of "Jimi Hendrix".
  * <p>
  * The matches are case insensitive. So "emailAddress=(.*?)," will match
  * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
@@ -42,9 +42,11 @@ import java.util.regex.Matcher;
  * @author Luke Taylor
  */
 public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
+
 	// ~ Instance fields
 	// ================================================================================================
 	protected final Log logger = LogFactory.getLog(getClass());
+
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	private Pattern subjectDnPattern;
@@ -62,15 +64,12 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 		Matcher matcher = subjectDnPattern.matcher(subjectDN);
 
 		if (!matcher.find()) {
-			throw new BadCredentialsException(messages.getMessage(
-					"SubjectDnX509PrincipalExtractor.noMatching",
-					new Object[] { subjectDN },
-					"No matching pattern was found in subject DN: {0}"));
+			throw new BadCredentialsException(messages.getMessage("SubjectDnX509PrincipalExtractor.noMatching",
+					new Object[] { subjectDN }, "No matching pattern was found in subject DN: {0}"));
 		}
 
 		if (matcher.groupCount() != 1) {
-			throw new IllegalArgumentException(
-					"Regular expression must contain a single group ");
+			throw new IllegalArgumentException("Regular expression must contain a single group ");
 		}
 
 		String username = matcher.group(1);
@@ -90,7 +89,6 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 	 * <p>
 	 * The matches are case insensitive. So "emailAddress=(.?)," will match
 	 * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
-	 *
 	 * @param subjectDnRegex the regular expression to find in the subject
 	 */
 	public void setSubjectDnRegex(String subjectDnRegex) {
@@ -101,4 +99,5 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
+
 }

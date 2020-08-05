@@ -47,17 +47,19 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
+
 	@Mock
 	private ServerRedirectStrategy redirectStrategy;
+
 	@Mock
 	private Authentication authentication;
 
 	private URI location = URI.create("/");
 
-	private RedirectServerAuthenticationSuccessHandler handler =
-		new RedirectServerAuthenticationSuccessHandler();
+	private RedirectServerAuthenticationSuccessHandler handler = new RedirectServerAuthenticationSuccessHandler();
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorStringWhenNullLocationThenException() {
@@ -68,8 +70,7 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	public void successWhenNoSubscribersThenNoActions() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
-			this.chain), this.authentication);
+		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), this.authentication);
 
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isNull();
 		assertThat(this.exchange.getSession().block().isStarted()).isFalse();
@@ -79,11 +80,10 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	public void successWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
-			this.chain), this.authentication).block();
+		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), this.authentication)
+				.block();
 
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isEqualTo(this.location);
 	}
 
@@ -94,8 +94,8 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
-		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
-			this.chain), this.authentication).block();
+		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), this.authentication)
+				.block();
 		redirectResult.assertWasSubscribed();
 		verify(this.redirectStrategy).sendRedirect(any(), eq(this.location));
 	}
@@ -109,4 +109,5 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	public void setLocationWhenNullThenException() {
 		this.handler.setLocation(null);
 	}
+
 }

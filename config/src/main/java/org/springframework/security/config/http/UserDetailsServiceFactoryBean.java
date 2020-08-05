@@ -54,8 +54,7 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 			return getUserDetailsService();
 		}
 		// Overwrite with the caching version if available
-		String cachingId = id
-				+ AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
+		String cachingId = id + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
 
 		if (beanFactory.containsBeanDefinition(cachingId)) {
 			return (UserDetailsService) beanFactory.getBean(cachingId);
@@ -73,9 +72,8 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 
 			if (!beans.isEmpty()) {
 				if (beans.size() > 1) {
-					throw new ApplicationContextException(
-							"More than one AuthenticationUserDetailsService registered."
-									+ " Please use a specific Id reference.");
+					throw new ApplicationContextException("More than one AuthenticationUserDetailsService registered."
+							+ " Please use a specific Id reference.");
 				}
 				return (AuthenticationUserDetailsService) beans.values().toArray()[0];
 			}
@@ -96,9 +94,8 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 				}
 			}
 			else {
-				throw new ApplicationContextException("Bean '" + name
-						+ "' must be a UserDetailsService or an"
-						+ " AuthenticationUserDetailsService");
+				throw new ApplicationContextException(
+						"Bean '" + name + "' must be a UserDetailsService or an" + " AuthenticationUserDetailsService");
 			}
 		}
 
@@ -122,16 +119,14 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 
 		}
 		else if (beans.size() > 1) {
-			throw new ApplicationContextException(
-					"More than one UserDetailsService registered. Please "
-							+ "use a specific Id reference in <remember-me/> <openid-login/> or <x509 /> elements.");
+			throw new ApplicationContextException("More than one UserDetailsService registered. Please "
+					+ "use a specific Id reference in <remember-me/> <openid-login/> or <x509 /> elements.");
 		}
 
 		return (UserDetailsService) beans.values().toArray()[0];
 	}
 
-	public void setApplicationContext(ApplicationContext beanFactory)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext beanFactory) throws BeansException {
 		this.beanFactory = beanFactory;
 	}
 

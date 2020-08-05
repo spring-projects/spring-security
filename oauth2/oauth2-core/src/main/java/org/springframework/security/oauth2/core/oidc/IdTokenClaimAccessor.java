@@ -22,16 +22,20 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * A {@link ClaimAccessor} for the &quot;claims&quot; that can be returned in the ID Token,
- * which provides information about the authentication of an End-User by an Authorization Server.
+ * A {@link ClaimAccessor} for the &quot;claims&quot; that can be returned in the ID
+ * Token, which provides information about the authentication of an End-User by an
+ * Authorization Server.
  *
  * @see ClaimAccessor
  * @see StandardClaimAccessor
  * @see StandardClaimNames
  * @see IdTokenClaimNames
  * @see OidcIdToken
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard
+ * Claims</a>
  * @author Joe Grandja
  * @since 5.0
  */
@@ -39,7 +43,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the Issuer identifier {@code (iss)}.
-	 *
 	 * @return the Issuer identifier
 	 */
 	default URL getIssuer() {
@@ -48,7 +51,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the Subject identifier {@code (sub)}.
-	 *
 	 * @return the Subject identifier
 	 */
 	default String getSubject() {
@@ -57,7 +59,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the Audience(s) {@code (aud)} that this ID Token is intended for.
-	 *
 	 * @return the Audience(s) that this ID Token is intended for
 	 */
 	default List<String> getAudience() {
@@ -65,8 +66,8 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 	}
 
 	/**
-	 * Returns the Expiration time {@code (exp)} on or after which the ID Token MUST NOT be accepted.
-	 *
+	 * Returns the Expiration time {@code (exp)} on or after which the ID Token MUST NOT
+	 * be accepted.
 	 * @return the Expiration time on or after which the ID Token MUST NOT be accepted
 	 */
 	default Instant getExpiresAt() {
@@ -75,7 +76,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the time at which the ID Token was issued {@code (iat)}.
-	 *
 	 * @return the time at which the ID Token was issued
 	 */
 	default Instant getIssuedAt() {
@@ -84,7 +84,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the time when the End-User authentication occurred {@code (auth_time)}.
-	 *
 	 * @return the time when the End-User authentication occurred
 	 */
 	default Instant getAuthenticatedAt() {
@@ -92,9 +91,8 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 	}
 
 	/**
-	 * Returns a {@code String} value {@code (nonce)} used to associate a Client session with an ID Token,
-	 * and to mitigate replay attacks.
-	 *
+	 * Returns a {@code String} value {@code (nonce)} used to associate a Client session
+	 * with an ID Token, and to mitigate replay attacks.
 	 * @return the nonce used to associate a Client session with an ID Token
 	 */
 	default String getNonce() {
@@ -103,7 +101,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the Authentication Context Class Reference {@code (acr)}.
-	 *
 	 * @return the Authentication Context Class Reference
 	 */
 	default String getAuthenticationContextClass() {
@@ -112,7 +109,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the Authentication Methods References {@code (amr)}.
-	 *
 	 * @return the Authentication Methods References
 	 */
 	default List<String> getAuthenticationMethods() {
@@ -121,7 +117,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the Authorized party {@code (azp)} to which the ID Token was issued.
-	 *
 	 * @return the Authorized party to which the ID Token was issued
 	 */
 	default String getAuthorizedParty() {
@@ -130,7 +125,6 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the Access Token hash value {@code (at_hash)}.
-	 *
 	 * @return the Access Token hash value
 	 */
 	default String getAccessTokenHash() {
@@ -139,10 +133,10 @@ public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
 	 * Returns the Authorization Code hash value {@code (c_hash)}.
-	 *
 	 * @return the Authorization Code hash value
 	 */
 	default String getAuthorizationCodeHash() {
 		return this.getClaimAsString(IdTokenClaimNames.C_HASH);
 	}
+
 }

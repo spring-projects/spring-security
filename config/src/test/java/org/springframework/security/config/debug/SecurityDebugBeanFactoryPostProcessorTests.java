@@ -37,10 +37,12 @@ public class SecurityDebugBeanFactoryPostProcessorTests {
 	@Test
 	public void contextRefreshWhenInDebugModeAndDependencyHasAutowiredConstructorThenDebugModeStillWorks() {
 		// SEC-1885
-		this.spring.configLocations("classpath:org/springframework/security/config/debug/SecurityDebugBeanFactoryPostProcessorTests-context.xml")
-			.autowire();
+		this.spring.configLocations(
+				"classpath:org/springframework/security/config/debug/SecurityDebugBeanFactoryPostProcessorTests-context.xml")
+				.autowire();
 
 		assertThat(this.spring.getContext().getBean(SPRING_SECURITY_FILTER_CHAIN)).isInstanceOf(DebugFilter.class);
 		assertThat(this.spring.getContext().getBean(FILTER_CHAIN_PROXY)).isInstanceOf(FilterChainProxy.class);
 	}
+
 }

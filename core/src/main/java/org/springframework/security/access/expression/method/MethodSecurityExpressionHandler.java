@@ -27,11 +27,10 @@ import org.springframework.security.access.expression.SecurityExpressionHandler;
  * @author Luke Taylor
  * @since 3.0
  */
-public interface MethodSecurityExpressionHandler extends
-		SecurityExpressionHandler<MethodInvocation> {
+public interface MethodSecurityExpressionHandler extends SecurityExpressionHandler<MethodInvocation> {
+
 	/**
 	 * Filters a target collection or array. Only applies to method invocations.
-	 *
 	 * @param filterTarget the array or collection to be filtered.
 	 * @param filterExpression the expression which should be used as the filter
 	 * condition. If it returns false on evaluation, the object will be removed from the
@@ -45,7 +44,6 @@ public interface MethodSecurityExpressionHandler extends
 	/**
 	 * Used to inform the expression system of the return object for the given evaluation
 	 * context. Only applies to method invocations.
-	 *
 	 * @param returnObject the return object value
 	 * @param ctx the context within which the object should be set (as created through a
 	 * call to

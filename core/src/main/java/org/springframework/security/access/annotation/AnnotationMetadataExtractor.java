@@ -31,4 +31,5 @@ import java.util.*;
 public interface AnnotationMetadataExtractor<A extends Annotation> {
 
 	Collection<? extends ConfigAttribute> extractAttributes(A securityAnnotation);
+
 }

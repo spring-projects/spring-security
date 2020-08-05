@@ -70,6 +70,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
+
 	@Autowired
 	WebApplicationContext context;
 
@@ -91,86 +92,66 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 	}
 
 	@Test
-	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthentication()
-		throws Exception {
+	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthentication() throws Exception {
 
-		this.mvc.perform(get("/name").with(oidcLogin()))
-				.andExpect(content().string("user"));
-		this.mvc.perform(get("/admin/id-token/name").with(oidcLogin()))
-				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/name").with(oidcLogin())).andExpect(content().string("user"));
+		this.mvc.perform(get("/admin/id-token/name").with(oidcLogin())).andExpect(status().isForbidden());
 	}
 
 	@Test
-	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient()
-			throws Exception {
+	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient() throws Exception {
 
-		this.mvc.perform(get("/access-token").with(oidcLogin()))
-				.andExpect(content().string("access-token"));
+		this.mvc.perform(get("/access-token").with(oidcLogin())).andExpect(content().string("access-token"));
 	}
 
 	@Test
 	public void oidcLoginWhenAuthoritiesSpecifiedThenGrantsAccess() throws Exception {
-		this.mvc.perform(get("/admin/scopes")
-				.with(oidcLogin().authorities(new SimpleGrantedAuthority("SCOPE_admin"))))
+		this.mvc.perform(get("/admin/scopes").with(oidcLogin().authorities(new SimpleGrantedAuthority("SCOPE_admin"))))
 				.andExpect(content().string("[\"SCOPE_admin\"]"));
 	}
 
 	@Test
 	public void oidcLoginWhenIdTokenSpecifiedThenUserHasClaims() throws Exception {
-		this.mvc.perform(get("/id-token/iss")
-				.with(oidcLogin().idToken(i -> i.issuer("https://idp.example.org"))))
+		this.mvc.perform(get("/id-token/iss").with(oidcLogin().idToken(i -> i.issuer("https://idp.example.org"))))
 				.andExpect(content().string("https://idp.example.org"));
 	}
 
 	@Test
 	public void oidcLoginWhenUserInfoSpecifiedThenUserHasClaims() throws Exception {
-		this.mvc.perform(get("/user-info/email")
-				.with(oidcLogin().userInfoToken(u -> u.email("email@email"))))
+		this.mvc.perform(get("/user-info/email").with(oidcLogin().userInfoToken(u -> u.email("email@email"))))
 				.andExpect(content().string("email@email"));
 	}
 
 	@Test
 	public void oidcLoginWhenNameSpecifiedThenUserHasName() throws Exception {
-		OidcUser oidcUser = new DefaultOidcUser(
-				AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
+		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
 				OidcIdToken.withTokenValue("id-token").claim("custom-attribute", "test-subject").build(),
 				"custom-attribute");
 
-		this.mvc.perform(get("/id-token/custom-attribute")
-				.with(oidcLogin().oidcUser(oidcUser)))
+		this.mvc.perform(get("/id-token/custom-attribute").with(oidcLogin().oidcUser(oidcUser)))
 				.andExpect(content().string("test-subject"));
 
-		this.mvc.perform(get("/name")
-				.with(oidcLogin().oidcUser(oidcUser)))
-				.andExpect(content().string("test-subject"));
+		this.mvc.perform(get("/name").with(oidcLogin().oidcUser(oidcUser))).andExpect(content().string("test-subject"));
 
-		this.mvc.perform(get("/client-name")
-				.with(oidcLogin().oidcUser(oidcUser)))
+		this.mvc.perform(get("/client-name").with(oidcLogin().oidcUser(oidcUser)))
 				.andExpect(content().string("test-subject"));
 	}
 
 	// gh-7794
 	@Test
 	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
-		OidcUser oidcUser = new DefaultOidcUser(
-				AuthorityUtils.createAuthorityList("SCOPE_read"), idToken().build());
+		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("SCOPE_read"), idToken().build());
 
-		this.mvc.perform(get("/id-token/sub")
-				.with(oidcLogin()
-						.idToken(i -> i.subject("foo"))
-						.oidcUser(oidcUser)))
-				.andExpect(status().isOk())
-				.andExpect(content().string("subject"));
-		this.mvc.perform(get("/id-token/sub")
-				.with(oidcLogin()
-						.oidcUser(oidcUser)
-						.idToken(i -> i.subject("bar"))))
+		this.mvc.perform(get("/id-token/sub").with(oidcLogin().idToken(i -> i.subject("foo")).oidcUser(oidcUser)))
+				.andExpect(status().isOk()).andExpect(content().string("subject"));
+		this.mvc.perform(get("/id-token/sub").with(oidcLogin().oidcUser(oidcUser).idToken(i -> i.subject("bar"))))
 				.andExpect(content().string("bar"));
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class OAuth2LoginConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -188,7 +169,6 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 			return mock(ClientRegistrationRepository.class);
 		}
 
-
 		@Bean
 		OAuth2AuthorizedClientRepository oAuth2AuthorizedClientRepository() {
 			return mock(OAuth2AuthorizedClientRepository.class);
@@ -196,6 +176,7 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 
 		@RestController
 		static class PrincipalController {
+
 			@GetMapping("/name")
 			String name(@AuthenticationPrincipal OidcUser oidcUser) {
 				return oidcUser.getName();
@@ -222,11 +203,13 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 			}
 
 			@GetMapping("/admin/scopes")
-			List<String> scopes(@AuthenticationPrincipal(expression = "authorities")
-										Collection<GrantedAuthority> authorities) {
-				return authorities.stream().map(GrantedAuthority::getAuthority)
-						.collect(Collectors.toList());
+			List<String> scopes(
+					@AuthenticationPrincipal(expression = "authorities") Collection<GrantedAuthority> authorities) {
+				return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 			}
+
 		}
+
 	}
+
 }

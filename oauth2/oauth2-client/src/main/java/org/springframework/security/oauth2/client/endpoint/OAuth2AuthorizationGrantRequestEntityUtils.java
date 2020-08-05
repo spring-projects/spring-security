@@ -27,10 +27,10 @@ import java.util.Collections;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 /**
- * Utility methods used by the {@link Converter}'s that convert
- * from an implementation of an {@link AbstractOAuth2AuthorizationGrantRequest}
- * to a {@link RequestEntity} representation of an OAuth 2.0 Access Token Request
- * for the specific Authorization Grant.
+ * Utility methods used by the {@link Converter}'s that convert from an implementation of
+ * an {@link AbstractOAuth2AuthorizationGrantRequest} to a {@link RequestEntity}
+ * representation of an OAuth 2.0 Access Token Request for the specific Authorization
+ * Grant.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -38,6 +38,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @see OAuth2ClientCredentialsGrantRequestEntityConverter
  */
 final class OAuth2AuthorizationGrantRequestEntityUtils {
+
 	private static HttpHeaders DEFAULT_TOKEN_REQUEST_HEADERS = getDefaultTokenRequestHeaders();
 
 	static HttpHeaders getTokenRequestHeaders(ClientRegistration clientRegistration) {
@@ -56,4 +57,5 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 		headers.setContentType(contentType);
 		return headers;
 	}
+
 }

@@ -27,12 +27,13 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 
 /**
- *
  * @author Rob Winch
  * @since 5.0
  */
 public class WebTestHandler {
+
 	private final MockWebHandler webHandler = new MockWebHandler();
+
 	private final WebHandler handler;
 
 	private WebTestHandler(WebFilter... filters) {
@@ -50,6 +51,7 @@ public class WebTestHandler {
 	}
 
 	public static class WebHandlerResult {
+
 		private final ServerWebExchange exchange;
 
 		private WebHandlerResult(ServerWebExchange exchange) {
@@ -59,6 +61,7 @@ public class WebTestHandler {
 		public ServerWebExchange getExchange() {
 			return exchange;
 		}
+
 	}
 
 	public static WebTestHandler bindToWebFilters(WebFilter... filters) {
@@ -66,6 +69,7 @@ public class WebTestHandler {
 	}
 
 	static class MockWebHandler implements WebHandler {
+
 		private ServerWebExchange exchange;
 
 		@Override
@@ -73,5 +77,7 @@ public class WebTestHandler {
 			this.exchange = exchange;
 			return Mono.empty();
 		}
+
 	}
+
 }

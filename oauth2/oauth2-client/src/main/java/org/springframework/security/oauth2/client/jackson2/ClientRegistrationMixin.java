@@ -22,8 +22,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
 /**
- * This mixin class is used to serialize/deserialize {@link ClientRegistration}.
- * It also registers a custom deserializer {@link ClientRegistrationDeserializer}.
+ * This mixin class is used to serialize/deserialize {@link ClientRegistration}. It also
+ * registers a custom deserializer {@link ClientRegistrationDeserializer}.
  *
  * @author Joe Grandja
  * @since 5.3
@@ -37,4 +37,5 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class ClientRegistrationMixin {
+
 }

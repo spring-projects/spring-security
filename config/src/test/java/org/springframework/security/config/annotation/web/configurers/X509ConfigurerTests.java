@@ -61,12 +61,12 @@ public class X509ConfigurerTests {
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnX509AuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
 
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(X509AuthenticationFilter.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(X509AuthenticationFilter.class));
 	}
 
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
@@ -81,13 +81,16 @@ public class X509ConfigurerTests {
 		static ObjectPostProcessor<Object> objectPostProcessor() {
 			return objectPostProcessor;
 		}
+
 	}
 
 	static class ReflectingObjectPostProcessor implements ObjectPostProcessor<Object> {
+
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
 		}
+
 	}
 
 	@Test
@@ -95,13 +98,12 @@ public class X509ConfigurerTests {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
 		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
 
-		this.mvc.perform(get("/")
-				.with(x509(certificate)))
-				.andExpect(authenticated().withUsername("rod"));
+		this.mvc.perform(get("/").with(x509(certificate))).andExpect(authenticated().withUsername("rod"));
 	}
 
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -121,6 +123,7 @@ public class X509ConfigurerTests {
 					.withUser("rod").password("password").roles("USER", "ADMIN");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -128,13 +131,12 @@ public class X509ConfigurerTests {
 		this.spring.register(DefaultsInLambdaConfig.class).autowire();
 		X509Certificate certificate = loadCert("rod.cer");
 
-		this.mvc.perform(get("/")
-				.with(x509(certificate)))
-				.andExpect(authenticated().withUsername("rod"));
+		this.mvc.perform(get("/").with(x509(certificate))).andExpect(authenticated().withUsername("rod"));
 	}
 
 	@EnableWebSecurity
 	static class DefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -151,6 +153,7 @@ public class X509ConfigurerTests {
 					.withUser("rod").password("password").roles("USER", "ADMIN");
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -158,13 +161,12 @@ public class X509ConfigurerTests {
 		this.spring.register(SubjectPrincipalRegexInLambdaConfig.class).autowire();
 		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
 
-		this.mvc.perform(get("/")
-				.with(x509(certificate)))
-				.andExpect(authenticated().withUsername("rod"));
+		this.mvc.perform(get("/").with(x509(certificate))).andExpect(authenticated().withUsername("rod"));
 	}
 
 	@EnableWebSecurity
 	static class SubjectPrincipalRegexInLambdaConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
@@ -184,14 +186,17 @@ public class X509ConfigurerTests {
 					.withUser("rod").password("password").roles("USER", "ADMIN");
 			// @formatter:on
 		}
+
 	}
 
 	private <T extends Certificate> T loadCert(String location) {
 		try (InputStream is = new ClassPathResource(location).getInputStream()) {
 			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 			return (T) certFactory.generateCertificate(is);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
+
 }

@@ -49,8 +49,7 @@ public class WithMockUserSecurityContextFactoryTests {
 		when(withUser.roles()).thenReturn(new String[] { "USER" });
 		when(withUser.authorities()).thenReturn(new String[] {});
 
-		assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
-				.isEqualTo(withUser.value());
+		assertThat(factory.createSecurityContext(withUser).getAuthentication().getName()).isEqualTo(withUser.value());
 	}
 
 	@Test
@@ -71,10 +70,8 @@ public class WithMockUserSecurityContextFactoryTests {
 		when(withUser.roles()).thenReturn(new String[] { "USER", "CUSTOM" });
 		when(withUser.authorities()).thenReturn(new String[] {});
 
-		assertThat(
-				factory.createSecurityContext(withUser).getAuthentication()
-						.getAuthorities()).extracting("authority").containsOnly(
-				"ROLE_USER", "ROLE_CUSTOM");
+		assertThat(factory.createSecurityContext(withUser).getAuthentication().getAuthorities()).extracting("authority")
+				.containsOnly("ROLE_USER", "ROLE_CUSTOM");
 	}
 
 	@Test
@@ -84,10 +81,8 @@ public class WithMockUserSecurityContextFactoryTests {
 		when(withUser.roles()).thenReturn(new String[] { "USER" });
 		when(withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
 
-		assertThat(
-				factory.createSecurityContext(withUser).getAuthentication()
-						.getAuthorities()).extracting("authority").containsOnly(
-				"USER", "CUSTOM");
+		assertThat(factory.createSecurityContext(withUser).getAuthentication().getAuthorities()).extracting("authority")
+				.containsOnly("USER", "CUSTOM");
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -107,4 +102,5 @@ public class WithMockUserSecurityContextFactoryTests {
 
 		factory.createSecurityContext(withUser);
 	}
+
 }

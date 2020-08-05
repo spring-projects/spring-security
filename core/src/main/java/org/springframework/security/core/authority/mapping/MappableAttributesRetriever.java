@@ -26,11 +26,12 @@ import java.util.Set;
  * @since 2.0
  */
 public interface MappableAttributesRetriever {
+
 	/**
 	 * Implementations of this method should return a set of all string attributes which
 	 * can be mapped to <tt>GrantedAuthority</tt>s.
-	 *
 	 * @return set of all mappable roles
 	 */
 	Set<String> getMappableAttributes();
+
 }

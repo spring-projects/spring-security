@@ -36,26 +36,24 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A {@link Filter} that performs authentication of a particular request. An
- * outline of the logic:
+ * A {@link Filter} that performs authentication of a particular request. An outline of
+ * the logic:
  *
  * <ul>
  * <li>A request comes in and if it does not match
- * {@link #setRequestMatcher(RequestMatcher)}, then this filter does nothing and
- * the {@link FilterChain} is continued. If it does match then...</li>
- * <li>An attempt to convert the {@link HttpServletRequest} into an
- * {@link Authentication} is made. If the result is empty, then the filter does
- * nothing more and the {@link FilterChain} is continued. If it does create an
- * {@link Authentication}...</li>
+ * {@link #setRequestMatcher(RequestMatcher)}, then this filter does nothing and the
+ * {@link FilterChain} is continued. If it does match then...</li>
+ * <li>An attempt to convert the {@link HttpServletRequest} into an {@link Authentication}
+ * is made. If the result is empty, then the filter does nothing more and the
+ * {@link FilterChain} is continued. If it does create an {@link Authentication}...</li>
  * <li>The {@link AuthenticationManager} specified in
- * {@link #GenericAuthenticationFilter(AuthenticationManager)} is used to
- * perform authentication.</li>
- * <li>The {@link AuthenticationManagerResolver} specified in
- * {@link #GenericAuthenticationFilter(AuthenticationManagerResolver)} is used
- * to resolve the appropriate authentication manager from context to perform
+ * {@link #GenericAuthenticationFilter(AuthenticationManager)} is used to perform
  * authentication.</li>
- * <li>If authentication is successful, {@link AuthenticationSuccessHandler} is
- * invoked and the authentication is set on {@link SecurityContextHolder}, else
+ * <li>The {@link AuthenticationManagerResolver} specified in
+ * {@link #GenericAuthenticationFilter(AuthenticationManagerResolver)} is used to resolve
+ * the appropriate authentication manager from context to perform authentication.</li>
+ * <li>If authentication is successful, {@link AuthenticationSuccessHandler} is invoked
+ * and the authentication is set on {@link SecurityContextHolder}, else
  * {@link AuthenticationFailureHandler} is invoked</li>
  * </ul>
  *
@@ -65,10 +63,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class AuthenticationFilter extends OncePerRequestFilter {
 
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+
 	private AuthenticationConverter authenticationConverter;
+
 	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+
 	private AuthenticationFailureHandler failureHandler = new AuthenticationEntryPointFailureHandler(
 			new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
 	public AuthenticationFilter(AuthenticationManager authenticationManager,
@@ -152,7 +154,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 			}
 
 			successfulAuthentication(request, response, filterChain, authenticationResult);
-		} catch (AuthenticationException e) {
+		}
+		catch (AuthenticationException e) {
 			unsuccessfulAuthentication(request, response, e);
 		}
 	}

@@ -31,14 +31,16 @@ import java.util.Map;
  * @see OAuth2User
  */
 public class OAuth2UserAuthority implements GrantedAuthority {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private final String authority;
+
 	private final Map<String, Object> attributes;
 
 	/**
-	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters
-	 * and defaults {@link #getAuthority()} to {@code ROLE_USER}.
-	 *
+	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters and defaults
+	 * {@link #getAuthority()} to {@code ROLE_USER}.
 	 * @param attributes the attributes about the user
 	 */
 	public OAuth2UserAuthority(Map<String, Object> attributes) {
@@ -47,7 +49,6 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	/**
 	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters.
-	 *
 	 * @param authority the authority granted to the user
 	 * @param attributes the attributes about the user
 	 */
@@ -65,7 +66,6 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the attributes about the user.
-	 *
 	 * @return a {@code Map} of attributes about the user
 	 */
 	public Map<String, Object> getAttributes() {
@@ -100,4 +100,5 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	public String toString() {
 		return this.getAuthority();
 	}
+
 }

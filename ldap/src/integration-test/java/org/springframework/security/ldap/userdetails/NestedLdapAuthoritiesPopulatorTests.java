@@ -43,12 +43,19 @@ public class NestedLdapAuthoritiesPopulatorTests {
 
 	@Autowired
 	private ContextSource contextSource;
+
 	private NestedLdapAuthoritiesPopulator populator;
+
 	private LdapAuthority javaDevelopers;
+
 	private LdapAuthority groovyDevelopers;
+
 	private LdapAuthority scalaDevelopers;
+
 	private LdapAuthority closureDevelopers;
+
 	private LdapAuthority jDevelopers;
+
 	private LdapAuthority circularJavaDevelopers;
 
 	// ~ Methods
@@ -56,15 +63,13 @@ public class NestedLdapAuthoritiesPopulatorTests {
 
 	@Before
 	public void setUp() {
-		populator = new NestedLdapAuthoritiesPopulator(this.contextSource,
-				"ou=jdeveloper");
+		populator = new NestedLdapAuthoritiesPopulator(this.contextSource, "ou=jdeveloper");
 		populator.setGroupSearchFilter("(member={0})");
 		populator.setIgnorePartialResultException(false);
 		populator.setRolePrefix("");
 		populator.setSearchSubtree(true);
 		populator.setConvertToUpperCase(false);
-		jDevelopers = new LdapAuthority("j-developers",
-				"cn=j-developers,ou=jdeveloper,dc=springframework,dc=org");
+		jDevelopers = new LdapAuthority("j-developers", "cn=j-developers,ou=jdeveloper,dc=springframework,dc=org");
 		javaDevelopers = new LdapAuthority("java-developers",
 				"cn=java-developers,ou=jdeveloper,dc=springframework,dc=org");
 		groovyDevelopers = new LdapAuthority("groovy-developers",
@@ -79,21 +84,17 @@ public class NestedLdapAuthoritiesPopulatorTests {
 
 	@Test
 	public void testScalaDudeJDevelopersAuthorities() {
-		DirContextAdapter ctx = new DirContextAdapter(
-				"uid=scaladude,ou=people,dc=springframework,dc=org");
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
-				"scaladude");
+		DirContextAdapter ctx = new DirContextAdapter("uid=scaladude,ou=people,dc=springframework,dc=org");
+		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "scaladude");
 		assertThat(authorities).hasSize(5);
-		assertThat(authorities).isEqualTo(Arrays.asList(javaDevelopers, circularJavaDevelopers,
-				scalaDevelopers, groovyDevelopers, jDevelopers));
+		assertThat(authorities).isEqualTo(
+				Arrays.asList(javaDevelopers, circularJavaDevelopers, scalaDevelopers, groovyDevelopers, jDevelopers));
 	}
 
 	@Test
 	public void testJavaDudeJDevelopersAuthorities() {
-		DirContextAdapter ctx = new DirContextAdapter(
-				"uid=javadude,ou=people,dc=springframework,dc=org");
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
-				"javadude");
+		DirContextAdapter ctx = new DirContextAdapter("uid=javadude,ou=people,dc=springframework,dc=org");
+		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "javadude");
 		assertThat(authorities).hasSize(4);
 		assertThat(authorities).contains(javaDevelopers);
 	}
@@ -101,36 +102,30 @@ public class NestedLdapAuthoritiesPopulatorTests {
 	@Test
 	public void testScalaDudeJDevelopersAuthoritiesWithSearchLimit() {
 		populator.setMaxSearchDepth(1);
-		DirContextAdapter ctx = new DirContextAdapter(
-				"uid=scaladude,ou=people,dc=springframework,dc=org");
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
-				"scaladude");
+		DirContextAdapter ctx = new DirContextAdapter("uid=scaladude,ou=people,dc=springframework,dc=org");
+		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "scaladude");
 		assertThat(authorities).hasSize(1);
 		assertThat(authorities).isEqualTo(Arrays.asList(scalaDevelopers));
 	}
 
 	@Test
 	public void testGroovyDudeJDevelopersAuthorities() {
-		DirContextAdapter ctx = new DirContextAdapter(
-				"uid=groovydude,ou=people,dc=springframework,dc=org");
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
-				"groovydude");
+		DirContextAdapter ctx = new DirContextAdapter("uid=groovydude,ou=people,dc=springframework,dc=org");
+		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "groovydude");
 		assertThat(authorities).hasSize(4);
-		assertThat(authorities).isEqualTo(Arrays.asList(javaDevelopers, circularJavaDevelopers, groovyDevelopers,
-				jDevelopers));
+		assertThat(authorities)
+				.isEqualTo(Arrays.asList(javaDevelopers, circularJavaDevelopers, groovyDevelopers, jDevelopers));
 	}
 
 	@Test
 	public void testClosureDudeJDevelopersWithMembershipAsAttributeValues() {
 		populator.setAttributeNames(new HashSet(Arrays.asList("member")));
 
-		DirContextAdapter ctx = new DirContextAdapter(
-				"uid=closuredude,ou=people,dc=springframework,dc=org");
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
-				"closuredude");
+		DirContextAdapter ctx = new DirContextAdapter("uid=closuredude,ou=people,dc=springframework,dc=org");
+		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "closuredude");
 		assertThat(authorities).hasSize(5);
-		assertThat(authorities).isEqualTo(Arrays.asList(javaDevelopers, circularJavaDevelopers,
-				closureDevelopers, groovyDevelopers, jDevelopers));
+		assertThat(authorities).isEqualTo(Arrays.asList(javaDevelopers, circularJavaDevelopers, closureDevelopers,
+				groovyDevelopers, jDevelopers));
 
 		LdapAuthority[] ldapAuthorities = authorities.toArray(new LdapAuthority[0]);
 		assertThat(ldapAuthorities).hasSize(5);
@@ -138,15 +133,16 @@ public class NestedLdapAuthoritiesPopulatorTests {
 		assertThat(ldapAuthorities[0].getAttributes().containsKey("member")).isTrue();
 		assertThat(ldapAuthorities[0].getAttributes().get("member")).isNotNull();
 		assertThat(ldapAuthorities[0].getAttributes().get("member")).hasSize(3);
-		assertThat(ldapAuthorities[0].getFirstAttributeValue("member")).isEqualTo("cn=groovy-developers,ou=jdeveloper,dc=springframework,dc=org");
+		assertThat(ldapAuthorities[0].getFirstAttributeValue("member"))
+				.isEqualTo("cn=groovy-developers,ou=jdeveloper,dc=springframework,dc=org");
 
 		// java group
 		assertThat(ldapAuthorities[1].getAttributes().containsKey("member")).isTrue();
 		assertThat(ldapAuthorities[1].getAttributes().get("member")).isNotNull();
 		assertThat(ldapAuthorities[1].getAttributes().get("member")).hasSize(3);
 		assertThat(groovyDevelopers.getDn()).isEqualTo(ldapAuthorities[1].getFirstAttributeValue("member"));
-		assertThat(ldapAuthorities[2]
-				.getAttributes().get("member")).contains("uid=closuredude,ou=people,dc=springframework,dc=org");
+		assertThat(ldapAuthorities[2].getAttributes().get("member"))
+				.contains("uid=closuredude,ou=people,dc=springframework,dc=org");
 
 		// test non existent attribute
 		assertThat(ldapAuthorities[2].getFirstAttributeValue("test")).isNull();
@@ -155,4 +151,5 @@ public class NestedLdapAuthoritiesPopulatorTests {
 		// test role name
 		assertThat(ldapAuthorities[3].getAuthority()).isEqualTo(groovyDevelopers.getAuthority());
 	}
+
 }

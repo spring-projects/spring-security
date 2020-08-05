@@ -31,10 +31,12 @@ import org.springframework.util.ClassUtils;
  * @author Ben Alex
  */
 public class ObjectIdentityImpl implements ObjectIdentity {
+
 	// ~ Instance fields
 	// ================================================================================================
 
 	private final String type;
+
 	private Serializable identifier;
 
 	// ~ Constructors
@@ -66,9 +68,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 * <p>
 	 * The class name of the object passed will be considered the {@link #type}, so if
 	 * more control is required, a different constructor should be used.
-	 *
 	 * @param object the domain object instance to create an identity for.
-	 *
 	 * @throws IdentityUnavailableException if identity could not be extracted
 	 */
 	public ObjectIdentityImpl(Object object) throws IdentityUnavailableException {
@@ -84,13 +84,11 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 			result = method.invoke(object);
 		}
 		catch (Exception e) {
-			throw new IdentityUnavailableException(
-					"Could not extract identity from object " + object, e);
+			throw new IdentityUnavailableException("Could not extract identity from object " + object, e);
 		}
 
 		Assert.notNull(result, "getId() is required to return a non-null value");
-		Assert.isInstanceOf(Serializable.class, result,
-				"Getter must provide a return value of type Serializable");
+		Assert.isInstanceOf(Serializable.class, result, "Getter must provide a return value of type Serializable");
 		this.identifier = (Serializable) result;
 	}
 
@@ -105,9 +103,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 * <p>
 	 * Numeric identities (Integer and Long values) are considered equal if they are
 	 * numerically equal. Other serializable types are evaluated using a simple equality.
-	 *
 	 * @param arg0 object to compare
-	 *
 	 * @return <code>true</code> if the presented object matches this object
 	 */
 	@Override
@@ -120,8 +116,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 
 		if (identifier instanceof Number && other.identifier instanceof Number) {
 			// Integers and Longs with same value should be considered equal
-			if (((Number) identifier).longValue() != ((Number) other.identifier)
-					.longValue()) {
+			if (((Number) identifier).longValue() != ((Number) other.identifier).longValue()) {
 				return false;
 			}
 		}
@@ -147,7 +142,6 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 
 	/**
 	 * Important so caching operates properly.
-	 *
 	 * @return the hash
 	 */
 	@Override
@@ -166,4 +160,5 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 
 		return sb.toString();
 	}
+
 }

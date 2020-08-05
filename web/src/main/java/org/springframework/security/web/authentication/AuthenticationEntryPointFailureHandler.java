@@ -45,4 +45,5 @@ public class AuthenticationEntryPointFailureHandler implements AuthenticationFai
 			AuthenticationException exception) throws IOException, ServletException {
 		this.authenticationEntryPoint.commence(request, response, exception);
 	}
+
 }

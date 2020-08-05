@@ -29,29 +29,34 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Provides support for <a href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
+ * Provides support for <a href="https://tools.ietf.org/html/rfc7469">HTTP Public Key
+ * Pinning (HPKP)</a>.
  *
  * <p>
  * Since <a href="https://tools.ietf.org/html/rfc7469#section-4.1">Section 4.1</a> states
- * that a value on the order of 60 days (5,184,000 seconds) may be considered a good balance,
- * we use this value as the default. This can be customized using {@link #setMaxAgeInSeconds(long)}.
+ * that a value on the order of 60 days (5,184,000 seconds) may be considered a good
+ * balance, we use this value as the default. This can be customized using
+ * {@link #setMaxAgeInSeconds(long)}.
  * </p>
  *
  * <p>
- * Because <a href="https://tools.ietf.org/html/rfc7469#appendix-B">Appendix B</a> recommends
- * that operators should first deploy public key pinning by using the report-only mode,
- * we opted to use this mode as default. This can be customized using {@link #setReportOnly(boolean)}.
+ * Because <a href="https://tools.ietf.org/html/rfc7469#appendix-B">Appendix B</a>
+ * recommends that operators should first deploy public key pinning by using the
+ * report-only mode, we opted to use this mode as default. This can be customized using
+ * {@link #setReportOnly(boolean)}.
  * </p>
  *
  * <p>
- * Since we need to validate a certificate chain, the "Public-Key-Pins" or "Public-Key-Pins-Report-Only" header
- * will only be added when {@link HttpServletRequest#isSecure()} returns {@code true}.
+ * Since we need to validate a certificate chain, the "Public-Key-Pins" or
+ * "Public-Key-Pins-Report-Only" header will only be added when
+ * {@link HttpServletRequest#isSecure()} returns {@code true}.
  * </p>
  *
  * <p>
- * To set the pins you first need to extract the public key information from your certificate or key file
- * and encode them using Base64. The following commands will help you extract the Base64 encoded information
- * from a key file, a certificate signing request, or a certificate.
+ * To set the pins you first need to extract the public key information from your
+ * certificate or key file and encode them using Base64. The following commands will help
+ * you extract the Base64 encoded information from a key file, a certificate signing
+ * request, or a certificate.
  *
  * <pre>
  * openssl rsa -in my-key-file.key -outform der -pubout | openssl dgst -sha256 -binary | openssl enc -base64
@@ -104,6 +109,7 @@ import java.util.Map;
  * @since 4.1
  */
 public final class HpkpHeaderWriter implements HeaderWriter {
+
 	private static final long DEFAULT_MAX_AGE_SECONDS = 5184000;
 
 	private static final String HPKP_HEADER_NAME = "Public-Key-Pins";
@@ -128,7 +134,6 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 * @param reportOnly maps to {@link #setReportOnly(boolean)}
@@ -142,7 +147,6 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 */
@@ -152,7 +156,6 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 */
 	public HpkpHeaderWriter(long maxAgeInSeconds) {
@@ -179,7 +182,8 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 				if (!response.containsHeader(headerName)) {
 					response.setHeader(headerName, hpkpHeaderValue);
 				}
-			} if (logger.isDebugEnabled()) {
+			}
+			if (logger.isDebugEnabled()) {
 				logger.debug("Not injecting HPKP header since there aren't any pins");
 			}
 		}
@@ -194,17 +198,17 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * </p>
 	 *
 	 * <p>
-	 * The pin directive specifies a way for web host operators to indicate
-	 * a cryptographic identity that should be bound to a given web host.
-	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
+	 * The pin directive specifies a way for web host operators to indicate a
+	 * cryptographic identity that should be bound to a given web host. See
+	 * <a href="https://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for
+	 * additional details.
 	 * </p>
 	 *
 	 * <p>
 	 * To get a pin of
 	 *
-	 * Public-Key-Pins:
-	 * 		pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
-	 * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
+	 * Public-Key-Pins: pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
+	 * pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
 	 *
 	 * Use
 	 *
@@ -214,8 +218,8 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * pins.put("E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=", "sha256");
 	 * </code>
 	 * </p>
-	 *
-	 * @param pins the map of base64-encoded SPKI fingerprint &amp; cryptographic hash algorithm pairs.
+	 * @param pins the map of base64-encoded SPKI fingerprint &amp; cryptographic hash
+	 * algorithm pairs.
 	 * @throws IllegalArgumentException if pins is null
 	 */
 	public void setPins(Map<String, String> pins) {
@@ -226,32 +230,34 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	/**
 	 * <p>
-	 * Adds a list of SHA256 hashed pins for the pin- directive of the Public-Key-Pins header.
+	 * Adds a list of SHA256 hashed pins for the pin- directive of the Public-Key-Pins
+	 * header.
 	 * </p>
 	 *
 	 * <p>
-	 * The pin directive specifies a way for web host operators to indicate
-	 * a cryptographic identity that should be bound to a given web host.
-	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
+	 * The pin directive specifies a way for web host operators to indicate a
+	 * cryptographic identity that should be bound to a given web host. See
+	 * <a href="https://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for
+	 * additional details.
 	 * </p>
 	 *
 	 * <p>
 	 * To get a pin of
 	 *
 	 * Public-Key-Pins-Report-Only:
-	 * 		pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
-	 * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
+	 * pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
+	 * pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
 	 *
 	 * Use
 	 *
 	 * HpkpHeaderWriter hpkpHeaderWriter = new HpkpHeaderWriter();
-	 * hpkpHeaderWriter.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM", "E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=");
+	 * hpkpHeaderWriter.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM",
+	 * "E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=");
 	 * </p>
-	 *
 	 * @param pins a list of base64-encoded SPKI fingerprints.
 	 * @throws IllegalArgumentException if a pin is null
 	 */
-	public void addSha256Pins(String ... pins) {
+	public void addSha256Pins(String... pins) {
 		for (String pin : pins) {
 			Assert.notNull(pin, "pin cannot be null");
 			this.pins.put(pin, "sha256");
@@ -261,36 +267,37 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	/**
 	 * <p>
-	 * Sets the value (in seconds) for the max-age directive of the Public-Key-Pins header. The default is 60 days.
+	 * Sets the value (in seconds) for the max-age directive of the Public-Key-Pins
+	 * header. The default is 60 days.
 	 * </p>
 	 *
 	 * <p>
-	 * This instructs browsers how long they should regard the host (from whom the message was received)
-	 * as a known pinned host. See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.2">Section
-	 * 2.1.2</a> for additional details.
+	 * This instructs browsers how long they should regard the host (from whom the message
+	 * was received) as a known pinned host. See
+	 * <a href="https://tools.ietf.org/html/rfc7469#section-2.1.2">Section 2.1.2</a> for
+	 * additional details.
 	 * </p>
 	 *
 	 * <p>
 	 * To get a header like
 	 *
 	 * Public-Key-Pins-Report-Only: max-age=2592000;
-	 * 		pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
-	 * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
+	 * pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
+	 * pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
 	 *
 	 * Use
 	 *
 	 * HpkpHeaderWriter hpkpHeaderWriter = new HpkpHeaderWriter();
 	 * hpkpHeaderWriter.setMaxAgeInSeconds(TimeUnit.DAYS.toSeconds(30));
 	 * </p>
-	 *
 	 * @param maxAgeInSeconds the maximum amount of time (in seconds) to regard the host
-	 * as a known pinned host. (i.e. TimeUnit.DAYS.toSeconds(30) would set this to 30 days)
+	 * as a known pinned host. (i.e. TimeUnit.DAYS.toSeconds(30) would set this to 30
+	 * days)
 	 * @throws IllegalArgumentException if maxAgeInSeconds is negative
 	 */
 	public void setMaxAgeInSeconds(long maxAgeInSeconds) {
 		if (maxAgeInSeconds < 0) {
-			throw new IllegalArgumentException(
-					"maxAgeInSeconds must be non-negative. Got " + maxAgeInSeconds);
+			throw new IllegalArgumentException("maxAgeInSeconds must be non-negative. Got " + maxAgeInSeconds);
 		}
 		this.maxAgeInSeconds = maxAgeInSeconds;
 		updateHpkpHeaderValue();
@@ -311,13 +318,11 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * To get a header like
 	 *
 	 * Public-Key-Pins-Report-Only: max-age=5184000;
-	 * 		pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
-	 * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
-	 * 		includeSubDomains
+	 * pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
+	 * pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="; includeSubDomains
 	 *
 	 * you should set this to true.
 	 * </p>
-	 *
 	 * @param includeSubDomains true to include subdomains, else false
 	 */
 	public void setIncludeSubDomains(boolean includeSubDomains) {
@@ -327,26 +332,25 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 
 	/**
 	 * <p>
-	 * To get a Public-Key-Pins header you should set this to false,
-	 * otherwise the header will be Public-Key-Pins-Report-Only. When in report-only mode,
-	 * the browser should not terminate the connection with the server. By default this is true.
+	 * To get a Public-Key-Pins header you should set this to false, otherwise the header
+	 * will be Public-Key-Pins-Report-Only. When in report-only mode, the browser should
+	 * not terminate the connection with the server. By default this is true.
 	 * </p>
 	 *
 	 * <p>
-	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1">Section 2.1</a>
-	 * for additional details.
+	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1">Section 2.1</a> for
+	 * additional details.
 	 * </p>
 	 *
 	 * <p>
 	 * To get a header like
 	 *
 	 * Public-Key-Pins: max-age=5184000;
-	 * 		pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
-	 * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
+	 * pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=";
+	 * pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g="
 	 *
 	 * you should the this to false.
 	 * </p>
-	 *
 	 * @param reportOnly true to report only, else false
 	 */
 	public void setReportOnly(boolean reportOnly) {
@@ -367,16 +371,15 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * To get a header like
 	 *
 	 * Public-Key-Pins-Report-Only: max-age=5184000;
-	 * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
-	 * 		pin-sha256="LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=";
-	 * 		report-uri="https://other.example.net/pkp-report"
+	 * pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
+	 * pin-sha256="LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=";
+	 * report-uri="https://other.example.net/pkp-report"
 	 *
 	 * Use
 	 *
 	 * HpkpHeaderWriter hpkpHeaderWriter = new HpkpHeaderWriter();
 	 * hpkpHeaderWriter.setReportUri(new URI("https://other.example.net/pkp-report"));
 	 * </p>
-	 *
 	 * @param reportUri the URI where the browser should send the report to.
 	 */
 	public void setReportUri(URI reportUri) {
@@ -398,23 +401,23 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * To get a header like
 	 *
 	 * Public-Key-Pins-Report-Only: max-age=5184000;
-	 * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
-	 * 		pin-sha256="LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=";
-	 * 		report-uri="https://other.example.net/pkp-report"
+	 * pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
+	 * pin-sha256="LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=";
+	 * report-uri="https://other.example.net/pkp-report"
 	 *
 	 * Use
 	 *
 	 * HpkpHeaderWriter hpkpHeaderWriter = new HpkpHeaderWriter();
 	 * hpkpHeaderWriter.setReportUri("https://other.example.net/pkp-report");
 	 * </p>
-	 *
 	 * @param reportUri the URI where the browser should send the report to.
 	 * @throws IllegalArgumentException if the reportUri is not a valid URI
 	 */
 	public void setReportUri(String reportUri) {
 		try {
 			this.reportUri = new URI(reportUri);
-		} catch (URISyntaxException e) {
+		}
+		catch (URISyntaxException e) {
 			throw new IllegalArgumentException(e);
 		}
 		updateHpkpHeaderValue();
@@ -435,8 +438,11 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	}
 
 	private static final class SecureRequestMatcher implements RequestMatcher {
+
 		public boolean matches(HttpServletRequest request) {
 			return request.isSecure();
 		}
+
 	}
+
 }

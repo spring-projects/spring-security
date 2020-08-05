@@ -41,4 +41,5 @@ abstract class OidcUserInfoMixin {
 	@JsonCreator
 	OidcUserInfoMixin(@JsonProperty("claims") Map<String, Object> claims) {
 	}
+
 }

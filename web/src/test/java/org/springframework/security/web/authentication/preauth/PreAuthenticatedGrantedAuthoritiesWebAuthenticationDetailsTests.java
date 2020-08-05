@@ -32,6 +32,7 @@ import java.util.Set;
  * @author TSARDD
  */
 public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
+
 	List<GrantedAuthority> gas = AuthorityUtils.createAuthorityList("Role1", "Role2");
 
 	@Test
@@ -49,8 +50,9 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
 				getRequest("testUser", new String[] {}), gas);
 		List<GrantedAuthority> returnedGas = details.getGrantedAuthorities();
 		assertThat(gas.containsAll(returnedGas) && returnedGas.containsAll(gas))
-			.withFailMessage("Collections do not contain same elements; expected: " + gas
-				+ ", returned: " + returnedGas).isTrue();
+				.withFailMessage(
+						"Collections do not contain same elements; expected: " + gas + ", returned: " + returnedGas)
+				.isTrue();
 	}
 
 	private HttpServletRequest getRequest(final String userName, final String[] aRoles) {

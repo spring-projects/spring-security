@@ -51,8 +51,7 @@ import org.springframework.util.StringUtils;
 @PowerMockIgnore("javax.security.auth.*")
 public class AbstractRememberMeServicesTests {
 
-	static User joe = new User("joe", "password", true, true, true, true,
-			AuthorityUtils.createAuthorityList("ROLE_A"));
+	static User joe = new User("joe", "password", true, true, true, true, AuthorityUtils.createAuthorityList("ROLE_A"));
 
 	MockUserDetailsService uds;
 
@@ -100,8 +99,7 @@ public class AbstractRememberMeServicesTests {
 
 	@Test
 	public void cookieWithOpenIDidentifierAsNameIsEncodedAndDecoded() {
-		String[] cookie = new String[] { "https://id.openid.zz", "cookie", "tokens",
-			"blah" };
+		String[] cookie = new String[] { "https://id.openid.zz", "cookie", "tokens", "blah" };
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 
 		String[] decoded = services.decodeCookie(services.encodeCookie(cookie));
@@ -124,16 +122,14 @@ public class AbstractRememberMeServicesTests {
 		assertThat(services.autoLogin(request, response)).isNull();
 
 		// shouldn't try to invalidate our cookie
-		assertThat(response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY)).isNull();
+		assertThat(response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY)).isNull();
 
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
 		// set non-login cookie
 		request.setCookies(new Cookie("mycookie", "cookie"));
 		assertThat(services.autoLogin(request, response)).isNull();
-		assertThat(response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY)).isNull();
+		assertThat(response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY)).isNull();
 	}
 
 	@Test
@@ -158,9 +154,7 @@ public class AbstractRememberMeServicesTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		request.setCookies(new Cookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
-				"ZZZ"));
+		request.setCookies(new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "ZZZ"));
 		Authentication result = services.autoLogin(request, response);
 		assertThat(result).isNull();
 		assertCookieCancelled(response);
@@ -172,8 +166,7 @@ public class AbstractRememberMeServicesTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		request.setCookies(new Cookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, ""));
+		request.setCookies(new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, ""));
 		Authentication result = services.autoLogin(request, response);
 		assertThat(result).isNull();
 		assertCookieCancelled(response);
@@ -181,8 +174,7 @@ public class AbstractRememberMeServicesTests {
 
 	@Test
 	public void autoLoginShouldFailIfInvalidCookieExceptionIsRaised() {
-		MockRememberMeServices services = new MockRememberMeServices(
-				new MockUserDetailsService(joe, true));
+		MockRememberMeServices services = new MockRememberMeServices(new MockUserDetailsService(joe, true));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		// Wrong number of tokens
@@ -216,8 +208,7 @@ public class AbstractRememberMeServicesTests {
 	public void autoLoginShouldFailIfUserAccountIsLocked() {
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 		services.setUserDetailsChecker(new AccountStatusUserDetailsChecker());
-		uds.toReturn = new User("joe", "password", false, true, true, true,
-				joe.getAuthorities());
+		uds.toReturn = new User("joe", "password", false, true, true, true, joe.getAuthorities());
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(createLoginCookie("cookie:1:2"));
@@ -263,8 +254,7 @@ public class AbstractRememberMeServicesTests {
 
 		assertCookieCancelled(response);
 
-		Cookie returnedCookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie returnedCookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie.getDomain()).isEqualTo("spring.io");
 	}
 
@@ -287,8 +277,7 @@ public class AbstractRememberMeServicesTests {
 
 		assertCookieCancelled(response);
 
-		Cookie returnedCookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie returnedCookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie.getDomain()).isEqualTo("spring.io");
 		assertThat(returnedCookie.getSecure()).isEqualTo(true);
 	}
@@ -312,8 +301,7 @@ public class AbstractRememberMeServicesTests {
 
 		assertCookieCancelled(response);
 
-		Cookie returnedCookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie returnedCookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie.getDomain()).isEqualTo("spring.io");
 		assertThat(returnedCookie.getSecure()).isEqualTo(true);
 	}
@@ -322,8 +310,8 @@ public class AbstractRememberMeServicesTests {
 	public void cookieTheftExceptionShouldBeRethrown() {
 		MockRememberMeServices services = new MockRememberMeServices(uds) {
 
-			protected UserDetails processAutoLoginCookie(String[] cookieTokens,
-					HttpServletRequest request, HttpServletResponse response) {
+			protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
+					HttpServletResponse response) {
 				throw new CookieTheftException("Pretending cookie was stolen");
 			}
 		};
@@ -410,8 +398,7 @@ public class AbstractRememberMeServicesTests {
 		};
 		services.setUseSecureCookie(true);
 		services.setCookie(new String[] { "mycookie" }, 1000, request, response);
-		Cookie cookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(cookie.getSecure()).isTrue();
 	}
 
@@ -423,8 +410,7 @@ public class AbstractRememberMeServicesTests {
 
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 		services.setCookie(new String[] { "mycookie" }, 1000, request, response);
-		Cookie cookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(cookie.isHttpOnly()).isTrue();
 	}
 
@@ -437,8 +423,7 @@ public class AbstractRememberMeServicesTests {
 
 		services.setCookie(new String[] { "value" }, 0, request, response);
 
-		Cookie cookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(cookie.getVersion()).isEqualTo(1);
 	}
 
@@ -451,8 +436,7 @@ public class AbstractRememberMeServicesTests {
 
 		services.setCookie(new String[] { "value" }, -1, request, response);
 
-		Cookie cookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(cookie.getVersion()).isEqualTo(1);
 	}
 
@@ -465,8 +449,7 @@ public class AbstractRememberMeServicesTests {
 
 		services.setCookie(new String[] { "value" }, 1, request, response);
 
-		Cookie cookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(cookie.getVersion()).isZero();
 	}
 
@@ -487,17 +470,14 @@ public class AbstractRememberMeServicesTests {
 
 	private Cookie[] createLoginCookie(String cookieToken) {
 		MockRememberMeServices services = new MockRememberMeServices(uds);
-		Cookie cookie = new Cookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
-				services.encodeCookie(
-						StringUtils.delimitedListToStringArray(cookieToken, ":")));
+		Cookie cookie = new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
+				services.encodeCookie(StringUtils.delimitedListToStringArray(cookieToken, ":")));
 
 		return new Cookie[] { cookie };
 	}
 
 	private void assertCookieCancelled(MockHttpServletResponse response) {
-		Cookie returnedCookie = response.getCookie(
-				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		Cookie returnedCookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
 		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
@@ -521,14 +501,13 @@ public class AbstractRememberMeServicesTests {
 			this(new MockUserDetailsService(null, false));
 		}
 
-		protected void onLoginSuccess(HttpServletRequest request,
-				HttpServletResponse response, Authentication successfulAuthentication) {
+		protected void onLoginSuccess(HttpServletRequest request, HttpServletResponse response,
+				Authentication successfulAuthentication) {
 			loginSuccessCalled = true;
 		}
 
-		protected UserDetails processAutoLoginCookie(String[] cookieTokens,
-				HttpServletRequest request, HttpServletResponse response)
-						throws RememberMeAuthenticationException {
+		protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
+				HttpServletResponse response) throws RememberMeAuthenticationException {
 			if (cookieTokens.length != 3) {
 				throw new InvalidCookieException("deliberate exception");
 			}
@@ -537,6 +516,7 @@ public class AbstractRememberMeServicesTests {
 
 			return user;
 		}
+
 	}
 
 	public static class MockUserDetailsService implements UserDetailsService {
@@ -565,5 +545,7 @@ public class AbstractRememberMeServicesTests {
 		public void setThrowException(boolean value) {
 			this.throwException = value;
 		}
+
 	}
+
 }

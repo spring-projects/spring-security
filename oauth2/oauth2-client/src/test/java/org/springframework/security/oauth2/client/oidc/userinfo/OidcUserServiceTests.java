@@ -69,10 +69,15 @@ import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idT
  * @author Joe Grandja
  */
 public class OidcUserServiceTests {
+
 	private ClientRegistration.Builder clientRegistrationBuilder;
+
 	private OAuth2AccessToken accessToken;
+
 	private OidcIdToken idToken;
+
 	private OidcUserService userService = new OidcUserService();
+
 	private MockWebServer server;
 
 	@Rule
@@ -82,8 +87,7 @@ public class OidcUserServiceTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-		this.clientRegistrationBuilder = clientRegistration()
-				.userInfoUri(null)
+		this.clientRegistrationBuilder = clientRegistration().userInfoUri(null)
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
 				.userNameAttributeName(StandardClaimNames.SUB);
 
@@ -141,116 +145,92 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void loadUserWhenUserInfoUriIsNullThenUserInfoEndpointNotRequested() {
-		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(this.clientRegistrationBuilder.build(), this.accessToken, this.idToken));
+		OidcUser user = this.userService
+				.loadUser(new OidcUserRequest(this.clientRegistrationBuilder.build(), this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNull();
 	}
 
 	@Test
 	public void loadUserWhenNonStandardScopesAuthorizedThenUserInfoEndpointNotRequested() {
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri("https://provider.com/user").build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri("https://provider.com/user")
+				.build();
 		this.accessToken = scopes("scope1", "scope2");
 
-		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		OidcUser user = this.userService
+				.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNull();
 	}
 
 	// gh-6886
 	@Test
 	public void loadUserWhenNonStandardScopesAuthorizedAndAccessibleScopesMatchThenUserInfoEndpointRequested() {
-		String userInfoResponse = "{\n" +
-				"	\"sub\": \"subject1\",\n" +
-				"   \"name\": \"first last\",\n" +
-				"   \"given_name\": \"first\",\n" +
-				"   \"family_name\": \"last\",\n" +
-				"   \"preferred_username\": \"user1\",\n" +
-				"   \"email\": \"user1@example.com\"\n" +
-				"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.accessToken = scopes("scope1", "scope2");
 		this.userService.setAccessibleScopes(Collections.singleton("scope2"));
 
-		OidcUser user = this.userService.loadUser(
-				new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		OidcUser user = this.userService
+				.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNotNull();
 	}
 
 	// gh-6886
 	@Test
 	public void loadUserWhenNonStandardScopesAuthorizedAndAccessibleScopesEmptyThenUserInfoEndpointRequested() {
-		String userInfoResponse = "{\n" +
-				"	\"sub\": \"subject1\",\n" +
-				"   \"name\": \"first last\",\n" +
-				"   \"given_name\": \"first\",\n" +
-				"   \"family_name\": \"last\",\n" +
-				"   \"preferred_username\": \"user1\",\n" +
-				"   \"email\": \"user1@example.com\"\n" +
-				"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.accessToken = scopes("scope1", "scope2");
 		this.userService.setAccessibleScopes(Collections.emptySet());
 
-		OidcUser user = this.userService.loadUser(
-				new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		OidcUser user = this.userService
+				.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNotNull();
 	}
 
 	// gh-6886
 	@Test
 	public void loadUserWhenStandardScopesAuthorizedThenUserInfoEndpointRequested() {
-		String userInfoResponse = "{\n" +
-				"	\"sub\": \"subject1\",\n" +
-				"   \"name\": \"first last\",\n" +
-				"   \"given_name\": \"first\",\n" +
-				"   \"family_name\": \"last\",\n" +
-				"   \"preferred_username\": \"user1\",\n" +
-				"   \"email\": \"user1@example.com\"\n" +
-				"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
-		OidcUser user = this.userService.loadUser(
-				new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		OidcUser user = this.userService
+				.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNotNull();
 	}
 
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
-		String userInfoResponse = "{\n" +
-			"	\"sub\": \"subject1\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"given_name\": \"first\",\n" +
-			"   \"family_name\": \"last\",\n" +
-			"   \"preferred_username\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n" +
-			"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-			.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
-		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		OidcUser user = this.userService
+				.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 
 		assertThat(user.getIdToken()).isNotNull();
 		assertThat(user.getUserInfo()).isNotNull();
@@ -278,16 +258,13 @@ public class OidcUserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_user_info_response"));
 
-		String userInfoResponse = "{\n" +
-				"	\"email\": \"full_name@provider.com\",\n" +
-				"	\"name\": \"full name\"\n" +
-				"}\n";
+		String userInfoResponse = "{\n" + "	\"email\": \"full_name@provider.com\",\n" + "	\"name\": \"full name\"\n"
+				+ "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri)
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userNameAttributeName(StandardClaimNames.EMAIL).build();
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
@@ -298,15 +275,12 @@ public class OidcUserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_user_info_response"));
 
-		String userInfoResponse = "{\n" +
-			"	\"sub\": \"other-subject\"\n" +
-			"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"other-subject\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 	}
@@ -314,22 +288,18 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
-		String userInfoResponse = "{\n" +
-			"	\"sub\": \"subject1\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"given_name\": \"first\",\n" +
-			"   \"family_name\": \"last\",\n" +
-			"   \"preferred_username\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n";
-//			"}\n";		// Make the JSON invalid/malformed
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n";
+		// "}\n"; // Make the JSON invalid/malformed
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 	}
@@ -337,14 +307,14 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenServerErrorThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource: 500 Server Error"));
 
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 
 		String userInfoUri = server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 	}
@@ -352,36 +322,30 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenUserInfoUriInvalidThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
+		this.exception.expectMessage(containsString(
+				"[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
 		String userInfoUri = "https://invalid-provider.com/user";
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 	}
 
 	@Test
 	public void loadUserWhenCustomUserNameAttributeNameThenGetNameReturnsCustomUserName() {
-		String userInfoResponse = "{\n" +
-			"	\"sub\": \"subject1\",\n" +
-			"   \"name\": \"first last\",\n" +
-			"   \"given_name\": \"first\",\n" +
-			"   \"family_name\": \"last\",\n" +
-			"   \"preferred_username\": \"user1\",\n" +
-			"   \"email\": \"user1@example.com\"\n" +
-			"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri)
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userNameAttributeName(StandardClaimNames.EMAIL).build();
 
-		OidcUser user = this.userService.loadUser(
-			new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+		OidcUser user = this.userService
+				.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 
 		assertThat(user.getName()).isEqualTo("user1@example.com");
 	}
@@ -389,20 +353,14 @@ public class OidcUserServiceTests {
 	// gh-5294
 	@Test
 	public void loadUserWhenUserInfoSuccessResponseThenAcceptHeaderJson() throws Exception {
-		String userInfoResponse = "{\n" +
-				"	\"sub\": \"subject1\",\n" +
-				"   \"name\": \"first last\",\n" +
-				"   \"given_name\": \"first\",\n" +
-				"   \"family_name\": \"last\",\n" +
-				"   \"preferred_username\": \"user1\",\n" +
-				"   \"email\": \"user1@example.com\"\n" +
-				"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		assertThat(this.server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
@@ -412,45 +370,34 @@ public class OidcUserServiceTests {
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodHeaderSuccessResponseThenHttpMethodGet() throws Exception {
-		String userInfoResponse = "{\n" +
-				"	\"sub\": \"subject1\",\n" +
-				"   \"name\": \"first last\",\n" +
-				"   \"given_name\": \"first\",\n" +
-				"   \"family_name\": \"last\",\n" +
-				"   \"preferred_username\": \"user1\",\n" +
-				"   \"email\": \"user1@example.com\"\n" +
-				"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri).build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		RecordedRequest request = this.server.takeRequest();
 		assertThat(request.getMethod()).isEqualTo(HttpMethod.GET.name());
 		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
-		assertThat(request.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + this.accessToken.getTokenValue());
+		assertThat(request.getHeader(HttpHeaders.AUTHORIZATION))
+				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
 	// gh-5500
 	@Test
 	public void loadUserWhenAuthenticationMethodFormSuccessResponseThenHttpMethodPost() throws Exception {
-		String userInfoResponse = "{\n" +
-				"	\"sub\": \"subject1\",\n" +
-				"   \"name\": \"first last\",\n" +
-				"   \"given_name\": \"first\",\n" +
-				"   \"family_name\": \"last\",\n" +
-				"   \"preferred_username\": \"user1\",\n" +
-				"   \"email\": \"user1@example.com\"\n" +
-				"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri)
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
 				.userInfoAuthenticationMethod(AuthenticationMethod.FORM).build();
 
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
@@ -463,23 +410,17 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void loadUserWhenCustomClaimTypeConverterFactorySetThenApplied() {
-		String userInfoResponse = "{\n" +
-				"	\"sub\": \"subject1\",\n" +
-				"   \"name\": \"first last\",\n" +
-				"   \"given_name\": \"first\",\n" +
-				"   \"family_name\": \"last\",\n" +
-				"   \"preferred_username\": \"user1\",\n" +
-				"   \"email\": \"user1@example.com\"\n" +
-				"}\n";
+		String userInfoResponse = "{\n" + "	\"sub\": \"subject1\",\n" + "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n" + "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n" + "   \"email\": \"user1@example.com\"\n" + "}\n";
 		this.server.enqueue(jsonResponse(userInfoResponse));
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri(userInfoUri)
-				.build();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
 
-		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(Function.class);
+		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(
+				Function.class);
 		this.userService.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
 
 		when(customClaimTypeConverterFactory.apply(same(clientRegistration)))
@@ -507,8 +448,7 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
 		OidcUserService userService = new OidcUserService();
-		OidcUserRequest request = new OidcUserRequest(clientRegistration().build(),
-				noScopes(), idToken().build());
+		OidcUserRequest request = new OidcUserRequest(clientRegistration().build(), noScopes(), idToken().build());
 		OidcUser user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(1);
@@ -517,8 +457,7 @@ public class OidcUserServiceTests {
 	}
 
 	private MockResponse jsonResponse(String json) {
-		return new MockResponse()
-				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.setBody(json);
+		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setBody(json);
 	}
+
 }

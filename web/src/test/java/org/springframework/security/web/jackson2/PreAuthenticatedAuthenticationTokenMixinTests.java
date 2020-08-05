@@ -33,6 +33,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * @since 4.2
  */
 public class PreAuthenticatedAuthenticationTokenMixinTests extends AbstractMixinTests {
+
 	// @formatter:off
 	private static final String PREAUTH_JSON = "{"
 		+ "\"@class\": \"org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken\","
@@ -48,21 +49,24 @@ public class PreAuthenticatedAuthenticationTokenMixinTests extends AbstractMixin
 
 	@Before
 	public void setupExpected() {
-		expected = new PreAuthenticatedAuthenticationToken("principal", "credentials", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		expected = new PreAuthenticatedAuthenticationToken("principal", "credentials",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 	}
 
 	@Test
-	public void serializeWhenPrincipalCredentialsAuthoritiesThenSuccess() throws JsonProcessingException, JSONException {
+	public void serializeWhenPrincipalCredentialsAuthoritiesThenSuccess()
+			throws JsonProcessingException, JSONException {
 		String serializedJson = mapper.writeValueAsString(expected);
 		JSONAssert.assertEquals(PREAUTH_JSON, serializedJson, true);
 	}
 
 	@Test
-	public void deserializeAuthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws Exception{
-		PreAuthenticatedAuthenticationToken deserialized = mapper
-				.readValue(PREAUTH_JSON, PreAuthenticatedAuthenticationToken.class);
+	public void deserializeAuthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws Exception {
+		PreAuthenticatedAuthenticationToken deserialized = mapper.readValue(PREAUTH_JSON,
+				PreAuthenticatedAuthenticationToken.class);
 		assertThat(deserialized).isNotNull();
 		assertThat(deserialized.isAuthenticated()).isTrue();
 		assertThat(deserialized.getAuthorities()).isEqualTo(expected.getAuthorities());
 	}
+
 }

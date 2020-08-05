@@ -25,8 +25,8 @@ import org.junit.Before;
  * @since 3.2
  *
  */
-public class CurrentDelegatingSecurityContextAsyncTaskExecutorTests extends
-		AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
+public class CurrentDelegatingSecurityContextAsyncTaskExecutorTests
+		extends AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
 
 	@Before
 	public void setUp() throws Exception {

@@ -24,7 +24,6 @@ import reactor.core.publisher.Mono;
  * {@link org.springframework.web.server.WebSession}.
  *
  * @see WebSessionServerCsrfTokenRepository
- *
  * @author Rob Winch
  * @since 5.0
  *
@@ -33,7 +32,6 @@ public interface ServerCsrfTokenRepository {
 
 	/**
 	 * Generates a {@link CsrfToken}
-	 *
 	 * @param exchange the {@link ServerWebExchange} to use
 	 * @return the {@link CsrfToken} that was generated. Cannot be null.
 	 */
@@ -42,7 +40,6 @@ public interface ServerCsrfTokenRepository {
 	/**
 	 * Saves the {@link CsrfToken} using the {@link ServerWebExchange}. If the
 	 * {@link CsrfToken} is null, it is the same as deleting it.
-	 *
 	 * @param exchange the {@link ServerWebExchange} to use
 	 * @param token the {@link CsrfToken} to save or null to delete
 	 */
@@ -50,9 +47,9 @@ public interface ServerCsrfTokenRepository {
 
 	/**
 	 * Loads the expected {@link CsrfToken} from the {@link ServerWebExchange}
-	 *
 	 * @param exchange the {@link ServerWebExchange} to use
 	 * @return the {@link CsrfToken} or null if none exists
 	 */
 	Mono<CsrfToken> loadToken(ServerWebExchange exchange);
+
 }

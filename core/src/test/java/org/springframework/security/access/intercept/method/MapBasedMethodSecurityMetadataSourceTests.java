@@ -33,10 +33,15 @@ import org.springframework.security.access.method.MapBasedMethodSecurityMetadata
  * @since 2.0.4
  */
 public class MapBasedMethodSecurityMetadataSourceTests {
+
 	private final List<ConfigAttribute> ROLE_A = SecurityConfig.createList("ROLE_A");
+
 	private final List<ConfigAttribute> ROLE_B = SecurityConfig.createList("ROLE_B");
+
 	private MapBasedMethodSecurityMetadataSource mds;
+
 	private Method someMethodString;
+
 	private Method someMethodInteger;
 
 	@Before
@@ -64,10 +69,13 @@ public class MapBasedMethodSecurityMetadataSourceTests {
 
 	@SuppressWarnings("unused")
 	private class MockService {
+
 		public void someMethod(String s) {
 		}
 
 		public void someMethod(Integer i) {
 		}
+
 	}
+
 }

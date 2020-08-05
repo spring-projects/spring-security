@@ -36,29 +36,32 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Converts from the {@link PayloadExchange} for
- * <a href="https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Authentication.md">Authentication Extension</a>.
- * For
- * <a href="https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple</a>
- * a {@link UsernamePasswordAuthenticationToken} is returned. For
- * <a href="https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Bearer.md">Bearer</a>
+ * Converts from the {@link PayloadExchange} for <a href=
+ * "https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Authentication.md">Authentication
+ * Extension</a>. For <a href=
+ * "https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple</a>
+ * a {@link UsernamePasswordAuthenticationToken} is returned. For <a href=
+ * "https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Bearer.md">Bearer</a>
  * a {@link BearerTokenAuthenticationToken} is returned.
  *
  * @author Rob Winch
  * @since 5.3
  */
 public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAuthenticationConverter {
-	private static final MimeType COMPOSITE_METADATA_MIME_TYPE = MimeTypeUtils.parseMimeType(
-			WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 
-	private static final MimeType AUTHENTICATION_MIME_TYPE = MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
+	private static final MimeType COMPOSITE_METADATA_MIME_TYPE = MimeTypeUtils
+			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+
+	private static final MimeType AUTHENTICATION_MIME_TYPE = MimeTypeUtils
+			.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
 	private MetadataExtractor metadataExtractor = createDefaultExtractor();
 
 	@Override
 	public Mono<Authentication> convert(PayloadExchange exchange) {
-		return Mono.fromCallable(() -> this.metadataExtractor
-				.extract(exchange.getPayload(), this.COMPOSITE_METADATA_MIME_TYPE))
+		return Mono
+				.fromCallable(
+						() -> this.metadataExtractor.extract(exchange.getPayload(), this.COMPOSITE_METADATA_MIME_TYPE))
 				.flatMap(metadata -> Mono.justOrEmpty(authentication(metadata)));
 	}
 
@@ -74,7 +77,8 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 		WellKnownAuthType wellKnownAuthType = AuthMetadataFlyweight.decodeWellKnownAuthType(rawAuthentication);
 		if (WellKnownAuthType.SIMPLE.equals(wellKnownAuthType)) {
 			return simple(rawAuthentication);
-		} else if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
+		}
+		else if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
 			return bearer(rawAuthentication);
 		}
 		throw new IllegalArgumentException("Unknown Mime Type " + wellKnownAuthType);
@@ -99,4 +103,5 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 		result.metadataToExtract(AUTHENTICATION_MIME_TYPE, byte[].class, "authentication");
 		return result;
 	}
+
 }

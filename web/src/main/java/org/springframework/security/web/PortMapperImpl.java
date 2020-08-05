@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * @author colin sampaleanu
  */
 public class PortMapperImpl implements PortMapper {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -84,19 +85,16 @@ public class PortMapperImpl implements PortMapper {
 	 *      &lt;/map&gt;
 	 * &lt;/property&gt;
 	 * </pre>
-	 *
 	 * @param newMappings A Map consisting of String keys and String values, where for
 	 * each entry the key is the string representation of an integer HTTP port number, and
 	 * the value is the string representation of the corresponding integer HTTPS port
 	 * number.
-	 *
 	 * @throws IllegalArgumentException if input map does not consist of String keys and
 	 * values, each representing an integer port number in the range 1-65535 for that
 	 * mapping.
 	 */
 	public void setPortMappings(Map<String, String> newMappings) {
-		Assert.notNull(newMappings,
-				"A valid list of HTTPS port mappings must be provided");
+		Assert.notNull(newMappings, "A valid list of HTTPS port mappings must be provided");
 
 		this.httpsPortMappings.clear();
 
@@ -104,11 +102,9 @@ public class PortMapperImpl implements PortMapper {
 			Integer httpPort = Integer.valueOf(entry.getKey());
 			Integer httpsPort = Integer.valueOf(entry.getValue());
 
-			if ((httpPort < 1) || (httpPort > 65535)
-					|| (httpsPort < 1) || (httpsPort > 65535)) {
+			if ((httpPort < 1) || (httpPort > 65535) || (httpsPort < 1) || (httpsPort > 65535)) {
 				throw new IllegalArgumentException(
-						"one or both ports out of legal range: " + httpPort + ", "
-								+ httpsPort);
+						"one or both ports out of legal range: " + httpPort + ", " + httpsPort);
 			}
 
 			this.httpsPortMappings.put(httpPort, httpsPort);
@@ -118,4 +114,5 @@ public class PortMapperImpl implements PortMapper {
 			throw new IllegalArgumentException("must map at least one port");
 		}
 	}
+
 }

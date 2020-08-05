@@ -42,14 +42,17 @@ import org.springframework.util.StringUtils;
 
 /**
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
- * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  * @author Ray Krueger
  * @author Luke Taylor
  */
 @SuppressWarnings("unchecked")
 public class OpenID4JavaConsumer implements OpenIDConsumer {
+
 	private static final String DISCOVERY_INFO_KEY = DiscoveryInformation.class.getName();
+
 	private static final String ATTRIBUTE_LIST_KEY = "SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST";
 
 	// ~ Instance fields
@@ -58,6 +61,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final ConsumerManager consumerManager;
+
 	private final AxFetchListFactory attributesToFetchFactory;
 
 	// ~ Constructors
@@ -67,13 +71,11 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		this(new ConsumerManager(), new NullAxFetchListFactory());
 	}
 
-	public OpenID4JavaConsumer(AxFetchListFactory attributesToFetchFactory)
-			throws ConsumerException {
+	public OpenID4JavaConsumer(AxFetchListFactory attributesToFetchFactory) throws ConsumerException {
 		this(new ConsumerManager(), attributesToFetchFactory);
 	}
 
-	public OpenID4JavaConsumer(ConsumerManager consumerManager,
-			AxFetchListFactory attributesToFetchFactory) {
+	public OpenID4JavaConsumer(ConsumerManager consumerManager, AxFetchListFactory attributesToFetchFactory) {
 		this.consumerManager = consumerManager;
 		this.attributesToFetchFactory = attributesToFetchFactory;
 	}
@@ -81,8 +83,8 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 	// ~ Methods
 	// ========================================================================================================
 
-	public String beginConsumption(HttpServletRequest req, String identityUrl,
-			String returnToUrl, String realm) throws OpenIDConsumerException {
+	public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl, String realm)
+			throws OpenIDConsumerException {
 		List<DiscoveryInformation> discoveries;
 
 		try {
@@ -102,48 +104,42 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
 			logger.debug("Looking up attribute fetch list for identifier: " + identityUrl);
 
-			List<OpenIDAttribute> attributesToFetch = attributesToFetchFactory
-					.createAttributeList(identityUrl);
+			List<OpenIDAttribute> attributesToFetch = attributesToFetchFactory.createAttributeList(identityUrl);
 
 			if (!attributesToFetch.isEmpty()) {
 				req.getSession().setAttribute(ATTRIBUTE_LIST_KEY, attributesToFetch);
 				FetchRequest fetchRequest = FetchRequest.createFetchRequest();
 				for (OpenIDAttribute attr : attributesToFetch) {
 					if (logger.isDebugEnabled()) {
-						logger.debug("Adding attribute " + attr.getType()
-								+ " to fetch request");
+						logger.debug("Adding attribute " + attr.getType() + " to fetch request");
 					}
-					fetchRequest.addAttribute(attr.getName(), attr.getType(),
-							attr.isRequired(), attr.getCount());
+					fetchRequest.addAttribute(attr.getName(), attr.getType(), attr.isRequired(), attr.getCount());
 				}
 				authReq.addExtension(fetchRequest);
 			}
 		}
 		catch (MessageException | ConsumerException e) {
-			throw new OpenIDConsumerException(
-					"Error processing ConsumerManager authentication", e);
+			throw new OpenIDConsumerException("Error processing ConsumerManager authentication", e);
 		}
 
 		return authReq.getDestinationUrl(true);
 	}
 
-	public OpenIDAuthenticationToken endConsumption(HttpServletRequest request)
-			throws OpenIDConsumerException {
+	public OpenIDAuthenticationToken endConsumption(HttpServletRequest request) throws OpenIDConsumerException {
 		// extract the parameters from the authentication response
 		// (which comes in as a HTTP request from the OpenID provider)
 		ParameterList openidResp = new ParameterList(request.getParameterMap());
 
 		// retrieve the previously stored discovery information
-		DiscoveryInformation discovered = (DiscoveryInformation) request.getSession()
-				.getAttribute(DISCOVERY_INFO_KEY);
+		DiscoveryInformation discovered = (DiscoveryInformation) request.getSession().getAttribute(DISCOVERY_INFO_KEY);
 
 		if (discovered == null) {
 			throw new OpenIDConsumerException(
 					"DiscoveryInformation is not available. Possible causes are lost session or replay attack");
 		}
 
-		List<OpenIDAttribute> attributesToFetch = (List<OpenIDAttribute>) request
-				.getSession().getAttribute(ATTRIBUTE_LIST_KEY);
+		List<OpenIDAttribute> attributesToFetch = (List<OpenIDAttribute>) request.getSession()
+				.getAttribute(ATTRIBUTE_LIST_KEY);
 
 		request.getSession().removeAttribute(DISCOVERY_INFO_KEY);
 		request.getSession().removeAttribute(ATTRIBUTE_LIST_KEY);
@@ -160,8 +156,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		VerificationResult verification;
 
 		try {
-			verification = consumerManager.verify(receivingURL.toString(), openidResp,
-					discovered);
+			verification = consumerManager.verify(receivingURL.toString(), openidResp, discovered);
 		}
 		catch (MessageException | AssociationException | DiscoveryException e) {
 			throw new OpenIDConsumerException("Error verifying openid response", e);
@@ -175,21 +170,19 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 			return new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE,
 					id == null ? "Unknown" : id.getIdentifier(),
 					"Verification status message: [" + verification.getStatusMsg() + "]",
-					Collections.<OpenIDAttribute> emptyList());
+					Collections.<OpenIDAttribute>emptyList());
 		}
 
-		List<OpenIDAttribute> attributes = fetchAxAttributes(
-				verification.getAuthResponse(), attributesToFetch);
+		List<OpenIDAttribute> attributes = fetchAxAttributes(verification.getAuthResponse(), attributesToFetch);
 
-		return new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS,
-				verified.getIdentifier(), "some message", attributes);
+		return new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS, verified.getIdentifier(),
+				"some message", attributes);
 	}
 
-	List<OpenIDAttribute> fetchAxAttributes(Message authSuccess,
-			List<OpenIDAttribute> attributesToFetch) throws OpenIDConsumerException {
+	List<OpenIDAttribute> fetchAxAttributes(Message authSuccess, List<OpenIDAttribute> attributesToFetch)
+			throws OpenIDConsumerException {
 
-		if (attributesToFetch == null
-				|| !authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
+		if (attributesToFetch == null || !authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
 			return Collections.emptyList();
 		}
 
@@ -206,8 +199,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 				for (OpenIDAttribute attr : attributesToFetch) {
 					List<String> values = fetchResp.getAttributeValues(attr.getName());
 					if (!values.isEmpty()) {
-						OpenIDAttribute fetched = new OpenIDAttribute(attr.getName(),
-								attr.getType(), values);
+						OpenIDAttribute fetched = new OpenIDAttribute(attr.getName(), attr.getType(), values);
 						fetched.setRequired(attr.isRequired());
 						attributes.add(fetched);
 					}
@@ -224,4 +216,5 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
 		return attributes;
 	}
+
 }

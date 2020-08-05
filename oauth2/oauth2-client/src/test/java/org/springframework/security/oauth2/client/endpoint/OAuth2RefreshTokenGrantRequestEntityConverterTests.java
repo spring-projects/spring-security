@@ -41,16 +41,16 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @author Joe Grandja
  */
 public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
+
 	private OAuth2RefreshTokenGrantRequestEntityConverter converter = new OAuth2RefreshTokenGrantRequestEntityConverter();
+
 	private OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest;
 
 	@Before
 	public void setup() {
 		this.refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
-				TestClientRegistrations.clientRegistration().build(),
-				TestOAuth2AccessTokens.scopes("read", "write"),
-				TestOAuth2RefreshTokens.refreshToken(),
-				Collections.singleton("read"));
+				TestClientRegistrations.clientRegistration().build(), TestOAuth2AccessTokens.scopes("read", "write"),
+				TestOAuth2RefreshTokens.refreshToken(), Collections.singleton("read"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -62,20 +62,20 @@ public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
 		OAuth2RefreshToken refreshToken = this.refreshTokenGrantRequest.getRefreshToken();
 
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
-		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
-				clientRegistration.getProviderDetails().getTokenUri());
+		assertThat(requestEntity.getUrl().toASCIIString())
+				.isEqualTo(clientRegistration.getProviderDetails().getTokenUri());
 
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
-		assertThat(headers.getContentType()).isEqualTo(
-				MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+		assertThat(headers.getContentType())
+				.isEqualTo(MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
 
 		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)).isEqualTo(
-				AuthorizationGrantType.REFRESH_TOKEN.getValue());
-		assertThat(formParameters.getFirst(OAuth2ParameterNames.REFRESH_TOKEN)).isEqualTo(
-				refreshToken.getTokenValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE))
+				.isEqualTo(AuthorizationGrantType.REFRESH_TOKEN.getValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.REFRESH_TOKEN)).isEqualTo(refreshToken.getTokenValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read");
 	}
+
 }

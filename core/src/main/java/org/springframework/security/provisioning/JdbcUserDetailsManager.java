@@ -56,37 +56,53 @@ import java.util.List;
  * @author Luke Taylor
  * @since 2.0
  */
-public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager,
-		GroupManager {
+public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	// UserDetailsManager SQL
 	public static final String DEF_CREATE_USER_SQL = "insert into users (username, password, enabled) values (?,?,?)";
+
 	public static final String DEF_DELETE_USER_SQL = "delete from users where username = ?";
+
 	public static final String DEF_UPDATE_USER_SQL = "update users set password = ?, enabled = ? where username = ?";
+
 	public static final String DEF_INSERT_AUTHORITY_SQL = "insert into authorities (username, authority) values (?,?)";
+
 	public static final String DEF_DELETE_USER_AUTHORITIES_SQL = "delete from authorities where username = ?";
+
 	public static final String DEF_USER_EXISTS_SQL = "select username from users where username = ?";
+
 	public static final String DEF_CHANGE_PASSWORD_SQL = "update users set password = ? where username = ?";
 
 	// GroupManager SQL
 	public static final String DEF_FIND_GROUPS_SQL = "select group_name from groups";
+
 	public static final String DEF_FIND_USERS_IN_GROUP_SQL = "select username from group_members gm, groups g "
 			+ "where gm.group_id = g.id and g.group_name = ?";
+
 	public static final String DEF_INSERT_GROUP_SQL = "insert into groups (group_name) values (?)";
+
 	public static final String DEF_FIND_GROUP_ID_SQL = "select id from groups where group_name = ?";
+
 	public static final String DEF_INSERT_GROUP_AUTHORITY_SQL = "insert into group_authorities (group_id, authority) values (?,?)";
+
 	public static final String DEF_DELETE_GROUP_SQL = "delete from groups where id = ?";
+
 	public static final String DEF_DELETE_GROUP_AUTHORITIES_SQL = "delete from group_authorities where group_id = ?";
+
 	public static final String DEF_DELETE_GROUP_MEMBERS_SQL = "delete from group_members where group_id = ?";
+
 	public static final String DEF_RENAME_GROUP_SQL = "update groups set group_name = ? where group_name = ?";
+
 	public static final String DEF_INSERT_GROUP_MEMBER_SQL = "insert into group_members (group_id, username) values (?,?)";
+
 	public static final String DEF_DELETE_GROUP_MEMBER_SQL = "delete from group_members where group_id = ? and username = ?";
+
 	public static final String DEF_GROUP_AUTHORITIES_QUERY_SQL = "select g.id, g.group_name, ga.authority "
-			+ "from groups g, group_authorities ga "
-			+ "where g.group_name = ? "
-			+ "and g.id = ga.group_id ";
+			+ "from groups g, group_authorities ga " + "where g.group_name = ? " + "and g.id = ga.group_id ";
+
 	public static final String DEF_DELETE_GROUP_AUTHORITY_SQL = "delete from group_authorities where group_id = ? and authority = ?";
 
 	// ~ Instance fields
@@ -95,25 +111,43 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private String createUserSql = DEF_CREATE_USER_SQL;
+
 	private String deleteUserSql = DEF_DELETE_USER_SQL;
+
 	private String updateUserSql = DEF_UPDATE_USER_SQL;
+
 	private String createAuthoritySql = DEF_INSERT_AUTHORITY_SQL;
+
 	private String deleteUserAuthoritiesSql = DEF_DELETE_USER_AUTHORITIES_SQL;
+
 	private String userExistsSql = DEF_USER_EXISTS_SQL;
+
 	private String changePasswordSql = DEF_CHANGE_PASSWORD_SQL;
 
 	private String findAllGroupsSql = DEF_FIND_GROUPS_SQL;
+
 	private String findUsersInGroupSql = DEF_FIND_USERS_IN_GROUP_SQL;
+
 	private String insertGroupSql = DEF_INSERT_GROUP_SQL;
+
 	private String findGroupIdSql = DEF_FIND_GROUP_ID_SQL;
+
 	private String insertGroupAuthoritySql = DEF_INSERT_GROUP_AUTHORITY_SQL;
+
 	private String deleteGroupSql = DEF_DELETE_GROUP_SQL;
+
 	private String deleteGroupAuthoritiesSql = DEF_DELETE_GROUP_AUTHORITIES_SQL;
+
 	private String deleteGroupMembersSql = DEF_DELETE_GROUP_MEMBERS_SQL;
+
 	private String renameGroupSql = DEF_RENAME_GROUP_SQL;
+
 	private String insertGroupMemberSql = DEF_INSERT_GROUP_MEMBER_SQL;
+
 	private String deleteGroupMemberSql = DEF_DELETE_GROUP_MEMBER_SQL;
+
 	private String groupAuthoritiesSql = DEF_GROUP_AUTHORITIES_QUERY_SQL;
+
 	private String deleteGroupAuthoritySql = DEF_DELETE_GROUP_AUTHORITY_SQL;
 
 	private AuthenticationManager authenticationManager;
@@ -147,26 +181,25 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	 * objects. There should normally only be one matching user.
 	 */
 	protected List<UserDetails> loadUsersByUsername(String username) {
-		return getJdbcTemplate().query(getUsersByUsernameQuery(), new String[]{username},
-				(rs, rowNum) -> {
+		return getJdbcTemplate().query(getUsersByUsernameQuery(), new String[] { username }, (rs, rowNum) -> {
 
-					String userName = rs.getString(1);
-					String password = rs.getString(2);
-					boolean enabled = rs.getBoolean(3);
+			String userName = rs.getString(1);
+			String password = rs.getString(2);
+			boolean enabled = rs.getBoolean(3);
 
-					boolean accLocked = false;
-					boolean accExpired = false;
-					boolean credsExpired = false;
+			boolean accLocked = false;
+			boolean accExpired = false;
+			boolean credsExpired = false;
 
-					if (rs.getMetaData().getColumnCount() > 3) {
-						//NOTE: acc_locked, acc_expired and creds_expired are also to be loaded
-						accLocked = rs.getBoolean(4);
-						accExpired = rs.getBoolean(5);
-						credsExpired = rs.getBoolean(6);
-					}
-					return new User(userName, password, enabled, !accExpired, !credsExpired, !accLocked,
-							AuthorityUtils.NO_AUTHORITIES);
-				});
+			if (rs.getMetaData().getColumnCount() > 3) {
+				// NOTE: acc_locked, acc_expired and creds_expired are also to be loaded
+				accLocked = rs.getBoolean(4);
+				accExpired = rs.getBoolean(5);
+				credsExpired = rs.getBoolean(6);
+			}
+			return new User(userName, password, enabled, !accExpired, !credsExpired, !accLocked,
+					AuthorityUtils.NO_AUTHORITIES);
+		});
 	}
 
 	public void createUser(final UserDetails user) {
@@ -179,7 +212,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 			int paramCount = ps.getParameterMetaData().getParameterCount();
 			if (paramCount > 3) {
-				//NOTE: acc_locked, acc_expired and creds_expired are also to be inserted
+				// NOTE: acc_locked, acc_expired and creds_expired are also to be inserted
 				ps.setBoolean(4, !user.isAccountNonLocked());
 				ps.setBoolean(5, !user.isAccountNonExpired());
 				ps.setBoolean(6, !user.isCredentialsNonExpired());
@@ -201,8 +234,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 			int paramCount = ps.getParameterMetaData().getParameterCount();
 			if (paramCount == 3) {
 				ps.setString(3, user.getUsername());
-			} else {
-				//NOTE: acc_locked, acc_expired and creds_expired are also updated
+			}
+			else {
+				// NOTE: acc_locked, acc_expired and creds_expired are also updated
 				ps.setBoolean(3, !user.isAccountNonLocked());
 				ps.setBoolean(4, !user.isAccountNonExpired());
 				ps.setBoolean(5, !user.isCredentialsNonExpired());
@@ -222,8 +256,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private void insertUserAuthorities(UserDetails user) {
 		for (GrantedAuthority auth : user.getAuthorities()) {
-			getJdbcTemplate().update(createAuthoritySql, user.getUsername(),
-					auth.getAuthority());
+			getJdbcTemplate().update(createAuthoritySql, user.getUsername(), auth.getAuthority());
 		}
 	}
 
@@ -239,16 +272,13 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		getJdbcTemplate().update(deleteUserAuthoritiesSql, username);
 	}
 
-	public void changePassword(String oldPassword, String newPassword)
-			throws AuthenticationException {
-		Authentication currentUser = SecurityContextHolder.getContext()
-				.getAuthentication();
+	public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
+		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 
 		if (currentUser == null) {
 			// This would indicate bad coding somewhere
 			throw new AccessDeniedException(
-					"Can't change password as no Authentication object found in context "
-							+ "for current user.");
+					"Can't change password as no Authentication object found in context " + "for current user.");
 		}
 
 		String username = currentUser.getName();
@@ -256,11 +286,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		// If an authentication manager has been set, re-authenticate the user with the
 		// supplied password.
 		if (authenticationManager != null) {
-			logger.debug("Reauthenticating user '" + username
-					+ "' for password change request.");
+			logger.debug("Reauthenticating user '" + username + "' for password change request.");
 
-			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-					username, oldPassword));
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
 		}
 		else {
 			logger.debug("No authentication manager set. Password won't be re-checked.");
@@ -270,30 +298,27 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		getJdbcTemplate().update(changePasswordSql, newPassword, username);
 
-		SecurityContextHolder.getContext().setAuthentication(
-				createNewAuthentication(currentUser, newPassword));
+		SecurityContextHolder.getContext().setAuthentication(createNewAuthentication(currentUser, newPassword));
 
 		userCache.removeUserFromCache(username);
 	}
 
-	protected Authentication createNewAuthentication(Authentication currentAuth,
-			String newPassword) {
+	protected Authentication createNewAuthentication(Authentication currentAuth, String newPassword) {
 		UserDetails user = loadUserByUsername(currentAuth.getName());
 
-		UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
-				user, null, user.getAuthorities());
+		UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(user, null,
+				user.getAuthorities());
 		newAuthentication.setDetails(currentAuth.getDetails());
 
 		return newAuthentication;
 	}
 
 	public boolean userExists(String username) {
-		List<String> users = getJdbcTemplate().queryForList(userExistsSql,
-				new String[] { username }, String.class);
+		List<String> users = getJdbcTemplate().queryForList(userExistsSql, new String[] { username }, String.class);
 
 		if (users.size() > 1) {
-			throw new IncorrectResultSizeDataAccessException(
-					"More than one user found with name '" + username + "'", 1);
+			throw new IncorrectResultSizeDataAccessException("More than one user found with name '" + username + "'",
+					1);
 		}
 
 		return users.size() == 1;
@@ -308,12 +333,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	public List<String> findUsersInGroup(String groupName) {
 		Assert.hasText(groupName, "groupName should have text");
-		return getJdbcTemplate().queryForList(findUsersInGroupSql,
-				new String[] { groupName }, String.class);
+		return getJdbcTemplate().queryForList(findUsersInGroupSql, new String[] { groupName }, String.class);
 	}
 
-	public void createGroup(final String groupName,
-			final List<GrantedAuthority> authorities) {
+	public void createGroup(final String groupName, final List<GrantedAuthority> authorities) {
 		Assert.hasText(groupName, "groupName should have text");
 		Assert.notNull(authorities, "authorities cannot be null");
 
@@ -326,11 +349,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		for (GrantedAuthority a : authorities) {
 			final String authority = a.getAuthority();
-			getJdbcTemplate().update(insertGroupAuthoritySql,
-					ps -> {
-						ps.setInt(1, groupId);
-						ps.setString(2, authority);
-					});
+			getJdbcTemplate().update(insertGroupAuthoritySql, ps -> {
+				ps.setInt(1, groupId);
+				ps.setString(2, authority);
+			});
 		}
 	}
 
@@ -386,17 +408,15 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		logger.debug("Loading authorities for group '" + groupName + "'");
 		Assert.hasText(groupName, "groupName should have text");
 
-		return getJdbcTemplate().query(groupAuthoritiesSql, new String[] { groupName },
-				(rs, rowNum) -> {
-					String roleName = getRolePrefix() + rs.getString(3);
+		return getJdbcTemplate().query(groupAuthoritiesSql, new String[] { groupName }, (rs, rowNum) -> {
+			String roleName = getRolePrefix() + rs.getString(3);
 
-					return new SimpleGrantedAuthority(roleName);
-				});
+			return new SimpleGrantedAuthority(roleName);
+		});
 	}
 
 	public void removeGroupAuthority(String groupName, final GrantedAuthority authority) {
-		logger.debug("Removing authority '" + authority + "' from group '" + groupName
-				+ "'");
+		logger.debug("Removing authority '" + authority + "' from group '" + groupName + "'");
 		Assert.hasText(groupName, "groupName should have text");
 		Assert.notNull(authority, "authority cannot be null");
 
@@ -532,7 +552,6 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	 * Optionally sets the UserCache if one is in use in the application. This allows the
 	 * user to be removed from the cache after updates have taken place to avoid stale
 	 * data.
-	 *
 	 * @param userCache the cache used by the AuthenticationManager.
 	 */
 	public void setUserCache(UserCache userCache) {
@@ -550,8 +569,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		for (GrantedAuthority authority : authorities) {
 			Assert.notNull(authority, "Authorities list contains a null entry");
-			Assert.hasText(authority.getAuthority(),
-					"getAuthority() method must return a non-empty string");
+			Assert.hasText(authority.getAuthority(), "getAuthority() method must return a non-empty string");
 		}
 	}
+
 }

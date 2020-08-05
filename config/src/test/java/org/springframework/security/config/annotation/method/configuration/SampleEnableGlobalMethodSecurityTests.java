@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *
  */
 public class SampleEnableGlobalMethodSecurityTests {
+
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
@@ -50,8 +51,8 @@ public class SampleEnableGlobalMethodSecurityTests {
 
 	@Before
 	public void setup() {
-		SecurityContextHolder.getContext().setAuthentication(
-									new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 	}
 
 	@Test
@@ -61,12 +62,12 @@ public class SampleEnableGlobalMethodSecurityTests {
 		assertThat(this.methodSecurityService.secured()).isNull();
 		assertThat(this.methodSecurityService.jsr250()).isNull();
 
-		assertThatThrownBy(() -> this.methodSecurityService.preAuthorize())
-			.isInstanceOf(AccessDeniedException.class);
+		assertThatThrownBy(() -> this.methodSecurityService.preAuthorize()).isInstanceOf(AccessDeniedException.class);
 	}
 
-	@EnableGlobalMethodSecurity(prePostEnabled=true)
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class SampleWebSecurityConfig {
+
 		@Bean
 		public MethodSecurityService methodSecurityService() {
 			return new MethodSecurityServiceImpl();
@@ -81,8 +82,8 @@ public class SampleEnableGlobalMethodSecurityTests {
 					.withUser("admin").password("password").roles("USER", "ADMIN");
 			// @formatter:on
 		}
-	}
 
+	}
 
 	@Test
 	public void customPermissionHandler() {
@@ -91,12 +92,12 @@ public class SampleEnableGlobalMethodSecurityTests {
 		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
 
 		assertThatThrownBy(() -> this.methodSecurityService.hasPermission("denied"))
-			.isInstanceOf(AccessDeniedException.class);
+				.isInstanceOf(AccessDeniedException.class);
 	}
 
-
-	@EnableGlobalMethodSecurity(prePostEnabled=true)
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class CustomPermissionEvaluatorWebSecurityConfig extends GlobalMethodSecurityConfiguration {
+
 		@Bean
 		public MethodSecurityService methodSecurityService() {
 			return new MethodSecurityServiceImpl();
@@ -118,18 +119,20 @@ public class SampleEnableGlobalMethodSecurityTests {
 				.withUser("admin").password("password").roles("USER", "ADMIN");
 			// @formatter:on
 		}
+
 	}
 
 	static class CustomPermissionEvaluator implements PermissionEvaluator {
-		public boolean hasPermission(Authentication authentication,
-				Object targetDomainObject, Object permission) {
+
+		public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 			return !"denied".equals(targetDomainObject);
 		}
 
-		public boolean hasPermission(Authentication authentication,
-				Serializable targetId, String targetType, Object permission) {
+		public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+				Object permission) {
 			return !"denied".equals(targetId);
 		}
 
 	}
+
 }

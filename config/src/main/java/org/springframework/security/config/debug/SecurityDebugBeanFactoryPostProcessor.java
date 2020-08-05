@@ -30,14 +30,12 @@ import org.springframework.security.web.debug.DebugFilter;
  * @author Luke Taylor
  * @author Rob Winch
  */
-public class SecurityDebugBeanFactoryPostProcessor implements
-		BeanDefinitionRegistryPostProcessor {
+public class SecurityDebugBeanFactoryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
-	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
-			throws BeansException {
-		logger.warn("\n\n"
-				+ "********************************************************************\n"
+	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+		logger.warn("\n\n" + "********************************************************************\n"
 				+ "**********        Security debugging is enabled.       *************\n"
 				+ "**********    This may include sensitive information.  *************\n"
 				+ "**********      Do not use in a production system!     *************\n"
@@ -45,21 +43,18 @@ public class SecurityDebugBeanFactoryPostProcessor implements
 		// SPRING_SECURITY_FILTER_CHAIN does not exist yet since it is an alias that has
 		// not been processed, so use FILTER_CHAIN_PROXY
 		if (registry.containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
-			BeanDefinition fcpBeanDef = registry
-					.getBeanDefinition(BeanIds.FILTER_CHAIN_PROXY);
-			BeanDefinitionBuilder debugFilterBldr = BeanDefinitionBuilder
-					.genericBeanDefinition(DebugFilter.class);
+			BeanDefinition fcpBeanDef = registry.getBeanDefinition(BeanIds.FILTER_CHAIN_PROXY);
+			BeanDefinitionBuilder debugFilterBldr = BeanDefinitionBuilder.genericBeanDefinition(DebugFilter.class);
 			debugFilterBldr.addConstructorArgValue(fcpBeanDef);
 			// Remove the alias to SPRING_SECURITY_FILTER_CHAIN, so that it does not
 			// override the new
 			// SPRING_SECURITY_FILTER_CHAIN definition
 			registry.removeAlias(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
-			registry.registerBeanDefinition(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
-					debugFilterBldr.getBeanDefinition());
+			registry.registerBeanDefinition(BeanIds.SPRING_SECURITY_FILTER_CHAIN, debugFilterBldr.getBeanDefinition());
 		}
 	}
 
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
-			throws BeansException {
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 	}
+
 }

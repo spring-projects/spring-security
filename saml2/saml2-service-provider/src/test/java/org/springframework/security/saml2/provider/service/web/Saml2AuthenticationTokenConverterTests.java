@@ -43,6 +43,7 @@ import static org.springframework.security.saml2.provider.service.registration.T
 
 @RunWith(MockitoJUnitRunner.class)
 public class Saml2AuthenticationTokenConverterTests {
+
 	@Mock
 	Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
 
@@ -50,8 +51,8 @@ public class Saml2AuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenSamlResponseThenToken() {
-		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter
-				(this.relyingPartyRegistrationResolver);
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
 		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
 				.thenReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -64,8 +65,8 @@ public class Saml2AuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenNoSamlResponseThenNull() {
-		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter
-				(this.relyingPartyRegistrationResolver);
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
 		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
 				.thenReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -74,18 +75,17 @@ public class Saml2AuthenticationTokenConverterTests {
 
 	@Test
 	public void convertWhenNoRelyingPartyRegistrationThenNull() {
-		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter
-				(this.relyingPartyRegistrationResolver);
-		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
-				.thenReturn(null);
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
+		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class))).thenReturn(null);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		assertThat(converter.convert(request)).isNull();
 	}
 
 	@Test
 	public void convertWhenGetRequestThenInflates() {
-		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter
-				(this.relyingPartyRegistrationResolver);
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
 		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
 				.thenReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -101,14 +101,13 @@ public class Saml2AuthenticationTokenConverterTests {
 
 	@Test
 	public void constructorWhenResolverIsNullThenIllegalArgument() {
-		assertThatCode(() -> new Saml2AuthenticationTokenConverter(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatCode(() -> new Saml2AuthenticationTokenConverter(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void convertWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
-		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter
-				(this.relyingPartyRegistrationResolver);
+		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
+				this.relyingPartyRegistrationResolver);
 		when(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
 				.thenReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -118,8 +117,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	}
 
 	private void validateSsoCircleXml(String xml) {
-		assertThat(xml)
-				.contains("InResponseTo=\"ARQ9a73ead-7dcf-45a8-89eb-26f3c9900c36\"")
+		assertThat(xml).contains("InResponseTo=\"ARQ9a73ead-7dcf-45a8-89eb-26f3c9900c36\"")
 				.contains(" ID=\"s246d157446618e90e43fb79bdd4d9e9e19cf2c7c4\"")
 				.contains("<saml:Issuer>https://idp.ssocircle.com</saml:Issuer>");
 	}
@@ -129,4 +127,5 @@ public class Saml2AuthenticationTokenConverterTests {
 		String response = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
 		return UriUtils.decode(response, UTF_8);
 	}
+
 }

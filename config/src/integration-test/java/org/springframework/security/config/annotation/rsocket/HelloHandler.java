@@ -27,15 +27,15 @@ public class HelloHandler implements SocketAcceptor {
 
 	@Override
 	public Mono<RSocket> accept(ConnectionSetupPayload setup, RSocket sendingSocket) {
-		return Mono.just(
-				new AbstractRSocket() {
-					@Override
-					public Mono<Payload> requestResponse(Payload payload) {
-						String data = payload.getDataUtf8();
-						payload.release();
-						System.out.println("Got " + data);
-						return Mono.just(ByteBufPayload.create("Hello " + data));
-					}
-				});
+		return Mono.just(new AbstractRSocket() {
+			@Override
+			public Mono<Payload> requestResponse(Payload payload) {
+				String data = payload.getDataUtf8();
+				payload.release();
+				System.out.println("Got " + data);
+				return Mono.just(ByteBufPayload.create("Hello " + data));
+			}
+		});
 	}
+
 }

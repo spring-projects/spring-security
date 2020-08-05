@@ -25,6 +25,7 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class Pbkdf2PasswordEncoderTests {
+
 	private Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder("secret");
 
 	@Test
@@ -37,8 +38,7 @@ public class Pbkdf2PasswordEncoderTests {
 	@Test
 	public void matchesLengthChecked() {
 		String result = this.encoder.encode("password");
-		assertThat(this.encoder.matches("password",
-				result.substring(0, result.length() - 2))).isFalse();
+		assertThat(this.encoder.matches("password", result.substring(0, result.length() - 2))).isFalse();
 	}
 
 	@Test
@@ -68,8 +68,7 @@ public class Pbkdf2PasswordEncoderTests {
 		String encodedPassword = "ab1146a8458d4ce4e65789e5a3f60e423373cfa10b01abd23739e5ae2fdc37f8e9ede4ae6da65264";
 		String originalEncodedPassword = "ab1146a8458d4ce4ab1146a8458d4ce4e65789e5a3f60e423373cfa10b01abd23739e5ae2fdc37f8e9ede4ae6da65264";
 		byte[] originalBytes = Hex.decode(originalEncodedPassword);
-		byte[] fixedBytes = Arrays.copyOfRange(originalBytes, saltLength,
-				originalBytes.length);
+		byte[] fixedBytes = Arrays.copyOfRange(originalBytes, saltLength, originalBytes.length);
 		String fixedHex = String.valueOf(Hex.encode(fixedBytes));
 
 		assertThat(fixedHex).isEqualTo(encodedPassword);
@@ -91,7 +90,8 @@ public class Pbkdf2PasswordEncoderTests {
 		String encodedPassword = "3FOwOMcDgxP+z1x/sv184LFY2WVD+ZGMgYP3LPOSmCcDmk1XPYvcCQ==";
 
 		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
-		java.util.Base64.getDecoder().decode(encodedPassword); // validate can decode as Base64
+		java.util.Base64.getDecoder().decode(encodedPassword); // validate can decode as
+																// Base64
 	}
 
 	@Test
@@ -111,6 +111,7 @@ public class Pbkdf2PasswordEncoderTests {
 		String encodedPassword = "821447f994e2b04c5014e31fa9fca4ae1cc9f2188c4ed53d3ddb5ba7980982b51a0ecebfc0b81a79";
 		assertThat(this.encoder.matches(rawPassword, encodedPassword)).isTrue();
 	}
+
 	/**
 	 * Used to find the iteration count that takes .5 seconds.
 	 */
@@ -126,8 +127,7 @@ public class Pbkdf2PasswordEncoderTests {
 		long avg = 0;
 		while (avg < HALF_SECOND) {
 			iterations += 10000;
-			Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder("", iterations,
-					256);
+			Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder("", iterations, 256);
 			String encoded = encoder.encode("password");
 			System.out.println("Trying " + iterations);
 			long start = System.currentTimeMillis();
@@ -141,4 +141,5 @@ public class Pbkdf2PasswordEncoderTests {
 		}
 		System.out.println("Iterations " + iterations);
 	}
+
 }

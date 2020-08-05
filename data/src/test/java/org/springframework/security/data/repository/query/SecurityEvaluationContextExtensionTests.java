@@ -25,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityEvaluationContextExtensionTests {
+
 	SecurityEvaluationContextExtension securityExtension;
 
 	@Before
@@ -44,8 +45,7 @@ public class SecurityEvaluationContextExtensionTests {
 
 	@Test
 	public void getRootObjectSecurityContextHolderAuthentication() {
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-				"user", "password", "ROLE_USER");
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		assertThat(getRoot().getAuthentication()).isSameAs(authentication);
@@ -53,12 +53,10 @@ public class SecurityEvaluationContextExtensionTests {
 
 	@Test
 	public void getRootObjectExplicitAuthenticationOverridesSecurityContextHolder() {
-		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit",
-				"password", "ROLE_EXPLICIT");
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		securityExtension = new SecurityEvaluationContextExtension(explicit);
 
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
-				"user", "password", "ROLE_USER");
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
@@ -66,8 +64,7 @@ public class SecurityEvaluationContextExtensionTests {
 
 	@Test
 	public void getRootObjectExplicitAuthentication() {
-		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit",
-				"password", "ROLE_EXPLICIT");
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		securityExtension = new SecurityEvaluationContextExtension(explicit);
 
 		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
@@ -76,4 +73,5 @@ public class SecurityEvaluationContextExtensionTests {
 	private SecurityExpressionRoot getRoot() {
 		return (SecurityExpressionRoot) securityExtension.getRootObject();
 	}
+
 }

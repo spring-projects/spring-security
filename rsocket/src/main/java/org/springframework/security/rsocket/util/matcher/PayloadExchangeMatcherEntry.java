@@ -20,7 +20,9 @@ package org.springframework.security.rsocket.util.matcher;
  * @author Rob Winch
  */
 public class PayloadExchangeMatcherEntry<T> {
+
 	private final PayloadExchangeMatcher matcher;
+
 	private final T entry;
 
 	public PayloadExchangeMatcherEntry(PayloadExchangeMatcher matcher, T entry) {
@@ -35,4 +37,5 @@ public class PayloadExchangeMatcherEntry<T> {
 	public T getEntry() {
 		return this.entry;
 	}
+
 }

@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvocation> {
+
 	// ~ Instance fields
 	// ================================================================================================
 
@@ -57,21 +58,19 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvo
 	}
 
 	public void setProcessDomainObjectClass(Class<?> processDomainObjectClass) {
-		Assert.notNull(processDomainObjectClass,
-				"processDomainObjectClass cannot be set to null");
+		Assert.notNull(processDomainObjectClass, "processDomainObjectClass cannot be set to null");
 		this.processDomainObjectClass = processDomainObjectClass;
 	}
 
 	/**
 	 * This implementation supports only <code>MethodSecurityInterceptor</code>, because
 	 * it queries the presented <code>MethodInvocation</code>.
-	 *
 	 * @param clazz the secure object
-	 *
 	 * @return <code>true</code> if the secure object is <code>MethodInvocation</code>,
 	 * <code>false</code> otherwise
 	 */
 	public boolean supports(Class<?> clazz) {
 		return (MethodInvocation.class.isAssignableFrom(clazz));
 	}
+
 }

@@ -34,29 +34,34 @@ import static org.springframework.security.oauth2.jwt.JwtClaimNames.NBF;
 import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
- * An implementation of an {@link AbstractOAuth2Token} representing a JSON Web Token (JWT).
+ * An implementation of an {@link AbstractOAuth2Token} representing a JSON Web Token
+ * (JWT).
  *
  * <p>
  * JWTs represent a set of &quot;claims&quot; as a JSON object that may be encoded in a
- * JSON Web Signature (JWS) and/or JSON Web Encryption (JWE) structure.
- * The JSON object, also known as the JWT Claims Set, consists of one or more claim name/value pairs.
- * The claim name is a {@code String} and the claim value is an arbitrary JSON object.
+ * JSON Web Signature (JWS) and/or JSON Web Encryption (JWE) structure. The JSON object,
+ * also known as the JWT Claims Set, consists of one or more claim name/value pairs. The
+ * claim name is a {@code String} and the claim value is an arbitrary JSON object.
  *
  * @author Joe Grandja
  * @since 5.0
  * @see AbstractOAuth2Token
  * @see JwtClaimAccessor
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature (JWS)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516">JSON Web Encryption (JWE)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token
+ * (JWT)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7515">JSON Web Signature
+ * (JWS)</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516">JSON Web Encryption
+ * (JWE)</a>
  */
 public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
+
 	private final Map<String, Object> headers;
+
 	private final Map<String, Object> claims;
 
 	/**
 	 * Constructs a {@code Jwt} using the provided parameters.
-	 *
 	 * @param tokenValue the token value
 	 * @param issuedAt the time at which the JWT was issued
 	 * @param expiresAt the expiration time on or after which the JWT MUST NOT be accepted
@@ -64,8 +69,8 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	 * @param claims the JWT Claims Set
 	 *
 	 */
-	public Jwt(String tokenValue, Instant issuedAt, Instant expiresAt,
-				Map<String, Object> headers, Map<String, Object> claims) {
+	public Jwt(String tokenValue, Instant issuedAt, Instant expiresAt, Map<String, Object> headers,
+			Map<String, Object> claims) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notEmpty(headers, "headers cannot be empty");
 		Assert.notEmpty(claims, "claims cannot be empty");
@@ -75,7 +80,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 	/**
 	 * Returns the JOSE header(s).
-	 *
 	 * @return a {@code Map} of the JOSE header(s)
 	 */
 	public Map<String, Object> getHeaders() {
@@ -84,7 +88,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 	/**
 	 * Returns the JWT Claims Set.
-	 *
 	 * @return a {@code Map} of the JWT Claims Set
 	 */
 	@Override
@@ -94,7 +97,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 	/**
 	 * Return a {@link Jwt.Builder}
-	 *
 	 * @return A {@link Jwt.Builder}
 	 */
 	public static Builder withTokenValue(String tokenValue) {
@@ -109,8 +111,11 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	 * @since 5.2
 	 */
 	public final static class Builder {
+
 		private String tokenValue;
+
 		private final Map<String, Object> claims = new LinkedHashMap<>();
+
 		private final Map<String, Object> headers = new LinkedHashMap<>();
 
 		private Builder(String tokenValue) {
@@ -119,7 +124,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this token value in the resulting {@link Jwt}
-		 *
 		 * @param tokenValue The token value to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -130,7 +134,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this claim in the resulting {@link Jwt}
-		 *
 		 * @param name The claim name
 		 * @param value The claim value
 		 * @return the {@link Builder} for further configurations
@@ -141,8 +144,8 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Provides access to every {@link #claim(String, Object)}
-		 * declared so far with the possibility to add, replace, or remove.
+		 * Provides access to every {@link #claim(String, Object)} declared so far with
+		 * the possibility to add, replace, or remove.
 		 * @param claimsConsumer the consumer
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -153,7 +156,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this header in the resulting {@link Jwt}
-		 *
 		 * @param name The header name
 		 * @param value The header value
 		 * @return the {@link Builder} for further configurations
@@ -164,8 +166,8 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Provides access to every {@link #header(String, Object)}
-		 * declared so far with the possibility to add, replace, or remove.
+		 * Provides access to every {@link #header(String, Object)} declared so far with
+		 * the possibility to add, replace, or remove.
 		 * @param headersConsumer the consumer
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -176,7 +178,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this audience in the resulting {@link Jwt}
-		 *
 		 * @param audience The audience(s) to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -186,7 +187,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this expiration in the resulting {@link Jwt}
-		 *
 		 * @param expiresAt The expiration to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -197,7 +197,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this identifier in the resulting {@link Jwt}
-		 *
 		 * @param jti The identifier to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -208,7 +207,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this issued-at timestamp in the resulting {@link Jwt}
-		 *
 		 * @param issuedAt The issued-at timestamp to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -219,7 +217,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this issuer in the resulting {@link Jwt}
-		 *
 		 * @param issuer The issuer to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -230,7 +227,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this not-before timestamp in the resulting {@link Jwt}
-		 *
 		 * @param notBefore The not-before timestamp to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -241,7 +237,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Use this subject in the resulting {@link Jwt}
-		 *
 		 * @param subject The subject to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -252,7 +247,6 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 
 		/**
 		 * Build the {@link Jwt}
-		 *
 		 * @return The constructed {@link Jwt}
 		 */
 		public Jwt build() {
@@ -267,5 +261,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 			}
 			return (Instant) timestamp;
 		}
+
 	}
+
 }

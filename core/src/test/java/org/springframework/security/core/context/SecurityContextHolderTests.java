@@ -34,8 +34,7 @@ public class SecurityContextHolderTests {
 	// ========================================================================================================
 	@Before
 	public final void setUp() {
-		SecurityContextHolder
-				.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 	}
 
 	@Test
@@ -65,4 +64,5 @@ public class SecurityContextHolderTests {
 
 		}
 	}
+
 }

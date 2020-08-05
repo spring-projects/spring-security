@@ -26,8 +26,7 @@ import org.springframework.security.core.context.SecurityContext;
  * @since 3.2
  *
  */
-public class ExplicitDelegatingSecurityContextExecutorTests extends
-		AbstractDelegatingSecurityContextExecutorTests {
+public class ExplicitDelegatingSecurityContextExecutorTests extends AbstractDelegatingSecurityContextExecutorTests {
 
 	@Before
 	public void setUp() throws Exception {
@@ -38,4 +37,5 @@ public class ExplicitDelegatingSecurityContextExecutorTests extends
 	protected DelegatingSecurityContextExecutor create() {
 		return new DelegatingSecurityContextExecutor(getExecutor(), securityContext);
 	}
+
 }

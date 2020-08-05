@@ -27,6 +27,7 @@ import org.springframework.security.rsocket.api.PayloadExchange;
  * @author Rob Winch
  */
 class AuthenticationPayloadInterceptorChain implements PayloadInterceptorChain {
+
 	private Authentication authentication;
 
 	@Override
@@ -42,4 +43,5 @@ class AuthenticationPayloadInterceptorChain implements PayloadInterceptorChain {
 	public void setAuthentication(Authentication authentication) {
 		this.authentication = authentication;
 	}
+
 }

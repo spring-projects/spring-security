@@ -41,7 +41,6 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- *
  * @author Rob Winch
  *
  */
@@ -49,8 +48,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ContextConfiguration
 @WebAppConfiguration
 public class HttpSecurityHeadersTests {
+
 	@Autowired
 	WebApplicationContext wac;
+
 	@Autowired
 	Filter springSecurityFilterChain;
 
@@ -58,44 +59,46 @@ public class HttpSecurityHeadersTests {
 
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders
-				.webAppContextSetup(wac)
-				.addFilters(springSecurityFilterChain)
-				.build();
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).addFilters(springSecurityFilterChain).build();
 	}
 
 	// gh-2953
 	// gh-3975
 	@Test
 	public void headerWhenSpringMvcResourceThenCacheRelatedHeadersReset() throws Exception {
-		mockMvc.perform(get("/resources/file.js"))
-			.andExpect(status().isOk())
-			.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "max-age=12345"))
-			.andExpect(header().doesNotExist(HttpHeaders.PRAGMA))
-			.andExpect(header().doesNotExist(HttpHeaders.EXPIRES));
+		mockMvc.perform(get("/resources/file.js")).andExpect(status().isOk())
+				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "max-age=12345"))
+				.andExpect(header().doesNotExist(HttpHeaders.PRAGMA))
+				.andExpect(header().doesNotExist(HttpHeaders.EXPIRES));
 	}
 
 	@Test
 	public void headerWhenNotSpringResourceThenCacheRelatedHeadersSet() throws Exception {
 		mockMvc.perform(get("/notresource"))
-			.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
-			.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-			.andExpect(header().string(HttpHeaders.EXPIRES, "0"));
+				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
+				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
+				.andExpect(header().string(HttpHeaders.EXPIRES, "0"));
 	}
 
 	@EnableWebSecurity
 	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
+
 	}
 
 	@EnableWebMvc
 	@Configuration
 	static class WebMvcConfig implements WebMvcConfigurer {
+
 		@Override
 		public void addResourceHandlers(ResourceHandlerRegistry registry) {
-			registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/resources/").setCachePeriod(12345);
+			registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/resources/")
+					.setCachePeriod(12345);
 		}
+
 	}
+
 }

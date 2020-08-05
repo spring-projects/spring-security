@@ -34,18 +34,17 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Ben Alex
  */
 public class RemoteAuthenticationProviderTests {
+
 	// ~ Methods
 	// ========================================================================================================
 
 	@Test
 	public void testExceptionsGetPassedBackToCaller() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		provider.setRemoteAuthenticationManager(
-				new MockRemoteAuthenticationManager(false));
+		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
 
 		try {
-			provider.authenticate(
-					new UsernamePasswordAuthenticationToken("rod", "password"));
+			provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
 			fail("Should have thrown RemoteAuthenticationException");
 		}
 		catch (RemoteAuthenticationException expected) {
@@ -56,8 +55,7 @@ public class RemoteAuthenticationProviderTests {
 	@Test
 	public void testGettersSetters() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		provider.setRemoteAuthenticationManager(
-				new MockRemoteAuthenticationManager(true));
+		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 		assertThat(provider.getRemoteAuthenticationManager()).isNotNull();
 	}
 
@@ -73,8 +71,7 @@ public class RemoteAuthenticationProviderTests {
 
 		}
 
-		provider.setRemoteAuthenticationManager(
-				new MockRemoteAuthenticationManager(true));
+		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 		provider.afterPropertiesSet();
 
 	}
@@ -82,11 +79,9 @@ public class RemoteAuthenticationProviderTests {
 	@Test
 	public void testSuccessfulAuthenticationCreatesObject() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		provider.setRemoteAuthenticationManager(
-				new MockRemoteAuthenticationManager(true));
+		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
 
-		Authentication result = provider
-				.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
+		Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password"));
 		assertThat(result.getPrincipal()).isEqualTo("rod");
 		assertThat(result.getCredentials()).isEqualTo("password");
 		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains("foo");
@@ -95,8 +90,7 @@ public class RemoteAuthenticationProviderTests {
 	@Test
 	public void testNullCredentialsDoesNotCauseNullPointerException() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
-		provider.setRemoteAuthenticationManager(
-				new MockRemoteAuthenticationManager(false));
+		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
 
 		try {
 			provider.authenticate(new UsernamePasswordAuthenticationToken("rod", null));
@@ -117,14 +111,15 @@ public class RemoteAuthenticationProviderTests {
 	// ==================================================================================================
 
 	private class MockRemoteAuthenticationManager implements RemoteAuthenticationManager {
+
 		private boolean grantAccess;
 
 		MockRemoteAuthenticationManager(boolean grantAccess) {
 			this.grantAccess = grantAccess;
 		}
 
-		public Collection<? extends GrantedAuthority> attemptAuthentication(
-				String username, String password) throws RemoteAuthenticationException {
+		public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
+				throws RemoteAuthenticationException {
 			if (this.grantAccess) {
 				return AuthorityUtils.createAuthorityList("foo");
 			}
@@ -132,5 +127,7 @@ public class RemoteAuthenticationProviderTests {
 				throw new RemoteAuthenticationException("as requested");
 			}
 		}
+
 	}
+
 }

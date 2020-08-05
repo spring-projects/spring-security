@@ -45,18 +45,22 @@ import javax.servlet.http.HttpServletResponse;
  * @author Luke Taylor
  * @since 3.0
  */
-public class UsernamePasswordAuthenticationFilter extends
-		AbstractAuthenticationProcessingFilter {
+public class UsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+
 	// ~ Static fields/initializers
 	// =====================================================================================
 
 	public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
+
 	public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
-	private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER =
-			new AntPathRequestMatcher("/login", "POST");
+
+	private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login",
+			"POST");
 
 	private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
+
 	private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
+
 	private boolean postOnly = true;
 
 	// ~ Constructors
@@ -73,11 +77,10 @@ public class UsernamePasswordAuthenticationFilter extends
 	// ~ Methods
 	// ========================================================================================================
 
-	public Authentication attemptAuthentication(HttpServletRequest request,
-			HttpServletResponse response) throws AuthenticationException {
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException {
 		if (postOnly && !request.getMethod().equals("POST")) {
-			throw new AuthenticationServiceException(
-					"Authentication method not supported: " + request.getMethod());
+			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 		}
 
 		String username = obtainUsername(request);
@@ -93,8 +96,7 @@ public class UsernamePasswordAuthenticationFilter extends
 
 		username = username.trim();
 
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-				username, password);
+		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
 		// Allow subclasses to set the "details" property
 		setDetails(request, authRequest);
@@ -111,9 +113,7 @@ public class UsernamePasswordAuthenticationFilter extends
 	 * password and extended value(s). The <code>AuthenticationDao</code> will need to
 	 * generate the expected password in a corresponding manner.
 	 * </p>
-	 *
 	 * @param request so that request attributes can be retrieved
-	 *
 	 * @return the password that will be presented in the <code>Authentication</code>
 	 * request token to the <code>AuthenticationManager</code>
 	 */
@@ -125,9 +125,7 @@ public class UsernamePasswordAuthenticationFilter extends
 	/**
 	 * Enables subclasses to override the composition of the username, such as by
 	 * including additional values and a separator.
-	 *
 	 * @param request so that request attributes can be retrieved
-	 *
 	 * @return the username that will be presented in the <code>Authentication</code>
 	 * request token to the <code>AuthenticationManager</code>
 	 */
@@ -139,20 +137,17 @@ public class UsernamePasswordAuthenticationFilter extends
 	/**
 	 * Provided so that subclasses may configure what is put into the authentication
 	 * request's details property.
-	 *
 	 * @param request that an authentication request is being created for
 	 * @param authRequest the authentication request object that should have its details
 	 * set
 	 */
-	protected void setDetails(HttpServletRequest request,
-			UsernamePasswordAuthenticationToken authRequest) {
+	protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
 		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 	}
 
 	/**
 	 * Sets the parameter name which will be used to obtain the username from the login
 	 * request.
-	 *
 	 * @param usernameParameter the parameter name. Defaults to "username".
 	 */
 	public void setUsernameParameter(String usernameParameter) {
@@ -163,7 +158,6 @@ public class UsernamePasswordAuthenticationFilter extends
 	/**
 	 * Sets the parameter name which will be used to obtain the password from the login
 	 * request..
-	 *
 	 * @param passwordParameter the parameter name. Defaults to "password".
 	 */
 	public void setPasswordParameter(String passwordParameter) {
@@ -191,4 +185,5 @@ public class UsernamePasswordAuthenticationFilter extends
 	public final String getPasswordParameter() {
 		return passwordParameter;
 	}
+
 }

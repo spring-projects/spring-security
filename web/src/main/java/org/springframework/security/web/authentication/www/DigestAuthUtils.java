@@ -87,7 +87,6 @@ final class DigestAuthUtils {
 	 * Computes the <code>response</code> portion of a Digest authentication header. Both
 	 * the server and user agent should compute the <code>response</code> independently.
 	 * Provided as a static method to simplify the coding of user agents.
-	 *
 	 * @param passwordAlreadyEncoded true if the password argument is already encoded in
 	 * the correct format. False if it is plain text.
 	 * @param username the user's login name.
@@ -102,9 +101,9 @@ final class DigestAuthUtils {
 	 * @return the MD5 of the digest authentication response, encoded in hex
 	 * @throws IllegalArgumentException if the supplied qop value is unsupported.
 	 */
-	static String generateDigest(boolean passwordAlreadyEncoded, String username,
-			String realm, String password, String httpMethod, String uri, String qop,
-			String nonce, String nc, String cnonce) throws IllegalArgumentException {
+	static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm, String password,
+			String httpMethod, String uri, String qop, String nonce, String nc, String cnonce)
+			throws IllegalArgumentException {
 		String a1Md5;
 		String a2 = httpMethod + ":" + uri;
 		String a2Md5 = md5Hex(a2);
@@ -124,12 +123,10 @@ final class DigestAuthUtils {
 		}
 		else if ("auth".equals(qop)) {
 			// As per RFC 2617 compliant clients
-			digest = a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":"
-					+ a2Md5;
+			digest = a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + a2Md5;
 		}
 		else {
-			throw new IllegalArgumentException("This method does not support a qop: '"
-					+ qop + "'");
+			throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
 		}
 
 		return md5Hex(digest);
@@ -143,7 +140,6 @@ final class DigestAuthUtils {
 	 * <p>
 	 * Will trim both the key and value before adding to the <code>Map</code>.
 	 * </p>
-	 *
 	 * @param array the array to process
 	 * @param delimiter to split each element using (typically the equals symbol)
 	 * @param removeCharacters one or more characters to remove from each element prior to
@@ -152,8 +148,8 @@ final class DigestAuthUtils {
 	 * @return a <code>Map</code> representing the array contents, or <code>null</code> if
 	 * the array to process was null or empty
 	 */
-	static Map<String, String> splitEachArrayElementAndCreateMap(String[] array,
-			String delimiter, String removeCharacters) {
+	static Map<String, String> splitEachArrayElementAndCreateMap(String[] array, String delimiter,
+			String removeCharacters) {
 		if ((array == null) || (array.length == 0)) {
 			return null;
 		}
@@ -187,7 +183,6 @@ final class DigestAuthUtils {
 	 * <p>
 	 * Does not include the delimiter in the response.
 	 * </p>
-	 *
 	 * @param toSplit the string to split
 	 * @param delimiter to split the string up with
 	 * @return a two element array with index 0 being before the delimiter, and index 1
@@ -196,12 +191,10 @@ final class DigestAuthUtils {
 	 */
 	static String[] split(String toSplit, String delimiter) {
 		Assert.hasLength(toSplit, "Cannot split a null or empty string");
-		Assert.hasLength(delimiter,
-				"Cannot use a null or empty delimiter to split a string");
+		Assert.hasLength(delimiter, "Cannot use a null or empty delimiter to split a string");
 
 		if (delimiter.length() != 1) {
-			throw new IllegalArgumentException(
-					"Delimiter can only be one character in length");
+			throw new IllegalArgumentException("Delimiter can only be one character in length");
 		}
 
 		int offset = toSplit.indexOf(delimiter);
@@ -227,4 +220,5 @@ final class DigestAuthUtils {
 
 		return new String(Hex.encode(digest.digest(data.getBytes())));
 	}
+
 }

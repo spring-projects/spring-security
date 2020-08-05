@@ -27,7 +27,7 @@ import java.util.Optional;
 
 /**
  * FIXME: Pay attention to the package this goes into. It requires spring-messaging for
- *        the MetadataExtractor.
+ * the MetadataExtractor.
  *
  * @author Rob Winch
  * @since 5.2
@@ -40,8 +40,7 @@ public class RoutePayloadExchangeMatcher implements PayloadExchangeMatcher {
 
 	private final RouteMatcher routeMatcher;
 
-	public RoutePayloadExchangeMatcher(MetadataExtractor metadataExtractor,
-			RouteMatcher routeMatcher, String pattern) {
+	public RoutePayloadExchangeMatcher(MetadataExtractor metadataExtractor, RouteMatcher routeMatcher, String pattern) {
 		Assert.notNull(pattern, "pattern cannot be null");
 		this.metadataExtractor = metadataExtractor;
 		this.routeMatcher = routeMatcher;
@@ -50,12 +49,12 @@ public class RoutePayloadExchangeMatcher implements PayloadExchangeMatcher {
 
 	@Override
 	public Mono<MatchResult> matches(PayloadExchange exchange) {
-		Map<String, Object> metadata = this.metadataExtractor
-				.extract(exchange.getPayload(), exchange.getMetadataMimeType());
+		Map<String, Object> metadata = this.metadataExtractor.extract(exchange.getPayload(),
+				exchange.getMetadataMimeType());
 		return Optional.ofNullable((String) metadata.get(MetadataExtractor.ROUTE_KEY))
-			.map(routeValue -> this.routeMatcher.parseRoute(routeValue))
-			.map(route -> this.routeMatcher.matchAndExtract(this.pattern, route))
-			.map(v -> MatchResult.match(v))
-			.orElse(MatchResult.notMatch());
+				.map(routeValue -> this.routeMatcher.parseRoute(routeValue))
+				.map(route -> this.routeMatcher.matchAndExtract(this.pattern, route)).map(v -> MatchResult.match(v))
+				.orElse(MatchResult.notMatch());
 	}
+
 }

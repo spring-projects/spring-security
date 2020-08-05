@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,6 +65,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	@EnableWebSecurity
 	static class CustomFilterBeforeConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -73,6 +73,7 @@ public class NamespaceHttpCustomFilterTests {
 				.formLogin();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -83,6 +84,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	@EnableWebSecurity
 	static class CustomFilterAfterConfig extends WebSecurityConfigurerAdapter {
+
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -90,6 +92,7 @@ public class NamespaceHttpCustomFilterTests {
 				.formLogin();
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -100,6 +103,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	@EnableWebSecurity
 	static class CustomFilterPositionConfig extends WebSecurityConfigurerAdapter {
+
 		CustomFilterPositionConfig() {
 			// do not add the default filters to make testing easier
 			super(true);
@@ -113,8 +117,8 @@ public class NamespaceHttpCustomFilterTests {
 				.addFilter(new CustomFilter());
 			// @formatter:on
 		}
-	}
 
+	}
 
 	@Test
 	public void getFiltersWhenFilterAddedAtPositionThenBehaviorMatchesNamespace() {
@@ -124,6 +128,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	@EnableWebSecurity
 	static class CustomFilterPositionAtConfig extends WebSecurityConfigurerAdapter {
+
 		CustomFilterPositionAtConfig() {
 			// do not add the default filters to make testing easier
 			super(true);
@@ -135,6 +140,7 @@ public class NamespaceHttpCustomFilterTests {
 				.addFilterAt(new OtherCustomFilter(), UsernamePasswordAuthenticationFilter.class);
 			// @formatter:on
 		}
+
 	}
 
 	@Test
@@ -145,6 +151,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	@EnableWebSecurity
 	static class NoAuthenticationManagerInHttpConfigurationConfig extends WebSecurityConfigurerAdapter {
+
 		NoAuthenticationManagerInHttpConfigurationConfig() {
 			super(true);
 		}
@@ -163,14 +170,16 @@ public class NamespaceHttpCustomFilterTests {
 				.addFilterBefore(new CustomFilter(), UsernamePasswordAuthenticationFilter.class);
 			// @formatter:on
 		}
+
 	}
 
 	@Configuration
 	static class UserDetailsServiceConfig {
+
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-					// @formatter:off
+			// @formatter:off
 					User.withDefaultPasswordEncoder()
 							.username("user")
 							.password("password")
@@ -178,28 +187,35 @@ public class NamespaceHttpCustomFilterTests {
 							.build());
 					// @formatter:on
 		}
+
 	}
 
-	static class CustomFilter extends UsernamePasswordAuthenticationFilter {}
+	static class CustomFilter extends UsernamePasswordAuthenticationFilter {
+
+	}
+
 	static class OtherCustomFilter extends OncePerRequestFilter {
-		protected void doFilterInternal(
-				HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-		throws ServletException, IOException {
+
+		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+				FilterChain filterChain) throws ServletException, IOException {
 			filterChain.doFilter(request, response);
 		}
+
 	}
 
 	static class CustomAuthenticationManager implements AuthenticationManager {
-		public Authentication authenticate(Authentication authentication)
-				throws AuthenticationException {
+
+		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			return null;
 		}
+
 	}
 
 	private ListAssert<Class<?>> assertThatFilters() {
 		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
-		List<Class<?>> filters = filterChain.getFilters("/").stream()
-				.map(Object::getClass).collect(Collectors.toList());
+		List<Class<?>> filters = filterChain.getFilters("/").stream().map(Object::getClass)
+				.collect(Collectors.toList());
 		return assertThat(filters);
 	}
+
 }

@@ -32,14 +32,15 @@ import java.util.*;
  * @author Luke Taylor
  */
 public class PasswordPolicyAwareContextSourceTests {
+
 	private PasswordPolicyAwareContextSource ctxSource;
+
 	private final LdapContext ctx = mock(LdapContext.class);
 
 	@Before
 	public void setUp() {
 		reset(ctx);
-		ctxSource = new PasswordPolicyAwareContextSource(
-				"ldap://blah:789/dc=springframework,dc=org") {
+		ctxSource = new PasswordPolicyAwareContextSource("ldap://blah:789/dc=springframework,dc=org") {
 			@Override
 			protected DirContext createContext(Hashtable env) {
 				if ("manager".equals(env.get(Context.SECURITY_PRINCIPAL))) {
@@ -60,24 +61,20 @@ public class PasswordPolicyAwareContextSourceTests {
 	}
 
 	@Test(expected = UncategorizedLdapException.class)
-	public void standardExceptionIsPropagatedWhenExceptionRaisedAndNoControlsAreSet()
-			throws Exception {
-		doThrow(new NamingException("some LDAP exception")).when(ctx).reconnect(
-				any(Control[].class));
+	public void standardExceptionIsPropagatedWhenExceptionRaisedAndNoControlsAreSet() throws Exception {
+		doThrow(new NamingException("some LDAP exception")).when(ctx).reconnect(any(Control[].class));
 
 		ctxSource.getContext("user", "ignored");
 	}
 
 	@Test(expected = PasswordPolicyException.class)
-	public void lockedPasswordPolicyControlRaisesPasswordPolicyException()
-			throws Exception {
-		when(ctx.getResponseControls()).thenReturn(
-				new Control[] { new PasswordPolicyResponseControl(
-						PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL) });
+	public void lockedPasswordPolicyControlRaisesPasswordPolicyException() throws Exception {
+		when(ctx.getResponseControls()).thenReturn(new Control[] {
+				new PasswordPolicyResponseControl(PasswordPolicyResponseControlTests.OPENLDAP_LOCKED_CTRL) });
 
-		doThrow(new NamingException("locked message")).when(ctx).reconnect(
-				any(Control[].class));
+		doThrow(new NamingException("locked message")).when(ctx).reconnect(any(Control[].class));
 
 		ctxSource.getContext("user", "ignored");
 	}
+
 }

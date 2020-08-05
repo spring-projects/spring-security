@@ -36,6 +36,7 @@ import org.w3c.dom.Element;
  * @author Onur Kagan Ozcan
  */
 class LogoutBeanDefinitionParser implements BeanDefinitionParser {
+
 	static final String ATT_LOGOUT_SUCCESS_URL = "logout-success-url";
 
 	static final String ATT_INVALIDATE_SESSION = "invalidate-session";
@@ -46,12 +47,14 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 	static final String ATT_DELETE_COOKIES = "delete-cookies";
 
 	final String rememberMeServices;
+
 	private final String defaultLogoutUrl;
+
 	private ManagedList<BeanMetadataElement> logoutHandlers = new ManagedList<>();
+
 	private boolean csrfEnabled;
 
-	LogoutBeanDefinitionParser(String loginPageUrl, String rememberMeServices,
-			BeanMetadataElement csrfLogoutHandler) {
+	LogoutBeanDefinitionParser(String loginPageUrl, String rememberMeServices, BeanMetadataElement csrfLogoutHandler) {
 		this.defaultLogoutUrl = loginPageUrl + "?logout";
 		this.rememberMeServices = rememberMeServices;
 		this.csrfEnabled = csrfLogoutHandler != null;
@@ -67,8 +70,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		String invalidateSession = null;
 		String deleteCookies = null;
 
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder
-				.rootBeanDefinition(LogoutFilter.class);
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class);
 
 		if (element != null) {
 			Object source = pc.extractSource(element);
@@ -86,14 +88,13 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 			logoutUrl = DEF_LOGOUT_URL;
 		}
 
-		builder.addPropertyValue("logoutRequestMatcher",
-				getLogoutRequestMatcher(logoutUrl));
+		builder.addPropertyValue("logoutRequestMatcher", getLogoutRequestMatcher(logoutUrl));
 
 		if (StringUtils.hasText(successHandlerRef)) {
 			if (StringUtils.hasText(logoutSuccessUrl)) {
 				pc.getReaderContext().error(
-						"Use " + ATT_LOGOUT_SUCCESS_URL + " or " + ATT_LOGOUT_HANDLER
-								+ ", but not both", pc.extractSource(element));
+						"Use " + ATT_LOGOUT_SUCCESS_URL + " or " + ATT_LOGOUT_HANDLER + ", but not both",
+						pc.extractSource(element));
 			}
 			builder.addConstructorArgReference(successHandlerRef);
 		}
@@ -106,8 +107,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		BeanDefinition sclh = new RootBeanDefinition(SecurityContextLogoutHandler.class);
-		sclh.getPropertyValues().addPropertyValue("invalidateHttpSession",
-				!"false".equals(invalidateSession));
+		sclh.getPropertyValues().addPropertyValue("invalidateHttpSession", !"false".equals(invalidateSession));
 		logoutHandlers.add(sclh);
 
 		if (rememberMeServices != null) {
@@ -115,8 +115,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		if (StringUtils.hasText(deleteCookies)) {
-			BeanDefinition cookieDeleter = new RootBeanDefinition(
-					CookieClearingLogoutHandler.class);
+			BeanDefinition cookieDeleter = new RootBeanDefinition(CookieClearingLogoutHandler.class);
 			String[] names = StringUtils.tokenizeToStringArray(deleteCookies, ",");
 			cookieDeleter.getConstructorArgumentValues().addGenericArgumentValue(names);
 			logoutHandlers.add(cookieDeleter);
@@ -143,4 +142,5 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 	ManagedList<BeanMetadataElement> getLogoutHandlers() {
 		return logoutHandlers;
 	}
+
 }
