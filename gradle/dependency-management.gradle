@@ -24,7 +24,7 @@ dependencyManagement {
 		dependency 'opensymphony:sitemesh:2.4.2'
 		dependency 'org.gebish:geb-spock:0.10.0'
 		dependency 'org.jasig.cas:cas-server-webapp:4.2.7'
-		dependency 'org.powermock:powermock-api-mockito2:2.0.6'
+		dependency 'org.powermock:powermock-api-mockito2:2.0.7'
 		dependency 'org.powermock:powermock-api-support:2.0.7'
 		dependency 'org.powermock:powermock-core:2.0.7'
 		dependency 'org.powermock:powermock-module-junit4-common:2.0.7'
