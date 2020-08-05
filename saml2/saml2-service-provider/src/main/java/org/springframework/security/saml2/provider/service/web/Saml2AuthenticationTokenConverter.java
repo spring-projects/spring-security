@@ -42,7 +42,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author Josh Cummings
  * @since 5.4
  */
-public class Saml2AuthenticationTokenConverter implements AuthenticationConverter {
+public final class Saml2AuthenticationTokenConverter implements AuthenticationConverter {
 	private static Base64 BASE64 = new Base64(0, new byte[]{'\n'});
 
 	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
