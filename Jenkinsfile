@@ -227,12 +227,12 @@ try {
 				def subject = "${buildStatus}: Build ${env.JOB_NAME} ${env.BUILD_NUMBER} status is now ${buildStatus}"
 				def details = """The build status changed to ${buildStatus}. For details see ${env.BUILD_URL}"""
 
-// 				emailext (
-// 					subject: subject,
-// 					body: details,
-// 					recipientProviders: RECIPIENTS,
-// 					to: "$SPRING_SECURITY_TEAM_EMAILS"
-// 				)
+ 				emailext (
+ 					subject: subject,
+ 					body: details,
+ 					recipientProviders: RECIPIENTS,
+ 					to: "$SPRING_SECURITY_TEAM_EMAILS"
+ 				)
 			}
 		}
 	}
