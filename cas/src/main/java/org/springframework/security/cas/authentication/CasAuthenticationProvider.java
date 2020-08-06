@@ -26,6 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -94,7 +95,6 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
-
 		if (authentication instanceof UsernamePasswordAuthenticationToken
 				&& (!CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER.equals(authentication.getPrincipal().toString())
 						&& !CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER
@@ -102,16 +102,13 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 			// UsernamePasswordAuthenticationToken not CAS related
 			return null;
 		}
-
 		// If an existing CasAuthenticationToken, just check we created it
 		if (authentication instanceof CasAuthenticationToken) {
-			if (this.key.hashCode() == ((CasAuthenticationToken) authentication).getKeyHash()) {
-				return authentication;
-			}
-			else {
+			if (this.key.hashCode() != ((CasAuthenticationToken) authentication).getKeyHash()) {
 				throw new BadCredentialsException(this.messages.getMessage("CasAuthenticationProvider.incorrectKey",
 						"The presented CasAuthenticationToken does not contain the expected key"));
 			}
+			return authentication;
 		}
 
 		// Ensure credentials are presented
@@ -120,38 +117,30 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 					"Failed to provide a CAS service ticket to validate"));
 		}
 
-		boolean stateless = false;
-
-		if (authentication instanceof UsernamePasswordAuthenticationToken
-				&& CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER.equals(authentication.getPrincipal())) {
-			stateless = true;
-		}
-
+		boolean stateless = (authentication instanceof UsernamePasswordAuthenticationToken
+				&& CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER.equals(authentication.getPrincipal()));
 		CasAuthenticationToken result = null;
 
 		if (stateless) {
 			// Try to obtain from cache
 			result = this.statelessTicketCache.getByTicketId(authentication.getCredentials().toString());
 		}
-
 		if (result == null) {
 			result = this.authenticateNow(authentication);
 			result.setDetails(authentication.getDetails());
 		}
-
 		if (stateless) {
 			// Add to cache
 			this.statelessTicketCache.putTicketInCache(result);
 		}
-
 		return result;
 	}
 
 	private CasAuthenticationToken authenticateNow(final Authentication authentication) throws AuthenticationException {
 		try {
-			final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(),
+			Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(),
 					getServiceUrl(authentication));
-			final UserDetails userDetails = loadUserByAssertion(assertion);
+			UserDetails userDetails = loadUserByAssertion(assertion);
 			this.userDetailsChecker.check(userDetails);
 			return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
 					this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
@@ -172,22 +161,14 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 	private String getServiceUrl(Authentication authentication) {
 		String serviceUrl;
 		if (authentication.getDetails() instanceof ServiceAuthenticationDetails) {
-			serviceUrl = ((ServiceAuthenticationDetails) authentication.getDetails()).getServiceUrl();
+			return ((ServiceAuthenticationDetails) authentication.getDetails()).getServiceUrl();
 		}
-		else if (this.serviceProperties == null) {
-			throw new IllegalStateException(
-					"serviceProperties cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
-		}
-		else if (this.serviceProperties.getService() == null) {
-			throw new IllegalStateException(
-					"serviceProperties.getService() cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
-		}
-		else {
-			serviceUrl = this.serviceProperties.getService();
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("serviceUrl = " + serviceUrl);
-		}
+		Assert.state(this.serviceProperties != null,
+				"serviceProperties cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
+		Assert.state(this.serviceProperties.getService() != null,
+				"serviceProperties.getService() cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
+		serviceUrl = this.serviceProperties.getService();
+		logger.debug(LogMessage.format("serviceUrl = %s", serviceUrl));
 		return serviceUrl;
 	}
 

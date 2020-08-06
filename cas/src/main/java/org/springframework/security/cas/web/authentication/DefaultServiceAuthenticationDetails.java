@@ -108,7 +108,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		if (query == null) {
 			return null;
 		}
-		final String result = artifactPattern.matcher(query).replaceFirst("");
+		String result = artifactPattern.matcher(query).replaceFirst("");
 		if (result.length() == 0) {
 			return null;
 		}

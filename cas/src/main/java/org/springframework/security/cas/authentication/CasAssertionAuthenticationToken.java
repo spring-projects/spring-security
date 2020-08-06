@@ -39,7 +39,6 @@ public final class CasAssertionAuthenticationToken extends AbstractAuthenticatio
 
 	public CasAssertionAuthenticationToken(final Assertion assertion, final String ticket) {
 		super(new ArrayList<>());
-
 		this.assertion = assertion;
 		this.ticket = ticket;
 	}

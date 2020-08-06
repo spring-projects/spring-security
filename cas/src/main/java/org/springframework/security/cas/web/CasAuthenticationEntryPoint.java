@@ -68,14 +68,11 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	}
 
 	@Override
-	public final void commence(final HttpServletRequest servletRequest, final HttpServletResponse response,
-			final AuthenticationException authenticationException) throws IOException {
-
-		final String urlEncodedService = createServiceUrl(servletRequest, response);
-		final String redirectUrl = createRedirectUrl(urlEncodedService);
-
+	public final void commence(final HttpServletRequest servletRequest, HttpServletResponse response,
+			AuthenticationException authenticationException) throws IOException {
+		String urlEncodedService = createServiceUrl(servletRequest, response);
+		String redirectUrl = createRedirectUrl(urlEncodedService);
 		preCommence(servletRequest, response);
-
 		response.sendRedirect(redirectUrl);
 	}
 
@@ -86,7 +83,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 * @param response the HttpServlet Response
 	 * @return the constructed service url. CANNOT be NULL.
 	 */
-	protected String createServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
+	protected String createServiceUrl(HttpServletRequest request, HttpServletResponse response) {
 		return CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null,
 				this.serviceProperties.getArtifactParameter(), this.encodeServiceUrlWithSessionId);
 	}
@@ -97,7 +94,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 * @param serviceUrl the service url that should be included.
 	 * @return the redirect url. CANNOT be NULL.
 	 */
-	protected String createRedirectUrl(final String serviceUrl) {
+	protected String createRedirectUrl(String serviceUrl) {
 		return CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), serviceUrl,
 				this.serviceProperties.isSendRenew(), false);
 	}
@@ -107,7 +104,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 * @param request the HttpServletRequest
 	 * @param response the HttpServletResponse
 	 */
-	protected void preCommence(final HttpServletRequest request, final HttpServletResponse response) {
+	protected void preCommence(HttpServletRequest request, HttpServletResponse response) {
 
 	}
 
@@ -124,11 +121,11 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 		return this.serviceProperties;
 	}
 
-	public final void setLoginUrl(final String loginUrl) {
+	public final void setLoginUrl(String loginUrl) {
 		this.loginUrl = loginUrl;
 	}
 
-	public final void setServiceProperties(final ServiceProperties serviceProperties) {
+	public final void setServiceProperties(ServiceProperties serviceProperties) {
 		this.serviceProperties = serviceProperties;
 	}
 
@@ -137,7 +134,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 * @param encodeServiceUrlWithSessionId whether to encode the service url with the
 	 * session id or not.
 	 */
-	public final void setEncodeServiceUrlWithSessionId(final boolean encodeServiceUrlWithSessionId) {
+	public final void setEncodeServiceUrlWithSessionId(boolean encodeServiceUrlWithSessionId) {
 		this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
 	}
 

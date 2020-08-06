@@ -93,12 +93,10 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 			final Collection<? extends GrantedAuthority> authorities, final UserDetails userDetails,
 			final Assertion assertion) {
 		super(authorities);
-
 		if ((principal == null) || "".equals(principal) || (credentials == null) || "".equals(credentials)
 				|| (authorities == null) || (userDetails == null) || (assertion == null)) {
 			throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
 		}
-
 		this.keyHash = keyHash;
 		this.principal = principal;
 		this.credentials = credentials;
@@ -117,21 +115,16 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		if (!super.equals(obj)) {
 			return false;
 		}
-
 		if (obj instanceof CasAuthenticationToken) {
 			CasAuthenticationToken test = (CasAuthenticationToken) obj;
-
 			if (!this.assertion.equals(test.getAssertion())) {
 				return false;
 			}
-
 			if (this.getKeyHash() != test.getKeyHash()) {
 				return false;
 			}
-
 			return true;
 		}
-
 		return false;
 	}
 
@@ -174,7 +167,6 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		sb.append(super.toString());
 		sb.append(" Assertion: ").append(this.assertion);
 		sb.append(" Credentials (Service/Proxy Ticket): ").append(this.credentials);
-
 		return (sb.toString());
 	}
 
