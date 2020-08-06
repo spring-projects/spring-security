@@ -148,12 +148,6 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 		return this.methodSecurityInterceptor;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.beans.factory.SmartInitializingSingleton#
-	 * afterSingletonsInstantiated()
-	 */
 	@Override
 	public void afterSingletonsInstantiated() {
 		try {

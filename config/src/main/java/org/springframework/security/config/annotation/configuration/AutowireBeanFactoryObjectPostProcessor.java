@@ -53,13 +53,6 @@ final class AutowireBeanFactoryObjectPostProcessor
 		this.autowireBeanFactory = autowireBeanFactory;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.web.Initializer#initialize(java.
-	 * lang.Object)
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T postProcess(T object) {
@@ -84,12 +77,6 @@ final class AutowireBeanFactoryObjectPostProcessor
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.beans.factory.SmartInitializingSingleton#
-	 * afterSingletonsInstantiated()
-	 */
 	@Override
 	public void afterSingletonsInstantiated() {
 		for (SmartInitializingSingleton singleton : this.smartSingletons) {
@@ -97,11 +84,6 @@ final class AutowireBeanFactoryObjectPostProcessor
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.beans.factory.DisposableBean#destroy()
-	 */
 	@Override
 	public void destroy() {
 		for (DisposableBean disposable : this.disposableBeans) {

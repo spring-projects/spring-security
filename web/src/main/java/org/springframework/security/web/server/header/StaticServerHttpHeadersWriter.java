@@ -37,13 +37,6 @@ public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 		this.headersToAdd = headersToAdd;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.
-	 * springframework.web.server.ServerWebExchange)
-	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
 		HttpHeaders headers = exchange.getResponse().getHeaders();

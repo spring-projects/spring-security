@@ -94,14 +94,6 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		return TRUE.equals(request.getAttribute(SHOULD_NOT_FILTER));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.web.filter.OncePerRequestFilter#doFilterInternal(javax.servlet
-	 * .http.HttpServletRequest, javax.servlet.http.HttpServletResponse,
-	 * javax.servlet.FilterChain)
-	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -181,13 +173,6 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 		private final HashSet<String> allowedMethods = new HashSet<>(Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.springframework.security.web.util.matcher.RequestMatcher#matches(javax.
-		 * servlet.http.HttpServletRequest)
-		 */
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return !this.allowedMethods.contains(request.getMethod());

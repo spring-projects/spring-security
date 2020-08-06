@@ -49,12 +49,6 @@ public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 		this(Arrays.asList(matchers));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#
-	 * matches(org.springframework.web.server.ServerWebExchange)
-	 */
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		return Flux.fromIterable(this.matchers).doOnNext(it -> {

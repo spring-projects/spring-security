@@ -120,12 +120,6 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			this.request = request;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.springframework.security.web.util.OnCommittedResponseWrapper#
-		 * onResponseCommitted()
-		 */
 		@Override
 		protected void onResponseCommitted() {
 			writeHeaders();

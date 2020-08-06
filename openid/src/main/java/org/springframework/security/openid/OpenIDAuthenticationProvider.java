@@ -63,13 +63,6 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
 		Assert.notNull(this.userDetailsService, "The userDetailsService must be set");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.authentication.AuthenticationProvider#authenticate
-	 * (org.springframework.security.Authentication)
-	 */
 	@Override
 	public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
 
@@ -142,13 +135,6 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
 		this.userDetailsService = userDetailsService;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.authentication.AuthenticationProvider#supports(java
-	 * .lang.Class)
-	 */
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return OpenIDAuthenticationToken.class.isAssignableFrom(authentication);

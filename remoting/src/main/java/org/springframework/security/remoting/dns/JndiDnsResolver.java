@@ -54,37 +54,16 @@ public class JndiDnsResolver implements DnsResolver {
 		this.ctxFactory = ctxFactory;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.remoting.dns.DnsResolver#resolveIpAddress(java.lang
-	 * .String)
-	 */
 	@Override
 	public String resolveIpAddress(String hostname) {
 		return resolveIpAddress(hostname, this.ctxFactory.getCtx());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.remoting.dns.DnsResolver#resolveServiceEntry(java.
-	 * lang.String, java.lang.String)
-	 */
 	@Override
 	public String resolveServiceEntry(String serviceType, String domain) {
 		return resolveServiceEntry(serviceType, domain, this.ctxFactory.getCtx());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.remoting.dns.DnsResolver#resolveServiceIpAddress(java
-	 * .lang.String, java.lang.String)
-	 */
 	@Override
 	public String resolveServiceIpAddress(String serviceType, String domain) {
 		DirContext ctx = this.ctxFactory.getCtx();

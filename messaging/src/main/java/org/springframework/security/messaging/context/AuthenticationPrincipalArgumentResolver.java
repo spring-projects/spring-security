@@ -85,26 +85,11 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 
 	private ExpressionParser parser = new SpelExpressionParser();
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver#
-	 * supportsParameter(org.springframework.core.MethodParameter)
-	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver#
-	 * resolveArgument(org.springframework.core.MethodParameter,
-	 * org.springframework.messaging.Message)
-	 */
 	@Override
 	public Object resolveArgument(MethodParameter parameter, Message<?> message) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

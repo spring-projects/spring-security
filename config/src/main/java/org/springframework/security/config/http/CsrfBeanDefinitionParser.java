@@ -203,13 +203,6 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 		private final HashSet<String> allowedMethods = new HashSet<>(Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.springframework.security.web.util.matcher.RequestMatcher#matches(javax.
-		 * servlet.http.HttpServletRequest)
-		 */
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return !this.allowedMethods.contains(request.getMethod());
