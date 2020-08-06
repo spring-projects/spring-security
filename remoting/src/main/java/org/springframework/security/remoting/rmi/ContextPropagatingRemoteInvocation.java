@@ -68,7 +68,8 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 			this.credentials = userCredentials == null ? null : userCredentials.toString();
 		}
 		else {
-			this.principal = this.credentials = null;
+			this.credentials = null;
+			this.principal = null;
 		}
 
 		if (logger.isDebugEnabled()) {
