@@ -54,33 +54,26 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService
 	@SuppressWarnings("unchecked")
 	@Override
 	protected UserDetails loadUserDetails(final Assertion assertion) {
-		final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-
-		for (final String attribute : this.attributes) {
-			final Object value = assertion.getPrincipal().getAttributes().get(attribute);
-
-			if (value == null) {
-				continue;
-			}
-
-			if (value instanceof List) {
-				final List list = (List) value;
-
-				for (final Object o : list) {
-					grantedAuthorities.add(new SimpleGrantedAuthority(
-							this.convertToUpperCase ? o.toString().toUpperCase() : o.toString()));
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+		for (String attribute : this.attributes) {
+			Object value = assertion.getPrincipal().getAttributes().get(attribute);
+			if (value != null) {
+				if (value instanceof List) {
+					for (Object o : (List<?>) value) {
+						grantedAuthorities.add(createSimpleGrantedAuthority(o));
+					}
 				}
-
+				else {
+					grantedAuthorities.add(createSimpleGrantedAuthority(value));
+				}
 			}
-			else {
-				grantedAuthorities.add(new SimpleGrantedAuthority(
-						this.convertToUpperCase ? value.toString().toUpperCase() : value.toString()));
-			}
-
 		}
-
 		return new User(assertion.getPrincipal().getName(), NON_EXISTENT_PASSWORD_VALUE, true, true, true, true,
 				grantedAuthorities);
+	}
+
+	private SimpleGrantedAuthority createSimpleGrantedAuthority(Object o) {
+		return new SimpleGrantedAuthority(this.convertToUpperCase ? o.toString().toUpperCase() : o.toString());
 	}
 
 	/**

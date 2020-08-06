@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cache.Cache;
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -43,31 +44,20 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 	@Override
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
 		final Cache.ValueWrapper element = (serviceTicket != null) ? this.cache.get(serviceTicket) : null;
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
-		}
-
+		logger.debug(LogMessage.of(() -> "Cache hit: " + (element != null) + "; service ticket: " + serviceTicket));
 		return (element != null) ? (CasAuthenticationToken) element.get() : null;
 	}
 
 	@Override
 	public void putTicketInCache(final CasAuthenticationToken token) {
 		String key = token.getCredentials().toString();
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache put: " + key);
-		}
-
+		logger.debug(LogMessage.of(() -> "Cache put: " + key));
 		this.cache.put(key, token);
 	}
 
 	@Override
 	public void removeTicketFromCache(final CasAuthenticationToken token) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cache remove: " + token.getCredentials().toString());
-		}
-
+		logger.debug(LogMessage.of(() -> "Cache remove: " + token.getCredentials().toString()));
 		this.removeTicketFromCache(token.getCredentials().toString());
 	}
 
