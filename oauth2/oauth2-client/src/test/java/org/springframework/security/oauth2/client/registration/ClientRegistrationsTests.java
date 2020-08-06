@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Rafiullah Hamedy
  * @since 5.1
  */
-public class ClientRegistrationsTest {
+public class ClientRegistrationsTests {
 
 	/**
 	 * Contains all optional parameters that are found in ClientRegistration

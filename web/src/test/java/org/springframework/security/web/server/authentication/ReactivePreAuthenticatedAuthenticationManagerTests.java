@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
  * @author Alexey Nesterov
  * @since 5.2
  */
-public class ReactivePreAuthenticatedAuthenticationManagerTest {
+public class ReactivePreAuthenticatedAuthenticationManagerTests {
 
 	private ReactiveUserDetailsService mockUserDetailsService
 			= mock(ReactiveUserDetailsService.class);

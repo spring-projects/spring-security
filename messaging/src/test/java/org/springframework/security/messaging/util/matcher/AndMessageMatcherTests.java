@@ -29,7 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AndMessageMatcherTest {
+public class AndMessageMatcherTests {
 	@Mock
 	private MessageMatcher<Object> delegate;
 

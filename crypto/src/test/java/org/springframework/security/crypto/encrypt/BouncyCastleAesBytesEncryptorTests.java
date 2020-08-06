@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
-public class BouncyCastleAesBytesEncryptorTest {
+public class BouncyCastleAesBytesEncryptorTests {
 
 	private byte[] testData;
 	private String password;

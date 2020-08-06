@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
  *
  * @author Nikita Konev
  */
-public class OAuth2AccessTokenResponseMapConverterTest {
+public class OAuth2AccessTokenResponseMapConverterTests {
 
 	private OAuth2AccessTokenResponseMapConverter messageConverter;
 

@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Eleftheria Stein
  */
-public class ServerHttpSecurityConfigurationTest {
+public class ServerHttpSecurityConfigurationTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 

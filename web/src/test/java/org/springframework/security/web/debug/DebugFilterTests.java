@@ -48,7 +48,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(Logger.class)
-public class DebugFilterTest {
+public class DebugFilterTests {
 	@Captor
 	private ArgumentCaptor<HttpServletRequest> requestCaptor;
 	@Captor

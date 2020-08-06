@@ -39,7 +39,7 @@ import static org.springframework.security.saml2.provider.service.registration.T
 /**
  * Tests for {@link Saml2MetadataFilter}
  */
-public class Saml2MetadataFilterTest {
+public class Saml2MetadataFilterTests {
 
 	RelyingPartyRegistrationRepository repository;
 	Saml2MetadataResolver resolver;

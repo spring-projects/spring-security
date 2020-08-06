@@ -35,7 +35,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class UserDetailsResourceFactoryBeanTest {
+public class UserDetailsResourceFactoryBeanTests {
 	@Mock
 	ResourceLoader resourceLoader;
 

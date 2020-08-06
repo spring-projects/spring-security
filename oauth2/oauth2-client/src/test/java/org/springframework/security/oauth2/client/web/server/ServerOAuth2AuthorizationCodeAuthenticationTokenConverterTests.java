@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
  * @since 5.1
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTest {
+public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTests {
 	@Mock
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
 

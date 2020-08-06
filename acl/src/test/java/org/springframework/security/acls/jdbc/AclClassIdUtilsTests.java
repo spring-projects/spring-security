@@ -37,7 +37,7 @@ import static org.mockito.BDDMockito.given;
  * @author paulwheeler
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AclClassIdUtilsTest {
+public class AclClassIdUtilsTests {
 
 	private static final Long DEFAULT_IDENTIFIER = 999L;
 	private static final BigInteger BIGINT_IDENTIFIER = new BigInteger("999");
