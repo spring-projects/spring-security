@@ -123,7 +123,7 @@ This property can also be supplied directly on the <<webflux-oauth2resourceserve
 
 There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
 
-The first is a `SecurityWebFilterChain` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `WebSecurityConfigurerAdapter` looks like:
+The first is a `SecurityWebFilterChain` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `SecurityWebFilterChain` looks like:
 
 [source,java]
 ----
