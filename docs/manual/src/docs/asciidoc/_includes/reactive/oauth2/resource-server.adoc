@@ -271,7 +271,7 @@ For greater power, though, we can use a builder that ships with `NimbusReactiveJ
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.fromJwkSetUri(this.jwkSetUri)
+    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithm(RS512).build();
 }
 ----
@@ -282,8 +282,8 @@ Calling `jwsAlgorithm` more than once will configure `NimbusReactiveJwtDecoder` 
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.fromJwkSetUri(this.jwkSetUri)
-            .jwsAlgorithm(RS512).jwsAlgorithm(EC512).build();
+    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build();
 }
 ----
 
@@ -293,10 +293,10 @@ Or, you can call `jwsAlgorithms`:
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.fromJwkSetUri(this.jwkSetUri)
+    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithms(algorithms -> {
                     algorithms.add(RS512);
-                    algorithms.add(EC512);
+                    algorithms.add(ES512);
             }).build();
 }
 ----
@@ -789,7 +789,7 @@ Or, exposing a `ReactiveOpaqueTokenIntrospector` `@Bean` has the same effect as 
 ----
 @Bean
 public ReactiveOpaqueTokenIntrospector introspector() {
-    return new NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
+    return new NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
 }
 ----
 
@@ -1036,8 +1036,8 @@ JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = n
     ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
 
 http
-    .authorizeRequests(authorize -> authorize
-        .anyRequest().authenticated()
+    .authorizeExchange(exchanges -> exchanges
+        .anyExchange().authenticated()
     )
     .oauth2ResourceServer(oauth2 -> oauth2
         .authenticationManagerResolver(authenticationManagerResolver)
@@ -1070,8 +1070,8 @@ JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver =
         new JwtIssuerReactiveAuthenticationManagerResolver(authenticationManagers::get);
 
 http
-    .authorizeRequests(authorize -> authorize
-        .anyRequest().authenticated()
+    .authorizeExchange(exchanges -> exchanges
+        .anyExchange().authenticated()
     )
     .oauth2ResourceServer(oauth2 -> oauth2
         .authenticationManagerResolver(authenticationManagerResolver)

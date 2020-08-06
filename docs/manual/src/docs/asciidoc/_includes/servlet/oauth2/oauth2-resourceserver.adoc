@@ -496,7 +496,7 @@ For greater power, though, we can use a builder that ships with `NimbusJwtDecode
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.fromJwkSetUri(this.jwkSetUri)
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithm(RS512).build();
 }
 ----
@@ -507,8 +507,8 @@ Calling `jwsAlgorithm` more than once will configure `NimbusJwtDecoder` to trust
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.fromJwkSetUri(this.jwkSetUri)
-            .jwsAlgorithm(RS512).jwsAlgorithm(EC512).build();
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build();
 }
 ----
 
@@ -518,10 +518,10 @@ Or, you can call `jwsAlgorithms`:
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.fromJwkSetUri(this.jwkSetUri)
+    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
             .jwsAlgorithms(algorithms -> {
                     algorithms.add(RS512);
-                    algorithms.add(EC512);
+                    algorithms.add(ES512);
             }).build();
 }
 ----
