@@ -73,7 +73,9 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 			this.gaGeneralChanges = auths[2];
 		}
 		else {
-			this.gaTakeOwnership = this.gaModifyAuditing = this.gaGeneralChanges = auths[0];
+			this.gaTakeOwnership = auths[0];
+			this.gaModifyAuditing = auths[0];
+			this.gaGeneralChanges = auths[0];
 		}
 	}
 

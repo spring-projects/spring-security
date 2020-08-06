@@ -202,7 +202,8 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		if (result == null && this.parent != null) {
 			// Allow the parent to try.
 			try {
-				result = parentResult = this.parent.authenticate(authentication);
+				parentResult = this.parent.authenticate(authentication);
+				result = parentResult;
 			}
 			catch (ProviderNotFoundException e) {
 				// ignore as we will throw below if no other exception occurred prior to
@@ -211,7 +212,8 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				// handled the request
 			}
 			catch (AuthenticationException e) {
-				lastException = parentException = e;
+				parentException = e;
+				lastException = e;
 			}
 		}
 
