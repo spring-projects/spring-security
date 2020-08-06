@@ -414,13 +414,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 			return this.authenticationManager.authenticate(authentication);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.springframework.context.ApplicationContextAware#setApplicationContext(org
-		 * .springframework.context.ApplicationContext)
-		 */
 		@Override
 		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 			this.authenticationManager = applicationContext.getBean(this.beanName, AuthenticationManager.class);

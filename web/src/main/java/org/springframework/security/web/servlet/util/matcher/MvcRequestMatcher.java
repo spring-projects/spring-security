@@ -87,12 +87,6 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.util.matcher.RequestVariablesExtractor#
-	 * extractUriTemplateVariables(javax.servlet.http.HttpServletRequest)
-	 */
 	@Override
 	@Deprecated
 	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {

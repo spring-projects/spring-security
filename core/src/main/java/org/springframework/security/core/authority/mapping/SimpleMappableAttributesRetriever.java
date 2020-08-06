@@ -30,13 +30,6 @@ public class SimpleMappableAttributesRetriever implements MappableAttributesRetr
 
 	private Set<String> mappableAttributes = null;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.core.authority.mapping.MappableAttributesRetriever
-	 * #getMappableAttributes()
-	 */
 	@Override
 	public Set<String> getMappableAttributes() {
 		return this.mappableAttributes;

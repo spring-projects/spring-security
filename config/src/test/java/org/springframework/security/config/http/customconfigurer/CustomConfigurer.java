@@ -33,13 +33,6 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 
 	private String loginPage = "/login";
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.SecurityConfigurerAdapter#init(org.
-	 * springframework.security.config.annotation.SecurityBuilder)
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init(HttpSecurity http) throws Exception {

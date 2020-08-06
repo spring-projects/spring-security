@@ -98,12 +98,6 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 		this.annotationClassesToUse = annotationClassesToUse;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.core.ParameterNameDiscoverer#getParameterNames(java
-	 * .lang.reflect.Method)
-	 */
 	@Override
 	public String[] getParameterNames(Method method) {
 		Method originalMethod = BridgeMethodResolver.findBridgedMethod(method);
@@ -122,12 +116,6 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 		return paramNames;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.core.ParameterNameDiscoverer#getParameterNames(java
-	 * .lang.reflect.Constructor)
-	 */
 	@Override
 	public String[] getParameterNames(Constructor<?> constructor) {
 		return lookupParameterNames(CONSTRUCTOR_METHODPARAM_FACTORY, constructor);

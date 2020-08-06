@@ -27,13 +27,6 @@ import javax.servlet.http.HttpSession;
  */
 public final class ChangeSessionIdAuthenticationStrategy extends AbstractSessionFixationProtectionStrategy {
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.authentication.session.
-	 * AbstractSessionFixationProtectionStrategy
-	 * #applySessionFixation(javax.servlet.http.HttpServletRequest)
-	 */
 	@Override
 	HttpSession applySessionFixation(HttpServletRequest request) {
 		request.changeSessionId();

@@ -31,11 +31,6 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 
 	private O object;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.config.annotation.SecurityBuilder#build()
-	 */
 	@Override
 	public final O build() throws Exception {
 		if (this.building.compareAndSet(false, true)) {

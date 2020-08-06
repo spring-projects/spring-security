@@ -251,13 +251,7 @@ public class ConcurrentSessionFilterTests {
 
 		final String expiredUrl = "/expired";
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, expiredUrl + "will-be-overrridden") {
-			/*
-			 * (non-Javadoc)
-			 *
-			 * @see org.springframework.security.web.session.ConcurrentSessionFilter#
-			 * determineExpiredUrl(javax.servlet.http.HttpServletRequest,
-			 * org.springframework.security.core.session.SessionInformation)
-			 */
+
 			@Override
 			protected String determineExpiredUrl(HttpServletRequest request, SessionInformation info) {
 				return expiredUrl;

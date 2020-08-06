@@ -90,26 +90,11 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 
 	private BeanResolver beanResolver;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
-	 * supportsParameter (org.springframework.core.MethodParameter)
-	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
-	 * resolveArgument (org.springframework.core.MethodParameter,
-	 * org.springframework.web.method.support.ModelAndViewContainer,
-	 * org.springframework.web.context.request.NativeWebRequest,
-	 * org.springframework.web.bind.support.WebDataBinderFactory)
-	 */
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {

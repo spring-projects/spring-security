@@ -49,13 +49,6 @@ public final class StrictTransportSecurityServerHttpHeadersWriter implements Ser
 		updateDelegate();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.
-	 * springframework.http.HttpHeaders)
-	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
 		return isSecure(exchange) ? this.delegate.writeHttpHeaders(exchange) : Mono.empty();

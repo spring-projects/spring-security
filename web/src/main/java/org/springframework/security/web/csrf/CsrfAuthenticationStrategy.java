@@ -44,14 +44,6 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 		this.csrfTokenRepository = csrfTokenRepository;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.authentication.session.
-	 * SessionAuthenticationStrategy
-	 * #onAuthentication(org.springframework.security.core.Authentication,
-	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {

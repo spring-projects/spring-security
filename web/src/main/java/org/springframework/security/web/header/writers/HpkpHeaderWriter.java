@@ -171,12 +171,6 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 		this(DEFAULT_MAX_AGE_SECONDS);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax
-	 * .servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (this.requestMatcher.matches(request)) {

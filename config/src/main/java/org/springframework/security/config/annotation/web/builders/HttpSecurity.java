@@ -2525,26 +2525,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return new DefaultSecurityFilterChain(this.requestMatcher, this.filters);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.config.annotation.web.HttpSecurityBuilder#
-	 * authenticationProvider
-	 * (org.springframework.security.authentication.AuthenticationProvider)
-	 */
 	@Override
 	public HttpSecurity authenticationProvider(AuthenticationProvider authenticationProvider) {
 		getAuthenticationRegistry().authenticationProvider(authenticationProvider);
 		return this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.config.annotation.web.HttpSecurityBuilder#
-	 * userDetailsService
-	 * (org.springframework.security.core.userdetails.UserDetailsService)
-	 */
 	@Override
 	public HttpSecurity userDetailsService(UserDetailsService userDetailsService) throws Exception {
 		getAuthenticationRegistry().userDetailsService(userDetailsService);
@@ -2555,37 +2541,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return getSharedObject(AuthenticationManagerBuilder.class);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.config.annotation.web.HttpSecurityBuilder#
-	 * addFilterAfter(javax .servlet.Filter, java.lang.Class)
-	 */
 	@Override
 	public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
 		this.comparator.registerAfter(filter.getClass(), afterFilter);
 		return addFilter(filter);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.config.annotation.web.HttpSecurityBuilder#
-	 * addFilterBefore( javax.servlet.Filter, java.lang.Class)
-	 */
 	@Override
 	public HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter) {
 		this.comparator.registerBefore(filter.getClass(), beforeFilter);
 		return addFilter(filter);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#addFilter(
-	 * javax. servlet.Filter)
-	 */
 	@Override
 	public HttpSecurity addFilter(Filter filter) {
 		Class<? extends Filter> filterClass = filter.getClass();

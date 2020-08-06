@@ -31,12 +31,6 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 
 	private ServerHttpHeadersWriter delegate = createDelegate(Mode.DENY);
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.server.HttpHeadersWriter#
-	 * writeHttpHeaders(org.springframework.web.server.ServerWebExchange)
-	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
 		return this.delegate.writeHttpHeaders(exchange);

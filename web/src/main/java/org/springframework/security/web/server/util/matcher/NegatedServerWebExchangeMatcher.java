@@ -41,12 +41,6 @@ public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher
 		this.matcher = matcher;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher#
-	 * matches(org.springframework.web.server.ServerWebExchange)
-	 */
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		return this.matcher.matches(exchange).flatMap(m -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())

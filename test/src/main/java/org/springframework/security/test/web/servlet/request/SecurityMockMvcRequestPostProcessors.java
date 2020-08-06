@@ -489,12 +489,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private CsrfRequestPostProcessor() {
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.springframework.test.web.servlet.request.RequestPostProcessor
-		 * #postProcessRequest (org.springframework.mock.web.MockHttpServletRequest)
-		 */
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
@@ -1022,12 +1016,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 				new AnonymousAuthenticationToken("key", "anonymous",
 						AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.springframework.test.web.servlet.request.RequestPostProcessor#
-		 * postProcessRequest(org.springframework.mock.web.MockHttpServletRequest)
-		 */
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			return this.delegate.postProcessRequest(request);
