@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
  * @author Rob Winch
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PayloadExchangeMatcherReactiveAuthorizationManagerTest {
+public class PayloadExchangeMatcherReactiveAuthorizationManagerTests {
 
 	@Mock
 	private ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext> authz;

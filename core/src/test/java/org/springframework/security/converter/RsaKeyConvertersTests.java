@@ -32,7 +32,7 @@ import org.springframework.core.convert.converter.Converter;
 /**
  * Tests for {@link RsaKeyConverters}
  */
-public class RsaKeyConvertersTest {
+public class RsaKeyConvertersTests {
 	private static final String PKCS8_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\n" +
 			"MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCMk7CKSTfu3QoV\n" +
 			"HoPVXxwZO+qweztd36cVWYqGOZinrOR2crWFu50AgR2CsdIH0+cqo7F4Vx7/3O8i\n" +

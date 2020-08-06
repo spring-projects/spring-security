@@ -95,16 +95,16 @@ public class FormLoginConfigTests {
 				.param("username", "user")
 				.param("password", "password")
 				.with(csrf()))
-				.andExpect(redirectedUrl(WebConfigUtilsTest.URL + "/default"));
+				.andExpect(redirectedUrl(WebConfigUtilsTests.URL + "/default"));
 
 		this.mvc.perform(post("/login")
 				.param("username", "user")
 				.param("password", "wrong")
 				.with(csrf()))
-				.andExpect(redirectedUrl(WebConfigUtilsTest.URL + "/failure"));
+				.andExpect(redirectedUrl(WebConfigUtilsTests.URL + "/failure"));
 
 		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost" + WebConfigUtilsTest.URL + "/login"));
+				.andExpect(redirectedUrl("http://localhost" + WebConfigUtilsTests.URL + "/login"));
 	}
 
 	@Test

@@ -27,7 +27,7 @@ import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgor
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
-public class BouncyCastleAesBytesEncryptorEquivalencyTest {
+public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 
 	private byte[] testData;
 	private String password;

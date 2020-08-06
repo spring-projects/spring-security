@@ -26,7 +26,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(ParserContext.class)
-public class WebConfigUtilsTest {
+public class WebConfigUtilsTests {
 	public final static String URL = "/url";
 
 	@Mock

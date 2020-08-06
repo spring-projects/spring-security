@@ -32,7 +32,7 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
  *
  * @author Nikita Konev
  */
-public class MapOAuth2AccessTokenResponseConverterTest {
+public class MapOAuth2AccessTokenResponseConverterTests {
 
 	private MapOAuth2AccessTokenResponseConverter messageConverter;
 

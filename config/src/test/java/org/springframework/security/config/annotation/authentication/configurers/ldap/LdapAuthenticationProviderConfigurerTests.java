@@ -24,7 +24,7 @@ import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LdapAuthenticationProviderConfigurerTest {
+public class LdapAuthenticationProviderConfigurerTests {
 
 	private LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder> configurer;
 
