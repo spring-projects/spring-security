@@ -9,12 +9,23 @@ For Servlet environments, refer to <<oauth2Client-webclient-servlet, WebClient f
 
 Spring Framework has built in support for setting a Bearer token.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 webClient.get()
     .headers(h -> h.setBearerAuth(token))
     ...
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+webClient.get()
+    .headers { it.setBearerAuth(token) }
+    ...
+----
+====
 
 Spring Security builds on this support to provide additional benefits:
 
@@ -30,7 +41,9 @@ Spring Security builds on this support to provide additional benefits:
 The first step is ensuring to setup the `WebClient` correctly.
 An example of setting up `WebClient` in a fully reactive environment can be found below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 WebClient webClient(ReactiveClientRegistrationRepository clientRegistrations,
@@ -47,6 +60,24 @@ WebClient webClient(ReactiveClientRegistrationRepository clientRegistrations,
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun webClient(clientRegistrations: ReactiveClientRegistrationRepository,
+              authorizedClients: ServerOAuth2AuthorizedClientRepository): WebClient {
+    val oauth = ServerOAuth2AuthorizedClientExchangeFilterFunction(clientRegistrations, authorizedClients)
+    // (optional) explicitly opt into using the oauth2Login to provide an access token implicitly
+    // oauth.setDefaultOAuth2AuthorizedClient(true)
+    // (optional) set a default ClientRegistration.registrationId
+    // oauth.setDefaultClientRegistrationId("client-registration-id")
+    return WebClient.builder()
+            .filter(oauth)
+            .build()
+}
+----
+====
+
 [[webclient-implicit]]
 == Implicit OAuth2AuthorizedClient
 
@@ -54,7 +85,9 @@ If we set `defaultOAuth2AuthorizedClient` to `true` in our setup and the user au
 Alternatively,  if we set `defaultClientRegistrationId` to a valid `ClientRegistration` id, that registration is used to provide the access token.
 This is convenient, but in environments where not all endpoints should get the access token, it is dangerous (you might provide the wrong access token to an endpoint).
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Mono<String> body = this.webClient
 		.get()
@@ -63,6 +96,17 @@ Mono<String> body = this.webClient
 		.bodyToMono(String.class);
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val body: Mono<String> = webClient
+        .get()
+        .uri(this.uri)
+        .retrieve()
+        .bodyToMono()
+----
+====
+
 [[webclient-explicit]]
 == Explicit OAuth2AuthorizedClient
 
@@ -70,7 +114,9 @@ The `OAuth2AuthorizedClient` can be explicitly provided by setting it on the req
 In the example below we resolve the `OAuth2AuthorizedClient` using Spring WebFlux or Spring MVC argument resolver support.
 However, it does not matter how the `OAuth2AuthorizedClient` is resolved.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/explicit")
 Mono<String> explicit(@RegisteredOAuth2AuthorizedClient("client-id") OAuth2AuthorizedClient authorizedClient) {
@@ -83,13 +129,30 @@ Mono<String> explicit(@RegisteredOAuth2AuthorizedClient("client-id") OAuth2Autho
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/explicit")
+fun explicit(@RegisteredOAuth2AuthorizedClient("client-id") authorizedClient: OAuth2AuthorizedClient?): Mono<String> {
+    return this.webClient
+            .get()
+            .uri(uri)
+            .attributes(oauth2AuthorizedClient(authorizedClient))
+            .retrieve()
+            .bodyToMono()
+}
+----
+====
+
 [[webclient-clientregistrationid]]
 == clientRegistrationId
 
 Alternatively, it is possible to specify the `clientRegistrationId` on the request attributes and the `WebClient` will attempt to lookup the `OAuth2AuthorizedClient`.
 If it is not found, one will automatically be acquired.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 Mono<String> body = this.webClient
 		.get()
@@ -98,3 +161,15 @@ Mono<String> body = this.webClient
 		.retrieve()
 		.bodyToMono(String.class);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val body: Mono<String> = this.webClient
+        .get()
+        .uri(uri)
+        .attributes(clientRegistrationId("client-id"))
+        .retrieve()
+        .bodyToMono()
+----
+====
