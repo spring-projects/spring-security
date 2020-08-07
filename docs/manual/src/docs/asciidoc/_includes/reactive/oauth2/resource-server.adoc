@@ -125,7 +125,10 @@ There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
 
 The first is a `SecurityWebFilterChain` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `SecurityWebFilterChain` looks like:
 
-[source,java]
+.Resource Server SecurityWebFilterChain
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -138,11 +141,31 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            jwt { }
+        }
+    }
+}
+----
+====
+
 If the application doesn't expose a `SecurityWebFilterChain` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
-[source,java]
+.Replacing SecurityWebFilterChain
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -158,19 +181,50 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize("/message/**", hasAuthority("SCOPE_message:read"))
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            jwt { }
+        }
+    }
+}
+----
+====
+
 The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
 Methods on the `oauth2ResourceServer` DSL will also override or replace auto configuration.
 
 For example, the second `@Bean` Spring Boot creates is a `ReactiveJwtDecoder`, which decodes `String` tokens into validated instances of `Jwt`:
 
-[source,java]
+.ReactiveJwtDecoder
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public ReactiveJwtDecoder jwtDecoder() {
     return ReactiveJwtDecoders.fromIssuerLocation(issuerUri);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return ReactiveJwtDecoders.fromIssuerLocation(issuerUri)
+}
+----
+====
 
 [NOTE]
 Calling `{security-api-url}org/springframework/security/oauth2/jwt/ReactiveJwtDecoders.html#fromIssuerLocation-java.lang.String-[ReactiveJwtDecoders#fromIssuerLocation]` is what invokes the Provider Configuration or Authorization Server Metadata endpoint in order to derive the JWK Set Uri.
@@ -183,7 +237,9 @@ And its configuration can be overridden using `jwkSetUri()` or replaced using `d
 
 An authorization server's JWK Set Uri can be configured <<webflux-oauth2resourceserver-jwt-jwkseturi,as a configuration property>> or it can be supplied in the DSL:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -200,6 +256,25 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            jwt {
+                jwkSetUri = "https://idp.example.com/.well-known/jwks.json"
+            }
+        }
+    }
+}
+----
+====
+
 Using `jwkSetUri()` takes precedence over any configuration property.
 
 [[webflux-oauth2resourceserver-jwt-decoder-dsl]]
@@ -207,7 +282,9 @@ Using `jwkSetUri()` takes precedence over any configuration property.
 
 More powerful than `jwkSetUri()` is `decoder()`, which will completely replace any Boot auto configuration of `JwtDecoder`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -224,6 +301,25 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            jwt {
+                jwtDecoder = myCustomDecoder()
+            }
+        }
+    }
+}
+----
+====
+
 This is handy when deeper configuration, like <<webflux-oauth2resourceserver-jwt-validation,validation>>, is necessary.
 
 [[webflux-oauth2resourceserver-decoder-bean]]
@@ -231,13 +327,25 @@ This is handy when deeper configuration, like <<webflux-oauth2resourceserver-jwt
 
 Or, exposing a `ReactiveJwtDecoder` `@Bean` has the same effect as `decoder()`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public ReactiveJwtDecoder jwtDecoder() {
     return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return ReactiveJwtDecoders.fromIssuerLocation(issuerUri)
+}
+----
+====
 
 [[webflux-oauth2resourceserver-jwt-decoder-algorithm]]
 == Configuring Trusted Algorithms
@@ -267,7 +375,9 @@ spring:
 
 For greater power, though, we can use a builder that ships with `NimbusReactiveJwtDecoder`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
@@ -276,9 +386,22 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithm(RS512).build()
+}
+----
+====
+
 Calling `jwsAlgorithm` more than once will configure `NimbusReactiveJwtDecoder` to trust more than one algorithm, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
@@ -287,9 +410,22 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build()
+}
+----
+====
+
 Or, you can call `jwsAlgorithms`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
@@ -300,6 +436,21 @@ ReactiveJwtDecoder jwtDecoder() {
             }).build();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithms {
+                it.add(RS512)
+                it.add(ES512)
+            }
+            .build()
+}
+----
+====
 
 [[webflux-oauth2resourceserver-jwt-decoder-public-key]]
 === Trusting a Single Asymmetric Key
@@ -325,7 +476,10 @@ spring:
 
 Or, to allow for a more sophisticated lookup, you can post-process the `RsaKeyConversionServicePostProcessor`:
 
-[source,java]
+.BeanFactoryPostProcessor
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 BeanFactoryPostProcessor conversionServiceCustomizer() {
@@ -335,6 +489,19 @@ BeanFactoryPostProcessor conversionServiceCustomizer() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun conversionServiceCustomizer(): BeanFactoryPostProcessor {
+    return BeanFactoryPostProcessor { beanFactory: ConfigurableListableBeanFactory ->
+        beanFactory.getBean<RsaKeyConversionServicePostProcessor>()
+                .setResourceLoader(CustomResourceLoader())
+    }
+}
+----
+====
+
 Specify your key's location:
 
 ```yaml
@@ -343,22 +510,46 @@ key.location: hfds://my-key.pub
 
 And then autowire the value:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Value("${key.location}")
 RSAPublicKey key;
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Value("\${key.location}")
+val key: RSAPublicKey? = null
+----
+====
 
 [[webflux-oauth2resourceserver-jwt-decoder-public-key-builder]]
 ==== Using a Builder
 
 To wire an `RSAPublicKey` directly, you can simply use the appropriate `NimbusReactiveJwtDecoder` builder, like so:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @Bean
 public ReactiveJwtDecoder jwtDecoder() {
     return NimbusReactiveJwtDecoder.withPublicKey(this.key).build();
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return NimbusReactiveJwtDecoder.withPublicKey(key).build()
+}
+----
+====
 
 [[webflux-oauth2resourceserver-jwt-decoder-secret-key]]
 === Trusting a Single Symmetric Key
@@ -366,13 +557,25 @@ public ReactiveJwtDecoder jwtDecoder() {
 Using a single symmetric key is also simple.
 You can simply load in your `SecretKey` and use the appropriate `NimbusReactiveJwtDecoder` builder, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public ReactiveJwtDecoder jwtDecoder() {
     return NimbusReactiveJwtDecoder.withSecretKey(this.key).build();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return NimbusReactiveJwtDecoder.withSecretKey(this.key).build()
+}
+----
+====
 
 [[webflux-oauth2resourceserver-jwt-authorization]]
 === Configuring Authorization
@@ -385,7 +588,9 @@ When this is the case, Resource Server will attempt to coerce these scopes into 
 
 This means that to protect an endpoint or method with a scope derived from a JWT, the corresponding expressions should include this prefix:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -400,13 +605,42 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
+            authorize("/messages/**", hasAuthority("SCOPE_messages"))
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            jwt { }
+        }
+    }
+}
+----
+====
+
 Or similarly with method security:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public Flux<Message> getMessages(...) {}
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("hasAuthority('SCOPE_messages')")
+fun getMessages(): Flux<Message> { }
+----
+====
 
 [[webflux-oauth2resourceserver-jwt-authorization-extraction]]
 ==== Extracting Authorities Manually
@@ -417,7 +651,9 @@ Or, at other times, the resource server may need to adapt the attribute or a com
 
 To this end, the DSL exposes `jwtAuthenticationConverter()`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -442,12 +678,39 @@ Converter<Jwt, Mono<AbstractAuthenticationToken>> grantedAuthoritiesExtractor() 
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            jwt {
+                jwtAuthenticationConverter = grantedAuthoritiesExtractor()
+            }
+        }
+    }
+}
+
+fun grantedAuthoritiesExtractor(): Converter<Jwt, Mono<AbstractAuthenticationToken>> {
+    val jwtAuthenticationConverter = JwtAuthenticationConverter()
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(GrantedAuthoritiesExtractor())
+    return ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter)
+}
+----
+====
+
 which is responsible for converting a `Jwt` into an `Authentication`.
 As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
 
 That final converter might be something like `GrantedAuthoritiesExtractor` below:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 static class GrantedAuthoritiesExtractor
         implements Converter<Jwt, Collection<GrantedAuthority>> {
@@ -464,9 +727,26 @@ static class GrantedAuthoritiesExtractor
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+internal class GrantedAuthoritiesExtractor : Converter<Jwt, Collection<GrantedAuthority>> {
+    override fun convert(jwt: Jwt): Collection<GrantedAuthority> {
+        val authorities: List<Any> = jwt.claims
+                .getOrDefault("mycustomclaim", emptyList<Any>()) as List<Any>
+        return authorities
+                .map { it.toString() }
+                .map { SimpleGrantedAuthority(it) }
+    }
+}
+----
+====
+
 For more flexibility, the DSL supports entirely replacing the converter with any class that implements `Converter<Jwt, Mono<AbstractAuthenticationToken>>`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 static class CustomAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
     public AbstractAuthenticationToken convert(Jwt jwt) {
@@ -474,6 +754,17 @@ static class CustomAuthenticationConverter implements Converter<Jwt, Mono<Abstra
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+internal class CustomAuthenticationConverter : Converter<Jwt, Mono<AbstractAuthenticationToken>> {
+    override fun convert(jwt: Jwt): Mono<AbstractAuthenticationToken> {
+        return Mono.just(jwt).map(this::doConversion)
+    }
+}
+----
+====
 
 [[webflux-oauth2resourceserver-jwt-validation]]
 === Configuring Validation
@@ -492,7 +783,9 @@ This can cause some implementation heartburn as the number of collaborating serv
 
 Resource Server uses `JwtTimestampValidator` to verify a token's validity window, and it can be configured with a `clockSkew` to alleviate the above problem:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
@@ -509,6 +802,21 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    val jwtDecoder = ReactiveJwtDecoders.fromIssuerLocation(issuerUri) as NimbusReactiveJwtDecoder
+    val withClockSkew: OAuth2TokenValidator<Jwt> = DelegatingOAuth2TokenValidator(
+            JwtTimestampValidator(Duration.ofSeconds(60)),
+            JwtIssuerValidator(issuerUri))
+    jwtDecoder.setJwtValidator(withClockSkew)
+    return jwtDecoder
+}
+----
+====
+
 [NOTE]
 By default, Resource Server configures a clock skew of 30 seconds.
 
@@ -517,7 +825,9 @@ By default, Resource Server configures a clock skew of 30 seconds.
 
 Adding a check for the `aud` claim is simple with the `OAuth2TokenValidator` API:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
     OAuth2Error error = new OAuth2Error("invalid_token", "The required audience is missing", null);
@@ -532,9 +842,27 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class AudienceValidator : OAuth2TokenValidator<Jwt> {
+    var error: OAuth2Error = OAuth2Error("invalid_token", "The required audience is missing", null)
+    override fun validate(jwt: Jwt): OAuth2TokenValidatorResult {
+        return if (jwt.audience.contains("messaging")) {
+            OAuth2TokenValidatorResult.success()
+        } else {
+            OAuth2TokenValidatorResult.failure(error)
+        }
+    }
+}
+----
+====
+
 Then, to add into a resource server, it's a matter of specifying the `ReactiveJwtDecoder` instance:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
@@ -550,6 +878,22 @@ ReactiveJwtDecoder jwtDecoder() {
     return jwtDecoder;
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    val jwtDecoder = ReactiveJwtDecoders.fromIssuerLocation(issuerUri) as NimbusReactiveJwtDecoder
+    val audienceValidator: OAuth2TokenValidator<Jwt> = AudienceValidator()
+    val withIssuer: OAuth2TokenValidator<Jwt> = JwtValidators.createDefaultWithIssuer(issuerUri)
+    val withAudience: OAuth2TokenValidator<Jwt> = DelegatingOAuth2TokenValidator(withIssuer, audienceValidator)
+    jwtDecoder.setJwtValidator(withAudience)
+    return jwtDecoder
+}
+----
+====
+
 [[webflux-oauth2resourceserver-opaque-minimaldependencies]]
 === Minimal Dependencies for Introspection
 As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`. 
@@ -630,7 +974,9 @@ Once a token is authenticated, an instance of `BearerTokenAuthentication` is set
 
 This means that it's available in `@Controller` methods when using `@EnableWebFlux` in your configuration:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/foo")
 public Mono<String> foo(BearerTokenAuthentication authentication) {
@@ -638,9 +984,21 @@ public Mono<String> foo(BearerTokenAuthentication authentication) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/foo")
+fun foo(authentication: BearerTokenAuthentication): Mono<String> {
+    return Mono.just(authentication.tokenAttributes["sub"].toString() + " is the subject")
+}
+----
+====
+
 Since `BearerTokenAuthentication` holds an `OAuth2AuthenticatedPrincipal`, that also means that it's available to controller methods, too:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @GetMapping("/foo")
 public Mono<String> foo(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal) {
@@ -648,18 +1006,41 @@ public Mono<String> foo(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal pr
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/foo")
+fun foo(@AuthenticationPrincipal principal: OAuth2AuthenticatedPrincipal): Mono<String> {
+    return Mono.just(principal.getAttribute<Any>("sub").toString() + " is the subject")
+}
+----
+====
+
 ==== Looking Up Attributes Via SpEL
 
 Of course, this also means that attributes can be accessed via SpEL.
 
 For example, if using `@EnableReactiveMethodSecurity` so that you can use `@PreAuthorize` annotations, you can do:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @PreAuthorize("principal?.attributes['sub'] == 'foo'")
 public Mono<String> forFoosEyesOnly() {
     return Mono.just("foo");
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("principal.attributes['sub'] == 'foo'")
+fun forFoosEyesOnly(): Mono<String> {
+    return Mono.just("foo")
+}
+----
+====
 
 [[webflux-oauth2resourceserver-opaque-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
@@ -669,7 +1050,9 @@ There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
 The first is a `SecurityWebFilterChain` that configures the app as a resource server.
 When use Opaque Token, this `SecurityWebFilterChain` looks like:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
@@ -682,11 +1065,31 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            opaqueToken { }
+        }
+    }
+}
+----
+====
+
 If the application doesn't expose a `SecurityWebFilterChain` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
-[source,java]
+.Replacing SecurityWebFilterChain
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
 public class MyCustomSecurityConfiguration {
@@ -707,19 +1110,51 @@ public class MyCustomSecurityConfiguration {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize("/messages/**", hasAuthority("SCOPE_message:read"))
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            opaqueToken {
+                introspector = myIntrospector()
+            }
+        }
+    }
+}
+----
+====
+
 The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
 Methods on the `oauth2ResourceServer` DSL will also override or replace auto configuration.
 
 For example, the second `@Bean` Spring Boot creates is a `ReactiveOpaqueTokenIntrospector`, which decodes `String` tokens into validated instances of `OAuth2AuthenticatedPrincipal`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public ReactiveOpaqueTokenIntrospector introspector() {
     return new NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): ReactiveOpaqueTokenIntrospector {
+    return NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
+}
+----
+====
 
 If the application doesn't expose a `ReactiveOpaqueTokenIntrospector` bean, then Spring Boot will expose the above default one.
 
@@ -730,7 +1165,9 @@ And its configuration can be overridden using `introspectionUri()` and `introspe
 
 An authorization server's Introspection Uri can be configured <<webflux-oauth2resourceserver-opaque-introspectionuri,as a configuration property>> or it can be supplied in the DSL:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
 public class DirectlyConfiguredIntrospectionUri {
@@ -751,6 +1188,26 @@ public class DirectlyConfiguredIntrospectionUri {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            opaqueToken {
+                introspectionUri = "https://idp.example.com/introspect"
+                introspectionClientCredentials("client", "secret")
+            }
+        }
+    }
+}
+----
+====
+
 Using `introspectionUri()` takes precedence over any configuration property.
 
 [[webflux-oauth2resourceserver-opaque-introspector-dsl]]
@@ -758,7 +1215,9 @@ Using `introspectionUri()` takes precedence over any configuration property.
 
 More powerful than `introspectionUri()` is `introspector()`, which will completely replace any Boot auto configuration of `ReactiveOpaqueTokenIntrospector`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
 public class DirectlyConfiguredIntrospector {
@@ -778,6 +1237,25 @@ public class DirectlyConfiguredIntrospector {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            opaqueToken {
+                introspector = myCustomIntrospector()
+            }
+        }
+    }
+}
+----
+====
+
 This is handy when deeper configuration, like <<webflux-oauth2resourceserver-opaque-authorization-extraction,authority mapping>>or <<webflux-oauth2resourceserver-opaque-jwt-introspector,JWT revocation>> is necessary.
 
 [[webflux-oauth2resourceserver-opaque-introspector-bean]]
@@ -785,13 +1263,25 @@ This is handy when deeper configuration, like <<webflux-oauth2resourceserver-opa
 
 Or, exposing a `ReactiveOpaqueTokenIntrospector` `@Bean` has the same effect as `introspector()`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public ReactiveOpaqueTokenIntrospector introspector() {
     return new NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): ReactiveOpaqueTokenIntrospector {
+    return NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
+}
+----
+====
 
 [[webflux-oauth2resourceserver-opaque-authorization]]
 === Configuring Authorization
@@ -804,7 +1294,10 @@ When this is the case, Resource Server will attempt to coerce these scopes into 
 
 This means that to protect an endpoint or method with a scope derived from an Opaque Token, the corresponding expressions should include this prefix:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @EnableWebFluxSecurity
 public class MappedAuthorities {
     @Bean
@@ -819,14 +1312,44 @@ public class MappedAuthorities {
         return http.build();
     }
 }
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
+            authorize("/messages/**", hasAuthority("SCOPE_messages"))
+            authorize(anyExchange, authenticated)
+        }
+        oauth2ResourceServer {
+            opaqueToken { }
+        }
+    }
+}
+----
+====
 
 Or similarly with method security:
 
-```java
+====
+.Java
+[source,java,role="primary"]
+----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public Flux<Message> getMessages(...) {}
-```
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("hasAuthority('SCOPE_messages')")
+fun getMessages(): Flux<Message> { }
+----
+====
 
 [[webflux-oauth2resourceserver-opaque-authorization-extraction]]
 ==== Extracting Authorities Manually
@@ -847,7 +1370,9 @@ Then Resource Server would generate an `Authentication` with two authorities, on
 
 This can, of course, be customized using a custom `ReactiveOpaqueTokenIntrospector` that takes a look at the attribute set and converts in its own way:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class CustomAuthoritiesOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
     private ReactiveOpaqueTokenIntrospector delegate =
@@ -868,15 +1393,49 @@ public class CustomAuthoritiesOpaqueTokenIntrospector implements ReactiveOpaqueT
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class CustomAuthoritiesOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
+    private val delegate: ReactiveOpaqueTokenIntrospector = NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    override fun introspect(token: String): Mono<OAuth2AuthenticatedPrincipal> {
+        return delegate.introspect(token)
+                .map { principal: OAuth2AuthenticatedPrincipal ->
+                    DefaultOAuth2AuthenticatedPrincipal(
+                            principal.name, principal.attributes, extractAuthorities(principal))
+                }
+    }
+
+    private fun extractAuthorities(principal: OAuth2AuthenticatedPrincipal): Collection<GrantedAuthority> {
+        val scopes = principal.getAttribute<List<String>>(OAuth2IntrospectionClaimNames.SCOPE)
+        return scopes
+                .map { SimpleGrantedAuthority(it) }
+    }
+}
+----
+====
+
 Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public ReactiveOpaqueTokenIntrospector introspector() {
     return new CustomAuthoritiesOpaqueTokenIntrospector();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): ReactiveOpaqueTokenIntrospector {
+    return CustomAuthoritiesOpaqueTokenIntrospector()
+}
+----
+====
 
 [[webflux-oauth2resourceserver-opaque-jwt-introspector]]
 === Using Introspection with JWTs
@@ -908,7 +1467,9 @@ Now what?
 
 In this case, you can create a custom `ReactiveOpaqueTokenIntrospector` that still hits the endpoint, but then updates the returned principal to have the JWTs claims as the attributes:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class JwtOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
 	private ReactiveOpaqueTokenIntrospector delegate =
@@ -933,15 +1494,52 @@ public class JwtOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospect
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class JwtOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
+    private val delegate: ReactiveOpaqueTokenIntrospector = NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val jwtDecoder: ReactiveJwtDecoder = NimbusReactiveJwtDecoder(ParseOnlyJWTProcessor())
+    override fun introspect(token: String): Mono<OAuth2AuthenticatedPrincipal> {
+        return delegate.introspect(token)
+                .flatMap { jwtDecoder.decode(token) }
+                .map { jwt: Jwt -> DefaultOAuth2AuthenticatedPrincipal(jwt.claims, NO_AUTHORITIES) }
+    }
+
+    private class ParseOnlyJWTProcessor : Converter<JWT, Mono<JWTClaimsSet>> {
+        override fun convert(jwt: JWT): Mono<JWTClaimsSet> {
+            return try {
+                Mono.just(jwt.jwtClaimsSet)
+            } catch (e: Exception) {
+                Mono.error(e)
+            }
+        }
+    }
+}
+----
+====
+
 Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public ReactiveOpaqueTokenIntrospector introspector() {
     return new JwtOpaqueTokenIntropsector();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): ReactiveOpaqueTokenIntrospector {
+    return JwtOpaqueTokenIntrospector()
+}
+----
+====
 
 [[webflux-oauth2resourceserver-opaque-userinfo]]
 === Calling a `/userinfo` Endpoint
@@ -957,7 +1555,9 @@ This implementation below does three things:
 * Looks up the appropriate client registration associated with the `/userinfo` endpoint
 * Invokes and returns the response from the `/userinfo` endpoint
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
 	private final ReactiveOpaqueTokenIntrospector delegate =
@@ -985,10 +1585,37 @@ public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntro
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class UserInfoOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
+    private val delegate: ReactiveOpaqueTokenIntrospector = NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val oauth2UserService: ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> = DefaultReactiveOAuth2UserService()
+    private val repository: ReactiveClientRegistrationRepository? = null
+
+    // ... constructor
+    override fun introspect(token: String?): Mono<OAuth2AuthenticatedPrincipal> {
+        return Mono.zip<OAuth2AuthenticatedPrincipal, ClientRegistration>(delegate.introspect(token), repository!!.findByRegistrationId("registration-id"))
+                .map<OAuth2UserRequest> { t: Tuple2<OAuth2AuthenticatedPrincipal, ClientRegistration> ->
+                    val authorized = t.t1
+                    val clientRegistration = t.t2
+                    val issuedAt: Instant? = authorized.getAttribute(ISSUED_AT)
+                    val expiresAt: Instant? = authorized.getAttribute(OAuth2IntrospectionClaimNames.EXPIRES_AT)
+                    val accessToken = OAuth2AccessToken(BEARER, token, issuedAt, expiresAt)
+                    OAuth2UserRequest(clientRegistration, accessToken)
+                }
+                .flatMap { userRequest: OAuth2UserRequest -> oauth2UserService.loadUser(userRequest) }
+    }
+}
+----
+====
+
 If you aren't using `spring-security-oauth2-client`, it's still quite simple.
 You will simply need to invoke the `/userinfo` with your own instance of `WebClient`:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
     private final ReactiveOpaqueTokenIntrospector delegate =
@@ -1003,15 +1630,42 @@ public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntro
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class UserInfoOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
+    private val delegate: ReactiveOpaqueTokenIntrospector = NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val rest: WebClient = WebClient.create()
+
+    override fun introspect(token: String): Mono<OAuth2AuthenticatedPrincipal> {
+        return delegate.introspect(token)
+                .map(this::makeUserInfoRequest)
+    }
+}
+----
+====
+
 Either way, having created your `ReactiveOpaqueTokenIntrospector`, you should publish it as a `@Bean` to override the defaults:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 ReactiveOpaqueTokenIntrospector introspector() {
-    return new UserInfoOpaqueTokenIntrospector(...);
+    return new UserInfoOpaqueTokenIntrospector();
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(): ReactiveOpaqueTokenIntrospector {
+    return UserInfoOpaqueTokenIntrospector()
+}
+----
+====
 
 [[webflux-oauth2resourceserver-multitenancy]]
 == Multi-tenancy
@@ -1030,7 +1684,9 @@ In each case, there are two things that need to be done and trade-offs associate
 
 One way to differentiate tenants is by the issuer claim. Since the issuer claim accompanies signed JWTs, this can be done with the `JwtIssuerReactiveAuthenticationManagerResolver`, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver
     ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
@@ -1044,6 +1700,22 @@ http
     );
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val customAuthenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
+
+return http {
+    authorizeExchange {
+        authorize(anyExchange, authenticated)
+    }
+    oauth2ResourceServer {
+        authenticationManagerResolver = customAuthenticationManagerResolver
+    }
+}
+----
+====
+
 This is nice because the issuer endpoints are loaded lazily.
 In fact, the corresponding `JwtReactiveAuthenticationManager` is instantiated only when the first request with the corresponding issuer is sent.
 This allows for an application startup that is independent from those authorization servers being up and available.
@@ -1053,7 +1725,9 @@ This allows for an application startup that is independent from those authorizat
 Of course, you may not want to restart the application each time a new tenant is added.
 In this case, you can configure the `JwtIssuerReactiveAuthenticationManagerResolver` with a repository of `ReactiveAuthenticationManager` instances, which you can edit at runtime, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 private Mono<ReactiveAuthenticationManager> addManager(
 		Map<String, ReactiveAuthenticationManager> authenticationManagers, String issuer) {
@@ -1077,6 +1751,31 @@ http
         .authenticationManagerResolver(authenticationManagerResolver)
     );
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+private fun addManager(
+        authenticationManagers: MutableMap<String, ReactiveAuthenticationManager>, issuer: String): Mono<JwtReactiveAuthenticationManager> {
+    return Mono.fromCallable { ReactiveJwtDecoders.fromIssuerLocation(issuer) }
+            .subscribeOn(Schedulers.boundedElastic())
+            .map { jwtDecoder: ReactiveJwtDecoder -> JwtReactiveAuthenticationManager(jwtDecoder) }
+            .doOnNext { authenticationManager: JwtReactiveAuthenticationManager -> authenticationManagers[issuer] = authenticationManager }
+}
+
+// ...
+
+var customAuthenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver(authenticationManagers::get)
+return http {
+    authorizeExchange {
+        authorize(anyExchange, authenticated)
+    }
+    oauth2ResourceServer {
+        authenticationManagerResolver = customAuthenticationManagerResolver
+    }
+}
+----
+====
 
 In this case, you construct `JwtIssuerReactiveAuthenticationManagerResolver` with a strategy for obtaining the `ReactiveAuthenticationManager` given the issuer.
 This approach allows us to add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
@@ -1105,6 +1804,18 @@ http
         .bearerTokenConverter(converter)
     );
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val converter = ServerBearerTokenAuthenticationConverter()
+converter.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION)
+return http {
+    oauth2ResourceServer {
+        bearerTokenConverter = converter
+    }
+}
+----
 ====
 
 == Bearer Token Propagation
@@ -1112,7 +1823,9 @@ http
 Now that you're in possession of a bearer token, it might be handy to pass that to downstream services.
 This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServerBearerExchangeFilterFunction.html[ServerBearerExchangeFilterFunction]`, which you can see in the following example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public WebClient rest() {
@@ -1122,12 +1835,26 @@ public WebClient rest() {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun rest(): WebClient {
+    return WebClient.builder()
+            .filter(ServerBearerExchangeFilterFunction())
+            .build()
+}
+----
+====
+
 When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
 Then, it will propagate that token in the `Authorization` header.
 
 For example:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 this.rest.get()
         .uri("https://other-service.example.com/endpoint")
@@ -1135,11 +1862,23 @@ this.rest.get()
         .bodyToMono(String.class)
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .retrieve()
+        .bodyToMono<String>()
+----
+====
+
 Will invoke the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
 In places where you need to override this behavior, it's a simple matter of supplying the header yourself, like so:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 this.rest.get()
         .uri("https://other-service.example.com/endpoint")
@@ -1147,6 +1886,17 @@ this.rest.get()
         .retrieve()
         .bodyToMono(String.class)
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .headers { it.setBearerAuth(overridingToken) }
+        .retrieve()
+        .bodyToMono<String>()
+----
+====
 
 In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
 
