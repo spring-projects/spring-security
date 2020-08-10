@@ -21,9 +21,9 @@ import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.metadata.AuthMetadataCodec;
-import io.rsocket.metadata.security.WellKnownAuthType;
+import io.rsocket.metadata.WellKnownAuthType;
+import io.rsocket.metadata.WellKnownMimeType;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.codec.ByteArrayDecoder;
