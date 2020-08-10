@@ -19,8 +19,8 @@ package org.springframework.security.rsocket.authentication;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.rsocket.metadata.WellKnownMimeType;
-import io.rsocket.metadata.security.AuthMetadataFlyweight;
-import io.rsocket.metadata.security.WellKnownAuthType;
+import io.rsocket.metadata.AuthMetadataCodec;
+import io.rsocket.metadata.WellKnownAuthType;
 import org.springframework.core.codec.ByteArrayDecoder;
 import org.springframework.messaging.rsocket.DefaultMetadataExtractor;
 import org.springframework.messaging.rsocket.MetadataExtractor;
@@ -68,10 +68,10 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 			return null;
 		}
 		ByteBuf rawAuthentication = ByteBufAllocator.DEFAULT.buffer().writeBytes(authenticationMetadata);
-		if (!AuthMetadataFlyweight.isWellKnownAuthType(rawAuthentication)) {
+		if (!AuthMetadataCodec.isWellKnownAuthType(rawAuthentication)) {
 			return null;
 		}
-		WellKnownAuthType wellKnownAuthType = AuthMetadataFlyweight.decodeWellKnownAuthType(rawAuthentication);
+		WellKnownAuthType wellKnownAuthType = AuthMetadataCodec.readWellKnownAuthType(rawAuthentication);
 		if (WellKnownAuthType.SIMPLE.equals(wellKnownAuthType)) {
 			return simple(rawAuthentication);
 		} else if (WellKnownAuthType.BEARER.equals(wellKnownAuthType)) {
@@ -81,15 +81,15 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 	}
 
 	private Authentication simple(ByteBuf rawAuthentication) {
-		ByteBuf rawUsername = AuthMetadataFlyweight.decodeUsername(rawAuthentication);
+		ByteBuf rawUsername = AuthMetadataCodec.readUsername(rawAuthentication);
 		String username = rawUsername.toString(StandardCharsets.UTF_8);
-		ByteBuf rawPassword = AuthMetadataFlyweight.decodePassword(rawAuthentication);
+		ByteBuf rawPassword = AuthMetadataCodec.readPassword(rawAuthentication);
 		String password = rawPassword.toString(StandardCharsets.UTF_8);
 		return new UsernamePasswordAuthenticationToken(username, password);
 	}
 
 	private Authentication bearer(ByteBuf rawAuthentication) {
-		char[] rawToken = AuthMetadataFlyweight.decodeBearerTokenAsCharArray(rawAuthentication);
+		char[] rawToken = AuthMetadataCodec.readBearerTokenAsCharArray(rawAuthentication);
 		String token = new String(rawToken);
 		return new BearerTokenAuthenticationToken(token);
 	}

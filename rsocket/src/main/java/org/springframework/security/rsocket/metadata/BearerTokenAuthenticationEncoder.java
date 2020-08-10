@@ -18,7 +18,7 @@ package org.springframework.security.rsocket.metadata;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.rsocket.metadata.security.AuthMetadataFlyweight;
+import io.rsocket.metadata.AuthMetadataCodec;
 import org.reactivestreams.Publisher;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.codec.AbstractEncoder;
@@ -64,7 +64,7 @@ public class BearerTokenAuthenticationEncoder extends
 		String token = credentials.getToken();
 		NettyDataBufferFactory factory = nettyFactory(bufferFactory);
 		ByteBufAllocator allocator = factory.getByteBufAllocator();
-		ByteBuf simpleAuthentication = AuthMetadataFlyweight
+		ByteBuf simpleAuthentication = AuthMetadataCodec
 				.encodeBearerMetadata(allocator, token.toCharArray());
 		return factory.wrap(simpleAuthentication);
 	}

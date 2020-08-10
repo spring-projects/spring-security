@@ -19,7 +19,7 @@ package org.springframework.security.rsocket.authentication;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.CompositeByteBuf;
 import io.rsocket.Payload;
-import io.rsocket.metadata.CompositeMetadataFlyweight;
+import io.rsocket.metadata.CompositeMetadataCodec;
 import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.util.DefaultPayload;
 import org.junit.Test;
@@ -132,7 +132,7 @@ public class AuthenticationPayloadInterceptorTests {
 
 		ByteBufAllocator allocator = ByteBufAllocator.DEFAULT;
 		CompositeByteBuf metadata = allocator.compositeBuffer();
-		CompositeMetadataFlyweight.encodeAndAddMetadata(
+		CompositeMetadataCodec.encodeAndAddMetadata(
 				metadata, allocator, mimeType.toString(), NettyDataBufferFactory.toByteBuf(dataBuffer));
 
 		return DefaultPayload.create(allocator.buffer(),

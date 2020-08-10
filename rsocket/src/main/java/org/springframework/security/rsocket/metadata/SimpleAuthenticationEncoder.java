@@ -18,7 +18,7 @@ package org.springframework.security.rsocket.metadata;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.rsocket.metadata.security.AuthMetadataFlyweight;
+import io.rsocket.metadata.AuthMetadataCodec;
 import org.reactivestreams.Publisher;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.codec.AbstractEncoder;
@@ -67,7 +67,7 @@ public class SimpleAuthenticationEncoder extends
 		String password = credentials.getPassword();
 		NettyDataBufferFactory factory = nettyFactory(bufferFactory);
 		ByteBufAllocator allocator = factory.getByteBufAllocator();
-		ByteBuf simpleAuthentication = AuthMetadataFlyweight
+		ByteBuf simpleAuthentication = AuthMetadataCodec
 				.encodeSimpleMetadata(allocator, username.toCharArray(), password.toCharArray());
 		return factory.wrap(simpleAuthentication);
 	}

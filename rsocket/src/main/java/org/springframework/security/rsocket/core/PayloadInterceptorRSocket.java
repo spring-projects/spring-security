@@ -18,7 +18,6 @@ package org.springframework.security.rsocket.core;
 
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
-import io.rsocket.ResponderRSocket;
 import io.rsocket.util.RSocketProxy;
 import org.reactivestreams.Publisher;
 import org.springframework.security.rsocket.api.PayloadExchangeType;
@@ -31,11 +30,11 @@ import reactor.util.context.Context;
 import java.util.List;
 
 /**
- * Combines the {@link PayloadInterceptor} with a {@link ResponderRSocket}
+ * Combines the {@link PayloadInterceptor} with an {@link RSocketProxy}
  * @author Rob Winch
  * @since 5.2
  */
-class PayloadInterceptorRSocket extends RSocketProxy implements ResponderRSocket {
+class PayloadInterceptorRSocket extends RSocketProxy {
 	private final List<PayloadInterceptor> interceptors;
 
 	private final MimeType metadataMimeType;
